@@ -32,8 +32,10 @@ inline fun <reified T : Throwable> assertThrows(block: () -> Unit): ThrowableSub
     return assertThat(e)
 }
 
-inline fun <T : Throwable> assertThrows(exceptionClass: KClass<T>, block: () -> Unit):
-    ThrowableSubject<T> {
+inline fun <T : Throwable> assertThrows(
+    exceptionClass: KClass<T>,
+    block: () -> Unit
+): ThrowableSubject<T> {
     val e = assertFailsWith<T>(exceptionClass = exceptionClass, block = block)
     return assertThat(e)
 }

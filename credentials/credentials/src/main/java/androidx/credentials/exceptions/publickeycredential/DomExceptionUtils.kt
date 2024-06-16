@@ -49,9 +49,7 @@ import androidx.credentials.exceptions.domerrors.VersionError
 import androidx.credentials.exceptions.domerrors.WrongDocumentError
 import androidx.credentials.internal.FrameworkClassParsingException
 
-/**
- * An internal class that parses dom exceptions originating from providers.
- */
+/** An internal class that parses dom exceptions originating from providers. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class DomExceptionUtils {
     companion object {
@@ -59,8 +57,12 @@ internal class DomExceptionUtils {
         const val SEPARATOR = "/"
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal inline fun <reified T>
-            generateDomException(type: String, prefix: String, msg: String?, t: T): T {
+        internal inline fun <reified T> generateDomException(
+            type: String,
+            prefix: String,
+            msg: String?,
+            t: T
+        ): T {
 
             return when (type) {
                 prefix + AbortError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_ERROR ->
@@ -73,47 +75,49 @@ internal class DomExceptionUtils {
                     generateException(DataError(), msg, t)
                 prefix + EncodingError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ENCODING_ERROR ->
                     generateException(EncodingError(), msg, t)
-                prefix + HierarchyRequestError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_HIERARCHY_REQUEST_ERROR ->
+                prefix +
+                    HierarchyRequestError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_HIERARCHY_REQUEST_ERROR ->
                     generateException(HierarchyRequestError(), msg, t)
-                prefix + InUseAttributeError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR ->
+                prefix +
+                    InUseAttributeError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR ->
                     generateException(InUseAttributeError(), msg, t)
-                prefix + InvalidCharacterError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR ->
+                prefix +
+                    InvalidCharacterError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR ->
                     generateException(InvalidCharacterError(), msg, t)
-                prefix + InvalidModificationError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_MODIFICATION_ERROR ->
+                prefix +
+                    InvalidModificationError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_MODIFICATION_ERROR ->
                     generateException(InvalidModificationError(), msg, t)
-                prefix + InvalidNodeTypeError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_NODE_TYPE_ERROR ->
+                prefix +
+                    InvalidNodeTypeError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_NODE_TYPE_ERROR ->
                     generateException(InvalidNodeTypeError(), msg, t)
-                prefix + InvalidStateError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_STATE_ERROR ->
+                prefix + InvalidStateError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_STATE_ERROR ->
                     generateException(InvalidStateError(), msg, t)
                 prefix + NamespaceError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NAMESPACE_ERROR ->
                     generateException(NamespaceError(), msg, t)
                 prefix + NetworkError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NETWORK_ERROR ->
                     generateException(NetworkError(), msg, t)
-                prefix + NoModificationAllowedError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NO_MODIFICATION_ALLOWED_ERROR ->
+                prefix +
+                    NoModificationAllowedError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NO_MODIFICATION_ALLOWED_ERROR ->
                     generateException(NoModificationAllowedError(), msg, t)
                 prefix + NotAllowedError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR ->
                     generateException(NotAllowedError(), msg, t)
                 prefix + NotFoundError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_FOUND_ERROR ->
                     generateException(NotFoundError(), msg, t)
-                prefix + NotReadableError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_ERROR ->
+                prefix + NotReadableError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_ERROR ->
                     generateException(NotReadableError(), msg, t)
-                prefix + NotSupportedError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_SUPPORTED_ERROR ->
+                prefix + NotSupportedError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_SUPPORTED_ERROR ->
                     generateException(NotSupportedError(), msg, t)
                 prefix + OperationError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_OPERATION_ERROR ->
                     generateException(OperationError(), msg, t)
                 prefix + OptOutError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_OPT_OUT_ERROR ->
                     generateException(OptOutError(), msg, t)
-                prefix + QuotaExceededError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_QUOTA_EXCEEDED_ERROR ->
+                prefix +
+                    QuotaExceededError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_QUOTA_EXCEEDED_ERROR ->
                     generateException(QuotaExceededError(), msg, t)
                 prefix + ReadOnlyError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_READ_ONLY_ERROR ->
                     generateException(ReadOnlyError(), msg, t)
@@ -123,15 +127,16 @@ internal class DomExceptionUtils {
                     generateException(SyntaxError(), msg, t)
                 prefix + TimeoutError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TIMEOUT_ERROR ->
                     generateException(TimeoutError(), msg, t)
-                prefix + TransactionInactiveError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR ->
+                prefix +
+                    TransactionInactiveError
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR ->
                     generateException(TransactionInactiveError(), msg, t)
                 prefix + UnknownError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR ->
                     generateException(UnknownError(), msg, t)
                 prefix + VersionError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_VERSION_ERROR ->
                     generateException(VersionError(), msg, t)
-                prefix + WrongDocumentError
-                    .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_WRONG_DOCUMENT_ERROR ->
+                prefix +
+                    WrongDocumentError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_WRONG_DOCUMENT_ERROR ->
                     generateException(WrongDocumentError(), msg, t)
                 else -> throw FrameworkClassParsingException()
             }

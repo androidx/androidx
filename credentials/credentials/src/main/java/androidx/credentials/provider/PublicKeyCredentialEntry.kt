@@ -36,45 +36,43 @@ import java.time.Instant
 import java.util.Collections
 
 /**
- * A public key credential entry that is displayed on the account selector UI. This
- * entry denotes that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
- * is available for the user to select.
+ * A public key credential entry that is displayed on the account selector UI. This entry denotes
+ * that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] is available for the
+ * user to select.
  *
- * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
- * can then show any activity they wish to. Before finishing the activity, provider must
- * set the final [androidx.credentials.GetCredentialResponse] through the
+ * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider can
+ * then show any activity they wish to. Before finishing the activity, provider must set the final
+ * [androidx.credentials.GetCredentialResponse] through the
  * [PendingIntentHandler.setGetCredentialResponse] helper API.
  *
  * @property username the username of the account holding the public key credential
  * @property displayName the displayName of the account holding the public key credential
  * @property lastUsedTime the last used time of this entry. Note that this value will only be
- * distinguishable up to the milli second mark. If two entries have the same millisecond precision,
- * they will be considered to have been used at the same time
+ *   distinguishable up to the milli second mark. If two entries have the same millisecond
+ *   precision, they will be considered to have been used at the same time
  * @property icon the icon to be displayed with this entry on the UI, must be created using
- * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
- * the latter consumes more memory and may cause undefined behavior due to memory implications
- * on internal transactions; defaulted to a fallback public key credential icon if not provided
+ *   [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as the
+ *   latter consumes more memory and may cause undefined behavior due to memory implications on
+ *   internal transactions; defaulted to a fallback public key credential icon if not provided
  * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
- * entry, must be created with a unique request code per entry,
- * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
- * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
- * times
- * @property affiliatedDomain the user visible affiliated domain, a CharSequence
- * representation of a web domain or an app package name that the given credential in this
- * entry is associated with when it is different from the requesting entity, default null
+ *   entry, must be created with a unique request code per entry, with flag
+ *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and NOT
+ *   with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
+ * @property affiliatedDomain the user visible affiliated domain, a CharSequence representation of a
+ *   web domain or an app package name that the given credential in this entry is associated with
+ *   when it is different from the requesting entity, default null
  * @property entryGroupId an ID used for deduplication or grouping entries during display, always
- * set to [username]; for more info on this id, see [CredentialEntry]
- * @property isAutoSelectAllowedFromOption whether the [beginGetCredentialOption] request
- * for which this entry was created allows this entry to be auto-selected
- * @property hasDefaultIcon whether this entry was created without a custom icon and hence
- * contains a default icon set by the library, only to be used in Android API levels >= 28
- *
+ *   set to [username]; for more info on this id, see [CredentialEntry]
+ * @property isAutoSelectAllowedFromOption whether the [beginGetCredentialOption] request for which
+ *   this entry was created allows this entry to be auto-selected
+ * @property hasDefaultIcon whether this entry was created without a custom icon and hence contains
+ *   a default icon set by the library, only to be used in Android API levels >= 28
  * @throws IllegalArgumentException If [username] is empty
- *
  * @see CredentialEntry
  */
 @RequiresApi(26)
-class PublicKeyCredentialEntry internal constructor(
+class PublicKeyCredentialEntry
+internal constructor(
     val username: CharSequence,
     val displayName: CharSequence?,
     val typeDisplayName: CharSequence,
@@ -86,18 +84,20 @@ class PublicKeyCredentialEntry internal constructor(
     isDefaultIconPreferredAsSingleProvider: Boolean,
     entryGroupId: CharSequence? = username,
     affiliatedDomain: CharSequence? = null,
-    autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
-        beginGetPublicKeyCredentialOption.candidateQueryData
-    ),
+    autoSelectAllowedFromOption: Boolean =
+        CredentialOption.extractAutoSelectValue(
+            beginGetPublicKeyCredentialOption.candidateQueryData
+        ),
     private val isCreatedFromSlice: Boolean = false,
     private val isDefaultIconFromSlice: Boolean = false,
-) : CredentialEntry(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    beginGetPublicKeyCredentialOption,
-    entryGroupId ?: username,
-    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
-    affiliatedDomain = affiliatedDomain,
-) {
+) :
+    CredentialEntry(
+        PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+        beginGetPublicKeyCredentialOption,
+        entryGroupId ?: username,
+        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+        affiliatedDomain = affiliatedDomain,
+    ) {
     val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
 
     @get:JvmName("hasDefaultIcon")
@@ -115,33 +115,29 @@ class PublicKeyCredentialEntry internal constructor(
     }
 
     /**
-     * @constructor constructs an instance of [PublicKeyCredentialEntry]
-     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param username the username of the account holding the public key credential
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with a unique request code per entry,
-     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
-     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
-     * times
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      * @param beginGetPublicKeyCredentialOption the option from the original
-     * [BeginGetCredentialRequest], for which this credential entry is being added
+     *   [BeginGetCredentialRequest], for which this credential entry is being added
      * @param displayName the displayName of the account holding the public key credential
-     * @param lastUsedTime the last used time the credential underlying this entry was
-     * used by the user, distinguishable up to the milli second mark only such that if two
-     * entries have the same millisecond precision, they will be considered to have been used at
-     * the same time
-     * @param icon the icon to be displayed with this entry on the selector, if not set, a
-     * default icon representing a public key credential type is set by the library
-     * @param isAutoSelectAllowed whether this entry is allowed to be auto
-     * selected if it is the only one on the UI, only takes effect if the app requesting for
-     * credentials also opts for auto select
+     * @param lastUsedTime the last used time the credential underlying this entry was used by the
+     *   user, distinguishable up to the milli second mark only such that if two entries have the
+     *   same millisecond precision, they will be considered to have been used at the same time
+     * @param icon the icon to be displayed with this entry on the selector, if not set, a default
+     *   icon representing a public key credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto selected if it is the
+     *   only one on the UI, only takes effect if the app requesting for credentials also opts for
+     *   auto select
      * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
-     * default credential type icon (see the default value of [icon]) when you are the
-     * only available provider; false by default
-     *
+     *   default credential type icon (see the default value of [icon]) when you are the only
+     *   available provider; false by default
+     * @constructor constructs an instance of [PublicKeyCredentialEntry]
      * @throws NullPointerException If [context], [username], [pendingIntent], or
-     * [beginGetPublicKeyCredentialOption] is null
+     *   [beginGetPublicKeyCredentialOption] is null
      * @throws IllegalArgumentException if [username] is empty
      */
     constructor(
@@ -157,9 +153,7 @@ class PublicKeyCredentialEntry internal constructor(
     ) : this(
         username,
         displayName,
-        context.getString(
-            R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
-        ),
+        context.getString(R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL),
         pendingIntent,
         icon,
         lastUsedTime,
@@ -169,36 +163,36 @@ class PublicKeyCredentialEntry internal constructor(
     )
 
     /**
-     * @constructor constructs an instance of [PublicKeyCredentialEntry]
-     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param username the username of the account holding the public key credential
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with a unique request code per entry,
-     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
-     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
-     * times
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      * @param beginGetPublicKeyCredentialOption the option from the original
-     * [BeginGetCredentialResponse], for which this credential entry is being added
+     *   [BeginGetCredentialResponse], for which this credential entry is being added
      * @param displayName the displayName of the account holding the public key credential
-     * @param lastUsedTime the last used time the credential underlying this entry was
-     * used by the user, distinguishable up to the milli second mark only such that if two
-     * entries have the same millisecond precision, they will be considered to have been used at
-     * the same time
-     * @param icon the icon to be displayed with this entry on the selector, if not set, a
-     * default icon representing a public key credential type is set by the library
-     * @param isAutoSelectAllowed whether this entry is allowed to be auto
-     * selected if it is the only one on the UI, only takes effect if the app requesting for
-     * credentials also opts for auto select
-     *
+     * @param lastUsedTime the last used time the credential underlying this entry was used by the
+     *   user, distinguishable up to the milli second mark only such that if two entries have the
+     *   same millisecond precision, they will be considered to have been used at the same time
+     * @param icon the icon to be displayed with this entry on the selector, if not set, a default
+     *   icon representing a public key credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto selected if it is the
+     *   only one on the UI, only takes effect if the app requesting for credentials also opts for
+     *   auto select
+     * @constructor constructs an instance of [PublicKeyCredentialEntry]
      * @throws NullPointerException If [context], [username], [pendingIntent], or
-     * [beginGetPublicKeyCredentialOption] is null
+     *   [beginGetPublicKeyCredentialOption] is null
      * @throws IllegalArgumentException if [username] is empty
      */
-    @Deprecated("Use the constructor that allows setting all parameters.",
-        replaceWith = ReplaceWith("PublicKeyCredentialEntry(context, username, pendingIntent," +
-            "beginGetPublicKeyCredentialOption, displayName, lastUsedTime, icon, " +
-            "isAutoSelectAllowed, isDefaultIconPreferredAsSingleProvider)"),
+    @Deprecated(
+        "Use the constructor that allows setting all parameters.",
+        replaceWith =
+            ReplaceWith(
+                "PublicKeyCredentialEntry(context, username, pendingIntent," +
+                    "beginGetPublicKeyCredentialOption, displayName, lastUsedTime, icon, " +
+                    "isAutoSelectAllowed, isDefaultIconPreferredAsSingleProvider)"
+            ),
         level = DeprecationLevel.HIDDEN
     )
     constructor(
@@ -213,9 +207,7 @@ class PublicKeyCredentialEntry internal constructor(
     ) : this(
         username,
         displayName,
-        context.getString(
-            R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
-        ),
+        context.getString(R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL),
         pendingIntent,
         icon,
         lastUsedTime,
@@ -228,8 +220,9 @@ class PublicKeyCredentialEntry internal constructor(
     private object Api34Impl {
 
         @JvmStatic
-        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
-            PublicKeyCredentialEntry? {
+        fun fromCredentialEntry(
+            credentialEntry: android.service.credentials.CredentialEntry
+        ): PublicKeyCredentialEntry? {
             val slice = credentialEntry.slice
             return fromSlice(slice)
         }
@@ -249,9 +242,7 @@ class PublicKeyCredentialEntry internal constructor(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun toSlice(
-            entry: PublicKeyCredentialEntry
-        ): Slice {
+        fun toSlice(entry: PublicKeyCredentialEntry): Slice {
             val type = entry.type
             val title = entry.username
             val subTitle = entry.displayName
@@ -266,80 +257,74 @@ class PublicKeyCredentialEntry internal constructor(
             val isDefaultIconPreferredAsSingleProvider =
                 entry.isDefaultIconPreferredAsSingleProvider
 
-            val autoSelectAllowed = if (isAutoSelectAllowed) {
-                TRUE_STRING
-            } else {
-                FALSE_STRING
-            }
-            val isUsingDefaultIcon = if (isDefaultIconPreferredAsSingleProvider) {
-                TRUE_STRING
-            } else {
-                FALSE_STRING
-            }
-            val sliceBuilder = Slice.Builder(
-                Uri.EMPTY, SliceSpec(
-                    type, REVISION_ID
-                )
-            )
-                .addText(
-                    typeDisplayName, /*subType=*/null,
-                    listOf(SLICE_HINT_TYPE_DISPLAY_NAME)
-                )
-                .addText(
-                    title, /*subType=*/null,
-                    listOf(SLICE_HINT_TITLE)
-                )
-                .addText(
-                    subTitle, /*subType=*/null,
-                    listOf(SLICE_HINT_SUBTITLE)
-                )
-                .addText(
-                    autoSelectAllowed, /*subType=*/null,
-                    listOf(SLICE_HINT_AUTO_ALLOWED)
-                )
-                .addText(
-                    beginGetPublicKeyCredentialOption.id,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_OPTION_ID)
-                )
-                .addIcon(
-                    icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON)
-                )
-                .addText(
-                    entryGroupId, /*subTypes=*/null,
-                    listOf(SLICE_HINT_DEDUPLICATION_ID)
-                )
-                .addText(
-                    affiliatedDomain, /*subTypes=*/null,
-                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
-                )
-                .addText(
-                    isUsingDefaultIcon, /*subType=*/null,
-                    listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
-                )
+            val autoSelectAllowed =
+                if (isAutoSelectAllowed) {
+                    TRUE_STRING
+                } else {
+                    FALSE_STRING
+                }
+            val isUsingDefaultIcon =
+                if (isDefaultIconPreferredAsSingleProvider) {
+                    TRUE_STRING
+                } else {
+                    FALSE_STRING
+                }
+            val sliceBuilder =
+                Slice.Builder(Uri.EMPTY, SliceSpec(type, REVISION_ID))
+                    .addText(
+                        typeDisplayName,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_TYPE_DISPLAY_NAME)
+                    )
+                    .addText(title, /* subType= */ null, listOf(SLICE_HINT_TITLE))
+                    .addText(subTitle, /* subType= */ null, listOf(SLICE_HINT_SUBTITLE))
+                    .addText(
+                        autoSelectAllowed,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_AUTO_ALLOWED)
+                    )
+                    .addText(
+                        beginGetPublicKeyCredentialOption.id,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_OPTION_ID)
+                    )
+                    .addIcon(icon, /* subType= */ null, listOf(SLICE_HINT_ICON))
+                    .addText(
+                        entryGroupId,
+                        /*subTypes=*/ null,
+                        listOf(SLICE_HINT_DEDUPLICATION_ID)
+                    )
+                    .addText(
+                        affiliatedDomain,
+                        /*subTypes=*/ null,
+                        listOf(SLICE_HINT_AFFILIATED_DOMAIN)
+                    )
+                    .addText(
+                        isUsingDefaultIcon,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
+                    )
             try {
                 if (entry.hasDefaultIcon) {
                     sliceBuilder.addInt(
-                        /*true=*/1,
-                        /*subType=*/null,
+                        /*true=*/ 1,
+                        /*subType=*/ null,
                         listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
                     )
                 }
-            } catch (_: IllegalStateException) {
-            }
+            } catch (_: IllegalStateException) {}
 
             if (entry.isAutoSelectAllowedFromOption) {
                 sliceBuilder.addInt(
-                    /*true=*/1,
-                    /*subType=*/null,
+                    /*true=*/ 1,
+                    /*subType=*/ null,
                     listOf(SLICE_HINT_AUTO_SELECT_FROM_OPTION)
                 )
             }
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(),
-                    /*subType=*/null,
+                    /*subType=*/ null,
                     listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
                 )
             }
@@ -348,7 +333,7 @@ class PublicKeyCredentialEntry internal constructor(
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/null
+                /*subType=*/ null
             )
             return sliceBuilder.build()
         }
@@ -421,8 +406,8 @@ class PublicKeyCredentialEntry internal constructor(
                     icon = icon!!,
                     lastUsedTime = lastUsedTime,
                     isAutoSelectAllowed = autoSelectAllowed,
-                    beginGetPublicKeyCredentialOption = BeginGetPublicKeyCredentialOption
-                        .createFromEntrySlice(
+                    beginGetPublicKeyCredentialOption =
+                        BeginGetPublicKeyCredentialOption.createFromEntrySlice(
                             Bundle(),
                             beginGetPublicKeyCredentialOptionId!!.toString(),
                         ),
@@ -491,15 +476,12 @@ class PublicKeyCredentialEntry internal constructor(
         /**
          * Converts an instance of [PublicKeyCredentialEntry] to a [Slice].
          *
-         * This method is only expected to be called on an API > 28
-         * impl, hence returning null for other levels as the
-         * visibility is only restricted to the library.
+         * This method is only expected to be called on an API > 28 impl, hence returning null for
+         * other levels as the visibility is only restricted to the library.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun toSlice(
-            entry: PublicKeyCredentialEntry
-        ): Slice? {
+        fun toSlice(entry: PublicKeyCredentialEntry): Slice? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.toSlice(entry)
             }
@@ -526,14 +508,15 @@ class PublicKeyCredentialEntry internal constructor(
          * [PublicKeyCredentialEntry] class
          *
          * Note that this API is not needed in a general credential retrieval flow that is
-         * implemented using this jetpack library, where you are only required to construct
-         * an instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
+         * implemented using this jetpack library, where you are only required to construct an
+         * instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
          *
          * @param credentialEntry the instance of framework class to be converted
          */
         @JvmStatic
-        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
-            PublicKeyCredentialEntry? {
+        fun fromCredentialEntry(
+            credentialEntry: android.service.credentials.CredentialEntry
+        ): PublicKeyCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 34) {
                 return Api34Impl.fromCredentialEntry(credentialEntry)
             }
@@ -541,9 +524,7 @@ class PublicKeyCredentialEntry internal constructor(
         }
     }
 
-    /**
-     * Builder for [PublicKeyCredentialEntry]
-     */
+    /** Builder for [PublicKeyCredentialEntry] */
     class Builder(
         private val context: Context,
         private val username: CharSequence,
@@ -568,10 +549,7 @@ class PublicKeyCredentialEntry internal constructor(
             return this
         }
 
-        /**
-         * Sets whether the entry should be auto-selected.
-         * The value is false by default
-         */
+        /** Sets whether the entry should be auto-selected. The value is false by default */
         @Suppress("MissingGetterMatchingBuilder")
         fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
             this.autoSelectAllowed = autoSelectAllowed
@@ -604,9 +582,8 @@ class PublicKeyCredentialEntry internal constructor(
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
                 icon = Icon.createWithResource(context, R.drawable.ic_passkey)
             }
-            val typeDisplayName = context.getString(
-                R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
-            )
+            val typeDisplayName =
+                context.getString(R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL)
             return PublicKeyCredentialEntry(
                 username,
                 displayName,

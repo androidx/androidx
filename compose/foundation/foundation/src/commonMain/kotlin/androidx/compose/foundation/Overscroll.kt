@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.Velocity
  * applies overscroll to a scroll event, and [applyToFling] applies overscroll to a fling.
  *
  * Higher level components such as [androidx.compose.foundation.lazy.LazyColumn] will automatically
- * configure an OverscrollEffect for you. To use a custom OverscrollEffect you first need to
- * provide it with scroll and/or fling events - usually by providing it to a
+ * configure an OverscrollEffect for you. To use a custom OverscrollEffect you first need to provide
+ * it with scroll and/or fling events - usually by providing it to a
  * [androidx.compose.foundation.gestures.scrollable]. Then you can draw the effect on top of the
  * scrolling content using [Modifier.overscroll].
  *
@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.Velocity
  * likely to be changed in the future. This should not have a large impact on custom overscroll
  * implementations, but it may require you to separate parts of the implementation into different
  * parts that implement different interfaces. Fewer changes are expected if you are not implementing
- * a custom OverscrollEffect, but instead are just calling [applyToFling] and [applyToScroll] on
- * an existing instance.
+ * a custom OverscrollEffect, but instead are just calling [applyToFling] and [applyToScroll] on an
+ * existing instance.
  *
  * @sample androidx.compose.foundation.samples.OverscrollSample
  */
@@ -68,20 +68,20 @@ interface OverscrollEffect {
      *
      * @sample androidx.compose.foundation.samples.OverscrollWithDraggable_Before
      *
-     * To apply overscroll, we need to decorate the existing logic with applyToScroll, and
-     * return the amount of delta we have consumed when updating the drag position. Note that we
-     * also need to call applyToFling - this is used as an end signal for overscroll so that effects
-     * can correctly reset after any animations, when the gesture has stopped.
+     * To apply overscroll, we need to decorate the existing logic with applyToScroll, and return
+     * the amount of delta we have consumed when updating the drag position. Note that we also need
+     * to call applyToFling - this is used as an end signal for overscroll so that effects can
+     * correctly reset after any animations, when the gesture has stopped.
      *
      * @sample androidx.compose.foundation.samples.OverscrollWithDraggable_After
      *
      * @param delta total scroll delta available
      * @param source the source of the delta
      * @param performScroll the scroll action that the overscroll is applied to. The [Offset]
-     * parameter represents how much delta is available, and the return value is how much delta was
-     * consumed. Any delta that was not consumed should be used to show the overscroll effect.
+     *   parameter represents how much delta is available, and the return value is how much delta
+     *   was consumed. Any delta that was not consumed should be used to show the overscroll effect.
      * @return the delta consumed from [delta] by the operation of this function - including that
-     * consumed by [performScroll].
+     *   consumed by [performScroll].
      */
     fun applyToScroll(
         delta: Offset,
@@ -90,8 +90,8 @@ interface OverscrollEffect {
     ): Offset
 
     /**
-     * Applies overscroll to [performFling]. [performFling] should represent a fling (the release
-     * of a drag or scroll), and returns the amount of [Velocity] consumed, so in simple cases the
+     * Applies overscroll to [performFling]. [performFling] should represent a fling (the release of
+     * a drag or scroll), and returns the amount of [Velocity] consumed, so in simple cases the
      * amount of overscroll to show should be equal to `velocity - performFling(velocity)`. The
      * OverscrollEffect can optionally consume some [Velocity] before calling [performFling], such
      * as to release any existing tension. The implementation *must* call [performFling] exactly
@@ -111,9 +111,9 @@ interface OverscrollEffect {
      *
      * @param velocity total [Velocity] available
      * @param performFling the [Velocity] consuming lambda that the overscroll is applied to. The
-     * [Velocity] parameter represents how much [Velocity] is available, and the return value is how
-     * much [Velocity] was consumed. Any [Velocity] that was not consumed should be used to show the
-     * overscroll effect.
+     *   [Velocity] parameter represents how much [Velocity] is available, and the return value is
+     *   how much [Velocity] was consumed. Any [Velocity] that was not consumed should be used to
+     *   show the overscroll effect.
      */
     suspend fun applyToFling(velocity: Velocity, performFling: suspend (Velocity) -> Velocity)
 
@@ -124,17 +124,15 @@ interface OverscrollEffect {
      */
     val isInProgress: Boolean
 
-    /**
-     * A [Modifier] that will draw this OverscrollEffect
-     */
+    /** A [Modifier] that will draw this OverscrollEffect */
     val effectModifier: Modifier
 }
 
 /**
  * Renders overscroll from the provided [overscrollEffect].
  *
- * This modifier is a convenience method to call [OverscrollEffect.effectModifier], which
- * renders the actual effect. Note that this modifier is only responsible for the visual part of
+ * This modifier is a convenience method to call [OverscrollEffect.effectModifier], which renders
+ * the actual effect. Note that this modifier is only responsible for the visual part of
  * overscroll - on its own it will not handle input events. In addition to using this modifier you
  * also need to propagate events to the [overscrollEffect], most commonly by using a
  * [androidx.compose.foundation.gestures.scrollable].
@@ -166,7 +164,9 @@ internal object NoOpOverscrollEffect : OverscrollEffect {
     override suspend fun applyToFling(
         velocity: Velocity,
         performFling: suspend (Velocity) -> Velocity
-    ) { performFling(velocity) }
+    ) {
+        performFling(velocity)
+    }
 
     override val isInProgress: Boolean
         get() = false

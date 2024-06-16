@@ -17,7 +17,7 @@
 package androidx.window.demo.common.infolog
 
 /**
- * A data class to hold a title and a detail or subtitle that can be shown using [InfoLogAdapter]
- * . This can be used to create samples with an ordered timeline of events.
+ * A data class to hold a title and a detail or subtitle that can be shown using [InfoLogAdapter] .
+ * This can be used to create samples with an ordered timeline of events.
  */
 data class InfoLog(val title: String, val detail: String, val id: Int)

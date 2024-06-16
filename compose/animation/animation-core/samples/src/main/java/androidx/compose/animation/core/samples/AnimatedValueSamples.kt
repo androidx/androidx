@@ -68,24 +68,26 @@ fun ArbitraryValueTypeTransitionSample() {
     @Composable
     fun ArbitraryValueTypeAnimation(enabled: Boolean) {
         // Sets up the different animation target values based on the [enabled] flag.
-        val mySize = remember(enabled) {
-            if (enabled) {
-                MySize(500.dp, 500.dp)
-            } else {
-                MySize(100.dp, 100.dp)
+        val mySize =
+            remember(enabled) {
+                if (enabled) {
+                    MySize(500.dp, 500.dp)
+                } else {
+                    MySize(100.dp, 100.dp)
+                }
             }
-        }
 
         // Animates a custom type value to the given target value, using a [TwoWayConverter]. The
         // converter tells the animation system how to convert the custom type from and to
         // [AnimationVector], so that it can be animated.
-        val animSize: MySize by animateValueAsState(
-            mySize,
-            TwoWayConverter<MySize, AnimationVector2D>(
-                convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
-                convertFromVector = { MySize(it.v1.dp, it.v2.dp) }
+        val animSize: MySize by
+            animateValueAsState(
+                mySize,
+                TwoWayConverter<MySize, AnimationVector2D>(
+                    convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
+                    convertFromVector = { MySize(it.v1.dp, it.v2.dp) }
+                )
             )
-        )
         Box(Modifier.size(animSize.width, animSize.height).background(color = Color.Red))
     }
 }
@@ -110,15 +112,13 @@ fun AnimateOffsetSample() {
         // Animates the offset depending on the selected flag.
         // [animateOffsetAsState] returns a State<Offset> object. The value of the State object is
         // updated by the animation. Here we use that State<Offset> as a property delegate.
-        val offset: Offset by animateOffsetAsState(
-            if (selected) Offset(0f, 0f) else Offset(20f, 20f)
-        )
+        val offset: Offset by
+            animateOffsetAsState(if (selected) Offset(0f, 0f) else Offset(20f, 20f))
 
         // In this example, animateIntOffsetAsState returns a State<IntOffset>. The value of the
         // returned
         // State object is updated by the animation.
-        val intOffset: IntOffset by animateIntOffsetAsState(
-            if (selected) IntOffset(0, 0) else IntOffset(50, 50)
-        )
+        val intOffset: IntOffset by
+            animateIntOffsetAsState(if (selected) IntOffset(0, 0) else IntOffset(50, 50))
     }
 }

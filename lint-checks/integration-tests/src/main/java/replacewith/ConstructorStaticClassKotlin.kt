@@ -15,9 +15,7 @@
  */
 package replacewith
 
-/**
- * Usage of a static class constructor.
- */
+/** Usage of a static class constructor. */
 @Suppress("unused", "deprecation")
 internal class ConstructorStaticClassKotlin {
     fun usage() {

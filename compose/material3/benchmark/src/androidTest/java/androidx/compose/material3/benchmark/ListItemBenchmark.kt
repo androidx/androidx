@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ListItemBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val listItemTestCaseFactory = { ListItemTestCase() }
 
@@ -85,19 +84,13 @@ internal class ListItemTestCase : LayeredComposeTestCase() {
             headlineContent = { Text(text = "List Item") },
             overlineContent = { Text(text = "Overline Content") },
             supportingContent = { Text(text = "Supporting Content") },
-            leadingContent = {
-                Box(modifier = Modifier.size(24.dp))
-            },
-            trailingContent = {
-                Box(modifier = Modifier.size(24.dp))
-            }
+            leadingContent = { Box(modifier = Modifier.size(24.dp)) },
+            trailingContent = { Box(modifier = Modifier.size(24.dp)) }
         )
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

@@ -77,9 +77,7 @@ class AppWidgetManagerDeviceTest {
     public fun setUp() {
         mUiAutomation.adoptShellPermissionIdentity(Manifest.permission.BIND_APPWIDGET)
 
-        mActivityTestRule.scenario.onActivity { activity ->
-            mHostView = activity.bindAppWidget()
-        }
+        mActivityTestRule.scenario.onActivity { activity -> mHostView = activity.bindAppWidget() }
 
         mAppWidgetId = mHostView.appWidgetId
         mRemoteViews = RemoteViews(mPackageName, R.layout.remote_views_text)
@@ -125,25 +123,22 @@ class AppWidgetManagerDeviceTest {
         if (mTextView.text.toString() == expectedText) return
 
         val latch = CountDownLatch(1)
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        val textWatcher =
+            object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                if (text.toString() == expectedText) latch.countDown()
+                override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    if (text.toString() == expectedText) latch.countDown()
+                }
+
+                override fun afterTextChanged(text: Editable?) {}
             }
 
-            override fun afterTextChanged(text: Editable?) {}
-        }
-
-        mActivityTestRule.scenario.onActivity {
-            mTextView.addTextChangedListener(textWatcher)
-        }
+        mActivityTestRule.scenario.onActivity { mTextView.addTextChangedListener(textWatcher) }
 
         val countedDown = latch.await(5, TimeUnit.SECONDS)
 
-        mActivityTestRule.scenario.onActivity {
-            mTextView.removeTextChangedListener(textWatcher)
-        }
+        mActivityTestRule.scenario.onActivity { mTextView.removeTextChangedListener(textWatcher) }
 
         if (!countedDown && mTextView.text.toString() != expectedText) {
             fail("Expected text to be \"$expectedText\" within 5 seconds")
@@ -152,9 +147,7 @@ class AppWidgetManagerDeviceTest {
 
     private fun observeDrawUntil(test: () -> Boolean) {
         val latch = CountDownLatch(1)
-        val onDrawListener = ViewTreeObserver.OnDrawListener {
-            if (test()) latch.countDown()
-        }
+        val onDrawListener = ViewTreeObserver.OnDrawListener { if (test()) latch.countDown() }
 
         mActivityTestRule.scenario.onActivity {
             mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
@@ -175,10 +168,9 @@ class AppWidgetManagerDeviceTest {
     private fun getSingleWidgetSize(): SizeFCompat {
         val options = mAppWidgetManager.getAppWidgetOptions(mAppWidgetId)
         return if (Build.VERSION.SDK_INT >= 31) {
-            options
-                .getParcelableArrayList<SizeF>(OPTION_APPWIDGET_SIZES)!!
-                .single()
-                .let { it.width x it.height }
+            options.getParcelableArrayList<SizeF>(OPTION_APPWIDGET_SIZES)!!.single().let {
+                it.width x it.height
+            }
         } else {
             val minWidth = options.getInt(OPTION_APPWIDGET_MIN_WIDTH)
             val maxWidth = options.getInt(OPTION_APPWIDGET_MAX_WIDTH)

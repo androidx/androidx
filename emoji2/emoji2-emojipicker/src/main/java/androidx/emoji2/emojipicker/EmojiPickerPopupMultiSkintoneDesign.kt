@@ -33,9 +33,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.google.common.collect.ImmutableMap
 import com.google.common.primitives.ImmutableIntArray
 
-/**
- * Emoji picker popup with multi-skintone selection panel.
- */
+/** Emoji picker popup with multi-skintone selection panel. */
 internal class EmojiPickerPopupMultiSkintoneDesign(
     override val context: Context,
     override val targetEmojiView: View,
@@ -46,11 +44,15 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
 ) : EmojiPickerPopupDesign() {
 
     private val inflater = LayoutInflater.from(context)
-    private val resultRow = LinearLayout(context).apply {
-        orientation = LinearLayout.HORIZONTAL
-        layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-    }
+    private val resultRow =
+        LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+        }
 
     private var selectedLeftSkintone = -1
     private var selectedRightSkintone = -1
@@ -63,24 +65,30 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                 triggerVariantIndex - selectedLeftSkintone * getNumberOfColumns() - 1
         }
     }
+
     override fun addRowsToPopupView() {
         for (row in 0 until getActualNumberOfRows()) {
-            val rowLayout = LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-            }
+            val rowLayout =
+                LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams =
+                        LinearLayout.LayoutParams(
+                            FrameLayout.LayoutParams.WRAP_CONTENT,
+                            FrameLayout.LayoutParams.WRAP_CONTENT
+                        )
+                }
             for (column in 0 until getNumberOfColumns()) {
                 inflater.inflate(R.layout.emoji_picker_popup_image_view, rowLayout)
                 val imageView = rowLayout.getChildAt(column) as ImageView
                 imageView.apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        targetEmojiView.width, targetEmojiView.height)
+                    layoutParams =
+                        LinearLayout.LayoutParams(targetEmojiView.width, targetEmojiView.height)
                     isClickable = true
                     contentDescription = getImageContentDescription(context, row, column)
-                    if ((hasLeftSkintone() && row == 0 && selectedLeftSkintone == column) ||
-                        (hasRightSkintone() && row == 1 && selectedRightSkintone == column)) {
+                    if (
+                        (hasLeftSkintone() && row == 0 && selectedLeftSkintone == column) ||
+                            (hasRightSkintone() && row == 1 && selectedRightSkintone == column)
+                    ) {
                         isSelected = true
                         isClickable = false
                     }
@@ -115,9 +123,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
     private fun processResultView() {
         val childCount = resultRow.childCount
         if (childCount < 1 || childCount > 2) {
-            Log.e(TAG,
-                "processResultEmojiForRectangleLayout(): unexpected emoji result row size"
-            )
+            Log.e(TAG, "processResultEmojiForRectangleLayout(): unexpected emoji result row size")
             return
         }
         // Remove the result emoji if it's already available. It will be available after the row is
@@ -131,34 +137,43 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
             layout.findViewById<EmojiView>(R.id.emoji_picker_popup_emoji_view).apply {
                 willDrawVariantIndicator = false
                 isClickable = true
-                emoji = variants[selectedLeftSkintone * getNumberOfColumns() +
-                        selectedRightSkintone + 1]
+                emoji =
+                    variants[
+                        selectedLeftSkintone * getNumberOfColumns() + selectedRightSkintone + 1]
                 setOnClickListener(emojiViewOnClickListener)
-                layoutParams = LinearLayout.LayoutParams(
-                    targetEmojiView.width, targetEmojiView.height)
+                layoutParams =
+                    LinearLayout.LayoutParams(targetEmojiView.width, targetEmojiView.height)
             }
             layout.findViewById<LinearLayout>(R.id.emoji_picker_popup_emoji_view_wrapper).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    targetEmojiView.width * getNumberOfColumns() / 2, targetEmojiView.height)
+                layoutParams =
+                    LinearLayout.LayoutParams(
+                        targetEmojiView.width * getNumberOfColumns() / 2,
+                        targetEmojiView.height
+                    )
             }
         } else if (hasLeftSkintone()) {
             drawImageView(
-                /* row= */ 0, /*column=*/ selectedLeftSkintone, /* applyGrayTint= */false)
+                /* row= */ 0,
+                /*column=*/ selectedLeftSkintone,
+                /* applyGrayTint= */ false
+            )
         } else if (hasRightSkintone()) {
             drawImageView(
-                /* row= */ 1, /*column=*/ selectedRightSkintone, /* applyGrayTint= */false)
+                /* row= */ 1,
+                /*column=*/ selectedRightSkintone,
+                /* applyGrayTint= */ false
+            )
         } else {
-            drawImageView(
-                /* row= */ 0, /*column=*/0, /* applyGrayTint= */ true)
+            drawImageView(/* row= */ 0, /* column= */ 0, /* applyGrayTint= */ true)
         }
     }
 
     private fun drawImageView(row: Int, column: Int, applyGrayTint: Boolean) {
-        inflater.inflate(R.layout.emoji_picker_popup_image_view, resultRow)
+        inflater
+            .inflate(R.layout.emoji_picker_popup_image_view, resultRow)
             .findViewById<ImageView>(R.id.emoji_picker_popup_image_view)
             .apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    0, targetEmojiView.height, 1f)
+                layoutParams = LinearLayout.LayoutParams(0, targetEmojiView.height, 1f)
                 setImageDrawable(getDrawableRes(context, row, column))
                 if (applyGrayTint) {
                     imageTintList = ColorStateList.valueOf(Color.GRAY)
@@ -173,8 +188,12 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                     contentDescriptionRow = 1
                     contentDescriptionColumn = selectedRightSkintone
                 }
-                contentDescription = getImageContentDescription(
-                    context, contentDescriptionRow, contentDescriptionColumn)
+                contentDescription =
+                    getImageContentDescription(
+                        context,
+                        contentDescriptionRow,
+                        contentDescriptionColumn
+                    )
             }
     }
 
@@ -189,8 +208,11 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
             setOnClickListener(emojiViewOnClickListener)
         }
         layout.findViewById<LinearLayout>(R.id.emoji_picker_popup_emoji_view_wrapper).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                targetEmojiView.width * getNumberOfColumns() / 2, targetEmojiView.height)
+            layoutParams =
+                LinearLayout.LayoutParams(
+                    targetEmojiView.width * getNumberOfColumns() / 2,
+                    targetEmojiView.height
+                )
         }
         processResultView()
         popupView.addView(resultRow)
@@ -222,7 +244,9 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
         if (resArray != null) {
             val contextThemeWrapper = ContextThemeWrapper(context, VARIANT_STYLES[column])
             return ResourcesCompat.getDrawable(
-                context.resources, resArray[row], contextThemeWrapper.getTheme()
+                context.resources,
+                resArray[row],
+                contextThemeWrapper.getTheme()
             )
         }
         return null
@@ -231,8 +255,8 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
     private fun getImageContentDescription(context: Context, row: Int, column: Int): String {
         return context.getString(
             R.string.emoji_variant_content_desc_template,
-            context.getString(getSkintoneStringRes( /* isLeft= */true, row, column)),
-            context.getString(getSkintoneStringRes( /* isLeft= */false, row, column))
+            context.getString(getSkintoneStringRes(/* isLeft= */ true, row, column)),
+            context.getString(getSkintoneStringRes(/* isLeft= */ false, row, column))
         )
     }
 
@@ -243,12 +267,10 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
             return R.string.emoji_skin_tone_shadow_content_desc
         }
         return if (isLeft) {
-            if (row == 0)
-                SKIN_TONE_CONTENT_DESC_RES_IDS[column]
+            if (row == 0) SKIN_TONE_CONTENT_DESC_RES_IDS[column]
             else R.string.emoji_skin_tone_shadow_content_desc
         } else {
-            if (row == 0)
-                R.string.emoji_skin_tone_shadow_content_desc
+            if (row == 0) R.string.emoji_skin_tone_shadow_content_desc
             else SKIN_TONE_CONTENT_DESC_RES_IDS[column]
         }
     }
@@ -258,21 +280,23 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
         private const val LAYOUT_ROWS = 2
         private const val LAYOUT_COLUMNS = 5
 
-        private val SKIN_TONE_CONTENT_DESC_RES_IDS = ImmutableIntArray.of(
-            R.string.emoji_skin_tone_light_content_desc,
-            R.string.emoji_skin_tone_medium_light_content_desc,
-            R.string.emoji_skin_tone_medium_content_desc,
-            R.string.emoji_skin_tone_medium_dark_content_desc,
-            R.string.emoji_skin_tone_dark_content_desc
-        )
+        private val SKIN_TONE_CONTENT_DESC_RES_IDS =
+            ImmutableIntArray.of(
+                R.string.emoji_skin_tone_light_content_desc,
+                R.string.emoji_skin_tone_medium_light_content_desc,
+                R.string.emoji_skin_tone_medium_content_desc,
+                R.string.emoji_skin_tone_medium_dark_content_desc,
+                R.string.emoji_skin_tone_dark_content_desc
+            )
 
-        private val VARIANT_STYLES = ImmutableIntArray.of(
-            R.style.EmojiSkintoneSelectorLight,
-            R.style.EmojiSkintoneSelectorMediumLight,
-            R.style.EmojiSkintoneSelectorMedium,
-            R.style.EmojiSkintoneSelectorMediumDark,
-            R.style.EmojiSkintoneSelectorDark
-        )
+        private val VARIANT_STYLES =
+            ImmutableIntArray.of(
+                R.style.EmojiSkintoneSelectorLight,
+                R.style.EmojiSkintoneSelectorMediumLight,
+                R.style.EmojiSkintoneSelectorMedium,
+                R.style.EmojiSkintoneSelectorMediumDark,
+                R.style.EmojiSkintoneSelectorDark
+            )
 
         /**
          * Map from emoji that use the square layout strategy with skin tone swatches or rectangle
@@ -283,7 +307,8 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                 .put(
                     "🤝",
                     ImmutableIntArray.of(
-                        R.drawable.handshake_skintone_shadow, R.drawable.handshake_shadow_skintone
+                        R.drawable.handshake_skintone_shadow,
+                        R.drawable.handshake_shadow_skintone
                     )
                 )
                 .put(
@@ -331,13 +356,15 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                 .put(
                     "👨‍❤️‍💋‍👨",
                     ImmutableIntArray.of(
-                        R.drawable.kiss_men_skintone_shadow, R.drawable.kiss_men_shadow_skintone
+                        R.drawable.kiss_men_skintone_shadow,
+                        R.drawable.kiss_men_shadow_skintone
                     )
                 )
                 .put(
                     "👩‍❤️‍💋‍👩",
                     ImmutableIntArray.of(
-                        R.drawable.kiss_women_skintone_shadow, R.drawable.kiss_women_shadow_skintone
+                        R.drawable.kiss_women_skintone_shadow,
+                        R.drawable.kiss_women_shadow_skintone
                     )
                 )
                 .put(

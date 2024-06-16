@@ -24,10 +24,13 @@ import com.android.tools.lint.detector.api.CURRENT_API
 class FragmentTestingManifestIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(GradleConfigurationDetector.ISSUE)
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460964",
-        identifier = "androidx.fragment.testing.manifest",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues
+        get() = listOf(GradleConfigurationDetector.ISSUE)
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=460964",
+            identifier = "androidx.fragment.testing.manifest",
+            vendorName = "Android Open Source Project",
+        )
 }

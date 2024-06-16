@@ -44,24 +44,26 @@ import org.junit.runners.Parameterized
  *
  * This benchmark only adds one replacement span, which is a typical case.
  */
-class SetTextWithInlineContent(
-    private val text: AnnotatedString
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class SetTextWithInlineContent(private val text: AnnotatedString) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private var toggleText = mutableStateOf(AnnotatedString(""))
 
     private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
-        Subject(toggleText.value,
+        Subject(
+            toggleText.value,
             style = style,
-            inlineContent = mapOf(
-                BenchmarkInlineContentId to InlineTextContent(
-                    Placeholder(12.sp, 12.sp, PlaceholderVerticalAlign.Center)
-                ) {
-                    Box(Modifier.size(12.dp, 12.dp))
-                }
-            )
+            inlineContent =
+                mapOf(
+                    BenchmarkInlineContentId to
+                        InlineTextContent(
+                            Placeholder(12.sp, 12.sp, PlaceholderVerticalAlign.Center)
+                        ) {
+                            Box(Modifier.size(12.dp, 12.dp))
+                        }
+                )
         )
     }
 
@@ -76,9 +78,8 @@ class SetTextWithInlineContent(
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class SetTextWithInlineContentParent(
-    private val size: Int
-) : EmpiricalBench<SetTextWithInlineContent>() {
+open class SetTextWithInlineContentParent(private val size: Int) :
+    EmpiricalBench<SetTextWithInlineContent>() {
 
     override val caseFactory = {
         val text = generateCacheableStringOf(size)

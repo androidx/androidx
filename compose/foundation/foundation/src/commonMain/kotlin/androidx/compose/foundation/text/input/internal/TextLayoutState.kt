@@ -50,21 +50,15 @@ internal class TextLayoutState {
      *
      * DecoratorNode
      * -------------------
-     * |  CoreNode       |--> Outer Decoration Box with padding
-     * |  -------------  |
-     * |  |           |  |
-     * |  |           |--|--> Visible inner text field
-     * |  -------------  |    (Below the dashed line is not visible)
-     * |  |           |  |
-     * |  |           |  |
+     * | CoreNode |--> Outer Decoration Box with padding | ------------- | | | | | | | |--|-->
+     * Visible inner text field | ------------- | (Below the dashed line is not visible) | | | | | |
+     * | |
      * -------------------
-     *    |           |
-     *    |           |---> Scrollable part (TextLayoutNode)
-     *    -------------
-     *
-     * These coordinates are used to calculate the relative positioning between multiple layers
-     * of a BasicTextField. For example, touches are processed by the decoration box but these
-     * should be converted to text layout positions to find out which character is pressed.
+     * | | | |---> Scrollable part (TextLayoutNode)
+     * -------------
+     * These coordinates are used to calculate the relative positioning between multiple layers of a
+     * BasicTextField. For example, touches are processed by the decoration box but these should be
+     * converted to text layout positions to find out which character is pressed.
      *
      * [LayoutCoordinates] object returned from onGloballyPositioned callback is usually the same
      * instance unless a node is detached and re-attached to the tree. To react to layout and
@@ -74,9 +68,7 @@ internal class TextLayoutState {
     var coreNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
     var decoratorNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
 
-    /**
-     * Set to a non-zero value for single line TextFields in order to prevent text cuts.
-     */
+    /** Set to a non-zero value for single line TextFields in order to prevent text cuts. */
     var minHeightForSingleLineField by mutableStateOf(0.dp)
 
     /**
@@ -90,9 +82,9 @@ internal class TextLayoutState {
 
     /**
      * Updates the [TextFieldLayoutStateCache] with inputs that don't come from the measure phase.
-     * This method will initialize the cache the first time it's called.
-     * If the new inputs require re-calculating text layout, any readers of [layoutResult] called
-     * from a snapshot observer will be invalidated.
+     * This method will initialize the cache the first time it's called. If the new inputs require
+     * re-calculating text layout, any readers of [layoutResult] called from a snapshot observer
+     * will be invalidated.
      *
      * @see layoutWithNewMeasureInputs
      */
@@ -111,10 +103,11 @@ internal class TextLayoutState {
     }
 
     /**
-     * Updates the [TextFieldLayoutStateCache] with inputs that come from the measure phase and returns the
-     * latest [TextLayoutResult]. If the measure inputs haven't changed significantly since the
-     * last call, this will be the cached result. If the new inputs require re-calculating text
-     * layout, any readers of [layoutResult] called from a snapshot observer will be invalidated.
+     * Updates the [TextFieldLayoutStateCache] with inputs that come from the measure phase and
+     * returns the latest [TextLayoutResult]. If the measure inputs haven't changed significantly
+     * since the last call, this will be the cached result. If the new inputs require re-calculating
+     * text layout, any readers of [layoutResult] called from a snapshot observer will be
+     * invalidated.
      *
      * [updateNonMeasureInputs] must be called before this method to initialize the cache.
      */
@@ -124,12 +117,13 @@ internal class TextLayoutState {
         fontFamilyResolver: FontFamily.Resolver,
         constraints: Constraints,
     ): TextLayoutResult {
-        val layoutResult = layoutCache.layoutWithNewMeasureInputs(
-            density = density,
-            layoutDirection = layoutDirection,
-            fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints,
-        )
+        val layoutResult =
+            layoutCache.layoutWithNewMeasureInputs(
+                density = density,
+                layoutDirection = layoutDirection,
+                fontFamilyResolver = fontFamilyResolver,
+                constraints = constraints,
+            )
 
         onTextLayout?.let { onTextLayout ->
             val textLayoutProvider = { layoutCache.value }
@@ -140,38 +134,38 @@ internal class TextLayoutState {
     }
 
     /**
-     * Translates the position of the touch on the screen to the position in text. Because touch
-     * is relative to the decoration box, we need to translate it to the inner text field's
-     * coordinates first before calculating position of the symbol in text.
+     * Translates the position of the touch on the screen to the position in text. Because touch is
+     * relative to the decoration box, we need to translate it to the inner text field's coordinates
+     * first before calculating position of the symbol in text.
      *
      * @param position original position of the gesture relative to the decoration box
-     * @param coerceInVisibleBounds if true and original [position] is outside visible bounds
-     * of the inner text field, the [position] will be shifted to the closest edge of the inner
-     * text field's visible bounds. This is useful when you have a decoration box
-     * bigger than the inner text field, so when user touches to the decoration box area, the cursor
-     * goes to the beginning or the end of the visible inner text field; otherwise if we put the
-     * cursor under the touch in the invisible part of the inner text field, it would scroll to
-     * make the cursor visible. This behavior is not needed, and therefore
-     * [coerceInVisibleBounds] should be set to false, when the user drags outside visible bounds
-     * to make a selection.
-     * @return The offset that corresponds to the [position]. Returns -1 if text layout has not
-     * been measured yet.
+     * @param coerceInVisibleBounds if true and original [position] is outside visible bounds of the
+     *   inner text field, the [position] will be shifted to the closest edge of the inner text
+     *   field's visible bounds. This is useful when you have a decoration box bigger than the inner
+     *   text field, so when user touches to the decoration box area, the cursor goes to the
+     *   beginning or the end of the visible inner text field; otherwise if we put the cursor under
+     *   the touch in the invisible part of the inner text field, it would scroll to make the cursor
+     *   visible. This behavior is not needed, and therefore [coerceInVisibleBounds] should be set
+     *   to false, when the user drags outside visible bounds to make a selection.
+     * @return The offset that corresponds to the [position]. Returns -1 if text layout has not been
+     *   measured yet.
      */
     fun getOffsetForPosition(position: Offset, coerceInVisibleBounds: Boolean = true): Int {
         val layoutResult = layoutResult ?: return -1
-        val coercedPosition = if (coerceInVisibleBounds) {
-            coercedInVisibleBoundsOfInputText(position)
-        } else {
-            position
-        }
+        val coercedPosition =
+            if (coerceInVisibleBounds) {
+                coercedInVisibleBoundsOfInputText(position)
+            } else {
+                position
+            }
         val relativePosition = fromDecorationToTextLayout(coercedPosition)
         return layoutResult.getOffsetForPosition(relativePosition)
     }
 
     /**
-     * Returns true if the screen coordinates position (x,y) corresponds to a character displayed
-     * in the view. Returns false when the position is in the empty space of left/right of text.
-     * This function may return true even when [offset] is below or above the text layout.
+     * Returns true if the screen coordinates position (x,y) corresponds to a character displayed in
+     * the view. Returns false when the position is in the empty space of left/right of text. This
+     * function may return true even when [offset] is below or above the text layout.
      */
     fun isPositionOnText(offset: Offset): Boolean {
         val layoutResult = layoutResult ?: return false
@@ -200,27 +194,30 @@ internal class TextLayoutState {
 }
 
 internal fun Offset.coerceIn(rect: Rect): Offset {
-    val xOffset = when {
-        x < rect.left -> rect.left
-        x > rect.right -> rect.right
-        else -> x
-    }
-    val yOffset = when {
-        y < rect.top -> rect.top
-        y > rect.bottom -> rect.bottom
-        else -> y
-    }
+    val xOffset =
+        when {
+            x < rect.left -> rect.left
+            x > rect.right -> rect.right
+            else -> x
+        }
+    val yOffset =
+        when {
+            y < rect.top -> rect.top
+            y > rect.bottom -> rect.bottom
+            else -> y
+        }
     return Offset(xOffset, yOffset)
 }
 
-/**
- * Translates a position from text layout node coordinates to core node coordinates.
- */
+/** Translates a position from text layout node coordinates to core node coordinates. */
 internal fun TextLayoutState.fromTextLayoutToCore(offset: Offset): Offset {
-    return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutNodeCoordinates ->
-        coreNodeCoordinates?.takeIf { it.isAttached }
-            ?.localPositionOf(textLayoutNodeCoordinates, offset)
-    } ?: offset
+    return textLayoutNodeCoordinates
+        ?.takeIf { it.isAttached }
+        ?.let { textLayoutNodeCoordinates ->
+            coreNodeCoordinates
+                ?.takeIf { it.isAttached }
+                ?.localPositionOf(textLayoutNodeCoordinates, offset)
+        } ?: offset
 }
 
 /**

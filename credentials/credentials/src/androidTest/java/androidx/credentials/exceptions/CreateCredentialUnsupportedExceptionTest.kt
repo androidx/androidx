@@ -38,8 +38,7 @@ class CreateCredentialUnsupportedExceptionTest {
     @Test
     fun getter_success() {
         val expectedType =
-            CreateCredentialUnsupportedException
-                .TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION
+            CreateCredentialUnsupportedException.TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION
         val expectedMessage = "message"
         val exception = CreateCredentialUnsupportedException(expectedMessage)
         assertThat(exception.type).isEqualTo(expectedType)

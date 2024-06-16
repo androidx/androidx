@@ -93,10 +93,7 @@ internal class MotionRenderDebug(textSize: Float) {
         }
         canvas.save()
         for (motionController in frameArrayList.values) {
-            draw(
-                canvas, motionController, duration, debugPath,
-                layoutWidth, layoutHeight
-            )
+            draw(canvas, motionController, duration, debugPath, layoutWidth, layoutHeight)
         }
         canvas.restore()
     }
@@ -169,8 +166,8 @@ internal class MotionRenderDebug(textSize: Float) {
      *
      * @param canvas Canvas instance used to draw on
      * @param motionController Controller containing path information
-     * @param duration Defined in milliseconds, sets the amount of ticks used to draw the path
-     * based on [.DEBUG_PATH_TICKS_PER_MS]
+     * @param duration Defined in milliseconds, sets the amount of ticks used to draw the path based
+     *   on [.DEBUG_PATH_TICKS_PER_MS]
      * @param layoutWidth Width of the containing MotionLayout
      * @param layoutHeight Height of the containing MotionLayout
      * @param drawPath Whether to draw the path, paths are drawn using dashed lines
@@ -258,8 +255,13 @@ internal class MotionRenderDebug(textSize: Float) {
                     drawPathCartesianTicks(canvas, x - dx, y - dy)
                 } else if (mPathMode[i - 1] == MotionPaths.SCREEN) {
                     drawPathScreenTicks(
-                        canvas, x - dx, y - dy,
-                        viewWidth, viewHeight, layoutWidth, layoutHeight
+                        canvas,
+                        x - dx,
+                        y - dy,
+                        viewWidth,
+                        viewHeight,
+                        layoutWidth,
+                        layoutHeight
                     )
                 }
                 canvas.drawPath(mPath!!, mFillPaint)
@@ -272,8 +274,13 @@ internal class MotionRenderDebug(textSize: Float) {
             }
             if (mode == Motion.DRAW_PATH_SCREEN) {
                 drawPathScreenTicks(
-                    canvas, x - dx, y - dy,
-                    viewWidth, viewHeight, layoutWidth, layoutHeight
+                    canvas,
+                    x - dx,
+                    y - dy,
+                    viewWidth,
+                    viewHeight,
+                    layoutWidth,
+                    layoutHeight
                 )
             }
             if (dx != 0f || dy != 0f) {
@@ -287,7 +294,9 @@ internal class MotionRenderDebug(textSize: Float) {
             canvas.drawCircle(mPoints!![0], mPoints!![1], 8f, mPaintKeyframes)
             canvas.drawCircle(
                 mPoints!![mPoints!!.size - 2],
-                mPoints!![mPoints!!.size - 1], 8f, mPaintKeyframes
+                mPoints!![mPoints!!.size - 1],
+                8f,
+                mPaintKeyframes
             )
         }
     }
@@ -299,8 +308,11 @@ internal class MotionRenderDebug(textSize: Float) {
 
     private fun drawPathRelative(canvas: Canvas) {
         canvas.drawLine(
-            mPoints!![0], mPoints!![1],
-            mPoints!![mPoints!!.size - 2], mPoints!![mPoints!!.size - 1], mPaintGraph
+            mPoints!![0],
+            mPoints!![1],
+            mPoints!![mPoints!!.size - 2],
+            mPoints!![mPoints!!.size - 1],
+            mPaintGraph
         )
     }
 
@@ -353,12 +365,18 @@ internal class MotionRenderDebug(textSize: Float) {
         val x2 = mPoints!![mPoints!!.size - 2]
         val y2 = mPoints!![mPoints!!.size - 1]
         canvas.drawLine(
-            Math.min(x1, x2), Math.max(y1, y2),
-            Math.max(x1, x2), Math.max(y1, y2), mPaintGraph
+            Math.min(x1, x2),
+            Math.max(y1, y2),
+            Math.max(x1, x2),
+            Math.max(y1, y2),
+            mPaintGraph
         )
         canvas.drawLine(
-            Math.min(x1, x2), Math.min(y1, y2),
-            Math.min(x1, x2), Math.max(y1, y2), mPaintGraph
+            Math.min(x1, x2),
+            Math.min(y1, y2),
+            Math.min(x1, x2),
+            Math.max(y1, y2),
+            mPaintGraph
         )
     }
 
@@ -376,20 +394,14 @@ internal class MotionRenderDebug(textSize: Float) {
         getTextBounds(text, mTextPaint)
         var off = xgap / 2 - mBounds.width() / 2
         canvas.drawText(text, off + minx, y - 20, mTextPaint)
-        canvas.drawLine(
-            x, y,
-            Math.min(x1, x2), y, mPaintGraph
-        )
+        canvas.drawLine(x, y, Math.min(x1, x2), y, mPaintGraph)
 
         // Vertical line
         text = "" + (0.5 + 100 * ygap / Math.abs(y2 - y1)).toInt() / 100.0f
         getTextBounds(text, mTextPaint)
         off = ygap / 2 - mBounds.height() / 2
         canvas.drawText(text, x + 5, maxy - off, mTextPaint)
-        canvas.drawLine(
-            x, y,
-            x, Math.max(y1, y2), mPaintGraph
-        )
+        canvas.drawLine(x, y, x, Math.max(y1, y2), mPaintGraph)
     }
 
     private fun drawPathScreenTicks(
@@ -408,26 +420,20 @@ internal class MotionRenderDebug(textSize: Float) {
         val minx = 0f
         val maxy = 0f
         // Horizontal line
-        var text = "" + (0.5 + 100 * (x - viewWidth / 2) /
-            (layoutWidth - viewWidth)).toInt() / 100.0f
+        var text =
+            "" + (0.5 + 100 * (x - viewWidth / 2) / (layoutWidth - viewWidth)).toInt() / 100.0f
         getTextBounds(text, mTextPaint)
         var off = x / 2 - mBounds.width() / 2
         canvas.drawText(text, off + minx, y - 20, mTextPaint)
-        canvas.drawLine(
-            x, y,
-            Math.min(x1, x2), y, mPaintGraph
-        )
+        canvas.drawLine(x, y, Math.min(x1, x2), y, mPaintGraph)
 
         // Vertical line
-        text = "" + (0.5 + 100 * (y - viewHeight / 2) /
-            (layoutHeight - viewHeight)).toInt() / 100.0f
+        text =
+            "" + (0.5 + 100 * (y - viewHeight / 2) / (layoutHeight - viewHeight)).toInt() / 100.0f
         getTextBounds(text, mTextPaint)
         off = y / 2 - mBounds.height() / 2
         canvas.drawText(text, x + 5, maxy - off, mTextPaint)
-        canvas.drawLine(
-            x, y,
-            x, Math.max(y1, y2), mPaintGraph
-        )
+        canvas.drawLine(x, y, x, Math.max(y1, y2), mPaintGraph)
     }
 
     private fun drawRectangle(canvas: Canvas, motionController: Motion) {

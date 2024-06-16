@@ -26,59 +26,63 @@ class TextStyleTest {
     @Test
     fun equality() {
         assertThat(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Italic
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        ).isEqualTo(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Italic
+            .isEqualTo(
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        )
 
         assertThat(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Italic
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        ).isNotEqualTo(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 14.sp,
-                fontStyle = FontStyle.Italic
+            .isNotEqualTo(
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        )
 
         assertThat(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Italic
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        ).isNotEqualTo(
-            TextStyle(
-                color = ColorProvider(Color.Magenta),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Italic
+            .isNotEqualTo(
+                TextStyle(
+                    color = ColorProvider(Color.Magenta),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        )
 
         assertThat(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Italic
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic
+                )
             )
-        ).isNotEqualTo(
-            TextStyle(
-                color = ColorProvider(Color.Red),
-                fontSize = 12.sp,
-                fontStyle = FontStyle.Normal
+            .isNotEqualTo(
+                TextStyle(
+                    color = ColorProvider(Color.Red),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Normal
+                )
             )
-        )
     }
 }

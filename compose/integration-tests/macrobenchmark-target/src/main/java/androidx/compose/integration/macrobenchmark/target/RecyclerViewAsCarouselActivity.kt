@@ -51,9 +51,9 @@ private class RecyclerViewAdapter(val items: Int) :
         parent: ViewGroup,
         viewType: Int
     ): RecyclerViewAsPagerViewHolder {
-        val view = LayoutInflater
-            .from(parent.context)
-            .inflate(R.layout.recycler_view_as_carousel_item, parent, false)
+        val view =
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.recycler_view_as_carousel_item, parent, false)
 
         return RecyclerViewAsPagerViewHolder(view)
     }

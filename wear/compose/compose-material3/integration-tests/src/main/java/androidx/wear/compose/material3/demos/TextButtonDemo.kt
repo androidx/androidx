@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -31,45 +34,36 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
-import androidx.wear.compose.material3.TextButtonDefaults.textStyleFor
 import androidx.wear.compose.material3.samples.FilledTextButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalTextButtonSample
 import androidx.wear.compose.material3.samples.LargeFilledTonalTextButtonSample
 import androidx.wear.compose.material3.samples.OutlinedTextButtonSample
 import androidx.wear.compose.material3.samples.TextButtonSample
+import androidx.wear.compose.material3.samples.TextButtonWithOnLongClickSample
 import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun TextButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Text Button")
-            }
-        }
+        item { ListHeader { Text("Text Button") } }
         item {
             Row {
                 TextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                TextButton(onClick = { }, enabled = false) {
-                    Text(text = "ABC")
-                }
+                TextButton(onClick = {}, enabled = false) { Text(text = "ABC") }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled Tonal")
-            }
-        }
+        item { ListHeader { Text("Filled Tonal") } }
         item {
             Row {
                 FilledTonalTextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.filledTonalTextButtonColors()
                 ) {
@@ -77,17 +71,13 @@ fun TextButtonDemo() {
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled")
-            }
-        }
+        item { ListHeader { Text("Filled") } }
         item {
             Row {
                 FilledTextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.filledTextButtonColors()
                 ) {
@@ -95,17 +85,13 @@ fun TextButtonDemo() {
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Outlined")
-            }
-        }
+        item { ListHeader { Text("Outlined") } }
         item {
             Row {
                 OutlinedTextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.outlinedTextButtonColors(),
                     border = ButtonDefaults.outlinedButtonBorder(enabled = false)
@@ -114,11 +100,13 @@ fun TextButtonDemo() {
                 }
             }
         }
+        item { ListHeader { Text("With onLongClick") } }
         item {
-            ListHeader {
-                Text("Sizes")
+            TextButtonWithOnLongClickSample {
+                Toast.makeText(context, "onLongClick triggered", Toast.LENGTH_SHORT).show()
             }
         }
+        item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${TextButtonDefaults.LargeButtonSize.value.toInt()}dp")
@@ -147,10 +135,18 @@ fun TextButtonDemo() {
 private fun TextButtonWithSize(size: Dp) {
     TextButton(
         modifier = Modifier.touchTargetAwareSize(size),
-        onClick = { },
+        onClick = {},
         enabled = true,
         colors = TextButtonDefaults.filledTonalTextButtonColors()
     ) {
         Text(text = "ABC", style = textStyleFor(size))
     }
 }
+
+@Composable
+private fun textStyleFor(size: Dp): TextStyle =
+    when {
+        size >= TextButtonDefaults.LargeButtonSize -> TextButtonDefaults.largeButtonTextStyle
+        size <= TextButtonDefaults.SmallButtonSize -> TextButtonDefaults.smallButtonTextStyle
+        else -> TextButtonDefaults.defaultButtonTextStyle
+    }

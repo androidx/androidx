@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -28,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>Constants describing image mirroring transforms.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MirrorMode {
     /** No mirror effect will be applied. */
     public static final int MIRROR_MODE_OFF = 0;
@@ -42,12 +40,16 @@ public class MirrorMode {
      */
     public static final int MIRROR_MODE_ON_FRONT_ONLY = 2;
 
+    /** The mirror mode is not specified by the user **/
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int MIRROR_MODE_UNSPECIFIED = -1;
+
     private MirrorMode() {
     }
 
     /**
      */
-    @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_ON_FRONT_ONLY})
+    @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_ON_FRONT_ONLY, MIRROR_MODE_UNSPECIFIED})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface Mirror {

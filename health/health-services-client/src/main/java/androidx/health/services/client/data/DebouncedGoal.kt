@@ -28,66 +28,69 @@ import java.util.Objects
 class DebouncedGoal<T : Number>
 private constructor(
 
-  /** The condition which specifies data type, threshold, comparison type and debounced params. The condition must be met in order to trigger the goal. */
-  val debouncedDataTypeCondition: DebouncedDataTypeCondition<T, *>,
+    /**
+     * The condition which specifies data type, threshold, comparison type and debounced params. The
+     * condition must be met in order to trigger the goal.
+     */
+    val debouncedDataTypeCondition: DebouncedDataTypeCondition<T, *>,
 ) {
 
-  internal val proto: DataProto.DebouncedGoal =
-    DataProto.DebouncedGoal.newBuilder()
-      .setDebouncedDataTypeCondition(debouncedDataTypeCondition.proto)
-      .build()
+    internal val proto: DataProto.DebouncedGoal =
+        DataProto.DebouncedGoal.newBuilder()
+            .setDebouncedDataTypeCondition(debouncedDataTypeCondition.proto)
+            .build()
 
-  override fun equals(other: Any?): Boolean {
-    if (other === this) {
-      return true
-    }
-    if (other !is DebouncedGoal<*>) {
-      return false
-    }
+    override fun equals(other: Any?): Boolean {
+        if (other === this) {
+            return true
+        }
+        if (other !is DebouncedGoal<*>) {
+            return false
+        }
 
-    return debouncedDataTypeCondition == other.debouncedDataTypeCondition
-  }
-
-  override fun hashCode(): Int {
-    return Objects.hash(debouncedDataTypeCondition)
-  }
-
-  override fun toString(): String =
-    "DebouncedGoal(debouncedDataTypeCondition=$debouncedDataTypeCondition)"
-
-  companion object {
-
-    internal fun fromProto(proto: DataProto.DebouncedGoal): DebouncedGoal<Number> {
-      val condition = DebouncedDataTypeCondition.fromProto(proto.debouncedDataTypeCondition)
-      return DebouncedGoal(condition)
+        return debouncedDataTypeCondition == other.debouncedDataTypeCondition
     }
 
-    /**
-     * Creates a [DebouncedGoal] that is achieved once when given [DebouncedDataTypeCondition] is
-     * satisfied for the [DeltaDataType].
-     *
-     * @param condition the debounced data type condition for a sample data type, and whose value
-     *                  represents an instantaneous value, e.g. instantaneous heart rate
-     * @return a debounced goal that is triggered when the condition is met
-     */
-    @JvmStatic
-    fun <T : Number> createSampleDebouncedGoal(
-      condition: DebouncedDataTypeCondition<T, DeltaDataType<T, SampleDataPoint<T>>>
-    ): DebouncedGoal<T> {
-      return DebouncedGoal(condition)
+    override fun hashCode(): Int {
+        return Objects.hash(debouncedDataTypeCondition)
     }
 
-    /**
-     * Creates a [DebouncedGoal] that is achieved once when given [DebouncedDataTypeCondition] is
-     * satisfied for the [AggregateDataType].
-     *
-     * @param condition the debounced data type condition for an aggregate data type, and whose
-     *                  value represents an average value, e.g. average heart rate
-     * @return a debounced goal that is triggered when the condition is met
-     */
-    @JvmStatic
-    fun <T : Number> createAggregateDebouncedGoal(
-      condition: DebouncedDataTypeCondition<T, AggregateDataType<T, StatisticalDataPoint<T>>>
-    ): DebouncedGoal<T> = DebouncedGoal(condition)
-  }
+    override fun toString(): String =
+        "DebouncedGoal(debouncedDataTypeCondition=$debouncedDataTypeCondition)"
+
+    companion object {
+
+        internal fun fromProto(proto: DataProto.DebouncedGoal): DebouncedGoal<Number> {
+            val condition = DebouncedDataTypeCondition.fromProto(proto.debouncedDataTypeCondition)
+            return DebouncedGoal(condition)
+        }
+
+        /**
+         * Creates a [DebouncedGoal] that is achieved once when given [DebouncedDataTypeCondition]
+         * is satisfied for the [DeltaDataType].
+         *
+         * @param condition the debounced data type condition for a sample data type, and whose
+         *   value represents an instantaneous value, e.g. instantaneous heart rate
+         * @return a debounced goal that is triggered when the condition is met
+         */
+        @JvmStatic
+        fun <T : Number> createSampleDebouncedGoal(
+            condition: DebouncedDataTypeCondition<T, DeltaDataType<T, SampleDataPoint<T>>>
+        ): DebouncedGoal<T> {
+            return DebouncedGoal(condition)
+        }
+
+        /**
+         * Creates a [DebouncedGoal] that is achieved once when given [DebouncedDataTypeCondition]
+         * is satisfied for the [AggregateDataType].
+         *
+         * @param condition the debounced data type condition for an aggregate data type, and whose
+         *   value represents an average value, e.g. average heart rate
+         * @return a debounced goal that is triggered when the condition is met
+         */
+        @JvmStatic
+        fun <T : Number> createAggregateDebouncedGoal(
+            condition: DebouncedDataTypeCondition<T, AggregateDataType<T, StatisticalDataPoint<T>>>
+        ): DebouncedGoal<T> = DebouncedGoal(condition)
+    }
 }

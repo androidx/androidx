@@ -16,13 +16,11 @@
 
 package androidx.camera.video.internal.encoder
 
-import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.ResolvableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
-@RequiresApi(21)
 class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
     private val byteBuffer = ByteBuffer.allocate(capacity)
     private val terminationFuture = ResolvableFuture.create<Void>()
@@ -31,6 +29,7 @@ class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
     private var isEndOfStream = false
     var isCanceled = false
         private set
+
     var isSubmitted = false
         private set
 

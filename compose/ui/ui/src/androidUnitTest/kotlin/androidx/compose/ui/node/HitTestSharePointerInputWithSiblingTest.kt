@@ -33,10 +33,11 @@ class HitTestSharePointerInputWithSiblingTest {
         val pointerInputModifier1 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
         val pointerInputModifier2 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
 
-        val outerNode = LayoutNode(0, 0, 1, 1) {
-            childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
-            childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
-        }
+        val outerNode =
+            LayoutNode(0, 0, 1, 1) {
+                childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
+                childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
+            }
 
         val hit = mutableListOf<Modifier.Node>()
 
@@ -51,11 +52,12 @@ class HitTestSharePointerInputWithSiblingTest {
         val pointerInputModifier2 = FakePointerInputModifierNode(sharePointerWithSiblings = false)
         val pointerInputModifier3 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
 
-        val outerNode = LayoutNode(0, 0, 1, 1) {
-            childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
-            childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
-            childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
-        }
+        val outerNode =
+            LayoutNode(0, 0, 1, 1) {
+                childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
+                childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
+                childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
+            }
 
         val hit = mutableListOf<Modifier.Node>()
 
@@ -70,21 +72,21 @@ class HitTestSharePointerInputWithSiblingTest {
         val pointerInputModifier2 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
         val pointerInputModifier3 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
 
-        val outerNode = LayoutNode(0, 0, 1, 1) {
-            childNode(0, 0, 1, 1, pointerInputModifier1.toModifier()) {
-                childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
-                childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
+        val outerNode =
+            LayoutNode(0, 0, 1, 1) {
+                childNode(0, 0, 1, 1, pointerInputModifier1.toModifier()) {
+                    childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
+                    childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
+                }
             }
-        }
 
         val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(0f, 0f), hit)
 
         // The parent node doesn't share pointer events, the two children can still share events.
-        assertThat(hit).isEqualTo(
-            listOf(pointerInputModifier1, pointerInputModifier3, pointerInputModifier2)
-        )
+        assertThat(hit)
+            .isEqualTo(listOf(pointerInputModifier1, pointerInputModifier3, pointerInputModifier2))
     }
 
     @Test
@@ -92,12 +94,11 @@ class HitTestSharePointerInputWithSiblingTest {
         val pointerInputModifier1 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
         val pointerInputModifier2 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
 
-        val outerNode = LayoutNode(0, 0, 1, 1) {
-            childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
-            childNode(0, 0, 1, 1) {
-                childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
+        val outerNode =
+            LayoutNode(0, 0, 1, 1) {
+                childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
+                childNode(0, 0, 1, 1) { childNode(0, 0, 1, 1, pointerInputModifier2.toModifier()) }
             }
-        }
 
         val hit = mutableListOf<Modifier.Node>()
 
@@ -112,12 +113,13 @@ class HitTestSharePointerInputWithSiblingTest {
         val pointerInputModifier2 = FakePointerInputModifierNode(sharePointerWithSiblings = false)
         val pointerInputModifier3 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
 
-        val outerNode = LayoutNode(0, 0, 1, 1) {
-            childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
-            childNode(0, 0, 1, 1, pointerInputModifier2.toModifier()) {
-                childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
+        val outerNode =
+            LayoutNode(0, 0, 1, 1) {
+                childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
+                childNode(0, 0, 1, 1, pointerInputModifier2.toModifier()) {
+                    childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
+                }
             }
-        }
 
         val hit = mutableListOf<Modifier.Node>()
 
@@ -133,15 +135,12 @@ class HitTestSharePointerInputWithSiblingTest {
         val pointerInputModifier2 = FakePointerInputModifierNode(sharePointerWithSiblings = false)
         val pointerInputModifier3 = FakePointerInputModifierNode(sharePointerWithSiblings = true)
 
-        val outerNode = LayoutNode(0, 0, 1, 1) {
-            childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
-            childNode(0, 0, 1, 1) {
-                childNode(0, 0, 1, 1, pointerInputModifier2.toModifier())
+        val outerNode =
+            LayoutNode(0, 0, 1, 1) {
+                childNode(0, 0, 1, 1, pointerInputModifier1.toModifier())
+                childNode(0, 0, 1, 1) { childNode(0, 0, 1, 1, pointerInputModifier2.toModifier()) }
+                childNode(0, 0, 1, 1) { childNode(0, 0, 1, 1, pointerInputModifier3.toModifier()) }
             }
-            childNode(0, 0, 1, 1) {
-                childNode(0, 0, 1, 1, pointerInputModifier3.toModifier())
-            }
-        }
 
         val hit = mutableListOf<Modifier.Node>()
 
@@ -158,9 +157,7 @@ private fun LayoutNode(
     bottom: Int,
     block: LayoutNode.() -> Unit
 ): LayoutNode {
-    val root = LayoutNode(left, top, right, bottom).apply {
-        attach(MockOwner())
-    }
+    val root = LayoutNode(left, top, right, bottom).apply { attach(MockOwner()) }
 
     block.invoke(root)
     return root
@@ -185,21 +182,20 @@ private fun FakePointerInputModifierNode.toModifier(): Modifier {
     return object : ModifierNodeElement<FakePointerInputModifierNode>() {
         override fun create(): FakePointerInputModifierNode = this@toModifier
 
-        override fun update(node: FakePointerInputModifierNode) { }
+        override fun update(node: FakePointerInputModifierNode) {}
 
         override fun hashCode(): Int {
             return if (this@toModifier.sharePointerWithSiblings) 1 else 0
         }
 
         override fun equals(other: Any?): Boolean {
-           return this@toModifier.sharePointerWithSiblings
+            return this@toModifier.sharePointerWithSiblings
         }
     }
 }
 
-private class FakePointerInputModifierNode(
-    var sharePointerWithSiblings: Boolean = false
-) : Modifier.Node(), PointerInputModifierNode {
+private class FakePointerInputModifierNode(var sharePointerWithSiblings: Boolean = false) :
+    Modifier.Node(), PointerInputModifierNode {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,

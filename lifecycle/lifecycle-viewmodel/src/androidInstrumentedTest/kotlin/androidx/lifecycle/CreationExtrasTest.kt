@@ -32,7 +32,7 @@ class CreationExtrasTest {
     @Test
     fun testInitialCreationExtras() {
         val initial = MutableCreationExtras()
-        val key = object : CreationExtras.Key<Bundle> { }
+        val key = object : CreationExtras.Key<Bundle> {}
         initial[key] = bundleOf("value" to "initial")
         val mutable = MutableCreationExtras(initial)
         initial[key] = bundleOf("value" to "overridden")

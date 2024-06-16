@@ -29,9 +29,8 @@ import androidx.glance.testing.GlanceNode
  * <p>[MappedNode]s are not rendered representations, but they map 1:1 to the composable nodes. They
  * enable faster testing of the logic of composing Glance composable tree as part of unit tests.
  */
-class MappedNode internal constructor(
-    @get:RestrictTo(Scope.LIBRARY_GROUP) val emittable: Emittable
-) {
+class MappedNode
+internal constructor(@get:RestrictTo(Scope.LIBRARY_GROUP) val emittable: Emittable) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MappedNode) return false
@@ -54,8 +53,7 @@ class MappedNode internal constructor(
  */
 class GlanceMappedNode(private val mappedNode: MappedNode) : GlanceNode<MappedNode>(mappedNode) {
 
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    constructor(emittable: Emittable) : this(MappedNode(emittable))
+    @RestrictTo(Scope.LIBRARY_GROUP) constructor(emittable: Emittable) : this(MappedNode(emittable))
 
     @RestrictTo(Scope.LIBRARY_GROUP)
     override fun children(): List<GlanceNode<MappedNode>> {

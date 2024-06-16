@@ -73,9 +73,10 @@ const val ORIENTATION_2 = 270
 @SdkSuppress(minSdkVersion = 21)
 class Camera2RequestProcessorTest {
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
@@ -90,8 +91,9 @@ class Camera2RequestProcessorTest {
     private val previewImageRetrieved = CompletableDeferred<Unit>()
 
     private fun getCameraCharacteristic(cameraId: String): CameraCharacteristicsCompat {
-        val cameraManager = ApplicationProvider.getApplicationContext<Context>()
-            .getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraManager =
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
             cameraManager.getCameraCharacteristics(cameraId),
@@ -106,19 +108,18 @@ class Camera2RequestProcessorTest {
         captureSessionRepository = CaptureSessionRepository(mainThreadExecutor)
         val cameraCharacteristics = getCameraCharacteristic(CAMERA_ID)
         dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristics)
-        captureSessionOpenerBuilder = SynchronizedCaptureSession.OpenerBuilder(
-            mainThreadExecutor,
-            mainThreadExecutor as ScheduledExecutorService,
-            handler,
-            captureSessionRepository,
-            CameraQuirks.get(CAMERA_ID, cameraCharacteristics),
-            DeviceQuirks.getAll()
-        )
+        captureSessionOpenerBuilder =
+            SynchronizedCaptureSession.OpenerBuilder(
+                mainThreadExecutor,
+                mainThreadExecutor as ScheduledExecutorService,
+                handler,
+                captureSessionRepository,
+                CameraQuirks.get(CAMERA_ID, cameraCharacteristics),
+                DeviceQuirks.getAll()
+            )
 
-        cameraDeviceHolder = CameraUtil.getCameraDevice(
-            CAMERA_ID,
-            captureSessionRepository.cameraStateCallback
-        )
+        cameraDeviceHolder =
+            CameraUtil.getCameraDevice(CAMERA_ID, captureSessionRepository.cameraStateCallback)
 
         // Preview Surface
         val surfaceTexture = SurfaceTexture(0)
@@ -149,9 +150,7 @@ class Camera2RequestProcessorTest {
         )
         captureSurface = SessionProcessorSurface(imageReader.surface, CAPTURE_OUTPUT_CONFIG_ID)
         captureSurface.terminationFuture.addListener(
-            {
-                imageReader.close()
-            },
+            { imageReader.close() },
             CameraXExecutors.directExecutor()
         )
     }
@@ -164,11 +163,13 @@ class Camera2RequestProcessorTest {
     }
 
     private fun getSessionConfig(): SessionConfig {
-        return SessionConfig.Builder().apply {
-            addSurface(previewSurface)
-            addSurface(captureSurface)
-            setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-        }.build()
+        return SessionConfig.Builder()
+            .apply {
+                addSurface(previewSurface)
+                addSurface(captureSurface)
+                setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+            }
+            .build()
     }
 
     @Test
@@ -176,33 +177,32 @@ class Camera2RequestProcessorTest {
         // Arrange
         val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
-        captureSession.open(
-            getSessionConfig(),
-            cameraDevice,
-            captureSessionOpenerBuilder.build()
-        ).await()
-        val requestProcessor = Camera2RequestProcessor(
-            captureSession,
-            listOf(previewSurface, captureSurface)
-        )
-        val request = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
-            setParameters(
-                CaptureRequestOptions.Builder().apply {
-                    setCaptureRequestOption(
-                        CaptureRequest.JPEG_ORIENTATION,
-                        ORIENTATION_1
+        captureSession
+            .open(getSessionConfig(), cameraDevice, captureSessionOpenerBuilder.build())
+            .await()
+        val requestProcessor =
+            Camera2RequestProcessor(captureSession, listOf(previewSurface, captureSurface))
+        val request =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                    setParameters(
+                        CaptureRequestOptions.Builder()
+                            .apply {
+                                setCaptureRequestOption(
+                                    CaptureRequest.JPEG_ORIENTATION,
+                                    ORIENTATION_1
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.build()
+                }
+                .build()
         val callbackToVerify = CallbackToVerify(numOfCaptureResultToVerify = 1)
 
         // Act
-        val sequenceId = requestProcessor.submit(
-            request, callbackToVerify
-        )
+        val sequenceId = requestProcessor.submit(request, callbackToVerify)
 
         // Assert
         withTimeout(5000) {
@@ -224,28 +224,33 @@ class Camera2RequestProcessorTest {
         // Arrange
         val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
-        captureSession.open(
-            getSessionConfig(),
-            cameraDevice,
-            captureSessionOpenerBuilder.build()
-        ).get()
-        val requestProcessor = Camera2RequestProcessor(
-            captureSession,
-            listOf(previewSurface, captureSurface)
-        )
+        captureSession
+            .open(getSessionConfig(), cameraDevice, captureSessionOpenerBuilder.build())
+            .get()
+        val requestProcessor =
+            Camera2RequestProcessor(captureSession, listOf(previewSurface, captureSurface))
 
-        val request1 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
-        }.build()
-        val request2 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
-        }.build()
-        val request3 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
-        }.build()
+        val request1 =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                }
+                .build()
+        val request2 =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                }
+                .build()
+        val request3 =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                }
+                .build()
 
         val callbackToVerify1 = CallbackToVerify(numOfCaptureResultToVerify = 1)
         val callbackToVerify2 = CallbackToVerify(numOfCaptureResultToVerify = 1)
@@ -255,21 +260,15 @@ class Camera2RequestProcessorTest {
         val latchForStart = CountDownLatch(1)
         val thread1 = Thread {
             latchForStart.await()
-            requestProcessor.submit(
-                request1, callbackToVerify1
-            )
+            requestProcessor.submit(request1, callbackToVerify1)
         }
         val thread2 = Thread {
             latchForStart.await()
-            requestProcessor.submit(
-                request2, callbackToVerify2
-            )
+            requestProcessor.submit(request2, callbackToVerify2)
         }
         mainThreadExecutor.execute {
             latchForStart.await()
-            requestProcessor.submit(
-                request3, callbackToVerify3
-            )
+            requestProcessor.submit(request3, callbackToVerify3)
         }
         thread2.start()
         thread1.start()
@@ -290,46 +289,49 @@ class Camera2RequestProcessorTest {
         // Arrange
         val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
-        captureSession.open(
-            getSessionConfig(),
-            cameraDevice,
-            captureSessionOpenerBuilder.build()
-        ).await()
-        val requestProcessor = Camera2RequestProcessor(
-            captureSession,
-            listOf(previewSurface, captureSurface)
-        )
-        val request1 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
-            setParameters(
-                CaptureRequestOptions.Builder().apply {
-                    setCaptureRequestOption(
-                        CaptureRequest.JPEG_ORIENTATION,
-                        ORIENTATION_1
+        captureSession
+            .open(getSessionConfig(), cameraDevice, captureSessionOpenerBuilder.build())
+            .await()
+        val requestProcessor =
+            Camera2RequestProcessor(captureSession, listOf(previewSurface, captureSurface))
+        val request1 =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                    setParameters(
+                        CaptureRequestOptions.Builder()
+                            .apply {
+                                setCaptureRequestOption(
+                                    CaptureRequest.JPEG_ORIENTATION,
+                                    ORIENTATION_1
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.build()
-        val request2 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
-            setParameters(
-                CaptureRequestOptions.Builder().apply {
-                    setCaptureRequestOption(
-                        CaptureRequest.JPEG_ORIENTATION,
-                        ORIENTATION_2
+                }
+                .build()
+        val request2 =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
+                    setParameters(
+                        CaptureRequestOptions.Builder()
+                            .apply {
+                                setCaptureRequestOption(
+                                    CaptureRequest.JPEG_ORIENTATION,
+                                    ORIENTATION_2
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.build()
+                }
+                .build()
         val callbackToVerify = CallbackToVerify(numOfCaptureResultToVerify = 2)
 
         // Act
-        val sequenceId = requestProcessor.submit(
-            listOf(request1, request2),
-            callbackToVerify
-        )
+        val sequenceId = requestProcessor.submit(listOf(request1, request2), callbackToVerify)
 
         // Assert
         withTimeout(5000) {
@@ -366,34 +368,33 @@ class Camera2RequestProcessorTest {
         // Arrange
         val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
-        captureSession.open(
-            getSessionConfig(),
-            cameraDevice,
-            captureSessionOpenerBuilder.build()
-        ).await()
-        val requestProcessor = Camera2RequestProcessor(
-            captureSession,
-            listOf(previewSurface, captureSurface)
-        )
-        val request = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
-            setParameters(
-                CaptureRequestOptions.Builder().apply {
-                    setCaptureRequestOption(
-                        CaptureRequest.JPEG_ORIENTATION,
-                        ORIENTATION_1
+        captureSession
+            .open(getSessionConfig(), cameraDevice, captureSessionOpenerBuilder.build())
+            .await()
+        val requestProcessor =
+            Camera2RequestProcessor(captureSession, listOf(previewSurface, captureSurface))
+        val request =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
+                    setParameters(
+                        CaptureRequestOptions.Builder()
+                            .apply {
+                                setCaptureRequestOption(
+                                    CaptureRequest.JPEG_ORIENTATION,
+                                    ORIENTATION_1
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.build()
+                }
+                .build()
         // ensure capture result is received multiple times since it is a repeating request.
         val callbackToVerify = CallbackToVerify(numOfCaptureResultToVerify = 4)
 
         // Act
-        val sequenceId = requestProcessor.setRepeating(
-            request, callbackToVerify
-        )
+        val sequenceId = requestProcessor.setRepeating(request, callbackToVerify)
 
         // Assert
         withTimeout(5000) {
@@ -417,42 +418,30 @@ class Camera2RequestProcessorTest {
         // Arrange
         val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
-        captureSession.open(
-            getSessionConfig(),
-            cameraDevice,
-            captureSessionOpenerBuilder.build()
-        ).await()
+        captureSession
+            .open(getSessionConfig(), cameraDevice, captureSessionOpenerBuilder.build())
+            .await()
 
-        val requestProcessor = Camera2RequestProcessor(
-            captureSession,
-            listOf(previewSurface, captureSurface)
-        )
+        val requestProcessor =
+            Camera2RequestProcessor(captureSession, listOf(previewSurface, captureSurface))
 
         // Act
         requestProcessor.close()
 
         // Assert
-        val request = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID)
-            setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
-        }.build()
+        val request =
+            RequestProcessorRequest.Builder()
+                .apply {
+                    addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID)
+                    setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
+                }
+                .build()
 
         val callbackToVerify = CallbackToVerify(numOfCaptureResultToVerify = 1)
-        assertThat(
-            requestProcessor.submit(
-                request, callbackToVerify
-            )
-        ).isEqualTo(-1)
-        assertThat(
-            requestProcessor.submit(
-                listOf(request, request), callbackToVerify
-            )
-        ).isEqualTo(-1)
-        assertThat(
-            requestProcessor.setRepeating(
-                request, callbackToVerify
-            )
-        ).isEqualTo(-1)
+        assertThat(requestProcessor.submit(request, callbackToVerify)).isEqualTo(-1)
+        assertThat(requestProcessor.submit(listOf(request, request), callbackToVerify))
+            .isEqualTo(-1)
+        assertThat(requestProcessor.setRepeating(request, callbackToVerify)).isEqualTo(-1)
     }
 
     @Test
@@ -460,46 +449,38 @@ class Camera2RequestProcessorTest {
         // Arrange
         val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
-        captureSession.open(
-            getSessionConfig(),
-            cameraDevice,
-            captureSessionOpenerBuilder.build()
-        ).await()
+        captureSession
+            .open(getSessionConfig(), cameraDevice, captureSessionOpenerBuilder.build())
+            .await()
 
-        val requestProcessor = Camera2RequestProcessor(
-            captureSession,
-            listOf(previewSurface, captureSurface),
-        )
+        val requestProcessor =
+            Camera2RequestProcessor(
+                captureSession,
+                listOf(previewSurface, captureSurface),
+            )
         val invalidRequest1 = RequestProcessorRequest.Builder().build()
-        val invalidRequest2 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(INVALID_OUTPUT_CONFIG_ID)
-        }.build()
-        val validRequest = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID)
-        }.build()
+        val invalidRequest2 =
+            RequestProcessorRequest.Builder()
+                .apply { addTargetOutputConfigId(INVALID_OUTPUT_CONFIG_ID) }
+                .build()
+        val validRequest =
+            RequestProcessorRequest.Builder()
+                .apply { addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID) }
+                .build()
         val callbackToVerify = CallbackToVerify(numOfCaptureResultToVerify = 1)
         // Act and Assert
         assertThat(requestProcessor.submit(invalidRequest1, callbackToVerify)).isEqualTo(-1)
         assertThat(requestProcessor.submit(invalidRequest2, callbackToVerify)).isEqualTo(-1)
-        assertThat(
-            requestProcessor.submit(
-                listOf(validRequest, invalidRequest1),
-                callbackToVerify
-            )
-        ).isEqualTo(-1)
-        assertThat(
-            requestProcessor.submit(
-                listOf(validRequest, invalidRequest2),
-                callbackToVerify
-            )
-        ).isEqualTo(-1)
+        assertThat(requestProcessor.submit(listOf(validRequest, invalidRequest1), callbackToVerify))
+            .isEqualTo(-1)
+        assertThat(requestProcessor.submit(listOf(validRequest, invalidRequest2), callbackToVerify))
+            .isEqualTo(-1)
         assertThat(requestProcessor.setRepeating(invalidRequest1, callbackToVerify)).isEqualTo(-1)
         assertThat(requestProcessor.setRepeating(invalidRequest2, callbackToVerify)).isEqualTo(-1)
     }
 
-    class CallbackToVerify(
-        private val numOfCaptureResultToVerify: Int
-    ) : RequestProcessor.Callback {
+    class CallbackToVerify(private val numOfCaptureResultToVerify: Int) :
+        RequestProcessor.Callback {
         private val deferredCaptureResults =
             CompletableDeferred<List<Pair<CameraCaptureResult, RequestProcessor.Request>>>()
         private val captureResultsReceived =
@@ -525,14 +506,12 @@ class Camera2RequestProcessorTest {
             request: RequestProcessor.Request,
             frameNumber: Long,
             timestamp: Long
-        ) {
-        }
+        ) {}
 
         override fun onCaptureProgressed(
             request: RequestProcessor.Request,
             captureResult: CameraCaptureResult
-        ) {
-        }
+        ) {}
 
         override fun onCaptureCompleted(
             request: RequestProcessor.Request,
@@ -551,22 +530,19 @@ class Camera2RequestProcessorTest {
         override fun onCaptureFailed(
             request: RequestProcessor.Request,
             captureFailure: CameraCaptureFailure
-        ) {
-        }
+        ) {}
 
         override fun onCaptureBufferLost(
             request: RequestProcessor.Request,
             frameNumber: Long,
             outputConfigId: Int
-        ) {
-        }
+        ) {}
 
         override fun onCaptureSequenceCompleted(sequenceId: Int, frameNumber: Long) {
             sequenceCompleteCount++
             deferredCaptureSequenceReceived.complete(sequenceId)
         }
 
-        override fun onCaptureSequenceAborted(sequenceId: Int) {
-        }
+        override fun onCaptureSequenceAborted(sequenceId: Int) {}
     }
 }

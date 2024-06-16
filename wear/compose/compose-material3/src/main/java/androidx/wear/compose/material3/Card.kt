@@ -20,19 +20,25 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -60,28 +66,29 @@ import androidx.wear.compose.materialcore.Text
  * Cards can be enabled or disabled. A disabled card will not respond to click events.
  *
  * Example of a [Card]:
+ *
  * @sample androidx.wear.compose.material3.samples.CardSample
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * Wear OS Material design guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) Wear OS Material
+ * design guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  * @param colors [CardColors] that will be used to resolve the colors used for this card in
- * different states. See [CardDefaults.cardColors].
+ *   different states. See [CardDefaults.cardColors].
  * @param border A BorderStroke object which is used for drawing outlines.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this card. You can use this to change the card's appearance
- * or preview the card in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param content The main slot for a content of this card
  */
 @Composable
@@ -99,7 +106,7 @@ fun Card(
     CardImpl(
         onClick = onClick,
         typography = CardTokens.ContentTypography.value,
-        modifier = modifier.minimumInteractiveComponentSize(),
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
         colors = colors,
         border = border,
@@ -120,56 +127,61 @@ fun Card(
  * The first row of the layout has three slots, 1) a small optional application [Image] or [Icon] of
  * size [CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] dp, 2) an application name
  * (emphasised with the [CardColors.appColor()] color), it is expected to be a short start aligned
- * [Text] composable, and 3) the time that the application activity has occurred which will be
- * shown on the top row of the card, this is expected to be an end aligned [Text] composable
- * showing a time relevant to the contents of the [Card].
+ * [Text] composable, and 3) the time that the application activity has occurred which will be shown
+ * on the top row of the card, this is expected to be an end aligned [Text] composable showing a
+ * time relevant to the contents of the [Card].
  *
  * The second row shows a title, this is expected to be a single row of start aligned [Text].
  *
- * The rest of the [Card] contains the content which can be either [Text] or an [Image].
- * If the content is text it can be single or multiple line and is expected to be Top and Start
- * aligned.
+ * The rest of the [Card] contains the content which can be either [Text] or an [Image]. If the
+ * content is text it can be single or multiple line and is expected to be Top and Start aligned.
  *
  * If more than one composable is provided in the content slot it is the responsibility of the
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
  *
  * Example of an [AppCard]:
+ *
  * @sample androidx.wear.compose.material3.samples.AppCardSample
  *
  * Example of an [AppCard] with icon:
+ *
  * @sample androidx.wear.compose.material3.samples.AppCardWithIconSample
  *
+ * Example of an [AppCard] with image [content]:
+ *
+ * @sample androidx.wear.compose.material3.samples.AppCardWithImageSample
+ *
  * Example of an outlined [AppCard]:
+ *
  * @sample androidx.wear.compose.material3.samples.OutlinedAppCardSample
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param appName A slot for displaying the application name, expected to be a single line of start
- * aligned text of [Typography.labelSmall]
+ *   aligned text of [Typography.labelSmall]
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
- * start aligned text of [Typography.titleMedium]
+ *   start aligned text of [Typography.titleMedium]
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  * @param colors [CardColors] that will be used to resolve the colors used for this card in
- * different states. See [CardDefaults.cardColors].
+ *   different states. See [CardDefaults.cardColors].
  * @param border A BorderStroke object which is used for drawing outlines.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this card. You can use this to change the card's appearance
- * or preview the card in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
- * [Image] associated with the application.
+ *   [Image] associated with the application.
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
- * short piece of end aligned text of [Typography.labelSmall].
+ *   short piece of end aligned text of [Typography.labelSmall].
  * @param content The main slot for a content of this card
  */
 @Composable
@@ -188,44 +200,64 @@ fun AppCard(
     time: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.AppCard(
+    androidx.wear.compose.materialcore.Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
-        shape = shape,
         containerPainter = colors.containerPainter,
         border = border,
         contentPadding = contentPadding,
-        appImage = appImage?.let { { appImage() } },
         interactionSource = interactionSource,
+        role = null,
+        shape = shape,
         ripple = rippleOrFallbackImplementation(),
-        appName = {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.appNameColor,
-                LocalTextStyle provides CardTokens.AppNameTypography.value,
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                appName()
-            }
-        },
-        time = time?.let {
-            {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides CardTokens.TimeTypography.value,
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    time()
+                    appImage?.let {
+                        appImage()
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.appNameColor,
+                        LocalTextStyle provides CardTokens.AppNameTypography.value,
+                    ) {
+                        appName()
+                    }
+                }
+
+                time?.let {
+                    Spacer(Modifier.width(6.dp))
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.timeColor,
+                        LocalTextStyle provides CardTokens.TimeTypography.value,
+                    ) {
+                        time()
+                    }
                 }
             }
-        },
-        title = {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.titleColor,
-                LocalTextStyle provides CardTokens.TitleTypography.value,
-            ) {
-                title()
-            }
-        },
-        content = {
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                content = {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleColor,
+                        LocalTextStyle provides CardTokens.TitleTypography.value,
+                    ) {
+                        title()
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides colors.contentColor,
                 LocalTextStyle provides CardTokens.ContentTypography.value,
@@ -233,67 +265,71 @@ fun AppCard(
                 content()
             }
         }
-    )
+    }
 }
 
 /**
- * Opinionated Wear Material 3 [Card] that offers a specific layout to show interactive
- * information about an application, e.g. a message. TitleCards are designed for use within an
- * application.
+ * Opinionated Wear Material 3 [Card] that offers a specific layout to show interactive information
+ * about an application, e.g. a message. TitleCards are designed for use within an application.
  *
- * The [time], [subtitle] and [content] fields are optional,
- * but it is expected that at least one of these is provided.
- * The layout will vary according to which fields are supplied - see samples.
+ * The [time], [subtitle] and [content] fields are optional, but it is expected that at least one of
+ * these is provided. The layout will vary according to which fields are supplied - see samples.
  *
  * If the [content] is text it can be single or multiple line and is expected to be Top and Start
- * aligned. When [subtitle] is used [content] shouldn't
- * exceed 2 lines height. Overall the [title], [content] and [subtitle] text should be no more than
- * 5 rows of text combined.
+ * aligned. When [subtitle] is used [content] shouldn't exceed 2 lines height. Overall the [title],
+ * [content] and [subtitle] text should be no more than 5 rows of text combined.
  *
  * If more than one composable is provided in the [content] slot it is the responsibility of the
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
  *
  * Example of a [TitleCard] with [time], [title] and [content]:
+ *
  * @sample androidx.wear.compose.material3.samples.TitleCardSample
  *
  * Example of a [TitleCard] with a background image:
- * @sample androidx.wear.compose.material3.samples.TitleCardWithImageSample
+ *
+ * @sample androidx.wear.compose.material3.samples.TitleCardWithImageBackgroundSample
  *
  * Example of a [TitleCard] with [time], [title] and [subtitle]:
+ *
  * @sample androidx.wear.compose.material3.samples.TitleCardWithSubtitleAndTimeSample
  *
+ * Example of a [TitleCard] with images [content]:
+ *
+ * @sample androidx.wear.compose.material3.samples.TitleCardWithMultipleImagesSample
+ *
  * Example of an outlined [TitleCard]:
+ *
  * @sample androidx.wear.compose.material3.samples.OutlinedTitleCardSample
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
  *
  * @param onClick Will be called when the user clicks the card
- * @param title A slot for displaying the title of the card, expected to be one or
- * two lines of text.
+ * @param title A slot for displaying the title of the card, expected to be one or two lines of
+ *   text.
  * @param modifier Modifier to be applied to the card
  * @param time An optional slot for displaying the time relevant to the contents of the card,
- * expected to be a short piece of text. Depending on whether we have a [content]
- * or not, can be placed at the end of the [title] line or above it.
- * @param subtitle An optional slot for displaying the subtitle of the card, expected to be
- * one line of text.
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ *   expected to be a short piece of text. Depending on whether we have a [content] or not, can be
+ *   placed at the end of the [title] line or above it.
+ * @param subtitle An optional slot for displaying the subtitle of the card, expected to be one line
+ *   of text.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  * @param colors [CardColors] that will be used to resolve the colors used for this card in
- * different states. See [CardDefaults.cardColors].
+ *   different states. See [CardDefaults.cardColors].
  * @param border A BorderStroke object which is used for drawing outlines.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this card. You can use this to change the card's appearance
- * or preview the card in different states. Note that if `null` is provided, interactions will
- * still happen internally.
- * @param content The optional body content of the card. If not provided then title
- * and subtitle are expected to be provided
+ *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param content The optional body content of the card. If not provided then title and subtitle are
+ *   expected to be provided
  */
 @Composable
 fun TitleCard(
@@ -313,10 +349,11 @@ fun TitleCard(
     val timeWithTextStyle: @Composable () -> Unit = {
         time?.let {
             CompositionLocalProvider(
-                values = arrayOf(
-                    LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides CardTokens.TimeTypography.value
-                ),
+                values =
+                    arrayOf(
+                        LocalContentColor provides colors.timeColor,
+                        LocalTextStyle provides CardTokens.TimeTypography.value
+                    ),
                 content = time
             )
         }
@@ -324,7 +361,7 @@ fun TitleCard(
 
     androidx.wear.compose.materialcore.Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
         containerPainter = colors.containerPainter,
         border = border,
@@ -339,38 +376,44 @@ fun TitleCard(
                 timeWithTextStyle()
                 Spacer(modifier = Modifier.height(4.dp))
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides CardTokens.TitleTypography.value,
-                ) {
-                    title()
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                Row(Modifier.weight(1f)) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleColor,
+                        LocalTextStyle provides CardTokens.TitleTypography.value,
+                    ) {
+                        title()
+                    }
                 }
                 if (content != null) {
-                    Spacer(modifier = Modifier.weight(1.0f))
+                    Spacer(modifier = Modifier.width(4.dp))
                     timeWithTextStyle()
                 }
             }
             content?.let {
+                Spacer(modifier = Modifier.height(2.dp))
                 CompositionLocalProvider(
-                    values = arrayOf(
-                        LocalContentColor provides colors.contentColor,
-                        LocalTextStyle provides CardTokens.ContentTypography.value
-                    ),
+                    values =
+                        arrayOf(
+                            LocalContentColor provides colors.contentColor,
+                            LocalTextStyle provides CardTokens.ContentTypography.value
+                        ),
                     content = content
                 )
             }
             subtitle?.let {
-                Spacer(modifier = Modifier.height(if (content != null) 2.dp else 4.dp))
+                Spacer(
+                    modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp)
+                )
                 CompositionLocalProvider(
                     LocalContentColor provides colors.subtitleColor,
                     LocalTextStyle provides CardTokens.SubtitleTypography.value
                 ) {
                     subtitle()
                 }
+            }
+            if (colors.containerPainter.isImagePainter()) {
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
@@ -379,37 +422,38 @@ fun TitleCard(
 /**
  * Outlined Wear Material 3 [Card] that offers a single slot to take any content.
  *
- * Outlined [Card] components that take specific content such
- * as icons, images, titles, subtitles and labels. Outlined Cards have a
- * visual boundary around the container. This can emphasise the content of this card.
+ * Outlined [Card] components that take specific content such as icons, images, titles, subtitles
+ * and labels. Outlined Cards have a visual boundary around the container. This can emphasise the
+ * content of this card.
  *
  * The [Card] is Rectangle shaped with rounded corners by default.
  *
  * Cards can be enabled or disabled. A disabled card will not respond to click events.
  *
  * Example of an [OutlinedCard]:
+ *
  * @sample androidx.wear.compose.material3.samples.OutlinedCardSample
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * Wear OS Material design guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) Wear OS Material
+ * design guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  * @param colors [CardColors] that will be used to resolve the colors used for this card in
- * different states. See [CardDefaults.cardColors].
+ *   different states. See [CardDefaults.cardColors].
  * @param border A BorderStroke object which is used for the outline drawing.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this card. You can use this to change the card's appearance
- * or preview the card in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param content The main slot for a content of this card
  */
 @Composable
@@ -427,7 +471,7 @@ fun OutlinedCard(
     CardImpl(
         onClick = onClick,
         typography = OutlinedCardTokens.ContentTypography.value,
-        modifier = modifier,
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
         colors = colors,
         border = border,
@@ -438,17 +482,14 @@ fun OutlinedCard(
     )
 }
 
-/**
- * Contains the default values used by [Card]
- */
+/** Contains the default values used by [Card] */
 object CardDefaults {
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
      * [Card], [AppCard] or [TitleCard].
      */
-    @Composable
-    fun cardColors() = MaterialTheme.colorScheme.defaultCardColors
+    @Composable fun cardColors() = MaterialTheme.colorScheme.defaultCardColors
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
@@ -469,21 +510,21 @@ object CardDefaults {
         timeColor: Color = Color.Unspecified,
         titleColor: Color = Color.Unspecified,
         subtitleColor: Color = Color.Unspecified,
-    ): CardColors = MaterialTheme.colorScheme.defaultCardColors.copy(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        appNameColor = appNameColor,
-        timeColor = timeColor,
-        titleColor = titleColor,
-        subtitleColor = subtitleColor
-    )
+    ): CardColors =
+        MaterialTheme.colorScheme.defaultCardColors.copy(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            appNameColor = appNameColor,
+            timeColor = timeColor,
+            titleColor = titleColor,
+            subtitleColor = subtitleColor
+        )
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in an
      * [OutlinedCard], outlined [AppCard] or [TitleCard].
      */
-    @Composable
-    fun outlinedCardColors() = MaterialTheme.colorScheme.defaultOutlinedCardColors
+    @Composable fun outlinedCardColors() = MaterialTheme.colorScheme.defaultOutlinedCardColors
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in an
@@ -502,18 +543,19 @@ object CardDefaults {
         timeColor: Color = Color.Unspecified,
         titleColor: Color = Color.Unspecified,
         subtitleColor: Color = Color.Unspecified
-    ): CardColors = MaterialTheme.colorScheme.defaultOutlinedCardColors.copy(
-        containerColor = Color.Transparent,
-        contentColor = contentColor,
-        appNameColor = appNameColor,
-        timeColor = timeColor,
-        titleColor = titleColor,
-        subtitleColor = subtitleColor
-    )
+    ): CardColors =
+        MaterialTheme.colorScheme.defaultOutlinedCardColors.copy(
+            containerColor = Color.Transparent,
+            contentColor = contentColor,
+            appNameColor = appNameColor,
+            timeColor = timeColor,
+            titleColor = titleColor,
+            subtitleColor = subtitleColor
+        )
 
     /**
-     * Creates a [CardColors] that represents the default container and content colors
-     * used in a [Card], [AppCard] or [TitleCard] with Image set as a background.
+     * Creates a [CardColors] that represents the default container and content colors used in a
+     * [Card], [AppCard] or [TitleCard] with Image set as a background.
      *
      * @param containerPainter a Painter which is used for background drawing.
      * @param contentColor the content color of this [Card].
@@ -534,19 +576,15 @@ object CardDefaults {
         val colorScheme = MaterialTheme.colorScheme
         return CardColors(
             containerPainter = containerPainter,
-            contentColor = contentColor.takeOrElse {
-                colorScheme.fromToken(ImageCardTokens.ContentColor)
-            },
-            appNameColor = appNameColor.takeOrElse {
-                colorScheme.fromToken(ImageCardTokens.AppNameColor)
-            },
+            contentColor =
+                contentColor.takeOrElse { colorScheme.fromToken(ImageCardTokens.ContentColor) },
+            appNameColor =
+                appNameColor.takeOrElse { colorScheme.fromToken(ImageCardTokens.AppNameColor) },
             timeColor = timeColor.takeOrElse { colorScheme.fromToken(ImageCardTokens.TimeColor) },
-            titleColor = titleColor.takeOrElse {
-                colorScheme.fromToken(ImageCardTokens.TitleColor)
-            },
-            subtitleColor = subtitleColor.takeOrElse {
-                colorScheme.fromToken(ImageCardTokens.SubtitleColor)
-            }
+            titleColor =
+                titleColor.takeOrElse { colorScheme.fromToken(ImageCardTokens.TitleColor) },
+            subtitleColor =
+                subtitleColor.takeOrElse { colorScheme.fromToken(ImageCardTokens.SubtitleColor) }
         )
     }
 
@@ -561,12 +599,12 @@ object CardDefaults {
      *
      * @param backgroundImagePainter The [Painter] to use to draw the background of the [Card]
      * @param backgroundImageScrimBrush The [Brush] to use to paint a scrim over the background
-     * image to ensure that any text drawn over the image is legible
+     *   image to ensure that any text drawn over the image is legible
      */
     @Composable
     fun imageWithScrimBackgroundPainter(
         backgroundImagePainter: Painter,
-        backgroundImageScrimBrush: Brush = SolidColor(OverlayScrimColor)
+        backgroundImageScrimBrush: Brush = SolidColor(overlayScrimColor)
     ): Painter {
         return ImageWithScrimPainter(
             imagePainter = backgroundImagePainter,
@@ -576,6 +614,7 @@ object CardDefaults {
 
     /**
      * Creates a [BorderStroke] that represents the default border used in Outlined Cards.
+     *
      * @param outlineColor The color to be used for drawing an outline.
      * @param borderWidth width of the border in [Dp].
      */
@@ -583,58 +622,70 @@ object CardDefaults {
     fun outlinedCardBorder(
         outlineColor: Color = OutlinedCardTokens.ContainerBorderColor.value,
         borderWidth: Dp = OutlinedCardTokens.BorderWidth
-    ): BorderStroke =
-        BorderStroke(borderWidth, outlineColor)
+    ): BorderStroke = BorderStroke(borderWidth, outlineColor)
 
-    private val CardHorizontalPadding = 10.dp
-    private val CardVerticalPadding = 10.dp
+    private val CardHorizontalPadding = 12.dp
+    private val CardVerticalPadding = 12.dp
 
-    private val OverlayScrimColor: Color = Color(0x99202124)
+    private val overlayScrimColor: Color
+        @ReadOnlyComposable
+        @Composable
+        get() =
+            ImageCardTokens.OverlayScrimColor.value.copy(
+                alpha = ImageCardTokens.OverlayScrimOpacity
+            )
 
-    /**
-     * The default content padding used by [Card]
-     */
-    val ContentPadding: PaddingValues = PaddingValues(
-        start = CardHorizontalPadding,
-        top = CardVerticalPadding,
-        end = CardHorizontalPadding,
-        bottom = CardVerticalPadding
-    )
+    /** The default content padding used by [Card] */
+    val ContentPadding: PaddingValues =
+        PaddingValues(
+            start = CardHorizontalPadding,
+            top = CardVerticalPadding,
+            end = CardHorizontalPadding,
+            bottom = CardVerticalPadding
+        )
 
-    /**
-     * The default size of the app icon/image when used inside a [AppCard].
-     */
+    /** The default size of the app icon/image when used inside a [AppCard]. */
     val AppImageSize: Dp = CardTokens.AppImageSize
 
     private val ColorScheme.defaultCardColors: CardColors
         get() {
-            return defaultCardColorsCached ?: CardColors(
-                containerPainter = ColorPainter(fromToken(CardTokens.ContainerColor)),
-                contentColor = fromToken(CardTokens.ContentColor),
-                appNameColor = fromToken(CardTokens.AppNameColor),
-                timeColor = fromToken(CardTokens.TimeColor),
-                titleColor = fromToken(CardTokens.TitleColor),
-                subtitleColor = fromToken(CardTokens.SubtitleColor)
-            ).also { defaultCardColorsCached = it }
+            return defaultCardColorsCached
+                ?: CardColors(
+                        containerPainter = ColorPainter(fromToken(CardTokens.ContainerColor)),
+                        contentColor = fromToken(CardTokens.ContentColor),
+                        appNameColor = fromToken(CardTokens.AppNameColor),
+                        timeColor = fromToken(CardTokens.TimeColor),
+                        titleColor = fromToken(CardTokens.TitleColor),
+                        subtitleColor = fromToken(CardTokens.SubtitleColor)
+                    )
+                    .also { defaultCardColorsCached = it }
         }
 
     private val ColorScheme.defaultOutlinedCardColors: CardColors
         get() {
-            return defaultOutlinedCardColorsCached ?: CardColors(
-                containerPainter = ColorPainter(Color.Transparent),
-                contentColor = fromToken(OutlinedCardTokens.ContentColor),
-                appNameColor = fromToken(OutlinedCardTokens.AppNameColor),
-                timeColor = fromToken(OutlinedCardTokens.TimeColor),
-                titleColor = fromToken(OutlinedCardTokens.TitleColor),
-                subtitleColor = fromToken(OutlinedCardTokens.SubtitleColor)
-            ).also { defaultOutlinedCardColorsCached = it }
+            return defaultOutlinedCardColorsCached
+                ?: CardColors(
+                        containerPainter = ColorPainter(Color.Transparent),
+                        contentColor = fromToken(OutlinedCardTokens.ContentColor),
+                        appNameColor = fromToken(OutlinedCardTokens.AppNameColor),
+                        timeColor = fromToken(OutlinedCardTokens.TimeColor),
+                        titleColor = fromToken(OutlinedCardTokens.TitleColor),
+                        subtitleColor = fromToken(OutlinedCardTokens.SubtitleColor)
+                    )
+                    .also { defaultOutlinedCardColorsCached = it }
         }
 }
 
+@Composable
+private fun Modifier.cardSizeModifier(): Modifier =
+    defaultMinSize(minHeight = CardTokens.ContainerMinHeight).height(IntrinsicSize.Min)
+
+private fun Painter.isImagePainter() = intrinsicSize != Size.Unspecified
+
 /**
- * Represents Colors used in [Card].
- * Unlike other Material 3 components, Cards do not change their color appearance when
- * they are disabled. All colors remain the same in enabled and disabled states.
+ * Represents Colors used in [Card]. Unlike other Material 3 components, Cards do not change their
+ * color appearance when they are disabled. All colors remain the same in enabled and disabled
+ * states.
  *
  * @param containerPainter [Painter] which is used to draw the background of this [Card].
  * @param contentColor the content color of this [Card].
@@ -660,15 +711,17 @@ class CardColors(
         timeColor: Color,
         titleColor: Color,
         subtitleColor: Color
-    ) = CardColors(
-        containerPainter = if (containerColor != Color.Unspecified) ColorPainter(containerColor)
-        else this.containerPainter,
-        contentColor = contentColor.takeOrElse { this.contentColor },
-        appNameColor = appNameColor.takeOrElse { this.appNameColor },
-        timeColor = timeColor.takeOrElse { this.timeColor },
-        titleColor = titleColor.takeOrElse { this.titleColor },
-        subtitleColor = subtitleColor.takeOrElse { this.subtitleColor }
-    )
+    ) =
+        CardColors(
+            containerPainter =
+                if (containerColor != Color.Unspecified) ColorPainter(containerColor)
+                else this.containerPainter,
+            contentColor = contentColor.takeOrElse { this.contentColor },
+            appNameColor = appNameColor.takeOrElse { this.appNameColor },
+            timeColor = timeColor.takeOrElse { this.timeColor },
+            titleColor = titleColor.takeOrElse { this.titleColor },
+            subtitleColor = subtitleColor.takeOrElse { this.subtitleColor }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

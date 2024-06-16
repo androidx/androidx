@@ -79,36 +79,50 @@ internal class IntIntMapTest {
 
     @Test
     fun intIntMapInitFunction() {
-        val map1 = intIntMapOf(
-            1, 1,
-        )
+        val map1 =
+            intIntMapOf(
+                1,
+                1,
+            )
         assertEquals(1, map1.size)
         assertEquals(1, map1[1])
 
-        val map2 = intIntMapOf(
-            1, 1,
-            2, 2,
-        )
+        val map2 =
+            intIntMapOf(
+                1,
+                1,
+                2,
+                2,
+            )
         assertEquals(2, map2.size)
         assertEquals(1, map2[1])
         assertEquals(2, map2[2])
 
-        val map3 = intIntMapOf(
-            1, 1,
-            2, 2,
-            3, 3,
-        )
+        val map3 =
+            intIntMapOf(
+                1,
+                1,
+                2,
+                2,
+                3,
+                3,
+            )
         assertEquals(3, map3.size)
         assertEquals(1, map3[1])
         assertEquals(2, map3[2])
         assertEquals(3, map3[3])
 
-        val map4 = intIntMapOf(
-            1, 1,
-            2, 2,
-            3, 3,
-            4, 4,
-        )
+        val map4 =
+            intIntMapOf(
+                1,
+                1,
+                2,
+                2,
+                3,
+                3,
+                4,
+                4,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1, map4[1])
@@ -116,13 +130,19 @@ internal class IntIntMapTest {
         assertEquals(3, map4[3])
         assertEquals(4, map4[4])
 
-        val map5 = intIntMapOf(
-            1, 1,
-            2, 2,
-            3, 3,
-            4, 4,
-            5, 5,
-        )
+        val map5 =
+            intIntMapOf(
+                1,
+                1,
+                2,
+                2,
+                3,
+                3,
+                4,
+                4,
+                5,
+                5,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1, map5[1])
@@ -134,36 +154,50 @@ internal class IntIntMapTest {
 
     @Test
     fun mutableIntIntMapInitFunction() {
-        val map1 = mutableIntIntMapOf(
-            1, 1,
-        )
+        val map1 =
+            mutableIntIntMapOf(
+                1,
+                1,
+            )
         assertEquals(1, map1.size)
         assertEquals(1, map1[1])
 
-        val map2 = mutableIntIntMapOf(
-            1, 1,
-            2, 2,
-        )
+        val map2 =
+            mutableIntIntMapOf(
+                1,
+                1,
+                2,
+                2,
+            )
         assertEquals(2, map2.size)
         assertEquals(1, map2[1])
         assertEquals(2, map2[2])
 
-        val map3 = mutableIntIntMapOf(
-            1, 1,
-            2, 2,
-            3, 3,
-        )
+        val map3 =
+            mutableIntIntMapOf(
+                1,
+                1,
+                2,
+                2,
+                3,
+                3,
+            )
         assertEquals(3, map3.size)
         assertEquals(1, map3[1])
         assertEquals(2, map3[2])
         assertEquals(3, map3[3])
 
-        val map4 = mutableIntIntMapOf(
-            1, 1,
-            2, 2,
-            3, 3,
-            4, 4,
-        )
+        val map4 =
+            mutableIntIntMapOf(
+                1,
+                1,
+                2,
+                2,
+                3,
+                3,
+                4,
+                4,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1, map4[1])
@@ -171,13 +205,19 @@ internal class IntIntMapTest {
         assertEquals(3, map4[3])
         assertEquals(4, map4[4])
 
-        val map5 = mutableIntIntMapOf(
-            1, 1,
-            2, 2,
-            3, 3,
-            4, 4,
-            5, 5,
-        )
+        val map5 =
+            mutableIntIntMapOf(
+                1,
+                1,
+                2,
+                2,
+                3,
+                3,
+                4,
+                4,
+                5,
+                5,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1, map5[1])
@@ -262,9 +302,7 @@ internal class IntIntMapTest {
         val map = MutableIntIntMap()
         map[1] = 1
 
-        assertFailsWith<NoSuchElementException> {
-            map[2]
-        }
+        assertFailsWith<NoSuchElementException> { map[2] }
     }
 
     @Test
@@ -550,31 +588,27 @@ internal class IntIntMapTest {
     @Test
     fun joinToString() {
         val map = MutableIntIntMap()
-        repeat(5) {
-            map[it.toInt()] = it.toInt()
-        }
+        repeat(5) { map[it.toInt()] = it.toInt() }
         val order = IntArray(5)
         var index = 0
-        map.forEach { key, _ ->
-            order[index++] = key.toInt()
-        }
+        map.forEach { key, _ -> order[index++] = key.toInt() }
         assertEquals(
             "${order[0].toInt()}=${order[0].toInt()}, ${order[1].toInt()}=" +
-            "${order[1].toInt()}, ${order[2].toInt()}=${order[2].toInt()}," +
-            " ${order[3].toInt()}=${order[3].toInt()}, ${order[4].toInt()}=" +
-            "${order[4].toInt()}",
+                "${order[1].toInt()}, ${order[2].toInt()}=${order[2].toInt()}," +
+                " ${order[3].toInt()}=${order[3].toInt()}, ${order[4].toInt()}=" +
+                "${order[4].toInt()}",
             map.joinToString()
         )
         assertEquals(
             "x${order[0].toInt()}=${order[0].toInt()}, ${order[1].toInt()}=" +
-            "${order[1].toInt()}, ${order[2].toInt()}=${order[2].toInt()}...",
+                "${order[1].toInt()}, ${order[2].toInt()}=${order[2].toInt()}...",
             map.joinToString(prefix = "x", postfix = "y", limit = 3)
         )
         assertEquals(
             ">${order[0].toInt()}=${order[0].toInt()}-${order[1].toInt()}=" +
-            "${order[1].toInt()}-${order[2].toInt()}=${order[2].toInt()}-" +
-            "${order[3].toInt()}=${order[3].toInt()}-${order[4].toInt()}=" +
-            "${order[4].toInt()}<",
+                "${order[1].toInt()}-${order[2].toInt()}=${order[2].toInt()}-" +
+                "${order[3].toInt()}=${order[3].toInt()}-${order[4].toInt()}=" +
+                "${order[4].toInt()}<",
             map.joinToString(separator = "-", prefix = ">", postfix = "<")
         )
         val names = arrayOf("one", "two", "three", "four", "five")

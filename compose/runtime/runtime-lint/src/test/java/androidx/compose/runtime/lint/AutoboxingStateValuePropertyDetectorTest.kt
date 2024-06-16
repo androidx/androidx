@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class AutoboxingStateValuePropertyDetectorTest : LintDetectorTest() {
 
@@ -36,9 +35,10 @@ class AutoboxingStateValuePropertyDetectorTest : LintDetectorTest() {
 
     @Test
     fun testReadAutoboxingPropertyAsVariableAssignment() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                     package androidx.compose.runtime.lint.test
 
                     import androidx.compose.runtime.mutableIntStateOf
@@ -47,32 +47,37 @@ class AutoboxingStateValuePropertyDetectorTest : LintDetectorTest() {
                         val state = mutableIntStateOf(4)
                         val value = state.value
                     }
-                """.trimIndent()
-            ),
-            AutoboxingStateValuePropertyStub,
-            MinimalSnapshotStateStub
-        ).run().expect(
-            """
+                """
+                        .trimIndent()
+                ),
+                AutoboxingStateValuePropertyStub,
+                MinimalSnapshotStateStub
+            )
+            .run()
+            .expect(
+                """
 src/androidx/compose/runtime/lint/test/test.kt:7: Warning: Reading value will cause an autoboxing operation. Use intValue to avoid unnecessary allocations. [AutoboxingStateValueProperty]
     val value = state.value
                       ~~~~~
 0 errors, 1 warnings
             """
-        ).expectFixDiffs(
-            """
+            )
+            .expectFixDiffs(
+                """
 Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `intValue`:
 @@ -7 +7
 -     val value = state.value
 +     val value = state.intValue
             """
-        )
+            )
     }
 
     @Test
     fun testTrivialAssignAutoboxingProperty() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                     package androidx.compose.runtime.lint.test
 
                     import androidx.compose.runtime.mutableIntStateOf
@@ -81,33 +86,39 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
                         val state = mutableIntStateOf(0)
                         state.value = 42
                     }
-                """.trimIndent()
-            ),
-            AutoboxingStateValuePropertyStub,
-            MinimalSnapshotStateStub
-        ).run().expect(
-            """
+                """
+                        .trimIndent()
+                ),
+                AutoboxingStateValuePropertyStub,
+                MinimalSnapshotStateStub
+            )
+            .run()
+            .expect(
+                """
 src/androidx/compose/runtime/lint/test/test.kt:7: Warning: Assigning value will cause an autoboxing operation. Use intValue to avoid unnecessary allocations. [AutoboxingStateValueProperty]
     state.value = 42
           ~~~~~
 0 errors, 1 warnings
             """
-        ).expectFixDiffs(
-            """
+            )
+            .expectFixDiffs(
+                """
 Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `intValue`:
 @@ -7 +7
 -     state.value = 42
 +     state.intValue = 42
             """
-        )
+            )
     }
 
     companion object {
-        private val AutoboxingStateValuePropertyStub = bytecodeStub(
-            filename = "AutoboxingStateValueProperty.kt",
-            filepath = "androidx/compose/runtime/snapshots",
-            checksum = 0xd8b7ebd3,
-            source = """
+        private val AutoboxingStateValuePropertyStub =
+            bytecodeStub(
+                filename = "AutoboxingStateValueProperty.kt",
+                filepath = "androidx/compose/runtime/snapshots",
+                checksum = 0xd8b7ebd3,
+                source =
+                    """
                 package androidx.compose.runtime.snapshots
 
                 @Retention(AnnotationRetention.BINARY)
@@ -116,13 +127,13 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
                     val preferredPropertyName: String
                 )
             """,
-            """
+                """
             META-INF/main.kotlin_module:
             H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uaSSMxLKcrPTKnQS87PLcgvTtUr
             Ks0rycxNFeIPzkssKM7ILwkuSSxJ9S7h0uFSwqVYLyczr0SvJLW4RIgtBEh6
             lygxaDEAAHx2CidzAAAA
             """,
-            """
+                """
             androidx/compose/runtime/snapshots/AutoboxingStateValueProperty.class:
             H4sIAAAAAAAA/6VSz28SURD+3vKzqLCtrVJqpdZK68XFxpsmhioqCS1kd9Ok
             4WAe8MQtyz7cfSC9cfP/8M/wYEiP/lHG2WKBA6kHLzPfzsw3883s+/X7x08A
@@ -138,13 +149,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             ASZwD/eRJepmA5EKchVsVfAA2wTxsII8dqgqwCPsNhAL8DjAXoDElU3+AfvU
             hgfXAwAA
             """
-        )
+            )
 
-        private val MinimalSnapshotStateStub: TestFile = bytecodeStub(
-            filename = "SnapshotState.kt",
-            filepath = "androidx/compose/runtime",
-            checksum = 0x992154cd,
-            source = """
+        private val MinimalSnapshotStateStub: TestFile =
+            bytecodeStub(
+                filename = "SnapshotState.kt",
+                filepath = "androidx/compose/runtime",
+                checksum = 0x992154cd,
+                source =
+                    """
             package androidx.compose.runtime
 
             import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
@@ -178,13 +191,13 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
                 override var intValue: Int
             }
             """,
-            """
+                """
             META-INF/main.kotlin_module:
             H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uaSSMxLKcrPTKnQS87PLcgvTtUr
             Ks0rycxNFeIPzkssKM7ILwkuSSxJ9S7h0uFSwqVYLyczr0SvJLW4RIgtBEh6
             lygxaDEAAHx2CidzAAAA
             """,
-            """
+                """
             androidx/compose/runtime/IntState＄DefaultImpls.class:
             H4sIAAAAAAAA/4VTy27TQBQ9E7d1mhjSlrYQCoXSAElBNUgskLqKipAsmbQi
             VTasJskkncSeicbjKPwVS2DBB/BRiGs3pUBBWcx9nLlz7sv+/uPrNwCv8Jzh
@@ -199,7 +212,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             /kReAY9JruQ3m3hC0ruIwm3cIf2UToWi6A9AMSHCEgF1Om7GljkOGnk8zZPe
             PkIVBznvPp6R3iW8SjF3P8AJsBPgXoD72A3wAA8D7P0EkuUIJ5QDAAA=
             """,
-            """
+                """
             androidx/compose/runtime/IntState.class:
             H4sIAAAAAAAA/4WS304TQRTGv9n+2xaEpVKFogiCCjcsEi9MMCaNBrNJraRN
             kISraTvUhe1MMzPb1DuewgfwwofwwpBe+lDGsy1VomIvZuacM+f7zZmZ8/3H
@@ -215,7 +228,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             o5R1LONRIkYKj0frQzyh9YD2PUIvnCAVoBjgdoBFlMjEnQB3sXQCZkhbPkHe
             YMXgnsF9OspgzmDeYNXANcj/BKBShOC5AwAA
             """,
-            """
+                """
             androidx/compose/runtime/MutableIntState＄DefaultImpls.class:
             H4sIAAAAAAAA/5VT205TQRRd0wKl7dECCooIqFRtq3K84BMmhmBMJimFiOmL
             T9N2KAOnM82cOQ3+lb6JD36AH2Xcc1ougib4MLPnsrLWXrP3/Pz1/QeANawx
@@ -232,7 +245,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             hWMsZfD1gsJSqjA3xIwU/GoZ9+jeaxUpnmp5nXxmpEMlI28+M6ocZVkj3Zcp
             /xO8SrkZ7hPmwSdkOVY4yhwP8YjjMSoc1d+/bB9ggQQAAA==
             """,
-            """
+                """
             androidx/compose/runtime/MutableIntState.class:
             H4sIAAAAAAAA/41T3U4TQRg9sy3d7VJxKaAF/ONPWlS2NpqYYIxEY7JJqaZN
             gISrKR3qwna27sw2eMdT+ABe+BBeGMKlD2X8trRAVISLmfl+zpzzzcw3P399
@@ -250,7 +263,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             yk+R+q0dpDzc9lDwCDlDJmY93MHdHTCFe7i/k6g8UJhTmFdYIEWFvMKEwqTC
             uMKigq2on+H8BhJaxEnABAAA
             """,
-            """
+                """
             androidx/compose/runtime/MutableState.class:
             H4sIAAAAAAAA/4VR0WoTURA9c3eT3aQxbmOradRaBTHxwa3FBzGlIKIYSBCa
             EIQ83SZr3GZzt+TeDX3cb/HBj/BBlj76UeJsKkUM1Zc7c+aeOTOc+fHz23cA
@@ -264,7 +277,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             A6+DzQ5quMUptjrYxu0RSOMO6iM+IXY0Ghp3Ne7pHJY0NjQqvwDJFOU0xwIA
             AA==
             """,
-            """
+                """
             androidx/compose/runtime/SnapshotStateKt.class:
             H4sIAAAAAAAA/5WSXWsTQRSG39l8r7HdRqtN6lc/tKmg2xbBi4ogorC4TaDR
             QMnVJDvGSTYzy+5syGX+laCgufZHiTObQCjihTfvOfOeZ87MnN1fv7/9APAC
@@ -279,7 +292,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             l9qt6f63esh5uO1h28Md3PWwg7qHBnZ7IAnu4X4P+QSFBA8SOAke/gF9don0
             8QIAAA==
             """,
-            """
+                """
             androidx/compose/runtime/State.class:
             H4sIAAAAAAAA/31Qy0rDQBQ9k6RpGl+pz1pFXLYuTBUX4gvcCIWKYIsIXY3t
             WMemE+lMi8t8iws/woUEl36UeFNdqbi5955z77mv94+XVwB7WGfY4Ko7jGX3
@@ -291,7 +304,6 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             ggf7O7JRnvgS1sgfU0WBNH4bdh1TdUzXMYNZCjFXR4BiG0xjHgttuBqLGksa
             yxorOoP5T7cJbagBAgAA
             """
-        )
+            )
     }
 }
-/* ktlint-enable max-line-length */

@@ -37,14 +37,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests for the Grid Helper (Row / Column)
- */
+/** Tests for the Grid Helper (Row / Column) */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RowColumnTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setup() {
@@ -306,8 +303,9 @@ class RowColumnTest {
         val gridContains = ids.joinToString(separator = ", ") { "'$it'" }
         ConstraintLayout(
             modifier = modifier,
-            constraintSet = ConstraintSet(
-                """
+            constraintSet =
+                ConstraintSet(
+                    """
         {
             grid: {
                 width: $width,
@@ -323,17 +321,12 @@ class RowColumnTest {
                 contains: [$gridContains],
               }
         }
-        """.trimIndent()
-            )
+        """
+                        .trimIndent()
+                )
         ) {
             ids.forEach { id ->
-                Box(
-                    Modifier
-                        .layoutId(id)
-                        .size(10.dp)
-                        .background(Color.Red)
-                        .testTag(id)
-                )
+                Box(Modifier.layoutId(id).size(10.dp).background(Color.Red).testTag(id))
             }
         }
     }

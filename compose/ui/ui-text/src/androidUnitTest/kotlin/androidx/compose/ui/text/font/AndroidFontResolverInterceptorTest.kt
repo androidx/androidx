@@ -32,8 +32,7 @@ class AndroidFontResolverInterceptorTest {
         val adjustment = 0
         val expected = 400
         createSubject(adjustment)
-        assertThat(subject.interceptFontWeight(FontWeight(testedWeight)).weight)
-            .isEqualTo(expected)
+        assertThat(subject.interceptFontWeight(FontWeight(testedWeight)).weight).isEqualTo(expected)
     }
 
     @Test
@@ -42,8 +41,7 @@ class AndroidFontResolverInterceptorTest {
         val adjustment = 300
         val expected = 700
         createSubject(adjustment)
-        assertThat(subject.interceptFontWeight(FontWeight(testedWeight)).weight)
-            .isEqualTo(expected)
+        assertThat(subject.interceptFontWeight(FontWeight(testedWeight)).weight).isEqualTo(expected)
     }
 
     @Test
@@ -89,8 +87,7 @@ class AndroidFontResolverInterceptorTest {
         assertThat(subject.interceptFontFamily(FontFamily.SansSerif))
             .isEqualTo(FontFamily.SansSerif)
 
-        assertThat(subject.interceptFontStyle(FontStyle.Normal))
-            .isEqualTo(FontStyle.Normal)
+        assertThat(subject.interceptFontStyle(FontStyle.Normal)).isEqualTo(FontStyle.Normal)
 
         assertThat(subject.interceptFontSynthesis(FontSynthesis.Weight))
             .isEqualTo(FontSynthesis.Weight)

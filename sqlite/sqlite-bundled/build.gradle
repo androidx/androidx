@@ -65,8 +65,8 @@ def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(
         project, // project
         "prepareSqliteSourcesTask" // task name
 ) {
-    it.sqliteVersion.set("3.42.0")
-    it.sqliteReleaseYear.set(2023)
+    it.sqliteVersion.set("3.46.0")
+    it.sqliteReleaseYear.set(2024)
     it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
     if (!ProjectLayoutType.isPlayground(project)) {
         it.sqlitePrebuiltsDirectory.set(
@@ -155,10 +155,14 @@ androidXMultiplatform {
             )
             // add our JNI sources, i.e. the SQLite bindings
             nativeCompilation.sources.from(
-                    fileTree("src/androidJvmCommonMain/jni").matching { include "**/*.cpp" }
+                    fileTree("src/jvmAndroidMain/jni").matching { include "**/*.cpp" }
             )
             // statically include the output of SQLite compilation
             nativeCompilation.include(sqliteCompilation)
+            if (nativeCompilation.konanTarget.family == Family.ANDROID) {
+                // b/341639198: Link to Android's Atomic lib, important for older ARM devices
+                nativeCompilation.linkerArgs.add("-latomic")
+            }
             if (nativeCompilation.konanTarget.family == Family.OSX) {
                 // KT-57848
                 nativeCompilation.freeArgs.addAll("-Dat_quick_exit=atexit", "-Dquick_exit=exit")
@@ -179,7 +183,7 @@ androidXMultiplatform {
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
-    targets.all { target ->
+    targets.configureEach { target ->
         if (target.platformType == KotlinPlatformType.native) {
             // Configure this native target to the SQLite compilation.
             // This list likely only adds the iOS targets when they are enabled as the desktop
@@ -194,7 +198,7 @@ androidXMultiplatform {
         //                                 commonMain
         //              ┌───────────────────────────────────────────┐
         //              ▼                                           ▼
-        //     androidJvmCommonMain                             nativeMain
+        //       jvmAndroidMain                                 nativeMain
         //     ┌────────────────┐                       ┌──────────┬────────────┐
         //     │                │                       │          │            │
         //     ▼                ▼                       ▼          ▼            ▼
@@ -205,15 +209,14 @@ androidXMultiplatform {
                 api(project(":sqlite:sqlite"))
             }
         }
-        androidJvmCommonMain {
-            // common code between android and jvm
+        jvmAndroidMain {
             dependsOn(commonMain)
         }
         jvmMain {
-            dependsOn(androidJvmCommonMain)
+            dependsOn(jvmAndroidMain)
         }
         androidMain {
-            dependsOn(androidJvmCommonMain)
+            dependsOn(jvmAndroidMain)
         }
         nativeMain {
             dependsOn(commonMain)
@@ -221,7 +224,7 @@ androidXMultiplatform {
                 implementation(project(":sqlite:sqlite-framework"))
             }
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nativeMain)
@@ -229,6 +232,8 @@ androidXMultiplatform {
             }
         }
     }
+
+    enableBinaryCompatibilityValidator = true
 }
 
 android {
@@ -241,4 +246,5 @@ androidx {
     inceptionYear = "2023"
     description = "The implementation of SQLite library using the bundled SQLite."
     metalavaK2UastEnabled = false
+    legacyDisableKotlinStrictApiMode = true
 }

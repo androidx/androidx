@@ -36,9 +36,7 @@ class CatalogActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.Default).launch {
             val favoriteRoute = UserPreferencesRepository(this@CatalogActivity).getFavoriteRoute()
             withContext(Dispatchers.Main) {
-                setContent {
-                    CatalogApp(initialFavoriteRoute = favoriteRoute)
-                }
+                setContent { CatalogApp(initialFavoriteRoute = favoriteRoute) }
             }
         }
     }

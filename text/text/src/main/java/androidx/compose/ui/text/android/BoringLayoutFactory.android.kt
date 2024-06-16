@@ -26,9 +26,7 @@ import android.text.TextUtils.TruncateAt
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-/**
- * Factory Class for BoringLayout
- */
+/** Factory Class for BoringLayout */
 @OptIn(InternalPlatformTextApi::class)
 internal object BoringLayoutFactory {
     /**
@@ -37,14 +35,9 @@ internal object BoringLayoutFactory {
      * @param text the text to analyze.
      * @param paint TextPaint which carries text style parameters such as size, weight, font e.g.
      * @param textDir text direction heuristics.
-     * @return null if not boring; the width, ascent, and descent in a BoringLayout.Metrics
-     * object.
+     * @return null if not boring; the width, ascent, and descent in a BoringLayout.Metrics object.
      */
-    fun measure(
-        text: CharSequence,
-        paint: TextPaint,
-        textDir: TextDirectionHeuristic
-    ): Metrics? {
+    fun measure(text: CharSequence, paint: TextPaint, textDir: TextDirectionHeuristic): Metrics? {
         return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isBoring(text, paint, textDir)
         } else {
@@ -61,14 +54,13 @@ internal object BoringLayoutFactory {
      * @param metrics The font [Metrics] returned from the measurement.
      * @param alignment To which edge the text is aligned.
      * @param includePadding Whether to add extra space beyond font ascent and descent (which is
-     * needed to avoid clipping in some languages, such as Arabic and Kannada). Default is true.
+     *   needed to avoid clipping in some languages, such as Arabic and Kannada). Default is true.
      * @param useFallbackLineSpacing Sets Android TextView#setFallbackLineSpacing. This value should
-     * be set to true in most cases and it is the default on platform; otherwise tall scripts such
-     * as Burmese or Tibetan result in clippings on top and bottom sometimes making the text
-     * not-readable.
+     *   be set to true in most cases and it is the default on platform; otherwise tall scripts such
+     *   as Burmese or Tibetan result in clippings on top and bottom sometimes making the text
+     *   not-readable.
      * @param ellipsize The ellipsize option specifying how the overflowed text is handled.
      * @param ellipsizedWidth The width where the exceeding text will be ellipsized, in pixel.
-     *
      * @see BoringLayout.isFallbackLineSpacingEnabled
      * @see StaticLayout.Builder.setUseLineSpacingFromFallbacks
      */
@@ -116,9 +108,7 @@ internal object BoringLayoutFactory {
         }
     }
 
-    /**
-     * Returns whether fallbackLineSpacing is enabled for the given layout.
-     */
+    /** Returns whether fallbackLineSpacing is enabled for the given layout. */
     fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
         return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isFallbackLineSpacingEnabled(layout)

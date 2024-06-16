@@ -96,643 +96,629 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @SuppressLint("ClassVerificationFailure")
-val WearMaterialDemos = DemoCategory(
-    "Material",
-    listOf(
-        DemoCategory(
-            "Page Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Sample with InlineSlider") {
-                            Centralize { HorizontalPageIndicatorSample() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Customized PageIndicator") {
-                            CustomizedHorizontalPageIndicator()
-                        },
-                        ComposableDemo("Pager with Indicator") { params ->
-                            PagerWithIndicator(params.swipeToDismissBoxState)
-                        }
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "ScrollAway",
-            listOf(
-                ComposableDemo("Column") { ScrollAwayColumnDemo() },
-                ComposableDemo("Column (delay)") { ScrollAwayColumnDelayDemo() },
-                ComposableDemo("Lazy Column") { ScrollAwayLazyColumnDemo() },
-                ComposableDemo("Lazy Column offset<0") { ScrollAwayLazyColumnDemo2() },
-                ComposableDemo("Lazy Column offset>0") { ScrollAwayLazyColumnDelayDemo() },
-                ComposableDemo("SLC Cards") {
-                    ScrollAwayScalingLazyColumnCardDemo()
-                },
-                ComposableDemo("SLC Cards offset<0") {
-                    ScrollAwayScalingLazyColumnCardDemo2()
-                },
-                ComposableDemo("SLC Cards offset>0") {
-                    ScrollAwayScalingLazyColumnCardDemoMismatch()
-                },
-                ComposableDemo("Out of range") {
-                    ScrollAwayScalingLazyColumnCardDemoOutOfRange()
-                },
-                ComposableDemo("SLC Chips") {
-                    ScrollAwayScalingLazyColumnChipDemo()
-                },
-                ComposableDemo("SLC Chips offset<0") {
-                    ScrollAwayScalingLazyColumnChipDemo2()
-                },
-            )
-        ),
-        DemoCategory(
-            "Picker",
-            if (Build.VERSION.SDK_INT > 25) {
+val WearMaterialDemos =
+    DemoCategory(
+        "Material",
+        listOf(
+            DemoCategory(
+                "Page Indicator",
                 listOf(
-                    ComposableDemo("Time HH:MM:SS") { params ->
-                        var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
-                        TimePicker(
-                            onTimeConfirm = {
-                                timePickerTime = it
-                                params.navigateBack()
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Sample with InlineSlider") {
+                                Centralize { HorizontalPageIndicatorSample() }
                             },
-                            time = timePickerTime,
                         )
-                    },
-                    ComposableDemo("Time 12 Hour") { params ->
-                        var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
-                        TimePickerWith12HourClock(
-                            onTimeConfirm = {
-                                timePickerTime = it
-                                params.navigateBack()
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Customized PageIndicator") {
+                                CustomizedHorizontalPageIndicator()
                             },
-                            time = timePickerTime,
+                            ComposableDemo("Pager with Indicator") { params ->
+                                PagerWithIndicator(params.swipeToDismissBoxState)
+                            }
                         )
-                    },
-                    ComposableDemo("Date Picker") { params ->
-                        var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
-                        DatePicker(
-                            onDateConfirm = {
-                                datePickerDate = it
-                                params.navigateBack()
-                            },
-                            date = datePickerDate
-                        )
-                    },
-                    ComposableDemo("From Date Picker") { params ->
-                        var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
-                        DatePicker(
-                            onDateConfirm = {
-                                datePickerDate = it
-                                params.navigateBack()
-                            },
-                            date = datePickerDate,
-                            fromDate = datePickerDate
-                        )
-                    },
-                    ComposableDemo("To Date Picker") { params ->
-                        var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
-                        DatePicker(
-                            onDateConfirm = {
-                                datePickerDate = it
-                                params.navigateBack()
-                            },
-                            date = datePickerDate,
-                            toDate = datePickerDate
-                        )
-                    },
-                    ComposableDemo("Simple Picker") { SimplePicker() },
-                    ComposableDemo("No gradient") { PickerWithoutGradient() },
-                    ComposableDemo("Animate picker change") { AnimateOptionChangePicker() },
-                    ComposableDemo("Sample Picker Group") { PickerGroup24Hours() },
-                    ComposableDemo("Autocentering Picker Group") { AutoCenteringPickerGroup() }
+                    )
                 )
-            } else {
+            ),
+            DemoCategory(
+                "ScrollAway",
                 listOf(
-                    ComposableDemo("Simple Picker") { SimplePicker() },
+                    ComposableDemo("Column") { ScrollAwayColumnDemo() },
+                    ComposableDemo("Column (delay)") { ScrollAwayColumnDelayDemo() },
+                    ComposableDemo("Lazy Column") { ScrollAwayLazyColumnDemo() },
+                    ComposableDemo("Lazy Column offset<0") { ScrollAwayLazyColumnDemo2() },
+                    ComposableDemo("Lazy Column offset>0") { ScrollAwayLazyColumnDelayDemo() },
+                    ComposableDemo("SLC Cards") { ScrollAwayScalingLazyColumnCardDemo() },
+                    ComposableDemo("SLC Cards offset<0") { ScrollAwayScalingLazyColumnCardDemo2() },
+                    ComposableDemo("SLC Cards offset>0") {
+                        ScrollAwayScalingLazyColumnCardDemoMismatch()
+                    },
+                    ComposableDemo("Out of range") {
+                        ScrollAwayScalingLazyColumnCardDemoOutOfRange()
+                    },
+                    ComposableDemo("SLC Chips") { ScrollAwayScalingLazyColumnChipDemo() },
+                    ComposableDemo("SLC Chips offset<0") { ScrollAwayScalingLazyColumnChipDemo2() },
                 )
-            }
-        ),
-        DemoCategory(
-            "Slider",
-            listOf(
-                DemoCategory(
-                    "Samples",
+            ),
+            DemoCategory(
+                "Picker",
+                if (Build.VERSION.SDK_INT > 25) {
                     listOf(
-                        ComposableDemo("Inline slider") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                InlineSliderSample()
-                            }
-                        },
-                        ComposableDemo("Segmented inline slider") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                InlineSliderSegmentedSample()
-                            }
-                        },
-                        ComposableDemo("Integer inline slider") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                InlineSliderWithIntegerSample()
-                            }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Inline slider") { InlineSliderDemo() },
-                        ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
-                        ComposableDemo("With custom color") { InlineSliderCustomColorsDemo() },
-                        ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
-                        ComposableDemo("Inline slider with integers") {
-                            InlineSliderWithIntegersDemo()
-                        },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Stepper",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Stepper") { Centralize { StepperSample() } },
-                        ComposableDemo("Integer Stepper") {
-                            Centralize { StepperWithIntegerSample() }
-                        },
-                        ComposableDemo("Stepper without RangeSemantics") {
-                            Centralize { StepperWithoutRangeSemanticsSample() }
-                        },
-                        ComposableDemo("Stepper with customSemantics") {
-                            Centralize { StepperWithCustomSemanticsSample() }
-                        }
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Simple stepper") { StepperDemo() },
-                        ComposableDemo("Stepper with integer") { StepperWithIntegerDemo() },
-                        ComposableDemo("With scrollbar") { StepperWithScrollBarDemo() },
-                        ComposableDemo("With custom color") { StepperWithCustomColors() },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Time Text",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Clock with Status") { TimeTextWithStatus() },
-                        ComposableDemo("Clock with custom time format") {
-                            TimeTextWithFullDateAndTimeFormat()
-                        },
-                        ComposableDemo("Clock with animated status",
-                            "A TimeText with status that animates in/out when tapping " +
-                                "the central button."
-                        ) {
-                            TimeTextAnimation()
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Clock only") { TimeTextClockOnly() },
-                        ComposableDemo("Clock with leading text") { TimeTextWithLeadingText() },
-                        ComposableDemo("Clock with shadow") { TimeTextWithShadow() },
-                        ComposableDemo("Clock with localised format") {
-                            TimeTextWithLocalisedFormat()
-                        },
-                    )
-                ),
-            )
-        ),
-        DemoCategory(
-            "Dialogs",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Alert Dialog") { AlertDialogSample() },
-                        ComposableDemo("Confirmation Dialog") { ConfirmationDialogSample() },
-                        ComposableDemo("Alert - Buttons") { AlertWithButtons() },
-                        ComposableDemo("Alert - Chips") { AlertWithChips() },
-                        ComposableDemo("Confirmation") { ConfirmationWithAnimation() },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Power Off") { DialogPowerOff() },
-                        ComposableDemo("Access Location") { DialogAccessLocation() },
-                        ComposableDemo("Grant Permission") { DialogGrantPermission() },
-                        ComposableDemo("Long Chips") { DialogLongChips() },
-                        ComposableDemo("Dialog Background") {
-                            DialogBackground(Color.Green)
-                        },
-                        ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Button",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Button With Icon") { Centralize { ButtonWithIcon() } },
-                        ComposableDemo("Button With Large Icon") {
-                            Centralize { LargeButtonWithIcon() }
-                        },
-                        ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
-                        ComposableDemo("Outlined Button With Icon") {
-                            Centralize { OutlinedButtonWithIcon() }
-                        },
-                        ComposableDemo("Compact Button With Icon") {
-                            Centralize { CompactButtonWithIcon() }
-                        },
-                        ComposableDemo("Outline Compact Button With Icon") {
-                            Centralize { OutlinedCompactButtonWithIcon() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Button Gallery") { ButtonGallery() },
-                        ComposableDemo("Button Sizes") { ButtonSizes() },
-                        ComposableDemo("Button Styles") { ButtonStyles() },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Toggle Button",
-            listOf(
-                ComposableDemo("Sample") { Centralize { ToggleButtonWithIcon() } },
-                ComposableDemo("Demos") { ToggleButtons() },
-            )
-        ),
-        DemoCategory(
-            "Chips",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Chip With Icon And long Label") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ChipWithIconAndLabel()
-                            }
-                        },
-                        ComposableDemo("Chip With Icon And Labels") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ChipWithIconAndLabels()
-                            }
-                        },
-                        ComposableDemo("Outlined Chip With Icon And long Label") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                OutlinedChipWithIconAndLabel()
-                            }
-                        },
-                        ComposableDemo("Compact Chip With Icon And Label") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                CompactChipWithIconAndLabel()
-                            }
-                        },
-                        ComposableDemo("Compact Chip With Label Only") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                CompactChipWithLabel()
-                            }
-                        },
-                        ComposableDemo("Compact Chip Icon Only") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                CompactChipWithIcon()
-                            }
-                        },
-                        ComposableDemo("Outlined Compact Chip With Icon and Label") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                OutlinedCompactChipWithIconAndLabel()
-                            }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Chip") { StandardChips() },
-                        ComposableDemo("Compact chip") { SmallChips() },
-                        ComposableDemo("Avatar chip") { AvatarChips() },
-                        ComposableDemo("Rtl chips") { RtlChips() },
-                        ComposableDemo("Custom chips") { CustomChips() },
-                        ComposableDemo("Image background chips") { ImageBackgroundChips() },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Placeholders",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Content Placeholders") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ChipWithIconAndLabelAndPlaceholders()
-                            }
-                        },
-                        ComposableDemo("Overlaid Placeholder") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ChipWithIconAndLabelsAndOverlaidPlaceholder()
-                            }
-                        },
-                        ComposableDemo("Simple Text Placeholder") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                TextPlaceholder()
-                            }
-                        },
-                     )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Chips") { PlaceholderChips() },
-                        ComposableDemo("Cards") { PlaceholderCards() },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Toggle Chip",
-            listOf(
-                DemoCategory("Samples",
-                    listOf(
-                        ComposableDemo("ToggleChip With Switch") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ToggleChipWithSwitch()
-                            }
-                        },
-                        ComposableDemo("SplitToggleChip With Checkbox") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                SplitToggleChipWithCheckbox()
-                            }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Toggle chip") { ToggleChips() },
-                        ComposableDemo("RTL Toggle chip") {
-                            ToggleChips(
-                                layoutDirection = LayoutDirection.Rtl,
-                                description = "RTL ToggleChips"
+                        ComposableDemo("Time HH:MM:SS") { params ->
+                            var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
+                            TimePicker(
+                                onTimeConfirm = {
+                                    timePickerTime = it
+                                    params.navigateBack()
+                                },
+                                time = timePickerTime,
                             )
                         },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Selectable Chip",
-            listOf(
-                DemoCategory("Samples",
-                    listOf(
-                        ComposableDemo("SelectableChip With RadioButton") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                SelectableChipWithRadioButton()
-                            }
-                        },
-                        ComposableDemo("SplitSelectableChip With RadioButton") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                SplitSelectableChipWithRadioButton()
-                            }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Selectable chip") { SelectableChips() },
-                        ComposableDemo("RTL Selectable chip") {
-                            SelectableChips(
-                                layoutDirection = LayoutDirection.Rtl,
-                                description = "RTL ToggleChips"
+                        ComposableDemo("Time 12 Hour") { params ->
+                            var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
+                            TimePickerWith12HourClock(
+                                onTimeConfirm = {
+                                    timePickerTime = it
+                                    params.navigateBack()
+                                },
+                                time = timePickerTime,
                             )
                         },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Card",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("AppCard") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                AppCardWithIcon()
-                            }
-                        },
-                        ComposableDemo("AppCard With Image") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                AppCardWithImage()
-                            }
-                        },
-                        ComposableDemo("TitleCard") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                TitleCardStandard()
-                            }
-                        },
-                        ComposableDemo("TitleCard With Image Background") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                TitleCardWithImageBackground()
-                            }
-                        },
-                    )
-                ),
-                ComposableDemo("Demos") { CardDemo() },
-            )
-        ),
-        DemoCategory(
-            "Progress Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Indeterminate") {
-                            Centralize { IndeterminateCircularProgressIndicator() }
-                        },
-                        ComposableDemo("Animation") {
-                            Centralize { CircularProgressIndicatorWithAnimation() }
-                        },
-                        ComposableDemo("Fullscreen with a gap") {
-                            Centralize { CircularProgressIndicatorFullscreenWithGap() }
-                        }
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Indeterminate progress") {
-                            Centralize { IndeterminateProgress() }
-                        },
-                        ComposableDemo("Custom angles") {
-                            Centralize { ProgressWithCustomAngles() }
-                        },
-                        ComposableDemo("Media controls") { Centralize { ProgressWithMedia() } },
-                        ComposableDemo("Transforming progress indicator") {
-                            Centralize { TransformingCustomProgressIndicator() }
-                        },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            title = "Swipe To Dismiss",
-            listOf(
-                ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
-                ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
-                ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
-            )
-        ),
-        DemoCategory(
-            "List (Scaling Lazy Column)",
-            listOf(
-                ComposableDemo(
-                    "Defaults",
-                    "Basic ScalingLazyColumn using default values"
-                ) {
-                    SimpleScalingLazyColumn()
-                },
-                ComposableDemo(
-                    "With Content Padding",
-                    "Basic ScalingLazyColumn with autoCentering disabled and explicit " +
-                        "content padding of top = 20.dp, bottom = 20.dp"
-                ) {
-                    SimpleScalingLazyColumnWithContentPadding()
-                },
-                ComposableDemo(
-                    "With Snap",
-                    "Basic ScalingLazyColumn, center aligned with snap enabled"
-                ) {
-                    SimpleScalingLazyColumnWithSnap()
-                },
-                ComposableDemo(
-                    "Edge Anchor",
-                    "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
-                        "If you click on an item there will be an animated scroll of the " +
-                        "items edge to the center"
-                ) {
-                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
-                },
-                ComposableDemo(
-                    "Edge Anchor (G)",
-                    "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
-                        "If you click on an item there will be an animated scroll of the " +
-                        "items edge to the center and guidelines drawn on top"
-                ) {
-                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
-                    GuideLines()
-                },
-                ComposableDemo(
-                    "Scaling Details (G)",
-                    "A ScalingLazyColumn with items that show their position and size as" +
-                        "well as guidelines"
-                ) {
-                    ScalingLazyColumnDetail()
-                    GuideLines()
-                },
-                ComposableDemo(
-                    "Stress Test",
-                    "A ScalingLazyColumn with a mixture of different types of items"
-                ) {
-                    ScalingLazyColumnMixedTypes()
-                },
-                ComposableDemo(
-                    "Stress Test [G]",
-                    "A ScalingLazyColumn with a mixture of different types of items with " +
-                        "guidelines"
-                ) {
-                    ScalingLazyColumnMixedTypes()
-                    GuideLines()
-                },
-            )
-        ),
-        DemoCategory(
-            "Scaffold",
-            listOf(
-                ComposableDemo("Scaffold with Scrollbar") {
-                    SimpleScaffoldWithScrollIndicator()
-                },
-            )
-        ),
-        DemoCategory(
-            "Position Indicator",
-            listOf(
-                ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
-                ComposableDemo("Hide when no scrollable SLC") {
-                    HideWhenFullSLCDemo()
-                },
-                ComposableDemo("SLC with PositionIndicator") {
-                    SLCWithPositionIndicatorDemo()
-                },
-                ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
-                ComposableDemo("Shared PI") { SharedPositionIndicator() }
-            )
-        ),
-        DemoCategory(
-            "Curved Text",
-            listOf(
-                ComposableDemo("Basic Styling") { CurvedTextDemo() },
-                ComposableDemo("Provider Styling") { CurvedTextProviderDemo() },
-            )
-        ),
-        DemoCategory(
-            "Theme",
-            listOf(
-                ComposableDemo("Fonts") { ThemeFonts() },
-                ComposableDemo(
-                    title = "Fixed Font Size",
-                    description =
-                    "Display1 font size not impacted by changes to user font selection",
-                ) { Centralize { FixedFontSize() } },
-                ComposableDemo("Colors") { ThemeColors() },
-            )
-        ),
-        ComposableDemo("Settings Demo") { SettingsDemo() },
-        DemoCategory(
-            "ListHeader",
-            listOf(
-                ComposableDemo("Sample") {
-                    Centralize {
-                        ListHeader {
-                            Text("Header", maxLines = 3)
-                        }
-                    }
-                },
-                ComposableDemo("MultiLine Sample") {
-                    Centralize {
-                        ListHeader {
-                            Text(
-                                text = "ListHeader that spans multiple lines in a large " +
-                                    "font and should expand to fit the contents",
-                                style = MaterialTheme.typography.title3
+                        ComposableDemo("Date Picker") { params ->
+                            var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+                            DatePicker(
+                                onDateConfirm = {
+                                    datePickerDate = it
+                                    params.navigateBack()
+                                },
+                                date = datePickerDate
                             )
-                        }
-                    }
+                        },
+                        ComposableDemo("From Date Picker") { params ->
+                            var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+                            DatePicker(
+                                onDateConfirm = {
+                                    datePickerDate = it
+                                    params.navigateBack()
+                                },
+                                date = datePickerDate,
+                                fromDate = datePickerDate
+                            )
+                        },
+                        ComposableDemo("To Date Picker") { params ->
+                            var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+                            DatePicker(
+                                onDateConfirm = {
+                                    datePickerDate = it
+                                    params.navigateBack()
+                                },
+                                date = datePickerDate,
+                                toDate = datePickerDate
+                            )
+                        },
+                        ComposableDemo("Simple Picker") { SimplePicker() },
+                        ComposableDemo("No gradient") { PickerWithoutGradient() },
+                        ComposableDemo("Animate picker change") { AnimateOptionChangePicker() },
+                        ComposableDemo("Sample Picker Group") { PickerGroup24Hours() },
+                        ComposableDemo("Autocentering Picker Group") { AutoCenteringPickerGroup() }
+                    )
+                } else {
+                    listOf(
+                        ComposableDemo("Simple Picker") { SimplePicker() },
+                    )
                 }
+            ),
+            DemoCategory(
+                "Slider",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Inline slider") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    InlineSliderSample()
+                                }
+                            },
+                            ComposableDemo("Segmented inline slider") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    InlineSliderSegmentedSample()
+                                }
+                            },
+                            ComposableDemo("Integer inline slider") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    InlineSliderWithIntegerSample()
+                                }
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Inline slider") { InlineSliderDemo() },
+                            ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+                            ComposableDemo("With custom color") { InlineSliderCustomColorsDemo() },
+                            ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                            ComposableDemo("Inline slider with integers") {
+                                InlineSliderWithIntegersDemo()
+                            },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Stepper",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Stepper") { Centralize { StepperSample() } },
+                            ComposableDemo("Integer Stepper") {
+                                Centralize { StepperWithIntegerSample() }
+                            },
+                            ComposableDemo("Stepper without RangeSemantics") {
+                                Centralize { StepperWithoutRangeSemanticsSample() }
+                            },
+                            ComposableDemo("Stepper with customSemantics") {
+                                Centralize { StepperWithCustomSemanticsSample() }
+                            }
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Simple stepper") { StepperDemo() },
+                            ComposableDemo("Stepper with integer") { StepperWithIntegerDemo() },
+                            ComposableDemo("With scrollbar") { StepperWithScrollBarDemo() },
+                            ComposableDemo("With custom color") { StepperWithCustomColors() },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Time Text",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Clock with Status") { TimeTextWithStatus() },
+                            ComposableDemo("Clock with custom time format") {
+                                TimeTextWithFullDateAndTimeFormat()
+                            },
+                            ComposableDemo(
+                                "Clock with animated status",
+                                "A TimeText with status that animates in/out when tapping " +
+                                    "the central button."
+                            ) {
+                                TimeTextAnimation()
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Clock only") { TimeTextClockOnly() },
+                            ComposableDemo("Clock with leading text") { TimeTextWithLeadingText() },
+                            ComposableDemo("Clock with shadow") { TimeTextWithShadow() },
+                            ComposableDemo("Clock with localised format") {
+                                TimeTextWithLocalisedFormat()
+                            },
+                        )
+                    ),
+                )
+            ),
+            DemoCategory(
+                "Dialogs",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Alert Dialog") { AlertDialogSample() },
+                            ComposableDemo("Confirmation Dialog") { ConfirmationDialogSample() },
+                            ComposableDemo("Alert - Buttons") { AlertWithButtons() },
+                            ComposableDemo("Alert - Chips") { AlertWithChips() },
+                            ComposableDemo("Confirmation") { ConfirmationWithAnimation() },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Power Off") { DialogPowerOff() },
+                            ComposableDemo("Access Location") { DialogAccessLocation() },
+                            ComposableDemo("Grant Permission") { DialogGrantPermission() },
+                            ComposableDemo("Long Chips") { DialogLongChips() },
+                            ComposableDemo("Dialog Background") { DialogBackground(Color.Green) },
+                            ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Button",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Button With Icon") { Centralize { ButtonWithIcon() } },
+                            ComposableDemo("Button With Large Icon") {
+                                Centralize { LargeButtonWithIcon() }
+                            },
+                            ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
+                            ComposableDemo("Outlined Button With Icon") {
+                                Centralize { OutlinedButtonWithIcon() }
+                            },
+                            ComposableDemo("Compact Button With Icon") {
+                                Centralize { CompactButtonWithIcon() }
+                            },
+                            ComposableDemo("Outline Compact Button With Icon") {
+                                Centralize { OutlinedCompactButtonWithIcon() }
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Button Gallery") { ButtonGallery() },
+                            ComposableDemo("Button Sizes") { ButtonSizes() },
+                            ComposableDemo("Button Styles") { ButtonStyles() },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Toggle Button",
+                listOf(
+                    ComposableDemo("Sample") { Centralize { ToggleButtonWithIcon() } },
+                    ComposableDemo("Demos") { ToggleButtons() },
+                )
+            ),
+            DemoCategory(
+                "Chips",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Chip With Icon And long Label") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    ChipWithIconAndLabel()
+                                }
+                            },
+                            ComposableDemo("Chip With Icon And Labels") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    ChipWithIconAndLabels()
+                                }
+                            },
+                            ComposableDemo("Outlined Chip With Icon And long Label") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    OutlinedChipWithIconAndLabel()
+                                }
+                            },
+                            ComposableDemo("Compact Chip With Icon And Label") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    CompactChipWithIconAndLabel()
+                                }
+                            },
+                            ComposableDemo("Compact Chip With Label Only") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    CompactChipWithLabel()
+                                }
+                            },
+                            ComposableDemo("Compact Chip Icon Only") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    CompactChipWithIcon()
+                                }
+                            },
+                            ComposableDemo("Outlined Compact Chip With Icon and Label") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    OutlinedCompactChipWithIconAndLabel()
+                                }
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Chip") { StandardChips() },
+                            ComposableDemo("Compact chip") { SmallChips() },
+                            ComposableDemo("Avatar chip") { AvatarChips() },
+                            ComposableDemo("Rtl chips") { RtlChips() },
+                            ComposableDemo("Custom chips") { CustomChips() },
+                            ComposableDemo("Image background chips") { ImageBackgroundChips() },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Placeholders",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Content Placeholders") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    ChipWithIconAndLabelAndPlaceholders()
+                                }
+                            },
+                            ComposableDemo("Overlaid Placeholder") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    ChipWithIconAndLabelsAndOverlaidPlaceholder()
+                                }
+                            },
+                            ComposableDemo("Simple Text Placeholder") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    TextPlaceholder()
+                                }
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Chips") { PlaceholderChips() },
+                            ComposableDemo("Cards") { PlaceholderCards() },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Toggle Chip",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("ToggleChip With Switch") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    ToggleChipWithSwitch()
+                                }
+                            },
+                            ComposableDemo("SplitToggleChip With Checkbox") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    SplitToggleChipWithCheckbox()
+                                }
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Toggle chip") { ToggleChips() },
+                            ComposableDemo("RTL Toggle chip") {
+                                ToggleChips(
+                                    layoutDirection = LayoutDirection.Rtl,
+                                    description = "RTL ToggleChips"
+                                )
+                            },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Selectable Chip",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("SelectableChip With RadioButton") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    SelectableChipWithRadioButton()
+                                }
+                            },
+                            ComposableDemo("SplitSelectableChip With RadioButton") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    SplitSelectableChipWithRadioButton()
+                                }
+                            },
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Selectable chip") { SelectableChips() },
+                            ComposableDemo("RTL Selectable chip") {
+                                SelectableChips(
+                                    layoutDirection = LayoutDirection.Rtl,
+                                    description = "RTL ToggleChips"
+                                )
+                            },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                "Card",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("AppCard") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    AppCardWithIcon()
+                                }
+                            },
+                            ComposableDemo("AppCard With Image") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    AppCardWithImage()
+                                }
+                            },
+                            ComposableDemo("TitleCard") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    TitleCardStandard()
+                                }
+                            },
+                            ComposableDemo("TitleCard With Image Background") {
+                                Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                    TitleCardWithImageBackground()
+                                }
+                            },
+                        )
+                    ),
+                    ComposableDemo("Demos") { CardDemo() },
+                )
+            ),
+            DemoCategory(
+                "Progress Indicator",
+                listOf(
+                    DemoCategory(
+                        "Samples",
+                        listOf(
+                            ComposableDemo("Indeterminate") {
+                                Centralize { IndeterminateCircularProgressIndicator() }
+                            },
+                            ComposableDemo("Animation") {
+                                Centralize { CircularProgressIndicatorWithAnimation() }
+                            },
+                            ComposableDemo("Fullscreen with a gap") {
+                                Centralize { CircularProgressIndicatorFullscreenWithGap() }
+                            }
+                        )
+                    ),
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Indeterminate progress") {
+                                Centralize { IndeterminateProgress() }
+                            },
+                            ComposableDemo("Custom angles") {
+                                Centralize { ProgressWithCustomAngles() }
+                            },
+                            ComposableDemo("Media controls") { Centralize { ProgressWithMedia() } },
+                            ComposableDemo("Transforming progress indicator") {
+                                Centralize { TransformingCustomProgressIndicator() }
+                            },
+                        )
+                    )
+                )
+            ),
+            DemoCategory(
+                title = "Swipe To Dismiss",
+                listOf(
+                    ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
+                    ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                    ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
+                )
+            ),
+            DemoCategory(
+                "List (Scaling Lazy Column)",
+                listOf(
+                    ComposableDemo("Defaults", "Basic ScalingLazyColumn using default values") {
+                        SimpleScalingLazyColumn()
+                    },
+                    ComposableDemo(
+                        "With Content Padding",
+                        "Basic ScalingLazyColumn with autoCentering disabled and explicit " +
+                            "content padding of top = 20.dp, bottom = 20.dp"
+                    ) {
+                        SimpleScalingLazyColumnWithContentPadding()
+                    },
+                    ComposableDemo(
+                        "With Snap",
+                        "Basic ScalingLazyColumn, center aligned with snap enabled"
+                    ) {
+                        SimpleScalingLazyColumnWithSnap()
+                    },
+                    ComposableDemo(
+                        "Edge Anchor",
+                        "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
+                            "If you click on an item there will be an animated scroll of the " +
+                            "items edge to the center"
+                    ) {
+                        ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                    },
+                    ComposableDemo(
+                        "Edge Anchor (G)",
+                        "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
+                            "If you click on an item there will be an animated scroll of the " +
+                            "items edge to the center and guidelines drawn on top"
+                    ) {
+                        ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                        GuideLines()
+                    },
+                    ComposableDemo(
+                        "Scaling Details (G)",
+                        "A ScalingLazyColumn with items that show their position and size as" +
+                            "well as guidelines"
+                    ) {
+                        ScalingLazyColumnDetail()
+                        GuideLines()
+                    },
+                    ComposableDemo(
+                        "Stress Test",
+                        "A ScalingLazyColumn with a mixture of different types of items"
+                    ) {
+                        ScalingLazyColumnMixedTypes()
+                    },
+                    ComposableDemo(
+                        "Stress Test [G]",
+                        "A ScalingLazyColumn with a mixture of different types of items with " +
+                            "guidelines"
+                    ) {
+                        ScalingLazyColumnMixedTypes()
+                        GuideLines()
+                    },
+                )
+            ),
+            DemoCategory(
+                "Scaffold",
+                listOf(
+                    ComposableDemo("Scaffold with Scrollbar") {
+                        SimpleScaffoldWithScrollIndicator()
+                    },
+                )
+            ),
+            DemoCategory(
+                "Position Indicator",
+                listOf(
+                    ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
+                    ComposableDemo("Hide when no scrollable SLC") { HideWhenFullSLCDemo() },
+                    ComposableDemo("SLC with PositionIndicator") { SLCWithPositionIndicatorDemo() },
+                    ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
+                    ComposableDemo("Shared PI") { SharedPositionIndicator() }
+                )
+            ),
+            DemoCategory(
+                "Curved Text",
+                listOf(
+                    ComposableDemo("Basic Styling") { CurvedTextDemo() },
+                    ComposableDemo("Provider Styling") { CurvedTextProviderDemo() },
+                )
+            ),
+            DemoCategory(
+                "Theme",
+                listOf(
+                    ComposableDemo("Fonts") { ThemeFonts() },
+                    ComposableDemo(
+                        title = "Fixed Font Size",
+                        description =
+                            "Display1 font size not impacted by changes to user font selection",
+                    ) {
+                        Centralize { FixedFontSize() }
+                    },
+                    ComposableDemo("Colors") { ThemeColors() },
+                )
+            ),
+            ComposableDemo("Settings Demo") { SettingsDemo() },
+            DemoCategory(
+                "ListHeader",
+                listOf(
+                    ComposableDemo("Sample") {
+                        Centralize { ListHeader { Text("Header", maxLines = 3) } }
+                    },
+                    ComposableDemo("MultiLine Sample") {
+                        Centralize {
+                            ListHeader {
+                                Text(
+                                    text =
+                                        "ListHeader that spans multiple lines in a large " +
+                                            "font and should expand to fit the contents",
+                                    style = MaterialTheme.typography.title3
+                                )
+                            }
+                        }
+                    }
+                )
             )
-        )
-    ),
-)
+        ),
+    )

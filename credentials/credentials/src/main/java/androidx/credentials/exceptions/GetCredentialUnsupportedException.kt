@@ -19,14 +19,15 @@ package androidx.credentials.exceptions
 /**
  * During the get credential flow, this is thrown when credential manager is unsupported, typically
  * because the device has disabled it or did not ship with this feature enabled. A software update
- * or a restart after enabling may fix this issue, but in certain cases, the device hardware may
- * be the limiting factor.
+ * or a restart after enabling may fix this issue, but in certain cases, the device hardware may be
+ * the limiting factor.
  *
  * @see GetCredentialException
  */
-class GetCredentialUnsupportedException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
+class GetCredentialUnsupportedException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    GetCredentialException(TYPE_GET_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
     internal companion object {
         internal const val TYPE_GET_CREDENTIAL_UNSUPPORTED_EXCEPTION =
             "androidx.credentials.TYPE_GET_CREDENTIAL_UNSUPPORTED_EXCEPTION"

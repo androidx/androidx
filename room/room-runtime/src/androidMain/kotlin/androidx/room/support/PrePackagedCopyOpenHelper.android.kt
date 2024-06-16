@@ -92,11 +92,7 @@ internal class PrePackagedCopyOpenHelper(
         val name = checkNotNull(databaseName)
         val databaseFile = context.getDatabasePath(name)
         val processLevelLock = (databaseConfiguration.multiInstanceInvalidation)
-        val copyLock = ProcessLock(
-            name,
-            context.filesDir,
-            processLevelLock
-        )
+        val copyLock = ProcessLock(name, context.filesDir, processLevelLock)
         try {
             // Acquire a copy lock, this lock works across threads and processes, preventing
             // concurrent copy attempts from occurring.
@@ -112,12 +108,13 @@ internal class PrePackagedCopyOpenHelper(
             }
 
             // A database file is present, check if we need to re-copy it.
-            val currentVersion = try {
-                readVersion(databaseFile)
-            } catch (e: IOException) {
-                Log.w(LOG_TAG, "Unable to read database version.", e)
-                return
-            }
+            val currentVersion =
+                try {
+                    readVersion(databaseFile)
+                } catch (e: IOException) {
+                    Log.w(LOG_TAG, "Unable to read database version.", e)
+                    return
+                }
             if (currentVersion == databaseVersion) {
                 return
             }
@@ -136,8 +133,8 @@ internal class PrePackagedCopyOpenHelper(
                 }
             } else {
                 Log.w(
-                    LOG_TAG, "Failed to delete database file ($name) for " +
-                        "a copy destructive migration."
+                    LOG_TAG,
+                    "Failed to delete database file ($name) for " + "a copy destructive migration."
                 )
             }
         } finally {
@@ -153,11 +150,12 @@ internal class PrePackagedCopyOpenHelper(
         } else if (copyFromFile != null) {
             input = FileInputStream(copyFromFile).channel
         } else if (copyFromInputStream != null) {
-            val inputStream = try {
-                copyFromInputStream.call()
-            } catch (e: Exception) {
-                throw IOException("inputStreamCallable exception on call", e)
-            }
+            val inputStream =
+                try {
+                    copyFromInputStream.call()
+                } catch (e: Exception) {
+                    throw IOException("inputStreamCallable exception on call", e)
+                }
             input = Channels.newChannel(inputStream)
         } else {
             throw IllegalStateException(
@@ -167,17 +165,13 @@ internal class PrePackagedCopyOpenHelper(
 
         // An intermediate file is used so that we never end up with a half-copied database file
         // in the internal directory.
-        val intermediateFile = File.createTempFile(
-            "room-copy-helper", ".tmp", context.cacheDir
-        )
+        val intermediateFile = File.createTempFile("room-copy-helper", ".tmp", context.cacheDir)
         intermediateFile.deleteOnExit()
         val output = FileOutputStream(intermediateFile).channel
         copy(input, output)
         val parent = destinationFile.parentFile
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw IOException(
-                "Failed to create directories for ${destinationFile.absolutePath}"
-            )
+            throw IOException("Failed to create directories for ${destinationFile.absolutePath}")
         }
 
         // Temporarily open intermediate database file using FrameworkSQLiteOpenHelper and dispatch
@@ -193,8 +187,7 @@ internal class PrePackagedCopyOpenHelper(
     }
 
     private fun dispatchOnOpenPrepackagedDatabase(databaseFile: File, writable: Boolean) {
-        if (databaseConfiguration.prepackagedDatabaseCallback == null
-        ) {
+        if (databaseConfiguration.prepackagedDatabaseCallback == null) {
             return
         }
         createFrameworkOpenHelper(databaseFile).use { helper ->
@@ -204,35 +197,43 @@ internal class PrePackagedCopyOpenHelper(
     }
 
     private fun createFrameworkOpenHelper(databaseFile: File): SupportSQLiteOpenHelper {
-        val version = try {
-            readVersion(databaseFile)
-        } catch (e: IOException) {
-            throw RuntimeException("Malformed database file, unable to read version.", e)
-        }
+        val version =
+            try {
+                readVersion(databaseFile)
+            } catch (e: IOException) {
+                throw RuntimeException("Malformed database file, unable to read version.", e)
+            }
         val factory = FrameworkSQLiteOpenHelperFactory()
-        val configuration = SupportSQLiteOpenHelper.Configuration.builder(context)
-            .name(databaseFile.absolutePath)
-            .callback(object : SupportSQLiteOpenHelper.Callback(version.coerceAtLeast(1)) {
-                override fun onCreate(db: SupportSQLiteDatabase) {}
-                override fun onUpgrade(
-                    db: SupportSQLiteDatabase,
-                    oldVersion: Int,
-                    newVersion: Int
-                ) {
-                }
+        val configuration =
+            SupportSQLiteOpenHelper.Configuration.builder(context)
+                .name(databaseFile.absolutePath)
+                .callback(
+                    object : SupportSQLiteOpenHelper.Callback(version.coerceAtLeast(1)) {
+                        override fun onCreate(db: SupportSQLiteDatabase) {}
 
-                override fun onOpen(db: SupportSQLiteDatabase) {
-                    // If pre-packaged database has a version < 1 we will open it as if it was
-                    // version 1 because the framework open helper does not allow version < 1.
-                    // The database will be considered as newly created and onCreate() will be
-                    // invoked, but we do nothing and reset the version back so Room later runs
-                    // migrations as usual.
-                    if (version < 1) {
-                        db.version = version
+                        override fun onUpgrade(
+                            db: SupportSQLiteDatabase,
+                            oldVersion: Int,
+                            newVersion: Int
+                        ) {}
+
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            // If pre-packaged database has a version < 1 we will open it as if it
+                            // was
+                            // version 1 because the framework open helper does not allow version <
+                            // 1.
+                            // The database will be considered as newly created and onCreate() will
+                            // be
+                            // invoked, but we do nothing and reset the version back so Room later
+                            // runs
+                            // migrations as usual.
+                            if (version < 1) {
+                                db.version = version
+                            }
+                        }
                     }
-                }
-            })
-            .build()
+                )
+                .build()
         return factory.create(configuration)
     }
 }

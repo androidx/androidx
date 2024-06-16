@@ -35,11 +35,10 @@ import androidx.wear.compose.material3.Text
 fun RadioButtonDemo() {
     var selectedIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader { Text(text = "Radio Button") }
-        }
+        item { ListHeader { Text(text = "Radio Button") } }
         item {
             RadioButtonDemo(
                 selected = selectedIndex == 0,
@@ -54,28 +53,16 @@ fun RadioButtonDemo() {
                 enabled = true
             )
         }
-        item {
-            ListHeader { Text(text = "Disabled Radio Button", textAlign = TextAlign.Center) }
-        }
-        item {
-            RadioButtonDemo(selected = false, enabled = false)
-        }
-        item {
-            RadioButtonDemo(selected = true, enabled = false)
-        }
+        item { ListHeader { Text(text = "Disabled Radio Button", textAlign = TextAlign.Center) } }
+        item { RadioButtonDemo(selected = false, enabled = false) }
+        item { RadioButtonDemo(selected = true, enabled = false) }
     }
 }
 
 @Composable
-private fun RadioButtonDemo(
-    selected: Boolean,
-    enabled: Boolean,
-    onSelected: () -> Unit = {}
-) {
+private fun RadioButtonDemo(selected: Boolean, enabled: Boolean, onSelected: () -> Unit = {}) {
     SelectableButton(
-        label = {
-            Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis) },
         selected = selected,
         onSelect = onSelected,
         enabled = enabled,

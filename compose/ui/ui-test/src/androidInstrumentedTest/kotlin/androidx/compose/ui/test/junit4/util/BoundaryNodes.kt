@@ -22,16 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 
 @Composable
-fun BoundaryNode(
-    testTag: String,
-    content: @Composable () -> Unit
-) {
+fun BoundaryNode(testTag: String, content: @Composable () -> Unit) {
     Column(Modifier.testTag(testTag)) { content() }
 }
 
 @Composable
-fun BoundaryNode(
-    testTag: String
-) {
+fun BoundaryNode(testTag: String) {
     Column(Modifier.testTag(testTag)) {}
 }

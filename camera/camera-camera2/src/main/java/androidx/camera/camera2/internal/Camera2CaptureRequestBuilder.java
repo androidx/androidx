@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.camera2.internal.compat.workaround.TemplateParamsOverride;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
@@ -46,7 +47,6 @@ import java.util.Map;
 /**
  * This class is used to build a camera2 {@link CaptureRequest} from a {@link CaptureConfig}
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2CaptureRequestBuilder {
     private Camera2CaptureRequestBuilder() {
     }
@@ -76,6 +76,17 @@ class Camera2CaptureRequestBuilder {
         }
 
         return surfaceList;
+    }
+
+    private static void applyTemplateParamsOverrideWorkaround(
+            @NonNull CaptureRequest.Builder builder, int template,
+            @NonNull TemplateParamsOverride templateParamsOverride) {
+        for (Map.Entry<CaptureRequest.Key<?>, Object> entry :
+                templateParamsOverride.getOverrideParams(template).entrySet()) {
+            @SuppressWarnings("unchecked")
+            CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) entry.getKey();
+            builder.set(key, entry.getValue());
+        }
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
@@ -138,7 +149,7 @@ class Camera2CaptureRequestBuilder {
     public static CaptureRequest build(@NonNull CaptureConfig captureConfig,
             @Nullable CameraDevice device,
             @NonNull Map<DeferrableSurface, Surface> configuredSurfaceMap,
-            boolean isRepeatingRequest)
+            boolean isRepeatingRequest, @NonNull TemplateParamsOverride mTemplateParamsOverride)
             throws CameraAccessException {
         if (device == null) {
             return null;
@@ -169,6 +180,11 @@ class Camera2CaptureRequestBuilder {
             } else {
                 builder = device.createCaptureRequest(captureConfig.getTemplateType());
             }
+        }
+
+        if (isRepeatingRequest) {
+            applyTemplateParamsOverrideWorkaround(builder, captureConfig.getTemplateType(),
+                    mTemplateParamsOverride);
         }
 
         applyAeFpsRange(captureConfig, builder);
@@ -212,13 +228,16 @@ class Camera2CaptureRequestBuilder {
      */
     @Nullable
     public static CaptureRequest buildWithoutTarget(@NonNull CaptureConfig captureConfig,
-            @Nullable CameraDevice device)
+            @Nullable CameraDevice device, @NonNull TemplateParamsOverride templateParamsOverride)
             throws CameraAccessException {
         if (device == null) {
             return null;
         }
         CaptureRequest.Builder builder = device.createCaptureRequest(
                 captureConfig.getTemplateType());
+
+        applyTemplateParamsOverrideWorkaround(builder, captureConfig.getTemplateType(),
+                templateParamsOverride);
 
         applyImplementationOptionToCaptureBuilder(builder,
                 captureConfig.getImplementationOptions());

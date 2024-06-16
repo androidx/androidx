@@ -28,29 +28,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FtsEntityBundle(
-    @SerialName("tableName")
-    override val tableName: String,
-    @SerialName("createSql")
-    override val createSql: String,
-    @SerialName("fields")
-    override val fields: List<FieldBundle>,
-    @SerialName("primaryKey")
-    override val primaryKey: PrimaryKeyBundle,
-    @SerialName("indices")
-    override val indices: List<IndexBundle> = emptyList(),
-    @SerialName("foreignKeys")
-    override val foreignKeys: List<ForeignKeyBundle> = emptyList(),
-    @SerialName("ftsVersion")
-    val ftsVersion: String,
-    @SerialName("ftsOptions")
-    val ftsOptions: FtsOptionsBundle,
-    @SerialName("contentSyncTriggers")
-    val contentSyncSqlTriggers: List<String>
+    @SerialName("tableName") override val tableName: String,
+    @SerialName("createSql") override val createSql: String,
+    @SerialName("fields") override val fields: List<FieldBundle>,
+    @SerialName("primaryKey") override val primaryKey: PrimaryKeyBundle,
+    @SerialName("indices") override val indices: List<IndexBundle> = emptyList(),
+    @SerialName("foreignKeys") override val foreignKeys: List<ForeignKeyBundle> = emptyList(),
+    @SerialName("ftsVersion") val ftsVersion: String,
+    @SerialName("ftsOptions") val ftsOptions: FtsOptionsBundle,
+    @SerialName("contentSyncTriggers") val contentSyncSqlTriggers: List<String>
 ) : BaseEntityBundle(), SchemaEquality<FtsEntityBundle> {
 
-    /**
-     * Creates the list of SQL queries that are necessary to create this entity.
-     */
+    /** Creates the list of SQL queries that are necessary to create this entity. */
     override fun buildCreateQueries(): List<String> {
         return buildList {
             add(createTable())
@@ -70,26 +59,14 @@ class FtsEntityBundle(
             checkSchemaEquality(ftsOptions, other.ftsOptions)
     }
 
-    /**
-     * Gets the list of shadow table names corresponding to the FTS virtual table.
-     */
+    /** Gets the list of shadow table names corresponding to the FTS virtual table. */
     val shadowTableNames: List<String> by lazy {
         val currentTable = this@FtsEntityBundle.tableName
-        buildList {
-            SHADOW_TABLE_NAME_SUFFIXES.forEach { suffix ->
-                add(currentTable + suffix)
-            }
-        }
+        buildList { SHADOW_TABLE_NAME_SUFFIXES.forEach { suffix -> add(currentTable + suffix) } }
     }
 
     companion object {
         private val SHADOW_TABLE_NAME_SUFFIXES =
-            listOf(
-                "_content",
-                "_segdir",
-                "_segments",
-                "_stat",
-                "_docsize"
-            )
+            listOf("_content", "_segdir", "_segments", "_stat", "_docsize")
     }
 }

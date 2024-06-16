@@ -18,10 +18,10 @@ package androidx.compose.runtime.internal
 
 /**
  * A backwards-compatible comparison check which returns true if the receiver and the [other]
- * operands are equal to each other. Equality as specified in the IEEE-754 standard. If at least
- * one operand is `NaN`, the result will always be `false`. The sign bit is ignored for operands
- * that are zero (i.e. +0 and -0 will always be equal to one another). All other comparisons check
- * the logical value of the float.
+ * operands are equal to each other. Equality as specified in the IEEE-754 standard. If at least one
+ * operand is `NaN`, the result will always be `false`. The sign bit is ignored for operands that
+ * are zero (i.e. +0 and -0 will always be equal to one another). All other comparisons check the
+ * logical value of the float.
  *
  * This implementation is needed for proper behavior on x86 builds of Android SDK levels 21 and 22,
  * which contain a bug where [Float.NaN] is equal to every other [Float] value.
@@ -32,10 +32,10 @@ internal expect inline fun Float.equalsWithNanFix(other: Float): Boolean
 
 /**
  * A backwards-compatible comparison check which returns true if the receiver and the [other]
- * operands are equal to each other. Equality as specified in the IEEE-754 standard. If at least
- * one operand is `NaN`, the result will always be `false`. The sign bit is ignored for operands
- * that are zero (i.e. +0 and -0 will always be equal to one another). All other comparisons check
- * the logical value of the double.
+ * operands are equal to each other. Equality as specified in the IEEE-754 standard. If at least one
+ * operand is `NaN`, the result will always be `false`. The sign bit is ignored for operands that
+ * are zero (i.e. +0 and -0 will always be equal to one another). All other comparisons check the
+ * logical value of the double.
  *
  * This implementation is needed for proper behavior on x86 builds of Android SDK levels 21 and 22,
  * which contain a bug where [Double.NaN] is equal to every other [Double] value.

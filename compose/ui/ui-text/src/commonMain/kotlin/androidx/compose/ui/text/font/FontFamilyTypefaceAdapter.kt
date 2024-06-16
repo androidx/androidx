@@ -19,7 +19,6 @@ package androidx.compose.ui.text.font
 /**
  * Used by [FontFamilyResolverImpl] to dispatch requests for either [FontListFontFamily] resolution
  * or delegate all other [FontFamily] requests to [PlatformFontFamilyTypefaceAdapter].
- *
  * - [FontListFontFamily] will be resolved by [FontListFontFamilyTypefaceAdapter]
  * - All other [FontFamily] will be resolved by [PlatformFontFamilyTypefaceAdapter]
  */
@@ -40,8 +39,8 @@ internal interface FontFamilyTypefaceAdapter {
      * @param typefaceRequest unique description of this typeface request
      * @param platformFontLoader font loader used for loading typefaces from [Font] descriptors
      * @param onAsyncCompletion will be called (on an arbitrary thread) when
-     * [FontLoadingStrategy.Async] fonts reach their final resolved state, may be called prior to
-     * resolve returning
+     *   [FontLoadingStrategy.Async] fonts reach their final resolved state, may be called prior to
+     *   resolve returning
      * @return result of typeface lookup.
      */
     fun resolve(

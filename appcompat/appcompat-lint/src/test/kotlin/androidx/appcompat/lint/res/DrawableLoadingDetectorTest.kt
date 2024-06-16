@@ -25,9 +25,10 @@ import org.junit.Test
 class DrawableLoadingDetectorTest {
     @Test
     fun testCustomGetDrawable() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.graphics.drawable.Drawable
@@ -46,24 +47,25 @@ class DrawableLoadingDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect a clean Lint run since the call to getDrawable in activity's onCreate
         // is on our own custom inner class
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.CONTEXT_COMPAT,
-            customActivity
-        ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
+        lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, Stubs.CONTEXT_COMPAT, customActivity)
+            .issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expectClean()
     }
 
     @Test
     fun testCoreContextGetDrawable() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.graphics.drawable.Drawable
@@ -76,14 +78,15 @@ class DrawableLoadingDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect the call to Context.getDrawable to be flagged to use ContextCompat loading
-        /* ktlint-disable max-line-length */
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            customActivity
-        ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
+
+        lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, customActivity)
+            .issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expect(
                 """
@@ -91,16 +94,17 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable
         getDrawable(android.R.drawable.ic_delete)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testCoreResourcesGetDrawable() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.graphics.drawable.Drawable
@@ -113,14 +117,15 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect the call to Resources.getDrawable to be flagged to use ResourcesCompat loading
-        /* ktlint-disable max-line-length */
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            customActivity
-        ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
+
+        lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, customActivity)
+            .issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expect(
                 """
@@ -128,16 +133,17 @@ src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() 
         getResources().getDrawable(android.R.drawable.ic_delete)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testCoreResourcesThemeGetDrawable() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.graphics.drawable.Drawable
@@ -150,14 +156,15 @@ src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() 
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect the call to Resources.getDrawable to be flagged to use ResourcesCompat loading
-        /* ktlint-disable max-line-length */
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            customActivity
-        ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
+
+        lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, customActivity)
+            .issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expect(
                 """
@@ -165,8 +172,8 @@ src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() 
         getResources().getDrawable(android.R.drawable.ic_delete, getTheme())
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

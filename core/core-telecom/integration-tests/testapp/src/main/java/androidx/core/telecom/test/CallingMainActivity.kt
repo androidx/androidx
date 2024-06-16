@@ -59,24 +59,16 @@ class CallingMainActivity : Activity() {
         mCallCount = 0
 
         val registerPhoneAccountButton = findViewById<Button>(R.id.registerButton)
-        registerPhoneAccountButton.setOnClickListener {
-            mScope.launch {
-                registerPhoneAccount()
-            }
-        }
+        registerPhoneAccountButton.setOnClickListener { mScope.launch { registerPhoneAccount() } }
 
         val addOutgoingCallButton = findViewById<Button>(R.id.addOutgoingCall)
         addOutgoingCallButton.setOnClickListener {
-            mScope.launch {
-                addCallWithAttributes(Utilities.OUTGOING_CALL_ATTRIBUTES)
-            }
+            mScope.launch { addCallWithAttributes(Utilities.OUTGOING_CALL_ATTRIBUTES) }
         }
 
         val addIncomingCallButton = findViewById<Button>(R.id.addIncomingCall)
         addIncomingCallButton.setOnClickListener {
-            mScope.launch {
-                addCallWithAttributes(Utilities.INCOMING_CALL_ATTRIBUTES)
-            }
+            mScope.launch { addCallWithAttributes(Utilities.INCOMING_CALL_ATTRIBUTES) }
         }
 
         // Set up AudioRecord
@@ -140,9 +132,7 @@ class CallingMainActivity : Activity() {
 
                         // Collect updates
                         launch {
-                            currentCallEndpoint.collect {
-                                callObject.onCallEndpointChanged(it)
-                            }
+                            currentCallEndpoint.collect { callObject.onCallEndpointChanged(it) }
                         }
 
                         launch {
@@ -151,11 +141,7 @@ class CallingMainActivity : Activity() {
                             }
                         }
 
-                        launch {
-                            isMuted.collect {
-                                callObject.onMuteStateChanged(it)
-                            }
-                        }
+                        launch { isMuted.collect { callObject.onMuteStateChanged(it) } }
                         addCallRow(callObject)
                     }
                 } catch (e: Exception) {
@@ -180,8 +166,6 @@ class CallingMainActivity : Activity() {
     }
 
     private fun updateCallList() {
-        runOnUiThread {
-            mAdapter.notifyDataSetChanged()
-        }
+        runOnUiThread { mAdapter.notifyDataSetChanged() }
     }
 }

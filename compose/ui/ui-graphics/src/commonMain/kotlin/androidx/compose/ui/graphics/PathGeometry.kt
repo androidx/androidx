@@ -17,25 +17,21 @@
 package androidx.compose.ui.graphics
 
 /**
- * Computes this [Path]'s direction (or winding, or orientation), which can
- * be either [Path.Direction.Clockwise] or [Path.Direction.CounterClockwise].
+ * Computes this [Path]'s direction (or winding, or orientation), which can be either
+ * [Path.Direction.Clockwise] or [Path.Direction.CounterClockwise].
  *
- * If the path is made of multiple contours (the path contains multiple "move"
- * commands), the direction returned by this property is the direction of the
- * first contour.
+ * If the path is made of multiple contours (the path contains multiple "move" commands), the
+ * direction returned by this property is the direction of the first contour.
  *
- * If the path is empty (contains no lines/curves), the direction is
- * [Path.Direction.Clockwise].
+ * If the path is empty (contains no lines/curves), the direction is [Path.Direction.Clockwise].
  *
- * If the path has no area (single straight line), the direction is
- * [Path.Direction.Clockwise].
+ * If the path has no area (single straight line), the direction is [Path.Direction.Clockwise].
  *
- * Calling this property does not cache the result, the direction is computed
- * Calling this method does not cache the result, the direction is computed
- * every time the method is called.
+ * Calling this property does not cache the result, the direction is computed Calling this method
+ * does not cache the result, the direction is computed every time the method is called.
  *
- * If you need to query the direction of individual contours, you should
- * [divide][Path.divide] the path first.
+ * If you need to query the direction of individual contours, you should [divide][Path.divide] the
+ * path first.
  */
 fun Path.computeDirection(): Path.Direction {
     var first = true
@@ -84,16 +80,7 @@ fun Path.computeDirection(): Path.Direction {
                 // To compute the area, the placement of the control points does not
                 // matter as long as they are on the line. We set them to the start
                 // and end points to avoid extra computations.
-                area += cubicArea(
-                    x0,
-                    y0,
-                    x0,
-                    y0,
-                    x1,
-                    y1,
-                    x1,
-                    y1
-                )
+                area += cubicArea(x0, y0, x0, y0, x1, y1, x1, y1)
 
                 endX = x1
                 endY = y1
@@ -114,48 +101,31 @@ fun Path.computeDirection(): Path.Direction {
                 val c2x = x2 + 2.0f / 3.0f * (x1 - x2)
                 val c2y = y2 + 2.0f / 3.0f * (y1 - y2)
 
-                area += cubicArea(
-                    x0,
-                    y0,
-                    c1x,
-                    c1y,
-                    c2x,
-                    c2y,
-                    x2,
-                    y2
-                )
+                area += cubicArea(x0, y0, c1x, c1y, c2x, c2y, x2, y2)
 
                 endX = x2
                 endY = y2
             }
             PathSegment.Type.Conic -> continue // We convert conics to quadratics
             PathSegment.Type.Cubic -> {
-                area += cubicArea(
-                    points[0],
-                    points[1],
-                    points[2],
-                    points[3],
-                    points[4],
-                    points[5],
-                    points[6],
-                    points[7]
-                )
+                area +=
+                    cubicArea(
+                        points[0],
+                        points[1],
+                        points[2],
+                        points[3],
+                        points[4],
+                        points[5],
+                        points[6],
+                        points[7]
+                    )
 
                 endX = points[6]
                 endY = points[7]
             }
             PathSegment.Type.Close -> {
                 if (!endX.closeTo(startX) || !endY.closeTo(startY)) {
-                    area += cubicArea(
-                        endX,
-                        endY,
-                        endX,
-                        endY,
-                        startX,
-                        startY,
-                        startX,
-                        startY
-                    )
+                    area += cubicArea(endX, endY, endX, endY, startX, startY, startX, startY)
 
                     endX = startX
                     endY = startY
@@ -174,10 +144,8 @@ fun Path.computeDirection(): Path.Direction {
 }
 
 /**
- * Divides this path into a list of paths. Each contour inside this path is returned as
- * a separate [Path]. For instance the following code snippet creates two rectangular
- * contours:
- *
+ * Divides this path into a list of paths. Each contour inside this path is returned as a separate
+ * [Path]. For instance the following code snippet creates two rectangular contours:
  * ```
  * val p = Path()
  * p.addRect(...)
@@ -185,17 +153,16 @@ fun Path.computeDirection(): Path.Direction {
  *
  * val contours = p.divide()
  * ```
- * The list returned by calling `p.divide()` will contain two `Path` instances, each
- * representing one of the two rectangles.
+ *
+ * The list returned by calling `p.divide()` will contain two `Path` instances, each representing
+ * one of the two rectangles.
  *
  * Empty contours (contours with no lines/curves) are omitted from the resulting list.
  *
- * @param contours An optional mutable list of [Path] that will hold the result of the
- * division.
- *
- * @return A list of [Path] representing all the contours in this path. The returned list
- * is either a newly allocated list if the [contours] parameter was left unspecified, or
- * the [contours] parameter.
+ * @param contours An optional mutable list of [Path] that will hold the result of the division.
+ * @return A list of [Path] representing all the contours in this path. The returned list is either
+ *   a newly allocated list if the [contours] parameter was left unspecified, or the [contours]
+ *   parameter.
  */
 fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path> {
     var path = Path()
@@ -224,24 +191,12 @@ fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path
                 isEmpty = false
             }
             PathSegment.Type.Quadratic -> {
-                path.quadraticTo(
-                    points[2],
-                    points[3],
-                    points[4],
-                    points[5]
-                )
+                path.quadraticTo(points[2], points[3], points[4], points[5])
                 isEmpty = false
             }
             PathSegment.Type.Conic -> continue // We convert conics to quadratics
             PathSegment.Type.Cubic -> {
-                path.cubicTo(
-                    points[2],
-                    points[3],
-                    points[4],
-                    points[5],
-                    points[6],
-                    points[7]
-                )
+                path.cubicTo(points[2], points[3], points[4], points[5], points[6], points[7])
                 isEmpty = false
             }
             PathSegment.Type.Close -> path.close()
@@ -258,22 +213,20 @@ fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path
 }
 
 /**
- * Reverses the segments of this path into the specified [destination], turning
- * a clockwise path into a counter-clockwise path and vice-versa. Each contour
- * in the path is reversed independently, and the contours appear in the
- * [destination] in reverse order.
+ * Reverses the segments of this path into the specified [destination], turning a clockwise path
+ * into a counter-clockwise path and vice-versa. Each contour in the path is reversed independently,
+ * and the contours appear in the [destination] in reverse order.
  *
  * This method preserves the general structure of this path as much as possible:
- *
  * - Lines become lines
  * - Quadratic Bézier curves become quadratic Bézier curves
  * - Cubic Bézier curves become cubic Bézier curves
  * - Close and move commands remain close and move commands
  * - Conic segments become quadratic Bézier curves
  *
- * @return A [Path] containing the reverse of this [Path]. The returned path is
- * either a newly allocated [Path] if the [destination] parameter was left
- * unspecified, or the [destination] parameter.
+ * @return A [Path] containing the reverse of this [Path]. The returned path is either a newly
+ *   allocated [Path] if the [destination] parameter was left unspecified, or the [destination]
+ *   parameter.
  */
 fun Path.reverse(destination: Path = Path()): Path {
     val iterator = iterator()
@@ -323,23 +276,23 @@ fun Path.reverse(destination: Path = Path()): Path {
                 dataIndex--
             }
             PathSegment.Type.Quadratic -> {
-                destination.quadraticTo(
-                    points[2], points[3],
-                    points[0], points[1]
-                )
+                destination.quadraticTo(points[2], points[3], points[0], points[1])
                 dataIndex--
             }
-            PathSegment.Type.Conic -> { } // won't happen, we convert to quadratics
+            PathSegment.Type.Conic -> {} // won't happen, we convert to quadratics
             PathSegment.Type.Cubic -> {
                 destination.cubicTo(
-                    points[4], points[5],
-                    points[2], points[3],
-                    points[0], points[1]
+                    points[4],
+                    points[5],
+                    points[2],
+                    points[3],
+                    points[0],
+                    points[1]
                 )
                 dataIndex--
             }
             PathSegment.Type.Close -> insertClose = true
-            PathSegment.Type.Done -> { } // won't happen, we filtered it out in the previous loop
+            PathSegment.Type.Done -> {} // won't happen, we filtered it out in the previous loop
         }
     }
 
@@ -350,12 +303,13 @@ fun Path.reverse(destination: Path = Path()): Path {
     return destination
 }
 
-private fun floatCountForType(type: PathSegment.Type) = when (type) {
-    PathSegment.Type.Move -> 2
-    PathSegment.Type.Line -> 4
-    PathSegment.Type.Quadratic -> 6
-    PathSegment.Type.Conic -> 8 // won't happen
-    PathSegment.Type.Cubic -> 8
-    PathSegment.Type.Close -> 0
-    PathSegment.Type.Done -> 0
-}
+private fun floatCountForType(type: PathSegment.Type) =
+    when (type) {
+        PathSegment.Type.Move -> 2
+        PathSegment.Type.Line -> 4
+        PathSegment.Type.Quadratic -> 6
+        PathSegment.Type.Conic -> 8 // won't happen
+        PathSegment.Type.Cubic -> 8
+        PathSegment.Type.Close -> 0
+        PathSegment.Type.Done -> 0
+    }

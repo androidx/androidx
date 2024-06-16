@@ -50,7 +50,7 @@ inline fun <reified T : Fragment> AndroidFragment(
     modifier: Modifier = Modifier,
     fragmentState: FragmentState = rememberFragmentState(),
     arguments: Bundle = Bundle.EMPTY,
-    noinline onUpdate: (T) -> Unit = { }
+    noinline onUpdate: (T) -> Unit = {}
 ) {
     AndroidFragment(clazz = T::class.java, modifier, fragmentState, arguments, onUpdate)
 }
@@ -77,46 +77,46 @@ fun <T : Fragment> AndroidFragment(
     modifier: Modifier = Modifier,
     fragmentState: FragmentState = rememberFragmentState(),
     arguments: Bundle = Bundle.EMPTY,
-    onUpdate: (T) -> Unit = { }
+    onUpdate: (T) -> Unit = {}
 ) {
     val updateCallback = rememberUpdatedState(onUpdate)
     val hashKey = currentCompositeKeyHash
     val view = LocalView.current
-    val fragmentManager = remember(view) {
-        FragmentManager.findFragmentManager(view)
-    }
+    val fragmentManager = remember(view) { FragmentManager.findFragmentManager(view) }
     val context = LocalContext.current
     lateinit var container: FragmentContainerView
-    AndroidView({
-        container = FragmentContainerView(context)
-        container.id = hashKey
-        container
-    }, modifier)
+    AndroidView(
+        {
+            container = FragmentContainerView(context)
+            container.id = hashKey
+            container
+        },
+        modifier
+    )
 
     DisposableEffect(fragmentManager, clazz, fragmentState) {
-        val fragment = fragmentManager.findFragmentById(container.id)
-            ?: fragmentManager.fragmentFactory.instantiate(
-                context.classLoader, clazz.name
-            ).apply {
-                setInitialSavedState(fragmentState.state.value)
-                setArguments(arguments)
-                fragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(container, this, "$hashKey")
-                    .commitNow()
-            }
+        val fragment =
+            fragmentManager.findFragmentById(container.id)
+                ?: fragmentManager.fragmentFactory
+                    .instantiate(context.classLoader, clazz.name)
+                    .apply {
+                        setInitialSavedState(fragmentState.state.value)
+                        setArguments(arguments)
+                        fragmentManager
+                            .beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(container, this, "$hashKey")
+                            .commitNow()
+                    }
         fragmentManager.onContainerAvailable(container)
-        @Suppress("UNCHECKED_CAST")
-        updateCallback.value(fragment as T)
+        @Suppress("UNCHECKED_CAST") updateCallback.value(fragment as T)
         onDispose {
             val state = fragmentManager.saveFragmentInstanceState(fragment)
             fragmentState.state.value = state
             if (!fragmentManager.isStateSaved) {
                 // If the state isn't saved, that means that some state change
                 // has removed this Composable from the hierarchy
-                fragmentManager.commitNow {
-                    remove(fragment)
-                }
+                fragmentManager.commitNow { remove(fragment) }
             }
         }
     }

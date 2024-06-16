@@ -37,8 +37,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ColorSchemeBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val colorSchemeTestCaseFactory = { ColorSchemeTestCase() }
 
@@ -57,113 +56,121 @@ class ColorSchemeTestCase : LayeredComposeTestCase() {
                 // Primary
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.primary))
                 Box(
-                    modifier = Modifier.size(1.dp).background(
-                        MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.primary)
-                    )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.primary
+                                )
+                            )
                 )
 
                 // Primary Container
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
+                    modifier =
+                        Modifier.size(1.dp).background(MaterialTheme.colorScheme.primaryContainer)
                 )
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.primaryContainer
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.primaryContainer
+                                )
                             )
-                        )
                 )
 
                 // Secondary
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.secondary))
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.secondary
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.secondary
+                                )
                             )
-                        )
                 )
 
                 // Secondary Container
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                    modifier =
+                        Modifier.size(1.dp).background(MaterialTheme.colorScheme.secondaryContainer)
                 )
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.secondaryContainer
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.secondaryContainer
+                                )
                             )
-                        )
                 )
 
                 // Tertiary
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.tertiary))
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.tertiary
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.tertiary
+                                )
                             )
-                        )
                 )
 
                 // Tertiary Container
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    modifier =
+                        Modifier.size(1.dp).background(MaterialTheme.colorScheme.tertiaryContainer)
                 )
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.tertiaryContainer
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.tertiaryContainer
+                                )
                             )
-                        )
                 )
 
                 // Surface
-                Box(modifier = Modifier
-                    .size(1.dp)
-                    .background(MaterialTheme.colorScheme.surfaceContainer))
-                Box(modifier = Modifier
-                    .size(1.dp)
-                    .background(
-                        MaterialTheme.colorScheme
-                            .contentColorFor(MaterialTheme.colorScheme.surfaceContainer)
-                    )
+                Box(
+                    modifier =
+                        Modifier.size(1.dp).background(MaterialTheme.colorScheme.surfaceContainer)
+                )
+                Box(
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.surfaceContainer
+                                )
+                            )
                 )
 
                 // Background
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.background))
                 Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .background(
-                            MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.background
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.background
+                                )
                             )
-                        )
                 )
 
                 // Error
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.error))
                 Box(
-                    modifier = Modifier.size(1.dp).background(
-                        MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.error)
-                    )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.error
+                                )
+                            )
                 )
             }
         }

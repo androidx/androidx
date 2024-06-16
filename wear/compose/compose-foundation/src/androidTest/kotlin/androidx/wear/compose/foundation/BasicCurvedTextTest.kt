@@ -32,8 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class BasicCurvedTextTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun modifying_curved_text_forces_curved_row_remeasure() {
@@ -42,10 +41,7 @@ class BasicCurvedTextTest {
         rule.setContent {
             CurvedLayout {
                 curvedRow(modifier = CurvedModifier.spy(capturedInfo)) {
-                    basicCurvedText(
-                        text = text.value,
-                        style = CurvedTextStyle(fontSize = 14.sp)
-                    )
+                    basicCurvedText(text = text.value, style = CurvedTextStyle(fontSize = 14.sp))
                 }
             }
         }
@@ -66,9 +62,7 @@ class BasicCurvedTextTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 CurvedLayout(modifier = Modifier.size(200.dp)) {
-                    curvedRow(
-                        modifier = CurvedModifier.testTag(TEST_TAG)
-                    ) {
+                    curvedRow(modifier = CurvedModifier.testTag(TEST_TAG)) {
                         basicCurvedText(
                             text = "Test text",
                             style = CurvedTextStyle(fontSize = 24.sp),

@@ -18,5 +18,4 @@ package androidx
 
 import androidx.annotation.Keep
 
-@Keep
-class KeepAnnotationUsageKotlin
+@Keep class KeepAnnotationUsageKotlin

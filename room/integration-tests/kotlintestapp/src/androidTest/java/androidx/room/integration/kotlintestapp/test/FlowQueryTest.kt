@@ -63,8 +63,7 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
         booksDao.getBooksFlow().take(1).collect {
-            assertThat(it)
-                .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+            assertThat(it).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
         }
     }
 
@@ -75,8 +74,7 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
         val result = booksDao.getBooksFlow().first()
-        assertThat(result)
-            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+        assertThat(result).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
     }
 
     @Test
@@ -88,8 +86,7 @@ class FlowQueryTest : TestDatabaseTest() {
         database.withTransaction {
             booksDao.insertBookSuspend(TestUtil.BOOK_2)
             val result = booksDao.getBooksFlow().first()
-            assertThat(result)
-                .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+            assertThat(result).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
         }
     }
 
@@ -100,13 +97,13 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
         val latch = CountDownLatch(1)
-        val job = async(Dispatchers.IO) {
-            booksDao.getBooksFlow().collect {
-                assertThat(it)
-                    .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
-                latch.countDown()
+        val job =
+            async(Dispatchers.IO) {
+                booksDao.getBooksFlow().collect {
+                    assertThat(it).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+                    latch.countDown()
+                }
             }
-        }
 
         latch.await()
         job.cancelAndJoin()
@@ -121,31 +118,30 @@ class FlowQueryTest : TestDatabaseTest() {
         val firstResultLatch = CountDownLatch(1)
         val secondResultLatch = CountDownLatch(1)
         val results = mutableListOf<List<Book>>()
-        val job = async(Dispatchers.IO) {
-            booksDao.getBooksFlow().collect {
-                when (results.size) {
-                    0 -> {
-                        results.add(it)
-                        firstResultLatch.countDown()
+        val job =
+            async(Dispatchers.IO) {
+                booksDao.getBooksFlow().collect {
+                    when (results.size) {
+                        0 -> {
+                            results.add(it)
+                            firstResultLatch.countDown()
+                        }
+                        1 -> {
+                            results.add(it)
+                            secondResultLatch.countDown()
+                        }
+                        else -> fail("Should have only collected 2 results.")
                     }
-                    1 -> {
-                        results.add(it)
-                        secondResultLatch.countDown()
-                    }
-                    else -> fail("Should have only collected 2 results.")
                 }
             }
-        }
 
         firstResultLatch.await()
         booksDao.insertBookSuspend(TestUtil.BOOK_3)
 
         secondResultLatch.await()
         assertThat(results.size).isEqualTo(2)
-        assertThat(results[0])
-            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
-        assertThat(results[1])
-            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2, TestUtil.BOOK_3))
+        assertThat(results[0]).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+        assertThat(results[1]).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2, TestUtil.BOOK_3))
 
         job.cancelAndJoin()
     }
@@ -157,8 +153,7 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
         val channel = booksDao.getBooksFlow().produceIn(this)
-        assertThat(channel.receive())
-            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+        assertThat(channel.receive()).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
         assertThat(channel.isEmpty).isTrue()
 
         channel.cancel()
@@ -172,8 +167,7 @@ class FlowQueryTest : TestDatabaseTest() {
 
         val channel = booksDao.getBooksFlow().produceIn(this)
 
-        assertThat(channel.receive())
-            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+        assertThat(channel.receive()).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
 
         booksDao.insertBookSuspend(TestUtil.BOOK_3)
         drain() // drain async invalidate
@@ -218,13 +212,10 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
-        val channels = Array(4) {
-            booksDao.getBooksFlow().produceIn(this)
-        }
+        val channels = Array(4) { booksDao.getBooksFlow().produceIn(this) }
 
         channels.forEach {
-            assertThat(it.receive())
-                .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+            assertThat(it.receive()).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
         }
 
         booksDao.insertBookSuspend(TestUtil.BOOK_3)
@@ -245,13 +236,10 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
-        val channels = Array(4) {
-            booksDao.getBooksFlowInTransaction().produceIn(this)
-        }
+        val channels = Array(4) { booksDao.getBooksFlowInTransaction().produceIn(this) }
 
         channels.forEach {
-            assertThat(it.receive())
-                .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+            assertThat(it.receive()).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
         }
 
         booksDao.insertBookSuspend(TestUtil.BOOK_3)
@@ -274,8 +262,7 @@ class FlowQueryTest : TestDatabaseTest() {
 
         val channel = booksDao.getBooksFlow().buffer(Channel.CONFLATED).produceIn(this)
 
-        assertThat(channel.receive())
-            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+        assertThat(channel.receive()).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
 
         booksDao.insertBookSuspend(TestUtil.BOOK_3)
         drain() // drain async invalidate
@@ -284,8 +271,7 @@ class FlowQueryTest : TestDatabaseTest() {
         drain() // drain async invalidate
         yield()
 
-        assertThat(channel.receive())
-            .isEqualTo(listOf(TestUtil.BOOK_2, TestUtil.BOOK_3))
+        assertThat(channel.receive()).isEqualTo(listOf(TestUtil.BOOK_2, TestUtil.BOOK_3))
         assertThat(channel.isEmpty).isTrue()
 
         channel.cancel()
@@ -298,13 +284,13 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
         val latch = CountDownLatch(1)
-        val job = async(Dispatchers.IO) {
-            for (result in booksDao.getBooksFlow().produceIn(this)) {
-                assertThat(result)
-                    .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
-                latch.countDown()
+        val job =
+            async(Dispatchers.IO) {
+                for (result in booksDao.getBooksFlow().produceIn(this)) {
+                    assertThat(result).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+                    latch.countDown()
+                }
             }
-        }
 
         latch.await()
         job.cancelAndJoin()
@@ -319,31 +305,30 @@ class FlowQueryTest : TestDatabaseTest() {
         val firstResultLatch = CountDownLatch(1)
         val secondResultLatch = CountDownLatch(1)
         val results = mutableListOf<Book?>()
-        val job = async(Dispatchers.IO) {
-            booksDao.getOneBooksFlow(TestUtil.BOOK_1.bookId).collect {
-                when (results.size) {
-                    0 -> {
-                        results.add(it)
-                        firstResultLatch.countDown()
+        val job =
+            async(Dispatchers.IO) {
+                booksDao.getOneBooksFlow(TestUtil.BOOK_1.bookId).collect {
+                    when (results.size) {
+                        0 -> {
+                            results.add(it)
+                            firstResultLatch.countDown()
+                        }
+                        1 -> {
+                            results.add(it)
+                            secondResultLatch.countDown()
+                        }
+                        else -> fail("Should have only collected 2 results.")
                     }
-                    1 -> {
-                        results.add(it)
-                        secondResultLatch.countDown()
-                    }
-                    else -> fail("Should have only collected 2 results.")
                 }
             }
-        }
 
         firstResultLatch.await()
         booksDao.deleteBookSuspend(TestUtil.BOOK_1)
 
         secondResultLatch.await()
         assertThat(results.size).isEqualTo(2)
-        assertThat(results[0])
-            .isEqualTo(TestUtil.BOOK_1)
-        assertThat(results[1])
-            .isNull()
+        assertThat(results[0]).isEqualTo(TestUtil.BOOK_1)
+        assertThat(results[1]).isNull()
 
         job.cancelAndJoin()
     }
@@ -351,42 +336,26 @@ class FlowQueryTest : TestDatabaseTest() {
     @Test
     fun playlistSongs_async_update(): Unit = runBlocking {
         val musicDao = database.musicDao()
-        val song1 = Song(
-            1,
-            "I Know Places",
-            "Taylor Swift",
-            "1989",
-            195,
-            2014
-        );
-        val song2 = Song(
-            2,
-            "Blank Space",
-            "Taylor Swift",
-            "1989",
-            241,
-            2014
-        )
+        val song1 = Song(1, "Thriller", "Michael Jackson", "Thriller", 357, 1982)
+        val song2 = Song(2, "Billie Jean", "Michael Jackson", "Thriller", 297, 1982)
         musicDao.addSongs(song1, song2)
-        musicDao.addPlaylists(
-            Playlist(1),
-            Playlist(2)
-        )
+        musicDao.addPlaylists(Playlist(1), Playlist(2))
         musicDao.addPlaylistSongRelations(PlaylistSongXRef(1, 1))
 
         val latches = Array(3) { CountDownLatch(1) }
         val results = mutableListOf<PlaylistWithSongs>()
         var collectCall = 0
-        val job = async(Dispatchers.IO) {
-            musicDao.getPlaylistsWithSongsFlow(1).collect {
-                if (collectCall >= latches.size) {
-                    fail("Should have only collected 3 results.")
+        val job =
+            async(Dispatchers.IO) {
+                musicDao.getPlaylistsWithSongsFlow(1).collect {
+                    if (collectCall >= latches.size) {
+                        fail("Should have only collected 3 results.")
+                    }
+                    results.add(it)
+                    latches[collectCall].countDown()
+                    collectCall++
                 }
-                results.add(it)
-                latches[collectCall].countDown()
-                collectCall++
             }
-        }
 
         latches[0].await()
         assertThat(results.size).isEqualTo(1)

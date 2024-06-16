@@ -43,9 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Test for [TouchInjectionScope.doubleClick]
- */
+/** Test for [TouchInjectionScope.doubleClick] */
 @MediumTest
 @RunWith(Parameterized::class)
 class DoubleClickTest(private val config: TestConfig) {
@@ -55,10 +53,11 @@ class DoubleClickTest(private val config: TestConfig) {
         private const val DoubleTapMin = 40L
         private const val DoubleTapMax = 200L
         private const val DefaultDoubleTapTimeMillis = (DoubleTapMin + DoubleTapMax) / 2
-        private val testViewConfiguration = TestViewConfiguration(
-            doubleTapMinTimeMillis = DoubleTapMin,
-            doubleTapTimeoutMillis = DoubleTapMax
-        )
+        private val testViewConfiguration =
+            TestViewConfiguration(
+                doubleTapMinTimeMillis = DoubleTapMin,
+                doubleTapTimeoutMillis = DoubleTapMax
+            )
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -72,13 +71,11 @@ class DoubleClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recordedDoubleClicks = mutableListOf<Offset>()
 
-    private val expectedClickPosition =
-        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
+    private val expectedClickPosition = config.position ?: Offset(defaultSize / 2, defaultSize / 2)
     private val expectedDelay = config.delayMillis ?: DefaultDoubleTapTimeMillis
 
     private fun recordDoubleClick(position: Offset) {
@@ -92,8 +89,9 @@ class DoubleClickTest(private val config: TestConfig) {
         rule.setContent {
             WithViewConfiguration(testViewConfiguration) {
                 ClickableTestBox(
-                    Modifier
-                        .pointerInput(Unit) { detectTapGestures(onDoubleTap = ::recordDoubleClick) }
+                    Modifier.pointerInput(Unit) {
+                            detectTapGestures(onDoubleTap = ::recordDoubleClick)
+                        }
                         .then(recorder)
                 )
             }

@@ -17,6 +17,7 @@ package androidx.core.util
 
 /**
  * Compat version of [java.util.function.Function]
+ *
  * @param T the type of the input to the operation
  * @param R the type of the output of the function
  */

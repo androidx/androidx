@@ -22,13 +22,12 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.google.common.util.concurrent.ListenableFuture
 
-open class NeverResolvedWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(context, workerParams) {
+open class NeverResolvedWorker(context: Context, workerParams: WorkerParameters) :
+    ListenableWorker(context, workerParams) {
     // specially leak completer reference and keep it around.
     // otherwise future will be automatically cancelled.
     private lateinit var completer: CallbackToFutureAdapter.Completer<Result>
+
     override fun startWork(): ListenableFuture<Result> {
         return CallbackToFutureAdapter.getFuture {
             completer = it

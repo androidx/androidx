@@ -55,9 +55,7 @@ class ResizingComposeViewTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule(
-        TestActivity::class.java
-    )
+    val rule = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
 
     @Test
     fun whenParentIsMeasuringTwiceWithDifferentConstraints() {
@@ -76,15 +74,9 @@ class ResizingComposeViewTest {
             )
             linearLayout.addView(
                 View(rule.activity),
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    0,
-                    10000f
-                )
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10000f)
             )
-            composeView.setContent {
-                ResizingChild(layoutHeight = { height })
-            }
+            composeView.setContent { ResizingChild(layoutHeight = { height }) }
         }
 
         awaitDrawAndAssertSizes()
@@ -101,12 +93,8 @@ class ResizingComposeViewTest {
         var height by mutableStateOf(10)
 
         rule.runOnUiThread {
-            rule.activity.setContentView(
-                composeView, WrapContentLayoutParams
-            )
-            composeView.setContent {
-                ResizingChild(layoutHeight = { height })
-            }
+            rule.activity.setContentView(composeView, WrapContentLayoutParams)
+            composeView.setContent { ResizingChild(layoutHeight = { height }) }
         }
 
         awaitDrawAndAssertSizes()
@@ -155,23 +143,20 @@ class ResizingComposeViewTest {
             rule.activity.setContentView(parent, WrapContentLayoutParams)
             composeView.setContent {
                 Layout(
-                    modifier = Modifier.layout { measurable, _ ->
-                        // this modifier sets a fixed size on a parent similarly to how
-                        // Modifier.fillMaxSize() or Modifier.size(foo) would do
-                        val placeable =
-                            measurable.measure(Constraints.fixed(parentSize, parentSize))
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
-                        }
-                    },
+                    modifier =
+                        Modifier.layout { measurable, _ ->
+                            // this modifier sets a fixed size on a parent similarly to how
+                            // Modifier.fillMaxSize() or Modifier.size(foo) would do
+                            val placeable =
+                                measurable.measure(Constraints.fixed(parentSize, parentSize))
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        },
                     content = {
                         ResizingChild(layoutHeight = { childHeight }, viewHeight = { parentSize })
                     }
                 ) { measurables, constraints ->
                     val placeable = measurables[0].measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                 }
             }
         }
@@ -234,22 +219,19 @@ class ResizingComposeViewTest {
             rule.activity.setContentView(parent, WrapContentLayoutParams)
             composeView.setContent {
                 Layout(
-                    modifier = Modifier.layout { measurable, _ ->
-                        val intrinsicsSize = measurable.minIntrinsicHeight(Int.MAX_VALUE)
-                        val placeable =
-                            measurable.measure(Constraints.fixed(intrinsicsSize, intrinsicsSize))
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
-                        }
-                    },
-                    content = {
-                        IntrinsicsChild(intrinsicsHeight = { intrinsicsHeight })
-                    }
+                    modifier =
+                        Modifier.layout { measurable, _ ->
+                            val intrinsicsSize = measurable.minIntrinsicHeight(Int.MAX_VALUE)
+                            val placeable =
+                                measurable.measure(
+                                    Constraints.fixed(intrinsicsSize, intrinsicsSize)
+                                )
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        },
+                    content = { IntrinsicsChild(intrinsicsHeight = { intrinsicsHeight }) }
                 ) { measurables, constraints ->
                     val placeable = measurables[0].measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                 }
             }
         }
@@ -322,7 +304,7 @@ class ResizingComposeViewTest {
         // size assertion is done inside Modifier.drawBehind() which calls countDown() on the latch
 
         // await for the ui thread to be idle
-        rule.runOnUiThread { }
+        rule.runOnUiThread {}
     }
 
     @Composable
@@ -336,10 +318,12 @@ class ResizingComposeViewTest {
             modifier.drawBehind {
                 val expectedLayoutHeight = Snapshot.withoutReadObservation { layoutHeight() }
                 assertWithMessage("Layout size is wrong")
-                    .that(size.height.roundToInt()).isEqualTo(expectedLayoutHeight)
+                    .that(size.height.roundToInt())
+                    .isEqualTo(expectedLayoutHeight)
                 val expectedViewHeight = Snapshot.withoutReadObservation { viewHeight() }
                 assertWithMessage("ComposeView size is wrong")
-                    .that(composeView.measuredHeight).isEqualTo(expectedViewHeight)
+                    .that(composeView.measuredHeight)
+                    .isEqualTo(expectedViewHeight)
                 drawLatch.countDown()
             }
         ) { _, constraints ->
@@ -348,17 +332,17 @@ class ResizingComposeViewTest {
     }
 
     @Composable
-    private fun IntrinsicsChild(
-        intrinsicsHeight: () -> Int
-    ) {
+    private fun IntrinsicsChild(intrinsicsHeight: () -> Int) {
         Layout(
             {},
             Modifier.drawBehind {
                 val expectedHeight = Snapshot.withoutReadObservation { intrinsicsHeight() }
                 assertWithMessage("Layout size is wrong")
-                    .that(size.height.roundToInt()).isEqualTo(expectedHeight)
+                    .that(size.height.roundToInt())
+                    .isEqualTo(expectedHeight)
                 assertWithMessage("ComposeView size is wrong")
-                    .that(composeView.measuredHeight).isEqualTo(expectedHeight)
+                    .that(composeView.measuredHeight)
+                    .isEqualTo(expectedHeight)
                 drawLatch.countDown()
             },
             object : MeasurePolicy {
@@ -388,30 +372,30 @@ private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(c
     }
 }
 
-private val WrapContentLayoutParams = ViewGroup.LayoutParams(
-    ViewGroup.LayoutParams.WRAP_CONTENT,
-    ViewGroup.LayoutParams.WRAP_CONTENT
-)
+private val WrapContentLayoutParams =
+    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-private class RemeasurementElement(
-    private val onRemeasurementAvailable: (Remeasurement) -> Unit
-) : ModifierNodeElement<RemeasurementModifierNode>() {
+private class RemeasurementElement(private val onRemeasurementAvailable: (Remeasurement) -> Unit) :
+    ModifierNodeElement<RemeasurementModifierNode>() {
     override fun create() = RemeasurementModifierNode(onRemeasurementAvailable)
+
     override fun update(node: RemeasurementModifierNode) {
         node.onRemeasurementAvailable = onRemeasurementAvailable
     }
+
     override fun hashCode(): Int = 242
+
     override fun equals(other: Any?) = other === this
 }
 
-private class RemeasurementModifierNode(
-    onRemeasurementAvailable: (Remeasurement) -> Unit
-) : Modifier.Node() {
+private class RemeasurementModifierNode(onRemeasurementAvailable: (Remeasurement) -> Unit) :
+    Modifier.Node() {
     var onRemeasurementAvailable: (Remeasurement) -> Unit = onRemeasurementAvailable
         set(value) {
             field = value
             value(requireLayoutNode())
         }
+
     override fun onAttach() {
         onRemeasurementAvailable(requireLayoutNode())
     }

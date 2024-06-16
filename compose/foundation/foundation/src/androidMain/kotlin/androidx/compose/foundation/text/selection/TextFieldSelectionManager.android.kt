@@ -46,16 +46,15 @@ internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
         val density = LocalDensity.current
         var magnifierSize by remember { mutableStateOf(IntSize.Zero) }
         animatedSelectionMagnifier(
-            magnifierCenter = {
-                calculateSelectionMagnifierCenterAndroid(manager, magnifierSize)
-            },
+            magnifierCenter = { calculateSelectionMagnifierCenterAndroid(manager, magnifierSize) },
             platformMagnifier = { center ->
                 Modifier.magnifier(
                     sourceCenter = { center() },
                     onSizeChanged = { size ->
-                        magnifierSize = with(density) {
-                            IntSize(size.width.roundToPx(), size.height.roundToPx())
-                        }
+                        magnifierSize =
+                            with(density) {
+                                IntSize(size.width.roundToPx(), size.height.roundToPx())
+                            }
                     },
                     useTextDefault = true,
                     platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
@@ -74,20 +73,28 @@ internal fun TextFieldSelectionManager.contextMenuBuilder(
         state = contextMenuState,
         label = TextContextMenuItems.Cut,
         enabled = hasSelection && editable && !isPassword,
-    ) { cut() }
+    ) {
+        cut()
+    }
     TextItem(
         state = contextMenuState,
         label = TextContextMenuItems.Copy,
         enabled = hasSelection && !isPassword,
-    ) { copy(cancelSelection = false) }
+    ) {
+        copy(cancelSelection = false)
+    }
     TextItem(
         state = contextMenuState,
         label = TextContextMenuItems.Paste,
         enabled = editable && clipboardManager?.hasText() == true,
-    ) { paste() }
+    ) {
+        paste()
+    }
     TextItem(
         state = contextMenuState,
         label = TextContextMenuItems.SelectAll,
         enabled = value.selection.length != value.text.length,
-    ) { selectAll() }
+    ) {
+        selectAll()
+    }
 }

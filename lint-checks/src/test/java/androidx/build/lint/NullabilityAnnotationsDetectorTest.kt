@@ -22,15 +22,17 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class NullabilityAnnotationsDetectorTest : AbstractLintDetectorTest(
-    useDetector = NullabilityAnnotationsDetector(),
-    useIssues = listOf(NullabilityAnnotationsDetector.ISSUE),
-) {
+class NullabilityAnnotationsDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = NullabilityAnnotationsDetector(),
+        useIssues = listOf(NullabilityAnnotationsDetector.ISSUE),
+    ) {
     @Test
     fun `Detection of Jetbrains nullability usage in Java sources`() {
-        val source = java(
-            "src/androidx/sample/NullabilityAnnotationsJava.java",
-            """
+        val source =
+            java(
+                "src/androidx/sample/NullabilityAnnotationsJava.java",
+                """
                 import org.jetbrains.annotations.NotNull;
                 import org.jetbrains.annotations.Nullable;
 
@@ -41,16 +43,14 @@ class NullabilityAnnotationsDetectorTest : AbstractLintDetectorTest(
                     private void method2(@Nullable String arg) {
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val input = arrayOf(
-            source,
-            JetBrainsAnnotations
-        )
+        val input = arrayOf(source, JetBrainsAnnotations)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/NullabilityAnnotationsJava.java:5: Error: Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull [NullabilityAnnotationsDetector]
     private void method1(@NotNull String arg) {
                          ~~~~~~~~
@@ -58,9 +58,11 @@ src/androidx/sample/NullabilityAnnotationsJava.java:8: Error: Use @androidx.anno
     private void method2(@Nullable String arg) {
                          ~~~~~~~~~
 2 errors, 0 warnings
-    """.trimIndent()
+    """
+                .trimIndent()
 
-        val expectFixDiffs = """
+        val expectFixDiffs =
+            """
 Autofix for src/androidx/sample/NullabilityAnnotationsJava.java line 5: Replace with `@androidx.annotation.NonNull`:
 @@ -5 +5
 -     private void method1(@NotNull String arg) {
@@ -69,18 +71,17 @@ Autofix for src/androidx/sample/NullabilityAnnotationsJava.java line 8: Replace 
 @@ -8 +8
 -     private void method2(@Nullable String arg) {
 +     private void method2(@androidx.annotation.Nullable String arg) {
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectFixDiffs)
     }
 
     @Test
     fun `JetBrains annotations allowed in Kotlin sources`() {
-        val source = kotlin(
-            """
+        val source =
+            kotlin(
+                """
                 import org.jetbrains.annotations.NotNull
                 import org.jetbrains.annotations.Nullable
 
@@ -89,13 +90,11 @@ Autofix for src/androidx/sample/NullabilityAnnotationsJava.java line 8: Replace 
 
                     private fun method2(@Nullable arg: String?) {}
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val input = arrayOf(
-            source,
-            JetBrainsAnnotations
-        )
+        val input = arrayOf(source, JetBrainsAnnotations)
         check(*input).expectClean()
     }
 }

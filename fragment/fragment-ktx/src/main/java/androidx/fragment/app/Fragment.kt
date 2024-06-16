@@ -21,10 +21,9 @@ import android.os.Bundle
 /**
  * Sets the given result for the [requestKey]. This result will be delivered to a
  * [FragmentResultListener] that is called given to [setFragmentResultListener] with the same
- * [requestKey]. If no [FragmentResultListener] with the same key is set or the Lifecycle
- * associated with the listener is not at least [androidx.lifecycle.Lifecycle.State.STARTED], the
- * result is stored until one becomes available, or [clearFragmentResult] is called with the same
- * requestKey.
+ * [requestKey]. If no [FragmentResultListener] with the same key is set or the Lifecycle associated
+ * with the listener is not at least [androidx.lifecycle.Lifecycle.State.STARTED], the result is
+ * stored until one becomes available, or [clearFragmentResult] is called with the same requestKey.
  *
  * @param requestKey key used to identify the result
  * @param result the result to be passed to another fragment.
@@ -38,8 +37,8 @@ public fun Fragment.setFragmentResult(requestKey: String, result: Bundle) {
  *
  * This clears a result that was previously set a call to [setFragmentResult].
  *
- * If this is called with a requestKey that is not associated with any result, this method
- * does nothing.
+ * If this is called with a requestKey that is not associated with any result, this method does
+ * nothing.
  *
  * @param requestKey key used to identify the result
  */
@@ -48,12 +47,12 @@ public fun Fragment.clearFragmentResult(requestKey: String) {
 }
 
 /**
- * Sets the [FragmentResultListener] for a given [requestKey]. Once this Fragment is
- * at least in the [androidx.lifecycle.Lifecycle.State.STARTED] state, any results set by
- * [setFragmentResult] using the same [requestKey] will be delivered to the
- * [FragmentResultListener.onFragmentResult] callback. The callback will remain active until this
- * Fragment reaches the [androidx.lifecycle.Lifecycle.State.DESTROYED] state or
- * [clearFragmentResultListener] is called with the same requestKey.
+ * Sets the [FragmentResultListener] for a given [requestKey]. Once this Fragment is at least in the
+ * [androidx.lifecycle.Lifecycle.State.STARTED] state, any results set by [setFragmentResult] using
+ * the same [requestKey] will be delivered to the [FragmentResultListener.onFragmentResult]
+ * callback. The callback will remain active until this Fragment reaches the
+ * [androidx.lifecycle.Lifecycle.State.DESTROYED] state or [clearFragmentResultListener] is called
+ * with the same requestKey.
  *
  * @param requestKey requestKey used to store the result
  * @param listener listener for result changes.

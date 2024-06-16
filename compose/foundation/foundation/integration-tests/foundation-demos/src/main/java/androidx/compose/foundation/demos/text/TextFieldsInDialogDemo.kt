@@ -46,62 +46,56 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
-private val dialogDemos = listOf(
-    ComposableDemo("Full screen dialog, multiple fields") { onNavigateUp ->
-        Dialog(onDismissRequest = onNavigateUp) {
-            InputFieldDemo()
+private val dialogDemos =
+    listOf(
+        ComposableDemo("Full screen dialog, multiple fields") { onNavigateUp ->
+            Dialog(onDismissRequest = onNavigateUp) { InputFieldDemo() }
+        },
+        ComposableDemo(
+            "Small dialog, single field (platform default width, decor fits system windows)"
+        ) { onNavigateUp ->
+            Dialog(
+                onDismissRequest = onNavigateUp,
+                properties =
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = true)
+            ) {
+                SingleTextFieldDialog()
+            }
+        },
+        ComposableDemo("Small dialog, single field (decor fits system windows)") { onNavigateUp ->
+            Dialog(
+                onDismissRequest = onNavigateUp,
+                properties =
+                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)
+            ) {
+                SingleTextFieldDialog()
+            }
+        },
+        ComposableDemo("Small dialog, single field (platform default width)") { onNavigateUp ->
+            Dialog(
+                onDismissRequest = onNavigateUp,
+                properties =
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false)
+            ) {
+                SingleTextFieldDialog()
+            }
+        },
+        ComposableDemo("Small dialog, single field") { onNavigateUp ->
+            Dialog(
+                onDismissRequest = onNavigateUp,
+                properties =
+                    DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        decorFitsSystemWindows = false
+                    )
+            ) {
+                SingleTextFieldDialog()
+            }
+        },
+        ComposableDemo("Show keyboard automatically") { onNavigateUp ->
+            Dialog(onDismissRequest = onNavigateUp) { AutoFocusTextFieldDialog() }
         }
-    },
-    ComposableDemo(
-        "Small dialog, single field (platform default width, decor fits system windows)"
-    ) { onNavigateUp ->
-        Dialog(
-            onDismissRequest = onNavigateUp,
-            properties = DialogProperties(
-                usePlatformDefaultWidth = true,
-                decorFitsSystemWindows = true
-            )
-        ) { SingleTextFieldDialog() }
-    },
-    ComposableDemo(
-        "Small dialog, single field (decor fits system windows)"
-    ) { onNavigateUp ->
-        Dialog(
-            onDismissRequest = onNavigateUp,
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false,
-                decorFitsSystemWindows = true
-            )
-        ) { SingleTextFieldDialog() }
-    },
-    ComposableDemo(
-        "Small dialog, single field (platform default width)"
-    ) { onNavigateUp ->
-        Dialog(
-            onDismissRequest = onNavigateUp,
-            properties = DialogProperties(
-                usePlatformDefaultWidth = true,
-                decorFitsSystemWindows = false
-            )
-        ) { SingleTextFieldDialog() }
-    },
-    ComposableDemo(
-        "Small dialog, single field"
-    ) { onNavigateUp ->
-        Dialog(
-            onDismissRequest = onNavigateUp,
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false,
-                decorFitsSystemWindows = false
-            )
-        ) { SingleTextFieldDialog() }
-    },
-    ComposableDemo("Show keyboard automatically") { onNavigateUp ->
-        Dialog(onDismissRequest = onNavigateUp) {
-            AutoFocusTextFieldDialog()
-        }
-    }
-)
+    )
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -112,23 +106,17 @@ fun TextFieldsInDialogDemo() {
     if (currentDemoIndex == -1) {
         LazyColumn(state = listState) {
             itemsIndexed(dialogDemos) { index, demo ->
-                ListItem(Modifier.clickable { setDemoIndex(index) }) {
-                    Text(demo.title)
-                }
+                ListItem(Modifier.clickable { setDemoIndex(index) }) { Text(demo.title) }
             }
         }
     } else {
         val currentDemo = dialogDemos[currentDemoIndex]
         Text(
             currentDemo.title,
-            modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize(),
+            modifier = Modifier.fillMaxSize().wrapContentSize(),
             textAlign = TextAlign.Center
         )
-        Layout(
-            content = { currentDemo.content { setDemoIndex(-1) } }
-        ) { measurables, _ ->
+        Layout(content = { currentDemo.content { setDemoIndex(-1) } }) { measurables, _ ->
             check(measurables.isEmpty()) { "Dialog demo must only emit a Dialog composable." }
             layout(0, 0) {}
         }
@@ -146,9 +134,7 @@ private fun AutoFocusTextFieldDialog() {
     var text by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(focusRequester) {
-        focusRequester.requestFocus()
-    }
+    LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
 
     TextField(
         text,

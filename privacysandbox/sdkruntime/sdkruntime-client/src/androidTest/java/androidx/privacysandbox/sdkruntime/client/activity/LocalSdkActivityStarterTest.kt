@@ -41,11 +41,9 @@ class LocalSdkActivityStarterTest {
         val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
 
-        val launcherActivities = packageManager
-            .queryIntentActivities(intent, 0)
-            .mapNotNull { it.activityInfo?.name }
-        assertThat(launcherActivities)
-            .doesNotContain(SdkActivity::class.qualifiedName)
+        val launcherActivities =
+            packageManager.queryIntentActivities(intent, 0).mapNotNull { it.activityInfo?.name }
+        assertThat(launcherActivities).doesNotContain(SdkActivity::class.qualifiedName)
     }
 
     @Test
@@ -60,16 +58,13 @@ class LocalSdkActivityStarterTest {
             assertThat(activityHolder.getOnBackPressedDispatcher())
                 .isSameInstanceAs(sdkActivity.onBackPressedDispatcher)
         }
-        val registeredToken = LocalSdkActivityHandlerRegistry.register(
-            "LocalSdkActivityStarterTest.sdk",
-            handler
-        )
+        val registeredToken =
+            LocalSdkActivityHandlerRegistry.register("LocalSdkActivityStarterTest.sdk", handler)
 
-        val startResult = with(ActivityScenario.launch(EmptyActivity::class.java)) {
-            withActivity {
-                LocalSdkActivityStarter.tryStart(this, registeredToken)
+        val startResult =
+            with(ActivityScenario.launch(EmptyActivity::class.java)) {
+                withActivity { LocalSdkActivityStarter.tryStart(this, registeredToken) }
             }
-        }
 
         assertThat(startResult).isTrue()
 
@@ -80,18 +75,16 @@ class LocalSdkActivityStarterTest {
     fun tryStart_whenHandlerNotRegistered_ReturnFalse() {
         val unregisteredToken = Binder()
 
-        val startResult = with(ActivityScenario.launch(EmptyActivity::class.java)) {
-            withActivity {
-                LocalSdkActivityStarter.tryStart(this, unregisteredToken)
+        val startResult =
+            with(ActivityScenario.launch(EmptyActivity::class.java)) {
+                withActivity { LocalSdkActivityStarter.tryStart(this, unregisteredToken) }
             }
-        }
 
         assertThat(startResult).isFalse()
     }
 
-    private class ActivityValidationHandler(
-        private val validator: Consumer<ActivityHolder>
-    ) : SdkSandboxActivityHandlerCompat {
+    private class ActivityValidationHandler(private val validator: Consumer<ActivityHolder>) :
+        SdkSandboxActivityHandlerCompat {
         val async = CountDownLatch(1)
 
         override fun onActivityCreated(activityHolder: ActivityHolder) {

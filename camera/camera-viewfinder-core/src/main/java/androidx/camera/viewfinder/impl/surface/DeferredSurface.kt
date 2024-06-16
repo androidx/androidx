@@ -23,15 +23,12 @@ import androidx.camera.impl.utils.futures.Futures.nonCancellationPropagating
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 
-/**
- * A class for creating and tracking use of a [Surface] in an asynchronous manner.
- */
+/** A class for creating and tracking use of a [Surface] in an asynchronous manner. */
 abstract class DeferredSurface : AutoCloseable {
     private val lock = Any()
     private val terminationFuture: ListenableFuture<Void?>
 
-    @GuardedBy("mLock")
-    private var closed = false
+    @GuardedBy("mLock") private var closed = false
 
     @GuardedBy("mLock")
     private var terminationCompleterInternal: CallbackToFutureAdapter.Completer<Void?>? = null
@@ -39,9 +36,7 @@ abstract class DeferredSurface : AutoCloseable {
     init {
         terminationFuture =
             CallbackToFutureAdapter.getFuture {
-                synchronized(lock) {
-                    terminationCompleterInternal = it
-                }
+                synchronized(lock) { terminationCompleterInternal = it }
                 "ViewfinderSurface-termination(" + this@DeferredSurface + ")"
             }
     }
@@ -57,9 +52,8 @@ abstract class DeferredSurface : AutoCloseable {
     /**
      * Close the surface.
      *
-     *
-     *  After closing, the underlying surface resources can be safely released by
-     * [SurfaceView] or [TextureView] implementation.
+     * After closing, the underlying surface resources can be safely released by [SurfaceView] or
+     * [TextureView] implementation.
      */
     override fun close() {
         var terminationCompleter: CallbackToFutureAdapter.Completer<Void?>? = null
@@ -68,10 +62,7 @@ abstract class DeferredSurface : AutoCloseable {
                 closed = true
                 terminationCompleter = terminationCompleterInternal
                 terminationCompleterInternal = null
-                Logger.d(
-                    TAG,
-                    "surface closed,  closed=true $this"
-                )
+                Logger.d(TAG, "surface closed,  closed=true $this")
             }
         }
         if (terminationCompleter != null) {
@@ -82,10 +73,11 @@ abstract class DeferredSurface : AutoCloseable {
     protected abstract fun provideSurfaceAsync(): ListenableFuture<Surface>
 
     /**
-     * The exception that is returned by the ListenableFuture of [getSurfaceAsync] if the
-     * deferrable surface is unable to produce a [Surface].
+     * The exception that is returned by the ListenableFuture of [getSurfaceAsync] if the deferrable
+     * surface is unable to produce a [Surface].
      */
     class SurfaceUnavailableException(message: String) : Exception(message)
+
     companion object {
         private const val TAG = "DeferredSurface"
     }

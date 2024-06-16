@@ -61,13 +61,13 @@ class EdgeToEdgeTest {
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 30) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS)
                 } else if (Build.VERSION.SDK_INT >= 28) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(
+                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        )
                 }
             }
         }
@@ -79,8 +79,8 @@ class EdgeToEdgeTest {
             withActivity {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.auto(Color.CYAN, Color.DKGRAY) { _ -> false },
-                    navigationBarStyle = SystemBarStyle
-                        .auto(Color.CYAN, Color.DKGRAY) { _ -> false }
+                    navigationBarStyle =
+                        SystemBarStyle.auto(Color.CYAN, Color.DKGRAY) { _ -> false }
                 )
                 val view = window.decorView
                 if (Build.VERSION.SDK_INT >= 29) {
@@ -105,13 +105,13 @@ class EdgeToEdgeTest {
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 30) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS)
                 } else if (Build.VERSION.SDK_INT >= 28) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(
+                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        )
                 }
             }
         }
@@ -141,13 +141,13 @@ class EdgeToEdgeTest {
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 30) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS)
                 } else if (Build.VERSION.SDK_INT >= 28) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(
+                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        )
                 }
             }
         }
@@ -177,13 +177,13 @@ class EdgeToEdgeTest {
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 30) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS)
                 } else if (Build.VERSION.SDK_INT >= 28) {
-                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    )
+                    assertThat(window.attributes.layoutInDisplayCutoutMode)
+                        .isEqualTo(
+                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        )
                 }
             }
         }

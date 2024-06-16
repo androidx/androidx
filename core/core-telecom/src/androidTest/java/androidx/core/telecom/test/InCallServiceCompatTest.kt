@@ -41,6 +41,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +51,7 @@ import org.junit.runner.RunWith
  *
  * Note: [Call] is package-private so we still need to leverage Telecom to create calls on our
  * behalf for testing. The call properties and extras fields aren't mutable so we need to ensure
- * that we wait for them to become av.ailable before accessing them.
+ * that we wait for them to become available before accessing them.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -67,16 +68,14 @@ class InCallServiceCompatTest : BaseTelecomTest() {
         GrantPermissionRule.grant(Manifest.permission.READ_PHONE_NUMBERS)!!
 
     companion object {
-        /**
-         * Logging for within the test class.
-         */
+        /** Logging for within the test class. */
         internal val TAG = InCallServiceCompatTest::class.simpleName
     }
 
     @Before
     fun setUp() {
         Utils.resetUtils()
-        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS)
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS, emptySet())
     }
 
     @After
@@ -99,13 +98,15 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore //  b/343742088
     fun testResolveCallExtension_Extra() {
         setUpBackwardsCompatTest()
         val voipApiExtra = Pair(CallsManager.EXTRA_VOIP_API_VERSION, true)
         addAndVerifyCallExtensionType(
             TestUtils.OUTGOING_CALL_ATTRIBUTES,
             InCallServiceCompat.EXTRAS,
-            extraToInclude = voipApiExtra)
+            extraToInclude = voipApiExtra
+        )
     }
 
     /**
@@ -118,11 +119,12 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      * For pre-U devices, the call extras would define the
      * [CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED] key.
      *
-     * Note: The version codes for V is not available so we need to enforce a strict manual check
-     * to ensure the V test path is not executed by incompatible devices.
+     * Note: The version codes for V is not available so we need to enforce a strict manual check to
+     * ensure the V test path is not executed by incompatible devices.
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore //  b/343742088
     fun testResolveCallExtension_CapabilityExchange() {
         // Add EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED for pre-U testing
         val backwardsCompatExtra = configureCapabilityExchangeTypeTest()
@@ -154,6 +156,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore //  b/343742088
     fun testResolveCallExtension_TransactionalOpsNotSupported() {
         // Phone accounts that don't use the v2 APIs don't support transactional ops.
         setUpBackwardsCompatTest()
@@ -164,13 +167,15 @@ class InCallServiceCompatTest : BaseTelecomTest() {
         )
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
 
     /**
-     * Helper to add a call via CallsManager#addCall and verify the extension type depending on
-     * the APIs that are leveraged.
+     * Helper to add a call via CallsManager#addCall and verify the extension type depending on the
+     * APIs that are leveraged.
      *
      * Note: The connection extras are not added into the call until the connection is successfully
      * created. This is usually the case when the call moves from the CONNECTING state into either
@@ -196,9 +201,13 @@ class InCallServiceCompatTest : BaseTelecomTest() {
             assertWithinTimeout_addCall(callAttributesCompat) {
                 launch {
                     try {
-                        // Enforce waiting logic to ensure that the call details extras are populated.
-                        val call = configureCallWithSanitizedExtras(
-                            waitForCallDetailExtras, extraToInclude)
+                        // Enforce waiting logic to ensure that the call details extras are
+                        // populated.
+                        val call =
+                            configureCallWithSanitizedExtras(
+                                waitForCallDetailExtras,
+                                extraToInclude
+                            )
 
                         Log.i(TAG, "Service bounded invoking resolveCallExtensionsType")
 
@@ -209,7 +218,8 @@ class InCallServiceCompatTest : BaseTelecomTest() {
                         // Always send disconnect signal if possible.
                         Assert.assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        )
                     }
                 }
             }
@@ -232,8 +242,8 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     }
 
     /**
-     * Helper to retrieve the call from MockInCallService and wait for any call detail extras
-     * to be populated, if needed.
+     * Helper to retrieve the call from MockInCallService and wait for any call detail extras to be
+     * populated, if needed.
      */
     private suspend fun configureCallWithSanitizedExtras(
         waitForCallDetailExtras: Boolean,

@@ -17,24 +17,17 @@
 package androidx.lifecycle.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.testing.TestLifecycleOwner
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
+import kotlin.test.Test
 
-@MediumTest
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
 class DropUnlessLifecycleTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    //region dropUnlessStarted
+    // region dropUnlessStarted
     @Test
     fun dropUnlessStarted_lifecycleInitialized_doNothing() {
         testDropUnlessStarted(currentLifecycleState = State.INITIALIZED, shouldInvoke = false)
@@ -60,29 +53,26 @@ class DropUnlessLifecycleTest {
         testDropUnlessStarted(currentLifecycleState = State.DESTROYED, shouldInvoke = false)
     }
 
-    private fun testDropUnlessStarted(currentLifecycleState: State, shouldInvoke: Boolean) {
-        val lifecycleOwner = TestLifecycleOwner(State.CREATED).apply {
-            currentState = currentLifecycleState
-        }
-        var hasBeenInvoked = false
+    private fun testDropUnlessStarted(currentLifecycleState: State, shouldInvoke: Boolean) =
+        runComposeUiTest {
+            val lifecycleOwner =
+                TestLifecycleOwner(State.CREATED).apply { currentState = currentLifecycleState }
+            var hasBeenInvoked = false
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                val underTest = dropUnlessStarted {
-                    hasBeenInvoked = true
+            waitForIdle()
+            setContent {
+                CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                    val underTest = dropUnlessStarted { hasBeenInvoked = true }
+                    underTest.invoke()
                 }
-                underTest.invoke()
             }
+
+            runOnIdle { assertThat(hasBeenInvoked).isEqualTo(shouldInvoke) }
         }
 
-        composeTestRule.runOnIdle {
-            assertThat(hasBeenInvoked).isEqualTo(shouldInvoke)
-        }
-    }
-    //endregion
+    // endregion
 
-    //region dropUnlessResumed
+    // region dropUnlessResumed
     @Test
     fun dropUnlessResumed_lifecycleInitialized_doNothing() {
         testDropUnlessResumed(currentLifecycleState = State.INITIALIZED, shouldInvoke = false)
@@ -108,25 +98,21 @@ class DropUnlessLifecycleTest {
         testDropUnlessResumed(currentLifecycleState = State.DESTROYED, shouldInvoke = false)
     }
 
-    private fun testDropUnlessResumed(currentLifecycleState: State, shouldInvoke: Boolean) {
-        val lifecycleOwner = TestLifecycleOwner(State.CREATED).apply {
-            currentState = currentLifecycleState
-        }
-        var hasBeenInvoked = false
+    private fun testDropUnlessResumed(currentLifecycleState: State, shouldInvoke: Boolean) =
+        runComposeUiTest {
+            val lifecycleOwner =
+                TestLifecycleOwner(State.CREATED).apply { currentState = currentLifecycleState }
+            var hasBeenInvoked = false
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                val underTest = dropUnlessResumed {
-                    hasBeenInvoked = true
+            waitForIdle()
+            setContent {
+                CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                    val underTest = dropUnlessResumed { hasBeenInvoked = true }
+                    underTest.invoke()
                 }
-                underTest.invoke()
             }
-        }
 
-        composeTestRule.runOnIdle {
-            assertThat(hasBeenInvoked).isEqualTo(shouldInvoke)
+            runOnIdle { assertThat(hasBeenInvoked).isEqualTo(shouldInvoke) }
         }
-    }
-    //endregion
+    // endregion
 }

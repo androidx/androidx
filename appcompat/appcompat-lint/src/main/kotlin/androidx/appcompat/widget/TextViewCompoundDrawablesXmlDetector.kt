@@ -30,29 +30,31 @@ import org.w3c.dom.Element
 @Suppress("UnstableApiUsage")
 class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
     companion object {
-        internal val ATTRS_MAP = mapOf(
-            "drawableLeft" to "drawableLeftCompat",
-            "drawableRight" to "drawableRightCompat",
-            "drawableTop" to "drawableTopCompat",
-            "drawableBottom" to "drawableBottomCompat",
-            "drawableStart" to "drawableStartCompat",
-            "drawableEnd" to "drawableEndCompat",
-            "drawableTint" to "drawableTint",
-            "drawableTintMode" to "drawableTintMode"
-        )
-
-        internal val NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS: Issue = Issue.create(
-            "UseCompatTextViewDrawableXml",
-            "Compat compound drawable attributes should be used on `TextView`",
-            "`TextView` uses `android:` compound drawable attributes instead of `app:` ones",
-            Category.CORRECTNESS,
-            1,
-            Severity.WARNING,
-            Implementation(
-                TextViewCompoundDrawablesXmlDetector::class.java,
-                Scope.RESOURCE_FILE_SCOPE
+        internal val ATTRS_MAP =
+            mapOf(
+                "drawableLeft" to "drawableLeftCompat",
+                "drawableRight" to "drawableRightCompat",
+                "drawableTop" to "drawableTopCompat",
+                "drawableBottom" to "drawableBottomCompat",
+                "drawableStart" to "drawableStartCompat",
+                "drawableEnd" to "drawableEndCompat",
+                "drawableTint" to "drawableTint",
+                "drawableTintMode" to "drawableTintMode"
             )
-        )
+
+        internal val NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS: Issue =
+            Issue.create(
+                "UseCompatTextViewDrawableXml",
+                "Compat compound drawable attributes should be used on `TextView`",
+                "`TextView` uses `android:` compound drawable attributes instead of `app:` ones",
+                Category.CORRECTNESS,
+                1,
+                Severity.WARNING,
+                Implementation(
+                    TextViewCompoundDrawablesXmlDetector::class.java,
+                    Scope.RESOURCE_FILE_SCOPE
+                )
+            )
     }
 
     override fun getApplicableElements(): Collection<String>? = listOf("TextView")
@@ -72,13 +74,18 @@ class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
                 element,
                 context.getLocation(element.getAttributeNodeNS(SdkConstants.ANDROID_URI, from)),
                 "Use `app:$to` instead of `android:$from`",
-                LintFix.create().name("Use app namespace instead of android").composite(
-                    LintFix.create().set(
-                        SdkConstants.AUTO_URI, to,
-                        element.getAttributeNS(SdkConstants.ANDROID_URI, from)
-                    ).build(),
-                    LintFix.create().unset(SdkConstants.ANDROID_URI, from).build()
-                )
+                LintFix.create()
+                    .name("Use app namespace instead of android")
+                    .composite(
+                        LintFix.create()
+                            .set(
+                                SdkConstants.AUTO_URI,
+                                to,
+                                element.getAttributeNS(SdkConstants.ANDROID_URI, from)
+                            )
+                            .build(),
+                        LintFix.create().unset(SdkConstants.ANDROID_URI, from).build()
+                    )
             )
         }
     }

@@ -53,11 +53,12 @@ class GoogleFontTest {
 
     val context = InstrumentationRegistry.getInstrumentation().context
 
-    private val TestProvider = GoogleFont.Provider(
-        "providerAuthority",
-        "providerPackage",
-        listOf(listOf(ByteArray(100) { it.toByte() }))
-    )
+    private val TestProvider =
+        GoogleFont.Provider(
+            "providerAuthority",
+            "providerPackage",
+            listOf(listOf(ByteArray(100) { it.toByte() }))
+        )
 
     @Test
     fun GoogleFont_create_ComposeFont() {
@@ -92,7 +93,7 @@ class GoogleFontTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun GoogleFont_throwsOn_emptyName() {
-       Font(GoogleFont(""), TestProvider)
+        Font(GoogleFont(""), TestProvider)
     }
 
     @Test
@@ -183,12 +184,9 @@ class GoogleFontTest {
 
     @Test
     fun GoogleFontImpl_TypefaceStyle_BoldItalic() {
-        val font = Font(
-            GoogleFont("a"),
-            TestProvider,
-            weight = FontWeight.Bold,
-            style = FontStyle.Italic
-        ) as GoogleFontImpl
+        val font =
+            Font(GoogleFont("a"), TestProvider, weight = FontWeight.Bold, style = FontStyle.Italic)
+                as GoogleFontImpl
         assertThat(font.toTypefaceStyle()).isEqualTo(Typeface.BOLD_ITALIC)
     }
 
@@ -200,7 +198,7 @@ class GoogleFontTest {
             val deferred = async {
                 GoogleFontTypefaceLoader.awaitLoad(
                     context,
-                   Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
+                    Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
                     compatLoader
                 )
             }
@@ -214,13 +212,14 @@ class GoogleFontTest {
     fun GoogleFont_TypefaceLoader_throwsOnError() {
         val compatLoader = CapturingFontsContractCompatLoader()
         runTest(UnconfinedTestDispatcher()) {
-            val deferred = async(Job()) {
-                GoogleFontTypefaceLoader.awaitLoad(
-                    context,
-                   Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
-                    compatLoader
-                )
-            }
+            val deferred =
+                async(Job()) {
+                    GoogleFontTypefaceLoader.awaitLoad(
+                        context,
+                        Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
+                        compatLoader
+                    )
+                }
             compatLoader.callback?.onTypefaceRequestFailed(42)
             var exception: IllegalStateException? = null
             try {
@@ -238,13 +237,14 @@ class GoogleFontTest {
     fun GoogleFont_TypefaceLoader_throwsOnError_withFullListUrl() {
         val compatLoader = CapturingFontsContractCompatLoader()
         runTest(UnconfinedTestDispatcher()) {
-            val deferred = async(Job()) {
-                GoogleFontTypefaceLoader.awaitLoad(
-                    context,
-                    Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
-                    compatLoader
-                )
-            }
+            val deferred =
+                async(Job()) {
+                    GoogleFontTypefaceLoader.awaitLoad(
+                        context,
+                        Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
+                        compatLoader
+                    )
+                }
             compatLoader.callback?.onTypefaceRequestFailed(FAIL_REASON_FONT_NOT_FOUND)
             var exception: IllegalStateException? = null
             try {
@@ -252,18 +252,22 @@ class GoogleFontTest {
             } catch (ex: IllegalStateException) {
                 exception = ex
             }
-            assertThat(exception?.message).contains("Font not found, please check availability " +
-                "on GoogleFont.Provider.AllFontsList: https://fonts.gstatic.com/s/a/directory.xml")
+            assertThat(exception?.message)
+                .contains(
+                    "Font not found, please check availability " +
+                        "on GoogleFont.Provider.AllFontsList: https://fonts.gstatic.com/s/a/directory.xml"
+                )
         }
     }
 
     @Test
     fun GoogleFont_toString() {
         val font = Font(GoogleFont("Font Family"), TestProvider)
-        assertThat(font.toString()).isEqualTo(
-            "Font(GoogleFont(\"Font Family\", bestEffort=true), weight=FontWeight(weight=400), " +
-                "style=Normal)"
-        )
+        assertThat(font.toString())
+            .isEqualTo(
+                "Font(GoogleFont(\"Font Family\", bestEffort=true), weight=FontWeight(weight=400), " +
+                    "style=Normal)"
+            )
     }
 
     @Test
@@ -275,11 +279,12 @@ class GoogleFontTest {
 
     @Test
     fun GoogleFont_Provider_withCertsArray() {
-        val provider = GoogleFont.Provider(
-            "provider",
-            "package",
-            listOf(listOf(ByteArray(100) { it.toByte() }))
-        )
+        val provider =
+            GoogleFont.Provider(
+                "provider",
+                "package",
+                listOf(listOf(ByteArray(100) { it.toByte() }))
+            )
         assertThat(provider.certificatesRes).isEqualTo(0)
         assertThat(provider.certificates).isNotNull()
     }
@@ -294,11 +299,12 @@ class GoogleFontTest {
         val packageInfo = getComAndroidGmsOrNull()
         assumeTrue(packageInfo != null)
 
-        val provider = GoogleFont.Provider(
-            "com.google.android.gms.fonts",
-            "com.google.android.gms",
-            listOf() /* this is never a valid cert */
-        )
+        val provider =
+            GoogleFont.Provider(
+                "com.google.android.gms.fonts",
+                "com.google.android.gms",
+                listOf() /* this is never a valid cert */
+            )
         provider.isAvailableOnDevice(context)
     }
 
@@ -310,14 +316,15 @@ class GoogleFontTest {
         val packageInfo = getComAndroidGmsOrNull()
         assumeTrue(packageInfo != null)
 
-        val provider = GoogleFont.Provider(
-            "com.google.android.gms.fonts",
-            "com.google.android.gms",
-            listOf(
-                listOf(loadComGoogleAndroidGmsProdCertificateByteArray(context.assets)),
-                listOf(loadComGoogleAndroidGmsDevCertificateByteArray(context.assets))
+        val provider =
+            GoogleFont.Provider(
+                "com.google.android.gms.fonts",
+                "com.google.android.gms",
+                listOf(
+                    listOf(loadComGoogleAndroidGmsProdCertificateByteArray(context.assets)),
+                    listOf(loadComGoogleAndroidGmsDevCertificateByteArray(context.assets))
+                )
             )
-        )
 
         assertThat(provider.isAvailableOnDevice(context)).isTrue()
     }
@@ -330,11 +337,12 @@ class GoogleFontTest {
         val packageInfo = getComAndroidGmsOrNull()
         assumeTrue(packageInfo != null)
 
-        val provider = GoogleFont.Provider(
-            "com.google.android.gms.fonts",
-            "com.google.android.gms",
-            R.array.com_google_android_gms_fonts_certs
-        )
+        val provider =
+            GoogleFont.Provider(
+                "com.google.android.gms.fonts",
+                "com.google.android.gms",
+                R.array.com_google_android_gms_fonts_certs
+            )
         assertThat(provider.isAvailableOnDevice(context)).isTrue()
     }
 
@@ -344,11 +352,12 @@ class GoogleFontTest {
         val packageInfo = getComAndroidGmsOrNull()
         assumeTrue(packageInfo == null)
 
-        val provider = GoogleFont.Provider(
-            "com.google.android.gms.fonts",
-            "com.google.android.gms",
-            listOf() /* this is never a valid cert */
-        )
+        val provider =
+            GoogleFont.Provider(
+                "com.google.android.gms.fonts",
+                "com.google.android.gms",
+                listOf() /* this is never a valid cert */
+            )
         assertThat(provider.isAvailableOnDevice(context)).isFalse()
     }
 
@@ -378,14 +387,10 @@ class GoogleFontTest {
 
 @WorkerThread
 private fun loadComGoogleAndroidGmsProdCertificateByteArray(assetManager: AssetManager): ByteArray {
-    return assetManager.open("ComGoogleAndroidGmsCertificate.prod").use {
-        it.readBytes()
-    }
+    return assetManager.open("ComGoogleAndroidGmsCertificate.prod").use { it.readBytes() }
 }
 
 @WorkerThread
 private fun loadComGoogleAndroidGmsDevCertificateByteArray(assetManager: AssetManager): ByteArray {
-    return assetManager.open("ComGoogleAndroidGmsCertificate.dev").use {
-        it.readBytes()
-    }
+    return assetManager.open("ComGoogleAndroidGmsCertificate.dev").use { it.readBytes() }
 }

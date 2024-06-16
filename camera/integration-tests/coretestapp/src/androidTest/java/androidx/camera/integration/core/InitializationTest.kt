@@ -48,9 +48,10 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class InitializationTest(private val config: TestConfig) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
     @get:Rule
     val storagePermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -58,9 +59,7 @@ class InitializationTest(private val config: TestConfig) {
     val recordAudioRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
 
-    data class TestConfig(
-        val locale: String
-    )
+    data class TestConfig(val locale: String)
 
     companion object {
         // See https://developer.android.com/guide/topics/resources/pseudolocales for more
@@ -72,9 +71,7 @@ class InitializationTest(private val config: TestConfig) {
         @Parameterized.Parameters(name = "{0}")
         fun spec(): List<TestConfig> {
             return listOf(LocaleTestUtils.DEFAULT_TEST_LANGUAGE, PSEUDOLOCALE_LTR, PSEUDOLOCALE_RTL)
-                .map { orientation ->
-                    TestConfig(orientation)
-                }
+                .map { orientation -> TestConfig(orientation) }
         }
 
         @AfterClass
@@ -117,16 +114,18 @@ class InitializationTest(private val config: TestConfig) {
     // provided by meta-data is not translated.
     @Test
     fun canAutoInitialize() {
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext<Context>(),
-            CameraXActivity::class.java
-        ).apply {
-            putExtra(
-                CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION,
-                // Ensure default config provider is used for camera implementation
-                CameraXViewModel.IMPLICIT_IMPLEMENTATION_OPTION
-            )
-        }
+        val intent =
+            Intent(
+                    ApplicationProvider.getApplicationContext<Context>(),
+                    CameraXActivity::class.java
+                )
+                .apply {
+                    putExtra(
+                        CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION,
+                        // Ensure default config provider is used for camera implementation
+                        CameraXViewModel.IMPLICIT_IMPLEMENTATION_OPTION
+                    )
+                }
         with(ActivityScenario.launch<CameraXActivity>(intent)) {
             use {
                 val initIdlingResource = withActivity { initializationIdlingResource }

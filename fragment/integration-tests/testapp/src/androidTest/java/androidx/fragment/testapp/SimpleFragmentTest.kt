@@ -22,15 +22,12 @@ import androidx.test.filters.LargeTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Simple integration test to verify FragmentScenario behavior in an app module.
- */
+/** Simple integration test to verify FragmentScenario behavior in an app module. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SimpleFragmentTest {
     @Test
     fun fragmentScenario() {
-        with(launchFragment<SimpleFragment>()) {
-        }
+        with(launchFragment<SimpleFragment>()) {}
     }
 }

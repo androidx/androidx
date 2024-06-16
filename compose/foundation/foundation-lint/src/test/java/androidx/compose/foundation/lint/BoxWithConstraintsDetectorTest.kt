@@ -26,11 +26,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-private val ExternalModuleFunctionStub = kotlinAndBytecodeStub(
-    filename = "Other.kt",
-    filepath = "bar/compose",
-    checksum = 0xdc553c55,
-    source = """
+private val ExternalModuleFunctionStub =
+    kotlinAndBytecodeStub(
+        filename = "Other.kt",
+        filepath = "bar/compose",
+        checksum = 0xdc553c55,
+        source =
+            """
         package bar.compose
 
         import androidx.compose.foundation.layout.BoxWithConstraints
@@ -49,14 +51,15 @@ private val ExternalModuleFunctionStub = kotlinAndBytecodeStub(
                 UseThis(scope = this)
             }
         }
-    """.trimIndent(),
     """
+                .trimIndent(),
+        """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuJSSsxLKcrPTKnQS87PLcgvTtVL
     yy/NS0ksyczP08tJrMwvLRESccqvCM8syXDOzysuKUrMzCsp9i7hEuPiTkos
     gmkTYvcvyUgtAorzcjGn5ecLsYWkFpd4lygxaDEAADRmnbZ7AAAA
     """,
-    """
+        """
     bar/compose/OtherKt＄Test＄1.class:
     H4sIAAAAAAAA/6VU33PbRBD+TnYsW1FxmtI2SUsL1LROAlVSCoXapE1NQkWN
     y+A0DJOns3yNFct3GenkSd/yxv/BX0BhhnZghsnwyB/FsKcY405THuiD9lb7
@@ -79,7 +82,7 @@ private val ExternalModuleFunctionStub = kotlinAndBytecodeStub(
     UcAc7mejuYB1+Fm5HL7Mznt4QOctirxBWR/uIOfjpo+PfHyMWz4+wac+bqO2
     A5agjs92kE+wluBOgssJyn8D0BOnRkwGAAA=
     """,
-    """
+        """
     bar/compose/OtherKt.class:
     H4sIAAAAAAAA/6VT21ITQRA9s7kSoqwBkYt3owZUFvCCGrxgSsotY7QEsUqe
     JpuBLNnMWjsTCt/4JXyifLB49qMse5aIRlCr9GFnus90n54+0/vl66fPAG5h
@@ -99,7 +102,7 @@ private val ExternalModuleFunctionStub = kotlinAndBytecodeStub(
     4F58ShrF6SO4H9/oJsq0PyD8ColydRUJFyUXEy4mcc3FddxwMQVnFUxhGjOr
     SCsMK8wqDCoMKRQUUt8ADl3qEW8FAAA=
     """
-)
+    )
 
 @RunWith(JUnit4::class)
 class BoxWithConstraintsDetectorTest : LintDetectorTest() {
@@ -108,12 +111,13 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(BoxWithConstraintsDetector.UnusedConstraintsParameter)
 
-    private val BoxWithConstraintsStub = bytecodeStub(
-        filename = "BoxWithConstraints.kt",
-        filepath = "androidx/compose/foundation/layout",
-        checksum = 0x12a1c0a0,
-        source =
-        """
+    private val BoxWithConstraintsStub =
+        bytecodeStub(
+            filename = "BoxWithConstraints.kt",
+            filepath = "androidx/compose/foundation/layout",
+            checksum = 0x12a1c0a0,
+            source =
+                """
             package androidx.compose.foundation.layout
 
             import androidx.compose.runtime.Composable
@@ -135,14 +139,15 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
                 propagateMinConstraints: Boolean = false,
                 content: @Composable BoxWithConstraintsScope.() -> Unit
             ) {}
-        """.trimIndent(),
         """
+                    .trimIndent(),
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuJSSsxLKcrPTKnQS87PLcgvTtVL
         yy/NS0ksyczP08tJrMwvLRESccqvCM8syXDOzysuKUrMzCsp9i7hEuPiTkos
         gmkTYvcvyUgt8i5RYtBiAADDkmqHbAAAAA==
         """,
-        """
+            """
         androidx/compose/foundation/layout/BoxWithConstraintsKt.class:
         H4sIAAAAAAAA/6VTW08TQRT+Zlt6A7GucrEioqKCqNuiCQ81JkokNhY0FjHK
         03Q7lO1lptmdbcqL4W/46j/wzfhgiI/+KOOZbavVPpDoQ89l55vvnDnn6/cf
@@ -162,7 +167,7 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
         m44LEWgV6+S3iM48IbePWAmXSlgo4TIWS7iCpRKu4to+WIDrWN5HOsBEgBsB
         7MhmAtwMcCtAKsDKT2vS8Et1BQAA
         """,
-        """
+            """
         androidx/compose/foundation/layout/BoxWithConstraintsScope.class:
         H4sIAAAAAAAA/5WS3W4SQRTH/7MLy+5C6bZapdTvarQ3LhKv1Bs/YiShNWkT
         a8LVAlsY2J0hzEDwjqfwAbzwIbwwpJc+lPEs0kKgJphszscv/zNn9pz59fvH
@@ -177,7 +182,7 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
         Ubf9qb2Ph+RrRDeoa74Gs4LNCrwKtrBNIa5VcB07JFC4gZs1eAoFhV2FosKe
         QlrBUrilcFshp+Ao3FFwFe4qZBXuKdh/AAfjFM8gBAAA
         """,
-        """
+            """
         androidx/compose/foundation/layout/Constraints.class:
         H4sIAAAAAAAA/5VPy07CQBQ9d1pKKT4KiiJfoBtaiXFjXKiJSROICSZiwqrQ
         AsNjxjADwR3f4sKPcGEISz/KOLAwbk0mZ859nnO/vj8+AVygTKjGIplKniyC
@@ -188,7 +193,7 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
         4op3xumNEFJvFZRjfMDG9jqbkIFjGMPRFks4Nv+1EcyaituGFSEXwYuQx46h
         2I2wh/02SMFHoQ1HoahwoHC4xYyC8wPcDr7hxAEAAA==
         """,
-        """
+            """
         androidx/compose/foundation/layout/Dp.class:
         H4sIAAAAAAAA/41Oy07DQAwcb6GP8GqBSuUDEDfSVr1x4iGkSEVIIMGhp22z
         hW2S3Sq7qcKt38UB9cxHIZzyA9jSeGzLM/7++fwCMEKXcC5NnFsdl+HMZkvr
@@ -198,13 +203,14 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
         b9VcnT2xg78QONniMU65Dlh9l7M+QS1CI0IzQgsBU+xF2MfBBORwiKMJhEPb
         ofMLzHJE/14BAAA=
         """
-    )
+        )
 
     @Test
     fun unreferencedConstraints() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -218,11 +224,12 @@ class BoxWithConstraintsDetectorTest : LintDetectorTest() {
                     BoxWithConstraints(content = { /**/ })
                     BoxWithConstraints(propagateMinConstraints = false, content = { /**/ })
                 }
-                """.trimIndent()
-            ),
-            BoxWithConstraintsStub,
-            Stubs.Composable,
-        )
+                """
+                        .trimIndent()
+                ),
+                BoxWithConstraintsStub,
+                Stubs.Composable,
+            )
             .run()
             .expect(
                 """
@@ -245,9 +252,10 @@ src/foo/test.kt:12: Error: BoxWithConstraints scope is not used [UnusedBoxWithCo
 
     @Test
     fun referencedConstraints() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -281,20 +289,22 @@ src/foo/test.kt:12: Error: BoxWithConstraints scope is not used [UnusedBoxWithCo
                         }
                     }
                 }
-                """.trimIndent()
-            ),
-            BoxWithConstraintsStub,
-            Stubs.Composable,
-        )
+                """
+                        .trimIndent()
+                ),
+                BoxWithConstraintsStub,
+                Stubs.Composable,
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun referencedConstraintsViaThis() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -310,20 +320,22 @@ src/foo/test.kt:12: Error: BoxWithConstraints scope is not used [UnusedBoxWithCo
                         PassOnScope(scope = this)
                     }
                 }
-                """.trimIndent()
-            ),
-            BoxWithConstraintsStub,
-            Stubs.Composable,
-        )
+                """
+                        .trimIndent()
+                ),
+                BoxWithConstraintsStub,
+                Stubs.Composable,
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun referencedConstraintsViaReceiver() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -356,20 +368,22 @@ src/foo/test.kt:12: Error: BoxWithConstraints scope is not used [UnusedBoxWithCo
                         Foo { this@BoxWithConstraints.lambda() }
                     }
                 }
-                """.trimIndent()
-            ),
-            BoxWithConstraintsStub,
-            Stubs.Composable,
-        )
+                """
+                        .trimIndent()
+                ),
+                BoxWithConstraintsStub,
+                Stubs.Composable,
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun referencedConstraintsInExternalModule() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                     package foo
 
                     import androidx.compose.foundation.layout.BoxWithConstraints
@@ -383,23 +397,21 @@ src/foo/test.kt:12: Error: BoxWithConstraints scope is not used [UnusedBoxWithCo
                             Other()
                         }
                     }
-                """.trimIndent()
-            ),
-            BoxWithConstraintsStub,
-            ExternalModuleFunctionStub.bytecode,
-            Stubs.Composable
-        )
+                """
+                        .trimIndent()
+                ),
+                BoxWithConstraintsStub,
+                ExternalModuleFunctionStub.bytecode,
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun referencedThisInExternalModule() {
-        lint().files(
-            ExternalModuleFunctionStub.kotlin,
-            BoxWithConstraintsStub,
-            Stubs.Composable
-        )
+        lint()
+            .files(ExternalModuleFunctionStub.kotlin, BoxWithConstraintsStub, Stubs.Composable)
             .run()
             .expectClean()
     }

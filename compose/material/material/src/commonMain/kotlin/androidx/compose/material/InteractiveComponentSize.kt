@@ -42,15 +42,15 @@ import kotlin.math.roundToInt
  *
  * This uses the Material recommended minimum size of 48.dp x 48.dp, which may not the same as the
  * system enforced minimum size. The minimum clickable / touch target size (48.dp by default) is
- * controlled by the system via ViewConfiguration` and automatically expanded at the touch input layer.
+ * controlled by the system via ViewConfiguration` and automatically expanded at the touch input
+ * layer.
  *
  * This modifier is not needed for touch target expansion to happen. It only affects layout, to make
  * sure there is adequate space for touch target expansion.
  */
 fun Modifier.minimumInteractiveComponentSize(): Modifier = this then MinimumInteractiveModifier
 
-internal object MinimumInteractiveModifier :
-    ModifierNodeElement<MinimumInteractiveModifierNode>() {
+internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteractiveModifierNode>() {
 
     override fun create(): MinimumInteractiveModifierNode = MinimumInteractiveModifierNode()
 
@@ -60,18 +60,18 @@ internal object MinimumInteractiveModifier :
         name = "minimumInteractiveComponentSize"
         // TODO: b/214589635 - surface this information through the layout inspector in a better way
         //  - for now just add some information to help developers debug what this size represents.
-        properties["README"] = "Reserves at least 48.dp in size to disambiguate touch " +
-            "interactions if the element would measure smaller"
+        properties["README"] =
+            "Reserves at least 48.dp in size to disambiguate touch " +
+                "interactions if the element would measure smaller"
     }
 
-    override fun hashCode(): Int = identityHashCode(this)
+    override fun hashCode(): Int = System.identityHashCode(this)
+
     override fun equals(other: Any?) = (other === this)
 }
 
 internal class MinimumInteractiveModifierNode :
-    Modifier.Node(),
-    CompositionLocalConsumerModifierNode,
-    LayoutModifierNode {
+    Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun MeasureScope.measure(
@@ -83,16 +83,18 @@ internal class MinimumInteractiveModifierNode :
         val placeable = measurable.measure(constraints)
 
         // Be at least as big as the minimum dimension in both dimensions
-        val width = if (enforcement) {
-            maxOf(placeable.width, size.width.roundToPx())
-        } else {
-            placeable.width
-        }
-        val height = if (enforcement) {
-            maxOf(placeable.height, size.height.roundToPx())
-        } else {
-            placeable.height
-        }
+        val width =
+            if (enforcement) {
+                maxOf(placeable.width, size.width.roundToPx())
+            } else {
+                placeable.width
+            }
+        val height =
+            if (enforcement) {
+                maxOf(placeable.height, size.height.roundToPx())
+            } else {
+                placeable.height
+            }
 
         return layout(width, height) {
             val centerX = ((width - placeable.width) / 2f).roundToInt()
@@ -104,34 +106,34 @@ internal class MinimumInteractiveModifierNode :
 
 /**
  * CompositionLocal that configures whether Material components that have a visual size that is
- * lower than the minimum touch target size for accessibility (such as [Button]) will include
- * extra space outside the component to ensure that they are accessible. If set to false there
- * will be no extra space, and so it is possible that if the component is placed near the edge of
- * a layout / near to another component without any padding, there will not be enough space for
- * an accessible touch target.
+ * lower than the minimum touch target size for accessibility (such as [Button]) will include extra
+ * space outside the component to ensure that they are accessible. If set to false there will be no
+ * extra space, and so it is possible that if the component is placed near the edge of a layout /
+ * near to another component without any padding, there will not be enough space for an accessible
+ * touch target.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
 val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
-    staticCompositionLocalOf { true }
+    staticCompositionLocalOf {
+        true
+    }
 
 /**
  * CompositionLocal that configures whether Material components that have a visual size that is
- * lower than the minimum touch target size for accessibility (such as [Button]) will include
- * extra space outside the component to ensure that they are accessible. If set to false there
- * will be no extra space, and so it is possible that if the component is placed near the edge of
- * a layout / near to another component without any padding, there will not be enough space for
- * an accessible touch target.
+ * lower than the minimum touch target size for accessibility (such as [Button]) will include extra
+ * space outside the component to ensure that they are accessible. If set to false there will be no
+ * extra space, and so it is possible that if the component is placed near the edge of a layout /
+ * near to another component without any padding, there will not be enough space for an accessible
+ * touch target.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
 @Deprecated(
     message = "Use LocalMinimumInteractiveComponentEnforcement instead.",
-    replaceWith = ReplaceWith(
-        "LocalMinimumInteractiveComponentEnforcement"
-    ),
+    replaceWith = ReplaceWith("LocalMinimumInteractiveComponentEnforcement"),
     level = DeprecationLevel.WARNING
 )
 val LocalMinimumTouchTargetEnforcement: ProvidableCompositionLocal<Boolean> =

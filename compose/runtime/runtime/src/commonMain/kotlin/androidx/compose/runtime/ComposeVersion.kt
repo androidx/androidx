@@ -19,8 +19,8 @@ package androidx.compose.runtime
 @Suppress("unused")
 internal object ComposeVersion {
     /**
-     * This version number is used by the compose compiler in order to verify that the compiler
-     * and the runtime are compatible with one another.
+     * This version number is used by the compose compiler in order to verify that the compiler and
+     * the runtime are compatible with one another.
      *
      * Every release should increase this number to a multiple of 100, which provides for the
      * opportunity to use the last two digits for releases made out-of-band.
@@ -28,5 +28,5 @@ internal object ComposeVersion {
      * IMPORTANT: Whenever updating this value, please make sure to also update `versionTable` and
      * `minimumRuntimeVersionInt` in `VersionChecker.kt` of the compiler.
      */
-    const val version: Int = 12900
+    const val version: Int = 13000
 }

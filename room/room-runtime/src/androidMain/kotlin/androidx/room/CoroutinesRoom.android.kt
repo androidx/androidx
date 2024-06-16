@@ -28,10 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
-/**
- * A helper class for supporting Kotlin Coroutines in Room.
- *
- */
+/** A helper class for supporting Kotlin Coroutines in Room. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class CoroutinesRoom private constructor() {
 
@@ -49,9 +46,7 @@ public class CoroutinesRoom private constructor() {
             }
 
             val context = db.getCoroutineContext(inTransaction)
-            return withContext(context) {
-                callable.call()
-            }
+            return withContext(context) { callable.call() }
         }
 
         @JvmStatic
@@ -68,14 +63,15 @@ public class CoroutinesRoom private constructor() {
 
             val context = db.getCoroutineContext(inTransaction)
             return suspendCancellableCoroutine<R> { continuation ->
-                val job = db.getCoroutineScope().launch(context) {
-                    try {
-                        val result = callable.call()
-                        continuation.resume(result)
-                    } catch (exception: Throwable) {
-                        continuation.resumeWithException(exception)
+                val job =
+                    db.getCoroutineScope().launch(context) {
+                        try {
+                            val result = callable.call()
+                            continuation.resume(result)
+                        } catch (exception: Throwable) {
+                            continuation.resumeWithException(exception)
+                        }
                     }
-                }
                 continuation.invokeOnCancellation {
                     cancellationSignal?.cancel()
                     job.cancel()

@@ -32,10 +32,7 @@ class InitializerConstructorTest {
     @Test
     fun testSuccessWhenNoArgumentConstructorIsPresent() {
         lint()
-            .files(
-                INITIALIZER,
-                TEST_INITIALIZER
-            )
+            .files(INITIALIZER, TEST_INITIALIZER)
             .issues(InitializerConstructorDetector.ISSUE)
             .run()
             .expectClean()
@@ -44,10 +41,7 @@ class InitializerConstructorTest {
     @Test
     fun testSuccessWhenNoArgumentConstructorIsPresentJava() {
         lint()
-            .files(
-                INITIALIZER,
-                TEST_INITIALIZER_JAVA
-            )
+            .files(INITIALIZER, TEST_INITIALIZER_JAVA)
             .issues(InitializerConstructorDetector.ISSUE)
             .run()
             .expectClean()
@@ -56,9 +50,10 @@ class InitializerConstructorTest {
     @Ignore("b/187539166")
     @Test
     fun testFailureWhenZeroNoArgumentConstructorsArePresent() {
-        val component: TestFile = kotlin(
-            "com/example/TestInitializer.kt",
-            """
+        val component: TestFile =
+            kotlin(
+                    "com/example/TestInitializer.kt",
+                    """
             package com.example
 
             import androidx.startup.Initializer
@@ -67,24 +62,22 @@ class InitializerConstructorTest {
 
             }
         """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         lint()
-            .files(
-                INITIALIZER,
-                component
-            )
+            .files(INITIALIZER, component)
             .issues(InitializerConstructorDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/TestInitializer.kt:5: Error: Missing Initializer no-arg constructor [EnsureInitializerNoArgConstr]
                 class TestInitializer(val int: Int): Initializer<Unit> {
                 ^
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

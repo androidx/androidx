@@ -28,23 +28,27 @@ import org.junit.Test
 class WorkerHasPublicModifierDetectorTest {
     @Test
     fun testWithPrivateWorker() {
-        val worker = kotlin(
-            "com/example/Worker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/Worker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             private class Worker: ListenableWorker()
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        /* ktlint-disable max-line-length */
-        lint().files(
-            // Source files
-            LISTENABLE_WORKER,
-            worker
-        ).issues(WorkerHasPublicModifierDetector.ISSUE)
+        lint()
+            .files(
+                // Source files
+                LISTENABLE_WORKER,
+                worker
+            )
+            .issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -52,49 +56,58 @@ class WorkerHasPublicModifierDetectorTest {
                 private class Worker: ListenableWorker()
                               ~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testWithPublicWorker() {
-        val worker = kotlin(
-            "com/example/Worker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/Worker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             class Worker: ListenableWorker()
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            // Source files
-            LISTENABLE_WORKER,
-            worker
-        ).issues(WorkerHasPublicModifierDetector.ISSUE)
+        lint()
+            .files(
+                // Source files
+                LISTENABLE_WORKER,
+                worker
+            )
+            .issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun testWithPrivateWorkerAndCustomFactory() {
-        val worker = kotlin(
-            "com/example/Worker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/Worker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             private class Worker: ListenableWorker()
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.Configuration
@@ -107,16 +120,20 @@ class WorkerHasPublicModifierDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            // Source files
-            WORKER_FACTORY,
-            LISTENABLE_WORKER,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            worker,
-            snippet
-        ).issues(WorkerHasPublicModifierDetector.ISSUE)
+        lint()
+            .files(
+                // Source files
+                WORKER_FACTORY,
+                LISTENABLE_WORKER,
+                WORK_MANAGER_CONFIGURATION_PROVIDER,
+                worker,
+                snippet
+            )
+            .issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()
             .expectClean()
     }

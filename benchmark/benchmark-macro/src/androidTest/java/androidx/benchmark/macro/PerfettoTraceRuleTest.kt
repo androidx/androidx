@@ -45,31 +45,31 @@ class PerfettoTraceRuleTest {
     companion object {
         const val UNIQUE_SLICE_NAME = "PerfettoRuleTestUnique"
     }
+
     var trace: PerfettoTrace? = null
 
     // wrap the perfetto rule with another which consumes + validates the trace
     @get:Rule
-    val rule: RuleChain = RuleChain.outerRule { base, _ ->
-        object : Statement() {
-            override fun evaluate() {
-                base.evaluate()
-                if (PerfettoHelper.isAbiSupported()) {
-                    assertNotNull(trace)
-                    val sliceNameInstances = PerfettoTraceProcessor.runSingleSessionServer(
-                        trace!!.path
-                    ) {
-                        querySlices(UNIQUE_SLICE_NAME, packageName = null)
-                            .map { slice -> slice.name }
+    val rule: RuleChain =
+        RuleChain.outerRule { base, _ ->
+                object : Statement() {
+                    override fun evaluate() {
+                        base.evaluate()
+                        if (PerfettoHelper.isAbiSupported()) {
+                            assertNotNull(trace)
+                            val sliceNameInstances =
+                                PerfettoTraceProcessor.runSingleSessionServer(trace!!.path) {
+                                    querySlices(UNIQUE_SLICE_NAME, packageName = null).map { slice
+                                        ->
+                                        slice.name
+                                    }
+                                }
+                            assertEquals(listOf(UNIQUE_SLICE_NAME), sliceNameInstances)
+                        }
                     }
-                    assertEquals(listOf(UNIQUE_SLICE_NAME), sliceNameInstances)
                 }
             }
-        }
-    }.around(
-        PerfettoTraceRule {
-            trace = it
-        }
-    )
+            .around(PerfettoTraceRule { trace = it })
 
     @Test
     fun simple() {

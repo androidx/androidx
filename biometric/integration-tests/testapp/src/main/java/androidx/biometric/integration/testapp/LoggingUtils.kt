@@ -21,46 +21,39 @@ import android.widget.TextView
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 
-/**
- * A bundle key used to save and restore the log text for a test activity.
- */
+/** A bundle key used to save and restore the log text for a test activity. */
 internal const val KEY_LOG_TEXT = "key_log_text"
 
-/**
- * Converts an authentication status code to a string that represents the status.
- */
-internal fun Int.toAuthenticationStatusString(): String = when (this) {
-    BiometricManager.BIOMETRIC_SUCCESS -> "SUCCESS"
-    BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> "STATUS_UNKNOWN"
-    BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> "ERROR_UNSUPPORTED"
-    BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "ERROR_HW_UNAVAILABLE"
-    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "ERROR_NONE_ENROLLED"
-    BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "ERROR_NO_HARDWARE"
-    BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED -> "ERROR_SECURITY_UPDATE_REQUIRED"
-    else -> "Unrecognized error: $this"
-}
+/** Converts an authentication status code to a string that represents the status. */
+internal fun Int.toAuthenticationStatusString(): String =
+    when (this) {
+        BiometricManager.BIOMETRIC_SUCCESS -> "SUCCESS"
+        BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> "STATUS_UNKNOWN"
+        BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> "ERROR_UNSUPPORTED"
+        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "ERROR_HW_UNAVAILABLE"
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "ERROR_NONE_ENROLLED"
+        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "ERROR_NO_HARDWARE"
+        BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED ->
+            "ERROR_SECURITY_UPDATE_REQUIRED"
+        else -> "Unrecognized error: $this"
+    }
 
-/**
- * Converts an authentication result object to a string that represents its contents.
- */
+/** Converts an authentication result object to a string that represents its contents. */
 internal fun BiometricPrompt.AuthenticationResult.toDataString(): String {
     val typeString = authenticationType.toAuthenticationTypeString()
     return "crypto = $cryptoObject, type = $typeString"
 }
 
-/**
- * Converts an authentication result type to a string that represents the authentication method.
- */
-private fun Int.toAuthenticationTypeString(): String = when (this) {
-    BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN -> "UNKNOWN"
-    BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC -> "BIOMETRIC"
-    BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL -> "DEVICE_CREDENTIAL"
-    else -> "Unrecognized type: $this"
-}
+/** Converts an authentication result type to a string that represents the authentication method. */
+private fun Int.toAuthenticationTypeString(): String =
+    when (this) {
+        BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN -> "UNKNOWN"
+        BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC -> "BIOMETRIC"
+        BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL -> "DEVICE_CREDENTIAL"
+        else -> "Unrecognized type: $this"
+    }
 
-/**
- * Adds a new line with the given [message] to the beginning of this text view.
- */
+/** Adds a new line with the given [message] to the beginning of this text view. */
 @SuppressLint("SetTextI18n")
 internal fun TextView.prependLogMessage(message: CharSequence) {
     text = "$message\n$text"

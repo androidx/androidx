@@ -35,16 +35,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DateTimeFormatJdkStylesTest {
     private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-    private val testCalendar = GregorianCalendar(
-        2021, Calendar.SEPTEMBER, 19, // Date
-        23, 42, 12 // Time
-    )
+    private val testCalendar =
+        GregorianCalendar(
+            2021,
+            Calendar.SEPTEMBER,
+            19, // Date
+            23,
+            42,
+            12 // Time
+        )
 
     init {
         testCalendar.set(Calendar.MILLISECOND, 345)
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testEmulateJavaStyles() {
         val locale = Locale.US
 
@@ -91,7 +97,8 @@ class DateTimeFormatJdkStylesTest {
         val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(
             Helper.normalizeNnbsp(jdkFormatter.format(testCalendar.time)),
-            Helper.normalizeNnbsp(compatFormatter.format(testCalendar)))
+            Helper.normalizeNnbsp(compatFormatter.format(testCalendar))
+        )
     }
 
     private fun checkDateTime(
@@ -105,10 +112,12 @@ class DateTimeFormatJdkStylesTest {
         val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(
             Helper.normalizeNnbsp(jdkFormatter.format(testCalendar.time)),
-            Helper.normalizeNnbsp(compatFormatter.format(testCalendar)))
+            Helper.normalizeNnbsp(compatFormatter.format(testCalendar))
+        )
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testPredefinedStyles() {
         val options = DateTimeFormatterCommonOptions.ABBR_MONTH_WEEKDAY_DAY
         val formatter = DateTimeFormatter(appContext, options, Locale.US)

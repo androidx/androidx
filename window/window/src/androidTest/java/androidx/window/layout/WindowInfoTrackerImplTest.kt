@@ -51,97 +51,77 @@ public class WindowInfoTrackerImplTest {
     }
 
     @Test
-    public fun testWindowLayoutFeatures(): Unit = testScope.runTest {
-        activityScenario.scenario.onActivity { testActivity ->
-            val windowMetricsCalculator = WindowMetricsCalculatorCompat
+    public fun testWindowLayoutFeatures(): Unit =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                val windowMetricsCalculator = WindowMetricsCalculatorCompat
+                val fakeBackend = FakeWindowBackend()
+                val repo = WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend)
+                val collector = TestConsumer<WindowLayoutInfo>()
+                testScope.launch(Job()) {
+                    repo.windowLayoutInfo(testActivity).collect(collector::accept)
+                }
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+                collector.assertValue(WindowLayoutInfo(emptyList()))
+            }
+        }
+
+    @Test
+    public fun testWindowLayoutFeatures_contextAsListener(): Unit =
+        testScope.runTest {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                return@runTest
+            }
+            assumeAtLeastVendorApiLevel(2)
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoTrackerImpl(
-                windowMetricsCalculator,
-                fakeBackend
-            )
+            val repo = WindowInfoTrackerImpl(WindowMetricsCalculatorCompat, fakeBackend)
             val collector = TestConsumer<WindowLayoutInfo>()
+
+            val windowContext = WindowTestUtils.createOverlayWindowContext()
             testScope.launch(Job()) {
-                repo.windowLayoutInfo(testActivity).collect(collector::accept)
+                repo.windowLayoutInfo(windowContext).collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
             collector.assertValue(WindowLayoutInfo(emptyList()))
         }
-    }
 
     @Test
-    public fun testWindowLayoutFeatures_contextAsListener(): Unit = testScope.runTest {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return@runTest
+    public fun testWindowLayoutFeatures_multicasting(): Unit =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                val windowMetricsCalculator = WindowMetricsCalculatorCompat
+                val fakeBackend = FakeWindowBackend()
+                val repo = WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend)
+                val collector = TestConsumer<WindowLayoutInfo>()
+                val job = Job()
+                launch(job) { repo.windowLayoutInfo(testActivity).collect(collector::accept) }
+                launch(job) { repo.windowLayoutInfo(testActivity).collect(collector::accept) }
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+                collector.assertValues(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
+            }
         }
-        assumeAtLeastVendorApiLevel(2)
-        val fakeBackend = FakeWindowBackend()
-        val repo = WindowInfoTrackerImpl(WindowMetricsCalculatorCompat, fakeBackend)
-        val collector = TestConsumer<WindowLayoutInfo>()
-
-        val windowContext =
-            WindowTestUtils.createOverlayWindowContext()
-        testScope.launch(Job()) {
-            repo.windowLayoutInfo(windowContext).collect(collector::accept)
-        }
-        fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-        collector.assertValue(WindowLayoutInfo(emptyList()))
-    }
 
     @Test
-    public fun testWindowLayoutFeatures_multicasting(): Unit = testScope.runTest {
-        activityScenario.scenario.onActivity { testActivity ->
+    public fun testWindowLayoutFeatures_multicastingWithContext(): Unit =
+        testScope.runTest {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                return@runTest
+            }
+            assumeAtLeastVendorApiLevel(2)
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoTrackerImpl(
-                windowMetricsCalculator,
-                fakeBackend
-            )
+            val repo = WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend)
             val collector = TestConsumer<WindowLayoutInfo>()
             val job = Job()
-            launch(job) {
-                repo.windowLayoutInfo(testActivity).collect(collector::accept)
-            }
-            launch(job) {
-                repo.windowLayoutInfo(testActivity).collect(collector::accept)
-            }
+
+            val windowContext = WindowTestUtils.createOverlayWindowContext()
+
+            launch(job) { repo.windowLayoutInfo(windowContext).collect(collector::accept) }
+            launch(job) { repo.windowLayoutInfo(windowContext).collect(collector::accept) }
+
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-            collector.assertValues(
-                WindowLayoutInfo(emptyList()),
-                WindowLayoutInfo(emptyList())
-            )
+            collector.assertValues(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
         }
-    }
-
-    @Test
-    public fun testWindowLayoutFeatures_multicastingWithContext(): Unit = testScope.runTest {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return@runTest
-        }
-        assumeAtLeastVendorApiLevel(2)
-        val windowMetricsCalculator = WindowMetricsCalculatorCompat
-        val fakeBackend = FakeWindowBackend()
-        val repo = WindowInfoTrackerImpl(
-            windowMetricsCalculator,
-            fakeBackend
-        )
-        val collector = TestConsumer<WindowLayoutInfo>()
-        val job = Job()
-
-        val windowContext = WindowTestUtils.createOverlayWindowContext()
-
-        launch(job) {
-            repo.windowLayoutInfo(windowContext).collect(collector::accept)
-        }
-        launch(job) {
-            repo.windowLayoutInfo(windowContext).collect(collector::accept)
-        }
-
-        fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-        collector.assertValues(
-            WindowLayoutInfo(emptyList()),
-            WindowLayoutInfo(emptyList())
-        )
-    }
 
     private class FakeWindowBackend : WindowBackend {
 

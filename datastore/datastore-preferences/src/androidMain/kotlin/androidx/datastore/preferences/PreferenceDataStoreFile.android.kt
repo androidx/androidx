@@ -24,10 +24,9 @@ import java.io.File
 
 /**
  * Generate the File object for Preferences DataStore based on the provided context and name. The
- * file is in the [this.applicationContext.filesDir] + "datastore/" subdirectory with [name].
- * This is public to allow for testing and backwards compatibility (e.g. if moving from the
- * `preferencesDataStore` delegate or context.createDataStore to
- * PreferencesDataStoreFactory).
+ * file is in the [this.applicationContext.filesDir] + "datastore/" subdirectory with [name]. This
+ * is public to allow for testing and backwards compatibility (e.g. if moving from the
+ * `preferencesDataStore` delegate or context.createDataStore to PreferencesDataStoreFactory).
  *
  * Do NOT use the file outside of DataStore.
  *

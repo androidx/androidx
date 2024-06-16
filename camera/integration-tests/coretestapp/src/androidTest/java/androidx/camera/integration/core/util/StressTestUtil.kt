@@ -50,16 +50,16 @@ object StressTestUtil {
     /**
      * Launches CameraXActivity and wait for the preview ready.
      *
-     * <p>Test cases can start activity by this function and then add other specific test
-     * operations after the activity is launched.
+     * <p>Test cases can start activity by this function and then add other specific test operations
+     * after the activity is launched.
      *
      * <p>If the target camera device can't support the specified use case combination, an
      * AssumptionViolatedException will be thrown to skip the test.
      *
      * @param cameraId Launches the activity with the specified camera id
      * @param useCaseCombination Launches the activity with the specified use case combination.
-     * [BIND_PREVIEW], [BIND_IMAGE_CAPTURE], [BIND_VIDEO_CAPTURE] and [BIND_IMAGE_ANALYSIS] can be
-     * used to set the combination.
+     *   [BIND_PREVIEW], [BIND_IMAGE_CAPTURE], [BIND_VIDEO_CAPTURE] and [BIND_IMAGE_ANALYSIS] can be
+     *   used to set the combination.
      */
     @JvmStatic
     fun launchCameraXActivityAndWaitForPreviewReady(
@@ -70,13 +70,16 @@ object StressTestUtil {
             throw IllegalArgumentException("Preview must be included!")
         }
 
-        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
-            .getLaunchIntentForPackage(CORE_TEST_APP_PACKAGE)!!.apply {
-                putExtra(INTENT_EXTRA_CAMERA_ID, cameraId)
-                putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, useCaseCombination)
-                setClassName(CORE_TEST_APP_PACKAGE, CameraXActivity::class.java.name)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+        val intent =
+            ApplicationProvider.getApplicationContext<Context>()
+                .packageManager
+                .getLaunchIntentForPackage(CORE_TEST_APP_PACKAGE)!!
+                .apply {
+                    putExtra(INTENT_EXTRA_CAMERA_ID, cameraId)
+                    putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, useCaseCombination)
+                    setClassName(CORE_TEST_APP_PACKAGE, CameraXActivity::class.java.name)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
 
         val activityScenario: ActivityScenario<CameraXActivity> = ActivityScenario.launch(intent)
 
@@ -84,8 +87,9 @@ object StressTestUtil {
             // Checks that the camera id is correct
             if ((it.camera!!.cameraInfo as CameraInfoInternal).cameraId != cameraId) {
                 it.finish()
-                throw IllegalArgumentException("The activity is not launched with the correct" +
-                    " camera of expected id.")
+                throw IllegalArgumentException(
+                    "The activity is not launched with the correct" + " camera of expected id."
+                )
             }
         }
 
@@ -96,84 +100,80 @@ object StressTestUtil {
         return activityScenario
     }
 
-    /**
-     * Checks and skips the test if the target camera can't support the use case combination.
-     */
+    /** Checks and skips the test if the target camera can't support the use case combination. */
     @JvmStatic
     fun assumeCameraSupportUseCaseCombination(camera: Camera, useCaseCombination: Int) {
         val preview = Preview.Builder().build()
-        val imageCapture = if (useCaseCombination.and(BIND_IMAGE_CAPTURE) != 0) {
-            ImageCapture.Builder().build()
-        } else {
-            null
-        }
-        val videoCapture = if (useCaseCombination.and(BIND_VIDEO_CAPTURE) != 0) {
-            VideoCapture.withOutput(Recorder.Builder().build())
-        } else {
-            null
-        }
-        val imageAnalysis = if (useCaseCombination.and(BIND_IMAGE_ANALYSIS) != 0) {
-            ImageAnalysis.Builder().build()
-        } else {
-            null
-        }
+        val imageCapture =
+            if (useCaseCombination.and(BIND_IMAGE_CAPTURE) != 0) {
+                ImageCapture.Builder().build()
+            } else {
+                null
+            }
+        val videoCapture =
+            if (useCaseCombination.and(BIND_VIDEO_CAPTURE) != 0) {
+                VideoCapture.withOutput(Recorder.Builder().build())
+            } else {
+                null
+            }
+        val imageAnalysis =
+            if (useCaseCombination.and(BIND_IMAGE_ANALYSIS) != 0) {
+                ImageAnalysis.Builder().build()
+            } else {
+                null
+            }
 
         assumeTrue(
             camera.isUseCasesCombinationSupported(
-                *listOfNotNull(
-                    preview,
-                    imageCapture,
-                    videoCapture,
-                    imageAnalysis
-                ).toTypedArray()
+                *listOfNotNull(preview, imageCapture, videoCapture, imageAnalysis).toTypedArray()
             )
         )
     }
 
     @JvmStatic
     fun createCameraSelectorById(cameraId: String) =
-        CameraSelector.Builder().addCameraFilter(CameraFilter { cameraInfos ->
-            cameraInfos.forEach {
-                if ((it as CameraInfoInternal).cameraId == cameraId) {
-                    return@CameraFilter listOf<CameraInfo>(it)
-                }
-            }
+        CameraSelector.Builder()
+            .addCameraFilter(
+                CameraFilter { cameraInfos ->
+                    cameraInfos.forEach {
+                        if ((it as CameraInfoInternal).cameraId == cameraId) {
+                            return@CameraFilter listOf<CameraInfo>(it)
+                        }
+                    }
 
-            throw IllegalArgumentException("No camera can be find for id: $cameraId")
-        }).build()
+                    throw IllegalArgumentException("No camera can be find for id: $cameraId")
+                }
+            )
+            .build()
 
     @JvmStatic
-    fun getAllCameraXConfigCameraIdCombinations() = mutableListOf<Array<Any?>>().apply {
-        val cameraxConfigs =
-            listOf(Camera2Config::class.simpleName, CameraPipeConfig::class.simpleName)
+    fun getAllCameraXConfigCameraIdCombinations() =
+        mutableListOf<Array<Any?>>().apply {
+            val cameraxConfigs =
+                listOf(Camera2Config::class.simpleName, CameraPipeConfig::class.simpleName)
 
-        cameraxConfigs.forEach { configImplName ->
-            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                add(
-                    arrayOf(
-                        configImplName,
-                        when (configImplName) {
-                            CameraPipeConfig::class.simpleName ->
-                                CameraPipeConfig.defaultConfig()
-                            Camera2Config::class.simpleName ->
-                                Camera2Config.defaultConfig()
-                            else -> Camera2Config.defaultConfig()
-                        },
-                        cameraId
+            cameraxConfigs.forEach { configImplName ->
+                CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
+                    add(
+                        arrayOf(
+                            configImplName,
+                            when (configImplName) {
+                                CameraPipeConfig::class.simpleName ->
+                                    CameraPipeConfig.defaultConfig()
+                                Camera2Config::class.simpleName -> Camera2Config.defaultConfig()
+                                else -> Camera2Config.defaultConfig()
+                            },
+                            cameraId
+                        )
                     )
-                )
+                }
             }
         }
-    }
 
-    /**
-     * Large stress test repeat count to run the test
-     */
+    /** Large stress test repeat count to run the test */
     const val LARGE_STRESS_TEST_REPEAT_COUNT = 1
 
-    /**
-     * Stress test repeat count to run the test
-     */
+    /** Stress test repeat count to run the test */
     const val STRESS_TEST_REPEAT_COUNT = 2
 
     /**
@@ -181,44 +181,31 @@ object StressTestUtil {
      *
      * <p>The target testing operation might be:
      * <ul>
-     *     <li> Open and close camera
-     *     <li> Open and close capture session
-     *     <li> Bind and unbind use cases
-     *     <li> Pause and resume lifecycle owner
-     *     <li> Switch cameras
-     *     <li> Switch extension modes
+     * <li> Open and close camera
+     * <li> Open and close capture session
+     * <li> Bind and unbind use cases
+     * <li> Pause and resume lifecycle owner
+     * <li> Switch cameras
+     * <li> Switch extension modes
      * </ul>
-     *
      */
     const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
 
-    /**
-     * Timeout duration to wait for idle after pressing HOME key
-     */
+    /** Timeout duration to wait for idle after pressing HOME key */
     const val HOME_TIMEOUT_MS = 3000L
 
-    /**
-     * Auto-stop duration for video capture related tests.
-     */
+    /** Auto-stop duration for video capture related tests. */
     const val VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS = 1000L
 
-    /**
-     * Constant to specify that the verification target is [Preview].
-     */
+    /** Constant to specify that the verification target is [Preview]. */
     const val VERIFICATION_TARGET_PREVIEW = 0x1
 
-    /**
-     * Constant to specify that the verification target is [ImageCapture].
-     */
+    /** Constant to specify that the verification target is [ImageCapture]. */
     const val VERIFICATION_TARGET_IMAGE_CAPTURE = 0x2
 
-    /**
-     * Constant to specify that the verification target is [VideoCapture].
-     */
+    /** Constant to specify that the verification target is [VideoCapture]. */
     const val VERIFICATION_TARGET_VIDEO_CAPTURE = 0x4
 
-    /**
-     * Constant to specify that the verification target is [ImageAnalysis].
-     */
+    /** Constant to specify that the verification target is [ImageAnalysis]. */
     const val VERIFICATION_TARGET_IMAGE_ANALYSIS = 0x8
 }

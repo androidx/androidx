@@ -56,8 +56,7 @@ fun BringIntoViewAndroidInteropDemo() {
         val scope = rememberCoroutineScope()
 
         Box(
-            Modifier
-                .border(2.dp, Color.Blue)
+            Modifier.border(2.dp, Color.Blue)
                 .size(200.dp, 200.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -66,14 +65,12 @@ fun BringIntoViewAndroidInteropDemo() {
                     Box(Modifier.size(500.dp)) {
                         Text(
                             "Top-start",
-                            Modifier
-                                .align(Alignment.TopStart)
+                            Modifier.align(Alignment.TopStart)
                                 .bringIntoViewRequester(topStartRequester)
                         )
                         Text(
                             "Bottom-end",
-                            Modifier
-                                .align(Alignment.BottomEnd)
+                            Modifier.align(Alignment.BottomEnd)
                                 .bringIntoViewRequester(bottomEndRequester)
                         )
                     }
@@ -81,18 +78,10 @@ fun BringIntoViewAndroidInteropDemo() {
             }
         }
 
-        Button(onClick = {
-            scope.launch {
-                topStartRequester.bringIntoView()
-            }
-        }) {
+        Button(onClick = { scope.launch { topStartRequester.bringIntoView() } }) {
             Text("Bring top-start into view")
         }
-        Button(onClick = {
-            scope.launch {
-                bottomEndRequester.bringIntoView()
-            }
-        }) {
+        Button(onClick = { scope.launch { bottomEndRequester.bringIntoView() } }) {
             Text("Bring bottom-end into view")
         }
     }

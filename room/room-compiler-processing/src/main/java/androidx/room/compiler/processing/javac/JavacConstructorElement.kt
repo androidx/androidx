@@ -25,11 +25,8 @@ import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 
-internal class JavacConstructorElement(
-    env: JavacProcessingEnv,
-    element: ExecutableElement
-) : JavacExecutableElement(env, element),
-    XConstructorElement {
+internal class JavacConstructorElement(env: JavacProcessingEnv, element: ExecutableElement) :
+    JavacExecutableElement(env, element), XConstructorElement {
     init {
         check(element.kind == ElementKind.CONSTRUCTOR) {
             "Constructor element is constructed with invalid type: $element"
@@ -83,7 +80,6 @@ internal class JavacConstructorElement(
     }
 
     override val kotlinMetadata: KmConstructorContainer? by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata
-            ?.getConstructorMetadata(element)
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
     }
 }

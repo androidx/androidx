@@ -27,19 +27,13 @@ import org.junit.runner.RunWith
 class SliceTest {
     @Test
     fun frameId() {
-        assertEquals(
-            1234,
-            Slice("Choreographer#doFrame 1234", 1, 2).frameId
-        )
+        assertEquals(1234, Slice("Choreographer#doFrame 1234", 1, 2).frameId)
     }
 
     @Test
     fun frameId_extended() {
         // some OEMs have added additional metadata to standard tracepoints
         // we'll fix these best effort as they are reported
-        assertEquals(
-            123,
-            Slice("Choreographer#doFrame 123 234 extra=91929", 1, 2).frameId
-        )
+        assertEquals(123, Slice("Choreographer#doFrame 123 234 extra=91929", 1, 2).frameId)
     }
 }

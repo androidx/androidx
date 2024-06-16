@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 
@@ -45,7 +44,6 @@ import java.util.Set;
  *      lead to unexpected cropping or transformation issues during post-capture processing.
  *      Device(s):   Redmi note 8 pro - front camera
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class JpegCaptureDownsizingQuirk implements SoftwareJpegEncodingPreferredQuirk {
 
     private static final Set<String> KNOWN_AFFECTED_FRONT_CAMERA_DEVICES = new HashSet<>(

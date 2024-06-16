@@ -84,14 +84,14 @@ class LazyListFocusableInteractionTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters() = arrayOf(
-            arrayOf(Vertical),
-            arrayOf(Horizontal),
-        )
+        fun initParameters() =
+            arrayOf(
+                arrayOf(Vertical),
+                arrayOf(Horizontal),
+            )
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val scrollableAreaTag = "scrollableArea"
     private val focusableTag = "focusable"
@@ -116,13 +116,12 @@ class LazyListFocusableInteractionTest(
         rule.setContentForTest {
             ScrollableRowOrColumn(size = viewportSize) {
                 // Put a focusable at the end of the viewport.
-                WithSpacerBefore(size = 90.toDp()) {
-                    TestFocusable(size = 10.toDp())
-                }
+                WithSpacerBefore(size = 90.toDp()) { TestFocusable(size = 10.toDp()) }
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -130,7 +129,8 @@ class LazyListFocusableInteractionTest(
         // Act: Shrink the viewport.
         viewportSize = 50.toDp()
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(40.toDp())
             .assertIsDisplayed()
     }
@@ -142,13 +142,12 @@ class LazyListFocusableInteractionTest(
         rule.setContentForTest {
             ScrollableRowOrColumn(size = viewportSize) {
                 // Put a focusable in the bottom of the viewport.
-                WithSpacerBefore(90.toDp()) {
-                    TestFocusable(size = 10.toDp())
-                }
+                WithSpacerBefore(90.toDp()) { TestFocusable(size = 10.toDp()) }
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -156,7 +155,8 @@ class LazyListFocusableInteractionTest(
         // Act: Shrink the viewport.
         viewportSize = 95.toDp()
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(85.toDp())
             .assertIsDisplayed()
     }
@@ -168,13 +168,12 @@ class LazyListFocusableInteractionTest(
         rule.setContentForTest {
             ScrollableRowOrColumn(size = viewportSize) {
                 // Put a focusable in the bottom of the viewport.
-                WithSpacerBefore(size = 90.toDp()) {
-                    TestFocusable(size = 10.toDp())
-                }
+                WithSpacerBefore(size = 90.toDp()) { TestFocusable(size = 10.toDp()) }
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -182,7 +181,8 @@ class LazyListFocusableInteractionTest(
         // Act: Shrink the viewport.
         viewportSize = 91.toDp()
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
     }
@@ -193,13 +193,12 @@ class LazyListFocusableInteractionTest(
 
         rule.setContentForTest {
             ScrollableRowOrColumn(size = viewportSize) {
-                WithSpacerBefore(90.toDp()) {
-                    TestFocusable(size = 10.toDp())
-                }
+                WithSpacerBefore(90.toDp()) { TestFocusable(size = 10.toDp()) }
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -207,7 +206,8 @@ class LazyListFocusableInteractionTest(
         // Act: Shrink the viewport.
         viewportSize = 90.toDp()
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsNotDisplayed()
     }
@@ -229,27 +229,23 @@ class LazyListFocusableInteractionTest(
                     // Manually execute an "animation" that shrinks the viewport by twice the
                     // focusable's size on every frame, for a few frames. The underlying bug in
                     // b/230756508 would lose track of the focusable after the second frame.
-                    withFrameNanos {
-                        viewportSize = 80.toDp()
-                    }
-                    withFrameNanos {
-                        viewportSize = 60.toDp()
-                    }
-                    withFrameNanos {
-                        viewportSize = 40.toDp()
-                    }
+                    withFrameNanos { viewportSize = 80.toDp() }
+                    withFrameNanos { viewportSize = 60.toDp() }
+                    withFrameNanos { viewportSize = 40.toDp() }
                 }
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
 
         animate = true
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(30.toDp())
             .assertIsDisplayed()
     }
@@ -266,7 +262,8 @@ class LazyListFocusableInteractionTest(
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -279,26 +276,24 @@ class LazyListFocusableInteractionTest(
         rule.waitForIdle()
 
         // Interrupt the scroll by manually dragging.
-        rule.onNodeWithTag(scrollableAreaTag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(viewConfiguration.touchSlop + 1, viewConfiguration.touchSlop + 1))
-                up()
-            }
+        rule.onNodeWithTag(scrollableAreaTag).performTouchInput {
+            down(center)
+            moveBy(Offset(viewConfiguration.touchSlop + 1, viewConfiguration.touchSlop + 1))
+            up()
+        }
 
         // Resume the clock. The animation scroll animation should have been interrupted and not
         // continue.
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.autoAdvance = true
 
-        rule.onNodeWithTag(focusableTag)
-            .assertIsNotDisplayed()
+        rule.onNodeWithTag(focusableTag).assertIsNotDisplayed()
     }
 
     /**
      * This test ensures that scrollable correctly cleans up its state when the scroll animation
-     * triggered by shrinking the viewport is interrupted by something other than another shrink
-     * and the focusable child does not change. If it's cleaned up correctly, expanding then re-
+     * triggered by shrinking the viewport is interrupted by something other than another shrink and
+     * the focusable child does not change. If it's cleaned up correctly, expanding then re-
      * shrinking the viewport should trigger another animation.
      */
     @Test
@@ -313,7 +308,8 @@ class LazyListFocusableInteractionTest(
             }
         }
         requestFocusAndScrollToStart()
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -326,21 +322,18 @@ class LazyListFocusableInteractionTest(
         rule.waitForIdle()
 
         // Interrupt the scroll by manually dragging.
-        rule.onNodeWithTag(scrollableAreaTag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(viewConfiguration.touchSlop + 1, viewConfiguration.touchSlop + 1))
-                up()
-            }
+        rule.onNodeWithTag(scrollableAreaTag).performTouchInput {
+            down(center)
+            moveBy(Offset(viewConfiguration.touchSlop + 1, viewConfiguration.touchSlop + 1))
+            up()
+        }
 
         // Resume the clock. The animation scroll animation should have been interrupted and not
         // continue.
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
-        rule.onNodeWithTag(focusableTag)
-            .assertIsFocused()
-            .assertIsNotDisplayed()
+        rule.onNodeWithTag(focusableTag).assertIsFocused().assertIsNotDisplayed()
 
         // Expand the viewport back to its original size to bring the focusable back into view.
         viewportSize = 100.toDp()
@@ -351,8 +344,7 @@ class LazyListFocusableInteractionTest(
         viewportSize = 50.toDp()
         rule.waitForIdle()
 
-        rule.onNodeWithTag(focusableTag)
-            .assertIsDisplayed()
+        rule.onNodeWithTag(focusableTag).assertIsDisplayed()
     }
 
     @Test
@@ -363,29 +355,21 @@ class LazyListFocusableInteractionTest(
         rule.setContentForTest {
             ScrollableRowOrColumn(viewportSize) {
                 // Put a focusable just out of view.
-                WithSpacerBefore(size = gapSize) {
-                    TestFocusable(10.toDp())
-                }
+                WithSpacerBefore(size = gapSize) { TestFocusable(10.toDp()) }
             }
         }
-        runBlockingOnIdle {
-            scrollState.scrollToItem(1)
-        }
+        runBlockingOnIdle { scrollState.scrollToItem(1) }
         requestFocus()
         rule.waitForIdle()
         scrollToStart()
 
-        rule.onNodeWithTag(focusableTag)
-            .assertIsNotDisplayed()
-            .assertIsFocused()
+        rule.onNodeWithTag(focusableTag).assertIsNotDisplayed().assertIsFocused()
 
         // Act: Shrink the viewport.
         viewportSize = 50.toDp()
 
         // Focusable should not have moved since it was never in view.
-        rule.onNodeWithTag(focusableTag)
-            .assertIsNotDisplayed()
-            .assertIsFocused()
+        rule.onNodeWithTag(focusableTag).assertIsNotDisplayed().assertIsFocused()
     }
 
     @Test
@@ -395,12 +379,11 @@ class LazyListFocusableInteractionTest(
         rule.setContent {
             ScrollableRowOrColumn(size = viewportSize) {
                 // Put a focusable in the bottom of the viewport.
-                WithSpacerBefore(size = 90.toDp()) {
-                    TestFocusable(size = 10.toDp())
-                }
+                WithSpacerBefore(size = 90.toDp()) { TestFocusable(size = 10.toDp()) }
             }
         }
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsNotFocused()
@@ -408,8 +391,7 @@ class LazyListFocusableInteractionTest(
         // Act: Shrink the viewport.
         viewportSize = 50.toDp()
 
-        rule.onNodeWithTag(focusableTag)
-            .assertIsNotDisplayed()
+        rule.onNodeWithTag(focusableTag).assertIsNotDisplayed()
     }
 
     @Test
@@ -428,9 +410,7 @@ class LazyListFocusableInteractionTest(
             }
         }
         // Scroll the item to the end of the viewport so we can request focus.
-        runBlockingOnIdle {
-            scrollState.scrollToItem(1, scrollOffset = -(viewportSize - itemSize))
-        }
+        runBlockingOnIdle { scrollState.scrollToItem(1, scrollOffset = -(viewportSize - itemSize)) }
         requestFocus()
 
         // Requesting focus will bring the entire focused item into view (at the end of the
@@ -441,7 +421,8 @@ class LazyListFocusableInteractionTest(
             scrollState.scrollBy(-halfFocusableSize)
         }
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo((initialViewPortSize - (itemSize / 2)).toDp())
             .assertIsDisplayed()
             .assertIsFocused()
@@ -449,7 +430,8 @@ class LazyListFocusableInteractionTest(
         // Act: Grow the viewport.
         viewportSize *= 2
 
-        rule.onNodeWithTag(focusableTag)
+        rule
+            .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo((initialViewPortSize - (itemSize / 2)).toDp())
             .assertIsDisplayed()
     }
@@ -460,24 +442,12 @@ class LazyListFocusableInteractionTest(
 
         @Composable
         fun Focusable1() {
-            Box(
-                Modifier
-                    .size(10.toDp())
-                    .background(Color.Blue)
-                    .testTag("focusable1")
-                    .focusable()
-            )
+            Box(Modifier.size(10.toDp()).background(Color.Blue).testTag("focusable1").focusable())
         }
 
         @Composable
         fun Focusable2() {
-            Box(
-                Modifier
-                    .size(10.toDp())
-                    .background(Color.Blue)
-                    .testTag("focusable2")
-                    .focusable()
-            )
+            Box(Modifier.size(10.toDp()).background(Color.Blue).testTag("focusable2").focusable())
         }
 
         rule.setContentForTest {
@@ -488,37 +458,27 @@ class LazyListFocusableInteractionTest(
             }
         }
         // When focusable2 gets focus, focusable1 should be scrolled out of view.
-        runBlockingOnIdle {
-            scrollState.scrollToItem(2)
-        }
+        runBlockingOnIdle { scrollState.scrollToItem(2) }
         requestFocus("focusable2")
         rule.onNodeWithTag("focusable1").assertIsNotDisplayed()
-        rule.onNodeWithTag("focusable2")
-            .assertIsDisplayed()
-            .assertIsFocused()
+        rule.onNodeWithTag("focusable2").assertIsDisplayed().assertIsFocused()
         // Pause the clock because we need to do some work in the middle of an animation.
         rule.mainClock.autoAdvance = false
 
         // Shrink the viewport, which should scroll to keep focusable2 in-view.
-        rule.runOnIdle {
-            viewportSize = 20.toDp()
-        }
+        rule.runOnIdle { viewportSize = 20.toDp() }
 
         // Tick the clock forward to let the animation start and run a bit.
         repeat(3) { rule.mainClock.advanceTimeByFrame() }
         rule.onNodeWithTag("focusable1").assertIsNotDisplayed()
         rule.onNodeWithTag("focusable2").assertIsNotDisplayed()
 
-        rule.runOnIdle {
-            focusManager.moveFocus(Previous)
-        }
+        rule.runOnIdle { focusManager.moveFocus(Previous) }
         // Resume the clock, allow animation to finish.
         rule.mainClock.autoAdvance = true
 
         rule.onNodeWithTag("focusable2").assertIsNotDisplayed()
-        rule.onNodeWithTag("focusable1")
-            .assertIsDisplayed()
-            .assertIsFocused()
+        rule.onNodeWithTag("focusable1").assertIsDisplayed().assertIsFocused()
     }
 
     @Test
@@ -567,9 +527,7 @@ class LazyListFocusableInteractionTest(
         }
 
         // Assert.
-        rule.onNodeWithTag("finalFocusable")
-            .assertIsDisplayed()
-            .assertIsFocused()
+        rule.onNodeWithTag("finalFocusable").assertIsDisplayed().assertIsFocused()
         rule.runOnIdle {
             assertThat(scrollState.firstVisibleItemIndex).isEqualTo(1)
             assertThat(scrollState.firstVisibleItemScrollOffset).isEqualTo(0)
@@ -590,9 +548,7 @@ class LazyListFocusableInteractionTest(
         requestFocus("2")
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(Next)
-        }
+        rule.runOnIdle { focusManager.moveFocus(Next) }
 
         // Assert.
         rule.onNodeWithTag("finalFocusable").assertIsDisplayed()
@@ -600,9 +556,7 @@ class LazyListFocusableInteractionTest(
         rule.runOnIdle { assertThat(scrollState.firstVisibleItemScrollOffset).isEqualTo(0) }
     }
 
-    private fun ComposeContentTestRule.setContentForTest(
-        composable: @Composable () -> Unit
-    ) {
+    private fun ComposeContentTestRule.setContentForTest(composable: @Composable () -> Unit) {
         setContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
@@ -611,53 +565,32 @@ class LazyListFocusableInteractionTest(
     }
 
     @Composable
-    private fun ScrollableRowOrColumn(
-        size: Dp,
-        content: LazyListScope.() -> Unit
-    ) {
-        val modifier = Modifier
-            .testTag(scrollableAreaTag)
-            .size(size)
-            .border(2.toDp(), Color.Black)
+    private fun ScrollableRowOrColumn(size: Dp, content: LazyListScope.() -> Unit) {
+        val modifier = Modifier.testTag(scrollableAreaTag).size(size).border(2.toDp(), Color.Black)
 
         when (orientation) {
             Vertical -> {
-                LazyColumn(
-                    state = scrollState,
-                    modifier = modifier,
-                    content = content
-                )
+                LazyColumn(state = scrollState, modifier = modifier, content = content)
             }
-
             Horizontal -> {
-                LazyRow(
-                    state = scrollState,
-                    modifier = modifier,
-                    content = content
-                )
+                LazyRow(state = scrollState, modifier = modifier, content = content)
             }
         }
     }
 
-    /**
-     * Places a spacer before [content].
-     */
+    /** Places a spacer before [content]. */
     private fun LazyListScope.WithSpacerBefore(size: Dp, content: @Composable () -> Unit) {
         item { Spacer(Modifier.size(size)) }
         item { content() }
     }
 
     @Composable
-    private fun TestFocusable(
-        size: Dp,
-        tag: String = focusableTag
-    ) {
+    private fun TestFocusable(size: Dp, tag: String = focusableTag) {
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
 
         Box(
-            Modifier
-                .testTag(tag)
+            Modifier.testTag(tag)
                 .size(size)
                 .border(1.dp, Color.White)
                 .background(if (isFocused) Color.Blue else Color.Black)
@@ -666,9 +599,9 @@ class LazyListFocusableInteractionTest(
     }
 
     /**
-     * Sizes and offsets of the composables in these tests must be specified using this function.
-     * If they're specified using `xx.dp` syntax, a rounding error somewhere in the layout system
-     * will cause the pixel values to be off-by-one.
+     * Sizes and offsets of the composables in these tests must be specified using this function. If
+     * they're specified using `xx.dp` syntax, a rounding error somewhere in the layout system will
+     * cause the pixel values to be off-by-one.
      */
     private fun Int.toDp(): Dp = with(rule.density) { this@toDp.toDp() }
 
@@ -683,15 +616,11 @@ class LazyListFocusableInteractionTest(
     }
 
     private fun scrollToStart() {
-        runBlockingOnIdle {
-            scrollState.scrollToItem(0, 0)
-        }
+        runBlockingOnIdle { scrollState.scrollToItem(0, 0) }
     }
 
     private fun runBlockingOnIdle(block: suspend CoroutineScope.() -> Unit) {
-        val job = rule.runOnIdle {
-            scope.launch(block = block)
-        }
+        val job = rule.runOnIdle { scope.launch(block = block) }
         runBlocking { job.join() }
     }
 

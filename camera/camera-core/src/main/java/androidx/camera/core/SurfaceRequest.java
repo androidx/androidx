@@ -32,7 +32,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -85,7 +84,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <img src="/images/reference/androidx/camera/camera-core/surface_request_work_flow.svg"/>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceRequest {
 
     /**

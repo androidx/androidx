@@ -38,20 +38,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DialogFragmentViewTreeTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testDialogFragmentViewTree() {
-       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val dialogFragment = TestDialogFragment()
 
-            onActivity {
-                dialogFragment.showNow(it.supportFragmentManager, null)
-            }
+            onActivity { dialogFragment.showNow(it.supportFragmentManager, null) }
 
-           val decorView =
-               dialogFragment.requireDialog().window?.decorView ?: error("no decor view available")
+            val decorView =
+                dialogFragment.requireDialog().window?.decorView ?: error("no decor view available")
 
             assertWithMessage("DialogFragment dialog should have a ViewTreeLifecycleOwner")
                 .that(decorView.findViewTreeLifecycleOwner())

@@ -24,14 +24,10 @@ import androidx.annotation.IntRange
 import androidx.camera.core.ImageProxy
 import java.io.ByteArrayOutputStream
 
-/**
- * Image util functions
- */
+/** Image util functions */
 object ImageUtil {
 
-    /**
-     * Converts JPEG [Image] to [ByteArray]
-     */
+    /** Converts JPEG [Image] to [ByteArray] */
     @JvmStatic
     fun jpegImageToJpegByteArray(image: Image): ByteArray {
         require(image.format == ImageFormat.JPEG) {
@@ -46,9 +42,9 @@ object ImageUtil {
     }
 
     /**
-     * Converts YUV_420_888 [ImageProxy] to JPEG byte array. The input YUV_420_888 image
-     * will be cropped if a non-null crop rectangle is specified. The output JPEG byte array will
-     * be compressed by the specified quality value.
+     * Converts YUV_420_888 [ImageProxy] to JPEG byte array. The input YUV_420_888 image will be
+     * cropped if a non-null crop rectangle is specified. The output JPEG byte array will be
+     * compressed by the specified quality value.
      */
     @JvmStatic
     fun yuvImageToJpegByteArray(
@@ -58,17 +54,10 @@ object ImageUtil {
         require(image.format == ImageFormat.YUV_420_888) {
             "Incorrect image format of the input image proxy: ${image.format}"
         }
-        return nv21ToJpeg(
-            yuv_420_888toNv21(image),
-            image.width,
-            image.height,
-            jpegQuality
-        )
+        return nv21ToJpeg(yuv_420_888toNv21(image), image.width, image.height, jpegQuality)
     }
 
-    /**
-     * Converts nv21 byte array to JPEG format.
-     */
+    /** Converts nv21 byte array to JPEG format. */
     @JvmStatic
     private fun nv21ToJpeg(
         nv21: ByteArray,
@@ -86,9 +75,7 @@ object ImageUtil {
         return out.toByteArray()
     }
 
-    /**
-     * Converts a YUV [Image] to NV21 byte array.
-     */
+    /** Converts a YUV [Image] to NV21 byte array. */
     @JvmStatic
     private fun yuv_420_888toNv21(image: Image): ByteArray {
         require(image.format == ImageFormat.YUV_420_888) {
@@ -113,9 +100,7 @@ object ImageUtil {
         for (row in 0 until image.height) {
             yBuffer[nv21, position, image.width]
             position += image.width
-            yBuffer.position(
-                Math.min(ySize, yBuffer.position() - image.width + yPlane.rowStride)
-            )
+            yBuffer.position(Math.min(ySize, yBuffer.position() - image.width + yPlane.rowStride))
         }
         val chromaHeight = image.height / 2
         val chromaWidth = image.width / 2

@@ -29,20 +29,14 @@ import androidx.compose.ui.viewinterop.AndroidViewBinding
 fun AndroidViewBindingSample() {
     // Inflates and composes sample_layout.xml and changes the color of the `second` View.
     // The `second` View is part of sample_layout.xml.
-    AndroidViewBinding(SampleLayoutBinding::inflate) {
-        second.setBackgroundColor(Color.GRAY)
-    }
+    AndroidViewBinding(SampleLayoutBinding::inflate) { second.setBackgroundColor(Color.GRAY) }
 }
 
 @Sampled
 @Composable
 fun AndroidViewBindingReusableSample() {
     @Composable
-    fun MyButton(
-        label: String,
-        action: () -> Unit,
-        modifier: Modifier = Modifier
-    ) {
+    fun MyButton(label: String, action: () -> Unit, modifier: Modifier = Modifier) {
         AndroidViewBinding(
             SampleButtonLayoutBinding::inflate,
             modifier = modifier,

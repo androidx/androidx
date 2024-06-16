@@ -24,16 +24,16 @@ import android.os.Build
  * Will eventually allow further configuration, e.g. sampling frequency.
  */
 @ExperimentalBenchmarkConfigApi
-sealed class ProfilerConfig(
-    internal val profiler: Profiler
-) {
-    class StackSampling() : ProfilerConfig(
-        profiler = if (Build.VERSION.SDK_INT >= 29) {
-            StackSamplingSimpleperf
-        } else {
-            StackSamplingLegacy
-        }
-    )
+sealed class ProfilerConfig(internal val profiler: Profiler) {
+    class StackSampling() :
+        ProfilerConfig(
+            profiler =
+                if (Build.VERSION.SDK_INT >= 29) {
+                    StackSamplingSimpleperf
+                } else {
+                    StackSamplingLegacy
+                }
+        )
 
     class MethodTracing() : ProfilerConfig(profiler = androidx.benchmark.MethodTracing) {
         companion object {
@@ -41,8 +41,8 @@ sealed class ProfilerConfig(
              * This value is true if method tracing affects future performance measurement within
              * the process on the current device.
              *
-             * This is determined both by the OS version and ART mainline module version
-             * (if present).
+             * This is determined both by the OS version and ART mainline module version (if
+             * present).
              *
              * If this value is true, no measurements can be made by microbenchmark after a method
              * trace completes, and further benchmarks will throw rather than capturing invalid
@@ -61,7 +61,7 @@ sealed class ProfilerConfig(
              */
             @Suppress("GetterSetterNames")
             @JvmField
-            val affectsMeasurementOnThisDevice: Boolean =
+            val AFFECTS_MEASUREMENTS_ON_THIS_DEVICE: Boolean =
                 DeviceInfo.methodTracingAffectsMeasurements
         }
     }

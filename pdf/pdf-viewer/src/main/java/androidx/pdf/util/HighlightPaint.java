@@ -17,7 +17,6 @@
 package androidx.pdf.util;
 
 import android.graphics.Color;
-import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.PorterDuff;
@@ -31,8 +30,6 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class HighlightPaint {
 
-    private static final int OUTLINED_WIDTH_DP = 3;
-    private static final int OUTLINE_CORNER_RADIUS_DP = 1;
     private static final int DARKEN_ALPHA = 0x80;
 
     /** Used when the user selects some text. Light blue as per default Android selection color. */
@@ -60,20 +57,6 @@ public final class HighlightPaint {
     /** Used to provide a semi-transparent, filled, darkening effect. */
     public static final Paint DARKEN_PAINT = createDarkenPaint();
 
-    /** Used to highlight every outline-only comment anchor. Grayish-white. */
-    public static Paint getOutlinedCommentAnchorPaint() {
-        return createOutlinedPaint(117, 117, 117, 191);
-    }
-
-    /** Used to highlight currently focused, outline-only comment anchor. Darker yellowish brown. */
-    public static Paint getOutlinedSelectedCommentAnchorPaint() {
-        return createOutlinedPaint(243, 179, 0, 128);
-    }
-
-    public static Paint getWhiteOutlinePaint() {
-        return createOutlinedPaint(255, 255, 255, 255);
-    }
-
     /** Used to highlight every triangle corner comment anchor in a spreadsheet. Dark Yellow. */
     public static final Paint TRIANGLE_CORNER_COMMENT_MATCH = createFilledPaint(243, 165, 55, 255);
 
@@ -96,24 +79,6 @@ public final class HighlightPaint {
         paint.setStyle(Style.FILL);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
         paint.setARGB(255, r, g, b);
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        return paint;
-    }
-
-    /**
-     * Creates an outline-only Paint that uses PorterDuff.Mode.MULTIPLY, meaning it darkens the
-     * light
-     * areas of the destination but leaves dark areas mostly unchanged, like a fluorescent
-     * highlighter.
-     */
-    private static Paint createOutlinedPaint(int r, int g, int b, int a) {
-        Paint paint = new Paint();
-        Screen screen = ProjectorContext.get().getScreen();
-        paint.setStrokeWidth(screen.pxFromDp(OUTLINED_WIDTH_DP));
-        paint.setStyle(Style.STROKE);
-        paint.setPathEffect(new CornerPathEffect(screen.pxFromDp(OUTLINE_CORNER_RADIUS_DP)));
-        paint.setARGB(a, r, g, b);
         paint.setAntiAlias(true);
         paint.setDither(true);
         return paint;

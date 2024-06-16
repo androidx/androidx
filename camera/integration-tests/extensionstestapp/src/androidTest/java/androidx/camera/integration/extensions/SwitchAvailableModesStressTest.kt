@@ -58,9 +58,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Stress tests to verify that Preview and ImageCapture can work well when switching modes.
- */
+/** Stress tests to verify that Preview and ImageCapture can work well when switching modes. */
 @LargeTest
 @RunWith(Parameterized::class)
 class SwitchAvailableModesStressTest(
@@ -71,40 +69,33 @@ class SwitchAvailableModesStressTest(
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = configName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(active = configName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
 
     @get:Rule
-    val permissionRule = GrantPermissionRule.grant(
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.RECORD_AUDIO,
-    )
+    val permissionRule =
+        GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private var firstSupportedExtensionMode: Int = ExtensionMode.NONE
 
     companion object {
-        @ClassRule
-        @JvmField
-        val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "cameraXConfig = {0}, cameraId = {2}")
         @JvmStatic
         fun parameters(): List<Array<Any>> {
             return CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
                 listOf(
-                    arrayOf(
-                        CAMERA2_IMPLEMENTATION_OPTION,
-                        Camera2Config.defaultConfig(),
-                        cameraId
-                    ),
+                    arrayOf(CAMERA2_IMPLEMENTATION_OPTION, Camera2Config.defaultConfig(), cameraId),
                     arrayOf(
                         CAMERA_PIPE_IMPLEMENTATION_OPTION,
                         CameraPipeConfig.defaultConfig(),
@@ -126,16 +117,12 @@ class SwitchAvailableModesStressTest(
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
-        val extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
+        val extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
+                    10000, TimeUnit.MILLISECONDS]
 
         // Checks whether any extension mode can be supported first before launching the activity.
-        CameraXExtensionsTestUtil.assumeAnyExtensionModeSupported(
-            extensionsManager,
-            cameraId
-        )
+        CameraXExtensionsTestUtil.assumeAnyExtensionModeSupported(extensionsManager, cameraId)
 
         firstSupportedExtensionMode =
             CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(extensionsManager, cameraId)
@@ -155,18 +142,16 @@ class SwitchAvailableModesStressTest(
     fun tearDown(): Unit = runBlocking {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        withContext(Dispatchers.Main) {
-            cameraProvider.shutdownAsync()
-        }
+        withContext(Dispatchers.Main) { cameraProvider.shutdownAsync() }
 
-        val extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
+        val extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
+                    10000, TimeUnit.MILLISECONDS]
         extensionsManager.shutdown()
 
         if (isTestStarted) {
-            // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+            // Unfreeze rotation so the device can choose the orientation via its own policy. Be
+            // nice
             // to other tests :)
             device.unfreezeRotation()
             device.pressHome()

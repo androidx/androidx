@@ -37,8 +37,8 @@ val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
 fun newStringBuilder(): StringBuilder = StringBuilder()
 
 /**
- * Adds bind variable placeholders (?) to the given string. Each placeholder is separated
- * by a comma.
+ * Adds bind variable placeholders (?) to the given string. Each placeholder is separated by a
+ * comma.
  *
  * @param builder The StringBuilder for the query
  * @param count Number of placeholders
@@ -75,7 +75,7 @@ fun splitToIntList(input: String?): List<Int>? {
  *
  * @param input The list of integers.
  * @return Comma separated string composed of integers in the list. If the list is null, return
- * value is null.
+ *   value is null.
  */
 fun joinIntoString(input: List<Int>?): String? {
     return input?.joinToString(",")

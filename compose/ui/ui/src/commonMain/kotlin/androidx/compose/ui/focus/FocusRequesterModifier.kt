@@ -49,9 +49,8 @@ interface FocusRequesterModifier : Modifier.Element {
 fun Modifier.focusRequester(focusRequester: FocusRequester): Modifier =
     this then FocusRequesterElement(focusRequester)
 
-private data class FocusRequesterElement(
-    val focusRequester: FocusRequester
-) : ModifierNodeElement<FocusRequesterNode>() {
+private data class FocusRequesterElement(val focusRequester: FocusRequester) :
+    ModifierNodeElement<FocusRequesterNode>() {
     override fun create() = FocusRequesterNode(focusRequester)
 
     override fun update(node: FocusRequesterNode) {
@@ -66,9 +65,8 @@ private data class FocusRequesterElement(
     }
 }
 
-private class FocusRequesterNode(
-    var focusRequester: FocusRequester
-) : FocusRequesterModifierNode, Modifier.Node() {
+private class FocusRequesterNode(var focusRequester: FocusRequester) :
+    FocusRequesterModifierNode, Modifier.Node() {
     override fun onAttach() {
         super.onAttach()
         focusRequester.focusRequesterNodes += this

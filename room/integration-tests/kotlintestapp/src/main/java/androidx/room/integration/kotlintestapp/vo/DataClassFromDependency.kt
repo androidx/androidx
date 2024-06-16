@@ -19,12 +19,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * used to test the case where kotlin classes from dependencies cannot be read properly.
- * Since the main db in this app is in the test module, the original classes serve as a dependency.
+ * used to test the case where kotlin classes from dependencies cannot be read properly. Since the
+ * main db in this app is in the test module, the original classes serve as a dependency.
  */
 @Entity
-data class DataClassFromDependency(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
-    val name: String
-)
+data class DataClassFromDependency(@PrimaryKey(autoGenerate = true) val id: Int, val name: String)

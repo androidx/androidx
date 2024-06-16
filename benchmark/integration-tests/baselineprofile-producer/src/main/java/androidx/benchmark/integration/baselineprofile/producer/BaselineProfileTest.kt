@@ -31,8 +31,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 29)
 class BaselineProfileTest {
 
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     @Before
     fun setUp() {
@@ -40,30 +39,31 @@ class BaselineProfileTest {
     }
 
     @Test
-    fun standardBaselineProfile() = baselineRule.collect(
-        packageName = PACKAGE_NAME,
-        includeInStartupProfile = false,
-        maxIterations = 1,
-        profileBlock = {
-            startActivityAndWait(Intent(ACTION))
-            device.waitForIdle()
-        }
-    )
+    fun standardBaselineProfile() =
+        baselineRule.collect(
+            packageName = PACKAGE_NAME,
+            includeInStartupProfile = false,
+            maxIterations = 1,
+            profileBlock = {
+                startActivityAndWait(Intent(ACTION))
+                device.waitForIdle()
+            }
+        )
 
     @Test
-    fun startupBaselineProfile() = baselineRule.collect(
-        packageName = PACKAGE_NAME,
-        includeInStartupProfile = true,
-        maxIterations = 1,
-        profileBlock = {
-            startActivityAndWait(Intent(ACTION))
-            device.waitForIdle()
-        }
-    )
+    fun startupBaselineProfile() =
+        baselineRule.collect(
+            packageName = PACKAGE_NAME,
+            includeInStartupProfile = false,
+            maxIterations = 1,
+            profileBlock = {
+                startActivityAndWait(Intent(ACTION))
+                device.waitForIdle()
+            }
+        )
 
     companion object {
-        private const val PACKAGE_NAME =
-            "androidx.benchmark.integration.baselineprofile.consumer"
+        private const val PACKAGE_NAME = "androidx.benchmark.integration.baselineprofile.consumer"
         private const val ACTION =
             "androidx.benchmark.integration.baselineprofile.consumer.EMPTY_ACTIVITY"
     }

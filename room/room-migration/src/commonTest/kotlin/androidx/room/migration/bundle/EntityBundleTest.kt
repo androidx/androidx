@@ -22,153 +22,177 @@ import kotlin.test.Test
 class EntityBundleTest {
     @Test
     fun schemaEquality_same_equal() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = listOf(createIndexBundle("foo")),
-            foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
-        )
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = listOf(createIndexBundle("foo")),
+                foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
+            )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = listOf(createIndexBundle("foo")),
-            foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
-        )
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = listOf(createIndexBundle("foo")),
+                foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_reorderedFields_equal() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = emptyList()
-        )
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = emptyList()
+            )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = listOf(createFieldBundle("bar"), createFieldBundle("foo")),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = emptyList()
-        )
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = listOf(createFieldBundle("bar"), createFieldBundle("foo")),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = emptyList()
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffFields_notEqual() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = emptyList()
-        )
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = emptyList()
+            )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = emptyList()
-        )
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = emptyList()
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_reorderedForeignKeys_equal() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = listOf(
-                createForeignKeyBundle("x", "y"),
-                createForeignKeyBundle("bar", "foo")
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys =
+                    listOf(createForeignKeyBundle("x", "y"), createForeignKeyBundle("bar", "foo"))
             )
-        )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = listOf(
-                createForeignKeyBundle("bar", "foo"),
-                createForeignKeyBundle("x", "y")
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys =
+                    listOf(createForeignKeyBundle("bar", "foo"), createForeignKeyBundle("x", "y"))
             )
-        )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffForeignKeys_notEqual() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
-        )
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
+            )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = emptyList(),
-            foreignKeys = listOf(createForeignKeyBundle("bar2", "foo"))
-        )
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = listOf(createForeignKeyBundle("bar2", "foo"))
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_reorderedIndices_equal() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = listOf(createIndexBundle("foo"), createIndexBundle("baz")),
-            foreignKeys = emptyList()
-        )
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = listOf(createIndexBundle("foo"), createIndexBundle("baz")),
+                foreignKeys = emptyList()
+            )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = listOf(createIndexBundle("baz"), createIndexBundle("foo")),
-            foreignKeys = emptyList()
-        )
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = listOf(createIndexBundle("baz"), createIndexBundle("foo")),
+                foreignKeys = emptyList()
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffIndices_notEqual() {
-        val bundle = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = listOf(createIndexBundle("foo")),
-            foreignKeys = emptyList()
-        )
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = listOf(createIndexBundle("foo")),
+                foreignKeys = emptyList()
+            )
 
-        val other = EntityBundle(
-            tableName = "foo", createSql = "sq",
-            fields = emptyList(),
-            primaryKey = PrimaryKeyBundle(false, listOf("foo")),
-            indices = listOf(createIndexBundle("foo2")),
-            foreignKeys = emptyList()
-        )
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = listOf(createIndexBundle("foo2")),
+                foreignKeys = emptyList()
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -185,15 +209,21 @@ class EntityBundleTest {
 
     private fun createIndexBundle(colName: String): IndexBundle {
         return IndexBundle(
-            name = "ind_$colName", isUnique = false,
-            columnNames = listOf(colName), orders = emptyList(), createSql = "create"
+            name = "ind_$colName",
+            isUnique = false,
+            columnNames = listOf(colName),
+            orders = emptyList(),
+            createSql = "create"
         )
     }
 
     private fun createForeignKeyBundle(targetTable: String, column: String): ForeignKeyBundle {
         return ForeignKeyBundle(
-            table = targetTable, onDelete = "CASCADE", onUpdate = "CASCADE",
-            columns = listOf(column), referencedColumns = listOf(column)
+            table = targetTable,
+            onDelete = "CASCADE",
+            onUpdate = "CASCADE",
+            columns = listOf(column),
+            referencedColumns = listOf(column)
         )
     }
 }

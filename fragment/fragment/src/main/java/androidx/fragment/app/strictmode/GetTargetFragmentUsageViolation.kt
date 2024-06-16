@@ -17,9 +17,7 @@ package androidx.fragment.app.strictmode
 
 import androidx.fragment.app.Fragment
 
-/**
- * See [FragmentStrictMode.Policy.Builder.detectTargetFragmentUsage].
- */
+/** See [FragmentStrictMode.Policy.Builder.detectTargetFragmentUsage]. */
 class GetTargetFragmentUsageViolation internal constructor(fragment: Fragment) :
     TargetFragmentUsageViolation(
         fragment,

@@ -33,41 +33,39 @@ import kotlinx.coroutines.flow.firstOrNull
  */
 public class CombinedLoadStates(
     /**
-     * Convenience for combined behavior of [REFRESH][LoadType.REFRESH] [LoadState], which
-     * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
-     * awaits for both [source] and [mediator] to become [LoadState.NotLoading] to ensure the
-     * remote load was applied.
+     * Convenience for combined behavior of [REFRESH][LoadType.REFRESH] [LoadState], which generally
+     * defers to [mediator] if it exists, but if previously was [LoadState.Loading], awaits for both
+     * [source] and [mediator] to become [LoadState.NotLoading] to ensure the remote load was
+     * applied.
      *
-     * For use cases that require reacting to [LoadState] of [source] and [mediator]
-     * specifically, e.g., showing cached data when network loads via [mediator] fail,
-     * [LoadStates] exposed via [source] and [mediator] should be used directly.
+     * For use cases that require reacting to [LoadState] of [source] and [mediator] specifically,
+     * e.g., showing cached data when network loads via [mediator] fail, [LoadStates] exposed via
+     * [source] and [mediator] should be used directly.
      */
     public val refresh: LoadState,
     /**
-     * Convenience for combined behavior of [PREPEND][LoadType.REFRESH] [LoadState], which
-     * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
-     * awaits for both [source] and [mediator] to become [LoadState.NotLoading] to ensure the
-     * remote load was applied.
+     * Convenience for combined behavior of [PREPEND][LoadType.REFRESH] [LoadState], which generally
+     * defers to [mediator] if it exists, but if previously was [LoadState.Loading], awaits for both
+     * [source] and [mediator] to become [LoadState.NotLoading] to ensure the remote load was
+     * applied.
      *
-     * For use cases that require reacting to [LoadState] of [source] and [mediator]
-     * specifically, e.g., showing cached data when network loads via [mediator] fail,
-     * [LoadStates] exposed via [source] and [mediator] should be used directly.
+     * For use cases that require reacting to [LoadState] of [source] and [mediator] specifically,
+     * e.g., showing cached data when network loads via [mediator] fail, [LoadStates] exposed via
+     * [source] and [mediator] should be used directly.
      */
     public val prepend: LoadState,
     /**
-     * Convenience for combined behavior of [APPEND][LoadType.REFRESH] [LoadState], which
-     * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
-     * awaits for both [source] and [mediator] to become [LoadState.NotLoading] to ensure the
-     * remote load was applied.
+     * Convenience for combined behavior of [APPEND][LoadType.REFRESH] [LoadState], which generally
+     * defers to [mediator] if it exists, but if previously was [LoadState.Loading], awaits for both
+     * [source] and [mediator] to become [LoadState.NotLoading] to ensure the remote load was
+     * applied.
      *
-     * For use cases that require reacting to [LoadState] of [source] and [mediator]
-     * specifically, e.g., showing cached data when network loads via [mediator] fail,
-     * [LoadStates] exposed via [source] and [mediator] should be used directly.
+     * For use cases that require reacting to [LoadState] of [source] and [mediator] specifically,
+     * e.g., showing cached data when network loads via [mediator] fail, [LoadStates] exposed via
+     * [source] and [mediator] should be used directly.
      */
     public val append: LoadState,
-    /**
-     * [LoadStates] corresponding to loads from a [PagingSource].
-     */
+    /** [LoadStates] corresponding to loads from a [PagingSource]. */
     public val source: LoadStates,
 
     /**
@@ -107,24 +105,17 @@ public class CombinedLoadStates(
     }
 
     internal fun forEach(op: (LoadType, Boolean, LoadState) -> Unit) {
-        source.forEach { type, state ->
-            op(type, false, state)
-        }
-        mediator?.forEach { type, state ->
-            op(type, true, state)
-        }
+        source.forEach { type, state -> op(type, false, state) }
+        mediator?.forEach { type, state -> op(type, true, state) }
     }
 
-    /**
-     * Returns true when [source] and [mediator] is in [NotLoading] for all [LoadType]
-     */
+    /** Returns true when [source] and [mediator] is in [NotLoading] for all [LoadType] */
     public val isIdle = source.isIdle && mediator?.isIdle ?: true
 
     /**
      * Returns true if either [source] or [mediator] has a [LoadType] that is in [LoadState.Error]
      */
-    @get:JvmName("hasError")
-    public val hasError = source.hasError || mediator?.hasError ?: false
+    @get:JvmName("hasError") public val hasError = source.hasError || mediator?.hasError ?: false
 }
 
 /**
@@ -154,7 +145,5 @@ public class CombinedLoadStates(
 public suspend fun Flow<CombinedLoadStates>.awaitNotLoading():
     @JvmSuppressWildcards CombinedLoadStates? {
 
-    return debounce(1).filter {
-        it.isIdle || it.hasError
-    }.firstOrNull()
+    return debounce(1).filter { it.isIdle || it.hasError }.firstOrNull()
 }

@@ -18,7 +18,8 @@ package androidx.compose.ui.tooling.preview.datasource
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
-private val LOREM_IPSUM_SOURCE = """
+private val LOREM_IPSUM_SOURCE =
+    """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sodales
 laoreet commodo. Phasellus a purus eu risus elementum consequat. Aenean eu
 elit ut nunc convallis laoreet non ut libero. Suspendisse interdum placerat
@@ -36,7 +37,9 @@ velit. Suspendisse ut sem nec tellus vehicula eleifend sit amet quis velit.
 Phasellus quis suscipit nisi. Nam elementum malesuada tincidunt. Curabitur
 iaculis pretium eros, malesuada faucibus leo eleifend a. Curabitur congue
 orci in neque euismod a blandit libero vehicula.
-""".trim().split(" ")
+"""
+        .trim()
+        .split(" ")
 
 /**
  * [PreviewParameterProvider] with 1 value containing Lorem Ipsum.
@@ -51,14 +54,12 @@ open class LoremIpsum(private val words: Int) : PreviewParameterProvider<String>
     override val values: Sequence<String>
         get() = sequenceOf(generateLoremIpsum(words))
 
-    /**
-     * Generate a Lorem Ipsum [words] long.
-     */
+    /** Generate a Lorem Ipsum [words] long. */
     private fun generateLoremIpsum(words: Int): String {
         var wordsUsed = 0
         val loremIpsumMaxSize = LOREM_IPSUM_SOURCE.size
-        return generateSequence {
-            LOREM_IPSUM_SOURCE[wordsUsed++ % loremIpsumMaxSize]
-        }.take(words).joinToString(" ")
+        return generateSequence { LOREM_IPSUM_SOURCE[wordsUsed++ % loremIpsumMaxSize] }
+            .take(words)
+            .joinToString(" ")
     }
 }

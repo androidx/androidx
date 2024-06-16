@@ -39,7 +39,7 @@ internal class RequiresApiKotlinOuter19Passes {
 
 // @RequiresApi declaration on MyStaticMethod's immediate containing class
 internal class RequiresApiKotlinInner19Passes {
-     @RequiresApi(19)
+    @RequiresApi(19)
     object MyStaticClass {
         fun MyStaticMethod(c: Char): Int {
             Character.isSurrogate(c)

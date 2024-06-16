@@ -32,16 +32,13 @@ internal class TimeoutCancellationException(
     internal val block: Int,
 ) : CancellationException(message) {
     override fun toString() = "TimeoutCancellationException($message, $block)"
+
     override fun fillInStackTrace() = this
 }
 
-/**
- * This interface is similar to [kotlin.time.TimeSource], which is still marked experimental.
- */
+/** This interface is similar to [kotlin.time.TimeSource], which is still marked experimental. */
 internal fun interface TimeSource {
-    /**
-     * Current time in milliseconds.
-     */
+    /** Current time in milliseconds. */
     fun markNow(): Long
 
     companion object {
@@ -71,9 +68,7 @@ internal interface TimerScope : CoroutineScope {
      */
     fun startTimer(initialTimeout: Duration)
 
-    /**
-     *  Shift the deadline for this timer forward by [time].
-     */
+    /** Shift the deadline for this timer forward by [time]. */
     fun addTime(time: Duration)
 }
 
@@ -84,83 +79,93 @@ internal suspend fun <T> withTimer(
     val timerScope = this
     val timerJob: AtomicReference<Job?> = AtomicReference(null)
     coroutineScope {
-        val blockScope = object : TimerScope, CoroutineScope by this {
-            override val timeLeft: Duration
-                get() = (deadline.get()?.minus(timeSource.markNow()))?.milliseconds
-                    ?: Duration.INFINITE
-            private val deadline: AtomicReference<Long?> = AtomicReference(null)
+            val blockScope =
+                object : TimerScope, CoroutineScope by this {
+                    override val timeLeft: Duration
+                        get() =
+                            (deadline.get()?.minus(timeSource.markNow()))?.milliseconds
+                                ?: Duration.INFINITE
 
-            override fun addTime(time: Duration) {
-                deadline.update {
-                    checkNotNull(it) { "Start the timer with startTimer before calling addTime" }
-                    require(time.isPositive()) { "Cannot call addTime with a negative duration" }
-                    it + time.inWholeMilliseconds
-                }
-            }
+                    private val deadline: AtomicReference<Long?> = AtomicReference(null)
 
-            override fun startTimer(initialTimeout: Duration) {
-                if (initialTimeout.inWholeMilliseconds <= 0) {
-                    timerScope.cancel(
-                        TimeoutCancellationException("Timed out immediately", block.hashCode())
-                    )
-                    return
-                }
-                if (timeLeft < initialTimeout) return
-
-                deadline.set(timeSource.markNow() + initialTimeout.inWholeMilliseconds)
-                // Loop until the deadline is reached.
-                timerJob.getAndSet(
-                    timerScope.launch {
-                        while (deadline.get()!! > timeSource.markNow()) {
-                            delay(timeLeft)
+                    override fun addTime(time: Duration) {
+                        deadline.update {
+                            checkNotNull(it) {
+                                "Start the timer with startTimer before calling addTime"
+                            }
+                            require(time.isPositive()) {
+                                "Cannot call addTime with a negative duration"
+                            }
+                            it + time.inWholeMilliseconds
                         }
-                        timerScope.cancel(
-                            TimeoutCancellationException(
-                                "Timed out of executing block.",
-                                block.hashCode()
-                            )
-                        )
                     }
-                )?.cancel()
-            }
+
+                    override fun startTimer(initialTimeout: Duration) {
+                        if (initialTimeout.inWholeMilliseconds <= 0) {
+                            timerScope.cancel(
+                                TimeoutCancellationException(
+                                    "Timed out immediately",
+                                    block.hashCode()
+                                )
+                            )
+                            return
+                        }
+                        if (timeLeft < initialTimeout) return
+
+                        deadline.set(timeSource.markNow() + initialTimeout.inWholeMilliseconds)
+                        // Loop until the deadline is reached.
+                        timerJob
+                            .getAndSet(
+                                timerScope.launch {
+                                    while (deadline.get()!! > timeSource.markNow()) {
+                                        delay(timeLeft)
+                                    }
+                                    timerScope.cancel(
+                                        TimeoutCancellationException(
+                                            "Timed out of executing block.",
+                                            block.hashCode()
+                                        )
+                                    )
+                                }
+                            )
+                            ?.cancel()
+                    }
+                }
+            blockScope.block()
         }
-        blockScope.block()
-    }.also {
-        timerJob.get()?.cancel()
-    }
+        .also { timerJob.get()?.cancel() }
 }
 
 internal suspend fun <T> withTimerOrNull(
     timeSource: TimeSource = TimeSource.Monotonic,
     block: suspend TimerScope.() -> T,
-): T? = try {
-    withTimer(timeSource, block)
-} catch (e: TimeoutCancellationException) {
-    // Return null if it's our exception, else propagate it upstream in case there are nested
-    // withTimers
-    if (e.block == block.hashCode()) null else throw e
-}
+): T? =
+    try {
+        withTimer(timeSource, block)
+    } catch (e: TimeoutCancellationException) {
+        // Return null if it's our exception, else propagate it upstream in case there are nested
+        // withTimers
+        if (e.block == block.hashCode()) null else throw e
+    }
 
 // Update the value of the AtomicReference using the given updater function. Will throw an error
 // if unable to successfully set the value.
 private fun <T> AtomicReference<T>.update(updater: (T) -> T) {
     while (true) {
-        get().let {
-            if (compareAndSet(it, updater(it))) return
-        }
+        get().let { if (compareAndSet(it, updater(it))) return }
     }
 }
 
 internal suspend fun <T> noopTimer(
     block: suspend TimerScope.() -> T,
 ): T = coroutineScope {
-    val timerScope = object : TimerScope, CoroutineScope by this {
-        override val timeLeft = Duration.INFINITE
-        override fun startTimer(initialTimeout: Duration) {
-        }
+    val timerScope =
+        object : TimerScope, CoroutineScope by this {
+            override val timeLeft = Duration.INFINITE
 
-        override fun addTime(time: Duration) {
+            override fun startTimer(initialTimeout: Duration) {}
+
+            override fun addTime(time: Duration) {}
         }
-    }
     timerScope.block()
 }

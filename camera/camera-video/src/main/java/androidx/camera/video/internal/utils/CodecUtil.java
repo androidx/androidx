@@ -22,14 +22,12 @@ import android.util.LruCache;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.encoder.EncoderConfig;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 
 import java.io.IOException;
 
 /** A codec utility class to deal with codec operations. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CodecUtil {
 
     private CodecUtil() {

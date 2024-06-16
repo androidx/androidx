@@ -73,8 +73,7 @@ import org.junit.runner.RunWith
 class SliderTest {
     private val tag = "slider"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun sliderPosition_valueCoercion() {
@@ -87,21 +86,15 @@ class SliderTest {
                 valueRange = 0f..1f
             )
         }
-        rule.runOnIdle {
-            state.value = 2f
-        }
+        rule.runOnIdle { state.value = 2f }
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f, 0))
-        rule.runOnIdle {
-            state.value = -123145f
-        }
+        rule.runOnIdle { state.value = -123145f }
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 0))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun sliderPosition_stepsThrowWhenLessThanZero() {
-        rule.setContent {
-            Slider(value = 0f, onValueChange = {}, steps = -1)
-        }
+        rule.setContent { Slider(value = 0f, onValueChange = {}, steps = -1) }
     }
 
     @Test
@@ -110,23 +103,22 @@ class SliderTest {
 
         rule.setMaterialContent {
             Slider(
-                modifier = Modifier.testTag(tag), value = state.value,
+                modifier = Modifier.testTag(tag),
+                value = state.value,
                 onValueChange = { state.value = it }
             )
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 0))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
 
-        rule.runOnUiThread {
-            state.value = 0.5f
-        }
+        rule.runOnUiThread { state.value = 0.5f }
 
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f, 0))
 
-        rule.onNodeWithTag(tag)
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.7f) }
+        rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.SetProgress) { it(0.7f) }
 
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0.7f, 0f..1f, 0))
     }
@@ -137,23 +129,23 @@ class SliderTest {
 
         rule.setMaterialContent {
             Slider(
-                modifier = Modifier.testTag(tag), value = state.value,
-                onValueChange = { state.value = it }, steps = 4
+                modifier = Modifier.testTag(tag),
+                value = state.value,
+                onValueChange = { state.value = it },
+                steps = 4
             )
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 4))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
 
-        rule.runOnUiThread {
-            state.value = 0.6f
-        }
+        rule.runOnUiThread { state.value = 0.6f }
 
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0.6f, 0f..1f, 4))
 
-        rule.onNodeWithTag(tag)
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.75f) }
+        rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.SetProgress) { it(0.75f) }
 
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0.8f, 0f..1f, 4))
     }
@@ -164,8 +156,7 @@ class SliderTest {
             Slider(value = 0f, onValueChange = {}, modifier = Modifier.testTag(tag))
         }
 
-        rule.onNodeWithTag(tag)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Focused))
+        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Focused))
     }
 
     @Test
@@ -179,8 +170,7 @@ class SliderTest {
             )
         }
 
-        rule.onNodeWithTag(tag)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Disabled))
+        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Disabled))
     }
 
     @Test
@@ -197,22 +187,17 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(100f, 0f))
-                up()
-                expected = calculateFraction(left, right, centerX + 100 - slop)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+            expected = calculateFraction(left, right, centerX + 100 - slop)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -229,25 +214,20 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(width.toFloat() + 100f, 0f))
-                up()
-                expected = calculateFraction(left, right, centerX + 100 - slop)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(width.toFloat() + 100f, 0f))
+            up()
+            expected = calculateFraction(left, right, centerX + 100 - slop)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -262,26 +242,19 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset(centerX + 50, centerY))
-                up()
-                expected = calculateFraction(left, right, centerX + 50)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset(centerX + 50, centerY))
+            up()
+            expected = calculateFraction(left, right, centerX + 50)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
-    /**
-     * Guarantee slider doesn't move as we scroll, tapping still works
-     */
+    /** Guarantee slider doesn't move as we scroll, tapping still works */
     @Test
     fun slider_scrollableContainer() {
         val state = mutableStateOf(0f)
@@ -289,14 +262,16 @@ class SliderTest {
 
         rule.setContent {
             Column(
-                modifier = Modifier
-                    .height(2000.dp)
-                    .scrollable(
-                        orientation = Orientation.Vertical,
-                        state = rememberScrollableState { delta ->
-                            offset.value += delta
-                            delta
-                        })
+                modifier =
+                    Modifier.height(2000.dp)
+                        .scrollable(
+                            orientation = Orientation.Vertical,
+                            state =
+                                rememberScrollableState { delta ->
+                                    offset.value += delta
+                                    delta
+                                }
+                        )
             ) {
                 Slider(
                     modifier = Modifier.testTag(tag),
@@ -306,17 +281,14 @@ class SliderTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(offset.value).isEqualTo(0f)
-        }
+        rule.runOnIdle { Truth.assertThat(offset.value).isEqualTo(0f) }
 
         // Just scroll
-        rule.onNodeWithTag(tag, useUnmergedTree = true)
-            .performTouchInput {
-                down(Offset(centerX, centerY))
-                moveBy(Offset(0f, 500f))
-                up()
-            }
+        rule.onNodeWithTag(tag, useUnmergedTree = true).performTouchInput {
+            down(Offset(centerX, centerY))
+            moveBy(Offset(0f, 500f))
+            up()
+        }
 
         rule.runOnIdle {
             Truth.assertThat(offset.value).isGreaterThan(0f)
@@ -325,15 +297,12 @@ class SliderTest {
 
         // Tap
         var expected = 0f
-        rule.onNodeWithTag(tag, useUnmergedTree = true)
-            .performTouchInput {
-                click(Offset(centerX, centerY))
-                expected = calculateFraction(left, right, centerX)
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag, useUnmergedTree = true).performTouchInput {
+            click(Offset(centerX, centerY))
+            expected = calculateFraction(left, right, centerX)
         }
+
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -350,22 +319,17 @@ class SliderTest {
             )
         }
         // change to 1 since [calculateFraction] coerces between 0..1
-        rule.runOnUiThread {
-            rangeEnd.value = 1f
-        }
+        rule.runOnUiThread { rangeEnd.value = 1f }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset(centerX + 50, centerY))
-                up()
-                expected = calculateFraction(left, right, centerX + 50)
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset(centerX + 50, centerY))
+            up()
+            expected = calculateFraction(left, right, centerX + 50)
         }
+
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -384,23 +348,18 @@ class SliderTest {
             }
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(100f, 0f))
-                up()
-                // subtract here as we're in rtl and going in the opposite direction
-                expected = calculateFraction(left, right, centerX - 100 + slop)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+            // subtract here as we're in rtl and going in the opposite direction
+            expected = calculateFraction(left, right, centerX - 100 + slop)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -419,26 +378,21 @@ class SliderTest {
             }
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(width.toFloat() + 100f, 0f))
-                up()
-                // subtract here as we're in rtl and going in the opposite direction
-                expected = calculateFraction(left, right, centerX - 100 + slop)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(width.toFloat() + 100f, 0f))
+            up()
+            // subtract here as we're in rtl and going in the opposite direction
+            expected = calculateFraction(left, right, centerX - 100 + slop)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -455,21 +409,16 @@ class SliderTest {
             }
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset(centerX + 50, centerY))
-                up()
-                expected = calculateFraction(left, right, centerX - 50)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset(centerX + 50, centerY))
+            up()
+            expected = calculateFraction(left, right, centerX - 50)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
     @Test
@@ -486,30 +435,26 @@ class SliderTest {
             }
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset(centerX + 50, centerY))
-                up()
-                expected = calculateFraction(left, right, centerX - 50)
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset(centerX + 50, centerY))
+            up()
+            expected = calculateFraction(left, right, centerX - 50)
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
     }
 
-    private fun calculateFraction(left: Float, right: Float, pos: Float) = with(rule.density) {
-        val offset = ThumbRadius.toPx()
-        val start = left + offset
-        val end = right - offset
+    private fun calculateFraction(left: Float, right: Float, pos: Float) =
+        with(rule.density) {
+            val offset = ThumbRadius.toPx()
+            val start = left + offset
+            val end = right - offset
 
-        ((pos - start) / (end - start)).coerceIn(0f, 1f)
-    }
+            ((pos - start) / (end - start)).coerceIn(0f, 1f)
+        }
 
     @Test
     fun slider_sizes() {
@@ -518,7 +463,9 @@ class SliderTest {
             .setMaterialContentForSizeAssertions(
                 parentMaxWidth = 100.dp,
                 parentMaxHeight = 100.dp
-            ) { Slider(value = state.value, onValueChange = { state.value = it }) }
+            ) {
+                Slider(value = state.value, onValueChange = { state.value = it })
+            }
             .assertHeightIsEqualTo(48.dp)
             .assertWidthIsEqualTo(100.dp)
     }
@@ -527,15 +474,12 @@ class SliderTest {
     fun slider_min_size() {
         rule.setMaterialContent {
             Box(Modifier.requiredSize(0.dp)) {
-                Slider(
-                    modifier = Modifier.testTag(tag),
-                    value = 0f,
-                    onValueChange = { }
-                )
+                Slider(modifier = Modifier.testTag(tag), value = 0f, onValueChange = {})
             }
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertWidthIsEqualTo(ThumbRadius * 2)
             .assertHeightIsEqualTo(ThumbRadius * 2)
     }
@@ -549,15 +493,11 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = {
-                    callCount.value += 1
-                }
+                onValueChange = { callCount.value += 1 }
             )
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(callCount.value).isEqualTo(0f)
-        }
+        rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(0f) }
     }
 
     @Test
@@ -569,16 +509,12 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChangeFinished = {
-                    callCount.value += 1
-                },
+                onValueChangeFinished = { callCount.value += 1 },
                 onValueChange = { state.value = it }
             )
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(callCount.value).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(0) }
 
         rule.onNodeWithTag(tag).performTouchInput {
             down(center)
@@ -586,9 +522,7 @@ class SliderTest {
             up()
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(callCount.value).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(1) }
     }
 
     @Test
@@ -600,23 +534,16 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChangeFinished = {
-                    callCount.value += 1
-                },
+                onValueChangeFinished = { callCount.value += 1 },
                 onValueChange = { state.value = it }
             )
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(callCount.value).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(0) }
 
-        rule.onNodeWithTag(tag)
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
+        rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
 
-        rule.runOnIdle {
-            Truth.assertThat(callCount.value).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(1) }
     }
 
     @Test
@@ -642,19 +569,14 @@ class SliderTest {
 
         val interactions = mutableListOf<Interaction>()
 
-        scope!!.launch {
-            interactionSource.interactions.collect { interactions.add(it) }
-        }
+        scope!!.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.runOnIdle {
-            Truth.assertThat(interactions).isEmpty()
-        }
+        rule.runOnIdle { Truth.assertThat(interactions).isEmpty() }
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(100f, 0f))
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+        }
 
         rule.runOnIdle {
             Truth.assertThat(interactions).hasSize(1)
@@ -662,9 +584,7 @@ class SliderTest {
         }
 
         // Dispose
-        rule.runOnIdle {
-            emitSlider = false
-        }
+        rule.runOnIdle { emitSlider = false }
 
         rule.runOnIdle {
             Truth.assertThat(interactions).hasSize(2)
@@ -690,19 +610,16 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f..1f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f..1f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(slop, 0f))
-                moveBy(Offset(100f, 0f))
-                expected = calculateFraction(left, right, centerX + 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(slop, 0f))
+            moveBy(Offset(100f, 0f))
+            expected = calculateFraction(left, right, centerX + 100)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.start).isEqualTo(0f)
             Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
@@ -724,23 +641,20 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f..1f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f..1f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(slop, 0f))
-                moveBy(Offset(width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(width.toFloat() + 100f, 0f))
-                up()
-                expected = calculateFraction(left, right, centerX + 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(slop, 0f))
+            moveBy(Offset(width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(width.toFloat() + 100f, 0f))
+            up()
+            expected = calculateFraction(left, right, centerX + 100)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.start).isEqualTo(0f)
             Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
@@ -762,27 +676,21 @@ class SliderTest {
             )
         }
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(centerRight)
-                moveBy(Offset(-slop, 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                up()
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isEqualTo(0.5f..0.5f)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(centerRight)
+            moveBy(Offset(-slop, 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            up()
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(0.5f..0.5f) }
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(-slop, 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                up()
-            }
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isEqualTo(0.0f..0.5f)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(-slop, 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            up()
         }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(0.0f..0.5f) }
     }
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -798,18 +706,15 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f..1f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f..1f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset(centerX + 50, centerY))
-                up()
-                expected = calculateFraction(left, right, centerX + 50)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset(centerX + 50, centerY))
+            up()
+            expected = calculateFraction(left, right, centerX + 50)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
             Truth.assertThat(state.value.start).isEqualTo(0f)
@@ -831,22 +736,17 @@ class SliderTest {
             )
         }
         // change to 1 since [calculateFraction] coerces between 0..1
-        rule.runOnUiThread {
-            rangeEnd.value = 1f
-        }
+        rule.runOnUiThread { rangeEnd.value = 1f }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset(centerX + 50, centerY))
-                up()
-                expected = calculateFraction(left, right, centerX + 50)
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset(centerX + 50, centerY))
+            up()
+            expected = calculateFraction(left, right, centerX + 50)
         }
+
+        rule.runOnIdle { Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected) }
     }
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -866,21 +766,18 @@ class SliderTest {
             }
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f..1f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f..1f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(slop, 0f))
-                moveBy(Offset(100f, 0f))
-                up()
-                // subtract here as we're in rtl and going in the opposite direction
-                expected = calculateFraction(left, right, centerX - 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(slop, 0f))
+            moveBy(Offset(100f, 0f))
+            up()
+            // subtract here as we're in rtl and going in the opposite direction
+            expected = calculateFraction(left, right, centerX - 100)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.start).isEqualTo(0f)
             Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
@@ -904,24 +801,21 @@ class SliderTest {
             }
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0f..1f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0f..1f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(slop, 0f))
-                moveBy(Offset(width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(-width.toFloat(), 0f))
-                moveBy(Offset(width.toFloat() + 100f, 0f))
-                up()
-                // subtract here as we're in rtl and going in the opposite direction
-                expected = calculateFraction(left, right, centerX - 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(slop, 0f))
+            moveBy(Offset(width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(-width.toFloat(), 0f))
+            moveBy(Offset(width.toFloat() + 100f, 0f))
+            up()
+            // subtract here as we're in rtl and going in the opposite direction
+            expected = calculateFraction(left, right, centerX - 100)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.start).isEqualTo(0f)
             Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
@@ -943,21 +837,18 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0.5f..0.5f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0.5f..0.5f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(slop, 0f))
-                moveBy(Offset(100f, 0f))
-                up()
-                // subtract here as we're in rtl and going in the opposite direction
-                expected = calculateFraction(left, right, centerX + 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(slop, 0f))
+            moveBy(Offset(100f, 0f))
+            up()
+            // subtract here as we're in rtl and going in the opposite direction
+            expected = calculateFraction(left, right, centerX + 100)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.start).isEqualTo(0.5f)
             Truth.assertThat(state.value.endInclusive).isWithin(0.001f).of(expected)
@@ -979,21 +870,18 @@ class SliderTest {
             )
         }
 
-        rule.runOnUiThread {
-            Truth.assertThat(state.value).isEqualTo(0.5f..0.5f)
-        }
+        rule.runOnUiThread { Truth.assertThat(state.value).isEqualTo(0.5f..0.5f) }
 
         var expected = 0f
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(-slop - 1, 0f))
-                moveBy(Offset(-100f, 0f))
-                up()
-                // subtract here as we're in rtl and going in the opposite direction
-                expected = calculateFraction(left, right, centerX - 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(-slop - 1, 0f))
+            moveBy(Offset(-100f, 0f))
+            up()
+            // subtract here as we're in rtl and going in the opposite direction
+            expected = calculateFraction(left, right, centerX - 100)
+        }
         rule.runOnIdle {
             Truth.assertThat(state.value.start).isWithin(0.001f).of(expected)
             Truth.assertThat(state.value.endInclusive).isEqualTo(0.5f)
@@ -1014,9 +902,10 @@ class SliderTest {
                     RangeSlider(
                         value = 0f..0.5f,
                         onValueChange = {},
-                        modifier = Modifier.testTag(tag).weight(1f).onGloballyPositioned {
-                            sliderBounds = it.boundsInParent()
-                        }
+                        modifier =
+                            Modifier.testTag(tag).weight(1f).onGloballyPositioned {
+                                sliderBounds = it.boundsInParent()
+                            }
                     )
                     Spacer(Modifier.requiredSize(100.toDp()))
                 }
@@ -1036,49 +925,50 @@ class SliderTest {
 
         rule.setMaterialContent {
             RangeSlider(
-                modifier = Modifier.testTag(tag), value = state.value,
+                modifier = Modifier.testTag(tag),
+                value = state.value,
                 onValueChange = { state.value = it }
             )
         }
 
-        rule.onAllNodes(isFocusable(), true)[0]
+        rule
+            .onAllNodes(isFocusable(), true)[0]
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 0))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
 
-        rule.onAllNodes(isFocusable(), true)[1]
+        rule
+            .onAllNodes(isFocusable(), true)[1]
             .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f, 0))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
 
-        rule.runOnUiThread {
-            state.value = 0.5f..0.75f
+        rule.runOnUiThread { state.value = 0.5f..0.75f }
+
+        rule
+            .onAllNodes(isFocusable(), true)[0]
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..0.75f, 0))
+
+        rule
+            .onAllNodes(isFocusable(), true)[1]
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.75f, 0.5f..1f, 0))
+
+        rule.onAllNodes(isFocusable(), true)[0].performSemanticsAction(
+            SemanticsActions.SetProgress
+        ) {
+            it(0.6f)
         }
 
-        rule.onAllNodes(isFocusable(), true)[0].assertRangeInfoEquals(
-            ProgressBarRangeInfo(
-                0.5f,
-                0f..0.75f,
-                0
-            )
-        )
+        rule.onAllNodes(isFocusable(), true)[1].performSemanticsAction(
+            SemanticsActions.SetProgress
+        ) {
+            it(0.8f)
+        }
 
-        rule.onAllNodes(isFocusable(), true)[1].assertRangeInfoEquals(
-            ProgressBarRangeInfo(
-                0.75f,
-                0.5f..1f,
-                0
-            )
-        )
-
-        rule.onAllNodes(isFocusable(), true)[0]
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.6f) }
-
-        rule.onAllNodes(isFocusable(), true)[1]
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
-
-        rule.onAllNodes(isFocusable(), true)[0]
+        rule
+            .onAllNodes(isFocusable(), true)[0]
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.6f, 0f..0.8f, 0))
 
-        rule.onAllNodes(isFocusable(), true)[1]
+        rule
+            .onAllNodes(isFocusable(), true)[1]
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.8f, 0.6f..1f, 0))
     }
 
@@ -1089,43 +979,48 @@ class SliderTest {
         // Slider with [0,5,10,15,20] possible values
         rule.setMaterialContent {
             RangeSlider(
-                modifier = Modifier.testTag(tag), value = state.value,
+                modifier = Modifier.testTag(tag),
+                value = state.value,
                 steps = 3,
                 valueRange = 0f..20f,
                 onValueChange = { state.value = it },
             )
         }
 
-        rule.runOnUiThread {
-            state.value = 5f..10f
+        rule.runOnUiThread { state.value = 5f..10f }
+
+        rule
+            .onAllNodes(isFocusable(), true)[0]
+            .assertRangeInfoEquals(ProgressBarRangeInfo(5f, 0f..10f, 1))
+
+        rule
+            .onAllNodes(isFocusable(), true)[1]
+            .assertRangeInfoEquals(
+                ProgressBarRangeInfo(
+                    10f,
+                    5f..20f,
+                    2,
+                )
+            )
+
+        rule.onAllNodes(isFocusable(), true)[0].performSemanticsAction(
+            SemanticsActions.SetProgress
+        ) {
+            it(10f)
         }
 
-        rule.onAllNodes(isFocusable(), true)[0].assertRangeInfoEquals(
-            ProgressBarRangeInfo(
-                5f,
-                0f..10f,
-                1
-            )
-        )
+        rule.onAllNodes(isFocusable(), true)[1].performSemanticsAction(
+            SemanticsActions.SetProgress
+        ) {
+            it(15f)
+        }
 
-        rule.onAllNodes(isFocusable(), true)[1].assertRangeInfoEquals(
-            ProgressBarRangeInfo(
-                10f,
-                5f..20f,
-                2,
-            )
-        )
-
-        rule.onAllNodes(isFocusable(), true)[0]
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(10f) }
-
-        rule.onAllNodes(isFocusable(), true)[1]
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(15f) }
-
-        rule.onAllNodes(isFocusable(), true)[0]
+        rule
+            .onAllNodes(isFocusable(), true)[0]
             .assertRangeInfoEquals(ProgressBarRangeInfo(10f, 0f..15f, 2))
 
-        rule.onAllNodes(isFocusable(), true)[1]
+        rule
+            .onAllNodes(isFocusable(), true)[1]
             .assertRangeInfoEquals(ProgressBarRangeInfo(15f, 10f..20f, 1))
     }
 }

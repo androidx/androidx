@@ -37,11 +37,9 @@ import org.junit.rules.Timeout
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ReplaceFileCorruptionHandlerTest {
-    @get:Rule
-    val tmp = TemporaryFolder()
+    @get:Rule val tmp = TemporaryFolder()
 
-    @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+    @get:Rule val timeout = Timeout(10, TimeUnit.SECONDS)
 
     private lateinit var testFile: File
 
@@ -54,13 +52,18 @@ class ReplaceFileCorruptionHandlerTest {
     fun testHandledRead() = runTest {
         preSeedData(testFile, 1)
 
-        val store = DataStoreImpl<Byte>(
-            FileStorage(
-                TestingSerializer(TestingSerializerConfig(failReadWithCorruptionException = true))
-            ) { testFile },
-            corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = backgroundScope
-        )
+        val store =
+            DataStoreImpl<Byte>(
+                FileStorage(
+                    TestingSerializer(
+                        TestingSerializerConfig(failReadWithCorruptionException = true)
+                    )
+                ) {
+                    testFile
+                },
+                corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
+                scope = backgroundScope
+            )
 
         assertThat(store.data.first()).isEqualTo(10)
     }
@@ -69,17 +72,20 @@ class ReplaceFileCorruptionHandlerTest {
     fun testHandledWrite() = runTest {
         preSeedData(testFile, 1)
 
-        val store = DataStoreImpl<Byte>(
-            FileStorage(
-                TestingSerializer(
-                    TestingSerializerConfig(
-                        listOfFailReadWithCorruptionException = listOf(true, true)
+        val store =
+            DataStoreImpl<Byte>(
+                FileStorage(
+                    TestingSerializer(
+                        TestingSerializerConfig(
+                            listOfFailReadWithCorruptionException = listOf(true, true)
+                        )
                     )
-                )
-            ) { testFile },
-            corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = backgroundScope
-        )
+                ) {
+                    testFile
+                },
+                corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
+                scope = backgroundScope
+            )
 
         assertThat(store.updateData { it.inc() }).isEqualTo(11)
     }
@@ -88,17 +94,20 @@ class ReplaceFileCorruptionHandlerTest {
     fun testHandlerCalledOnce() = runTest {
         preSeedData(testFile, 1)
 
-        val store = DataStoreImpl<Byte>(
-            FileStorage(
-                TestingSerializer(
-                    TestingSerializerConfig(
-                        listOfFailReadWithCorruptionException = listOf(true, true)
+        val store =
+            DataStoreImpl<Byte>(
+                FileStorage(
+                    TestingSerializer(
+                        TestingSerializerConfig(
+                            listOfFailReadWithCorruptionException = listOf(true, true)
+                        )
                     )
-                )
-            ) { testFile },
-            corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = backgroundScope
-        )
+                ) {
+                    testFile
+                },
+                corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
+                scope = backgroundScope
+            )
 
         val plus1 = async { store.updateData { it.inc() } }
         val minus2 = async { store.updateData { it.dec().dec() } }
@@ -111,21 +120,23 @@ class ReplaceFileCorruptionHandlerTest {
 
     @Test
     fun testFailingWritePropagates() = runTest {
-
         preSeedData(testFile, 1)
 
-        val store = DataStoreImpl<Byte>(
-            FileStorage(
-                TestingSerializer(
-                    TestingSerializerConfig(
-                        failReadWithCorruptionException = true,
-                        failingWrite = true
+        val store =
+            DataStoreImpl<Byte>(
+                FileStorage(
+                    TestingSerializer(
+                        TestingSerializerConfig(
+                            failReadWithCorruptionException = true,
+                            failingWrite = true
+                        )
                     )
-                )
-            ) { testFile },
-            corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = backgroundScope
-        )
+                ) {
+                    testFile
+                },
+                corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
+                scope = backgroundScope
+            )
 
         assertThrows<IOException> { store.data.first() }
 
@@ -135,12 +146,8 @@ class ReplaceFileCorruptionHandlerTest {
 
     private suspend fun preSeedData(file: File, byte: Byte) {
         runTest {
-            DataStoreImpl(
-                FileStorage(
-                    TestingSerializer()
-                ) { file },
-                scope = backgroundScope
-            ).updateData { byte }
+            DataStoreImpl(FileStorage(TestingSerializer()) { file }, scope = backgroundScope)
+                .updateData { byte }
         }
     }
 }

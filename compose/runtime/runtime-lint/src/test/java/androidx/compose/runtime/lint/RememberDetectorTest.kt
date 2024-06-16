@@ -26,12 +26,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [RememberDetector].
- */
+/** Test for [RememberDetector]. */
 class RememberDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = RememberDetector()
 
@@ -40,9 +37,10 @@ class RememberDetectorTest : LintDetectorTest() {
 
     @Test
     fun returnsUnit() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -132,10 +130,10 @@ class RememberDetectorTest : LintDetectorTest() {
                     val unit2 = remember(number1, number2, number3, flag, calculation = unitLambda)
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember
+            )
             .run()
             .expect(
                 """
@@ -206,9 +204,10 @@ src/androidx/compose/runtime/foo/FooState.kt:88: Error: remember calls must not 
 
     @Test
     fun returnsUnit_dueToTypeError() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -228,19 +227,20 @@ src/androidx/compose/runtime/foo/FooState.kt:88: Error: remember calls must not 
                     }
                 }
                 """
-            ),
-            Stubs.Composable,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun returnsValue_explicitUnitType() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -315,10 +315,10 @@ src/androidx/compose/runtime/foo/FooState.kt:88: Error: remember calls must not 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember
+            )
             .run()
             .expect(
                 """
@@ -359,9 +359,10 @@ src/androidx/compose/runtime/foo/FooState.kt:69: Error: remember calls must not 
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -426,12 +427,11 @@ src/androidx/compose/runtime/foo/FooState.kt:69: Error: remember calls must not 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

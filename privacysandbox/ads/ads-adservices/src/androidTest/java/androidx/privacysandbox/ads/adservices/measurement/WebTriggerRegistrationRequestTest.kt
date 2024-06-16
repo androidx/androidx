@@ -28,8 +28,9 @@ import org.junit.runner.RunWith
 class WebTriggerRegistrationRequestTest {
     @Test
     fun testToString() {
-        val result = "WebTriggerRegistrationRequest { WebTriggerParams=[WebTriggerParams " +
-            "{ RegistrationUri=www.abc.com, DebugKeyAllowed=false }], Destination=www.abc.com"
+        val result =
+            "WebTriggerRegistrationRequest { WebTriggerParams=[WebTriggerParams " +
+                "{ RegistrationUri=www.abc.com, DebugKeyAllowed=false }], Destination=www.abc.com"
 
         val uri = Uri.parse("www.abc.com")
         val params = listOf(WebTriggerParams(uri, false))
@@ -44,9 +45,7 @@ class WebTriggerRegistrationRequestTest {
         val params = listOf(WebTriggerParams(uri, false))
         val request1 = WebTriggerRegistrationRequest(params, uri)
         val request2 = WebTriggerRegistrationRequest(params, uri)
-        val request3 = WebTriggerRegistrationRequest(
-            params,
-            Uri.parse("https://abc.com"))
+        val request3 = WebTriggerRegistrationRequest(params, Uri.parse("https://abc.com"))
 
         Truth.assertThat(request1 == request2).isTrue()
         Truth.assertThat(request1 != request3).isTrue()

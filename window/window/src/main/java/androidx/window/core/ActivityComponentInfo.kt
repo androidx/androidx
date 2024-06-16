@@ -19,18 +19,14 @@ package androidx.window.core
 import android.content.ComponentName
 
 /**
- * A class to hold simple information from [android.content.ComponentName] like the package and
- * the class name.
+ * A class to hold simple information from [android.content.ComponentName] like the package and the
+ * class name.
  */
-internal class ActivityComponentInfo(
-    val packageName: String,
-    val className: String
-) {
+internal class ActivityComponentInfo(val packageName: String, val className: String) {
 
-    constructor(componentName: ComponentName) : this(
-        componentName.packageName,
-        componentName.className
-    )
+    constructor(
+        componentName: ComponentName
+    ) : this(componentName.packageName, componentName.className)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -23,23 +23,26 @@ internal class MutableLoadStateCollection {
     var prepend: LoadState = NotLoading.Incomplete
     var append: LoadState = NotLoading.Incomplete
 
-    fun snapshot() = LoadStates(
-        refresh = refresh,
-        prepend = prepend,
-        append = append,
-    )
+    fun snapshot() =
+        LoadStates(
+            refresh = refresh,
+            prepend = prepend,
+            append = append,
+        )
 
-    fun get(loadType: LoadType) = when (loadType) {
-        LoadType.REFRESH -> refresh
-        LoadType.APPEND -> append
-        LoadType.PREPEND -> prepend
-    }
+    fun get(loadType: LoadType) =
+        when (loadType) {
+            LoadType.REFRESH -> refresh
+            LoadType.APPEND -> append
+            LoadType.PREPEND -> prepend
+        }
 
-    fun set(type: LoadType, state: LoadState) = when (type) {
-        LoadType.REFRESH -> refresh = state
-        LoadType.APPEND -> append = state
-        LoadType.PREPEND -> prepend = state
-    }
+    fun set(type: LoadType, state: LoadState) =
+        when (type) {
+            LoadType.REFRESH -> refresh = state
+            LoadType.APPEND -> append = state
+            LoadType.PREPEND -> prepend = state
+        }
 
     fun set(states: LoadStates) {
         refresh = states.refresh

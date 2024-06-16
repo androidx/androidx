@@ -19,29 +19,27 @@ import android.content.Context
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * A `ContextAware` class is associated with a [Context] sometime after
- * the class is instantiated. By adding a [OnContextAvailableListener], you can
- * receive a callback for that event.
+ * A `ContextAware` class is associated with a [Context] sometime after the class is instantiated.
+ * By adding a [OnContextAvailableListener], you can receive a callback for that event.
  *
  * Classes implementing [ContextAware] are strongly recommended to also implement
- * [androidx.lifecycle.LifecycleOwner] for providing a more general purpose API for
- * listening for creation and destruction events.
+ * [androidx.lifecycle.LifecycleOwner] for providing a more general purpose API for listening for
+ * creation and destruction events.
  *
  * @see ContextAwareHelper
  */
 interface ContextAware {
     /**
-     * Get the [Context] if it is currently available. If this returns
-     * `null`, you can use [addOnContextAvailableListener] to receive
-     * a callback for when it available.
+     * Get the [Context] if it is currently available. If this returns `null`, you can use
+     * [addOnContextAvailableListener] to receive a callback for when it available.
      *
      * @return the Context if it is currently available.
      */
     fun peekAvailableContext(): Context?
 
     /**
-     * Add a new [OnContextAvailableListener] for receiving a callback for when
-     * this class is associated with a [android.content.Context].
+     * Add a new [OnContextAvailableListener] for receiving a callback for when this class is
+     * associated with a [android.content.Context].
      *
      * Listeners are triggered in the order they are added when added before the Context is
      * available. Listeners added after the context has been made available will have the Context
@@ -53,8 +51,7 @@ interface ContextAware {
     fun addOnContextAvailableListener(listener: OnContextAvailableListener)
 
     /**
-     * Remove a [OnContextAvailableListener] previously added via
-     * [addOnContextAvailableListener].
+     * Remove a [OnContextAvailableListener] previously added via [addOnContextAvailableListener].
      *
      * @param listener The listener that should be removed.
      * @see addOnContextAvailableListener
@@ -63,13 +60,11 @@ interface ContextAware {
 }
 
 /**
- * Run [onContextAvailable] when the [Context] becomes available and
- * resume with the result.
+ * Run [onContextAvailable] when the [Context] becomes available and resume with the result.
  *
- * If the [Context] is already available, [onContextAvailable] will be
- * synchronously called on the current coroutine context. Otherwise,
- * [onContextAvailable] will be called on the UI thread immediately when
- * the Context becomes available.
+ * If the [Context] is already available, [onContextAvailable] will be synchronously called on the
+ * current coroutine context. Otherwise, [onContextAvailable] will be called on the UI thread
+ * immediately when the Context becomes available.
  */
 suspend inline fun <R> ContextAware.withContextAvailable(
     crossinline onContextAvailable: (@JvmSuppressWildcards Context) -> @JvmSuppressWildcards R
@@ -79,15 +74,14 @@ suspend inline fun <R> ContextAware.withContextAvailable(
         onContextAvailable(availableContext)
     } else {
         suspendCancellableCoroutine { co ->
-            val listener = object : OnContextAvailableListener {
-                override fun onContextAvailable(context: Context) {
-                    co.resumeWith(runCatching { onContextAvailable(context) })
+            val listener =
+                object : OnContextAvailableListener {
+                    override fun onContextAvailable(context: Context) {
+                        co.resumeWith(runCatching { onContextAvailable(context) })
+                    }
                 }
-            }
             addOnContextAvailableListener(listener)
-            co.invokeOnCancellation {
-                removeOnContextAvailableListener(listener)
-            }
+            co.invokeOnCancellation { removeOnContextAvailableListener(listener) }
         }
     }
 }

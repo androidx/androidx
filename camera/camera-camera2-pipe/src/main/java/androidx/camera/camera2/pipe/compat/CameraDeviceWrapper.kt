@@ -94,8 +94,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     ): Boolean
 
     /** @see CameraDevice.createCaptureSession */
-    @RequiresApi(Build.VERSION_CODES.P)
-    fun createCaptureSession(config: SessionConfigData): Boolean
+    @RequiresApi(Build.VERSION_CODES.P) fun createCaptureSession(config: SessionConfigData): Boolean
 
     /** @see CameraDevice.createExtensionSession */
     @RequiresApi(Build.VERSION_CODES.S)
@@ -105,16 +104,13 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     fun onDeviceClosed()
 
     /** @see CameraDevice.getCameraAudioRestriction */
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun getCameraAudioRestriction(): AudioRestrictionMode
+    @RequiresApi(Build.VERSION_CODES.R) fun getCameraAudioRestriction(): AudioRestrictionMode
 }
 
 internal fun CameraDevice?.closeWithTrace() {
     this?.let {
         Log.info { "Closing Camera ${it.id}" }
-        Debug.instrument("CXCP#CameraDevice-${it.id}#close") {
-            it.close()
-        }
+        Debug.instrument("CXCP#CameraDevice-${it.id}#close") { it.close() }
     }
 }
 
@@ -180,9 +176,7 @@ internal class AndroidCameraDevice(
                 val sessionConfig =
                     Api31Compat.newExtensionSessionConfiguration(
                         config.extensionMode,
-                        config.outputConfigurations.map {
-                            it.unwrapAs(OutputConfiguration::class)
-                        },
+                        config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
                         config.executor,
                         AndroidExtensionSessionStateCallback(
                             this,
@@ -194,14 +188,13 @@ internal class AndroidCameraDevice(
                         ),
                     )
 
-                if (config.postviewOutputConfiguration != null &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                if (
+                    config.postviewOutputConfiguration != null &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
                 ) {
-                    val postviewOutput = config.postviewOutputConfiguration
-                        .unwrapAs(OutputConfiguration::class)
-                    checkNotNull(postviewOutput) {
-                        "Failed to unwrap Postview OutputConfiguration"
-                    }
+                    val postviewOutput =
+                        config.postviewOutputConfiguration.unwrapAs(OutputConfiguration::class)
+                    checkNotNull(postviewOutput) { "Failed to unwrap Postview OutputConfiguration" }
                     Api34Compat.setPostviewOutputConfiguration(sessionConfig, postviewOutput)
                 }
 
@@ -265,23 +258,25 @@ internal class AndroidCameraDevice(
     ): Boolean {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
-        val result = instrumentAndCatch("createConstrainedHighSpeedCaptureSession") {
-            // This function was deprecated in Android Q, but is required for some configurations
-            // when running on older versions of the OS.
-            Api23Compat.createConstrainedHighSpeedCaptureSession(
-                cameraDevice,
-                outputs,
-                AndroidCaptureSessionStateCallback(
-                    this,
-                    stateCallback,
-                    previousStateCallback,
-                    cameraErrorListener,
-                    interopSessionStateCallback,
+        val result =
+            instrumentAndCatch("createConstrainedHighSpeedCaptureSession") {
+                // This function was deprecated in Android Q, but is required for some
+                // configurations
+                // when running on older versions of the OS.
+                Api23Compat.createConstrainedHighSpeedCaptureSession(
+                    cameraDevice,
+                    outputs,
+                    AndroidCaptureSessionStateCallback(
+                        this,
+                        stateCallback,
+                        previousStateCallback,
+                        cameraErrorListener,
+                        interopSessionStateCallback,
+                        threads.camera2Handler
+                    ),
                     threads.camera2Handler
-                ),
-                threads.camera2Handler
-            )
-        }
+                )
+            }
         if (result == null) {
             // CameraCaptureSession.StateCallback.onConfigureFailed isn't called in certain
             // situations, such as when the camera is closed, or when it encounters an error. As
@@ -301,23 +296,25 @@ internal class AndroidCameraDevice(
     ): Boolean {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
-        val result = instrumentAndCatch("createCaptureSessionByOutputConfigurations") {
-            // This function was deprecated in Android Q, but is required for some configurations
-            // when running on older versions of the OS.
-            Api24Compat.createCaptureSessionByOutputConfigurations(
-                cameraDevice,
-                outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
-                AndroidCaptureSessionStateCallback(
-                    this,
-                    stateCallback,
-                    previousStateCallback,
-                    cameraErrorListener,
-                    interopSessionStateCallback,
+        val result =
+            instrumentAndCatch("createCaptureSessionByOutputConfigurations") {
+                // This function was deprecated in Android Q, but is required for some
+                // configurations
+                // when running on older versions of the OS.
+                Api24Compat.createCaptureSessionByOutputConfigurations(
+                    cameraDevice,
+                    outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                    AndroidCaptureSessionStateCallback(
+                        this,
+                        stateCallback,
+                        previousStateCallback,
+                        cameraErrorListener,
+                        interopSessionStateCallback,
+                        threads.camera2Handler
+                    ),
                     threads.camera2Handler
-                ),
-                threads.camera2Handler
-            )
-        }
+                )
+            }
         if (result == null) {
             // CameraCaptureSession.StateCallback.onConfigureFailed isn't called in certain
             // situations, such as when the camera is closed, or when it encounters an error. As
@@ -345,7 +342,9 @@ internal class AndroidCameraDevice(
                 Api24Compat.createReprocessableCaptureSessionByConfigurations(
                     cameraDevice,
                     Api23Compat.newInputConfiguration(
-                        inputConfig.width, inputConfig.height, inputConfig.format
+                        inputConfig.width,
+                        inputConfig.height,
+                        inputConfig.format
                     ),
                     outputs.map { it.unwrapAs(OutputConfiguration::class) },
                     AndroidCaptureSessionStateCallback(
@@ -376,62 +375,67 @@ internal class AndroidCameraDevice(
         val stateCallback = config.stateCallback
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
-        val result = instrumentAndCatch("createCaptureSession") {
-            val sessionConfig =
-                Api28Compat.newSessionConfiguration(
-                    config.sessionType,
-                    config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
-                    config.executor,
-                    AndroidCaptureSessionStateCallback(
-                        this,
-                        stateCallback,
-                        previousStateCallback,
-                        cameraErrorListener,
-                        interopSessionStateCallback,
-                        threads.camera2Handler
-                    )
-                )
-
-            if (config.inputConfiguration != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Api28Compat.setInputConfiguration(
-                        sessionConfig,
-                        Api31Compat.newInputConfiguration(config.inputConfiguration, cameraId.value)
-                    )
-                } else {
-                    Api28Compat.setInputConfiguration(
-                        sessionConfig,
-                        Api23Compat.newInputConfiguration(
-                            config.inputConfiguration.single().width,
-                            config.inputConfiguration.single().height,
-                            config.inputConfiguration.single().format
+        val result =
+            instrumentAndCatch("createCaptureSession") {
+                val sessionConfig =
+                    Api28Compat.newSessionConfiguration(
+                        config.sessionType,
+                        config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                        config.executor,
+                        AndroidCaptureSessionStateCallback(
+                            this,
+                            stateCallback,
+                            previousStateCallback,
+                            cameraErrorListener,
+                            interopSessionStateCallback,
+                            threads.camera2Handler
                         )
                     )
+
+                if (config.inputConfiguration != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Api28Compat.setInputConfiguration(
+                            sessionConfig,
+                            Api31Compat.newInputConfiguration(
+                                config.inputConfiguration,
+                                cameraId.value
+                            )
+                        )
+                    } else {
+                        Api28Compat.setInputConfiguration(
+                            sessionConfig,
+                            Api23Compat.newInputConfiguration(
+                                config.inputConfiguration.single().width,
+                                config.inputConfiguration.single().height,
+                                config.inputConfiguration.single().format
+                            )
+                        )
+                    }
+                }
+
+                val requestBuilder =
+                    Debug.trace("createCaptureRequest") {
+                        cameraDevice.createCaptureRequest(config.sessionTemplateId)
+                    }
+
+                // This compares and sets ONLY the session keys for this camera. Setting parameters
+                // that are not listed in availableSessionKeys can cause an unusual amount of extra
+                // latency.
+                val sessionKeyNames = cameraMetadata.sessionKeys.map { it.name }
+
+                // Iterate template parameters and CHECK BY NAME, as there have been cases where
+                // equality checks did not pass.
+                for ((key, value) in config.sessionParameters) {
+                    if (key !is CaptureRequest.Key<*>) continue
+                    if (sessionKeyNames.contains(key.name)) {
+                        requestBuilder.writeParameter(key, value)
+                    }
+                }
+                Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
+                Debug.trace("Api28Compat.createCaptureSession") {
+                    Api28Compat.createCaptureSession(cameraDevice, sessionConfig)
                 }
             }
-
-            val requestBuilder = Debug.trace("createCaptureRequest") {
-                cameraDevice.createCaptureRequest(config.sessionTemplateId)
-            }
-
-            // This compares and sets ONLY the session keys for this camera. Setting parameters
-            // that are not listed in availableSessionKeys can cause an unusual amount of extra
-            // latency.
-            val sessionKeyNames = cameraMetadata.sessionKeys.map { it.name }
-
-            // Iterate template parameters and CHECK BY NAME, as there have been cases where
-            // equality checks did not pass.
-            for ((key, value) in config.sessionParameters) {
-                if (key !is CaptureRequest.Key<*>) continue
-                if (sessionKeyNames.contains(key.name)) {
-                    requestBuilder.writeParameter(key, value)
-                }
-            }
-            Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
-            Debug.trace("Api28Compat.createCaptureSession") {
-                Api28Compat.createCaptureSession(cameraDevice, sessionConfig)
-            }
-        }
         if (result == null) {
             // CameraCaptureSession.StateCallback.onConfigureFailed isn't called in certain
             // situations, such as when the camera is closed, or when it encounters an error. As
@@ -460,9 +464,7 @@ internal class AndroidCameraDevice(
     @RequiresApi(Build.VERSION_CODES.R)
     override fun getCameraAudioRestriction(): AudioRestrictionMode =
         Debug.trace("getCameraAudioRestriction") {
-            AudioRestrictionMode(
-                Api30Compat.getCameraAudioRestriction(cameraDevice)
-            )
+            AudioRestrictionMode(Api30Compat.getCameraAudioRestriction(cameraDevice))
         }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -488,29 +490,24 @@ internal class AndroidCameraDevice(
 
     override fun toString(): String = "AndroidCameraDevice(camera=$cameraId)"
 
-    /**
-     * Utility function to trace, measure, and suppress exceptions for expensive method calls.
-     */
+    /** Utility function to trace, measure, and suppress exceptions for expensive method calls. */
     @Throws(ObjectUnavailableException::class)
-    private inline fun <T> instrumentAndCatch(
-        fnName: String,
-        crossinline block: () -> T
-    ) = Debug.instrument("CXCP#$fnName-${cameraId.value}") {
-        catchAndReportCameraExceptions(cameraId, cameraErrorListener, block)
-    }
+    private inline fun <T> instrumentAndCatch(fnName: String, crossinline block: () -> T) =
+        Debug.instrument("CXCP#$fnName-${cameraId.value}") {
+            catchAndReportCameraExceptions(cameraId, cameraErrorListener, block)
+        }
 }
 
 /**
- * VirtualAndroidCameraDevice creates a simple wrapper around a [AndroidCameraDevice], augmenting
- * it by enabling it to reject further capture session/request calls when it is "disconnected'.
+ * VirtualAndroidCameraDevice creates a simple wrapper around a [AndroidCameraDevice], augmenting it
+ * by enabling it to reject further capture session/request calls when it is "disconnected'.
  */
 internal class VirtualAndroidCameraDevice(
     internal val androidCameraDevice: AndroidCameraDevice,
 ) : CameraDeviceWrapper {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var disconnected = false
+    @GuardedBy("lock") private var disconnected = false
 
     override val cameraId: CameraId
         get() = androidCameraDevice.cameraId
@@ -518,145 +515,143 @@ internal class VirtualAndroidCameraDevice(
     override fun createCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
-    ) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn { "createCaptureSession failed: Virtual device disconnected" }
-            stateCallback.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createCaptureSession(outputs, stateCallback)
+    ) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn { "createCaptureSession failed: Virtual device disconnected" }
+                stateCallback.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createCaptureSession(outputs, stateCallback)
+            }
         }
-    }
 
     @RequiresApi(23)
     override fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
-    ) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn { "createReprocessableCaptureSession failed: Virtual device disconnected" }
-            stateCallback.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createReprocessableCaptureSession(
-                input,
-                outputs,
-                stateCallback
-            )
+    ) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn { "createReprocessableCaptureSession failed: Virtual device disconnected" }
+                stateCallback.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createReprocessableCaptureSession(input, outputs, stateCallback)
+            }
         }
-    }
 
     @RequiresApi(23)
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
-    ) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn {
-                "createConstrainedHighSpeedCaptureSession failed: Virtual device disconnected"
+    ) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn {
+                    "createConstrainedHighSpeedCaptureSession failed: Virtual device disconnected"
+                }
+                stateCallback.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createConstrainedHighSpeedCaptureSession(outputs, stateCallback)
             }
-            stateCallback.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createConstrainedHighSpeedCaptureSession(
-                outputs,
-                stateCallback
-            )
         }
-    }
 
     @RequiresApi(24)
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
-    ) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn {
-                "createCaptureSessionByOutputConfigurations failed: Virtual device disconnected"
+    ) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn {
+                    "createCaptureSessionByOutputConfigurations failed: Virtual device disconnected"
+                }
+                stateCallback.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createCaptureSessionByOutputConfigurations(
+                    outputConfigurations,
+                    stateCallback
+                )
             }
-            stateCallback.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createCaptureSessionByOutputConfigurations(
-                outputConfigurations,
-                stateCallback
-            )
         }
-    }
 
     @RequiresApi(24)
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
-    ) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn {
-                "createReprocessableCaptureSessionByConfigurations failed: " +
-                    "Virtual device disconnected"
+    ) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn {
+                    "createReprocessableCaptureSessionByConfigurations failed: " +
+                        "Virtual device disconnected"
+                }
+                stateCallback.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createReprocessableCaptureSessionByConfigurations(
+                    inputConfig,
+                    outputs,
+                    stateCallback
+                )
             }
-            stateCallback.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createReprocessableCaptureSessionByConfigurations(
-                inputConfig,
-                outputs,
-                stateCallback
-            )
         }
-    }
 
     @RequiresApi(31)
-    override fun createExtensionSession(config: ExtensionSessionConfigData) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn { "createExtensionSession failed: Virtual device disconnected" }
-            config.extensionStateCallback!!.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createExtensionSession(config)
+    override fun createExtensionSession(config: ExtensionSessionConfigData) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn { "createExtensionSession failed: Virtual device disconnected" }
+                config.extensionStateCallback!!.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createExtensionSession(config)
+            }
         }
-    }
 
     @RequiresApi(28)
-    override fun createCaptureSession(config: SessionConfigData) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn { "createCaptureSession failed: Virtual device disconnected" }
-            config.stateCallback.onSessionFinalized()
-            false
-        } else {
-            androidCameraDevice.createCaptureSession(config)
+    override fun createCaptureSession(config: SessionConfigData) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn { "createCaptureSession failed: Virtual device disconnected" }
+                config.stateCallback.onSessionFinalized()
+                false
+            } else {
+                androidCameraDevice.createCaptureSession(config)
+            }
         }
-    }
 
-    override fun createCaptureRequest(template: RequestTemplate) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn { "createCaptureRequest failed: Virtual device disconnected" }
-            null
-        } else {
-            androidCameraDevice.createCaptureRequest(template)
+    override fun createCaptureRequest(template: RequestTemplate) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn { "createCaptureRequest failed: Virtual device disconnected" }
+                null
+            } else {
+                androidCameraDevice.createCaptureRequest(template)
+            }
         }
-    }
 
     @RequiresApi(23)
-    override fun createReprocessCaptureRequest(
-        inputResult: TotalCaptureResult
-    ) = synchronized(lock) {
-        if (disconnected) {
-            Log.warn { "createReprocessCaptureRequest failed: Virtual device disconnected" }
-            null
-        } else {
-            androidCameraDevice.createReprocessCaptureRequest(inputResult)
+    override fun createReprocessCaptureRequest(inputResult: TotalCaptureResult) =
+        synchronized(lock) {
+            if (disconnected) {
+                Log.warn { "createReprocessCaptureRequest failed: Virtual device disconnected" }
+                null
+            } else {
+                androidCameraDevice.createReprocessCaptureRequest(inputResult)
+            }
         }
-    }
 
     override fun onDeviceClosed() = androidCameraDevice.onDeviceClosed()
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = androidCameraDevice.unwrapAs(type)
 
-    internal fun disconnect() = synchronized(lock) {
-        disconnected = true
-    }
+    internal fun disconnect() = synchronized(lock) { disconnected = true }
 
     @RequiresApi(30)
     override fun getCameraAudioRestriction(): AudioRestrictionMode {

@@ -29,9 +29,7 @@ fun deviceSupportsNativeAndroidFence(): Boolean {
     return supportsAndroidFence
 }
 
-/**
- * Queries the corresponding EGL fence extensions from an initialized [EGLManager] instance
- */
+/** Queries the corresponding EGL fence extensions from an initialized [EGLManager] instance */
 fun EGLManager.supportsNativeAndroidFence(): Boolean =
     isExtensionSupported(EGLExt.EGL_KHR_FENCE_SYNC) &&
         isExtensionSupported(EGLExt.EGL_ANDROID_NATIVE_FENCE_SYNC)

@@ -470,8 +470,7 @@ public abstract class ComplicationDataSourceService : Service() {
                     bundle?.getInt(
                         IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
                         TargetWatchFaceSafety.UNKNOWN
-                    )
-                        ?: TargetWatchFaceSafety.UNKNOWN
+                    ) ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
                 mainThreadHandler.post {
@@ -669,8 +668,7 @@ public abstract class ComplicationDataSourceService : Service() {
                     bundle?.getInt(
                         IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
                         TargetWatchFaceSafety.UNKNOWN
-                    )
-                        ?: TargetWatchFaceSafety.UNKNOWN
+                    ) ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val complicationType = fromWireType(type)
                 val latch = CountDownLatch(1)

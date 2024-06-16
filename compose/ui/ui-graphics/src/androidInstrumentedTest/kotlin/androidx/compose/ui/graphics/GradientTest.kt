@@ -37,9 +37,7 @@ class GradientTest {
         assertEquals(1, countTransparentColors(listOf(Color.Red, Color.Transparent, Color.Blue)))
         assertEquals(
             1,
-            countTransparentColors(
-                listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue)
-            )
+            countTransparentColors(listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue))
         )
         assertEquals(0, countTransparentColors(listOf(Color.Transparent, Color.Green, Color.Blue)))
         assertEquals(0, countTransparentColors(listOf(Color.Red, Color.Green, Color.Transparent)))
@@ -52,9 +50,7 @@ class GradientTest {
         assertEquals(0, countTransparentColors(listOf(Color.Red, Color.Transparent, Color.Blue)))
         assertEquals(
             0,
-            countTransparentColors(
-                listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue)
-            )
+            countTransparentColors(listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue))
         )
         assertEquals(0, countTransparentColors(listOf(Color.Transparent, Color.Green, Color.Blue)))
         assertEquals(0, countTransparentColors(listOf(Color.Red, Color.Green, Color.Transparent)))
@@ -64,11 +60,8 @@ class GradientTest {
     fun testNoTransparentColorNoStopsReturnsNoStops() {
         // Regardless of OS level, all color values that are not Color.Transparent
         // should produce the same stops
-        val result = makeTransparentStops(
-            null,
-            listOf(Color.Red, Color.Green, Color.Blue, Color.Magenta),
-            0
-        )
+        val result =
+            makeTransparentStops(null, listOf(Color.Red, Color.Green, Color.Blue, Color.Magenta), 0)
         assertNull(result)
     }
 
@@ -77,11 +70,12 @@ class GradientTest {
         // Regardless of OS level, all color values that are not Color.Transparent
         // should produce the same stops
         val stops = listOf(0f, 0.25f, 0.3f, 1f)
-        val result = makeTransparentStops(
-            stops,
-            listOf(Color.Red, Color.Green, Color.Blue, Color.Magenta),
-            0
-        )
+        val result =
+            makeTransparentStops(
+                stops,
+                listOf(Color.Red, Color.Green, Color.Blue, Color.Magenta),
+                0
+            )
         assertSameStops(stops, result!!)
     }
 
@@ -89,11 +83,12 @@ class GradientTest {
     fun testTransparentColorsAtEndsAndNoStopsReturnsNoStops() {
         // Regardless of OS level, all color values that are not Color.Transparent
         // should produce the same stops
-        val result = makeTransparentStops(
-            null,
-            listOf(Color.Transparent, Color.Green, Color.Blue, Color.Transparent),
-            0
-        )
+        val result =
+            makeTransparentStops(
+                null,
+                listOf(Color.Transparent, Color.Green, Color.Blue, Color.Transparent),
+                0
+            )
         assertNull(result)
     }
 
@@ -102,11 +97,12 @@ class GradientTest {
         // Regardless of OS level, all color values that are not Color.Transparent
         // should produce the same stops
         val stops = listOf(0f, 0.25f, 0.3f, 1f)
-        val result = makeTransparentStops(
-            stops,
-            listOf(Color.Transparent, Color.Green, Color.Blue, Color.Transparent),
-            0
-        )
+        val result =
+            makeTransparentStops(
+                stops,
+                listOf(Color.Transparent, Color.Green, Color.Blue, Color.Transparent),
+                0
+            )
         assertSameStops(stops, result!!)
     }
 
@@ -114,62 +110,58 @@ class GradientTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTransparentColorsInMiddleProducesNoStopsOnO() {
         // On O and later, no stops should be produced.
-        val result = makeTransparentStops(
-            null,
-            listOf(
-                Color.Red,
-                Color.Transparent,
-                Color.Green,
-                Color.Transparent,
-                Color.Blue,
-                Color.Magenta
-            ),
-            0 // O always counts 0
-        )
+        val result =
+            makeTransparentStops(
+                null,
+                listOf(
+                    Color.Red,
+                    Color.Transparent,
+                    Color.Green,
+                    Color.Transparent,
+                    Color.Blue,
+                    Color.Magenta
+                ),
+                0 // O always counts 0
+            )
         assertNull(result)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTransparentColorsInMiddleAddsNoStopsOnO() {
-        val stops = listOf(
-            0f,
-            0.1f,
-            0.2f,
-            0.5f,
-            0.7f,
-            1f
-        )
-        val result = makeTransparentStops(
-            stops,
-            listOf(
-                Color.Red,
-                Color.Transparent,
-                Color.Green,
-                Color.Transparent,
-                Color.Blue,
-                Color.Magenta
-            ),
-            0 // O always counts 0
-        )
+        val stops = listOf(0f, 0.1f, 0.2f, 0.5f, 0.7f, 1f)
+        val result =
+            makeTransparentStops(
+                stops,
+                listOf(
+                    Color.Red,
+                    Color.Transparent,
+                    Color.Green,
+                    Color.Transparent,
+                    Color.Blue,
+                    Color.Magenta
+                ),
+                0 // O always counts 0
+            )
         assertSameStops(stops, result!!)
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     fun testTransparentColorsInMiddleProducesStopsOnN() {
-        val result = makeTransparentStops(
-            null,
-            listOf(
-                Color.Red,
-                Color.Transparent,
-                Color.Green,
-                Color.Transparent,
-                Color.Blue,
-                Color.Magenta
-            ),
-            2
-        )
+        val result =
+            makeTransparentStops(
+                null,
+                listOf(
+                    Color.Red,
+                    Color.Transparent,
+                    Color.Green,
+                    Color.Transparent,
+                    Color.Blue,
+                    Color.Magenta
+                ),
+                2
+            )
         assertNotNull(result)
         assertSameStops(listOf(0f, 0.2f, 0.2f, 0.4f, 0.6f, 0.6f, 0.8f, 1f), result!!)
     }
@@ -177,25 +169,19 @@ class GradientTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     fun testTransparentColorsInMiddleAddsStopsOnN() {
-        val result = makeTransparentStops(
-            listOf(
-                0.05f,
-                0.1f,
-                0.2f,
-                0.5f,
-                0.7f,
-                1f
-            ),
-            listOf(
-                Color.Red,
-                Color.Transparent,
-                Color.Green,
-                Color.Transparent,
-                Color.Blue,
-                Color.Magenta
-            ),
-            2
-        )
+        val result =
+            makeTransparentStops(
+                listOf(0.05f, 0.1f, 0.2f, 0.5f, 0.7f, 1f),
+                listOf(
+                    Color.Red,
+                    Color.Transparent,
+                    Color.Green,
+                    Color.Transparent,
+                    Color.Blue,
+                    Color.Magenta
+                ),
+                2
+            )
         assertNotNull(result)
         assertSameStops(listOf(0.05f, 0.1f, 0.1f, 0.2f, 0.5f, 0.5f, 0.7f, 1f), result!!)
     }
@@ -224,10 +210,11 @@ class GradientTest {
     fun testTransparencyOnNReturnsNewValues() {
         // All Android Versions N and below should modify the color values and add
         // one transparent value for the middle Transparent
-        val result = makeTransparentColors(
-            listOf(Color.Transparent, Color.Green, Color.Transparent, Color.Magenta),
-            1
-        )
+        val result =
+            makeTransparentColors(
+                listOf(Color.Transparent, Color.Green, Color.Transparent, Color.Magenta),
+                1
+            )
         assertSameColors(
             listOf(
                 Color.Green.copy(alpha = 0f),
@@ -243,10 +230,11 @@ class GradientTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     fun testMultipleTrailingTransparentColorsOnN() {
-        val result = makeTransparentColors(
-            listOf(Color.Red, Color.Green, Color.Transparent, Color.Transparent),
-            1
-        )
+        val result =
+            makeTransparentColors(
+                listOf(Color.Red, Color.Green, Color.Transparent, Color.Transparent),
+                1
+            )
         assertSameColors(
             listOf(
                 Color.Red,
@@ -262,10 +250,11 @@ class GradientTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     fun testMultipleLeadingTransparentColorsReturnsPreviousOnN() {
-        val result = makeTransparentColors(
-            listOf(Color.Transparent, Color.Transparent, Color.Blue, Color.Magenta),
-            1
-        )
+        val result =
+            makeTransparentColors(
+                listOf(Color.Transparent, Color.Transparent, Color.Blue, Color.Magenta),
+                1
+            )
         assertSameColors(
             listOf(
                 Color.Transparent,
@@ -281,16 +270,17 @@ class GradientTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     fun testTransparentAlternatingColors() {
-        val result = makeTransparentColors(
-            listOf(
-                Color.Transparent,
-                Color.Red,
-                Color.Transparent,
-                Color.Blue,
-                Color.Transparent
-            ),
-            1
-        )
+        val result =
+            makeTransparentColors(
+                listOf(
+                    Color.Transparent,
+                    Color.Red,
+                    Color.Transparent,
+                    Color.Blue,
+                    Color.Transparent
+                ),
+                1
+            )
         assertSameColors(
             listOf(
                 Color.Red.copy(alpha = 0f),
@@ -307,21 +297,13 @@ class GradientTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     fun testAllTransparentColorsProduceTransparentOnN() {
-        val result = makeTransparentColors(
-            listOf(
-                Color.Transparent,
-                Color.Transparent,
-                Color.Transparent
-            ),
-            1
-        )
+        val result =
+            makeTransparentColors(
+                listOf(Color.Transparent, Color.Transparent, Color.Transparent),
+                1
+            )
         assertSameColors(
-            listOf(
-                Color.Transparent,
-                Color.Transparent,
-                Color.Transparent,
-                Color.Transparent
-            ),
+            listOf(Color.Transparent, Color.Transparent, Color.Transparent, Color.Transparent),
             result
         )
     }
@@ -329,22 +311,12 @@ class GradientTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testAllTransparentColorsProduceTransparentOnO() {
-        val result = makeTransparentColors(
-            listOf(
-                Color.Transparent,
-                Color.Transparent,
-                Color.Transparent
-            ),
-            0 // Always 0 on O+
-        )
-        assertSameColors(
-            listOf(
-                Color.Transparent,
-                Color.Transparent,
-                Color.Transparent
-            ),
-            result
-        )
+        val result =
+            makeTransparentColors(
+                listOf(Color.Transparent, Color.Transparent, Color.Transparent),
+                0 // Always 0 on O+
+            )
+        assertSameColors(listOf(Color.Transparent, Color.Transparent, Color.Transparent), result)
     }
 
     private fun assertSameStops(expected: List<Float>, actual: FloatArray) {

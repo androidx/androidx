@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -28,11 +29,12 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.Logger;
 
+import java.util.Set;
+
 /**
  * Validation methods to verify the camera is initialized successfully, more info please reference
  * b/167201193.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalLensFacing.class)
 public final class CameraValidator {
     private CameraValidator() {
@@ -60,6 +62,23 @@ public final class CameraValidator {
             @NonNull CameraRepository cameraRepository,
             @Nullable CameraSelector availableCamerasSelector)
             throws CameraIdListIncorrectException {
+
+        // Check if running on a virtual device with Android U or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                && Api34Impl.getDeviceId(context) != Context.DEVICE_ID_DEFAULT) {
+
+            // Get the list of cameras available for this virtual device
+            Set<CameraInternal> availableCameras = cameraRepository.getCameras();
+            if (availableCameras.isEmpty()) {
+                // No cameras found, throw an exception
+                throw new CameraIdListIncorrectException("No cameras available", 0, null);
+            }
+
+            // Log details and skip validation since we have at least one camera
+            Logger.d(TAG, "Virtual device with ID: " + Api34Impl.getDeviceId(context)
+                    + " has " + availableCameras.size() + " cameras. Skipping validation.");
+            return;
+        }
 
         Integer lensFacing = null;
         try {
@@ -139,6 +158,17 @@ public final class CameraValidator {
 
         public int getAvailableCameraCount() {
             return mAvailableCameraCount;
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
+        }
+
+        @DoNotInline
+        static int getDeviceId(@NonNull Context context) {
+            return context.getDeviceId();
         }
     }
 }

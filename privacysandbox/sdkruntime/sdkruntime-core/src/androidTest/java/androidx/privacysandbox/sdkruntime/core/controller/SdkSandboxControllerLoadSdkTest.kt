@@ -44,22 +44,15 @@ import org.mockito.invocation.InvocationOnMock
 @SdkSuppress(minSdkVersion = 34)
 class SdkSandboxControllerLoadSdkTest {
 
-    @Rule
-    @JvmField
-    val sdkSandboxControllerMockRule = SdkSandboxControllerMockRule()
+    @Rule @JvmField val sdkSandboxControllerMockRule = SdkSandboxControllerMockRule()
 
     @Test
     fun loadSdk_withoutLoadSdkApiAvailable_throwsLoadSdkCompatException() {
-        assumeFalse(
-            "Requires LoadSdk API not available",
-            isLoadSdkApiAvailable()
-        )
+        assumeFalse("Requires LoadSdk API not available", isLoadSdkApiAvailable())
 
         val controllerCompat = sdkSandboxControllerMockRule.controllerCompat
         Assert.assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                controllerCompat.loadSdk("SDK", Bundle())
-            }
+            runBlocking { controllerCompat.loadSdk("SDK", Bundle()) }
         }
     }
 
@@ -67,10 +60,7 @@ class SdkSandboxControllerLoadSdkTest {
     @RequiresApi(34)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 10)
     fun loadSdk_withLoadSdkApiAvailable_returnResultFromPlatformLoadSdk() {
-        assumeTrue(
-            "Requires LoadSdk API available",
-            isLoadSdkApiAvailable()
-        )
+        assumeTrue("Requires LoadSdk API available", isLoadSdkApiAvailable())
 
         val sdkName = "SDK"
         val params = Bundle()
@@ -78,41 +68,27 @@ class SdkSandboxControllerLoadSdkTest {
         val sandboxedSdk = SandboxedSdk(Binder())
         setupLoadSdkAnswer(sandboxedSdk)
         val controllerCompat = sdkSandboxControllerMockRule.controllerCompat
-        val result = runBlocking {
-            controllerCompat.loadSdk(sdkName, params)
-        }
+        val result = runBlocking { controllerCompat.loadSdk(sdkName, params) }
         assertThat(result.getInterface()).isEqualTo(sandboxedSdk.getInterface())
 
         val sdkSandboxController = sdkSandboxControllerMockRule.sdkSandboxControllerMock
-        verify(sdkSandboxController).loadSdk(
-            eq(sdkName),
-            eq(params),
-            any(),
-            any()
-        )
+        verify(sdkSandboxController).loadSdk(eq(sdkName), eq(params), any(), any())
     }
 
     @Test
     @RequiresApi(34)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 10)
     fun loadSdk_withLoadSdkApiAvailable_rethrowsExceptionFromPlatformLoadSdk() {
-        assumeTrue(
-            "Requires LoadSdk API available",
-            isLoadSdkApiAvailable()
-        )
+        assumeTrue("Requires LoadSdk API available", isLoadSdkApiAvailable())
 
-        val loadSdkException = LoadSdkException(
-            RuntimeException(),
-            Bundle()
-        )
+        val loadSdkException = LoadSdkException(RuntimeException(), Bundle())
         setupLoadSdkAnswer(loadSdkException)
 
         val controllerCompat = sdkSandboxControllerMockRule.controllerCompat
-        val result = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                controllerCompat.loadSdk("test", Bundle())
+        val result =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                runBlocking { controllerCompat.loadSdk("test", Bundle()) }
             }
-        }
 
         assertThat(result.cause).isEqualTo(loadSdkException.cause)
         assertThat(result.extraInformation).isEqualTo(loadSdkException.extraInformation)
@@ -128,13 +104,7 @@ class SdkSandboxControllerLoadSdkTest {
             null
         }
         val sdkSandboxController = sdkSandboxControllerMockRule.sdkSandboxControllerMock
-        doAnswer(answer)
-            .`when`(sdkSandboxController).loadSdk(
-                any(),
-                any(),
-                any(),
-                any()
-            )
+        doAnswer(answer).`when`(sdkSandboxController).loadSdk(any(), any(), any(), any())
     }
 
     @RequiresApi(34)
@@ -146,15 +116,8 @@ class SdkSandboxControllerLoadSdkTest {
             null
         }
         val sdkSandboxController = sdkSandboxControllerMockRule.sdkSandboxControllerMock
-        doAnswer(answer)
-            .`when`(sdkSandboxController).loadSdk(
-                any(),
-                any(),
-                any(),
-                any()
-            )
+        doAnswer(answer).`when`(sdkSandboxController).loadSdk(any(), any(), any(), any())
     }
 
-    private fun isLoadSdkApiAvailable() =
-        BuildCompat.AD_SERVICES_EXTENSION_INT >= 10
+    private fun isLoadSdkApiAvailable() = BuildCompat.AD_SERVICES_EXTENSION_INT >= 10
 }

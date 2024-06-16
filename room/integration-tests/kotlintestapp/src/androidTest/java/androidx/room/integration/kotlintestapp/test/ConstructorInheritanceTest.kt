@@ -42,16 +42,9 @@ import org.junit.runner.RunWith
 @SmallTest
 class ConstructorInheritanceTest {
 
-    data class Info(
-        val code: String
-    )
+    data class Info(val code: String)
 
-    abstract class Parent(
-        @PrimaryKey
-        val id: Long,
-        @Embedded
-        val info: Info?
-    ) {
+    abstract class Parent(@PrimaryKey val id: Long, @Embedded val info: Info?) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -68,17 +61,13 @@ class ConstructorInheritanceTest {
         }
     }
 
-    @Entity
-    class Child1(id: Long, info: Info?) : Parent(id, info)
+    @Entity class Child1(id: Long, info: Info?) : Parent(id, info)
 
-    @Entity
-    class Child2(id: Long, info: Info?) : Parent(id, info)
+    @Entity class Child2(id: Long, info: Info?) : Parent(id, info)
 
     abstract class ChildGroup(
-        @Embedded
-        val child1: Child1,
-        @Relation(entityColumn = "code", parentColumn = "code")
-        val children2: List<Child2>
+        @Embedded val child1: Child1,
+        @Relation(entityColumn = "code", parentColumn = "code") val children2: List<Child2>
     )
 
     class ChildGroup1(child1: Child1, children2: List<Child2>) : ChildGroup(child1, children2)
@@ -87,18 +76,15 @@ class ConstructorInheritanceTest {
 
     @Dao
     interface EmbeddedDao {
-        @Insert
-        fun insert(child1: Child1)
+        @Insert fun insert(child1: Child1)
 
-        @Insert
-        fun insert(child2: Child2)
+        @Insert fun insert(child2: Child2)
 
         @Suppress("unused")
         @Query("SELECT * FROM Child1 WHERE id = :id")
         fun loadById1(id: Long): Child1
 
-        @Query("SELECT * FROM Child2 WHERE id = :id")
-        fun loadById2(id: Long): Child2
+        @Query("SELECT * FROM Child2 WHERE id = :id") fun loadById2(id: Long): Child2
 
         @Suppress("unused")
         @Transaction
@@ -135,13 +121,7 @@ class ConstructorInheritanceTest {
         val childGroup = dao.loadGroupById2(1)
         assertThat(childGroup.child1.id, `is`(1L))
         assertThat(childGroup.children2, hasSize(2))
-        assertThat(
-            childGroup.children2,
-            hasItems(
-                Child2(2, Info("123")),
-                Child2(3, Info("123"))
-            )
-        )
+        assertThat(childGroup.children2, hasItems(Child2(2, Info("123")), Child2(3, Info("123"))))
     }
 
     private fun openDatabase(): EmbeddedDatabase {

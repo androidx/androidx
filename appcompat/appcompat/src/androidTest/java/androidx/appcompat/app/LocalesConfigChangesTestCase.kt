@@ -51,8 +51,11 @@ class LocalesConfigChangesTestCase() {
             // locales.
             systemLocales = LocalesUpdateActivity.getConfigLocales(it.resources.configuration)
             // expected locales is an overlay of custom and system locales.
-            expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
-                CUSTOM_LOCALE_LIST, systemLocales)
+            expectedLocales =
+                LocalesUpdateActivity.overlayCustomAndSystemLocales(
+                    CUSTOM_LOCALE_LIST,
+                    systemLocales
+                )
         }
     }
 
@@ -65,10 +68,7 @@ class LocalesConfigChangesTestCase() {
         // Assert that the onConfigurationChange was called with a new correct config.
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
-            assertConfigurationLocalesEquals(
-                expectedLocales,
-                lastConfig!!
-            )
+            assertConfigurationLocalesEquals(expectedLocales, lastConfig!!)
         }
 
         // Set locales back to system locales.
@@ -76,9 +76,7 @@ class LocalesConfigChangesTestCase() {
         // Assert that the onConfigurationChange was called with a new correct config.
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
-            assertConfigurationLocalesEquals(
-                systemLocales, lastConfig!!
-            )
+            assertConfigurationLocalesEquals(systemLocales, lastConfig!!)
         }
     }
 
@@ -92,10 +90,7 @@ class LocalesConfigChangesTestCase() {
         // Assert that the onConfigurationChange was called with a new correct config.
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
-            assertConfigurationLocalesEquals(
-                expectedLocales,
-                lastConfig!!
-            )
+            assertConfigurationLocalesEquals(expectedLocales, lastConfig!!)
         }
 
         // Set locales back to system locales.
@@ -103,9 +98,7 @@ class LocalesConfigChangesTestCase() {
         // Assert that the onConfigurationChange was called with a new correct config.
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
-            assertConfigurationLocalesEquals(
-                systemLocales, lastConfig!!
-            )
+            assertConfigurationLocalesEquals(systemLocales, lastConfig!!)
         }
     }
 
@@ -138,19 +131,13 @@ class LocalesConfigChangesTestCase() {
         scenario.onActivity { setLocales(CUSTOM_LOCALE_LIST) }
 
         // Assert that the Activity resources configuration was updated.
-        assertConfigurationLocalesEquals(
-            expectedLocales,
-            scenario.withActivity { this }
-        )
+        assertConfigurationLocalesEquals(expectedLocales, scenario.withActivity { this })
 
         // Set locales back to system locales.
         scenario.onActivity { setLocales(LocaleListCompat.getEmptyLocaleList()) }
 
         // Assert that the Activity resources configuration was updated.
-        assertConfigurationLocalesEquals(
-            systemLocales,
-            scenario.withActivity { this }
-        )
+        assertConfigurationLocalesEquals(systemLocales, scenario.withActivity { this })
     }
 
     @Test
@@ -158,10 +145,7 @@ class LocalesConfigChangesTestCase() {
         // Set locales to CUSTOM_LOCALE_LIST.
         scenario.onActivity { setLocales(CUSTOM_LOCALE_LIST) }
         // Assert that the Activity received a new value.
-        assertEquals(
-            expectedLocales,
-            scenario.withActivity { lastLocalesAndReset }
-        )
+        assertEquals(expectedLocales, scenario.withActivity { lastLocalesAndReset })
 
         // Set locales back to system locales.
         scenario.onActivity { setLocales(LocaleListCompat.getEmptyLocaleList()) }

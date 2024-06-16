@@ -33,10 +33,11 @@ import org.junit.Test
 class MultipleActivitiesFirstDrawTest {
 
     @Test
-    fun test() = runAndroidComposeUiTest<Activity1> {
-        Espresso.onIdle()
-        // doesn't timeout
-    }
+    fun test() =
+        runAndroidComposeUiTest<Activity1> {
+            Espresso.onIdle()
+            // doesn't timeout
+        }
 
     class Activity1 : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {

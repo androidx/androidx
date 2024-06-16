@@ -28,9 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 
-/**
- * Element for any text that is in a selection container.
- */
+/** Element for any text that is in a selection container. */
 internal data class SelectableTextAnnotatedStringElement(
     private val text: AnnotatedString,
     private val style: TextStyle,
@@ -46,24 +44,23 @@ internal data class SelectableTextAnnotatedStringElement(
     private val color: ColorProducer? = null
 ) : ModifierNodeElement<SelectableTextAnnotatedStringNode>() {
 
-    override fun create(): SelectableTextAnnotatedStringNode = SelectableTextAnnotatedStringNode(
-        text,
-        style,
-        fontFamilyResolver,
-        onTextLayout,
-        overflow,
-        softWrap,
-        maxLines,
-        minLines,
-        placeholders,
-        onPlaceholderLayout,
-        selectionController,
-        color
-    )
+    override fun create(): SelectableTextAnnotatedStringNode =
+        SelectableTextAnnotatedStringNode(
+            text,
+            style,
+            fontFamilyResolver,
+            onTextLayout,
+            overflow,
+            softWrap,
+            maxLines,
+            minLines,
+            placeholders,
+            onPlaceholderLayout,
+            selectionController,
+            color
+        )
 
-    override fun update(
-        node: SelectableTextAnnotatedStringNode
-    ) {
+    override fun update(node: SelectableTextAnnotatedStringNode) {
         node.update(
             text = text,
             style = style,

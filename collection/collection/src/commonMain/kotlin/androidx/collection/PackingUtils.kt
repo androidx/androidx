@@ -17,18 +17,14 @@
 
 package androidx.collection
 
-/**
- * Packs two Float values into one Long value for use in inline classes.
- */
+/** Packs two Float values into one Long value for use in inline classes. */
 internal inline fun packFloats(val1: Float, val2: Float): Long {
     val v1 = val1.toRawBits().toLong()
     val v2 = val2.toRawBits().toLong()
     return (v1 shl 32) or (v2 and 0xFFFFFFFF)
 }
 
-/**
- * Packs two Int values into one Long value for use in inline classes.
- */
+/** Packs two Int values into one Long value for use in inline classes. */
 internal inline fun packInts(val1: Int, val2: Int): Long {
     return (val1.toLong() shl 32) or (val2.toLong() and 0xFFFFFFFF)
 }

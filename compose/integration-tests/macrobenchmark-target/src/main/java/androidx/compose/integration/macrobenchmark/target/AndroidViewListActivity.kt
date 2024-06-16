@@ -31,9 +31,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.viewinterop.AndroidView
 
 /**
- * This activity uses AndroidViews inside a LazyColumn. This helps us benchmark
- * a common point of migration between views and Compose. The implementation is designed to
- * match the LazyColumnActivity and the RecyclerViewActivity for comparison.
+ * This activity uses AndroidViews inside a LazyColumn. This helps us benchmark a common point of
+ * migration between views and Compose. The implementation is designed to match the
+ * LazyColumnActivity and the RecyclerViewActivity for comparison.
  */
 class AndroidViewListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +44,7 @@ class AndroidViewListActivity : AppCompatActivity() {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth().semantics { contentDescription = "IamLazy" }
             ) {
-                items(List(itemCount) { Entry("Item $it") }) {
-                    ListRow(it)
-                }
+                items(List(itemCount) { Entry("Item $it") }) { ListRow(it) }
             }
         }
 

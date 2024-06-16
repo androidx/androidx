@@ -34,10 +34,8 @@ class SimpleJavaVersionTest {
             .isEqualTo(SimpleJavaVersion(11, 0, null))
         assertThat(SimpleJavaVersion.tryParse("11.0.8+10-b944.6842174"))
             .isEqualTo(SimpleJavaVersion(11, 0, null))
-        assertThat(SimpleJavaVersion.tryParse("14.1-ea"))
-            .isEqualTo(SimpleJavaVersion(14, 1, null))
-        assertThat(SimpleJavaVersion.tryParse("15+13"))
-            .isEqualTo(SimpleJavaVersion(15, 0, null))
+        assertThat(SimpleJavaVersion.tryParse("14.1-ea")).isEqualTo(SimpleJavaVersion(14, 1, null))
+        assertThat(SimpleJavaVersion.tryParse("15+13")).isEqualTo(SimpleJavaVersion(15, 0, null))
         assertThat(SimpleJavaVersion.tryParse("a.b.c")).isNull()
     }
 
@@ -53,10 +51,8 @@ class SimpleJavaVersionTest {
             .isEqualTo(SimpleJavaVersion(11, 0, null))
         assertThat(SimpleJavaVersion.parse("11.0.8+10-b944.6842174"))
             .isEqualTo(SimpleJavaVersion(11, 0, null))
-        assertThat(SimpleJavaVersion.parse("14.1-ea"))
-            .isEqualTo(SimpleJavaVersion(14, 1, null))
-        assertThat(SimpleJavaVersion.parse("15+13"))
-            .isEqualTo(SimpleJavaVersion(15, 0, null))
+        assertThat(SimpleJavaVersion.parse("14.1-ea")).isEqualTo(SimpleJavaVersion(14, 1, null))
+        assertThat(SimpleJavaVersion.parse("15+13")).isEqualTo(SimpleJavaVersion(15, 0, null))
         try {
             SimpleJavaVersion.parse("a.b.c")
             fail("Expected IllegalArgumentException")

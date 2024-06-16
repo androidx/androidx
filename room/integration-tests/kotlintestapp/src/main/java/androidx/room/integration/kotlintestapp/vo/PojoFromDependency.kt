@@ -15,7 +15,4 @@
  */
 package androidx.room.integration.kotlintestapp.vo
 
-data class PojoFromDependency(
-    val id: Int,
-    val name: String
-)
+data class PojoFromDependency(val id: Int, val name: String)

@@ -53,18 +53,16 @@ class PrivacySandboxKspCompilerTest {
         val compilationResult = compileWithPrivacySandboxKspCompiler(listOf(source))
         assertThat(compilationResult).succeeds()
 
-        val resourceMap = compilationResult.resourceOutputDir.walk()
-            .filter { it.isFile }
-            .map { it.toRelativeString(compilationResult.resourceOutputDir) to it.readBytes() }
-            .toMap()
+        val resourceMap =
+            compilationResult.resourceOutputDir
+                .walk()
+                .filter { it.isFile }
+                .map { it.toRelativeString(compilationResult.resourceOutputDir) to it.readBytes() }
+                .toMap()
         val expectedMetadataRelativePath = "META-INF/privacysandbox/tool-metadata.pb"
         assertThat(resourceMap).containsKey(expectedMetadataRelativePath)
         assertThat(ToolMetadata.parseFrom(resourceMap[expectedMetadataRelativePath]))
-            .isEqualTo(
-                ToolMetadata.newBuilder()
-                    .setCodeGenerationVersion(3)
-                    .build()
-            )
+            .isEqualTo(ToolMetadata.newBuilder().setCodeGenerationVersion(3).build())
     }
 
     @Test

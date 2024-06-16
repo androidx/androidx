@@ -36,21 +36,23 @@ class ImageCaptureLockedOrientationTest(
 
     companion object {
         private val rotationDegrees = arrayOf(0, 90, 180, 270)
+
         @JvmStatic
         @Parameterized.Parameters(
             name = "lensFacing={0}, rotationDegrees={1}, captureMode={2}, cameraXConfig={3}"
         )
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacingList.forEach { lens ->
-                rotationDegrees.forEach { rotation ->
-                    captureModes.forEach { mode ->
-                        cameraXConfigList.forEach { cameraXConfig ->
-                            add(arrayOf(lens, rotation, mode, cameraXConfig))
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                lensFacingList.forEach { lens ->
+                    rotationDegrees.forEach { rotation ->
+                        captureModes.forEach { mode ->
+                            cameraXConfigList.forEach { cameraXConfig ->
+                                add(arrayOf(lens, rotation, mode, cameraXConfig))
+                            }
                         }
                     }
                 }
             }
-        }
     }
 
     @Before

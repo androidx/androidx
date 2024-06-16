@@ -95,14 +95,16 @@ class DateTimeFormatterTest {
         }
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun test() {
         val locale = Locale.US
         val options = SkeletonOptions.fromString("yMMMdjms")
-        val expected = when {
-            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
-            else -> "Sep 19, 2021, 9:42:12 PM"
-        }
+        val expected =
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
+                else -> "Sep 19, 2021, 9:42:12 PM"
+            }
 
         // Test Calendar
         assertEquals(expected, DateTimeFormatter(appContext, options, locale).format(testCalendar))
@@ -112,37 +114,41 @@ class DateTimeFormatterTest {
         assertEquals(expected, DateTimeFormatter(appContext, options, locale).format(testMillis))
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testApi() {
-        val builder = SkeletonOptions.Builder()
-            .setYear(SkeletonOptions.Year.NUMERIC)
-            .setMonth(SkeletonOptions.Month.ABBREVIATED)
-            .setDay(SkeletonOptions.Day.NUMERIC)
-            .setHour(SkeletonOptions.Hour.NUMERIC)
-            .setMinute(SkeletonOptions.Minute.NUMERIC)
-            .setSecond(SkeletonOptions.Second.NUMERIC)
+        val builder =
+            SkeletonOptions.Builder()
+                .setYear(SkeletonOptions.Year.NUMERIC)
+                .setMonth(SkeletonOptions.Month.ABBREVIATED)
+                .setDay(SkeletonOptions.Day.NUMERIC)
+                .setHour(SkeletonOptions.Hour.NUMERIC)
+                .setMinute(SkeletonOptions.Minute.NUMERIC)
+                .setSecond(SkeletonOptions.Second.NUMERIC)
 
         val localeFr = Locale.FRANCE
         val localeUs = Locale.US
 
-        val expectedUs12 = when {
-            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
-            else -> "Sep 19, 2021, 9:42:12 PM"
-        }
+        val expectedUs12 =
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
+                else -> "Sep 19, 2021, 9:42:12 PM"
+            }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
-        val expectedUs12Milli = when {
-            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12.345\u202FPM"
-            else -> "Sep 19, 2021, 9:42:12.345 PM"
-        }
+        val expectedUs12Milli =
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12.345\u202FPM"
+                else -> "Sep 19, 2021, 9:42:12.345 PM"
+            }
 
         val expectedFr12: String
         val expectedFr24: String
         when {
-             Build.VERSION.SDK_INT >= 34 -> { // >= 31
-                 expectedFr12 = "19 sept. 2021, 9:42:12\u202FPM"
-                 expectedFr24 = "19 sept. 2021, 21:42:12"
-             }
-             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> { // >= 31
+            Build.VERSION.SDK_INT >= 34 -> { // >= 31
+                expectedFr12 = "19 sept. 2021, 9:42:12\u202FPM"
+                expectedFr24 = "19 sept. 2021, 21:42:12"
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> { // >= 31
                 expectedFr12 = "19 sept. 2021, 9:42:12 PM"
                 expectedFr24 = "19 sept. 2021, 21:42:12"
             }
@@ -187,16 +193,18 @@ class DateTimeFormatterTest {
         assertEquals(expectedUs24, formatter.format(testDate)) // force to h12
 
         // Make sure that the milliseconds are formatted
-        options = builder
-            .setHour(SkeletonOptions.Hour.NUMERIC)
-            .setFractionalSecond(SkeletonOptions.FractionalSecond.NUMERIC_3_DIGITS)
-            .build()
+        options =
+            builder
+                .setHour(SkeletonOptions.Hour.NUMERIC)
+                .setFractionalSecond(SkeletonOptions.FractionalSecond.NUMERIC_3_DIGITS)
+                .build()
         formatter = DateTimeFormatter(appContext, options, localeUs)
         assertEquals(expectedUs12Milli, formatter.format(testDate))
         assertEquals(expectedUs12Milli, formatter.format(testCalendar))
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
     @androidx.core.os.BuildCompat.PrereleaseSdkCheck
     // Without `Locale.forLanguageTag` we can't even build a locale with `-u-` extension.
@@ -213,10 +221,11 @@ class DateTimeFormatterTest {
         // (`DateFormat.MEDIUM` and so on). Works for patterns generated from skeletons.
         // Fixed in ICU 74.
         // Official bug: https://unicode-org.atlassian.net/browse/ICU-11870
-        val expectedUs23 = when {
-            BuildCompat.isAtLeastV() -> "21:42:12"
-            else -> expectedUs
-        }
+        val expectedUs23 =
+            when {
+                BuildCompat.isAtLeastV() -> "21:42:12"
+                else -> expectedUs
+            }
         val expectedUs24: String = expectedUs23
 
         var formatter: java.text.DateFormat
@@ -234,57 +243,65 @@ class DateTimeFormatterTest {
         assertEquals(expectedUs24, Helper.normalizeNnbsp(formatter.format(testMillis)))
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
     fun testHourCycleOverrides() {
-        val expectedUs12 = when {
-            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
-            else -> "Sep 19, 2021, 9:42:12 PM"
-        }
+        val expectedUs12 =
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
+                else -> "Sep 19, 2021, 9:42:12 PM"
+            }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
-        val builder = SkeletonOptions.Builder()
-            .setYear(SkeletonOptions.Year.NUMERIC)
-            .setMonth(SkeletonOptions.Month.ABBREVIATED)
-            .setDay(SkeletonOptions.Day.NUMERIC)
-            .setHour(SkeletonOptions.Hour.NUMERIC)
-            .setMinute(SkeletonOptions.Minute.NUMERIC)
-            .setSecond(SkeletonOptions.Second.NUMERIC)
+        val builder =
+            SkeletonOptions.Builder()
+                .setYear(SkeletonOptions.Year.NUMERIC)
+                .setMonth(SkeletonOptions.Month.ABBREVIATED)
+                .setDay(SkeletonOptions.Day.NUMERIC)
+                .setHour(SkeletonOptions.Hour.NUMERIC)
+                .setMinute(SkeletonOptions.Minute.NUMERIC)
+                .setSecond(SkeletonOptions.Second.NUMERIC)
         val locale = Locale.forLanguageTag("en-US-u-hc-h23")
 
         var formatter: DateTimeFormatter
         if (isHcExtensionHonored) {
-            formatter = DateTimeFormatter(
-                appContext,
-                builder.setHour(SkeletonOptions.Hour.NUMERIC).build(),
-                locale
-            )
+            formatter =
+                DateTimeFormatter(
+                    appContext,
+                    builder.setHour(SkeletonOptions.Hour.NUMERIC).build(),
+                    locale
+                )
             // en-US default is h12, but hc forces it to 24
             assertEquals(expectedUs24, formatter.format(testDate))
         } else {
-            formatter = DateTimeFormatter(
-                appContext,
-                builder.setHour(SkeletonOptions.Hour.NUMERIC).build(),
-                locale
-            )
+            formatter =
+                DateTimeFormatter(
+                    appContext,
+                    builder.setHour(SkeletonOptions.Hour.NUMERIC).build(),
+                    locale
+                )
             assertEquals(expectedUs12, formatter.format(testDate)) // hc is ignored
         }
 
-        formatter = DateTimeFormatter(
-            appContext,
-            builder.setHour(SkeletonOptions.Hour.FORCE_12H_NUMERIC).build(),
-            locale
-        )
+        formatter =
+            DateTimeFormatter(
+                appContext,
+                builder.setHour(SkeletonOptions.Hour.FORCE_12H_NUMERIC).build(),
+                locale
+            )
         assertEquals(expectedUs12, formatter.format(testDate)) // force to h12
 
-        formatter = DateTimeFormatter(
-            appContext,
-            builder.setHour(SkeletonOptions.Hour.FORCE_24H_NUMERIC).build(),
-            locale
-        )
+        formatter =
+            DateTimeFormatter(
+                appContext,
+                builder.setHour(SkeletonOptions.Hour.FORCE_24H_NUMERIC).build(),
+                locale
+            )
         assertEquals(expectedUs24, formatter.format(testDate)) // force to h12
     }
 
-    @Test @LargeTest
+    @Test
+    @LargeTest
     fun testApi26And27PatternHasB() {
         val options = SkeletonOptions.fromString("yMMMdjmsSSS")
         val now = Date()
@@ -300,32 +317,35 @@ class DateTimeFormatterTest {
         }
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testBbb() {
-        val builder = SkeletonOptions.Builder()
-            .setHour(SkeletonOptions.Hour.NUMERIC)
-            .setPeriod(SkeletonOptions.Period.FLEXIBLE)
-            .setMinute(SkeletonOptions.Minute.NUMERIC)
+        val builder =
+            SkeletonOptions.Builder()
+                .setHour(SkeletonOptions.Hour.NUMERIC)
+                .setPeriod(SkeletonOptions.Period.FLEXIBLE)
+                .setMinute(SkeletonOptions.Minute.NUMERIC)
 
         val formatterUs = DateTimeFormatter(appContext, builder.build(), Locale.US)
         val formatterZh = DateTimeFormatter(appContext, builder.build(), Locale.CHINA)
         val formatterFr = DateTimeFormatter(appContext, builder.build(), Locale.FRANCE)
 
-        val expectedUs = if (isFlexiblePeriodAvailable) {
-            "12:43 at night || 4:43 at night || 8:43 in the morning || " +
+        val expectedUs =
+            if (isFlexiblePeriodAvailable) {
+                "12:43 at night || 4:43 at night || 8:43 in the morning || " +
                     "12:43 in the afternoon || 4:43 in the afternoon || 8:43 in the evening"
-        } else {
-            "12:43 AM || 4:43 AM || 8:43 AM || 12:43 PM || 4:43 PM || 8:43 PM"
-        }
-        val expectedZh = when {
-            // Chinese changed to 24h from ICU 70.1
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
-                "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
-            isFlexiblePeriodAvailable ->
-                "凌晨12:43 || 凌晨4:43 || 上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
-            else ->
-                "上午12:43 || 上午4:43 || 上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
-        }
+            } else {
+                "12:43 AM || 4:43 AM || 8:43 AM || 12:43 PM || 4:43 PM || 8:43 PM"
+            }
+        val expectedZh =
+            when {
+                // Chinese changed to 24h from ICU 70.1
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                    "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
+                isFlexiblePeriodAvailable ->
+                    "凌晨12:43 || 凌晨4:43 || 上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
+                else -> "上午12:43 || 上午4:43 || 上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
+            }
         val expectedFr = "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
 
         val calendar = Calendar.getInstance()
@@ -353,12 +373,14 @@ class DateTimeFormatterTest {
         assertEquals(expectedFr, resultFr.toString())
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testEra() {
-        val builder = SkeletonOptions.Builder()
-            .setYear(SkeletonOptions.Year.NUMERIC)
-            .setMonth(SkeletonOptions.Month.ABBREVIATED)
-            .setEra(SkeletonOptions.Era.ABBREVIATED)
+        val builder =
+            SkeletonOptions.Builder()
+                .setYear(SkeletonOptions.Year.NUMERIC)
+                .setMonth(SkeletonOptions.Month.ABBREVIATED)
+                .setEra(SkeletonOptions.Era.ABBREVIATED)
 
         val dateBc = Calendar.getInstance()
         dateBc.set(-42, Calendar.SEPTEMBER, 21)
@@ -375,20 +397,23 @@ class DateTimeFormatterTest {
         assertEquals(
             if (isIcuAvailable) "Sep 2021 Anno Domini" else "Sep 2021 AD",
             DateTimeFormatter(
-                appContext,
-                builder.setEra(SkeletonOptions.Era.WIDE).build(),
-                Locale.US
-            ).format(testDate)
+                    appContext,
+                    builder.setEra(SkeletonOptions.Era.WIDE).build(),
+                    Locale.US
+                )
+                .format(testDate)
         )
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testWeekDay() {
-        val builder = SkeletonOptions.Builder()
-            .setYear(SkeletonOptions.Year.NUMERIC)
-            .setMonth(SkeletonOptions.Month.WIDE)
-            .setDay(SkeletonOptions.Day.NUMERIC)
-            .setWeekDay(SkeletonOptions.WeekDay.ABBREVIATED)
+        val builder =
+            SkeletonOptions.Builder()
+                .setYear(SkeletonOptions.Year.NUMERIC)
+                .setMonth(SkeletonOptions.Month.WIDE)
+                .setDay(SkeletonOptions.Day.NUMERIC)
+                .setWeekDay(SkeletonOptions.WeekDay.ABBREVIATED)
 
         assertEquals(
             "Sun, September 19, 2021",
@@ -396,19 +421,25 @@ class DateTimeFormatterTest {
         )
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testTimeZone() {
-        val builder = SkeletonOptions.Builder()
-            .setHour(SkeletonOptions.Hour.NUMERIC)
-            .setMinute(SkeletonOptions.Minute.NUMERIC)
-            .setTimezone(SkeletonOptions.Timezone.LONG)
+        val builder =
+            SkeletonOptions.Builder()
+                .setHour(SkeletonOptions.Hour.NUMERIC)
+                .setMinute(SkeletonOptions.Minute.NUMERIC)
+                .setTimezone(SkeletonOptions.Timezone.LONG)
         val locale = Locale.US
 
         val timeZone = TimeZone.getTimeZone("America/Denver")
         val coloradoTime = Calendar.getInstance(timeZone, locale)
         coloradoTime.set(
-            2021, Calendar.AUGUST, 19, // Date
-            21, 42, 12
+            2021,
+            Calendar.AUGUST,
+            19, // Date
+            21,
+            42,
+            12
         ) // Time
 
         var options = builder.build()
@@ -427,7 +458,7 @@ class DateTimeFormatterTest {
                 Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MDT"
                 isIcuAvailable -> "9:42 PM MDT"
                 else -> "8:42 PM PDT"
-             },
+            },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
 
@@ -437,7 +468,7 @@ class DateTimeFormatterTest {
                 Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MT"
                 isIcuAvailable -> "9:42 PM MT"
                 else -> "8:42 PM PDT"
-             },
+            },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
 
@@ -447,26 +478,29 @@ class DateTimeFormatterTest {
                 Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM GMT-6"
                 isIcuAvailable -> "9:42 PM GMT-6"
                 else -> "8:42 PM PDT"
-             },
+            },
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     // Making sure the APIs honor the default timezone
     fun testDefaultTimeZone() {
-        val options = SkeletonOptions.Builder()
-            .setHour(SkeletonOptions.Hour.NUMERIC)
-            .setMinute(SkeletonOptions.Minute.NUMERIC)
-            .setTimezone(SkeletonOptions.Timezone.LONG)
-            .build()
+        val options =
+            SkeletonOptions.Builder()
+                .setHour(SkeletonOptions.Hour.NUMERIC)
+                .setMinute(SkeletonOptions.Minute.NUMERIC)
+                .setTimezone(SkeletonOptions.Timezone.LONG)
+                .build()
         val locale = Locale.US
 
         // Honor the current default timezone
-        val expPDT = when {
-            Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Pacific Daylight Time"
-            else -> "9:42 PM Pacific Daylight Time"
-        }
+        val expPDT =
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Pacific Daylight Time"
+                else -> "9:42 PM Pacific Daylight Time"
+            }
         // Test Calendar, Date, and milliseconds
         assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testCalendar))
         assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testDate))
@@ -474,10 +508,11 @@ class DateTimeFormatterTest {
 
         // Change the default timezone.
         TimeZone.setDefault(TimeZone.getTimeZone("America/Denver"))
-        val expMDT = when {
-            Build.VERSION.SDK_INT >= 34 -> "10:42\u202FPM Mountain Daylight Time"
-            else -> "10:42 PM Mountain Daylight Time"
-        }
+        val expMDT =
+            when {
+                Build.VERSION.SDK_INT >= 34 -> "10:42\u202FPM Mountain Daylight Time"
+                else -> "10:42 PM Mountain Daylight Time"
+            }
         // The calendar object already has a time zone of its own, captured at creation time.
         // So not matching the default changed after is the expected behavior.
         // BUT!
@@ -491,18 +526,16 @@ class DateTimeFormatterTest {
         // The default timezone is restored in @Before, no need to change it back
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testEmptySkeleton() {
         val options = SkeletonOptions.fromString("")
-        assertEquals("",
-            DateTimeFormatter(appContext, options, Locale.US).format(testDate)
-        )
+        assertEquals("", DateTimeFormatter(appContext, options, Locale.US).format(testDate))
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testInvalidSkeletonField_throwsIAE() {
-        assertFailsWith<IllegalArgumentException> {
-            SkeletonOptions.fromString("fiInNopPRtT")
-        }
+        assertFailsWith<IllegalArgumentException> { SkeletonOptions.fromString("fiInNopPRtT") }
     }
 }

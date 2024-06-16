@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -75,6 +76,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import org.junit.Rule
+
 // import org.junit.Test
 
 private const val delayBetweenItems = 2500L
@@ -82,16 +84,11 @@ private const val animationTime = 900L
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 class CarouselTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // @Test
     fun carousel_autoScrolls() {
-        rule.setContent {
-            SampleCarousel {
-                BasicText(text = "Text ${it + 1}")
-            }
-        }
+        rule.setContent { SampleCarousel { BasicText(text = "Text ${it + 1}") } }
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
 
@@ -104,18 +101,12 @@ class CarouselTest {
 
     // @Test
     fun carousel_onFocus_stopsScroll() {
-        rule.setContent {
-            SampleCarousel {
-                BasicText(text = "Text ${it + 1}")
-            }
-        }
+        rule.setContent { SampleCarousel { BasicText(text = "Text ${it + 1}") } }
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
-        rule.onNodeWithText("Text 1")
-            .onParent()
-            .requestFocus()
+        rule.onNodeWithText("Text 1").onParent().requestFocus()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
@@ -149,9 +140,7 @@ class CarouselTest {
             val carouselState = rememberCarouselState()
             SampleCarousel(carouselState = carouselState) {
                 BasicText(text = "Text ${it + 1}")
-                LaunchedEffect(carouselState) {
-                    pauseHandle = carouselState.pauseAutoScroll(it)
-                }
+                LaunchedEffect(carouselState) { pauseHandle = carouselState.pauseAutoScroll(it) }
             }
         }
 
@@ -262,16 +251,12 @@ class CarouselTest {
     fun carousel_outOfFocus_resumesScroll() {
         rule.setContent {
             Column {
-                SampleCarousel {
-                    BasicText(text = "Text ${it + 1}")
-                }
+                SampleCarousel { BasicText(text = "Text ${it + 1}") }
                 BasicText(text = "Card", modifier = Modifier.focusable())
             }
         }
 
-        rule.onNodeWithText("Text 1")
-            .onParent()
-            .requestFocus()
+        rule.onNodeWithText("Text 1").onParent().requestFocus()
 
         rule.onNodeWithText("Card").requestFocus()
         rule.onNodeWithText("Card").assertIsFocused()
@@ -283,11 +268,7 @@ class CarouselTest {
 
     // @Test
     fun carousel_pagerIndicatorDisplayed() {
-        rule.setContent {
-            SampleCarousel {
-                SampleCarouselItem(index = it)
-            }
-        }
+        rule.setContent { SampleCarousel { SampleCarouselItem(index = it) } }
 
         rule.onNodeWithTag("indicator").assertIsDisplayed()
     }
@@ -314,43 +295,30 @@ class CarouselTest {
 
     // @Test
     fun carousel_withAnimatedContent_successfulFocusIn() {
-        rule.setContent {
-            SampleCarousel {
-                SampleCarouselItem(index = it)
-            }
-        }
+        rule.setContent { SampleCarousel { SampleCarouselItem(index = it) } }
 
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // current item overlay render delay
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
-        rule.onNodeWithText("Play 0", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .assertIsFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true).assertIsDisplayed().assertIsFocused()
     }
 
     // @Test
     fun carousel_parentContainerGainsFocus_onBackPress() {
         rule.setContent {
-            Box(modifier = Modifier
-                .testTag("box-container")
-                .fillMaxSize()
-                .focusable()) {
-                SampleCarousel { index ->
-                    SampleButton("Button-${index + 1}")
-                }
+            Box(modifier = Modifier.testTag("box-container").fillMaxSize().focusable()) {
+                SampleCarousel { index -> SampleButton("Button-${index + 1}") }
             }
         }
 
         // Request focus for Carousel on start
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // Trigger recomposition after requesting focus
         rule.mainClock.advanceTimeByFrame()
@@ -372,20 +340,14 @@ class CarouselTest {
     // @Test
     fun carousel_withCarouselItem_parentContainerGainsFocusOnBackPress() {
         rule.setContent {
-            Box(modifier = Modifier
-                .testTag("box-container")
-                .fillMaxSize()
-                .focusable()) {
-                SampleCarousel {
-                    SampleCarouselItem(index = it)
-                }
+            Box(modifier = Modifier.testTag("box-container").fillMaxSize().focusable()) {
+                SampleCarousel { SampleCarouselItem(index = it) }
             }
         }
 
         // Request focus for Carousel on start
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // Trigger recomposition after requesting focus and advance time to finish animations
         rule.mainClock.advanceTimeByFrame()
@@ -415,41 +377,39 @@ class CarouselTest {
                     var isFocused by remember { mutableStateOf(false) }
                     BasicText(
                         text = "test-card-$it",
-                        modifier = Modifier
-                            .focusRequester(if (it == 0) focusRequester else FocusRequester.Default)
-                            .testTag("test-card-$it")
-                            .size(200.dp)
-                            .border(2.dp, if (isFocused) Color.Red else Color.Black)
-                            .onFocusChanged { fs ->
-                                isFocused = fs.isFocused
-                            }
-                            .focusable()
+                        modifier =
+                            Modifier.focusRequester(
+                                    if (it == 0) focusRequester else FocusRequester.Default
+                                )
+                                .testTag("test-card-$it")
+                                .size(200.dp)
+                                .border(2.dp, if (isFocused) Color.Red else Color.Black)
+                                .onFocusChanged { fs -> isFocused = fs.isFocused }
+                                .focusable()
                     )
                 }
                 item {
                     Carousel(
-                        modifier = Modifier
-                            .height(500.dp)
-                            .fillMaxWidth()
-                            .testTag("featured-carousel")
-                            .border(2.dp, Color.Black),
+                        modifier =
+                            Modifier.height(500.dp)
+                                .fillMaxWidth()
+                                .testTag("featured-carousel")
+                                .border(2.dp, Color.Black),
                         carouselState = rememberCarouselState(),
                         itemCount = 3,
                         autoScrollDurationMillis = delayBetweenItems
                     ) {
                         SampleCarouselItem(index = it) {
                             Box(
-                                modifier = Modifier
-                                    .animateEnterExit(
+                                modifier =
+                                    Modifier.animateEnterExit(
                                         enter = slideInHorizontally(),
                                         exit = slideOutHorizontally()
                                     )
                             ) {
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     BasicText(text = "carousel-frame")
-                                    Row {
-                                        SampleButton(text = "PLAY")
-                                    }
+                                    Row { SampleButton(text = "PLAY") }
                                 }
                             }
                         }
@@ -459,17 +419,12 @@ class CarouselTest {
                     var isFocused by remember { mutableStateOf(false) }
                     BasicText(
                         text = "test-card-${it + 3}",
-                        modifier = Modifier
-                            .testTag("test-card-${it + 3}")
-                            .size(250.dp)
-                            .border(
-                                2.dp,
-                                if (isFocused) Color.Red else Color.Black
-                            )
-                            .onFocusChanged { fs ->
-                                isFocused = fs.isFocused
-                            }
-                            .focusable()
+                        modifier =
+                            Modifier.testTag("test-card-${it + 3}")
+                                .size(250.dp)
+                                .border(2.dp, if (isFocused) Color.Red else Color.Black)
+                                .onFocusChanged { fs -> isFocused = fs.isFocused }
+                                .focusable()
                     )
                 }
             }
@@ -502,9 +457,7 @@ class CarouselTest {
     // @Test
     fun carousel_zeroItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
-        rule.setContent {
-            Carousel(itemCount = 0, modifier = Modifier.testTag(testTag)) {}
-        }
+        rule.setContent { Carousel(itemCount = 0, modifier = Modifier.testTag(testTag)) {} }
 
         rule.onNodeWithTag(testTag).assertExists()
     }
@@ -512,9 +465,7 @@ class CarouselTest {
     // @Test
     fun carousel_oneItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
-        rule.setContent {
-            Carousel(itemCount = 1, modifier = Modifier.testTag(testTag)) {}
-        }
+        rule.setContent { Carousel(itemCount = 1, modifier = Modifier.testTag(testTag)) {} }
 
         rule.onNodeWithTag(testTag).assertExists()
     }
@@ -524,19 +475,14 @@ class CarouselTest {
         rule.setContent {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    repeat(3) {
-                        SampleButton("Row-button-${it + 1}")
-                    }
+                    repeat(3) { SampleButton("Row-button-${it + 1}") }
                 }
-                SampleCarousel { index ->
-                    SampleButton("Button-${index + 1}")
-                }
+                SampleCarousel { index -> SampleButton("Button-${index + 1}") }
             }
         }
 
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // trigger recomposition on requesting focus
         rule.mainClock.advanceTimeByFrame()
@@ -587,11 +533,12 @@ class CarouselTest {
 
             Column {
                 TabRow(
-                    modifier = Modifier.onFocusChanged {
-                        if (it.hasFocus || it.isFocused) {
-                            numberOfTimesTabGainedFocus++
-                        }
-                    },
+                    modifier =
+                        Modifier.onFocusChanged {
+                            if (it.hasFocus || it.isFocused) {
+                                numberOfTimesTabGainedFocus++
+                            }
+                        },
                     selectedTabIndex = selectedTabIndex
                 ) {
                     tabs.forEachIndexed { index, tab ->
@@ -642,15 +589,12 @@ class CarouselTest {
     // @Test
     fun carousel_manualScrollingDpadLongPress_moveOnlyOneSlide() {
         rule.setContent {
-            SampleCarousel(itemCount = 6) { index ->
-                SampleButton("Button ${index + 1}")
-            }
+            SampleCarousel(itemCount = 6) { index -> SampleButton("Button ${index + 1}") }
         }
 
         // Request focus for Carousel on start
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // Trigger recomposition after requesting focus
         rule.mainClock.advanceTimeByFrame()
@@ -686,15 +630,10 @@ class CarouselTest {
 
     // @Test
     fun carousel_manualScrollingLtr_RightMovesToNextSlideLeftMovesToPrevSlide() {
-        rule.setContent {
-            SampleCarousel { index ->
-                SampleButton("Button ${index + 1}")
-            }
-        }
+        rule.setContent { SampleCarousel { index -> SampleButton("Button ${index + 1}") } }
 
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // current item overlay render delay
         rule.mainClock.advanceTimeBy(animationTime, false)
@@ -733,18 +672,13 @@ class CarouselTest {
     // @Test
     fun carousel_manualScrollingRtl_LeftMovesToNextSlideRightMovesToPrevSlide() {
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
-            ) {
-                SampleCarousel {
-                    SampleButton("Button ${it + 1}")
-                }
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                SampleCarousel { SampleButton("Button ${it + 1}") }
             }
         }
 
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("pager")
-            .requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         // current item overlay render delay
         rule.mainClock.advanceTimeBy(animationTime, false)
@@ -838,14 +772,11 @@ class CarouselTest {
         rule.setContent {
             // No AutoScrolling
             SampleCarousel(timeToDisplayItemMillis = Long.MAX_VALUE, itemCount = 3) {
-                Row {
-                    SampleButton("Button-$it")
-                }
+                Row { SampleButton("Button-$it") }
             }
         }
 
-        rule.onNodeWithText("Button-0")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Button-0").performSemanticsAction(SemanticsActions.RequestFocus)
 
         // Carousel should loop around the edges if there are no adjacent focusable items in the
         // direction of dpad key press (left)
@@ -858,14 +789,14 @@ class CarouselTest {
         rule.onNodeWithText("Button-0").assertIsFocused()
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     // @Test
     fun carousel_manualScrollingLtr_focusMovesToAdjacentItemsOutsideCarousel() {
         rule.setContent {
             val focusRequester = remember { FocusRequester() }
             Row {
                 Column(
-                    Modifier
-                        .focusProperties {
+                    Modifier.focusProperties {
                             enter = {
                                 focusRequester.requestFocus()
                                 FocusRequester.Cancel
@@ -875,30 +806,27 @@ class CarouselTest {
                 ) {
                     repeat(3) {
                         Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .testTag("Item-$it")
-                                .then(
-                                    if (it == 0) Modifier.focusRequester(focusRequester)
-                                    else Modifier
-                                )
-                                .focusable()
+                            modifier =
+                                Modifier.size(10.dp)
+                                    .testTag("Item-$it")
+                                    .then(
+                                        if (it == 0) Modifier.focusRequester(focusRequester)
+                                        else Modifier
+                                    )
+                                    .focusable()
                         )
                     }
                 }
                 // No AutoScrolling
                 Box(Modifier.weight(1f)) {
                     SampleCarousel(timeToDisplayItemMillis = Long.MAX_VALUE, itemCount = 2) {
-                        Row {
-                            SampleButton("Button-$it")
-                        }
+                        Row { SampleButton("Button-$it") }
                     }
                 }
             }
         }
 
-        rule.onNodeWithText("Button-0")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Button-0").performSemanticsAction(SemanticsActions.RequestFocus)
 
         // Focus should exit Carousel if there are any adjacent focusable items in the direction
         // of dpad key press (left)
@@ -916,20 +844,13 @@ private fun SampleCarousel(
     content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {
     Carousel(
-        modifier = Modifier
-            .padding(5.dp)
-            .fillMaxWidth()
-            .height(200.dp)
-            .testTag("pager"),
+        modifier = Modifier.padding(5.dp).fillMaxWidth().height(200.dp).testTag("pager"),
         carouselState = carouselState,
         itemCount = itemCount,
         autoScrollDurationMillis = timeToDisplayItemMillis,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .testTag("indicator"),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).testTag("indicator"),
                 activeItemIndex = carouselState.activeItemIndex,
                 itemCount = itemCount
             )
@@ -944,12 +865,7 @@ private fun AnimatedContentScope.SampleCarouselItem(
     modifier: Modifier = Modifier,
     content: (@Composable AnimatedContentScope.() -> Unit) = { SampleButton("Play $index") },
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Red)
-            .border(2.dp, Color.Blue)
-    ) {
+    Box(modifier = modifier.fillMaxSize().background(Color.Red).border(2.dp, Color.Blue)) {
         content()
     }
 }
@@ -959,12 +875,12 @@ private fun SampleButton(text: String = "Play") {
     var isFocused by remember { mutableStateOf(false) }
     BasicText(
         text = text,
-        modifier = Modifier
-            .size(100.dp, 20.dp)
-            .background(Color.Yellow)
-            .onFocusChanged { isFocused = it.isFocused }
-            .border(2.dp, if (isFocused) Color.Green else Color.Transparent)
-            .focusable(),
+        modifier =
+            Modifier.size(100.dp, 20.dp)
+                .background(Color.Yellow)
+                .onFocusChanged { isFocused = it.isFocused }
+                .border(2.dp, if (isFocused) Color.Green else Color.Transparent)
+                .focusable(),
     )
 }
 
@@ -983,42 +899,57 @@ private fun checkNodeCompletelyVisible(
         itemRect.bottom <= rootRect.bottom
 }
 
-private fun performKeyPress(keyCode: Int, count: Int = 1, afterEachPress: () -> Unit = { }) {
+private fun performKeyPress(keyCode: Int, count: Int = 1, afterEachPress: () -> Unit = {}) {
     repeat(count) {
-        InstrumentationRegistry
-            .getInstrumentation()
-            .sendKeyDownUpSync(keyCode)
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode)
         afterEachPress()
     }
 }
 
-private fun performLongKeyPress(
-    rule: ComposeContentTestRule,
-    keyCode: Int,
-    count: Int = 1
-) {
+private fun performLongKeyPress(rule: ComposeContentTestRule, keyCode: Int, count: Int = 1) {
     repeat(count) {
         // Trigger the first key down event to simulate key press
-        val firstKeyDownEvent = KeyEvent(
-            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-            KeyEvent.ACTION_DOWN, keyCode, 0, 0, 0, 0
-        )
+        val firstKeyDownEvent =
+            KeyEvent(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(),
+                KeyEvent.ACTION_DOWN,
+                keyCode,
+                0,
+                0,
+                0,
+                0
+            )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(firstKeyDownEvent))
         rule.waitForIdle()
 
         // Trigger multiple key down events with repeat count (>0) to simulate key long press
-        val repeatedKeyDownEvent = KeyEvent(
-            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-            KeyEvent.ACTION_DOWN, keyCode, 5, 0, 0, 0
-        )
+        val repeatedKeyDownEvent =
+            KeyEvent(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(),
+                KeyEvent.ACTION_DOWN,
+                keyCode,
+                5,
+                0,
+                0,
+                0
+            )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(repeatedKeyDownEvent))
         rule.waitForIdle()
 
         // Trigger the final key up event to simulate key release
-        val keyUpEvent = KeyEvent(
-            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-            KeyEvent.ACTION_UP, keyCode, 0, 0, 0, 0
-        )
+        val keyUpEvent =
+            KeyEvent(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(),
+                KeyEvent.ACTION_UP,
+                keyCode,
+                0,
+                0,
+                0,
+                0
+            )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyUpEvent))
         rule.waitForIdle()
     }

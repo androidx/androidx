@@ -54,14 +54,17 @@ class ObsoleteCompatDetector : Detector(), SourceCodeScanner {
         CompatMethodHandler(context)
 
     companion object {
-        val ISSUE = Issue.create(
-            "ObsoleteCompatMethod",
-            "Obsolete compatibility method can be deprecated with replacement",
-            "Compatibility methods that consist of a single call to the platform SDK " +
-                "should be deprecated and provide a suggestion to replace with a direct call.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(ObsoleteCompatDetector::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "ObsoleteCompatMethod",
+                "Obsolete compatibility method can be deprecated with replacement",
+                "Compatibility methods that consist of a single call to the platform SDK " +
+                    "should be deprecated and provide a suggestion to replace with a direct call.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(ObsoleteCompatDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }
 
@@ -77,63 +80,64 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
         // Does it already have @Deprecated and @ReplaceWith annotations?
         val hasDeprecated = node.hasAnnotation("java.lang.Deprecated")
         val hasReplaceWith = node.hasAnnotation("androidx.annotation.ReplaceWith")
-        val hasDeprecatedDoc = node.comments.any { comment ->
-            comment.text.contains("@deprecated ")
-        }
+        val hasDeprecatedDoc =
+            node.comments.any { comment -> comment.text.contains("@deprecated ") }
         if (hasDeprecated && hasReplaceWith && hasDeprecatedDoc) return
 
         // Compat methods take the wrapped class as the first parameter.
         val firstParameter = node.javaPsi.parameterList.parameters.firstOrNull() ?: return
 
         // Ensure that we're dealing with a single-line method that operates on the wrapped class.
-        val expression = (node.uastBody as? UBlockExpression)
-            ?.expressions
-            ?.singleOrNull()
-            ?.unwrapReturnExpression()
-            ?.skipParenthesizedExprDown()
-            as? UQualifiedReferenceExpression
-        val receiver = expression
-            ?.unwrapReceiver()
+        val expression =
+            (node.uastBody as? UBlockExpression)
+                ?.expressions
+                ?.singleOrNull()
+                ?.unwrapReturnExpression()
+                ?.skipParenthesizedExprDown() as? UQualifiedReferenceExpression
+        val receiver = expression?.unwrapReceiver()
         if (firstParameter != receiver) return
 
         val lintFix = LintFix.create().composite().name("Replace obsolete compat method")
 
         if (!hasDeprecatedDoc) {
-            val docLink = when (expression.selector) {
-                is UCallExpression -> {
-                    val methodCall = expression.selector as UCallExpression
-                    val className = (methodCall.receiverType as PsiClassReferenceType).className
-                    val methodName = methodCall.methodName
-                    val argTypes = methodCall.typeArguments.map { psiType ->
-                        (psiType as PsiClassReferenceType).className
+            val docLink =
+                when (expression.selector) {
+                    is UCallExpression -> {
+                        val methodCall = expression.selector as UCallExpression
+                        val className = (methodCall.receiverType as PsiClassReferenceType).className
+                        val methodName = methodCall.methodName
+                        val argTypes =
+                            methodCall.typeArguments.map { psiType ->
+                                (psiType as PsiClassReferenceType).className
+                            }
+                        "$className#$methodName(${argTypes.joinToString(", ")})"
                     }
-                    "$className#$methodName(${argTypes.joinToString(", ")})"
+                    is USimpleNameReferenceExpression -> {
+                        val fieldName =
+                            (expression.selector as USimpleNameReferenceExpression).resolvedName
+                        val className =
+                            (expression.receiver.getExpressionType() as PsiClassReferenceType)
+                                .className
+                        "$className#$fieldName"
+                    }
+                    else -> {
+                        // We don't know how to handle this type of qualified reference.
+                        return
+                    }
                 }
-                is USimpleNameReferenceExpression -> {
-                    val fieldName = (expression.selector
-                        as USimpleNameReferenceExpression).resolvedName
-                    val className = (expression.receiver.getExpressionType()
-                        as PsiClassReferenceType).className
-                    "$className#$fieldName"
-                }
-                else -> {
-                    // We don't know how to handle this type of qualified reference.
-                    return
-                }
-            }
             val docText = "@deprecated Call {@link $docLink} directly."
-            val javadocFix = buildInsertJavadocFix(context, node, docText)
-                .autoFix()
-                .shortenNames()
-                .reformat(true)
-                .build()
+            val javadocFix =
+                buildInsertJavadocFix(context, node, docText)
+                    .autoFix()
+                    .shortenNames()
+                    .reformat(true)
+                    .build()
             lintFix.add(javadocFix)
         }
 
         if (!hasReplaceWith) {
-            val replacement = expression.javaPsi!!.text!!
-                .replace("\"", "\\\"")
-                .replace(Regex("\n\\s*"), "")
+            val replacement =
+                expression.javaPsi!!.text!!.replace("\"", "\\\"").replace(Regex("\n\\s*"), "")
             lintFix.add(
                 LintFix.create()
                     .name("Annotate with @ReplaceWith")
@@ -163,12 +167,13 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
             )
         }
 
-        val incident = Incident(context)
-            .issue(ObsoleteCompatDetector.ISSUE)
-            .location(context.getNameLocation(node))
-            .message("Obsolete compat method should provide replacement")
-            .scope(node)
-            .fix(lintFix.build())
+        val incident =
+            Incident(context)
+                .issue(ObsoleteCompatDetector.ISSUE)
+                .location(context.getNameLocation(node))
+                .message("Obsolete compat method should provide replacement")
+                .scope(node)
+                .fix(lintFix.build())
         context.report(incident)
     }
 }
@@ -179,34 +184,18 @@ fun buildInsertJavadocFix(
     docText: String
 ): LintFix.ReplaceStringBuilder {
     val javadocNode = node.comments.lastOrNull { it.text.startsWith("/**") }
-    val javadocFix = LintFix.create()
-        .name("Add @deprecated Javadoc annotation")
-        .replace()
+    val javadocFix = LintFix.create().name("Add @deprecated Javadoc annotation").replace()
     if (javadocNode != null) {
         // Append to the existing block comment before the close.
         val docEndOffset = javadocNode.text.lastIndexOf("*/")
         val insertAt = context.getRangeLocation(javadocNode, docEndOffset, 2)
-        val replacement = applyIndentToInsertion(
-            context,
-            insertAt,
-            "* $docText"
-        )
-        javadocFix
-            .range(insertAt)
-            .beginning()
-            .with(replacement)
+        val replacement = applyIndentToInsertion(context, insertAt, "* $docText")
+        javadocFix.range(insertAt).beginning().with(replacement)
     } else {
         // Insert a new comment before the declaration or any annotations.
         val insertAt = context.getLocation(node.annotations.firstOrNull() ?: node.modifierList)
-        val replacement = applyIndentToInsertion(
-            context,
-            insertAt,
-            "/** $docText */"
-        )
-        javadocFix
-            .range(insertAt)
-            .beginning()
-            .with(replacement)
+        val replacement = applyIndentToInsertion(context, insertAt, "/** $docText */")
+        javadocFix.range(insertAt).beginning().with(replacement)
     }
     return javadocFix
 }
@@ -232,8 +221,9 @@ fun applyIndentToInsertion(context: JavaContext, insertAt: Location, replacement
 }
 
 fun UExpression.unwrapReceiver(): PsiElement? =
-    ((this as? UQualifiedReferenceExpression)
-        ?.receiver?.skipParenthesizedExprDown() as? UResolvable)?.resolve()
+    ((this as? UQualifiedReferenceExpression)?.receiver?.skipParenthesizedExprDown()
+            as? UResolvable)
+        ?.resolve()
 
 fun UExpression.unwrapReturnExpression(): UExpression =
     (this as? UReturnExpression)?.returnExpression ?: this

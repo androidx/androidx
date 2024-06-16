@@ -80,14 +80,12 @@ fun BringPartOfComposableIntoViewSample() {
         val coroutineScope = rememberCoroutineScope()
         Column {
             Box(
-                Modifier
-                    .border(2.dp, Color.Black)
+                Modifier.border(2.dp, Color.Black)
                     .size(500f.toDp())
                     .horizontalScroll(rememberScrollState())
             ) {
                 Canvas(
-                    Modifier
-                        .size(1500f.toDp(), 500f.toDp())
+                    Modifier.size(1500f.toDp(), 500f.toDp())
                         // This associates the RelocationRequester with a Composable that wants
                         // to be brought into view.
                         .bringIntoViewRequester(bringIntoViewRequester)

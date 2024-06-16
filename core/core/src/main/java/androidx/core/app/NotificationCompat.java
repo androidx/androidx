@@ -28,6 +28,8 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.LocusId;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -54,7 +56,9 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
@@ -5488,6 +5492,77 @@ public class NotificationCompat {
                 return null;
             }
             return createRemoteViews(innerView, true);
+        }
+
+
+        /**
+         * A helper method to get texts from a {@link Notification}'s custom content view made by
+         * either
+         * {@link Builder#setCustomBigContentView(RemoteViews)},
+         * {@link Builder#setCustomContentView(RemoteViews)} or
+         * {@link Builder#setCustomHeadsUpContentView(RemoteViews)}.
+         *
+         * Note that this method will not look for {@link Notification#publicVersion} made by
+         * {@link Builder#setPublicVersion(Notification)}.
+         *
+         * @param context A {@link Context} that will be used to inflate the content view from
+         *                the notification.
+         * @param notification The notification from which to get texts from its content view.
+         * @return A list of text from the notification custom content view made by the above
+         * method. Otherwise, returns the empty list.
+         */
+        @NonNull
+        @SuppressWarnings("MixedMutabilityReturnType")
+        @RequiresApi(24)
+        public static List<CharSequence> getTextsFromContentView(@NonNull Context context,
+                @NonNull Notification notification) {
+            final String styleClassName = notification.extras.getString(EXTRA_TEMPLATE);
+            if (!Notification.DecoratedCustomViewStyle.class.getName().equals(styleClassName)) {
+                return Collections.emptyList();
+            }
+
+            if (notification.contentView == null && notification.bigContentView == null
+                    && notification.headsUpContentView == null) {
+                return Collections.emptyList();
+            }
+
+            RemoteViews contentView = notification.bigContentView != null
+                    ? notification.bigContentView : notification.contentView != null
+                    ? notification.contentView : notification.headsUpContentView;
+            final String packageName = contentView.getPackage();
+            ApplicationInfo applicationInfo;
+            Context packageContext;
+            try {
+                packageContext = context.createPackageContext(packageName, 0);
+                applicationInfo = context.getPackageManager().getApplicationInfo(packageName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            packageContext.setTheme(applicationInfo.theme);
+            View contentLayout = contentView.apply(packageContext, null);
+
+            final ArrayList<CharSequence> texts = new ArrayList<>();
+            getTextsFromViewTraversal(contentLayout, texts);
+
+            return texts;
+        }
+
+        private static void getTextsFromViewTraversal(View v, ArrayList<CharSequence> outTexts) {
+            if (!(v instanceof ViewGroup)) {
+                return;
+            }
+            for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) {
+                View child = ((ViewGroup) v).getChildAt(i);
+                if (child instanceof TextView) {
+                    CharSequence text = ((TextView) child).getText();
+                    if (text != null && text.length() > 0) {
+                        outTexts.add(text);
+                    }
+                }
+                if (child instanceof ViewGroup) {
+                    getTextsFromViewTraversal(child, outTexts);
+                }
+            }
         }
 
         private RemoteViews createRemoteViews(RemoteViews innerView, boolean showActions) {

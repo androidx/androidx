@@ -34,15 +34,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Regression test for b/235485694, adapted from GmsCore's own tests.
- */
+/** Regression test for b/235485694, adapted from GmsCore's own tests. */
 @Suppress("SameParameterValue")
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FilternatorTest {
-    @get:Rule
-    val activityRule = ActivityScenarioRule(FilternatorActivity::class.java)
+    @get:Rule val activityRule = ActivityScenarioRule(FilternatorActivity::class.java)
 
     private lateinit var uiDevice: UiDevice
 

@@ -23,9 +23,8 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 
-internal object RootMeasurePolicy : LayoutNode.NoIntrinsicsMeasurePolicy(
-    "Undefined intrinsics block and it is required"
-) {
+internal object RootMeasurePolicy :
+    LayoutNode.NoIntrinsicsMeasurePolicy("Undefined intrinsics block and it is required") {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints

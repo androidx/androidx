@@ -31,10 +31,13 @@ class UUIDUtilTest {
     fun convertToByte() {
         val uuid = UUID.randomUUID()
 
-        val expected = ByteBuffer.wrap(ByteArray(16)).apply {
-            putLong(uuid.mostSignificantBits)
-            putLong(uuid.leastSignificantBits)
-        }.array()
+        val expected =
+            ByteBuffer.wrap(ByteArray(16))
+                .apply {
+                    putLong(uuid.mostSignificantBits)
+                    putLong(uuid.leastSignificantBits)
+                }
+                .array()
 
         val result = convertUUIDToByte(uuid)
 

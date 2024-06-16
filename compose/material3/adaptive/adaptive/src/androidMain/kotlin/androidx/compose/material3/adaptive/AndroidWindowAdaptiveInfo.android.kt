@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -35,9 +34,7 @@ import kotlinx.coroutines.flow.map
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
-    val windowSize = with(LocalDensity.current) {
-        currentWindowSize().toSize().toDpSize()
-    }
+    val windowSize = with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() }
     return WindowAdaptiveInfo(
         WindowSizeClass.compute(windowSize.width.value, windowSize.height.value),
         calculatePosture(collectFoldingFeaturesAsState().value)
@@ -57,11 +54,10 @@ fun currentWindowSize(): IntSize {
     // ComposeView's configuration changes.
     LocalConfiguration.current
     val windowBounds =
-        WindowMetricsCalculator
-            .getOrCreate()
+        WindowMetricsCalculator.getOrCreate()
             .computeCurrentWindowMetrics(LocalContext.current)
             .bounds
-   return IntSize(windowBounds.width(), windowBounds.height())
+    return IntSize(windowBounds.width(), windowBounds.height())
 }
 
 /**
@@ -73,15 +69,9 @@ fun currentWindowSize(): IntSize {
 fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
     val context = LocalContext.current
     return remember(context) {
-        if (context is Activity) {
-            // TODO(b/284347941) remove the instance check after the test bug is fixed.
-            WindowInfoTracker
-                .getOrCreate(context)
-                .windowLayoutInfo(context)
-        } else {
-            WindowInfoTracker
-                .getOrCreate(context)
-                .windowLayoutInfo(context)
-        }.map { it.displayFeatures.filterIsInstance<FoldingFeature>() }
-    }.collectAsState(emptyList())
+            WindowInfoTracker.getOrCreate(context).windowLayoutInfo(context).map {
+                it.displayFeatures.filterIsInstance<FoldingFeature>()
+            }
+        }
+        .collectAsState(emptyList())
 }

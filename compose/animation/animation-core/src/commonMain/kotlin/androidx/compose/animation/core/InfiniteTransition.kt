@@ -32,13 +32,14 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.flow.first
 
 /**
- * Creates a [InfiniteTransition] that runs infinite child animations. Child animations can be
- * added using [InfiniteTransition.animateColor][androidx.compose.animation.animateColor],
+ * Creates a [InfiniteTransition] that runs infinite child animations. Child animations can be added
+ * using [InfiniteTransition.animateColor][androidx.compose.animation.animateColor],
  * [InfiniteTransition.animateFloat], or [InfiniteTransition.animateValue]. Child animations will
  * start running as soon as they enter the composition, and will not stop until they are removed
  * from the composition.
  *
  * @param label A label for differentiating this animation from others in android studio.
+ *
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
  */
 @Composable
@@ -49,24 +50,28 @@ fun rememberInfiniteTransition(label: String = "InfiniteTransition"): InfiniteTr
 }
 
 /**
- * [InfiniteTransition] is responsible for running child animations. Child animations can be
- * added using [InfiniteTransition.animateColor][androidx.compose.animation.animateColor],
+ * [InfiniteTransition] is responsible for running child animations. Child animations can be added
+ * using [InfiniteTransition.animateColor][androidx.compose.animation.animateColor],
  * [InfiniteTransition.animateFloat], or [InfiniteTransition.animateValue]. Child animations will
  * start running as soon as they enter the composition, and will not stop until they are removed
  * from the composition.
  *
  * @param label A label for differentiating this animation from others in android studio.
+ *
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
  */
 class InfiniteTransition internal constructor(val label: String) {
 
     /**
-     * Each animation created using [InfiniteTransition.animateColor][androidx.compose.animation.animateColor],
+     * Each animation created using
+     * [InfiniteTransition.animateColor][androidx.compose.animation.animateColor],
      * [InfiniteTransition.animateFloat], or [InfiniteTransition.animateValue] is represented as a
      * [TransitionAnimationState] in [InfiniteTransition]. [typeConverter] converts the animation
-     * value from/to an [AnimationVector]. [label] differentiates this animation from others in android studio.
+     * value from/to an [AnimationVector]. [label] differentiates this animation from others in
+     * android studio.
      */
-    inner class TransitionAnimationState<T, V : AnimationVector> internal constructor(
+    inner class TransitionAnimationState<T, V : AnimationVector>
+    internal constructor(
         internal var initialValue: T,
         internal var targetValue: T,
         val typeConverter: TwoWayConverter<T, V>,
@@ -84,12 +89,8 @@ class InfiniteTransition internal constructor(val label: String) {
          * All the animation configurations including initial value/velocity & target value for
          * animating from [initialValue] to [targetValue] are captured in [animation].
          */
-        var animation = TargetBasedAnimation(
-            this.animationSpec,
-            typeConverter,
-            initialValue,
-            targetValue
-        )
+        var animation =
+            TargetBasedAnimation(this.animationSpec, typeConverter, initialValue, targetValue)
             internal set
 
         // This is used to signal parent for less work in a normal running mode, but in seeking
@@ -114,12 +115,8 @@ class InfiniteTransition internal constructor(val label: String) {
             this.animationSpec = animationSpec
             // Create a new animation if anything (i.e. initial/target) has changed
             // TODO: Consider providing some continuity maybe?
-            animation = TargetBasedAnimation(
-                animationSpec,
-                typeConverter,
-                initialValue,
-                targetValue
-            )
+            animation =
+                TargetBasedAnimation(animationSpec, typeConverter, initialValue, targetValue)
             refreshChildNeeded = true
             isFinished = false
             startOnTheNextFrame = true
@@ -152,9 +149,7 @@ class InfiniteTransition internal constructor(val label: String) {
     private var startTimeNanos = AnimationConstants.UnspecifiedTime
     private var isRunning by mutableStateOf(true)
 
-    /**
-     * List of [TransitionAnimationState]s that are in a [InfiniteTransition].
-     */
+    /** List of [TransitionAnimationState]s that are in a [InfiniteTransition]. */
     val animations: List<TransitionAnimationState<*, *>>
         get() = _animations.asMutableList()
 
@@ -170,9 +165,7 @@ class InfiniteTransition internal constructor(val label: String) {
     @Suppress("ComposableNaming")
     @Composable
     internal fun run() {
-        val toolingOverride = remember {
-            mutableStateOf<State<Long>?>(null)
-        }
+        val toolingOverride = remember { mutableStateOf<State<Long>?>(null) }
         if (isRunning || refreshChildNeeded) {
             LaunchedEffect(this) {
                 var durationScale = 1f
@@ -180,31 +173,26 @@ class InfiniteTransition internal constructor(val label: String) {
                 while (true) {
                     withInfiniteAnimationFrameNanos {
                         val currentTimeNanos = toolingOverride.value?.value ?: it
-                        if (startTimeNanos == AnimationConstants.UnspecifiedTime ||
-                            durationScale != coroutineContext.durationScale
+                        if (
+                            startTimeNanos == AnimationConstants.UnspecifiedTime ||
+                                durationScale != coroutineContext.durationScale
                         ) {
                             startTimeNanos = it
-                            _animations.forEach {
-                                it.reset()
-                            }
+                            _animations.forEach { it.reset() }
                             durationScale = coroutineContext.durationScale
                         }
                         if (durationScale == 0f) {
                             // Finish right away
-                            _animations.forEach {
-                                it.skipToEnd()
-                            }
+                            _animations.forEach { it.skipToEnd() }
                         } else {
-                            val playTimeNanos = ((currentTimeNanos - startTimeNanos) /
-                                durationScale).toLong()
+                            val playTimeNanos =
+                                ((currentTimeNanos - startTimeNanos) / durationScale).toLong()
                             onFrame(playTimeNanos)
                         }
                     }
                     // Suspend until duration scale is non-zero
                     if (durationScale == 0f) {
-                        snapshotFlow { coroutineContext.durationScale }.first {
-                            it > 0f
-                        }
+                        snapshotFlow { coroutineContext.durationScale }.first { it > 0f }
                     }
                 }
             }
@@ -229,20 +217,20 @@ class InfiniteTransition internal constructor(val label: String) {
 
 /**
  * Creates an animation of type [T] that runs infinitely as a part of the given
- * [InfiniteTransition]. Any data type can be animated so long as it can be converted from and to
- * an [AnimationVector]. This conversion needs to be provided as a [typeConverter]. Some examples
- * of such [TwoWayConverter] are: [Int.VectorConverter][Int.Companion.VectorConverter],
+ * [InfiniteTransition]. Any data type can be animated so long as it can be converted from and to an
+ * [AnimationVector]. This conversion needs to be provided as a [typeConverter]. Some examples of
+ * such [TwoWayConverter] are: [Int.VectorConverter][Int.Companion.VectorConverter],
  * [Dp.VectorConverter][Dp.Companion.VectorConverter],
  * [Size.VectorConverter][Size.Companion.VectorConverter], etc
  *
  * Once the animation is created, it will run from [initialValue] to [targetValue] and repeat.
- * Depending on the [RepeatMode] of the provided [animationSpec], the animation could either
- * restart after each iteration (i.e. [RepeatMode.Restart]), or reverse after each iteration (i.e
- * . [RepeatMode.Reverse]).
+ * Depending on the [RepeatMode] of the provided [animationSpec], the animation could either restart
+ * after each iteration (i.e. [RepeatMode.Restart]), or reverse after each iteration (i.e .
+ * [RepeatMode.Reverse]).
  *
  * If [initialValue] or [targetValue] is changed at any point during the animation, the animation
- * will be restarted with the new [initialValue] and [targetValue]. __Note__: this means
- * continuity will *not* be preserved.
+ * will be restarted with the new [initialValue] and [targetValue]. __Note__: this means continuity
+ * will *not* be preserved.
  *
  * A [label] for differentiating this animation from others in android studio.
  *
@@ -259,16 +247,14 @@ fun <T, V : AnimationVector> InfiniteTransition.animateValue(
     animationSpec: InfiniteRepeatableSpec<T>,
     label: String = "ValueAnimation"
 ): State<T> {
-    val transitionAnimation =
-        remember {
-            TransitionAnimationState(
-                initialValue, targetValue, typeConverter, animationSpec, label
-            )
-        }
+    val transitionAnimation = remember {
+        TransitionAnimationState(initialValue, targetValue, typeConverter, animationSpec, label)
+    }
 
     SideEffect {
-        if (initialValue != transitionAnimation.initialValue ||
-            targetValue != transitionAnimation.targetValue
+        if (
+            initialValue != transitionAnimation.initialValue ||
+                targetValue != transitionAnimation.targetValue
         ) {
             transitionAnimation.updateValues(
                 initialValue = initialValue,
@@ -280,9 +266,7 @@ fun <T, V : AnimationVector> InfiniteTransition.animateValue(
 
     DisposableEffect(transitionAnimation) {
         addAnimation(transitionAnimation)
-        onDispose {
-            removeAnimation(transitionAnimation)
-        }
+        onDispose { removeAnimation(transitionAnimation) }
     }
     return transitionAnimation
 }
@@ -292,13 +276,13 @@ fun <T, V : AnimationVector> InfiniteTransition.animateValue(
  * [InfiniteTransition].
  *
  * Once the animation is created, it will run from [initialValue] to [targetValue] and repeat.
- * Depending on the [RepeatMode] of the provided [animationSpec], the animation could either
- * restart after each iteration (i.e. [RepeatMode.Restart]), or reverse after each iteration (i.e
- * . [RepeatMode.Reverse]).
+ * Depending on the [RepeatMode] of the provided [animationSpec], the animation could either restart
+ * after each iteration (i.e. [RepeatMode.Restart]), or reverse after each iteration (i.e .
+ * [RepeatMode.Reverse]).
  *
  * If [initialValue] or [targetValue] is changed at any point during the animation, the animation
- * will be restarted with the new [initialValue] and [targetValue]. __Note__: this means
- * continuity will *not* be preserved.
+ * will be restarted with the new [initialValue] and [targetValue]. __Note__: this means continuity
+ * will *not* be preserved.
  *
  * A [label] for differentiating this animation from others in android studio.
  *
@@ -358,6 +342,7 @@ fun InfiniteTransition.animateFloat(
     return animateFloat(
         initialValue = initialValue,
         targetValue = targetValue,
-        animationSpec = animationSpec, label = "FloatAnimation"
+        animationSpec = animationSpec,
+        label = "FloatAnimation"
     )
 }

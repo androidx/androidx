@@ -36,34 +36,31 @@ internal fun Modifier.tvSurfaceScale(
     scale: Float,
     interactionSource: MutableInteractionSource,
 ): Modifier {
-    val interaction by interactionSource.interactions.collectAsState(
-        initial = FocusInteraction.Focus()
-    )
+    val interaction by
+        interactionSource.interactions.collectAsState(initial = FocusInteraction.Focus())
 
     val animationSpec = defaultScaleAnimationSpec(interaction)
 
-    val animatedScale by animateFloatAsState(
-        targetValue = scale,
-        animationSpec = animationSpec,
-        label = "tv-surface-scale"
-    )
+    val animatedScale by
+        animateFloatAsState(
+            targetValue = scale,
+            animationSpec = animationSpec,
+            label = "tv-surface-scale"
+        )
 
-    return drawWithContent {
-        scale(animatedScale) {
-            this@drawWithContent.drawContent()
-        }
-    }
+    return drawWithContent { scale(animatedScale) { this@drawWithContent.drawContent() } }
 }
 
 private fun defaultScaleAnimationSpec(interaction: Interaction): TweenSpec<Float> =
     tween(
-        durationMillis = when (interaction) {
-            is FocusInteraction.Focus -> SurfaceScaleTokens.focusDuration
-            is FocusInteraction.Unfocus -> SurfaceScaleTokens.unFocusDuration
-            is PressInteraction.Press -> SurfaceScaleTokens.pressedDuration
-            is PressInteraction.Release -> SurfaceScaleTokens.releaseDuration
-            is PressInteraction.Cancel -> SurfaceScaleTokens.releaseDuration
-            else -> SurfaceScaleTokens.releaseDuration
-        },
+        durationMillis =
+            when (interaction) {
+                is FocusInteraction.Focus -> SurfaceScaleTokens.focusDuration
+                is FocusInteraction.Unfocus -> SurfaceScaleTokens.unFocusDuration
+                is PressInteraction.Press -> SurfaceScaleTokens.pressedDuration
+                is PressInteraction.Release -> SurfaceScaleTokens.releaseDuration
+                is PressInteraction.Cancel -> SurfaceScaleTokens.releaseDuration
+                else -> SurfaceScaleTokens.releaseDuration
+            },
         easing = SurfaceScaleTokens.enterEasing
     )

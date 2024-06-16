@@ -25,15 +25,14 @@ import android.telecom.Call
 import android.telecom.InCallService
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.addParticipantsSupport
 import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.test.utils.TestUtils.printParticipants
 import androidx.core.telecom.util.ExperimentalAppActions
-import androidx.test.core.app.ActivityScenario.launch
 import java.util.Collections
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -70,26 +69,46 @@ internal class MockInCallServiceDelegate : Service() {
     }
 
     @ExperimentalAppActions
-    class InCallServiceWExtensions(context: Context) : InCallServiceCompat() {
+    class InCallServiceWExtensions(context: Context, val capabilities: Set<Capability>) :
+        InCallServiceCompat() {
         init {
             // Icky hack, but since we are using a delegate, we need to attach the Context manually.
             if (baseContext == null) {
                 attachBaseContext(context)
             }
         }
+
         override fun onCreateCallCompat(call: Call): CallCompat {
             Log.i(LOG_TAG, "ICSC.onCreateCallCompat: added the new call to static call list")
 
             // TODO:: make this a factory
-            val callCompat = CallCompat.toCallCompat(call) {
-                addParticipantsSupport(TestUtils.getDefaultParticipantSupportedActions().toSet()) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        it.participantsStateFlow.collect {
-                            printParticipants(it, "ICS")
+            val callCompat =
+                CallCompat.toCallCompat(call) {
+                    for (capability in capabilities) {
+                        when (capability.featureId) {
+                            CallsManager.PARTICIPANT -> {
+                                addParticipantsSupport(capability.supportedActions.toSet()) {
+                                    Log.i(LOG_TAG, "ICSC.onCreateCallCompat: setup participants")
+                                    scope?.launch {
+                                        it.participantsStateFlow.collect { participants ->
+                                            printParticipants(participants, "ICS participants")
+                                        }
+                                    }
+                                    scope?.launch {
+                                        it.activeParticipantStateFlow.collect { participant ->
+                                            Log.i(LOG_TAG, "ICS active participant: $participant")
+                                        }
+                                    }
+                                    scope?.launch {
+                                        it.raisedHandsStateFlow.collect { participants ->
+                                            Log.i(LOG_TAG, "ICS raised hands: $participants")
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            }
             mCalls.add(callCompat)
             return callCompat
         }
@@ -106,6 +125,7 @@ internal class MockInCallServiceDelegate : Service() {
         val mCalls = Collections.synchronizedList(ArrayList<CallCompat>())
         var mIsServiceBound = false
         var mInCallServiceType: InCallServiceType = InCallServiceType.ICS_WITHOUT_EXTENSIONS
+        @OptIn(ExperimentalAppActions::class) var mExtensions: Set<Capability> = emptySet()
         val mServiceFlow = MutableStateFlow<InCallService?>(null)
 
         @OptIn(ExperimentalAppActions::class)
@@ -114,8 +134,9 @@ internal class MockInCallServiceDelegate : Service() {
             Log.i(LOG_TAG, "destroyAllCalls: Calls.size=[${mCalls.size}]")
             mIsServiceBound = false
             for (call in mCalls) {
-                if (call.toCall().state != Call.STATE_DISCONNECTED ||
-                    call.toCall().state != Call.STATE_DISCONNECTING
+                if (
+                    call.toCall().state != Call.STATE_DISCONNECTED ||
+                        call.toCall().state != Call.STATE_DISCONNECTING
                 ) {
                     Log.i(LOG_TAG, "destroyAllCalls: disconnecting call=[$call]")
                     call.toCall().disconnect()
@@ -124,13 +145,10 @@ internal class MockInCallServiceDelegate : Service() {
             mCalls.clear()
             // Wait for the InCallService to unbind from Telecom before the next test.
             if (mServiceFlow.value != null) {
-                runCatching {
-                    withTimeout(5000) {
-                        mServiceFlow.first { it == null }
+                runCatching { withTimeout(5000) { mServiceFlow.first { it == null } } }
+                    .onFailure {
+                        Log.w(LOG_TAG, "destroyAlLCalls: no unbind detected during destroy")
                     }
-                }.onFailure {
-                    Log.w(LOG_TAG, "destroyAlLCalls: no unbind detected during destroy")
-                }
             }
         }
 
@@ -155,6 +173,7 @@ internal class MockInCallServiceDelegate : Service() {
         fun getService(): InCallService? {
             return mServiceFlow.value
         }
+
         @ExperimentalAppActions
         fun getServiceWithExtensions(): InCallServiceCompat? {
             if (getService() !is InCallServiceCompat) return null
@@ -165,15 +184,16 @@ internal class MockInCallServiceDelegate : Service() {
     @OptIn(ExperimentalAppActions::class)
     override fun onCreate() {
         Log.i(LOG_TAG, "Delegate service onCreate")
-        mServiceFlow.tryEmit(when (mInCallServiceType) {
-            InCallServiceType.ICS_WITH_EXTENSIONS -> {
-                InCallServiceWExtensions(applicationContext)
+        mServiceFlow.tryEmit(
+            when (mInCallServiceType) {
+                InCallServiceType.ICS_WITH_EXTENSIONS -> {
+                    InCallServiceWExtensions(applicationContext, mExtensions)
+                }
+                InCallServiceType.ICS_WITHOUT_EXTENSIONS -> {
+                    InCallServiceWoExtensions(applicationContext)
+                }
             }
-
-            InCallServiceType.ICS_WITHOUT_EXTENSIONS -> {
-                InCallServiceWoExtensions(applicationContext)
-            }
-        })
+        )
         // Delegate onCreate to the Service
         getService()?.onCreate()
     }

@@ -33,24 +33,24 @@ import androidx.glance.semantics.SemanticsPropertyReceiver
 @Stable
 public interface GlanceCurvedModifier {
     /**
-     * Accumulates a value starting with [initial] and applying [operation] to the current value
-     * and each element from outside in.
+     * Accumulates a value starting with [initial] and applying [operation] to the current value and
+     * each element from outside in.
      *
      * Elements wrap one another in a chain from left to right; an [Element] that appears to the
-     * left of another in a `+` expression or in [operation]'s parameter order affects all
-     * of the elements that appear after it. [foldIn] may be used to accumulate a value starting
-     * from the parent or head of the modifier chain to the final wrapped child.
+     * left of another in a `+` expression or in [operation]'s parameter order affects all of the
+     * elements that appear after it. [foldIn] may be used to accumulate a value starting from the
+     * parent or head of the modifier chain to the final wrapped child.
      */
     public fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
 
     /**
-     * Accumulates a value starting with [initial] and applying [operation] to the current value
-     * and each element from inside out.
+     * Accumulates a value starting with [initial] and applying [operation] to the current value and
+     * each element from inside out.
      *
      * Elements wrap one another in a chain from left to right; an [Element] that appears to the
-     * left of another in a `+` expression or in [operation]'s parameter order affects all
-     * of the elements that appear after it. [foldOut] may be used to accumulate a value starting
-     * from the child or tail of the modifier chain up to the parent or head of the chain.
+     * left of another in a `+` expression or in [operation]'s parameter order affects all of the
+     * elements that appear after it. [foldOut] may be used to accumulate a value starting from the
+     * child or tail of the modifier chain up to the parent or head of the chain.
      */
     public fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
@@ -71,13 +71,10 @@ public interface GlanceCurvedModifier {
      * Returns a [GlanceCurvedModifier] representing this modifier followed by [other] in sequence.
      */
     public infix fun then(other: GlanceCurvedModifier): GlanceCurvedModifier =
-        if (other === GlanceCurvedModifier) this
-        else CombinedGlanceCurvedModifier(this, other)
+        if (other === GlanceCurvedModifier) this else CombinedGlanceCurvedModifier(this, other)
 
     @JvmDefaultWithCompatibility
-    /**
-     * A single element contained within a [GlanceCurvedModifier] chain.
-     */
+    /** A single element contained within a [GlanceCurvedModifier] chain. */
     public interface Element : GlanceCurvedModifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
@@ -86,30 +83,35 @@ public interface GlanceCurvedModifier {
             operation(this, initial)
 
         override fun any(predicate: (Element) -> Boolean): Boolean = predicate(this)
+
         override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
     }
 
     /**
-     * The companion object `Modifier` is the empty, default, or starter [GlanceCurvedModifier]
-     * that contains no [elements][Element]. Use it to create a new [GlanceCurvedModifier] using
-     * modifier extension factory functions.
+     * The companion object `Modifier` is the empty, default, or starter [GlanceCurvedModifier] that
+     * contains no [elements][Element]. Use it to create a new [GlanceCurvedModifier] using modifier
+     * extension factory functions.
      */
     // The companion object implements `Modifier` so that it may be used  as the start of a
     // modifier extension factory expression.
     public companion object : GlanceCurvedModifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
+
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
+
         override fun any(predicate: (Element) -> Boolean): Boolean = false
+
         override fun all(predicate: (Element) -> Boolean): Boolean = true
+
         override infix fun then(other: GlanceCurvedModifier): GlanceCurvedModifier = other
+
         override fun toString(): String = "Modifier"
     }
 }
 
 /**
- * A node in a [GlanceCurvedModifier] chain.
- * A CombinedModifier always contains at least two elements;
- * a Modifier [outer] that wraps around the Modifier [inner].
+ * A node in a [GlanceCurvedModifier] chain. A CombinedModifier always contains at least two
+ * elements; a Modifier [outer] that wraps around the Modifier [inner].
  */
 public class CombinedGlanceCurvedModifier(
     private val outer: GlanceCurvedModifier,
@@ -131,9 +133,13 @@ public class CombinedGlanceCurvedModifier(
         other is CombinedGlanceCurvedModifier && outer == other.outer && inner == other.inner
 
     override fun hashCode(): Int = outer.hashCode() + 31 * inner.hashCode()
-    override fun toString(): String = "[" + foldIn("") { acc, element ->
-        if (acc.isEmpty()) element.toString() else "$acc, $element"
-    } + "]"
+
+    override fun toString(): String =
+        "[" +
+            foldIn("") { acc, element ->
+                if (acc.isEmpty()) element.toString() else "$acc, $element"
+            } +
+            "]"
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -167,34 +173,26 @@ inline fun <reified T> GlanceCurvedModifier.extractModifier(): Pair<T?, GlanceCu
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class SweepAngleModifier(public val degrees: Float) : GlanceCurvedModifier.Element
 
-/**
- * Sets the sweep angle of the curved element, in degrees
- */
+/** Sets the sweep angle of the curved element, in degrees */
 public fun GlanceCurvedModifier.sweepAngleDegrees(degrees: Float) =
     this.then(SweepAngleModifier(degrees))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ThicknessModifier(public val thickness: Dp) : GlanceCurvedModifier.Element
 
-/**
- * Sets the thickness of the curved element, in [Dp]
- */
-public fun GlanceCurvedModifier.thickness(thickness: Dp) =
-    this.then(ThicknessModifier(thickness))
+/** Sets the thickness of the curved element, in [Dp] */
+public fun GlanceCurvedModifier.thickness(thickness: Dp) = this.then(ThicknessModifier(thickness))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ActionCurvedModifier(public val action: Action) : GlanceCurvedModifier.Element
 
-/**
- * Apply an [Action], to be executed in response to a user click
- */
+/** Apply an [Action], to be executed in response to a user click */
 public fun GlanceCurvedModifier.clickable(onClick: Action): GlanceCurvedModifier =
     this.then(ActionCurvedModifier(onClick))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class SemanticsCurvedModifier(
-    val configuration: SemanticsConfiguration
-) : GlanceCurvedModifier.Element
+public data class SemanticsCurvedModifier(val configuration: SemanticsConfiguration) :
+    GlanceCurvedModifier.Element
 
 /**
  * Associate accessibility semantics with an element. This should generally be used sparingly, amd
@@ -203,6 +201,4 @@ public data class SemanticsCurvedModifier(
 public fun GlanceCurvedModifier.semantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)
 ): GlanceCurvedModifier =
-    this.then(SemanticsCurvedModifier(
-        SemanticsConfiguration().also { it.properties() })
-    )
+    this.then(SemanticsCurvedModifier(SemanticsConfiguration().also { it.properties() }))

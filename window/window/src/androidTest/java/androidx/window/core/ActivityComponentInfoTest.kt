@@ -20,9 +20,7 @@ import android.content.ComponentName
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/**
- * Test for [ActivityComponentInfo] that run against Android classes.
- */
+/** Test for [ActivityComponentInfo] that run against Android classes. */
 class ActivityComponentInfoTest {
 
     @Test

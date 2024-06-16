@@ -23,26 +23,18 @@ import com.google.auto.common.MoreTypes
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
-/**
- * Catch-all class for XType implementation when we don't need/discover a sub-type
- */
-internal class DefaultJavacType private constructor(
+/** Catch-all class for XType implementation when we don't need/discover a sub-type */
+internal class DefaultJavacType
+private constructor(
     env: JavacProcessingEnv,
     typeMirror: TypeMirror,
     nullability: XNullability?,
     override val kotlinType: KmTypeContainer?
-) : JavacType(
-    env, typeMirror, nullability
-) {
+) : JavacType(env, typeMirror, nullability) {
     constructor(
         env: JavacProcessingEnv,
         typeMirror: TypeMirror
-    ) : this(
-        env = env,
-        typeMirror = typeMirror,
-        nullability = null,
-        kotlinType = null
-    )
+    ) : this(env = env, typeMirror = typeMirror, nullability = null, kotlinType = null)
 
     constructor(
         env: JavacProcessingEnv,
@@ -59,16 +51,9 @@ internal class DefaultJavacType private constructor(
         env: JavacProcessingEnv,
         typeMirror: TypeMirror,
         nullability: XNullability
-    ) : this(
-        env = env,
-        typeMirror = typeMirror,
-        nullability = nullability,
-        kotlinType = null
-    )
+    ) : this(env = env, typeMirror = typeMirror, nullability = nullability, kotlinType = null)
 
-    override val equalityItems by lazy {
-        arrayOf(typeMirror)
-    }
+    override val equalityItems by lazy { arrayOf(typeMirror) }
 
     override val typeArguments: List<XType>
         /**
@@ -82,15 +67,14 @@ internal class DefaultJavacType private constructor(
             typeMirror.kind.isPrimitive -> {
                 env.wrap(
                     typeMirror =
-                    env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror)).asType(),
+                        env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror)).asType(),
                     kotlinType = kotlinType,
                     elementNullability = XNullability.NULLABLE
                 )
             }
             typeMirror.kind == TypeKind.VOID -> {
                 env.wrap(
-                    typeMirror =
-                    env.elementUtils.getTypeElement("java.lang.Void").asType(),
+                    typeMirror = env.elementUtils.getTypeElement("java.lang.Void").asType(),
                     kotlinType = kotlinType,
                     elementNullability = XNullability.NULLABLE
                 )

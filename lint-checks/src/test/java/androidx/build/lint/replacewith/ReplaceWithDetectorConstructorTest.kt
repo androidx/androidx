@@ -25,156 +25,174 @@ class ReplaceWithDetectorConstructorTest {
 
     @Test
     fun constructorStaticClass() {
-        val input = arrayOf(
+        val input =
+            arrayOf(
                 javaSample("replacewith.ReplaceWithUsageJava"),
                 javaSample("replacewith.ConstructorStaticClass")
-        )
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/replacewith/ConstructorStaticClass.java:25: Information: Replacement available [ReplaceWith]
         new ReplaceWithUsageJava("parameter");
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/replacewith/ConstructorStaticClass.java line 25: Replace with `StringBuffer("parameter")`:
 @@ -25 +25
 -         new ReplaceWithUsageJava("parameter");
 +         new StringBuffer("parameter");
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun constructorNonStaticClass() {
-        val input = arrayOf(
-            javaSample("replacewith.ReplaceWithUsageJava"),
-            javaSample("replacewith.ConstructorNonStaticClass")
-        )
+        val input =
+            arrayOf(
+                javaSample("replacewith.ReplaceWithUsageJava"),
+                javaSample("replacewith.ConstructorNonStaticClass")
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/replacewith/ConstructorNonStaticClass.java:25: Information: Replacement available [ReplaceWith]
         new ReplaceWithUsageJava().new InnerClass("param");
                                        ~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/replacewith/ConstructorNonStaticClass.java line 25: Replace with `InnerClass()`:
 @@ -25 +25
 -         new ReplaceWithUsageJava().new InnerClass("param");
 +         new ReplaceWithUsageJava().new InnerClass();
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun constructorToStaticMethod() {
-        val input = arrayOf(
-            javaSample("replacewith.ReplaceWithUsageJava"),
-            javaSample("replacewith.ConstructorToStaticMethod")
-        )
+        val input =
+            arrayOf(
+                javaSample("replacewith.ReplaceWithUsageJava"),
+                javaSample("replacewith.ConstructorToStaticMethod")
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/replacewith/ConstructorToStaticMethod.java:25: Information: Replacement available [ReplaceWith]
         new ReplaceWithUsageJava(10000);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/replacewith/ConstructorToStaticMethod.java line 25: Replace with `ReplaceWithUsageJava.newInstance(10000)`:
 @@ -25 +25
 -         new ReplaceWithUsageJava(10000);
 +         ReplaceWithUsageJava.newInstance(10000);
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun constructorStaticClassKotlin() {
-        val input = arrayOf(
-            javaSample("replacewith.ReplaceWithUsageJava"),
-            ktSample("replacewith.ConstructorStaticClassKotlin")
-        )
+        val input =
+            arrayOf(
+                javaSample("replacewith.ReplaceWithUsageJava"),
+                ktSample("replacewith.ConstructorStaticClassKotlin")
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
-src/replacewith/ConstructorStaticClassKotlin.kt:24: Information: Replacement available [ReplaceWith]
+        val expected =
+            """
+src/replacewith/ConstructorStaticClassKotlin.kt:22: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava("parameter")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
-Fix for src/replacewith/ConstructorStaticClassKotlin.kt line 24: Replace with `StringBuffer("parameter")`:
-@@ -24 +24
+        val expectedFixDiffs =
+            """
+Fix for src/replacewith/ConstructorStaticClassKotlin.kt line 22: Replace with `StringBuffer("parameter")`:
+@@ -22 +22
 -         ReplaceWithUsageJava("parameter")
 +         StringBuffer("parameter")
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun constructorNonStaticClassKotlin() {
-        val input = arrayOf(
-            javaSample("replacewith.ReplaceWithUsageJava"),
-            ktSample("replacewith.ConstructorNonStaticClassKotlin")
-        )
+        val input =
+            arrayOf(
+                javaSample("replacewith.ReplaceWithUsageJava"),
+                ktSample("replacewith.ConstructorNonStaticClassKotlin")
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
-src/replacewith/ConstructorNonStaticClassKotlin.kt:24: Information: Replacement available [ReplaceWith]
+        val expected =
+            """
+src/replacewith/ConstructorNonStaticClassKotlin.kt:22: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava().InnerClass("param")
                                ~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
-Fix for src/replacewith/ConstructorNonStaticClassKotlin.kt line 24: Replace with `InnerClass()`:
-@@ -24 +24
+        val expectedFixDiffs =
+            """
+Fix for src/replacewith/ConstructorNonStaticClassKotlin.kt line 22: Replace with `InnerClass()`:
+@@ -22 +22
 -         ReplaceWithUsageJava().InnerClass("param")
 +         ReplaceWithUsageJava().InnerClass()
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun constructorToStaticMethodKotlin() {
-        val input = arrayOf(
-            javaSample("replacewith.ReplaceWithUsageJava"),
-            ktSample("replacewith.ConstructorToStaticMethodKotlin")
-        )
+        val input =
+            arrayOf(
+                javaSample("replacewith.ReplaceWithUsageJava"),
+                ktSample("replacewith.ConstructorToStaticMethodKotlin")
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
-src/replacewith/ConstructorToStaticMethodKotlin.kt:24: Information: Replacement available [ReplaceWith]
+        val expected =
+            """
+src/replacewith/ConstructorToStaticMethodKotlin.kt:22: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava(10000)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
-Fix for src/replacewith/ConstructorToStaticMethodKotlin.kt line 24: Replace with `ReplaceWithUsageJava.newInstance(10000)`:
-@@ -24 +24
+        val expectedFixDiffs =
+            """
+Fix for src/replacewith/ConstructorToStaticMethodKotlin.kt line 22: Replace with `ReplaceWithUsageJava.newInstance(10000)`:
+@@ -22 +22
 -         ReplaceWithUsageJava(10000)
 +         ReplaceWithUsageJava.newInstance(10000)
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

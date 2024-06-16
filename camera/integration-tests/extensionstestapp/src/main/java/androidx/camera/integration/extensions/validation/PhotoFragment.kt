@@ -33,9 +33,7 @@ import androidx.camera.integration.extensions.R
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 
-/**
- * Fragment used for each individual page showing a photo inside [ImageValidationActivity].
- */
+/** Fragment used for each individual page showing a photo inside [ImageValidationActivity]. */
 class PhotoFragment constructor() : Fragment() {
     private lateinit var imageUri: Uri
     private var rotationDegrees: Int = 0
@@ -47,10 +45,11 @@ class PhotoFragment constructor() : Fragment() {
      * @param imageUri The image uri to be displayed in this photo fragment
      * @param rotationDegrees The rotation degrees to rotate the image to the upright direction
      * @param scaleGestureListener The scale gesture listener which allow the caller activity to
-     * receive the scale events to switch to another photo view which supports the translation
-     * function in the X direction. It is because this fragment will be put inside a [ViewPager2]
-     * and it will eat the X direction movement events for the [ViewPager2]'s page switch function.
-     * But we'll need the translation function in X direction after the photo is zoomed in.
+     *   receive the scale events to switch to another photo view which supports the translation
+     *   function in the X direction. It is because this fragment will be put inside a [ViewPager2]
+     *   and it will eat the X direction movement events for the [ViewPager2]'s page switch
+     *   function. But we'll need the translation function in X direction after the photo is zoomed
+     *   in.
      */
     constructor(
         imageUri: Uri,
@@ -92,9 +91,7 @@ class PhotoFragment constructor() : Fragment() {
     private fun setPhotoViewerScaleGestureListener() {
         scaleGestureListener?.let {
             val scaleDetector = ScaleGestureDetector(requireContext(), scaleGestureListener!!)
-            photoViewer.setOnTouchListener { _, e: MotionEvent ->
-                scaleDetector.onTouchEvent(e)
-            }
+            photoViewer.setOnTouchListener { _, e: MotionEvent -> scaleDetector.onTouchEvent(e) }
         }
     }
 

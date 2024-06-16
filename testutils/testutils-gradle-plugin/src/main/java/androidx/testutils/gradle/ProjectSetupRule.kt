@@ -46,16 +46,16 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
         get() = File(rootDir, "gradle.properties")
 
     /**
-     * Combined list of local build repo and remote repositories (prebuilts etc).
-     * Local build repo is the first in line to ensure it is prioritized.
+     * Combined list of local build repo and remote repositories (prebuilts etc). Local build repo
+     * is the first in line to ensure it is prioritized.
      */
     val allRepositoryPaths: List<String> by lazy {
         listOf(props.tipOfTreeMavenRepoPath) + props.repositoryUrls
     }
 
     /**
-     * A `repositories {}` gradle block that contains all default repositories, for inclusion
-     * in gradle configurations.
+     * A `repositories {}` gradle block that contains all default repositories, for inclusion in
+     * gradle configurations.
      */
     val repositories: String
         get() = buildString {
@@ -66,13 +66,12 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
 
     val defaultRepoLines
         get() = buildString {
-            props.repositoryUrls.forEach {
-                appendLine("    maven { url '$it' }")
-            }
+            props.repositoryUrls.forEach { appendLine("    maven { url '$it' }") }
         }
 
     val androidProject: String
-        get() = """
+        get() =
+            """
             android {
                 compileSdk ${props.compileSdk}
                 buildToolsVersion "${props.buildToolsVersion}"
@@ -87,7 +86,8 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
                     }
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
     private val defaultBuildGradle: String
         get() = "\n$repositories\n\n$androidProject\n\n"
@@ -136,8 +136,8 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
     /**
      * Gets the latest version of a published library.
      *
-     * Note that the library must have been locally published to locate its latest version, this
-     * can be done in test by adding :publish as a test dependency, for example:
+     * Note that the library must have been locally published to locate its latest version, this can
+     * be done in test by adding :publish as a test dependency, for example:
      * ```
      * tasks.findByPath("test")
      *   .dependsOn(tasks.findByPath(":room:room-compiler:publish")
@@ -146,25 +146,23 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
      * @param path - The library m2 path e.g. "androidx/room/room-compiler"
      */
     fun getLibraryLatestVersionInLocalRepo(path: String): String {
-        val metadataFile = File(props.tipOfTreeMavenRepoPath)
-            .resolve(path)
-            .resolve("maven-metadata.xml")
+        val metadataFile =
+            File(props.tipOfTreeMavenRepoPath).resolve(path).resolve("maven-metadata.xml")
         check(metadataFile.exists()) {
             "Cannot find room metadata file in ${metadataFile.absolutePath}"
         }
-        check(metadataFile.isFile) {
-            "Metadata file should be a file but it is not."
-        }
-        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(metadataFile)
-        val latestVersionNode = XPathFactory.newInstance().newXPath()
-            .compile("/metadata/versioning/latest").evaluate(
-                xmlDoc, XPathConstants.STRING
-            )
+        check(metadataFile.isFile) { "Metadata file should be a file but it is not." }
+        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile)
+        val latestVersionNode =
+            XPathFactory.newInstance()
+                .newXPath()
+                .compile("/metadata/versioning/latest")
+                .evaluate(xmlDoc, XPathConstants.STRING)
         check(latestVersionNode is String) {
             """Unexpected node for latest version:
                 $latestVersionNode / ${latestVersionNode::class.java}
-            """.trimIndent()
+            """
+                .trimIndent()
         }
         return latestVersionNode
     }
@@ -240,34 +238,38 @@ data class ProjectProps(
         }
 
         fun load(): ProjectProps {
-            val stream = ProjectSetupRule::class.java.classLoader.getResourceAsStream("sdk.prop")
-                ?: throw IllegalStateException("No sdk.prop file found. " +
-                    "(you probably need to call SdkResourceGenerator.generateForHostTest " +
-                    "in build.gradle)")
+            val stream =
+                ProjectSetupRule::class.java.classLoader.getResourceAsStream("sdk.prop")
+                    ?: throw IllegalStateException(
+                        "No sdk.prop file found. " +
+                            "(you probably need to call SdkResourceGenerator.generateForHostTest " +
+                            "in build.gradle)"
+                    )
             val properties = Properties()
             properties.load(stream)
             return ProjectProps(
                 debugKeystore = properties.getCanonicalPath("debugKeystoreRelativePath"),
                 rootProjectPath = properties.getCanonicalPath("rootProjectRelativePath"),
-                tipOfTreeMavenRepoPath = properties.getCanonicalPath(
-                    "tipOfTreeMavenRepoRelativePath"
-                ),
-                repositoryUrls = properties.getProperty("repositoryUrls").split(",").map {
-                    if (it.startsWith("http")) {
-                        it
-                    } else {
-                        // Convert relative paths back to canonical paths
-                        File(it).canonicalPath
-                    }
-                },
+                tipOfTreeMavenRepoPath =
+                    properties.getCanonicalPath("tipOfTreeMavenRepoRelativePath"),
+                repositoryUrls =
+                    properties.getProperty("repositoryUrls").split(",").map {
+                        if (it.startsWith("http")) {
+                            it
+                        } else {
+                            // Convert relative paths back to canonical paths
+                            File(it).canonicalPath
+                        }
+                    },
                 compileSdk = properties.getProperty("compileSdk"),
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
                 kgpVersion = properties.getProperty("kgpVersion"),
-                kgpDependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:" +
-                    properties.getProperty("kgpVersion"),
+                kgpDependency =
+                    "org.jetbrains.kotlin:kotlin-gradle-plugin:" +
+                        properties.getProperty("kgpVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
                 prebuiltsPath = properties.getOptionalCanonicalPath("prebuiltsRelativePath"),

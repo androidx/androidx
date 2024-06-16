@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.workaround
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.google.common.truth.Truth.assertThat
 import java.nio.BufferUnderflowException
 import org.junit.Assert.assertThrows
@@ -44,13 +43,14 @@ class FlashAvailabilityCheckerTest(
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "manufacturer={0}, model={1}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf("sprd", "LEMP", BufferUnderflowProvider()))
-            add(arrayOf("sprd", "DM20C", BufferUnderflowProvider()))
-            add(arrayOf(FAKE_OEM, "unexpected_throwing_device", BufferUnderflowProvider()))
-            add(arrayOf(FAKE_OEM, "not_a_real_device", FlashAvailabilityTrueProvider()))
-            add(arrayOf(FAKE_OEM, "null_returning_device", FlashAvailabilityNullProvider()))
-        }
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                add(arrayOf("sprd", "LEMP", BufferUnderflowProvider()))
+                add(arrayOf("sprd", "DM20C", BufferUnderflowProvider()))
+                add(arrayOf(FAKE_OEM, "unexpected_throwing_device", BufferUnderflowProvider()))
+                add(arrayOf(FAKE_OEM, "not_a_real_device", FlashAvailabilityTrueProvider()))
+                add(arrayOf(FAKE_OEM, "null_returning_device", FlashAvailabilityNullProvider()))
+            }
     }
 
     @Before
@@ -68,7 +68,8 @@ class FlashAvailabilityCheckerTest(
     fun isFlashAvailable_throwsForUnexpectedDevice() {
         assumeTrue(Build.MODEL == "unexpected_throwing_device")
         assertThrows(BufferUnderflowException::class.java) {
-            FlashAvailabilityChecker.isFlashAvailable(/*rethrowOnError=*/true,
+            FlashAvailabilityChecker.isFlashAvailable(
+                /*rethrowOnError=*/ true,
                 characteristicsProvider
             )
         }
@@ -82,22 +83,20 @@ class FlashAvailabilityCheckerTest(
     }
 }
 
-@RequiresApi(21)
 private class FlashAvailabilityTrueProvider : CameraCharacteristicsProvider {
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? = when (key) {
-        CameraCharacteristics.FLASH_INFO_AVAILABLE -> true as T?
-        else -> null
-    }
+    override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? =
+        when (key) {
+            CameraCharacteristics.FLASH_INFO_AVAILABLE -> true as T?
+            else -> null
+        }
 }
 
-@RequiresApi(21)
 private class BufferUnderflowProvider : CameraCharacteristicsProvider {
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T =
         throw BufferUnderflowException()
 }
 
-@RequiresApi(21)
 private class FlashAvailabilityNullProvider : CameraCharacteristicsProvider {
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? = null
 }

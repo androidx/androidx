@@ -44,10 +44,11 @@ class ThreadingTest {
     @Test
     fun runBlockingWithTimeoutOrNullReturnsNullOnTimeout() = runTest {
         val latch = CountDownLatch(1)
-        val result = Threading.runBlockingWithTimeoutOrNull(Dispatchers.IO, 500L) {
-            // Simulate a long call that should time out.
-            latch.await(10, TimeUnit.SECONDS)
-        }
+        val result =
+            Threading.runBlockingWithTimeoutOrNull(Dispatchers.IO, 500L) {
+                // Simulate a long call that should time out.
+                latch.await(10, TimeUnit.SECONDS)
+            }
         assertThat(result).isNull()
     }
 }

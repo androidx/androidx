@@ -18,8 +18,8 @@ package androidx.benchmark
 
 /**
  * Annotation indicating experimental API primarily intended to allow configuration of
- * microbenchmarks from code, overriding instrumentation arguments
- * like `androidx.benchmark.profiling.mode`, and custom microbenchmark metrics.
+ * microbenchmarks from code, overriding instrumentation arguments like
+ * `androidx.benchmark.profiling.mode`, and custom microbenchmark metrics.
  */
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)

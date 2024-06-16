@@ -31,9 +31,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
-/**
- * Shows how to use notifyDataSetChanged with [ViewPager2]
- */
+/** Shows how to use notifyDataSetChanged with [ViewPager2] */
 abstract class MutableCollectionBaseActivity : FragmentActivity() {
     private lateinit var buttonAddAfter: Button
     private lateinit var buttonAddBefore: Button
@@ -57,17 +55,20 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
 
         viewPager.adapter = createViewPagerAdapter()
 
-        itemSpinner.adapter = object : BaseAdapter() {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-                ((convertView as TextView?) ?: TextView(parent.context)).apply {
-                    textDirection = View.TEXT_DIRECTION_LOCALE
-                    text = getItem(position)
-                }
+        itemSpinner.adapter =
+            object : BaseAdapter() {
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+                    ((convertView as TextView?) ?: TextView(parent.context)).apply {
+                        textDirection = View.TEXT_DIRECTION_LOCALE
+                        text = getItem(position)
+                    }
 
-            override fun getItem(position: Int): String = items.getItemById(getItemId(position))
-            override fun getItemId(position: Int): Long = items.itemId(position)
-            override fun getCount(): Int = items.size
-        }
+                override fun getItem(position: Int): String = items.getItemById(getItemId(position))
+
+                override fun getItemId(position: Int): Long = items.itemId(position)
+
+                override fun getCount(): Int = items.size
+            }
 
         buttonGoTo.setOnClickListener {
             viewPager.setCurrentItem(itemSpinner.selectedItemPosition, true)
@@ -80,21 +81,24 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
                 performChanges()
                 val idsNew = items.createIdSnapshot()
                 DiffUtil.calculateDiff(
-                    object : DiffUtil.Callback() {
-                        override fun getOldListSize(): Int = idsOld.size
-                        override fun getNewListSize(): Int = idsNew.size
+                        object : DiffUtil.Callback() {
+                            override fun getOldListSize(): Int = idsOld.size
 
-                        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                            idsOld[oldItemPosition] == idsNew[newItemPosition]
+                            override fun getNewListSize(): Int = idsNew.size
 
-                        override fun areContentsTheSame(
-                            oldItemPosition: Int,
-                            newItemPosition: Int
-                        ) =
-                            areItemsTheSame(oldItemPosition, newItemPosition)
-                    },
-                    true
-                ).dispatchUpdatesTo(viewPager.adapter!!)
+                            override fun areItemsTheSame(
+                                oldItemPosition: Int,
+                                newItemPosition: Int
+                            ) = idsOld[oldItemPosition] == idsNew[newItemPosition]
+
+                            override fun areContentsTheSame(
+                                oldItemPosition: Int,
+                                newItemPosition: Int
+                            ) = areItemsTheSame(oldItemPosition, newItemPosition)
+                        },
+                        true
+                    )
+                    .dispatchUpdatesTo(viewPager.adapter!!)
             } else {
                 /** without [DiffUtil] */
                 val oldPosition = viewPager.currentItem
@@ -137,13 +141,21 @@ class ItemsViewModel : ViewModel() {
     private val items = (1..9).map { longToItem(nextValue++) }.toMutableList()
 
     fun getItemById(id: Long): String = items.first { itemToLong(it) == id }
+
     fun itemId(position: Int): Long = itemToLong(items[position])
+
     fun contains(itemId: Long): Boolean = items.any { itemToLong(it) == itemId }
+
     fun addNewAt(position: Int) = items.add(position, longToItem(nextValue++))
+
     fun removeAt(position: Int) = items.removeAt(position)
+
     fun createIdSnapshot(): List<Long> = (0 until size).map { position -> itemId(position) }
-    val size: Int get() = items.size
+
+    val size: Int
+        get() = items.size
 
     private fun longToItem(value: Long): String = "item#$value"
+
     private fun itemToLong(value: String): Long = value.split("#")[1].toLong()
 }

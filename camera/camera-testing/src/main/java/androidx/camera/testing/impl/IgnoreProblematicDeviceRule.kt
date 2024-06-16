@@ -17,7 +17,6 @@ package androidx.camera.testing.impl
 
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.AssumptionViolatedException
@@ -25,10 +24,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/**
- * Test class to set the TestRule should not be run on the problematic devices.
- */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+/** Test class to set the TestRule should not be run on the problematic devices. */
 class IgnoreProblematicDeviceRule : TestRule {
     private val api21Emulator = isEmulator && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
 
@@ -40,7 +36,8 @@ class IgnoreProblematicDeviceRule : TestRule {
                 if (isProblematicDevices) {
                     throw AssumptionViolatedException(
                         "CameraDevice of the emulator may not be well prepared for camera" +
-                            " related tests. Ignore the test: " + description.displayName +
+                            " related tests. Ignore the test: " +
+                            description.displayName +
                             ". To test on emulator devices, please remove the " +
                             "IgnoreProblematicDeviceRule from the test class."
                     )
@@ -56,27 +53,27 @@ class IgnoreProblematicDeviceRule : TestRule {
         private const val EMULATOR_HARDWARE_GOLDFISH = "goldfish"
         private const val EMULATOR_HARDWARE_RANCHU = "ranchu"
         private const val EMULATOR_HARDWARE_GCE = "gce_x86"
-        private val emulatorHardwareNames: Set<String> = setOf(
-            EMULATOR_HARDWARE_GOLDFISH,
-            EMULATOR_HARDWARE_RANCHU,
-            EMULATOR_HARDWARE_GCE
-        )
-        private var avdName: String = try {
-            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            device.executeShellCommand("getprop ro.kernel.qemu.avd_name").filterNot {
-                it == '_' || it == '-' || it == ' '
+        private val emulatorHardwareNames: Set<String> =
+            setOf(EMULATOR_HARDWARE_GOLDFISH, EMULATOR_HARDWARE_RANCHU, EMULATOR_HARDWARE_GCE)
+        private var avdName: String =
+            try {
+                val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+                device.executeShellCommand("getprop ro.kernel.qemu.avd_name").filterNot {
+                    it == '_' || it == '-' || it == ' '
+                }
+            } catch (e: Exception) {
+                Log.d("ProblematicDeviceRule", "Cannot get avd name", e)
+                ""
             }
-        } catch (e: Exception) {
-            Log.d("ProblematicDeviceRule", "Cannot get avd name", e)
-            ""
-        }
 
         val isEmulator = emulatorHardwareNames.contains(Build.HARDWARE.lowercase())
-        val isPixel2Api26Emulator = isEmulator && avdName.contains(
-            "Pixel2", ignoreCase = true
-        ) && Build.VERSION.SDK_INT == Build.VERSION_CODES.O
-        val isPixel2Api30Emulator = isEmulator && avdName.contains(
-            "Pixel2", ignoreCase = true
-        ) && Build.VERSION.SDK_INT == Build.VERSION_CODES.R
+        val isPixel2Api26Emulator =
+            isEmulator &&
+                avdName.contains("Pixel2", ignoreCase = true) &&
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.O
+        val isPixel2Api30Emulator =
+            isEmulator &&
+                avdName.contains("Pixel2", ignoreCase = true) &&
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.R
     }
 }

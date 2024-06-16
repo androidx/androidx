@@ -52,22 +52,21 @@ class LocalesConfigChangedUsingInvalidTopLocale() {
     fun testInvalidLocaleDoesNotRecreateActivityInLoop() {
         val initialActivity = activityRule.launchActivity(null)
         // initial locales of a new activity will be the same as system locales.
-        var systemLocales = LocalesUpdateActivity.getConfigLocales(
-            initialActivity.resources.configuration
-        )
+        var systemLocales =
+            LocalesUpdateActivity.getConfigLocales(initialActivity.resources.configuration)
 
         LocalesUtils.setLocalesAndWaitForRecreate(
             initialActivity,
             CUSTOM_LOCALES_INVALID_LOCALES_AT_TOP
         )
         // Wait for locales to get applied.
-        Thread.sleep(/* millis = */ 2000)
+        Thread.sleep(/* millis= */ 2000)
 
         // record activity state at the end of locales application process.
         val localesActivity2 = activityRule.activity
 
         // wait for 2 seconds and record activity again.
-        Thread.sleep(/* millis = */ 2000)
+        Thread.sleep(/* millis= */ 2000)
         val localesActivity3 = activityRule.activity
 
         // Assert that activity has not been recreated since the recreation by

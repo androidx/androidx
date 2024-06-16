@@ -37,9 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Tests of [VelocityPathFinder] creates paths that will lead to the desired velocity.
- */
+/** Tests of [VelocityPathFinder] creates paths that will lead to the desired velocity. */
 @RunWith(Parameterized::class)
 class VelocityPathFinderTest(private val config: TestConfig) {
     data class TestConfig(
@@ -53,59 +51,62 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         @OptIn(ExperimentalComposeUiApi::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = if (VelocityTrackerStrategyUseImpulse) {
-            mutableListOf<TestConfig>().apply {
-                for (direction in Direction.values()) {
-                    // An essential value in the VelocityPathFinder is `d`, calculated as
-                    // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
-                    // duration of the polynomial that will result in the correct velocity, from the
-                    // start to the end position. T is the duration of the swipe.
+        fun params() =
+            if (VelocityTrackerStrategyUseImpulse) {
+                mutableListOf<TestConfig>().apply {
+                    for (direction in Direction.values()) {
+                        // An essential value in the VelocityPathFinder is `d`, calculated as
+                        // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
+                        // duration of the polynomial that will result in the correct velocity, from
+                        // the
+                        // start to the end position. T is the duration of the swipe.
 
-                    // Different scenarios to test are:
-                    // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
-                    // - 100 < d < T (swipe must wait at start until d ms left)
-                    // - d > T (swipe can start immediately)
-                    // - v == 0
+                        // Different scenarios to test are:
+                        // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
+                        // - 100 < d < T (swipe must wait at start until d ms left)
+                        // - d > T (swipe can start immediately)
+                        // - v == 0
 
-                    add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
-                    add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
-                    add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
-                    add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
-                    add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
-                    add(TestConfig(direction.offset, 6000f, 500L, false)) // d < 100 && T > d
-                    add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
+                        add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
+                        add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
+                        add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
+                        add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
+                        add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
+                        add(TestConfig(direction.offset, 6000f, 500L, false)) // d < 100 && T > d
+                        add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
+                    }
+                    // Regression for b/182477143
+                    add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
+                    // Same as above, but for T = 100
+                    add(TestConfig(Offset(129.6f, 0f), 2000f, 100L, false))
                 }
-                // Regression for b/182477143
-                add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
-                // Same as above, but for T = 100
-                add(TestConfig(Offset(129.6f, 0f), 2000f, 100L, false))
-            }
-        } else {
-            mutableListOf<TestConfig>().apply {
-                for (direction in Direction.values()) {
-                    // An essential value in the VelocityPathFinder is `d`, calculated as
-                    // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
-                    // duration of the polynomial that will result in the correct velocity, from the
-                    // start to the end position. T is the duration of the swipe.
+            } else {
+                mutableListOf<TestConfig>().apply {
+                    for (direction in Direction.values()) {
+                        // An essential value in the VelocityPathFinder is `d`, calculated as
+                        // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
+                        // duration of the polynomial that will result in the correct velocity, from
+                        // the
+                        // start to the end position. T is the duration of the swipe.
 
-                    // Different scenarios to test are:
-                    // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
-                    // - 100 < d < T (swipe must wait at start until d ms left)
-                    // - d > T (swipe can start immediately)
-                    // - v == 0
+                        // Different scenarios to test are:
+                        // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
+                        // - 100 < d < T (swipe must wait at start until d ms left)
+                        // - d > T (swipe can start immediately)
+                        // - v == 0
 
-                    add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
-                    add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
-                    add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
-                    add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
-                    add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
-                    add(TestConfig(direction.offset, 6000f, 500L, true)) // d < 100 && T > d
-                    add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
+                        add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
+                        add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
+                        add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
+                        add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
+                        add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
+                        add(TestConfig(direction.offset, 6000f, 500L, true)) // d < 100 && T > d
+                        add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
+                    }
+                    // Regression for b/182477143
+                    add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
                 }
-                // Regression for b/182477143
-                add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
             }
-        }
     }
 
     @Test
@@ -119,12 +120,13 @@ class VelocityPathFinderTest(private val config: TestConfig) {
 
     @OptIn(ExperimentalComposeUiApi::class)
     private fun testWithoutExpectedError(config: TestConfig) {
-        val pathFinder = VelocityPathFinder(
-            startPosition = Offset.Zero,
-            endPosition = config.end,
-            endVelocity = config.requestedVelocity,
-            durationMillis = config.durationMillis
-        )
+        val pathFinder =
+            VelocityPathFinder(
+                startPosition = Offset.Zero,
+                endPosition = config.end,
+                endVelocity = config.requestedVelocity,
+                durationMillis = config.durationMillis
+            )
 
         val f: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
         val velocityTracker = simulateSwipe(config, f)
@@ -157,19 +159,21 @@ class VelocityPathFinderTest(private val config: TestConfig) {
     private fun testWithExpectedError(config: TestConfig, testSuggestions: Boolean = false) {
         try {
             VelocityPathFinder(
-                startPosition = Offset.Zero,
-                endPosition = config.end,
-                endVelocity = config.requestedVelocity,
-                durationMillis = config.durationMillis
-            ).calculateOffsetForTime(0L)
+                    startPosition = Offset.Zero,
+                    endPosition = config.end,
+                    endVelocity = config.requestedVelocity,
+                    durationMillis = config.durationMillis
+                )
+                .calculateOffsetForTime(0L)
             fail("Expected an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
-            assertThat(e.message).startsWith(
-                "Unable to generate a swipe gesture between ${Offset.Zero} and ${config.end} " +
-                    "with duration ${config.durationMillis} that ends with velocity of " +
-                    "${config.requestedVelocity} px/s, without going outside of the range " +
-                    "[start..end]. Suggested fixes: "
-            )
+            assertThat(e.message)
+                .startsWith(
+                    "Unable to generate a swipe gesture between ${Offset.Zero} and ${config.end} " +
+                        "with duration ${config.durationMillis} that ends with velocity of " +
+                        "${config.requestedVelocity} px/s, without going outside of the range " +
+                        "[start..end]. Suggested fixes: "
+                )
 
             val suggestedFixes = e.message!!.substringAfter("Suggested fixes: ")
             val (maxDuration, maxVelocity, minDistance) = getSuggestions(suggestedFixes)
@@ -195,11 +199,12 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         }
     }
 
-    private val suggestedFixesRegex = Regex(
-        "1\\. set duration to (.*) or lower; " +
-            "2\\. set velocity to (.*) px/s or lower; or " +
-            "3\\. increase the distance between the start and end to (.*) or higher"
-    )
+    private val suggestedFixesRegex =
+        Regex(
+            "1\\. set duration to (.*) or lower; " +
+                "2\\. set velocity to (.*) px/s or lower; or " +
+                "3\\. increase the distance between the start and end to (.*) or higher"
+        )
 
     private fun getSuggestions(suggestedFixes: String): List<Float> {
         val match = suggestedFixesRegex.matchEntire(suggestedFixes)
@@ -223,11 +228,12 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         if (isFinite && this != Offset.Zero) this / getDistance() else this
 
     private fun Velocity.toOffset(): Offset = Offset(x, y)
+
     private fun Velocity.sum(): Float = sqrt(x * x + y * y)
 
     /**
-     * Direction of the swipe, when starting from [Offset.Zero].
-     * N/W/S/E are straight lines, NW/SW/SE/NE are at a 60º angle.
+     * Direction of the swipe, when starting from [Offset.Zero]. N/W/S/E are straight lines,
+     * NW/SW/SE/NE are at a 60º angle.
      */
     enum class Direction(val offset: Offset) {
         N(Offset(0f, -200f)),

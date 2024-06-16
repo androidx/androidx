@@ -19,10 +19,10 @@ package androidx.compose.ui.input.pointer.util
 import androidx.compose.ui.input.pointer.PointerId
 
 /**
- * This collection is specifically for dealing with [PointerId] values. We know that they
- * contain [Long] values, so we store them in an underlying LongArray. We want to be able to
- * resize the array if there are many ids to be stored, so we recreate the internal LongArray
- * as necessary (since LongArray is not itself resizable).
+ * This collection is specifically for dealing with [PointerId] values. We know that they contain
+ * [Long] values, so we store them in an underlying LongArray. We want to be able to resize the
+ * array if there are many ids to be stored, so we recreate the internal LongArray as necessary
+ * (since LongArray is not itself resizable).
  */
 internal class PointerIdArray {
 
@@ -35,10 +35,10 @@ internal class PointerIdArray {
         private set
 
     /**
-     * The ids are stored as Long values in a LongArray. LongArray is not resizable, and we may
-     * need to expand this array if there are many pointer ids in use at any given time, so we
-     * keep the LongArray private and resize the PointerIdArray by allocating a larger LongArray
-     * (and copying existing values to it) as necessary.
+     * The ids are stored as Long values in a LongArray. LongArray is not resizable, and we may need
+     * to expand this array if there are many pointer ids in use at any given time, so we keep the
+     * LongArray private and resize the PointerIdArray by allocating a larger LongArray (and copying
+     * existing values to it) as necessary.
      *
      * By default, we allocate the underlying array with 2 elements, since it is uncommon (though
      * possible) to have more than two ids at a time.
@@ -46,8 +46,8 @@ internal class PointerIdArray {
     private var internalArray = LongArray(2)
 
     /**
-     * Returns the PointerId at the given index.
-     * This getter allows use of [] syntax to retrieve values.
+     * Returns the PointerId at the given index. This getter allows use of [] syntax to retrieve
+     * values.
      */
     operator fun get(index: Int): PointerId {
         return PointerId(internalArray[index])
@@ -65,8 +65,8 @@ internal class PointerIdArray {
     /**
      * Removes a [PointerId] with the given value from this array, if it exists.
      *
-     * @return true if a [PointerId] with the value [pointerIdValue] was in the array,
-     * false otherwise
+     * @return true if a [PointerId] with the value [pointerIdValue] was in the array, false
+     *   otherwise
      */
     fun remove(pointerIdValue: Long): Boolean {
         for (i in 0 until size) {
@@ -79,8 +79,8 @@ internal class PointerIdArray {
     }
 
     /**
-     * Removes the [PointerId] at the given index value, if the index is less than the size
-     * of the array.
+     * Removes the [PointerId] at the given index value, if the index is less than the size of the
+     * array.
      *
      * @return true if a [PointerId] at that index was removed, false otherwise
      */
@@ -95,9 +95,7 @@ internal class PointerIdArray {
         return false
     }
 
-    /**
-     * Returns the current size of the array
-     */
+    /** Returns the current size of the array */
     fun isEmpty() = size == 0
 
     /**
@@ -123,10 +121,10 @@ internal class PointerIdArray {
     }
 
     /**
-     * Sets the value at the given index to a [PointerId] with the value [value].
-     * The index must be less than or equal to the current size of the array. If it is
-     * equal to the size of the array, the storage in the array will be expanded to
-     * ensure that the item can be added to the end of it.
+     * Sets the value at the given index to a [PointerId] with the value [value]. The index must be
+     * less than or equal to the current size of the array. If it is equal to the size of the array,
+     * the storage in the array will be expanded to ensure that the item can be added to the end of
+     * it.
      */
     operator fun set(index: Int, value: Long) {
         if (index >= internalArray.size) {
@@ -138,33 +136,26 @@ internal class PointerIdArray {
     }
 
     /**
-     * Sets the value at the given index to [pointerId].
-     * The index must be less than or equal to the current size of the array. If it is
-     * equal to the size of the array, the storage in the array will be expanded to
-     * ensure that the item can be added to the end of it.
+     * Sets the value at the given index to [pointerId]. The index must be less than or equal to the
+     * current size of the array. If it is equal to the size of the array, the storage in the array
+     * will be expanded to ensure that the item can be added to the end of it.
      */
     operator fun set(index: Int, pointerId: PointerId) {
         set(index, pointerId.value)
     }
 
-    /**
-     * Clears the array. The new [size] of the array will be 0.
-     */
+    /** Clears the array. The new [size] of the array will be 0. */
     fun clear() {
         // No need to clear, just reset the size. Elements beyond the current size are ignored.
         size = 0
     }
 
-    /**
-     * Returns true if [pointerId] is in the array, false otherwise
-     */
+    /** Returns true if [pointerId] is in the array, false otherwise */
     fun contains(pointerId: PointerId): Boolean {
         return contains(pointerId.value)
     }
 
-    /**
-     * Returns true if a [PointerId] with the given value is in the array, false otherwise
-     */
+    /** Returns true if a [PointerId] with the given value is in the array, false otherwise */
     fun contains(pointerIdValue: Long): Boolean {
         for (i in 0 until size) {
             if (internalArray[i] == pointerIdValue) return true
@@ -172,8 +163,7 @@ internal class PointerIdArray {
         return false
     }
 
-    /**
-     * Returns index of last item in array
-     */
-    inline val lastIndex: Int get() = size - 1
+    /** Returns index of last item in array */
+    inline val lastIndex: Int
+        get() = size - 1
 }

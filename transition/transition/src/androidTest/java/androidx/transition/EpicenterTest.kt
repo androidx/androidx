@@ -39,9 +39,7 @@ class EpicenterTest : BaseTest() {
 
     @Test
     fun rotatedViewEpicenter() {
-        testViewEpicenter {
-            rotation = 180f
-        }
+        testViewEpicenter { rotation = 180f }
     }
 
     @Test
@@ -56,9 +54,7 @@ class EpicenterTest : BaseTest() {
 
     private fun testViewEpicenter(viewSetup: View.() -> Unit) {
         val view = setupTestView()
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            view.viewSetup()
-        }
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { view.viewSetup() }
         val transitionSupport = FragmentTransitionSupport()
 
         val transition = AutoTransition()
@@ -68,14 +64,11 @@ class EpicenterTest : BaseTest() {
         view.matrix.mapRect(rect)
 
         rect.offset(view.left.toFloat(), view.top.toFloat())
-        val (parentX, parentY) = IntArray(2).apply {
-            (view.parent as View).getLocationOnScreen(this)
-        }
+        val (parentX, parentY) =
+            IntArray(2).apply { (view.parent as View).getLocationOnScreen(this) }
         rect.offset(parentX.toFloat(), parentY.toFloat())
 
-        val expected = Rect().also {
-            rect.round(it)
-        }
+        val expected = Rect().also { rect.round(it) }
 
         assertThat(transition.epicenter).isEqualTo(expected)
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
@@ -83,19 +76,16 @@ class EpicenterTest : BaseTest() {
         }
     }
 
-    /**
-     * Returns a view of size 100x100 located at (50, 50)
-     */
+    /** Returns a view of size 100x100 located at (50, 50) */
     private fun setupTestView(): View {
         val view = View(rule.activity)
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
             rule.activity.root.addView(
                 view,
-                FrameLayout.LayoutParams(100, 100)
-                    .apply {
-                        leftMargin = 50
-                        topMargin = 50
-                    }
+                FrameLayout.LayoutParams(100, 100).apply {
+                    leftMargin = 50
+                    topMargin = 50
+                }
             )
             view.left = 50
             view.top = 50

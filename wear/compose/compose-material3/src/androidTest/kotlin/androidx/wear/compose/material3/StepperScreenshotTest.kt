@@ -58,14 +58,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalWearMaterial3Api::class)
 public class StepperScreenshotTest {
-    @get:Rule
-    public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule()
 
-    @get:Rule
-    public val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule public val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    public val testName = TestName()
+    @get:Rule public val testName = TestName()
 
     @Test
     public fun stepper_no_content() {
@@ -89,17 +86,9 @@ public class StepperScreenshotTest {
                 value = 2f,
                 steps = 3,
                 onValueChange = {},
-                decreaseIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = ""
-                    )
-                },
+                decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
                 increaseIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.ThumbUp,
-                        contentDescription = ""
-                    )
+                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
             ) {}
         }
@@ -119,12 +108,7 @@ public class StepperScreenshotTest {
                 FilledTonalButton(
                     onClick = {},
                     modifier = Modifier.width(146.dp),
-                    label = {
-                        Text(
-                            text = "Demo",
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) }
                 )
             }
         }
@@ -179,20 +163,17 @@ public class StepperScreenshotTest {
         }
     }
 
-    private fun verifyScreenshot(
-        content: @Composable () -> Unit
-    ) {
+    private fun verifyScreenshot(content: @Composable () -> Unit) {
         rule.setContentWithTheme {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             ) {
                 content()
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

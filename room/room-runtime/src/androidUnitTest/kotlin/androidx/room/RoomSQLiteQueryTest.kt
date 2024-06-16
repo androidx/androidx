@@ -54,9 +54,7 @@ class RoomSQLiteQueryTest {
     @Test
     fun acquireSameSizeWithoutRelease() {
         val query = acquire("abc", 3)
-        assertThat(
-            acquire("fda", 3)
-        ).isNotSameInstanceAs(query)
+        assertThat(acquire("fda", 3)).isNotSameInstanceAs(query)
     }
 
     @Test
@@ -105,9 +103,7 @@ class RoomSQLiteQueryTest {
     fun returnNewForBigger() {
         val query = acquire("abc", 3)
         query.release()
-        assertThat(
-            acquire("dsa", 4)
-        ).isNotSameInstanceAs(query)
+        assertThat(acquire("dsa", 4)).isNotSameInstanceAs(query)
     }
 
     @Test
@@ -131,13 +127,9 @@ class RoomSQLiteQueryTest {
     }
 
     private fun pruneCacheTest() {
-        assertThat(
-            RoomSQLiteQuery.queryPool.size
-        ).isEqualTo(RoomSQLiteQuery.POOL_LIMIT)
+        assertThat(RoomSQLiteQuery.queryPool.size).isEqualTo(RoomSQLiteQuery.POOL_LIMIT)
         acquire("dsadsa", RoomSQLiteQuery.POOL_LIMIT + 1).release()
-        assertThat(
-            RoomSQLiteQuery.queryPool.size
-        ).isEqualTo(RoomSQLiteQuery.DESIRED_POOL_SIZE)
+        assertThat(RoomSQLiteQuery.queryPool.size).isEqualTo(RoomSQLiteQuery.DESIRED_POOL_SIZE)
         val itr: Iterator<RoomSQLiteQuery> = RoomSQLiteQuery.queryPool.values.iterator()
         for (i in 0 until RoomSQLiteQuery.DESIRED_POOL_SIZE) {
             assertThat(itr.next().capacity).isEqualTo(i)

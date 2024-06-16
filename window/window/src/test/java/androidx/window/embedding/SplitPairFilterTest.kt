@@ -32,14 +32,16 @@ import org.robolectric.RobolectricTestRunner
 class SplitPairFilterTest {
     private val intent1 = Intent()
     private val intent2 = Intent()
-    private val activity1 = mock<Activity> {
-        on { intent } doReturn intent1
-        on { componentName } doReturn COMPONENT_1
-    }
-    private val activity2 = mock<Activity> {
-        on { intent } doReturn intent2
-        on { componentName } doReturn COMPONENT_2
-    }
+    private val activity1 =
+        mock<Activity> {
+            on { intent } doReturn intent1
+            on { componentName } doReturn COMPONENT_1
+        }
+    private val activity2 =
+        mock<Activity> {
+            on { intent } doReturn intent2
+            on { componentName } doReturn COMPONENT_2
+        }
 
     @Test(expected = IllegalArgumentException::class)
     fun packageNameMustNotBeEmpty_primary() {
@@ -94,10 +96,7 @@ class SplitPairFilterTest {
         val splitPairFilter = SplitPairFilter(COMPONENT_1, COMPONENT_2, INTENT_ACTION)
         assertEquals(COMPONENT_1.packageName, splitPairFilter.primaryActivityName.packageName)
         assertEquals(COMPONENT_1.className, splitPairFilter.primaryActivityName.className)
-        assertEquals(
-            COMPONENT_2.packageName,
-            splitPairFilter.secondaryActivityName.packageName
-        )
+        assertEquals(COMPONENT_2.packageName, splitPairFilter.secondaryActivityName.packageName)
         assertEquals(COMPONENT_2.className, splitPairFilter.secondaryActivityName.className)
         assertEquals(INTENT_ACTION, splitPairFilter.secondaryActivityIntentAction)
     }
@@ -113,32 +112,33 @@ class SplitPairFilterTest {
 
     @Test
     fun testMatch_WithoutAction() {
-        val filter = SplitPairFilter(
-            COMPONENT_1,
-            COMPONENT_2,
-            null /* secondaryActivityIntentAction */
-        )
+        val filter =
+            SplitPairFilter(COMPONENT_1, COMPONENT_2, null /* secondaryActivityIntentAction */)
         intent1.component = COMPONENT_1
         intent2.component = COMPONENT_2
 
         assertWithMessage("#matchesActivityPair must be true because intents match")
-            .that(filter.matchesActivityPair(activity1, activity2)).isTrue()
+            .that(filter.matchesActivityPair(activity1, activity2))
+            .isTrue()
         assertWithMessage("#matchesActivityIntentPair must be true because intents match")
-            .that(filter.matchesActivityIntentPair(activity1, intent2)).isTrue()
+            .that(filter.matchesActivityIntentPair(activity1, intent2))
+            .isTrue()
 
         assertWithMessage("#matchesActivityPair must be false because secondary doesn't match")
-            .that(filter.matchesActivityPair(activity1, activity1)).isFalse()
+            .that(filter.matchesActivityPair(activity1, activity1))
+            .isFalse()
         assertWithMessage(
-            "#matchesActivityIntentPair must be false because secondary doesn't match"
-        )
-            .that(filter.matchesActivityIntentPair(activity1, intent1)).isFalse()
+                "#matchesActivityIntentPair must be false because secondary doesn't match"
+            )
+            .that(filter.matchesActivityIntentPair(activity1, intent1))
+            .isFalse()
 
         assertWithMessage("#matchesActivityPair must be false because primary doesn't match")
-            .that(filter.matchesActivityPair(activity2, activity2)).isFalse()
-        assertWithMessage(
-            "#matchesActivityIntentPair must be false because primary doesn't match"
-        )
-            .that(filter.matchesActivityIntentPair(activity2, intent2)).isFalse()
+            .that(filter.matchesActivityPair(activity2, activity2))
+            .isFalse()
+        assertWithMessage("#matchesActivityIntentPair must be false because primary doesn't match")
+            .that(filter.matchesActivityIntentPair(activity2, intent2))
+            .isFalse()
     }
 
     @Test
@@ -148,61 +148,73 @@ class SplitPairFilterTest {
         intent2.component = COMPONENT_2
 
         assertWithMessage("#matchesActivityPair must be false because intent has no action")
-            .that(filter.matchesActivityPair(activity1, activity2)).isFalse()
+            .that(filter.matchesActivityPair(activity1, activity2))
+            .isFalse()
         assertWithMessage("#matchesActivityIntentPair must be false because intent has no action")
-            .that(filter.matchesActivityIntentPair(activity1, intent2)).isFalse()
+            .that(filter.matchesActivityIntentPair(activity1, intent2))
+            .isFalse()
 
         intent2.action = INTENT_ACTION
 
         assertWithMessage("#matchesActivityPair must be true because intent.action matches")
-            .that(filter.matchesActivityPair(activity1, activity2)).isTrue()
+            .that(filter.matchesActivityPair(activity1, activity2))
+            .isTrue()
         assertWithMessage("#matchesActivityIntentPair must be true because intent.action matches")
-            .that(filter.matchesActivityIntentPair(activity1, intent2)).isTrue()
+            .that(filter.matchesActivityIntentPair(activity1, intent2))
+            .isTrue()
     }
 
     @Test
     fun testMatch_WithIntentPackage() {
-        val filter = SplitPairFilter(
-            COMPONENT_1,
-            WILDCARD_CLASS_COMPONENT,
-            null /* secondaryActivityIntentAction */
-        )
+        val filter =
+            SplitPairFilter(
+                COMPONENT_1,
+                WILDCARD_CLASS_COMPONENT,
+                null /* secondaryActivityIntentAction */
+            )
         intent1.component = COMPONENT_1
         intent2.component = null
         intent2.`package` = WILDCARD_CLASS_COMPONENT.packageName
         doReturn(COMPONENT_1).whenever(activity2).componentName
 
         assertWithMessage("#matchesActivityPair must be true because intent.package matches")
-            .that(filter.matchesActivityPair(activity1, activity2)).isTrue()
+            .that(filter.matchesActivityPair(activity1, activity2))
+            .isTrue()
         assertWithMessage("#matchesActivityIntentPair must be true because intent.package matches")
-            .that(filter.matchesActivityIntentPair(activity1, intent2)).isTrue()
+            .that(filter.matchesActivityIntentPair(activity1, intent2))
+            .isTrue()
 
         intent2.component = COMPONENT_1
 
         assertWithMessage(
-            "#matchesActivityPair must be false because intent.component doesn't match"
-        )
-            .that(filter.matchesActivityPair(activity1, activity1)).isFalse()
+                "#matchesActivityPair must be false because intent.component doesn't match"
+            )
+            .that(filter.matchesActivityPair(activity1, activity1))
+            .isFalse()
         assertWithMessage(
-            "#matchesActivityIntentPair must be false because intent.component doesn't match"
-        )
-            .that(filter.matchesActivityIntentPair(activity1, intent1)).isFalse()
+                "#matchesActivityIntentPair must be false because intent.component doesn't match"
+            )
+            .that(filter.matchesActivityIntentPair(activity1, intent1))
+            .isFalse()
     }
 
     @Test
     fun testMatch_EmptyIntentWithWildcard() {
-        val filter = SplitPairFilter(
-            WILDCARD_COMPONENT,
-            WILDCARD_COMPONENT,
-            null /* secondaryActivityIntentAction */
-        )
+        val filter =
+            SplitPairFilter(
+                WILDCARD_COMPONENT,
+                WILDCARD_COMPONENT,
+                null /* secondaryActivityIntentAction */
+            )
         intent1.component = null
         intent2.component = null
 
         assertWithMessage("#matchesActivityPair must be true because rule is wildcard")
-            .that(filter.matchesActivityPair(activity1, activity2)).isTrue()
+            .that(filter.matchesActivityPair(activity1, activity2))
+            .isTrue()
         assertWithMessage("#matchesActivityIntentPair must be true because rule is wildcard")
-            .that(filter.matchesActivityIntentPair(activity1, intent2)).isTrue()
+            .that(filter.matchesActivityIntentPair(activity1, intent2))
+            .isTrue()
     }
 
     companion object {

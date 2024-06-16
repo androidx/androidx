@@ -55,20 +55,23 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+        )
 
     @get:Rule
-    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        testCameraRule, CameraUtil.PreTestCameraIdList(
-            if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
-                Camera2Config.defaultConfig()
-            } else {
-                CameraPipeConfig.defaultConfig()
-            }
+    val useCameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            testCameraRule,
+            CameraUtil.PreTestCameraIdList(
+                if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
+                    Camera2Config.defaultConfig()
+                } else {
+                    CameraPipeConfig.defaultConfig()
+                }
+            )
         )
-    )
 
     @get:Rule
     val mCameraActivityRules: GrantPermissionRule =
@@ -120,13 +123,17 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
             scenario.waitOnCameraFrames()
 
             // Image rotation is correct if equal to sensor rotation relative to target rotation
-            val (sensorToTargetRotation, imageRotationDegrees) = scenario.withActivity {
-                Pair(getSensorRotationRelativeToAnalysisTargetRotation(), mAnalysisImageRotation)
-            }
+            val (sensorToTargetRotation, imageRotationDegrees) =
+                scenario.withActivity {
+                    Pair(
+                        getSensorRotationRelativeToAnalysisTargetRotation(),
+                        mAnalysisImageRotation
+                    )
+                }
             assertWithMessage(
-                "The image rotation degrees [$imageRotationDegrees] was expected to" +
-                    " be equal to [$sensorToTargetRotation]"
-            )
+                    "The image rotation degrees [$imageRotationDegrees] was expected to" +
+                        " be equal to [$sensorToTargetRotation]"
+                )
                 .that(imageRotationDegrees)
                 .isEqualTo(sensorToTargetRotation)
         }
@@ -135,18 +142,15 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
     protected inline fun <reified A : CameraActivity> launchActivity(
         lensFacing: Int,
         cameraXConfig: String,
-    ):
-        ActivityScenario<A> {
-            val intent = Intent(
-                ApplicationProvider.getApplicationContext(),
-                A::class.java
-            ).apply {
+    ): ActivityScenario<A> {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), A::class.java).apply {
                 putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
                 putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
                 putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
-            return ActivityScenario.launch<A>(intent)
-        }
+        return ActivityScenario.launch<A>(intent)
+    }
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }
@@ -168,13 +172,13 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
             arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
 
         @JvmStatic
-        protected val cameraXConfigList = arrayOf(
-            CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
-            CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
-        )
+        protected val cameraXConfigList =
+            arrayOf(
+                CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
+                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
+            )
 
-        @JvmStatic
-        lateinit var testCameraRule: CameraUtil.PreTestCamera
+        @JvmStatic lateinit var testCameraRule: CameraUtil.PreTestCamera
 
         @BeforeClass
         @JvmStatic

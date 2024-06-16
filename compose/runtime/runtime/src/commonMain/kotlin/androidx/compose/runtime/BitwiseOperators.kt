@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.runtime
 
 // NOTE: rotateRight, marked @ExperimentalStdlibApi is also marked inline-only,

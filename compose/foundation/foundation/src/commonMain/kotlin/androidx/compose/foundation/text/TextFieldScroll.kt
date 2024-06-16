@@ -67,32 +67,35 @@ internal fun Modifier.textFieldScrollable(
     enabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = null
 ) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "textFieldScrollable"
-        properties["scrollerPosition"] = scrollerPosition
-        properties["interactionSource"] = interactionSource
-        properties["enabled"] = enabled
-    }
+    inspectorInfo =
+        debugInspectorInfo {
+            name = "textFieldScrollable"
+            properties["scrollerPosition"] = scrollerPosition
+            properties["interactionSource"] = interactionSource
+            properties["enabled"] = enabled
+        }
 ) {
     // do not reverse direction only in case of RTL in horizontal orientation
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val reverseDirection = scrollerPosition.orientation == Orientation.Vertical || !rtl
     val scrollableState = rememberScrollableState { delta ->
         val newOffset = scrollerPosition.offset + delta
-        val consumedDelta = when {
-            newOffset > scrollerPosition.maximum ->
-                scrollerPosition.maximum - scrollerPosition.offset
-            newOffset < 0f -> -scrollerPosition.offset
-            else -> delta
-        }
+        val consumedDelta =
+            when {
+                newOffset > scrollerPosition.maximum ->
+                    scrollerPosition.maximum - scrollerPosition.offset
+                newOffset < 0f -> -scrollerPosition.offset
+                else -> delta
+            }
         scrollerPosition.offset += consumedDelta
         consumedDelta
     }
     // TODO: b/255557085 remove when / if rememberScrollableState exposes lambda parameters for
     //  setting these
-    val wrappedScrollableState = remember(scrollableState, scrollerPosition) {
-        createScrollableState(scrollableState, scrollerPosition)
-    }
+    val wrappedScrollableState =
+        remember(scrollableState, scrollerPosition) {
+            createScrollableState(scrollableState, scrollerPosition)
+        }
 
     val scroll = Modifier.scrollable(
         orientation = scrollerPosition.orientation,
@@ -140,22 +143,23 @@ internal fun Modifier.defaultTextFieldScroll(
 
     val transformedText = visualTransformation.filterWithValidation(textFieldValue.annotatedString)
 
-    val layout = when (orientation) {
-        Orientation.Vertical ->
-            VerticalScrollLayoutModifier(
-                scrollerPosition,
-                cursorOffset,
-                transformedText,
-                textLayoutResultProvider
-            )
-        Orientation.Horizontal ->
-            HorizontalScrollLayoutModifier(
-                scrollerPosition,
-                cursorOffset,
-                transformedText,
-                textLayoutResultProvider
-            )
-    }
+    val layout =
+        when (orientation) {
+            Orientation.Vertical ->
+                VerticalScrollLayoutModifier(
+                    scrollerPosition,
+                    cursorOffset,
+                    transformedText,
+                    textLayoutResultProvider
+                )
+            Orientation.Horizontal ->
+                HorizontalScrollLayoutModifier(
+                    scrollerPosition,
+                    cursorOffset,
+                    transformedText,
+                    textLayoutResultProvider
+                )
+        }
     return this.clipToBounds().then(layout)
 }
 
@@ -174,13 +178,14 @@ private data class VerticalScrollLayoutModifier(
         val height = min(placeable.height, constraints.maxHeight)
 
         return layout(placeable.width, height) {
-            val cursorRect = getCursorRectInScroller(
-                cursorOffset = cursorOffset,
-                transformedText = transformedText,
-                textLayoutResult = textLayoutResultProvider()?.value,
-                rtl = false,
-                textFieldWidth = placeable.width
-            )
+            val cursorRect =
+                getCursorRectInScroller(
+                    cursorOffset = cursorOffset,
+                    transformedText = transformedText,
+                    textLayoutResult = textLayoutResultProvider()?.value,
+                    rtl = false,
+                    textFieldWidth = placeable.width
+                )
 
             scrollerPosition.update(
                 orientation = Orientation.Vertical,
@@ -209,22 +214,24 @@ private data class HorizontalScrollLayoutModifier(
         // the original constraints so that the children has more information to  determine its
         // size.
         val maxIntrinsicWidth = measurable.maxIntrinsicWidth(constraints.maxHeight)
-        val childConstraints = if (maxIntrinsicWidth < constraints.maxWidth) {
-            constraints
-        } else {
-            constraints.copy(maxWidth = Constraints.Infinity)
-        }
+        val childConstraints =
+            if (maxIntrinsicWidth < constraints.maxWidth) {
+                constraints
+            } else {
+                constraints.copy(maxWidth = Constraints.Infinity)
+            }
         val placeable = measurable.measure(childConstraints)
         val width = min(placeable.width, constraints.maxWidth)
 
         return layout(width, placeable.height) {
-            val cursorRect = getCursorRectInScroller(
-                cursorOffset = cursorOffset,
-                transformedText = transformedText,
-                textLayoutResult = textLayoutResultProvider()?.value,
-                rtl = layoutDirection == LayoutDirection.Rtl,
-                textFieldWidth = placeable.width
-            )
+            val cursorRect =
+                getCursorRectInScroller(
+                    cursorOffset = cursorOffset,
+                    transformedText = transformedText,
+                    textLayoutResult = textLayoutResultProvider()?.value,
+                    rtl = layoutDirection == LayoutDirection.Rtl,
+                    textFieldWidth = placeable.width
+                )
 
             scrollerPosition.update(
                 orientation = Orientation.Horizontal,
@@ -246,22 +253,25 @@ private fun Density.getCursorRectInScroller(
     rtl: Boolean,
     textFieldWidth: Int
 ): Rect {
-    val cursorRect = textLayoutResult?.getCursorRect(
-        transformedText.offsetMapping.originalToTransformed(cursorOffset)
-    ) ?: Rect.Zero
+    val cursorRect =
+        textLayoutResult?.getCursorRect(
+            transformedText.offsetMapping.originalToTransformed(cursorOffset)
+        ) ?: Rect.Zero
     val thickness = DefaultCursorThickness.roundToPx()
 
-    val cursorLeft = if (rtl) {
-        textFieldWidth - cursorRect.left - thickness
-    } else {
-        cursorRect.left
-    }
+    val cursorLeft =
+        if (rtl) {
+            textFieldWidth - cursorRect.left - thickness
+        } else {
+            cursorRect.left
+        }
 
-    val cursorRight = if (rtl) {
-        textFieldWidth - cursorRect.left
-    } else {
-        cursorRect.left + thickness
-    }
+    val cursorRight =
+        if (rtl) {
+            textFieldWidth - cursorRect.left
+        } else {
+            cursorRect.left + thickness
+        }
     return cursorRect.copy(left = cursorLeft, right = cursorRight)
 }
 
@@ -275,15 +285,15 @@ internal class TextFieldScrollerPosition(
     constructor() : this(Orientation.Vertical)
 
     /**
-     * Left or top offset. Takes values from 0 to [maximum].
-     * Taken with the opposite sign defines the x or y position of the text field in the
-     * horizontal or vertical scroller container correspondingly.
+     * Left or top offset. Takes values from 0 to [maximum]. Taken with the opposite sign defines
+     * the x or y position of the text field in the horizontal or vertical scroller container
+     * correspondingly.
      */
     var offset by mutableFloatStateOf(initial)
 
     /**
-     * Maximum length by which the text field can be scrolled. Defined as a difference in
-     * size between the scroller container and the text field.
+     * Maximum length by which the text field can be scrolled. Defined as a difference in size
+     * between the scroller container and the text field.
      */
     var maximum by mutableFloatStateOf(0f)
         private set
@@ -301,24 +311,19 @@ internal class TextFieldScrollerPosition(
     private var previousCursorRect: Rect = Rect.Zero
 
     /**
-     * Keeps the previous selection data in TextFieldValue in order to identify what has changed
-     * in the new selection, and decide which selection offset (start, end) to follow.
+     * Keeps the previous selection data in TextFieldValue in order to identify what has changed in
+     * the new selection, and decide which selection offset (start, end) to follow.
      */
     var previousSelection: TextRange = TextRange.Zero
 
     var orientation by mutableStateOf(initialOrientation, structuralEqualityPolicy())
 
-    fun update(
-        orientation: Orientation,
-        cursorRect: Rect,
-        containerSize: Int,
-        textFieldSize: Int
-    ) {
+    fun update(orientation: Orientation, cursorRect: Rect, containerSize: Int, textFieldSize: Int) {
         val difference = (textFieldSize - containerSize).toFloat()
         maximum = difference
 
-        if (cursorRect.left != previousCursorRect.left ||
-            cursorRect.top != previousCursorRect.top
+        if (
+            cursorRect.left != previousCursorRect.left || cursorRect.top != previousCursorRect.top
         ) {
             val vertical = orientation == Orientation.Vertical
             val cursorStart = if (vertical) cursorRect.top else cursorRect.left
@@ -334,50 +339,52 @@ internal class TextFieldScrollerPosition(
     internal fun coerceOffset(cursorStart: Float, cursorEnd: Float, containerSize: Int) {
         val startVisibleBound = offset
         val endVisibleBound = startVisibleBound + containerSize
-        val offsetDifference = when {
-            // make bottom/end of the cursor visible
-            //
-            // text box
-            // +----------------------+
-            // |                      |
-            // |                      |
-            // |          cursor      |
-            // |             |        |
-            // +-------------|--------+
-            //               |
-            //
-            cursorEnd > endVisibleBound -> cursorEnd - endVisibleBound
+        val offsetDifference =
+            when {
+                // make bottom/end of the cursor visible
+                //
+                // text box
+                // +----------------------+
+                // |                      |
+                // |                      |
+                // |          cursor      |
+                // |             |        |
+                // +-------------|--------+
+                //               |
+                //
+                cursorEnd > endVisibleBound -> cursorEnd - endVisibleBound
 
-            // in rare cases when there's not enough space to fit the whole cursor, prioritise
-            // the bottom/end of the cursor
-            //
-            //             cursor
-            // text box      |
-            // +-------------|--------+
-            // |             |        |
-            // +-------------|--------+
-            //               |
-            //
-            cursorStart < startVisibleBound && cursorEnd - cursorStart > containerSize ->
-                cursorEnd - endVisibleBound
+                // in rare cases when there's not enough space to fit the whole cursor, prioritise
+                // the bottom/end of the cursor
+                //
+                //             cursor
+                // text box      |
+                // +-------------|--------+
+                // |             |        |
+                // +-------------|--------+
+                //               |
+                //
+                cursorStart < startVisibleBound && cursorEnd - cursorStart > containerSize ->
+                    cursorEnd - endVisibleBound
 
-            // make top/start of the cursor visible if there's enough space to fit the whole cursor
-            //
-            //               cursor
-            // text box       |
-            // +--------------|-------+
-            // |              |       |
-            // |                      |
-            // |                      |
-            // |                      |
-            // +----------------------+
-            //
-            cursorStart < startVisibleBound && cursorEnd - cursorStart <= containerSize ->
-                cursorStart - startVisibleBound
+                // make top/start of the cursor visible if there's enough space to fit the whole
+                // cursor
+                //
+                //               cursor
+                // text box       |
+                // +--------------|-------+
+                // |              |       |
+                // |                      |
+                // |                      |
+                // |                      |
+                // +----------------------+
+                //
+                cursorStart < startVisibleBound && cursorEnd - cursorStart <= containerSize ->
+                    cursorStart - startVisibleBound
 
-            // otherwise keep current offset
-            else -> 0f
-        }
+                // otherwise keep current offset
+                else -> 0f
+            }
         offset += offsetDifference
     }
 
@@ -390,16 +397,16 @@ internal class TextFieldScrollerPosition(
     }
 
     companion object {
-        val Saver = listSaver<TextFieldScrollerPosition, Any>(
-            save = {
-                listOf(it.offset, it.orientation == Orientation.Vertical)
-            },
-            restore = { restored ->
-                TextFieldScrollerPosition(
-                    if (restored[1] as Boolean) Orientation.Vertical else Orientation.Horizontal,
-                    restored[0] as Float
-                )
-            }
-        )
+        val Saver =
+            listSaver<TextFieldScrollerPosition, Any>(
+                save = { listOf(it.offset, it.orientation == Orientation.Vertical) },
+                restore = { restored ->
+                    TextFieldScrollerPosition(
+                        if (restored[1] as Boolean) Orientation.Vertical
+                        else Orientation.Horizontal,
+                        restored[0] as Float
+                    )
+                }
+            )
     }
 }

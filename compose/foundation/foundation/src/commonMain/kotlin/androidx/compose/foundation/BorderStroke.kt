@@ -51,14 +51,8 @@ class BorderStroke(val width: Dp, val brush: Brush) {
         return "BorderStroke(width=$width, brush=$brush)"
     }
 
-    fun copy(
-        width: Dp = this.width,
-        brush: Brush = this.brush
-    ): BorderStroke {
-        return BorderStroke(
-            width = width,
-            brush = brush
-        )
+    fun copy(width: Dp = this.width, brush: Brush = this.brush): BorderStroke {
+        return BorderStroke(width = width, brush = brush)
     }
 }
 
@@ -68,5 +62,4 @@ class BorderStroke(val width: Dp, val brush: Brush) {
  * @param width width of the border in [Dp]. Use [Dp.Hairline] for one-pixel border.
  * @param color color to paint the border with
  */
-@Stable
-fun BorderStroke(width: Dp, color: Color) = BorderStroke(width, SolidColor(color))
+@Stable fun BorderStroke(width: Dp, color: Color) = BorderStroke(width, SolidColor(color))

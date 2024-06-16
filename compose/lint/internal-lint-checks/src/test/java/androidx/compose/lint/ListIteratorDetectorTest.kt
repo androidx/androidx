@@ -25,22 +25,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class ListIteratorDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ListIteratorDetector()
 
-    override fun getIssues(): MutableList<Issue> = mutableListOf(
-        ListIteratorDetector.ISSUE
-    )
+    override fun getIssues(): MutableList<Issue> = mutableListOf(ListIteratorDetector.ISSUE)
 
     // These come from class files, so there is a notable difference vs defining them in source
     // in terms of our parsing.
     @Test
     fun stdlibIterableExtensions_calledOnList() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val list = listOf(1, 2, 3)
@@ -52,8 +50,8 @@ class ListIteratorDetectorTest : LintDetectorTest() {
                     list.mapIndexed { _,_ -> }
                 }
             """
+                )
             )
-        )
             .run()
             .expect(
                 """
@@ -76,9 +74,10 @@ src/test/test.kt:10: Error: Creating an unnecessary Iterator to iterate through 
 
     @Test
     fun userDefinedExtensions_calledOnList() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val list = listOf(1, 2, 3)
@@ -92,8 +91,8 @@ src/test/test.kt:10: Error: Creating an unnecessary Iterator to iterate through 
 
                 fun Iterable<*>.fancyDoSomething(): Boolean = true
             """
+                )
             )
-        )
             .run()
             .expect(
                 """
@@ -112,9 +111,10 @@ src/test/test.kt:8: Error: Creating an unnecessary Iterator to iterate through a
     // in terms of our parsing.
     @Test
     fun stdlibIterableExtensions_calledOnNonList() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val set = setOf(1, 2, 3)
@@ -126,17 +126,18 @@ src/test/test.kt:8: Error: Creating an unnecessary Iterator to iterate through a
                     set.mapIndexed { _,_ -> }
                 }
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 
     @Test
     fun userDefinedExtensions_calledOnNonList() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val set = setOf(1, 2, 3)
@@ -150,17 +151,18 @@ src/test/test.kt:8: Error: Creating an unnecessary Iterator to iterate through a
 
                 fun Iterable<*>.fancyDoSomething(): Boolean = true
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 
     @Test
     fun inOperatorCalledOnList() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val list = listOf(1, 2, 3)
@@ -169,8 +171,8 @@ src/test/test.kt:8: Error: Creating an unnecessary Iterator to iterate through a
                     for (e in list) { }
                 }
             """
+                )
             )
-        )
             .run()
             .expect(
                 """
@@ -184,9 +186,10 @@ src/test/test.kt:7: Error: Creating an unnecessary Iterator to iterate through a
 
     @Test
     fun inOperatorCalledOnNonList() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 val list = listOf(1, 2, 3)
                 val set = setOf(1, 2, 3)
 
@@ -195,10 +198,9 @@ src/test/test.kt:7: Error: Creating an unnecessary Iterator to iterate through a
                     for (e in set) { }
                 }
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

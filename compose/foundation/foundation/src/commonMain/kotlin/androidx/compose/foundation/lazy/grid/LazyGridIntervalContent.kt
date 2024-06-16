@@ -22,9 +22,8 @@ import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridIntervalContent(
-    content: LazyGridScope.() -> Unit
-) : LazyGridScope, LazyLayoutIntervalContent<LazyGridInterval>() {
+internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
+    LazyGridScope, LazyLayoutIntervalContent<LazyGridInterval>() {
     internal val spanLayoutProvider: LazyGridSpanLayoutProvider = LazyGridSpanLayoutProvider(this)
 
     override val intervals = MutableIntervalList<LazyGridInterval>()

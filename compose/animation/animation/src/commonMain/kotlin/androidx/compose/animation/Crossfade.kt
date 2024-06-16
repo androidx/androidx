@@ -39,8 +39,8 @@ import androidx.compose.ui.util.fastForEach
  * @sample androidx.compose.animation.samples.CrossfadeSample
  *
  * @param targetState is a key representing your target layout state. Every time you change a key
- * the animation will be triggered. The [content] called with the old key will be faded out while
- * the [content] called with the new key will be faded in.
+ *   the animation will be triggered. The [content] called with the old key will be faded out while
+ *   the [content] called with the new key will be faded in.
  * @param modifier Modifier to be applied to the animation container.
  * @param animationSpec the [AnimationSpec] to configure the animation.
  * @param label An optional label to differentiate from other animations in Android Studio.
@@ -58,10 +58,7 @@ fun <T> Crossfade(
     transition.Crossfade(modifier, animationSpec, content = content)
 }
 
-@Deprecated(
-    "Crossfade API now has a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
-)
+@Deprecated("Crossfade API now has a new label parameter added.", level = DeprecationLevel.HIDDEN)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun <T> Crossfade(
@@ -76,20 +73,20 @@ fun <T> Crossfade(
 
 /**
  * [Crossfade] allows to switch between two layouts with a crossfade animation. The target state of
- * this Crossfade will be the target state of the given Transition object. In other words, when
- * the Transition changes target, the [Crossfade] will fade in the target content while fading out
- * the current content.
+ * this Crossfade will be the target state of the given Transition object. In other words, when the
+ * Transition changes target, the [Crossfade] will fade in the target content while fading out the
+ * current content.
  *
- * [content] is a mapping between the state and the composable function for the content of
- * that state. During the crossfade, [content] lambda will be invoked multiple times with different
- * state parameter such that content associated with different states will be fading in/out at the
- * same time.
+ * [content] is a mapping between the state and the composable function for the content of that
+ * state. During the crossfade, [content] lambda will be invoked multiple times with different state
+ * parameter such that content associated with different states will be fading in/out at the same
+ * time.
  *
  * [contentKey] will be used to perform equality check for different states. For example, when two
- * states resolve to the same content key, there will be no animation for that state change.
- * By default, [contentKey] is the same as the state object. [contentKey] can be particularly useful
- * if target state object gets recreated across save & restore while a more persistent key is needed
- * to properly restore the internal states of the content.
+ * states resolve to the same content key, there will be no animation for that state change. By
+ * default, [contentKey] is the same as the state object. [contentKey] can be particularly useful if
+ * target state object gets recreated across save & restore while a more persistent key is needed to
+ * properly restore the internal states of the content.
  *
  * @param modifier Modifier to be applied to the animation container.
  * @param animationSpec the [AnimationSpec] to configure the animation.
@@ -114,9 +111,8 @@ fun <T> Transition<T>.Crossfade(
     }
     if (targetState !in contentMap) {
         // Replace target with the same key if any
-        val replacementId = currentlyVisible.indexOfFirst {
-            contentKey(it) == contentKey(targetState)
-        }
+        val replacementId =
+            currentlyVisible.indexOfFirst { contentKey(it) == contentKey(targetState) }
         if (replacementId == -1) {
             currentlyVisible.add(targetState)
         } else {
@@ -125,21 +121,16 @@ fun <T> Transition<T>.Crossfade(
         contentMap.clear()
         currentlyVisible.fastForEach { stateForContent ->
             contentMap[stateForContent] = {
-                val alpha by animateFloat(
-                    transitionSpec = { animationSpec }
-                ) { if (it == stateForContent) 1f else 0f }
-                Box(Modifier.graphicsLayer { this.alpha = alpha }) {
-                    content(stateForContent)
-                }
+                val alpha by
+                    animateFloat(transitionSpec = { animationSpec }) {
+                        if (it == stateForContent) 1f else 0f
+                    }
+                Box(Modifier.graphicsLayer { this.alpha = alpha }) { content(stateForContent) }
             }
         }
     }
 
     Box(modifier) {
-        currentlyVisible.fastForEach {
-            key(contentKey(it)) {
-                contentMap[it]?.invoke()
-            }
-        }
+        currentlyVisible.fastForEach { key(contentKey(it)) { contentMap[it]?.invoke() } }
     }
 }

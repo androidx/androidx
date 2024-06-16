@@ -66,7 +66,8 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
             assertThat(entity.fields.size).isEqualTo(1)
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
-            assertThat(field).isEqualTo(
+            assertThat(field)
+                .isEqualTo(
                     Field(
                         element = field.element,
                         name = fieldName,

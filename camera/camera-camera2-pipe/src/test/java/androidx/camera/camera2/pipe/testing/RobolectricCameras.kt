@@ -143,6 +143,7 @@ public object RobolectricCameras {
     private class CameraStateCallback(private val cameraId: CameraId) :
         CameraDevice.StateCallback() {
         var camera: CameraDevice? = null
+
         override fun onOpened(cameraDevice: CameraDevice) {
             check(cameraDevice.id == cameraId.value)
             this.camera = cameraDevice

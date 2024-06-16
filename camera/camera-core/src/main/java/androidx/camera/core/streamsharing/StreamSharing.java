@@ -32,7 +32,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Log;
 import android.util.Size;
 
@@ -40,11 +39,11 @@ import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -75,7 +74,6 @@ import java.util.Set;
 /**
  * A {@link UseCase} that shares one PRIV stream to multiple children {@link UseCase}s.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class StreamSharing extends UseCase {
     private static final String TAG = "StreamSharing";
     @NonNull
@@ -277,7 +275,10 @@ public class StreamSharing extends UseCase {
 
         propagateChildrenCamera2Interop(streamSpec.getResolution(), builder);
 
-        builder.addSurface(mCameraEdge.getDeferrableSurface(), streamSpec.getDynamicRange(), null);
+        builder.addSurface(mCameraEdge.getDeferrableSurface(),
+                streamSpec.getDynamicRange(),
+                null,
+                MirrorMode.MIRROR_MODE_UNSPECIFIED);
         builder.addRepeatingCameraCaptureCallback(
                 mVirtualCameraAdapter.getParentMetadataCallback());
         if (streamSpec.getImplementationOptions() != null) {

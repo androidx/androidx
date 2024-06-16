@@ -21,30 +21,33 @@ package androidx.camera.viewfinder
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
-import androidx.annotation.RequiresApi
 import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
 
 /**
  * Populates [ViewfinderSurfaceRequest.Builder] from [CameraCharacteristics].
  *
- * The [CameraCharacteristics] will be used to populate information including lens facing,
- * sensor orientation and [ImplementationMode]. If the hardware level is legacy,
- * the [ImplementationMode] will be set to [ImplementationMode.COMPATIBLE].
+ * The [CameraCharacteristics] will be used to populate information including lens facing, sensor
+ * orientation and [ImplementationMode]. If the hardware level is legacy, the [ImplementationMode]
+ * will be set to [ImplementationMode.COMPATIBLE].
  */
-@Deprecated(message = "Use androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest as argument",
-    replaceWith = ReplaceWith(
-    "populateFromCharacteristics returning " +
-        "androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder"))
+@Deprecated(
+    message = "Use androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest as argument",
+    replaceWith =
+        ReplaceWith(
+            "populateFromCharacteristics returning " +
+                "androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder"
+        )
+)
 @SuppressLint("ClassVerificationFailure")
-@RequiresApi(21)
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
     cameraCharacteristics: CameraCharacteristics
 ): ViewfinderSurfaceRequest.Builder {
     setLensFacing(cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)!!)
-    setSensorOrientation(
-        cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
-    if (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-        == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+    setSensorOrientation(cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
+    if (
+        cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ==
+            CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    ) {
         setImplementationMode(ImplementationMode.COMPATIBLE)
     }
     return this

@@ -30,7 +30,7 @@ import kotlin.io.path.writeBytes
  * Compiles the given [sources] and creates a packaged SDK API descriptors jar.
  *
  * @param descriptorResources map of extra resources that will be added to descriptors jar keyed by
- *      their relative path.
+ *   their relative path.
  */
 fun compileIntoInterfaceDescriptorsJar(
     sources: List<Source>,
@@ -47,24 +47,21 @@ fun compileIntoInterfaceDescriptorsJar(
             writeBytes(contents)
         }
     }
-    PrivacySandboxApiPackager().packageSdkDescriptors(
-        outputClasspath, sdkInterfaceDescriptors
-    )
+    PrivacySandboxApiPackager().packageSdkDescriptors(outputClasspath, sdkInterfaceDescriptors)
     return sdkInterfaceDescriptors
 }
 
 /**
  * Merges all class paths from a compilation result into a single one.
  *
- * Room's compilation library returns different class paths for Kotlin and Java, so we need to
- * merge them for tests that depend on the two. This is a naive implementation that simply
- * overwrites classes that appear in multiple class paths.
+ * Room's compilation library returns different class paths for Kotlin and Java, so we need to merge
+ * them for tests that depend on the two. This is a naive implementation that simply overwrites
+ * classes that appear in multiple class paths.
  */
 fun mergedClasspath(compilationResult: TestCompilationResult): Path {
     val outputClasspath = createTempDirectory("classpath").also { it.toFile().deleteOnExit() }
-    compilationResult.outputClasspath
-        .forEach { classpath ->
-            classpath.copyRecursively(outputClasspath.toFile(), overwrite = true)
-        }
+    compilationResult.outputClasspath.forEach { classpath ->
+        classpath.copyRecursively(outputClasspath.toFile(), overwrite = true)
+    }
     return outputClasspath
 }

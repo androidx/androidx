@@ -30,13 +30,15 @@ internal fun errorUiLayout(): androidx.wear.tiles.LayoutElementBuilders.LayoutEl
             androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
                 .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
                 .setHorizontalAlignment(
-                    androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                    androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
+                )
                 .setModifiers(
                     androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                         .setBackground(
                             androidx.wear.tiles.ModifiersBuilders.Background.Builder()
                                 .setColor(
-                                    androidx.wear.tiles.ColorBuilders.argb(Color.DarkGray.toArgb()))
+                                    androidx.wear.tiles.ColorBuilders.argb(Color.DarkGray.toArgb())
+                                )
                                 .build()
                         )
                         .build()
@@ -48,7 +50,8 @@ internal fun errorUiLayout(): androidx.wear.tiles.LayoutElementBuilders.LayoutEl
                             androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder()
                                 .setSize(androidx.wear.tiles.DimensionBuilders.sp(18.toFloat()))
                                 .setWeight(
-                                    androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD)
+                                    androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
+                                )
                                 .build()
                         )
                         .build()
@@ -61,7 +64,8 @@ internal fun errorUiLayout(): androidx.wear.tiles.LayoutElementBuilders.LayoutEl
                         )
                         .setMaxLines(6)
                         .setMultilineAlignment(
-                            androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER)
+                            androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER
+                        )
                         .setFontStyle(
                             androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder()
                                 .setSize(androidx.wear.tiles.DimensionBuilders.sp(14.toFloat()))

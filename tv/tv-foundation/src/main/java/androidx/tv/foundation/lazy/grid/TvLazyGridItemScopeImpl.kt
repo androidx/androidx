@@ -33,9 +33,8 @@ internal object TvLazyGridItemScopeImpl : TvLazyGridItemScope {
         this then AnimateItemPlacementElement(animationSpec)
 }
 
-private class AnimateItemPlacementElement(
-    val animationSpec: FiniteAnimationSpec<IntOffset>
-) : ModifierNodeElement<AnimateItemPlacementNode>() {
+private class AnimateItemPlacementElement(val animationSpec: FiniteAnimationSpec<IntOffset>) :
+    ModifierNodeElement<AnimateItemPlacementNode>() {
 
     override fun create(): AnimateItemPlacementNode = AnimateItemPlacementNode(animationSpec)
 
@@ -59,9 +58,8 @@ private class AnimateItemPlacementElement(
     }
 }
 
-private class AnimateItemPlacementNode(
-    animationSpec: FiniteAnimationSpec<IntOffset>
-) : DelegatingNode(), ParentDataModifierNode {
+private class AnimateItemPlacementNode(animationSpec: FiniteAnimationSpec<IntOffset>) :
+    DelegatingNode(), ParentDataModifierNode {
 
     val delegatingNode = delegate(LazyLayoutAnimateItemModifierNode(animationSpec))
 

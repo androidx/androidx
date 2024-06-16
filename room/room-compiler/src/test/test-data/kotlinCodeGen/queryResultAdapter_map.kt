@@ -2,7 +2,6 @@ import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
-import java.util.ArrayList
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -12,6 +11,7 @@ import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
 import kotlin.collections.MutableMap
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -77,7 +77,7 @@ public class MyDao_Impl(
           if (_result.containsKey(_key)) {
             _values = _result.getValue(_key)
           } else {
-            _values = ArrayList<Song>()
+            _values = mutableListOf()
             _result.put(_key, _values)
           }
           if (_stmt.isNull(_cursorIndexOfSongId) && _stmt.isNull(_cursorIndexOfArtistKey)) {
@@ -148,7 +148,7 @@ public class MyDao_Impl(
           if (_result.containsKey(_key)) {
             _values = _result.getValue(_key)
           } else {
-            _values = ArrayList<String>()
+            _values = mutableListOf()
             _result.put(_key, _values)
           }
           if (_stmt.isNull(_columnIndexOfSongId)) {

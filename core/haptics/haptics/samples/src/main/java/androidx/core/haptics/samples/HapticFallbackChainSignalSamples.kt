@@ -26,9 +26,7 @@ import androidx.core.haptics.signal.WaveformSignal.Companion.off
 import androidx.core.haptics.signal.WaveformSignal.Companion.on
 import androidx.core.haptics.signal.WaveformSignal.Companion.waveformOf
 
-/**
- * Sample showing how to create a haptic fallback chain with haptic signals.
- */
+/** Sample showing how to create a haptic fallback chain with haptic signals. */
 @Sampled
 fun HapticFallbackChainOfSignals() {
     fallbackChainOf(

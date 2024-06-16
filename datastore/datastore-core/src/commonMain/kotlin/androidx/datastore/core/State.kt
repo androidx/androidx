@@ -16,17 +16,12 @@
 
 package androidx.datastore.core
 
-/**
- * Represents the current state of the DataStore.
- */
-internal sealed class State<T>(
-    val version: Int
-)
+/** Represents the current state of the DataStore. */
+internal sealed class State<T>(val version: Int)
 
 internal object UnInitialized : State<Any>(-1)
-/**
- * A read from disk has succeeded, value represents the current on disk state.
- */
+
+/** A read from disk has succeeded, value represents the current on disk state. */
 internal class Data<T>(val value: T, val hashCode: Int, version: Int) : State<T>(version) {
     fun checkHashCode() {
         check(value.hashCode() == hashCode) {
@@ -35,12 +30,8 @@ internal class Data<T>(val value: T, val hashCode: Int, version: Int) : State<T>
     }
 }
 
-/**
- * A read from disk has failed. ReadException is the exception that was thrown.
- */
+/** A read from disk has failed. ReadException is the exception that was thrown. */
 internal class ReadException<T>(val readException: Throwable, version: Int) : State<T>(version)
 
-/**
- * The scope has been cancelled. This DataStore cannot process any new reads or writes.
- */
+/** The scope has been cancelled. This DataStore cannot process any new reads or writes. */
 internal class Final<T>(val finalException: Throwable) : State<T>(Int.MAX_VALUE)

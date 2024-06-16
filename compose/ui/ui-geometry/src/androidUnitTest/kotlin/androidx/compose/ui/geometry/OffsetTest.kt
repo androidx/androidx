@@ -109,8 +109,7 @@ class OffsetTest {
     @Test
     fun testUnspecifiedEquals() {
         // Verify that verifying equality here does not crash
-        @Suppress("KotlinConstantConditions")
-        assertTrue(Offset.Unspecified == Offset.Unspecified)
+        @Suppress("KotlinConstantConditions") assertTrue(Offset.Unspecified == Offset.Unspecified)
     }
 
     @Test

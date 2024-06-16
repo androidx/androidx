@@ -21,16 +21,17 @@ package androidx.lifecycle
 import android.view.View
 
 /**
- * Locates the [LifecycleOwner] responsible for managing this [View], if present.
- * This may be used to scope work or heavyweight resources associated with the view
- * that may span cycles of the view becoming detached and reattached from a window.
+ * Locates the [LifecycleOwner] responsible for managing this [View], if present. This may be used
+ * to scope work or heavyweight resources associated with the view that may span cycles of the view
+ * becoming detached and reattached from a window.
  */
 @Deprecated(
     message = "Replaced by View.findViewTreeLifecycleOwner() from lifecycle module",
-    replaceWith = ReplaceWith(
-        "findViewTreeLifecycleOwner()",
-        "androidx.lifecycle.findViewTreeLifecycleOwner"
-    ),
+    replaceWith =
+        ReplaceWith(
+            "findViewTreeLifecycleOwner()",
+            "androidx.lifecycle.findViewTreeLifecycleOwner"
+        ),
     level = DeprecationLevel.HIDDEN
 )
 public fun findViewTreeLifecycleOwner(view: View): LifecycleOwner? =

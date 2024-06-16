@@ -36,37 +36,50 @@ class FrequencyCapFiltersTest {
     private val keyedFrequencyCapsForViewEvents: List<KeyedFrequencyCap> =
         listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3)))
     private val keyedFrequencyCapsForClickEvents: List<KeyedFrequencyCap> =
-        listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
+        listOf(
+            KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
             KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)))
+            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
+        )
 
     @Test
     fun testToString() {
-        val result = "FrequencyCapFilters: " +
-            "keyedFrequencyCapsForWinEvents=$keyedFrequencyCapsForWinEvents, " +
-            "keyedFrequencyCapsForImpressionEvents=$keyedFrequencyCapsForImpressionEvents, " +
-            "keyedFrequencyCapsForViewEvents=$keyedFrequencyCapsForViewEvents, " +
-            "keyedFrequencyCapsForClickEvents=$keyedFrequencyCapsForClickEvents"
-        val request = FrequencyCapFilters(keyedFrequencyCapsForWinEvents,
-            keyedFrequencyCapsForImpressionEvents,
-            keyedFrequencyCapsForViewEvents,
-            keyedFrequencyCapsForClickEvents)
+        val result =
+            "FrequencyCapFilters: " +
+                "keyedFrequencyCapsForWinEvents=$keyedFrequencyCapsForWinEvents, " +
+                "keyedFrequencyCapsForImpressionEvents=$keyedFrequencyCapsForImpressionEvents, " +
+                "keyedFrequencyCapsForViewEvents=$keyedFrequencyCapsForViewEvents, " +
+                "keyedFrequencyCapsForClickEvents=$keyedFrequencyCapsForClickEvents"
+        val request =
+            FrequencyCapFilters(
+                keyedFrequencyCapsForWinEvents,
+                keyedFrequencyCapsForImpressionEvents,
+                keyedFrequencyCapsForViewEvents,
+                keyedFrequencyCapsForClickEvents
+            )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val frequencyCapFilters1 = FrequencyCapFilters(keyedFrequencyCapsForWinEvents,
-            keyedFrequencyCapsForImpressionEvents,
-            keyedFrequencyCapsForViewEvents,
-            keyedFrequencyCapsForClickEvents)
-        var frequencyCapFilters2 = FrequencyCapFilters(
-            listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
-            listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
-            listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
-            listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
-                KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))))
+        val frequencyCapFilters1 =
+            FrequencyCapFilters(
+                keyedFrequencyCapsForWinEvents,
+                keyedFrequencyCapsForImpressionEvents,
+                keyedFrequencyCapsForViewEvents,
+                keyedFrequencyCapsForClickEvents
+            )
+        var frequencyCapFilters2 =
+            FrequencyCapFilters(
+                listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
+                listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
+                listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
+                listOf(
+                    KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
+                    KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
+                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
+                )
+            )
         Truth.assertThat(frequencyCapFilters1 == frequencyCapFilters2).isTrue()
     }
 }

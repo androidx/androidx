@@ -66,19 +66,18 @@ class RequestProcessorAdapterTest {
     private val size = Size(1280, 720)
     private val previewStreamConfig = CameraStream.Config.create(size, StreamFormat.UNKNOWN)
     private val imageCaptureStreamConfig = CameraStream.Config.create(size, StreamFormat.JPEG)
-    private val graphConfig = CameraGraph.Config(
-        camera = cameraId,
-        streams = listOf(previewStreamConfig, imageCaptureStreamConfig),
-        sessionParameters = mapOf(CameraPipeKeys.ignore3ARequiredParameters to true),
-    )
+    private val graphConfig =
+        CameraGraph.Config(
+            camera = cameraId,
+            streams = listOf(previewStreamConfig, imageCaptureStreamConfig),
+            sessionParameters = mapOf(CameraPipeKeys.ignore3ARequiredParameters to true),
+        )
 
-    private val previewSurfaceTexture = SurfaceTexture(0).apply {
-        setDefaultBufferSize(size.width, size.height)
-    }
+    private val previewSurfaceTexture =
+        SurfaceTexture(0).apply { setDefaultBufferSize(size.width, size.height) }
     private val previewSurface = Surface(previewSurfaceTexture)
-    private val imageCaptureSurfaceTexture = SurfaceTexture(0).apply {
-        setDefaultBufferSize(size.width, size.height)
-    }
+    private val imageCaptureSurfaceTexture =
+        SurfaceTexture(0).apply { setDefaultBufferSize(size.width, size.height) }
     private val imageCaptureSurface = Surface(imageCaptureSurfaceTexture)
 
     private val previewProcessorSurface =
@@ -86,15 +85,19 @@ class RequestProcessorAdapterTest {
     private val imageCaptureProcessorSurface =
         SessionProcessorSurface(imageCaptureSurface, imageCaptureOutputConfigId)
 
-    private val fakeSessionConfig = SessionConfig.Builder().apply {
-        addSurface(previewProcessorSurface)
-        addSurface(imageCaptureProcessorSurface)
-    }.build()
+    private val fakeSessionConfig =
+        SessionConfig.Builder()
+            .apply {
+                addSurface(previewProcessorSurface)
+                addSurface(imageCaptureProcessorSurface)
+            }
+            .build()
 
-    private val sessionProcessorSurfaces = listOf(
-        previewProcessorSurface,
-        imageCaptureProcessorSurface,
-    )
+    private val sessionProcessorSurfaces =
+        listOf(
+            previewProcessorSurface,
+            imageCaptureProcessorSurface,
+        )
 
     private var cameraGraphSimulator: CameraGraphSimulator? = null
     private var requestProcessorAdapter: RequestProcessorAdapter? = null
@@ -110,51 +113,57 @@ class RequestProcessorAdapterTest {
     private fun initialize(scope: TestScope) {
         cameraGraphSimulator =
             CameraGraphSimulator.create(
-                scope,
-                context,
-                FakeCameraMetadata(cameraId = cameraId),
-                graphConfig,
-            ).also {
-                it.cameraGraph.start()
-                it.simulateCameraStarted()
-                it.simulateFakeSurfaceConfiguration()
-            }
+                    scope,
+                    context,
+                    FakeCameraMetadata(cameraId = cameraId),
+                    graphConfig,
+                )
+                .also {
+                    it.cameraGraph.start()
+                    it.simulateCameraStarted()
+                    it.simulateFakeSurfaceConfiguration()
+                }
         val cameraGraph = cameraGraphSimulator!!.cameraGraph
-        val surfaceToStreamMap = buildMap<DeferrableSurface, StreamId> {
-            put(previewProcessorSurface, checkNotNull(cameraGraph.streams[previewStreamConfig]).id)
-            put(
-                imageCaptureProcessorSurface,
-                checkNotNull(cameraGraph.streams[imageCaptureStreamConfig]).id
-            )
-        }
+        val surfaceToStreamMap =
+            buildMap<DeferrableSurface, StreamId> {
+                put(
+                    previewProcessorSurface,
+                    checkNotNull(cameraGraph.streams[previewStreamConfig]).id
+                )
+                put(
+                    imageCaptureProcessorSurface,
+                    checkNotNull(cameraGraph.streams[imageCaptureStreamConfig]).id
+                )
+            }
         val useCaseGraphConfig =
             UseCaseGraphConfig(cameraGraph, surfaceToStreamMap, CameraStateAdapter())
 
-        requestProcessorAdapter = RequestProcessorAdapter(
-            useCaseGraphConfig,
-            sessionProcessorSurfaces,
-            scope,
-        ).apply {
-            sessionConfig = fakeSessionConfig
-        }
+        requestProcessorAdapter =
+            RequestProcessorAdapter(
+                    useCaseGraphConfig,
+                    sessionProcessorSurfaces,
+                    scope,
+                )
+                .apply { sessionConfig = fakeSessionConfig }
         scope.advanceUntilIdle()
     }
 
     @Test
     fun canSetRepeating() = runTest {
-        val requestToSet = object : RequestProcessor.Request {
-            override fun getTargetOutputConfigIds(): MutableList<Int> {
-                return mutableListOf(previewOutputConfigId)
-            }
+        val requestToSet =
+            object : RequestProcessor.Request {
+                override fun getTargetOutputConfigIds(): MutableList<Int> {
+                    return mutableListOf(previewOutputConfigId)
+                }
 
-            override fun getParameters(): androidx.camera.core.impl.Config {
-                return Camera2ImplConfig.Builder().build()
-            }
+                override fun getParameters(): androidx.camera.core.impl.Config {
+                    return Camera2ImplConfig.Builder().build()
+                }
 
-            override fun getTemplateId(): Int {
-                return CameraDevice.TEMPLATE_PREVIEW
+                override fun getTemplateId(): Int {
+                    return CameraDevice.TEMPLATE_PREVIEW
+                }
             }
-        }
         initialize(this)
         val callback: RequestProcessor.Callback = mock()
 
@@ -162,9 +171,10 @@ class RequestProcessorAdapterTest {
         val frame = cameraGraphSimulator!!.simulateNextFrame()
         val request = frame.request
         assertThat(request.streams.size).isEqualTo(1)
-        assertThat(request.streams.first()).isEqualTo(
-            checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[previewStreamConfig]).id
-        )
+        assertThat(request.streams.first())
+            .isEqualTo(
+                checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[previewStreamConfig]).id
+            )
 
         verify(callback, times(1)).onCaptureStarted(eq(requestToSet), any(), any())
 
@@ -175,21 +185,27 @@ class RequestProcessorAdapterTest {
 
     @Test
     fun canSubmitRequests() = runTest {
-        val requestToSubmit = object : RequestProcessor.Request {
-            override fun getTargetOutputConfigIds(): MutableList<Int> {
-                return mutableListOf(imageCaptureOutputConfigId)
-            }
+        val requestToSubmit =
+            object : RequestProcessor.Request {
+                override fun getTargetOutputConfigIds(): MutableList<Int> {
+                    return mutableListOf(imageCaptureOutputConfigId)
+                }
 
-            override fun getParameters(): androidx.camera.core.impl.Config {
-                return Camera2ImplConfig.Builder().apply {
-                    setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF)
-                }.build()
-            }
+                override fun getParameters(): androidx.camera.core.impl.Config {
+                    return Camera2ImplConfig.Builder()
+                        .apply {
+                            setCaptureRequestOption(
+                                CaptureRequest.CONTROL_AE_MODE,
+                                CONTROL_AE_MODE_OFF
+                            )
+                        }
+                        .build()
+                }
 
-            override fun getTemplateId(): Int {
-                return CameraDevice.TEMPLATE_STILL_CAPTURE
+                override fun getTemplateId(): Int {
+                    return CameraDevice.TEMPLATE_STILL_CAPTURE
+                }
             }
-        }
 
         initialize(this)
         val callback: RequestProcessor.Callback = mock()
@@ -198,12 +214,13 @@ class RequestProcessorAdapterTest {
         val frame = cameraGraphSimulator!!.simulateNextFrame()
         val request = frame.request
         assertThat(request.streams.size).isEqualTo(1)
-        assertThat(request.streams.first()).isEqualTo(
-            checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[imageCaptureStreamConfig]).id
-        )
-        assertThat(request.parameters[CaptureRequest.CONTROL_AE_MODE]).isEqualTo(
-            CONTROL_AE_MODE_OFF
-        )
+        assertThat(request.streams.first())
+            .isEqualTo(
+                checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[imageCaptureStreamConfig])
+                    .id
+            )
+        assertThat(request.parameters[CaptureRequest.CONTROL_AE_MODE])
+            .isEqualTo(CONTROL_AE_MODE_OFF)
 
         verify(callback, times(1)).onCaptureStarted(eq(requestToSubmit), any(), any())
 

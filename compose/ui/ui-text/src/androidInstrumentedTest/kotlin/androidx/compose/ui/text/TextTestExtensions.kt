@@ -45,11 +45,7 @@ import kotlin.math.roundToInt
 fun Paragraph.onCanvas(
     block: Paragraph.(androidx.compose.ui.graphics.Canvas) -> Unit = {}
 ): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        width.toIntPx(),
-        height.toIntPx(),
-        Bitmap.Config.ARGB_8888
-    )
+    val bitmap = Bitmap.createBitmap(width.toIntPx(), height.toIntPx(), Bitmap.Config.ARGB_8888)
     val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
     block(canvas)
     return bitmap
@@ -63,11 +59,7 @@ fun MultiParagraph.onCanvas(
     block: MultiParagraph.(androidx.compose.ui.graphics.Canvas) -> Unit = {}
 ): Bitmap {
     val width = paragraphInfoList.maxByOrNull { it.paragraph.width }?.paragraph?.width ?: 0f
-    val bitmap = Bitmap.createBitmap(
-        width.toIntPx(),
-        height.toIntPx(),
-        Bitmap.Config.ARGB_8888
-    )
+    val bitmap = Bitmap.createBitmap(width.toIntPx(), height.toIntPx(), Bitmap.Config.ARGB_8888)
     val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
     block(canvas)
     return bitmap
@@ -149,30 +141,23 @@ fun MultiParagraph.bitmap(
     }
 }
 
-internal fun UncachedFontFamilyResolver(
-    context: Context
-): FontFamily.Resolver = UncachedFontFamilyResolver(
-    AndroidFontLoader(context),
-    AndroidFontResolveInterceptor(context)
-)
+internal fun UncachedFontFamilyResolver(context: Context): FontFamily.Resolver =
+    UncachedFontFamilyResolver(AndroidFontLoader(context), AndroidFontResolveInterceptor(context))
 
 internal fun UncachedFontFamilyResolver(
     platformFontLoader: PlatformFontLoader,
     platformResolveInterceptor: PlatformResolveInterceptor
-): FontFamily.Resolver = FontFamilyResolverImpl(
-    platformFontLoader,
-    platformResolveInterceptor,
-    TypefaceRequestCache(),
-    FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache()),
-    PlatformFontFamilyTypefaceAdapter()
-)
+): FontFamily.Resolver =
+    FontFamilyResolverImpl(
+        platformFontLoader,
+        platformResolveInterceptor,
+        TypefaceRequestCache(),
+        FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache()),
+        PlatformFontFamilyTypefaceAdapter()
+    )
 
 fun MultiParagraph.bitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        width.toIntPx(),
-        height.toIntPx(),
-        Bitmap.Config.ARGB_8888
-    )
+    val bitmap = Bitmap.createBitmap(width.toIntPx(), height.toIntPx(), Bitmap.Config.ARGB_8888)
     val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
     this.paint(canvas)
     return bitmap
@@ -182,12 +167,7 @@ fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
 internal fun FloatArray.asRectArray(): Array<Rect> {
     return Array((size) / 4) { index ->
-        Rect(
-            this[4 * index],
-            this[4 * index + 1],
-            this[4 * index + 2],
-            this[4 * index + 3]
-        )
+        Rect(this[4 * index], this[4 * index + 1], this[4 * index + 2], this[4 * index + 3])
     }
 }
 
@@ -200,27 +180,24 @@ internal fun getLtrCharacterBoundariesForTestFont(
 ): Array<Rect> {
     var top = initialTop
     var left = 0f
-    return text.indices.map { index ->
-        // if \n, no position update, same as before
-        val right = if (text[index] == '\n') left else left + fontSize
-        val bottom = top + lineHeight
-        Rect(
-            left = left,
-            top = top,
-            right = right,
-            bottom = bottom
-        ).also {
-            if (text[index] == '\n') {
-                // left resets to line start
-                left = 0f
-                // top will go to next line
-                top = bottom
-            } else {
-                // else move to right with one char
-                left = right
+    return text.indices
+        .map { index ->
+            // if \n, no position update, same as before
+            val right = if (text[index] == '\n') left else left + fontSize
+            val bottom = top + lineHeight
+            Rect(left = left, top = top, right = right, bottom = bottom).also {
+                if (text[index] == '\n') {
+                    // left resets to line start
+                    left = 0f
+                    // top will go to next line
+                    top = bottom
+                } else {
+                    // else move to right with one char
+                    left = right
+                }
             }
         }
-    }.toTypedArray()
+        .toTypedArray()
 }
 
 internal fun getRtlCharacterBoundariesForTestFont(
@@ -231,28 +208,25 @@ internal fun getRtlCharacterBoundariesForTestFont(
 ): Array<Rect> {
     var top = 0f
     var right = width
-    return text.indices.map { index ->
-        // if \n, position doesn't update, same as before (right)
-        // else left is 1 char left
-        val left = if (text[index] == '\n') right else right - fontSize
-        val bottom = top + lineHeight
-        Rect(
-            left = left,
-            top = top,
-            right = right,
-            bottom = bottom
-        ).also {
-            if (text[index] == '\n') {
-                // right resets to line start
-                right = width
-                // top will go to next line
-                top = bottom
-            } else {
-                // else move to left with one char
-                right = left
+    return text.indices
+        .map { index ->
+            // if \n, position doesn't update, same as before (right)
+            // else left is 1 char left
+            val left = if (text[index] == '\n') right else right - fontSize
+            val bottom = top + lineHeight
+            Rect(left = left, top = top, right = right, bottom = bottom).also {
+                if (text[index] == '\n') {
+                    // right resets to line start
+                    right = width
+                    // top will go to next line
+                    top = bottom
+                } else {
+                    // else move to left with one char
+                    right = left
+                }
             }
         }
-    }.toTypedArray()
+        .toTypedArray()
 }
 
 internal fun CharSequence.rangeOf(ch: Char): TextRange {

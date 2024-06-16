@@ -50,62 +50,51 @@ import kotlinx.coroutines.flow.transform
  * @param sheetState The sheet state that is driven by the [BottomSheetNavigator]
  */
 public class BottomSheetNavigatorSheetState(private val sheetState: ModalBottomSheetState) {
-    /**
-     * @see ModalBottomSheetState.isVisible
-     */
+    /** @see ModalBottomSheetState.isVisible */
     public val isVisible: Boolean
         get() = sheetState.isVisible
 
-    /**
-     * @see ModalBottomSheetState.currentValue
-     */
+    /** @see ModalBottomSheetState.currentValue */
     public val currentValue: ModalBottomSheetValue
         get() = sheetState.currentValue
 
-    /**
-     * @see ModalBottomSheetState.targetValue
-     */
+    /** @see ModalBottomSheetState.targetValue */
     public val targetValue: ModalBottomSheetValue
         get() = sheetState.targetValue
 }
 
-/**
- * Create and remember a [BottomSheetNavigator]
- */
+/** Create and remember a [BottomSheetNavigator] */
 @Composable
 public fun rememberBottomSheetNavigator(
     animationSpec: AnimationSpec<Float> = SpringSpec()
 ): BottomSheetNavigator {
-    val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        animationSpec = animationSpec
-    )
+    val sheetState =
+        rememberModalBottomSheetState(ModalBottomSheetValue.Hidden, animationSpec = animationSpec)
     return remember(sheetState) { BottomSheetNavigator(sheetState) }
 }
 
 /**
- * Navigator that drives a [ModalBottomSheetState] for use of [ModalBottomSheetLayout]s
- * with the navigation library. Every destination using this Navigator must set a valid
- * [Composable] by setting it directly on an instantiated [Destination] or calling
+ * Navigator that drives a [ModalBottomSheetState] for use of [ModalBottomSheetLayout]s with the
+ * navigation library. Every destination using this Navigator must set a valid [Composable] by
+ * setting it directly on an instantiated [Destination] or calling
  * [androidx.compose.material.navigation.bottomSheet].
  *
  * <b>The [sheetContent] [Composable] will always host the latest entry of the back stack. When
  * navigating from a [BottomSheetNavigator.Destination] to another
- * [BottomSheetNavigator.Destination], the content of the sheet will be replaced instead of a
- * new bottom sheet being shown.</b>
+ * [BottomSheetNavigator.Destination], the content of the sheet will be replaced instead of a new
+ * bottom sheet being shown.</b>
  *
  * When the sheet is dismissed by the user, the [state]'s [NavigatorState.backStack] will be popped.
  *
  * The primary constructor is not intended for public use. Please refer to
  * [rememberBottomSheetNavigator] instead.
  *
- * @param sheetState The [ModalBottomSheetState] that the [BottomSheetNavigator] will use to
- * drive the sheet state
+ * @param sheetState The [ModalBottomSheetState] that the [BottomSheetNavigator] will use to drive
+ *   the sheet state
  */
 @Navigator.Name("bottomSheet")
-public class BottomSheetNavigator(
-    internal val sheetState: ModalBottomSheetState
-) : Navigator<BottomSheetNavigator.Destination>() {
+public class BottomSheetNavigator(internal val sheetState: ModalBottomSheetState) :
+    Navigator<BottomSheetNavigator.Destination>() {
 
     private var attached by mutableStateOf(false)
 
@@ -115,11 +104,12 @@ public class BottomSheetNavigator(
      * attached yet.
      */
     private val backStack: StateFlow<List<NavBackStackEntry>>
-        get() = if (attached) {
-            state.backStack
-        } else {
-            MutableStateFlow(emptyList())
-        }
+        get() =
+            if (attached) {
+                state.backStack
+            } else {
+                MutableStateFlow(emptyList())
+            }
 
     /**
      * Get the transitionsInProgress from the [state]. In some cases, the [sheetContent] might be
@@ -127,15 +117,14 @@ public class BottomSheetNavigator(
      * aren't attached yet.
      */
     internal val transitionsInProgress: StateFlow<Set<NavBackStackEntry>>
-        get() = if (attached) {
-            state.transitionsInProgress
-        } else {
-            MutableStateFlow(emptySet())
-        }
+        get() =
+            if (attached) {
+                state.transitionsInProgress
+            } else {
+                MutableStateFlow(emptySet())
+            }
 
-    /**
-     * Access properties of the [ModalBottomSheetLayout]'s [ModalBottomSheetState]
-     */
+    /** Access properties of the [ModalBottomSheetLayout]'s [ModalBottomSheetState] */
     public val navigatorSheetState: BottomSheetNavigatorSheetState =
         BottomSheetNavigatorSheetState(sheetState)
 
@@ -150,46 +139,36 @@ public class BottomSheetNavigator(
         // The latest back stack entry, retained until the sheet is completely hidden
         // While the back stack is updated immediately, we might still be hiding the sheet, so
         // we keep the entry around until the sheet is hidden
-        val retainedEntry by produceState<NavBackStackEntry?>(
-            initialValue = null,
-            key1 = backStack
-        ) {
-            backStack
-                .transform { backStackEntries ->
-                    // Always hide the sheet when the back stack is updated
-                    // Regardless of whether we're popping or pushing, we always want to hide
-                    // the sheet first before deciding whether to re-show it or keep it hidden
-                    try {
-                        sheetState.hide()
-                    } catch (_: CancellationException) {
-                        // We catch but ignore possible cancellation exceptions as we don't want
-                        // them to bubble up and cancel the whole produceState coroutine
-                    } finally {
-                        emit(backStackEntries.lastOrNull())
+        val retainedEntry by
+            produceState<NavBackStackEntry?>(initialValue = null, key1 = backStack) {
+                backStack
+                    .transform { backStackEntries ->
+                        // Always hide the sheet when the back stack is updated
+                        // Regardless of whether we're popping or pushing, we always want to hide
+                        // the sheet first before deciding whether to re-show it or keep it hidden
+                        try {
+                            sheetState.hide()
+                        } catch (_: CancellationException) {
+                            // We catch but ignore possible cancellation exceptions as we don't want
+                            // them to bubble up and cancel the whole produceState coroutine
+                        } finally {
+                            emit(backStackEntries.lastOrNull())
+                        }
                     }
-                }
-                .collect {
-                    value = it
-                }
-        }
+                    .collect { value = it }
+            }
 
         if (retainedEntry != null) {
-            LaunchedEffect(retainedEntry) {
-                sheetState.show()
-            }
+            LaunchedEffect(retainedEntry) { sheetState.show() }
 
-            BackHandler {
-                state.popWithTransition(popUpTo = retainedEntry!!, saveState = false)
-            }
+            BackHandler { state.popWithTransition(popUpTo = retainedEntry!!, saveState = false) }
         }
 
         SheetContentHost(
             backStackEntry = retainedEntry,
             sheetState = sheetState,
             saveableStateHolder = saveableStateHolder,
-            onSheetShown = {
-                transitionsInProgressEntries.forEach(state::markTransitionComplete)
-            },
+            onSheetShown = { transitionsInProgressEntries.forEach(state::markTransitionComplete) },
             onSheetDismissed = { backStackEntry ->
                 // Sheet dismissal can be started through popBackStack in which case we have a
                 // transition that we'll want to complete
@@ -212,28 +191,21 @@ public class BottomSheetNavigator(
         attached = true
     }
 
-    override fun createDestination(): Destination = Destination(
-        navigator = this,
-        content = {}
-    )
+    override fun createDestination(): Destination = Destination(navigator = this, content = {})
 
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) {
-        entries.fastForEach { entry ->
-            state.pushWithTransition(entry)
-        }
+        entries.fastForEach { entry -> state.pushWithTransition(entry) }
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         state.popWithTransition(popUpTo, savedState)
     }
 
-    /**
-     * [NavDestination] specific to [BottomSheetNavigator]
-     */
+    /** [NavDestination] specific to [BottomSheetNavigator] */
     @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: BottomSheetNavigator,

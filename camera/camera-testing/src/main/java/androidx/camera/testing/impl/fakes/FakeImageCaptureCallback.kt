@@ -19,7 +19,6 @@ package androidx.camera.testing.impl.fakes
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
@@ -31,14 +30,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 
-/**
- * A fake implementation of the [ImageCapture.OnImageCapturedCallback] and used for test.
- */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+/** A fake implementation of the [ImageCapture.OnImageCapturedCallback] and used for test. */
 class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapturedCallback() {
-    /**
-     * Data class of various image properties which are tested.
-     */
+    /** Data class of various image properties which are tested. */
     data class ImageProperties(
         val size: Size? = null,
         val format: Int = -1,
@@ -82,9 +76,7 @@ class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapt
     }
 
     suspend fun awaitCaptures(timeout: Long = CAPTURE_TIMEOUT) {
-        Truth.assertThat(withTimeoutOrNull(timeout) {
-            latch.await()
-        }).isNotNull()
+        Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNotNull()
     }
 
     suspend fun awaitCapturesAndAssert(
@@ -92,18 +84,17 @@ class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapt
         capturedImagesCount: Int = 0,
         errorsCount: Int = 0
     ) {
-        Truth.assertThat(withTimeoutOrNull(timeout) {
-            latch.await()
-        }).isNotNull()
+        Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNotNull()
         Truth.assertThat(results.size).isEqualTo(capturedImagesCount)
         Truth.assertThat(errors.size).isEqualTo(errorsCount)
     }
 
     private class CountdownDeferred(val count: Int) {
 
-        private val deferredItems = mutableListOf<CompletableDeferred<Unit>>().apply {
-            repeat(count) { add(CompletableDeferred()) }
-        }
+        private val deferredItems =
+            mutableListOf<CompletableDeferred<Unit>>().apply {
+                repeat(count) { add(CompletableDeferred()) }
+            }
         private var index = 0
 
         fun countDown() {

@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class CollectWindowSizeAsStateTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun test_collectWindowSizeAsState() {
@@ -61,15 +60,11 @@ class CollectWindowSizeAsStateTest {
             }
         }
 
-        rule.runOnIdle {
-            assertThat(actualWindowSize).isEqualTo(MockWindowSize1)
-        }
+        rule.runOnIdle { assertThat(actualWindowSize).isEqualTo(MockWindowSize1) }
 
         mockWindowSize.value = MockWindowSize2
 
-        rule.runOnIdle {
-            assertThat(actualWindowSize).isEqualTo(MockWindowSize2)
-        }
+        rule.runOnIdle { assertThat(actualWindowSize).isEqualTo(MockWindowSize2) }
     }
 
     companion object {
@@ -78,21 +73,17 @@ class CollectWindowSizeAsStateTest {
     }
 }
 
-internal class MockWindowMetricsCalculatorDecorator(
-    private val mockWindowSize: State<IntSize>
-) : WindowMetricsCalculatorDecorator {
+internal class MockWindowMetricsCalculatorDecorator(private val mockWindowSize: State<IntSize>) :
+    WindowMetricsCalculatorDecorator {
     override fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator {
         return MockWindowMetricsCalculator(mockWindowSize)
     }
 }
 
-internal class MockWindowMetricsCalculator(
-    private val mockWindowSize: State<IntSize>
-) : WindowMetricsCalculator {
+internal class MockWindowMetricsCalculator(private val mockWindowSize: State<IntSize>) :
+    WindowMetricsCalculator {
     override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
-        return WindowMetrics(
-            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height)
-        )
+        return WindowMetrics(Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height))
     }
 
     override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
@@ -100,8 +91,6 @@ internal class MockWindowMetricsCalculator(
     }
 
     override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
-        return WindowMetrics(
-            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height)
-        )
+        return WindowMetrics(Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height))
     }
 }

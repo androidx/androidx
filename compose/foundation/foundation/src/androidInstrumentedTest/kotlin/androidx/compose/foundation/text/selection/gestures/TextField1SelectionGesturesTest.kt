@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.selection.gestures
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.selection.gestures.util.TextField1SelectionAsserter
 import androidx.compose.foundation.text.selection.gestures.util.TextFieldSelectionAsserter
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ internal abstract class TextField1SelectionGesturesTest(
     initialText: String,
     private val layoutDirection: LayoutDirection,
 ) : TextFieldSelectionGesturesTest<TextFieldValue>() {
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
     private var textFieldValue by mutableStateOf(TextFieldValue(initialText))
 
     override var textContent: String
@@ -50,28 +52,29 @@ internal abstract class TextField1SelectionGesturesTest(
     override lateinit var asserter: TextFieldSelectionAsserter<TextFieldValue>
 
     override fun setupAsserter() {
-        asserter = TextField1SelectionAsserter(
-            textContent = textFieldValue.text,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { textFieldValue }
-        )
+        asserter =
+            TextField1SelectionAsserter(
+                textContent = textFieldValue.text,
+                rule = rule,
+                textToolbar = textToolbar,
+                hapticFeedback = hapticFeedback,
+                getActual = { textFieldValue }
+            )
     }
 
     @Composable
     override fun Content() {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-            BasicTextField(
-                value = textFieldValue,
-                onValueChange = { textFieldValue = it },
-                readOnly = readOnly,
-                enabled = enabled,
-                textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(pointerAreaTag),
-            )
+            inputMethodInterceptor.Content {
+                BasicTextField(
+                    value = textFieldValue,
+                    onValueChange = { textFieldValue = it },
+                    readOnly = readOnly,
+                    enabled = enabled,
+                    textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                    modifier = Modifier.fillMaxWidth().testTag(pointerAreaTag),
+                )
+            }
         }
     }
 }

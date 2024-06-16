@@ -29,9 +29,9 @@ import java.util.Collections
 /**
  * An actionable entry that is returned as part of the
  * [android.service.credentials.BeginGetCredentialResponse], and then shown on the user selector
- * under a separate category of 'Actions'.
- * An action entry is expected to navigate the user to an activity belonging to the credential
- * provider, and finally result in a [androidx.credentials.GetCredentialResponse].
+ * under a separate category of 'Actions'. An action entry is expected to navigate the user to an
+ * activity belonging to the credential provider, and finally result in a
+ * [androidx.credentials.GetCredentialResponse].
  *
  * When selected, the associated [PendingIntent] is invoked to launch a provider controlled
  * activity. The activity invoked due to this pending intent will contain the
@@ -40,36 +40,33 @@ import java.util.Collections
  *
  * When the user is done interacting with the activity and the provider has a credential to return,
  * provider must call [android.app.Activity.setResult] with the result code as
- * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared
- * by setting [androidx.credentials.GetCredentialResponse] using
+ * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared by
+ * setting [androidx.credentials.GetCredentialResponse] using
  * [PendingIntentHandler.setGetCredentialResponse], or by setting
  * [androidx.credentials.exceptions.GetCredentialException] using
- * [PendingIntentHandler.setGetCredentialException] before ending the activity.
- * If the provider does not have a credential, or an exception to return, provider must call
+ * [PendingIntentHandler.setGetCredentialException] before ending the activity. If the provider does
+ * not have a credential, or an exception to return, provider must call
  * [android.app.Activity.setResult] with the result code as [android.app.Activity.RESULT_CANCELED].
  * Setting the result code to [android.app.Activity.RESULT_CANCELED] will re-surface the selector.
  *
  * Examples of [Action] entries include an entry that is titled 'Add a new Password', and navigates
- * to the 'add password' page of the credential provider app, or an entry that is titled
- * 'Manage Credentials' and navigates to a particular page that lists all credentials, where the
- * user may end up selecting a credential that the provider can then return.
- *
- * @constructor constructs an instance of [Action]
+ * to the 'add password' page of the credential provider app, or an entry that is titled 'Manage
+ * Credentials' and navigates to a particular page that lists all credentials, where the user may
+ * end up selecting a credential that the provider can then return.
  *
  * @param title the title of the entry
- * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
- * entry, must be created with a unique request code per entry,
- * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
- * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
- * times
+ * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this entry,
+ *   must be created with a unique request code per entry, with flag [PendingIntent.FLAG_MUTABLE] to
+ *   allow the Android system to attach the final request, and NOT with flag
+ *   [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
  * @param subtitle the optional subtitle that is displayed on the entry
- *
- * @see android.service.credentials.BeginGetCredentialResponse for usage.
- *
+ * @constructor constructs an instance of [Action]
  * @throws IllegalArgumentException If [title] is empty
  * @throws NullPointerException If [title] or [pendingIntent] is null
+ * @see android.service.credentials.BeginGetCredentialResponse for usage.
  */
-class Action constructor(
+class Action
+constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
     val subtitle: CharSequence? = null,
@@ -84,15 +81,12 @@ class Action constructor(
      *
      * @param title the title of this action entry
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with a unique request code per entry,
-     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
-     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
-     * times
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      */
-    class Builder constructor(
-        private val title: CharSequence,
-        private val pendingIntent: PendingIntent
-    ) {
+    class Builder
+    constructor(private val title: CharSequence, private val pendingIntent: PendingIntent) {
         private var subtitle: CharSequence? = null
 
         /** Sets a sub title to be shown on the UI with this entry */
@@ -134,37 +128,24 @@ class Action constructor(
         private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.action.SLICE_HINT_PENDING_INTENT"
 
-        /**
-         * Converts to slice
-         */
+        /** Converts to slice */
         @JvmStatic
         @RequiresApi(28)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun toSlice(
-            action: Action
-        ): Slice {
+        fun toSlice(action: Action): Slice {
             val title = action.title
             val subtitle = action.subtitle
             val pendingIntent = action.pendingIntent
-            val sliceBuilder = Slice.Builder(
-                Uri.EMPTY, SliceSpec(
-                    SLICE_SPEC_TYPE, SLICE_SPEC_REVISION
-                )
-            )
-                .addText(
-                    title, /*subType=*/null,
-                    listOf(SLICE_HINT_TITLE)
-                )
-                .addText(
-                    subtitle, /*subType=*/null,
-                    listOf(SLICE_HINT_SUBTITLE)
-                )
+            val sliceBuilder =
+                Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, SLICE_SPEC_REVISION))
+                    .addText(title, /* subType= */ null, listOf(SLICE_HINT_TITLE))
+                    .addText(subtitle, /* subType= */ null, listOf(SLICE_HINT_SUBTITLE))
             sliceBuilder.addAction(
                 pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/null
+                /*subType=*/ null
             )
             return sliceBuilder.build()
         }
@@ -173,7 +154,6 @@ class Action constructor(
          * Returns an instance of [Action] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
-         *
          */
         @RequiresApi(28)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -203,13 +183,13 @@ class Action constructor(
         }
 
         /**
-         * Converts a framework [android.service.credentials.Action] class to a Jetpack
-         * [Action] class
+         * Converts a framework [android.service.credentials.Action] class to a Jetpack [Action]
+         * class
          *
          * Note that this API is not needed in a general credential retrieval flow that is
-         * implemented using this jetpack library, where you are only required to construct
-         * an instance of [Action] to populate the [BeginGetCredentialResponse], along with
-         * setting other entries.
+         * implemented using this jetpack library, where you are only required to construct an
+         * instance of [Action] to populate the [BeginGetCredentialResponse], along with setting
+         * other entries.
          *
          * @param action the instance of framework action class to be converted
          */

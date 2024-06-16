@@ -47,25 +47,27 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextAnnotatedStringNodeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     val context: Context = InstrumentationRegistry.getInstrumentation().context
 
     @Test
     fun draw_whenNotAttached_doesNotCrash() {
-        val subject = TextAnnotatedStringNode(
-            AnnotatedString("text"), TextStyle.Default, createFontFamilyResolver(context)
-        )
+        val subject =
+            TextAnnotatedStringNode(
+                AnnotatedString("text"),
+                TextStyle.Default,
+                createFontFamilyResolver(context)
+            )
         rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
-                val contentDrawScope = object : ContentDrawScope, DrawScope by this {
-                    override fun drawContent() {
-                        fail("Not used")
+                val contentDrawScope =
+                    object : ContentDrawScope, DrawScope by this {
+                        override fun drawContent() {
+                            fail("Not used")
+                        }
                     }
-                } as ContentDrawScope
-                with(subject) {
-                    contentDrawScope.draw()
-                }
+                        as ContentDrawScope
+                with(subject) { contentDrawScope.draw() }
             }
         }
         rule.waitForIdle()
@@ -89,21 +91,18 @@ class TextAnnotatedStringNodeTest {
         var flag by mutableStateOf(false)
 
         rule.setContent {
-            val content =
-                remember {
-                    movableContentOf {
-                        BoxWithConstraints {
-                            BasicText(
-                                text = AnnotatedString(if (!flag) "" else "LOADED"),
-                                modifier = Modifier.testTag("target")
-                            )
-                        }
+            val content = remember {
+                movableContentOf {
+                    BoxWithConstraints {
+                        BasicText(
+                            text = AnnotatedString(if (!flag) "" else "LOADED"),
+                            modifier = Modifier.testTag("target")
+                        )
                     }
                 }
-
-            key(flag) {
-                content()
             }
+
+            key(flag) { content() }
         }
 
         val textLayout1 = rule.onNodeWithTag("target").fetchTextLayoutResult()
@@ -119,47 +118,42 @@ class TextAnnotatedStringNodeTest {
     fun setTextSubstitution_invalidatesDraw() {
         val drawCount = AtomicInteger(0)
 
-        val subject = TextAnnotatedStringElement(
-            AnnotatedString("til"),
-            TextStyle.Default,
-            createFontFamilyResolver(context)
-        )
+        val subject =
+            TextAnnotatedStringElement(
+                AnnotatedString("til"),
+                TextStyle.Default,
+                createFontFamilyResolver(context)
+            )
 
-        val modifier = Modifier.fillMaxSize().drawBehind {
-            drawRect(Color.Magenta, size = Size(100f, 100f))
-            drawCount.incrementAndGet()
-        } then subject
+        val modifier =
+            Modifier.fillMaxSize().drawBehind {
+                drawRect(Color.Magenta, size = Size(100f, 100f))
+                drawCount.incrementAndGet()
+            } then subject
 
-        rule.setContent {
-            Box(modifier)
-        }
+        rule.setContent { Box(modifier) }
         val initialCount = drawCount.get()
-        rule.runOnIdle {
-            Truth.assertThat(initialCount).isGreaterThan(0)
-        }
+        rule.runOnIdle { Truth.assertThat(initialCount).isGreaterThan(0) }
 
         val node = rule.onNodeWithText("til").fetchSemanticsNode()
         rule.runOnIdle {
             node.config[SemanticsActions.SetTextSubstitution].action?.invoke(AnnotatedString("T"))
             node.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
         }
-        rule.runOnIdle {
-            Truth.assertThat(drawCount.get()).isGreaterThan(initialCount)
-        }
+        rule.runOnIdle { Truth.assertThat(drawCount.get()).isGreaterThan(initialCount) }
     }
 
     @Test
     fun setTextSubstitution_setsSemantics() {
 
-        val subject = TextAnnotatedStringElement(
-            AnnotatedString("til"),
-            TextStyle.Default,
-            createFontFamilyResolver(context)
-        )
+        val subject =
+            TextAnnotatedStringElement(
+                AnnotatedString("til"),
+                TextStyle.Default,
+                createFontFamilyResolver(context)
+            )
 
-        rule.setContent {
-            Box(Modifier.fillMaxSize() then subject)
-        }
+        rule.setContent { Box(Modifier.fillMaxSize() then subject) }
 
         val node = rule.onNodeWithText("til").fetchSemanticsNode()
 

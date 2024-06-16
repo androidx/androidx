@@ -22,10 +22,7 @@ import androidx.health.services.client.data.PassiveMonitoringCapabilities
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.ResponsesProto
 
-/**
- * Response containing the [PassiveMonitoringCapabilities] of the device.
- *
- */
+/** Response containing the [PassiveMonitoringCapabilities] of the device. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveMonitoringCapabilitiesResponse(
     /** [PassiveMonitoringCapabilities] supported by this device. */

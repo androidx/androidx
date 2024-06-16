@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.collection.ArraySet#ArraySet(E[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `E[]`
+ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+
+
+GetterSetterNames: androidx.collection.SparseArrayCompat#getIsEmpty():
+    Getter for boolean property `isEmpty` is named `getIsEmpty` but should match the property name. Use `@get:JvmName` to rename.
+
+
+KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+
+
+NoClone: androidx.collection.LongSparseArray#clone():
+    Provide an explicit copy constructor instead of implementing `clone()`
+NoClone: androidx.collection.SparseArrayCompat#clone():
+    Provide an explicit copy constructor instead of implementing `clone()`
+
+
+NullableCollectionElement: androidx.collection.ArraySet#toArray():
+    Collection java.lang.Object[] should not have a nullable element type (java.lang.Object) in method androidx.collection.ArraySet.toArray()

@@ -16,29 +16,19 @@
 
 package androidx.compose.runtime.collection
 
-/**
- * Map of (int) -> Element that attempts to avoid boxing.
- */
+/** Map of (int) -> Element that attempts to avoid boxing. */
 internal expect class IntMap<E>(initialCapacity: Int = 10) {
 
-    /**
-     * True if this map contains key
-     */
+    /** True if this map contains key */
     operator fun contains(key: Int): Boolean
 
-    /**
-     * Get [key] or null
-     */
+    /** Get [key] or null */
     operator fun get(key: Int): E?
 
-    /**
-     * Get [key] or [valueIfAbsent]
-     */
+    /** Get [key] or [valueIfAbsent] */
     fun get(key: Int, valueIfAbsent: E): E
 
-    /**
-     * Sets [key] to [value]
-     */
+    /** Sets [key] to [value] */
     operator fun set(key: Int, value: E)
 
     /**
@@ -48,13 +38,9 @@ internal expect class IntMap<E>(initialCapacity: Int = 10) {
      */
     fun remove(key: Int)
 
-    /**
-     * Clear this map
-     */
+    /** Clear this map */
     fun clear()
 
-    /**
-     * Current count of key value pairs.
-     */
+    /** Current count of key value pairs. */
     val size: Int
 }

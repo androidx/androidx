@@ -56,16 +56,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests InputConnection#commitContent calls from BasicTextField to receiveContent modifier.
- */
+/** Tests InputConnection#commitContent calls from BasicTextField to receiveContent modifier. */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalFoundationApi::class)
 class TextFieldReceiveContentTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
@@ -80,11 +77,7 @@ class TextFieldReceiveContentTest {
         rule.onNodeWithTag(tag).requestFocus()
         inputMethodInterceptor.withInputConnection {
             assertFalse(
-                commitContent(
-                    createInputContentInfo().unwrap() as InputContentInfo,
-                    0,
-                    null
-                )
+                commitContent(createInputContentInfo().unwrap() as InputContentInfo, 0, null)
             )
         }
     }
@@ -117,9 +110,7 @@ class TextFieldReceiveContentTest {
         inputMethodInterceptor.setContent {
             BasicTextField(
                 state = rememberTextFieldState(),
-                modifier = Modifier
-                    .testTag(tag)
-                    .contentReceiver { null }
+                modifier = Modifier.testTag(tag).contentReceiver { null }
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -135,9 +126,8 @@ class TextFieldReceiveContentTest {
         inputMethodInterceptor.setContent {
             BasicTextField(
                 state = rememberTextFieldState(),
-                modifier = Modifier
-                    .testTag(tag)
-                    .contentReceiver {
+                modifier =
+                    Modifier.testTag(tag).contentReceiver {
                         transferableContent = it
                         null
                     }
@@ -167,10 +157,8 @@ class TextFieldReceiveContentTest {
             assertThat(transferableContent?.clipEntry?.clipData?.getItemAt(0)?.uri)
                 .isEqualTo(DEFAULT_CONTENT_URI)
 
-            assertThat(transferableContent?.platformTransferableContent?.linkUri)
-                .isEqualTo(linkUri)
-            assertThat(transferableContent?.platformTransferableContent?.extras)
-                .isEqualTo(bundle)
+            assertThat(transferableContent?.platformTransferableContent?.linkUri).isEqualTo(linkUri)
+            assertThat(transferableContent?.platformTransferableContent?.extras).isEqualTo(bundle)
         }
     }
 
@@ -181,9 +169,8 @@ class TextFieldReceiveContentTest {
         inputMethodInterceptor.setContent {
             BasicTextField(
                 state = rememberTextFieldState(),
-                modifier = Modifier
-                    .testTag(tag)
-                    .contentReceiver {
+                modifier =
+                    Modifier.testTag(tag).contentReceiver {
                         transferableContent = it
                         null
                     }
@@ -206,7 +193,8 @@ class TextFieldReceiveContentTest {
         rule.runOnIdle {
             assertThat(transferableContent).isNotNull()
             assertTrue(
-                transferableContent?.platformTransferableContent
+                transferableContent
+                    ?.platformTransferableContent
                     ?.extras
                     ?.containsKey("EXTRA_INPUT_CONTENT_INFO") ?: false
             )
@@ -220,16 +208,16 @@ class TextFieldReceiveContentTest {
         inputMethodInterceptor.setContent {
             BasicTextField(
                 state = rememberTextFieldState(),
-                modifier = Modifier
-                    .testTag(tag)
-                    .contentReceiver {
-                        parentTransferableContent = it
-                        null
-                    }
-                    .contentReceiver {
-                        childTransferableContent = it
-                        it
-                    }
+                modifier =
+                    Modifier.testTag(tag)
+                        .contentReceiver {
+                            parentTransferableContent = it
+                            null
+                        }
+                        .contentReceiver {
+                            childTransferableContent = it
+                            it
+                        }
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -265,16 +253,16 @@ class TextFieldReceiveContentTest {
         inputMethodInterceptor.setContent {
             BasicTextField(
                 state = rememberTextFieldState(),
-                modifier = Modifier
-                    .testTag(tag)
-                    .contentReceiver {
-                        parentTransferableContent = it
-                        null
-                    }
-                    .contentReceiver {
-                        childTransferableContent = it
-                        null
-                    }
+                modifier =
+                    Modifier.testTag(tag)
+                        .contentReceiver {
+                            parentTransferableContent = it
+                            null
+                        }
+                        .contentReceiver {
+                            childTransferableContent = it
+                            null
+                        }
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -304,9 +292,8 @@ class TextFieldReceiveContentTest {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicTextField(
                     state = rememberTextFieldState(),
-                    modifier = Modifier
-                        .testTag(tag)
-                        .contentReceiver {
+                    modifier =
+                        Modifier.testTag(tag).contentReceiver {
                             transferableContent = it
                             null
                         }
@@ -325,21 +312,22 @@ class TextFieldReceiveContentTest {
     @Test
     fun semanticsPasteContent_pastesLeftOverText() {
         val clipboardManager = FakeClipboardManager(supportsClipEntry = true)
-        val clipEntry = createClipData {
-            addText("some text")
-            addUri()
-            addIntent()
-            addText("more text")
-        }.toClipEntry()
+        val clipEntry =
+            createClipData {
+                    addText("some text")
+                    addUri()
+                    addIntent()
+                    addText("more text")
+                }
+                .toClipEntry()
         clipboardManager.setClip(clipEntry)
         val state = TextFieldState()
         rule.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicTextField(
                     state = state,
-                    modifier = Modifier
-                        .testTag(tag)
-                        .contentReceiver {
+                    modifier =
+                        Modifier.testTag(tag).contentReceiver {
                             it.consume { item ->
                                 // only consume if there's no text
                                 item.text == null
@@ -351,20 +339,20 @@ class TextFieldReceiveContentTest {
 
         rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.PasteText)
 
-        rule.runOnIdle {
-            assertThat(state.text.toString()).isEqualTo("some text\nmore text")
-        }
+        rule.runOnIdle { assertThat(state.text.toString()).isEqualTo("some text\nmore text") }
     }
 
     @Test
     fun semanticsPasteContent_goesFromChildToParent() {
         val clipboardManager = FakeClipboardManager(supportsClipEntry = true)
-        val clipEntry = createClipData {
-            addText("a")
-            addText("b")
-            addText("c")
-            addText("d")
-        }.toClipEntry()
+        val clipEntry =
+            createClipData {
+                    addText("a")
+                    addText("b")
+                    addText("c")
+                    addText("d")
+                }
+                .toClipEntry()
         clipboardManager.setClip(clipEntry)
 
         lateinit var transferableContent1: TransferableContent
@@ -376,26 +364,20 @@ class TextFieldReceiveContentTest {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicTextField(
                     state = state,
-                    modifier = Modifier
-                        .testTag(tag)
-                        .contentReceiver { content ->
-                            transferableContent1 = content
-                            content.consume {
-                                it.text.contains("a")
+                    modifier =
+                        Modifier.testTag(tag)
+                            .contentReceiver { content ->
+                                transferableContent1 = content
+                                content.consume { it.text.contains("a") }
                             }
-                        }
-                        .contentReceiver { content ->
-                            transferableContent2 = content
-                            content.consume {
-                                it.text.contains("b")
+                            .contentReceiver { content ->
+                                transferableContent2 = content
+                                content.consume { it.text.contains("b") }
                             }
-                        }
-                        .contentReceiver { content ->
-                            transferableContent3 = content
-                            content.consume {
-                                it.text.contains("c")
+                            .contentReceiver { content ->
+                                transferableContent3 = content
+                                content.consume { it.text.contains("c") }
                             }
-                        }
                 )
             }
         }
@@ -416,12 +398,11 @@ class TextFieldReceiveContentTest {
         val clipEntry = createClipData().toClipEntry()
         clipboardManager.setClip(clipEntry)
         var pasteOption: (() -> Unit)? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, onPasteRequested, _, _ ->
-                pasteOption = onPasteRequested
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, onPasteRequested, _, _ -> pasteOption = onPasteRequested },
+                onHideMenu = {}
+            )
         lateinit var transferableContent: TransferableContent
         rule.setContent {
             CompositionLocalProvider(
@@ -430,9 +411,8 @@ class TextFieldReceiveContentTest {
             ) {
                 BasicTextField(
                     state = rememberTextFieldState(),
-                    modifier = Modifier
-                        .testTag(tag)
-                        .contentReceiver {
+                    modifier =
+                        Modifier.testTag(tag).contentReceiver {
                             transferableContent = it
                             null
                         }
@@ -440,9 +420,7 @@ class TextFieldReceiveContentTest {
             }
         }
 
-        rule.runOnIdle {
-            pasteOption?.invoke()
-        }
+        rule.runOnIdle { pasteOption?.invoke() }
 
         rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.PasteText)
 
@@ -464,9 +442,7 @@ class TextFieldReceiveContentTest {
 
         private fun InputMethodInterceptor.onIdle(block: (EditorInfo, InputConnection) -> Unit) {
             withInputConnection {
-                withEditorInfo {
-                    block(this@withEditorInfo, this@withInputConnection)
-                }
+                withEditorInfo { block(this@withEditorInfo, this@withInputConnection) }
             }
         }
     }

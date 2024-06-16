@@ -26,88 +26,86 @@ import kotlinx.coroutines.test.runTest
 class StaticListPagingSourceTest {
 
     private val DATA = List(100) { it }
-    private val CONFIG = PagingConfig(
-        pageSize = 3,
-        initialLoadSize = 5,
-    )
+    private val CONFIG =
+        PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+        )
 
     @Test
     fun refresh() = runPagingSourceTest { _, pager ->
         val result = pager.refresh() as LoadResult.Page
-        assertThat(result).isEqualTo(
-            LoadResult.Page(
-                data = listOf(0, 1, 2, 3, 4),
-                prevKey = null,
-                nextKey = 5,
-                itemsBefore = 0,
-                itemsAfter = 95
+        assertThat(result)
+            .isEqualTo(
+                LoadResult.Page(
+                    data = listOf(0, 1, 2, 3, 4),
+                    prevKey = null,
+                    nextKey = 5,
+                    itemsBefore = 0,
+                    itemsAfter = 95
+                )
             )
-        )
     }
 
     @Test
-    fun refresh_withEmptyData() = runPagingSourceTest(StaticListPagingSource(emptyList())) {
-            _, pager ->
-
-        val result = pager.refresh() as LoadResult.Page
-        assertThat(result).isEqualTo(
-            LoadResult.Page(
-                data = emptyList(),
-                prevKey = null,
-                nextKey = null,
-                itemsBefore = 0,
-                itemsAfter = 0
-            )
-        )
-    }
+    fun refresh_withEmptyData() =
+        runPagingSourceTest(StaticListPagingSource(emptyList())) { _, pager ->
+            val result = pager.refresh() as LoadResult.Page
+            assertThat(result)
+                .isEqualTo(
+                    LoadResult.Page(
+                        data = emptyList(),
+                        prevKey = null,
+                        nextKey = null,
+                        itemsBefore = 0,
+                        itemsAfter = 0
+                    )
+                )
+        }
 
     @Test
     fun refresh_initialKey() = runPagingSourceTest { _, pager ->
         val result = pager.refresh(initialKey = 20) as LoadResult.Page
-        assertThat(result).isEqualTo(
-            LoadResult.Page(
-                data = listOf(20, 21, 22, 23, 24),
-                prevKey = 19,
-                nextKey = 25,
-                itemsBefore = 20,
-                itemsAfter = 75
+        assertThat(result)
+            .isEqualTo(
+                LoadResult.Page(
+                    data = listOf(20, 21, 22, 23, 24),
+                    prevKey = 19,
+                    nextKey = 25,
+                    itemsBefore = 20,
+                    itemsAfter = 75
+                )
             )
-        )
     }
 
     @Test
-    fun refresh_initialKey_withEmptyData() = runPagingSourceTest(
-        StaticListPagingSource(emptyList())
-    ) { _, pager ->
-
-        val result = pager.refresh(initialKey = 20) as LoadResult.Page
-        assertThat(result).isEqualTo(
-            LoadResult.Page(
-                data = emptyList(),
-                prevKey = null,
-                nextKey = null,
-                itemsBefore = 0,
-                itemsAfter = 0
-            )
-        )
-    }
+    fun refresh_initialKey_withEmptyData() =
+        runPagingSourceTest(StaticListPagingSource(emptyList())) { _, pager ->
+            val result = pager.refresh(initialKey = 20) as LoadResult.Page
+            assertThat(result)
+                .isEqualTo(
+                    LoadResult.Page(
+                        data = emptyList(),
+                        prevKey = null,
+                        nextKey = null,
+                        itemsBefore = 0,
+                        itemsAfter = 0
+                    )
+                )
+        }
 
     @Test
     fun refresh_negativeKeyClippedToZero() = runPagingSourceTest { _, pager ->
         val result = pager.refresh(initialKey = -1) as LoadResult.Page
         // loads first page
-        assertThat(result).isEqualTo(
-            listOf(0, 1, 2, 3, 4).asPage()
-        )
+        assertThat(result).isEqualTo(listOf(0, 1, 2, 3, 4).asPage())
     }
 
     @Test
     fun refresh_KeyLargerThanDataSize_loadsLastPage() = runPagingSourceTest { _, pager ->
         val result = pager.refresh(initialKey = 140) as LoadResult.Page
         // loads last page
-        assertThat(result).isEqualTo(
-            listOf(95, 96, 97, 98, 99).asPage()
-        )
+        assertThat(result).isEqualTo(listOf(95, 96, 97, 98, 99).asPage())
     }
 
     @Test
@@ -116,24 +114,26 @@ class StaticListPagingSourceTest {
             refresh()
             append()
         }
-        assertThat(pager.getPages()).containsExactlyElementsIn(
-            listOf(
-                LoadResult.Page(
-                    data = listOf(0, 1, 2, 3, 4),
-                    prevKey = null,
-                    nextKey = 5,
-                    itemsBefore = 0,
-                    itemsAfter = 95
-                ),
-                LoadResult.Page(
-                    data = listOf(5, 6, 7),
-                    prevKey = 4,
-                    nextKey = 8,
-                    itemsBefore = 5,
-                    itemsAfter = 92
+        assertThat(pager.getPages())
+            .containsExactlyElementsIn(
+                listOf(
+                    LoadResult.Page(
+                        data = listOf(0, 1, 2, 3, 4),
+                        prevKey = null,
+                        nextKey = 5,
+                        itemsBefore = 0,
+                        itemsAfter = 95
+                    ),
+                    LoadResult.Page(
+                        data = listOf(5, 6, 7),
+                        prevKey = 4,
+                        nextKey = 8,
+                        itemsBefore = 5,
+                        itemsAfter = 92
+                    )
                 )
             )
-        ).inOrder()
+            .inOrder()
     }
 
     @Test
@@ -144,31 +144,35 @@ class StaticListPagingSourceTest {
             append()
             append()
         }
-        assertThat(pager.getPages()).containsExactlyElementsIn(
-            listOf(
-                listOf(0, 1, 2, 3, 4).asPage(),
-                listOf(5, 6, 7).asPage(),
-                listOf(8, 9, 10).asPage(),
-                listOf(11, 12, 13).asPage(),
+        assertThat(pager.getPages())
+            .containsExactlyElementsIn(
+                listOf(
+                    listOf(0, 1, 2, 3, 4).asPage(),
+                    listOf(5, 6, 7).asPage(),
+                    listOf(8, 9, 10).asPage(),
+                    listOf(11, 12, 13).asPage(),
+                )
             )
-        ).inOrder()
+            .inOrder()
     }
 
     @Test
     fun append_loadSizeLargerThanAvailableData() = runPagingSourceTest { _, pager ->
-        val result = pager.run {
-            refresh(initialKey = 94)
-            append() as LoadResult.Page
-        }
-        assertThat(result).isEqualTo(
-            LoadResult.Page(
-                data = listOf(99),
-                prevKey = 98,
-                nextKey = null,
-                itemsBefore = 99,
-                itemsAfter = 0
+        val result =
+            pager.run {
+                refresh(initialKey = 94)
+                append() as LoadResult.Page
+            }
+        assertThat(result)
+            .isEqualTo(
+                LoadResult.Page(
+                    data = listOf(99),
+                    prevKey = 98,
+                    nextKey = null,
+                    itemsBefore = 99,
+                    itemsAfter = 0
+                )
             )
-        )
     }
 
     @Test
@@ -177,24 +181,26 @@ class StaticListPagingSourceTest {
             refresh(20)
             prepend()
         }
-        assertThat(pager.getPages()).containsExactlyElementsIn(
-            listOf(
-                LoadResult.Page(
-                    data = listOf(17, 18, 19),
-                    prevKey = 16,
-                    nextKey = 20,
-                    itemsBefore = 17,
-                    itemsAfter = 80
-                ),
-                LoadResult.Page(
-                    data = listOf(20, 21, 22, 23, 24),
-                    prevKey = 19,
-                    nextKey = 25,
-                    itemsBefore = 20,
-                    itemsAfter = 75
-                ),
+        assertThat(pager.getPages())
+            .containsExactlyElementsIn(
+                listOf(
+                    LoadResult.Page(
+                        data = listOf(17, 18, 19),
+                        prevKey = 16,
+                        nextKey = 20,
+                        itemsBefore = 17,
+                        itemsAfter = 80
+                    ),
+                    LoadResult.Page(
+                        data = listOf(20, 21, 22, 23, 24),
+                        prevKey = 19,
+                        nextKey = 25,
+                        itemsBefore = 20,
+                        itemsAfter = 75
+                    ),
+                )
             )
-        ).inOrder()
+            .inOrder()
     }
 
     @Test
@@ -205,31 +211,35 @@ class StaticListPagingSourceTest {
             prepend()
             prepend()
         }
-        assertThat(pager.getPages()).containsExactlyElementsIn(
-            listOf(
-                listOf(41, 42, 43).asPage(),
-                listOf(44, 45, 46).asPage(),
-                listOf(47, 48, 49).asPage(),
-                listOf(50, 51, 52, 53, 54).asPage(),
+        assertThat(pager.getPages())
+            .containsExactlyElementsIn(
+                listOf(
+                    listOf(41, 42, 43).asPage(),
+                    listOf(44, 45, 46).asPage(),
+                    listOf(47, 48, 49).asPage(),
+                    listOf(50, 51, 52, 53, 54).asPage(),
+                )
             )
-        ).inOrder()
+            .inOrder()
     }
 
     @Test
     fun prepend_loadSizeLargerThanAvailableData() = runPagingSourceTest { _, pager ->
-        val result = pager.run {
-            refresh(initialKey = 2)
-            prepend()
-        }
-        assertThat(result).isEqualTo(
-            LoadResult.Page(
-                data = listOf(0, 1),
-                prevKey = null,
-                nextKey = 2,
-                itemsBefore = 0,
-                itemsAfter = 98
+        val result =
+            pager.run {
+                refresh(initialKey = 2)
+                prepend()
+            }
+        assertThat(result)
+            .isEqualTo(
+                LoadResult.Page(
+                    data = listOf(0, 1),
+                    prevKey = null,
+                    nextKey = 2,
+                    itemsBefore = 0,
+                    itemsAfter = 98
+                )
             )
-        )
     }
 
     @Test
@@ -240,12 +250,13 @@ class StaticListPagingSourceTest {
 
     @Test
     fun refreshKey() = runPagingSourceTest { pagingSource, pager ->
-        val state = pager.run {
-            refresh() // [0, 1, 2, 3, 4]
-            append() // [5, 6, 7]
-            // the anchorPos should be 7
-            getPagingState(anchorPosition = 7)
-        }
+        val state =
+            pager.run {
+                refresh() // [0, 1, 2, 3, 4]
+                append() // [5, 6, 7]
+                // the anchorPos should be 7
+                getPagingState(anchorPosition = 7)
+            }
 
         val refreshKey = pagingSource.getRefreshKey(state)
         val expected = 7 - (CONFIG.initialLoadSize / 2)
@@ -255,11 +266,12 @@ class StaticListPagingSourceTest {
 
     @Test
     fun refreshKey_negativeKeyClippedToZero() = runPagingSourceTest { pagingSource, pager ->
-        val state = pager.run {
-            refresh(2) // [2, 3, 4, 5, 6]
-            prepend() // [0, 1]
-            getPagingState(anchorPosition = 1)
-        }
+        val state =
+            pager.run {
+                refresh(2) // [2, 3, 4, 5, 6]
+                prepend() // [0, 1]
+                getPagingState(anchorPosition = 1)
+            }
         // before clipping, refreshKey = 1 - (CONFIG.initialLoadSize / 2) = -1
         val refreshKey = pagingSource.getRefreshKey(state)
         assertThat(refreshKey).isEqualTo(0)
@@ -271,9 +283,7 @@ class StaticListPagingSourceTest {
         pager: TestPager<Int, Int> = TestPager(CONFIG, source),
         block: suspend (pagingSource: PagingSource<Int, Int>, pager: TestPager<Int, Int>) -> Unit
     ) {
-        runTest {
-            block(source, pager)
-        }
+        runTest { block(source, pager) }
     }
 
     private fun List<Int>.asPage(): LoadResult.Page<Int, Int> {
@@ -281,12 +291,12 @@ class StaticListPagingSourceTest {
         val indexEnd = lastOrNull()
         return LoadResult.Page(
             data = this,
-            prevKey = indexStart?.let {
-                if (indexStart <= 0 || isEmpty()) null else indexStart - 1
-            },
-            nextKey = indexEnd?.let {
-                if (indexEnd >= DATA.lastIndex || isEmpty()) null else indexEnd + 1
-            },
+            prevKey =
+                indexStart?.let { if (indexStart <= 0 || isEmpty()) null else indexStart - 1 },
+            nextKey =
+                indexEnd?.let {
+                    if (indexEnd >= DATA.lastIndex || isEmpty()) null else indexEnd + 1
+                },
             itemsBefore = indexStart ?: -1,
             itemsAfter = if (indexEnd == null) -1 else DATA.lastIndex - indexEnd
         )

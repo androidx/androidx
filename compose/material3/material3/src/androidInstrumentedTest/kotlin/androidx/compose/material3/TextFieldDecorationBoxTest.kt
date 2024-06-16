@@ -67,8 +67,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3Api::class)
 class TextFieldDecorationBoxTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val Density = Density(1f)
     private val LabelHeight = 40.dp
@@ -172,8 +171,8 @@ class TextFieldDecorationBoxTest {
             padding = TextFieldDefaults.contentPaddingWithLabel(top = 40.dp),
             singleLine = true,
             hasLabel = true,
-            expectedHeight = 40.dp + LabelHeight + InnerTextFieldHeight +
-                TextFieldWithLabelVerticalPadding,
+            expectedHeight =
+                40.dp + LabelHeight + InnerTextFieldHeight + TextFieldWithLabelVerticalPadding,
             expectedPosition = 40.dp + LabelHeight
         )
     }
@@ -195,8 +194,8 @@ class TextFieldDecorationBoxTest {
             padding = TextFieldDefaults.contentPaddingWithLabel(bottom = 40.dp),
             singleLine = true,
             hasLabel = true,
-            expectedHeight = TextFieldWithLabelVerticalPadding + LabelHeight +
-                InnerTextFieldHeight + 40.dp,
+            expectedHeight =
+                TextFieldWithLabelVerticalPadding + LabelHeight + InnerTextFieldHeight + 40.dp,
             expectedPosition = TextFieldWithLabelVerticalPadding + LabelHeight
         )
     }
@@ -218,8 +217,8 @@ class TextFieldDecorationBoxTest {
             padding = TextFieldDefaults.contentPaddingWithLabel(top = 40.dp),
             singleLine = false,
             hasLabel = true,
-            expectedHeight = 40.dp + LabelHeight + InnerTextFieldHeight +
-                TextFieldWithLabelVerticalPadding,
+            expectedHeight =
+                40.dp + LabelHeight + InnerTextFieldHeight + TextFieldWithLabelVerticalPadding,
             expectedPosition = 40.dp + LabelHeight
         )
     }
@@ -241,8 +240,8 @@ class TextFieldDecorationBoxTest {
             padding = TextFieldDefaults.contentPaddingWithLabel(bottom = 40.dp),
             singleLine = false,
             hasLabel = true,
-            expectedHeight = TextFieldWithLabelVerticalPadding + LabelHeight +
-                InnerTextFieldHeight + 40.dp,
+            expectedHeight =
+                TextFieldWithLabelVerticalPadding + LabelHeight + InnerTextFieldHeight + 40.dp,
             expectedPosition = TextFieldWithLabelVerticalPadding + LabelHeight
         )
     }
@@ -347,16 +346,15 @@ class TextFieldDecorationBoxTest {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
                 val singleLine = true
-                val colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Red
-                )
+                val colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.Red)
                 BasicTextField(
                     value = value,
                     onValueChange = {},
-                    modifier = Modifier.size(
-                        with(Density) { textFieldWidth.toDp() },
-                        with(Density) { textFieldHeight.toDp() }
-                    ),
+                    modifier =
+                        Modifier.size(
+                            with(Density) { textFieldWidth.toDp() },
+                            with(Density) { textFieldHeight.toDp() }
+                        ),
                     singleLine = singleLine,
                     interactionSource = interactionSource
                 ) {
@@ -384,16 +382,16 @@ class TextFieldDecorationBoxTest {
             }
         }
 
-        rule.onNodeWithText(value)
-            .captureToImage()
-            .assertPixels(IntSize(textFieldWidth, textFieldHeight)) {
-                // to account for edge pixels
-                if (it.x in 2..(textFieldWidth - 2) && it.y in 2..(borderWidth - 2)) {
-                    Color.Red
-                } else {
-                    null
-                }
+        rule.onNodeWithText(value).captureToImage().assertPixels(
+            IntSize(textFieldWidth, textFieldHeight)
+        ) {
+            // to account for edge pixels
+            if (it.x in 2..(textFieldWidth - 2) && it.y in 2..(borderWidth - 2)) {
+                Color.Red
+            } else {
+                null
             }
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -408,20 +406,23 @@ class TextFieldDecorationBoxTest {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
                 val singleLine = true
-                val colors = TextFieldDefaults.colors(
-                    unfocusedIndicatorColor = Color.Red
-                )
+                val colors = TextFieldDefaults.colors(unfocusedIndicatorColor = Color.Red)
                 BasicTextField(
                     value = value,
                     onValueChange = {},
-                    modifier = Modifier
-                        .indicatorLine(enabled = true,
-                            isError = false,
-                            colors = colors,
-                            interactionSource = interactionSource,
-                            unfocusedIndicatorLineThickness = with(Density) { borderWidth.toDp() })
-                        .size(with(Density) { textFieldWidth.toDp() },
-                            with(Density) { textFieldHeight.toDp() }),
+                    modifier =
+                        Modifier.indicatorLine(
+                                enabled = true,
+                                isError = false,
+                                colors = colors,
+                                interactionSource = interactionSource,
+                                unfocusedIndicatorLineThickness =
+                                    with(Density) { borderWidth.toDp() }
+                            )
+                            .size(
+                                with(Density) { textFieldWidth.toDp() },
+                                with(Density) { textFieldHeight.toDp() }
+                            ),
                     singleLine = singleLine,
                     interactionSource = interactionSource
                 ) {
@@ -439,18 +440,19 @@ class TextFieldDecorationBoxTest {
             }
         }
 
-        rule.onNodeWithText(value)
-            .captureToImage()
-            .assertPixels(IntSize(textFieldWidth, textFieldHeight)) {
-                // to account for edge pixels
-                if (it.x in 2..(textFieldWidth - 2) &&
+        rule.onNodeWithText(value).captureToImage().assertPixels(
+            IntSize(textFieldWidth, textFieldHeight)
+        ) {
+            // to account for edge pixels
+            if (
+                it.x in 2..(textFieldWidth - 2) &&
                     it.y in (textFieldHeight - borderWidth + 2)..(textFieldHeight - 2)
-                ) {
-                    Color.Red
-                } else {
-                    null
-                }
+            ) {
+                Color.Red
+            } else {
+                null
             }
+        }
     }
 
     @Test
@@ -488,8 +490,8 @@ class TextFieldDecorationBoxTest {
         rule.runOnIdle {
             with(Density) {
                 assertThat(size).isNotNull()
-                assertThat(size!!.height).isEqualTo(
-                    (placeholderDimension + verticalPadding * 2).roundToPx())
+                assertThat(size!!.height)
+                    .isEqualTo((placeholderDimension + verticalPadding * 2).roundToPx())
             }
         }
     }
@@ -573,9 +575,12 @@ class TextFieldDecorationBoxTest {
             expectedPosition = expectedPosition,
             isVertical = true,
             isOutlined = false,
-            label = if (hasLabel) {
-                { Text("Label", modifier = Modifier.height(LabelHeight)) }
-            } else { null },
+            label =
+                if (hasLabel) {
+                    { Text("Label", modifier = Modifier.height(LabelHeight)) }
+                } else {
+                    null
+                },
         )
     }
 
@@ -594,9 +599,12 @@ class TextFieldDecorationBoxTest {
             isVertical = false,
             isOutlined = false,
             layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
-            label = if (hasLabel) {
-                { Text("Label", modifier = Modifier.height(LabelHeight)) }
-            } else { null },
+            label =
+                if (hasLabel) {
+                    { Text("Label", modifier = Modifier.height(LabelHeight)) }
+                } else {
+                    null
+                },
         )
     }
 
@@ -630,12 +638,11 @@ class TextFieldDecorationBoxTest {
                     ) {
                         val innerTextField: @Composable () -> Unit = {
                             Box(
-                                Modifier
-                                    .size(InnerTextFieldWidth, InnerTextFieldHeight)
-                                    .onGloballyPositioned {
-                                        position = it.positionInRoot()
-                                    }
-                            ) { it() }
+                                Modifier.size(InnerTextFieldWidth, InnerTextFieldHeight)
+                                    .onGloballyPositioned { position = it.positionInRoot() }
+                            ) {
+                                it()
+                            }
                         }
                         if (isOutlined) {
                             OutlinedTextFieldDefaults.DecorationBox(
@@ -665,9 +672,7 @@ class TextFieldDecorationBoxTest {
             }
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         rule.runOnIdle {
             with(Density) {
@@ -686,13 +691,15 @@ class TextFieldDecorationBoxTest {
             }
         }
     }
+
     @Test
     fun testTextFields_TextDecoration_noCrashConstraintsInfinity() {
 
         rule.setMaterialContent(lightColorScheme()) {
-            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
-                rememberScrollState()
-            )) {
+            Column(
+                modifier =
+                    Modifier.height(IntrinsicSize.Min).horizontalScroll(rememberScrollState())
+            ) {
                 TextFieldDefaults.DecorationBox(
                     value = "Hats",
                     innerTextField = { Text("Cats") },
@@ -706,6 +713,6 @@ class TextFieldDecorationBoxTest {
             }
         }
 
-        rule.runOnIdle { }
+        rule.runOnIdle {}
     }
 }

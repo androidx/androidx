@@ -31,9 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface GattServerSessionScope {
 
-    /**
-     * A client device connected to the server.
-     */
+    /** A client device connected to the server. */
     val device: BluetoothDevice
 
     /**
@@ -45,11 +43,9 @@ interface GattServerSessionScope {
     val requests: Flow<GattServerRequest>
 
     /**
-     * A [StateFlow] of the set of characteristics that the client has requested to be
-     * notified of.
+     * A [StateFlow] of the set of characteristics that the client has requested to be notified of.
      *
-     * The set will be updated whenever the client subscribes to or unsubscribes
-     * a characteristic.
+     * The set will be updated whenever the client subscribes to or unsubscribes a characteristic.
      *
      * @see [GattServerSessionScope.notify]
      */
@@ -60,10 +56,9 @@ interface GattServerSessionScope {
      *
      * @param characteristic the updated characteristic
      * @param value the new value of the characteristic
-     *
      * @throws CancellationException if it failed to notify
-     * @throws IllegalArgumentException if the length of the [value] is greater than
-     * the maximum attribute length (512)
+     * @throws IllegalArgumentException if the length of the [value] is greater than the maximum
+     *   attribute length (512)
      */
     suspend fun notify(characteristic: GattCharacteristic, value: ByteArray)
 }

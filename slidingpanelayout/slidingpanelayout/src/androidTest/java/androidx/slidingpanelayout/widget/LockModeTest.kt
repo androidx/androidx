@@ -44,9 +44,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests [SlidingPaneLayout.lockMode]
- */
+/** Tests [SlidingPaneLayout.lockMode] */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 public class LockModeTest {
@@ -61,13 +59,15 @@ public class LockModeTest {
         with(ActivityScenario.launch(TestActivity::class.java)) {
             onView(withId(R.id.sliding_pane_layout)).check(ViewAssertions.matches(isDisplayed()))
             onView(withId(R.id.list_pane)).check(ViewAssertions.matches(isDisplayed()))
-            onView(withId(R.id.detail_pane)).check(
-                ViewAssertions.matches(
-                    ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
+            onView(withId(R.id.detail_pane))
+                .check(
+                    ViewAssertions.matches(
+                        ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
+                    )
                 )
-            )
-            val slidingPaneLayout =
-                withActivity { findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout) }
+            val slidingPaneLayout = withActivity {
+                findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout)
+            }
             assertThat(slidingPaneLayout.isOpen).isFalse()
             assertThat(slidingPaneLayout.isSlideable).isTrue()
         }
@@ -120,8 +120,8 @@ public class LockModeTest {
     }
 
     /**
-     * Test users can swipe to open detail pane in lock mode LOCK_MODE_LOCKED_OPEN when
-     * detail view is in closed state. Otherwise, users cannot swipe it.
+     * Test users can swipe to open detail pane in lock mode LOCK_MODE_LOCKED_OPEN when detail view
+     * is in closed state. Otherwise, users cannot swipe it.
      */
     @SdkSuppress(maxSdkVersion = 28) // TODO: Fix flaky test issues on API 30 Cuttlefish devices.
     @Test
@@ -173,8 +173,7 @@ public class LockModeTest {
     }
 
     /**
-     * Test users cannot swipe between list and detail panes when lock mode set to
-     * LOCK_MODE_LOCKED
+     * Test users cannot swipe between list and detail panes when lock mode set to LOCK_MODE_LOCKED
      */
     @SdkSuppress(maxSdkVersion = 28) // TODO: Fix flaky test issues on API 30 Cuttlefish devices.
     @Test

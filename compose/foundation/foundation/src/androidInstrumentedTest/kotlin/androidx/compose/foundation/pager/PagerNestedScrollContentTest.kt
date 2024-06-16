@@ -67,9 +67,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class PagerNestedScrollContentTest(
-    config: ParamConfig
-) : BasePagerTest(config = config) {
+class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config = config) {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Test
@@ -90,9 +88,7 @@ class PagerNestedScrollContentTest(
                 horizontalAlignment = Alignment.Start
             ) {
                 items(10) {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        BasicText(text = it.toString())
-                    }
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
                 }
             }
         }
@@ -116,14 +112,13 @@ class PagerNestedScrollContentTest(
         rule.mainClock.autoAdvance = false
         val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(rule.density))
         var flingTriggered = false
-        val flingInspector = object : FlingBehavior {
-            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-                flingTriggered = true
-                return with(defaultFlingBehavior) {
-                    performFling(initialVelocity)
+        val flingInspector =
+            object : FlingBehavior {
+                override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                    flingTriggered = true
+                    return with(defaultFlingBehavior) { performFling(initialVelocity) }
                 }
             }
-        }
         createPager(pageCount = { DefaultPageCount }) {
             LazyList(
                 modifier = Modifier.fillMaxSize(),
@@ -139,9 +134,7 @@ class PagerNestedScrollContentTest(
                 horizontalAlignment = Alignment.Start
             ) {
                 items(10) {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        BasicText(text = it.toString())
-                    }
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
                 }
             }
         }
@@ -167,21 +160,25 @@ class PagerNestedScrollContentTest(
         // Arrange
         var scrollAvailable = Offset.Zero
         var postFlingVelocity = Velocity.Zero
-        val dataCapturingConnection = object : NestedScrollConnection {
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                scrollAvailable += available
-                return Offset.Zero
-            }
+        val dataCapturingConnection =
+            object : NestedScrollConnection {
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource
+                ): Offset {
+                    scrollAvailable += available
+                    return Offset.Zero
+                }
 
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                postFlingVelocity = available
-                return Velocity.Zero
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity
+                ): Velocity {
+                    postFlingVelocity = available
+                    return Velocity.Zero
+                }
             }
-        }
         createPager(
             pageCount = { DefaultPageCount },
             nestedScrollConnection = dataCapturingConnection
@@ -200,9 +197,7 @@ class PagerNestedScrollContentTest(
                 horizontalAlignment = Alignment.Start
             ) {
                 items(10) {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        BasicText(text = it.toString())
-                    }
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
                 }
             }
         }
@@ -246,9 +241,7 @@ class PagerNestedScrollContentTest(
                 horizontalAlignment = Alignment.Start
             ) {
                 items(10) {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        BasicText(text = it.toString())
-                    }
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
                 }
             }
         }
@@ -265,11 +258,7 @@ class PagerNestedScrollContentTest(
         assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0f)
 
         // reset inner list
-        rule.runOnIdle {
-            runBlocking {
-                lazyListState.scrollToItem(0)
-            }
-        }
+        rule.runOnIdle { runBlocking { lazyListState.scrollToItem(0) } }
 
         // Act: Scroll More than Half an Item
         val backwardDelta = pagerSize * 0.6f * scrollForwardSign.toFloat() * -1f
@@ -305,9 +294,7 @@ class PagerNestedScrollContentTest(
                 horizontalAlignment = Alignment.Start
             ) {
                 items(10) {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        BasicText(text = it.toString())
-                    }
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
                 }
             }
         }
@@ -324,9 +311,8 @@ class PagerNestedScrollContentTest(
         // Assert: Inner list won't consume scroll and pager moved
         rule.runOnIdle {
             assertThat(abs(pagerState.currentPageOffsetFraction - 0.4f)).isLessThan(0.001f)
-            assertThat(
-                lazyListState.firstVisibleItemScrollOffset
-            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemScrollOffset)
+                .isEqualTo(firstLazyListItemOffset)
             assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
         }
         rule.onNodeWithTag(TestTag).performTouchInput {
@@ -339,15 +325,12 @@ class PagerNestedScrollContentTest(
         // assert: pager moved, but list is still at 0 after direction change
         rule.runOnIdle {
             assertThat(abs(pagerState.currentPageOffsetFraction - 0.2f)).isLessThan(0.001f)
-            assertThat(
-                lazyListState.firstVisibleItemScrollOffset
-            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemScrollOffset)
+                .isEqualTo(firstLazyListItemOffset)
             assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
         }
 
-        rule.onNodeWithTag(TestTag).performTouchInput {
-            up()
-        }
+        rule.onNodeWithTag(TestTag).performTouchInput { up() }
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -359,9 +342,7 @@ class PagerNestedScrollContentTest(
         createPager(pageCount = { DefaultPageCount }) { page ->
             touchSlop = LocalViewConfiguration.current.touchSlop
             LazyList(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("InnerListPage$page"),
+                modifier = Modifier.fillMaxSize().testTag("InnerListPage$page"),
                 contentPadding = PaddingValues(0.dp),
                 flingBehavior = ScrollableDefaults.flingBehavior(),
                 isVertical = !vertical, // scrollable content on opposite direction of pager
@@ -374,9 +355,7 @@ class PagerNestedScrollContentTest(
                 horizontalAlignment = Alignment.Start
             ) {
                 items(10) {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        BasicText(text = it.toString())
-                    }
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
                 }
             }
         }
@@ -394,9 +373,8 @@ class PagerNestedScrollContentTest(
         // Assert: Inner list won't consume scroll and pager moved
         rule.runOnIdle {
             assertThat(abs(pagerState.currentPageOffsetFraction)).isLessThan(0.001f)
-            assertThat(
-                lazyListState.firstVisibleItemScrollOffset
-            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemScrollOffset)
+                .isEqualTo(firstLazyListItemOffset)
             assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
         }
 
@@ -411,9 +389,7 @@ class PagerNestedScrollContentTest(
         }
 
         // assert: pager did not move
-        rule.runOnIdle {
-            assertThat(abs(pagerState.currentPageOffsetFraction)).isLessThan(0.001f)
-        }
+        rule.runOnIdle { assertThat(abs(pagerState.currentPageOffsetFraction)).isLessThan(0.001f) }
     }
 
     @Test
@@ -424,19 +400,20 @@ class PagerNestedScrollContentTest(
         val focusItems = mutableSetOf<String>()
         val rowColumnContent: @Composable (Int) -> Unit = { page ->
             repeat(DefaultPageCount) { item ->
-                val columnFocusRequester = FocusRequester().apply {
-                    if (item == 3 && page == 5) innerListFocusRequester = this
-                }
+                val columnFocusRequester =
+                    FocusRequester().apply {
+                        if (item == 3 && page == 5) innerListFocusRequester = this
+                    }
                 Box(
-                    modifier = Modifier
-                        .focusRequester(columnFocusRequester)
-                        .onFocusChanged {
-                            if (it.isFocused) {
-                                focusItems.add("page=$page-item=$item")
+                    modifier =
+                        Modifier.focusRequester(columnFocusRequester)
+                            .onFocusChanged {
+                                if (it.isFocused) {
+                                    focusItems.add("page=$page-item=$item")
+                                }
                             }
-                        }
-                        .size(150.dp)
-                        .focusable(),
+                            .size(150.dp)
+                            .focusable(),
                     contentAlignment = Alignment.Center
                 ) {
                     BasicText(text = "page=$page-item=$item")
@@ -447,27 +424,17 @@ class PagerNestedScrollContentTest(
             modifier = Modifier.fillMaxSize(),
             pageCount = { DefaultPageCount },
             initialPage = 3,
-            pageSize = { PageSize.Fixed(100.dp) }) { page ->
-            val focusRequester = FocusRequester().apply {
-                if (page == 5) pagerFocusRequester = this
-            }
+            pageSize = { PageSize.Fixed(100.dp) }
+        ) { page ->
+            val focusRequester =
+                FocusRequester().apply { if (page == 5) pagerFocusRequester = this }
             val rowColumnModifier =
-                Modifier
-                    .focusRequester(focusRequester)
-                    .verticalScroll(rememberScrollState())
+                Modifier.focusRequester(focusRequester).verticalScroll(rememberScrollState())
 
             if (vertical) {
-                Row(
-                    modifier = rowColumnModifier
-                ) {
-                    rowColumnContent(page)
-                }
+                Row(modifier = rowColumnModifier) { rowColumnContent(page) }
             } else {
-                Column(
-                    modifier = rowColumnModifier
-                ) {
-                    rowColumnContent(page)
-                }
+                Column(modifier = rowColumnModifier) { rowColumnContent(page) }
             }
         }
 
@@ -475,9 +442,7 @@ class PagerNestedScrollContentTest(
         rule.runOnIdle { pagerFocusRequester.requestFocus() }
 
         // Assert: Check we're settled.
-        rule.runOnIdle {
-            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
-        }
+        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
 
         // Act: Focus scroll inner scrollable
         rule.runOnIdle { innerListFocusRequester.requestFocus() }
@@ -535,18 +500,11 @@ class PagerNestedScrollContentTest(
             initialPage = 3
         ) { page ->
             val focusRequester = remember {
-                FocusRequester().apply {
-                    if (page == 5) pagerFocusRequester = this
-                }
+                FocusRequester().apply { if (page == 5) pagerFocusRequester = this }
             }
 
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .focusRequester(focusRequester)
-                        .focusable()
-                )
+                Box(modifier = Modifier.size(64.dp).focusRequester(focusRequester).focusable())
             }
         }
 
@@ -555,20 +513,14 @@ class PagerNestedScrollContentTest(
         assertThat(pagerState.currentPage).isEqualTo(3)
 
         // Scroll to a page
-        rule.runOnIdle {
-            scope.launch {
-                pagerState.scrollToPage(5)
-            }
-        }
+        rule.runOnIdle { scope.launch { pagerState.scrollToPage(5) } }
 
         // Assert: Pager is settled
         assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
         assertThat(pagerState.currentPage).isEqualTo(5)
 
         // Act: Request focus.
-        rule.runOnIdle {
-            pagerFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { pagerFocusRequester.requestFocus() }
 
         // Assert: Pager is settled
         rule.runOnIdle {
@@ -578,9 +530,7 @@ class PagerNestedScrollContentTest(
     }
 
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun params() = AllOrientationsParams
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun params() = AllOrientationsParams
     }
 }
 

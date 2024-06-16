@@ -38,7 +38,7 @@ package androidx.room {
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
     method public final int handle(T entity);
     method public final int handleMultiple(Iterable<? extends T> entities);
-    method public final int handleMultiple(T![] entities);
+    method public final int handleMultiple(T[] entities);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
@@ -46,28 +46,28 @@ package androidx.room {
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
     method public final void insert(Iterable<? extends T> entities);
     method public final void insert(T entity);
-    method public final void insert(T![] entities);
+    method public final void insert(T[] entities);
     method public final long insertAndReturnId(T entity);
     method public final long[] insertAndReturnIdsArray(java.util.Collection<? extends T> entities);
-    method public final long[] insertAndReturnIdsArray(T![] entities);
-    method public final Long![] insertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
-    method public final Long![] insertAndReturnIdsArrayBox(T![] entities);
+    method public final long[] insertAndReturnIdsArray(T[] entities);
+    method public final Long[] insertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
+    method public final Long[] insertAndReturnIdsArrayBox(T[] entities);
     method public final java.util.List<java.lang.Long> insertAndReturnIdsList(java.util.Collection<? extends T> entities);
-    method public final java.util.List<java.lang.Long> insertAndReturnIdsList(T![] entities);
+    method public final java.util.List<java.lang.Long> insertAndReturnIdsList(T[] entities);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
     ctor public EntityUpsertionAdapter(androidx.room.EntityInsertionAdapter<T> insertionAdapter, androidx.room.EntityDeletionOrUpdateAdapter<T> updateAdapter);
     method public void upsert(Iterable<? extends T> entities);
     method public void upsert(T entity);
-    method public void upsert(T![] entities);
+    method public void upsert(T[] entities);
     method public long upsertAndReturnId(T entity);
     method public long[] upsertAndReturnIdsArray(java.util.Collection<? extends T> entities);
-    method public long[] upsertAndReturnIdsArray(T![] entities);
-    method public Long![] upsertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
-    method public Long![] upsertAndReturnIdsArrayBox(T![] entities);
+    method public long[] upsertAndReturnIdsArray(T[] entities);
+    method public Long[] upsertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
+    method public Long[] upsertAndReturnIdsArrayBox(T[] entities);
     method public java.util.List<java.lang.Long> upsertAndReturnIdsList(java.util.Collection<? extends T> entities);
-    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(T![] entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(T[] entities);
   }
 
   @SuppressCompatibility @RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {
@@ -78,8 +78,8 @@ package androidx.room {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.util.Map<java.lang.String,java.lang.String> shadowTablesMap, java.util.Map<java.lang.String,java.util.Set<java.lang.String>> viewTables, java.lang.String... tableNames);
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer observer);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String![] tableNames, boolean inTransaction, java.util.concurrent.Callable<T> computeFunction);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String![] tableNames, java.util.concurrent.Callable<T> computeFunction);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String[] tableNames, boolean inTransaction, java.util.concurrent.Callable<T?> computeFunction);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String[] tableNames, java.util.concurrent.Callable<T?> computeFunction);
     method public void refreshVersionsAsync();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
     method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer observer);
@@ -91,7 +91,7 @@ package androidx.room {
 
   public abstract static class InvalidationTracker.Observer {
     ctor protected InvalidationTracker.Observer(String firstTable, java.lang.String... rest);
-    ctor public InvalidationTracker.Observer(String![] tables);
+    ctor public InvalidationTracker.Observer(String[] tables);
     method public abstract void onInvalidated(java.util.Set<java.lang.String> tables);
   }
 
@@ -128,7 +128,7 @@ package androidx.room {
     method public boolean isOpen();
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
-    method public android.database.Cursor query(String query, Object![]? args);
+    method public android.database.Cursor query(String query, Object?[]? args);
     method public void runInTransaction(Runnable body);
     method public <V> V runInTransaction(java.util.concurrent.Callable<V> body);
     method @Deprecated public void setTransactionSuccessful();
@@ -180,8 +180,6 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
-    method public static androidx.room.RoomDatabase.JournalMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
@@ -202,7 +200,7 @@ package androidx.room {
   }
 
   public static fun interface RoomDatabase.QueryCallback {
-    method public void onQuery(String sqlQuery, java.util.List<?> bindArgs);
+    method public void onQuery(String sqlQuery, java.util.List<? extends java.lang.Object?> bindArgs);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomOpenHelper extends androidx.sqlite.db.SupportSQLiteOpenHelper.Callback {
@@ -258,11 +256,11 @@ package androidx.room {
     field public static final androidx.room.RoomSQLiteQuery.Companion Companion;
     field @VisibleForTesting public static final int DESIRED_POOL_SIZE = 10; // 0xa
     field @VisibleForTesting public static final int POOL_LIMIT = 15; // 0xf
-    field @VisibleForTesting public final byte[]![] blobBindings;
+    field @VisibleForTesting public final byte[]?[] blobBindings;
     field @VisibleForTesting public final double[] doubleBindings;
     field @VisibleForTesting public final long[] longBindings;
     field @VisibleForTesting public static final java.util.TreeMap<java.lang.Integer,androidx.room.RoomSQLiteQuery> queryPool;
-    field @VisibleForTesting public final String![] stringBindings;
+    field @VisibleForTesting public final String?[] stringBindings;
   }
 
   public static final class RoomSQLiteQuery.Companion {
@@ -313,11 +311,11 @@ package androidx.room.util {
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class CursorUtil {
     method public static android.database.Cursor copyAndClose(android.database.Cursor c);
-    method @VisibleForTesting public static int findColumnIndexBySuffix(String![] columnNames, String name);
+    method @VisibleForTesting public static int findColumnIndexBySuffix(String[] columnNames, String name);
     method public static int getColumnIndex(android.database.Cursor c, String name);
     method public static int getColumnIndexOrThrow(android.database.Cursor c, String name);
     method public static inline <R> R useCursor(android.database.Cursor, kotlin.jvm.functions.Function1<? super android.database.Cursor,? extends R> block);
-    method public static android.database.Cursor wrapMappedColumns(android.database.Cursor cursor, String![] columnNames, int[] mapping);
+    method public static android.database.Cursor wrapMappedColumns(android.database.Cursor cursor, String[] columnNames, int[] mapping);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class DBUtil {
@@ -360,7 +358,7 @@ package androidx.room.util {
     method public static String? joinIntoString(java.util.List<java.lang.Integer>? input);
     method public static StringBuilder newStringBuilder();
     method public static java.util.List<java.lang.Integer>? splitToIntList(String? input);
-    field public static final String![] EMPTY_STRING_ARRAY;
+    field public static final String?[] EMPTY_STRING_ARRAY;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TableInfo {

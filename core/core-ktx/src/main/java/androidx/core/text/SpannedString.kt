@@ -22,8 +22,8 @@ import android.text.Spanned
 import android.text.SpannedString
 
 /**
- * Returns a new [Spanned] from [CharSequence],
- * or the source itself if it is already an instance of [SpannedString].
+ * Returns a new [Spanned] from [CharSequence], or the source itself if it is already an instance of
+ * [SpannedString].
  */
 public inline fun CharSequence.toSpanned(): Spanned = SpannedString.valueOf(this)
 

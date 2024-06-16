@@ -19,8 +19,8 @@ import android.app.Service
 import android.os.Handler
 
 /**
- * Helper class to dispatch lifecycle events for a Service. Use it only if it is impossible
- * to use [LifecycleService].
+ * Helper class to dispatch lifecycle events for a Service. Use it only if it is impossible to use
+ * [LifecycleService].
  *
  * @param provider [LifecycleOwner] for a service, usually it is a service itself
  */
@@ -42,42 +42,31 @@ open class ServiceLifecycleDispatcher(provider: LifecycleOwner) {
         handler.postAtFrontOfQueue(lastDispatchRunnable!!)
     }
 
-    /**
-     * Must be a first call in [Service.onCreate] method, even before super.onCreate call.
-     */
+    /** Must be a first call in [Service.onCreate] method, even before super.onCreate call. */
     open fun onServicePreSuperOnCreate() {
         postDispatchRunnable(Lifecycle.Event.ON_CREATE)
     }
 
-    /**
-     * Must be a first call in [Service.onBind] method, even before super.onBind
-     * call.
-     */
+    /** Must be a first call in [Service.onBind] method, even before super.onBind call. */
     open fun onServicePreSuperOnBind() {
         postDispatchRunnable(Lifecycle.Event.ON_START)
     }
 
     /**
-     * Must be a first call in [Service.onStart] or
-     * [Service.onStartCommand] methods, even before
-     * a corresponding super call.
+     * Must be a first call in [Service.onStart] or [Service.onStartCommand] methods, even before a
+     * corresponding super call.
      */
     open fun onServicePreSuperOnStart() {
         postDispatchRunnable(Lifecycle.Event.ON_START)
     }
 
-    /**
-     * Must be a first call in [Service.onDestroy] method, even before super.OnDestroy
-     * call.
-     */
+    /** Must be a first call in [Service.onDestroy] method, even before super.OnDestroy call. */
     open fun onServicePreSuperOnDestroy() {
         postDispatchRunnable(Lifecycle.Event.ON_STOP)
         postDispatchRunnable(Lifecycle.Event.ON_DESTROY)
     }
 
-    /**
-     * [Lifecycle] for the given [LifecycleOwner]
-     */
+    /** [Lifecycle] for the given [LifecycleOwner] */
     open val lifecycle: Lifecycle
         get() = registry
 

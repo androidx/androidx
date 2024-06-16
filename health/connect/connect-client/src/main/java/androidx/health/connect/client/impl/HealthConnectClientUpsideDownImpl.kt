@@ -214,16 +214,17 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             return fallbackResponse
         }
 
-        val platformResponse = wrapPlatformException {
-            suspendCancellableCoroutine { continuation ->
-                healthConnectManager.aggregate(
-                    request.toPlatformRequest(),
-                    executor,
-                    continuation.asOutcomeReceiver()
-                )
-            }
-        }
-            .toSdkResponse(request.platformMetrics)
+        val platformResponse =
+            wrapPlatformException {
+                    suspendCancellableCoroutine { continuation ->
+                        healthConnectManager.aggregate(
+                            request.toPlatformRequest(),
+                            executor,
+                            continuation.asOutcomeReceiver()
+                        )
+                    }
+                }
+                .toSdkResponse(request.platformMetrics)
 
         return platformResponse + fallbackResponse
     }
@@ -232,15 +233,15 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         request: AggregateGroupByDurationRequest
     ): List<AggregationResultGroupedByDuration> {
         return wrapPlatformException {
-            suspendCancellableCoroutine { continuation ->
-                healthConnectManager.aggregateGroupByDuration(
-                    request.toPlatformRequest(),
-                    request.timeRangeSlicer,
-                    executor,
-                    continuation.asOutcomeReceiver()
-                )
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.aggregateGroupByDuration(
+                        request.toPlatformRequest(),
+                        request.timeRangeSlicer,
+                        executor,
+                        continuation.asOutcomeReceiver()
+                    )
+                }
             }
-        }
             .map { it.toSdkResponse(request.metrics) }
     }
 
@@ -248,19 +249,19 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         request: AggregateGroupByPeriodRequest
     ): List<AggregationResultGroupedByPeriod> {
         return wrapPlatformException {
-            suspendCancellableCoroutine { continuation ->
-                healthConnectManager.aggregateGroupByPeriod(
-                    request.toPlatformRequest(),
-                    request.timeRangeSlicer,
-                    executor,
-                    continuation.asOutcomeReceiver()
-                )
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.aggregateGroupByPeriod(
+                        request.toPlatformRequest(),
+                        request.timeRangeSlicer,
+                        executor,
+                        continuation.asOutcomeReceiver()
+                    )
+                }
             }
-        }
             .mapIndexed { index, platformResponse ->
                 if (
                     SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10 ||
-                    (request.timeRangeSlicer.months == 0 && request.timeRangeSlicer.years == 0)
+                        (request.timeRangeSlicer.months == 0 && request.timeRangeSlicer.years == 0)
                 ) {
                     platformResponse.toSdkResponse(request.metrics)
                 } else {
@@ -276,11 +277,11 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                         metrics = request.metrics,
                         bucketStartTime = bucketStartTime,
                         bucketEndTime =
-                        if (requestTimeRangeFilter.endTime!!.isBefore(bucketEndTime)) {
-                            requestTimeRangeFilter.endTime!!
-                        } else {
-                            bucketEndTime
-                        }
+                            if (requestTimeRangeFilter.endTime!!.isBefore(bucketEndTime)) {
+                                requestTimeRangeFilter.endTime!!
+                            } else {
+                                bucketEndTime
+                            }
                     )
                 }
             }
@@ -288,14 +289,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
         return wrapPlatformException {
-            suspendCancellableCoroutine { continuation ->
-                healthConnectManager.getChangeLogToken(
-                    request.toPlatformRequest(),
-                    executor,
-                    continuation.asOutcomeReceiver()
-                )
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getChangeLogToken(
+                        request.toPlatformRequest(),
+                        executor,
+                        continuation.asOutcomeReceiver()
+                    )
+                }
             }
-        }
             .token
     }
 
@@ -336,12 +337,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
             .let {
                 return buildSet {
-                    for (i in it.requestedPermissions.indices) {
+                    val requestedPermissions = it.requestedPermissions ?: emptyArray()
+                    for (i in requestedPermissions.indices) {
                         if (
-                            it.requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
-                            it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0
+                            requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
+                                it.requestedPermissionsFlags!![i] and REQUESTED_PERMISSION_GRANTED >
+                                    0
                         ) {
-                            add(it.requestedPermissions[i])
+                            add(requestedPermissions[i])
                         }
                     }
                 }
@@ -349,12 +352,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun revokeAllPermissions() {
-        val allHealthPermissions =
+        val requestedPermissions =
             context.packageManager
                 .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
-                .requestedPermissions
-                .filter { it.startsWith(PERMISSION_PREFIX) }
-        revokePermissionsFunction(allHealthPermissions)
+                .requestedPermissions ?: emptyArray()
+        val allHealthPermissions = requestedPermissions.filter { it.startsWith(PERMISSION_PREFIX) }
+        if (allHealthPermissions.isNotEmpty()) {
+            revokePermissionsFunction(allHealthPermissions)
+        }
     }
 
     private suspend fun <T> wrapPlatformException(function: suspend () -> T): T {

@@ -32,49 +32,52 @@ class UpsertMethodProcessor(
     fun process(): UpsertMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
 
-        val annotation = delegate.extractAnnotation(
-            Upsert::class,
-            ProcessorErrors.MISSING_UPSERT_ANNOTATION
-        )
+        val annotation =
+            delegate.extractAnnotation(Upsert::class, ProcessorErrors.MISSING_UPSERT_ANNOTATION)
 
         val returnType = delegate.extractReturnType()
         context.checker.notUnbound(
-            returnType, executableElement,
+            returnType,
+            executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_METHODS
         )
 
-        val (entities, params) = delegate.extractParams(
-            targetEntityType = annotation?.getAsType("entity"),
-            missingParamError = ProcessorErrors.UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT,
-            onValidatePartialEntity = { entity, pojo ->
-                val missingPrimaryKeys = entity.primaryKey.fields.any {
-                    pojo.findFieldByColumnName(it.columnName) == null
-                }
-                context.checker.check(
-                    entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
-                    executableElement,
-                    ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
-                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
-                        primaryKeyNames = entity.primaryKey.fields.columnNames
+        val (entities, params) =
+            delegate.extractParams(
+                targetEntityType = annotation?.getAsType("entity"),
+                missingParamError = ProcessorErrors.UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT,
+                onValidatePartialEntity = { entity, pojo ->
+                    val missingPrimaryKeys =
+                        entity.primaryKey.fields.any {
+                            pojo.findFieldByColumnName(it.columnName) == null
+                        }
+                    context.checker.check(
+                        entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
+                        executableElement,
+                        ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
+                            partialEntityName = pojo.typeName.toString(context.codeLanguage),
+                            primaryKeyNames = entity.primaryKey.fields.columnNames
+                        )
                     )
-                )
 
-                // Verify all non null columns without a default value are in the POJO otherwise
-                // the UPSERT will fail with a NOT NULL constraint.
-                val missingRequiredFields = (entity.fields - entity.primaryKey.fields).filter {
-                    it.nonNull && it.defaultValue == null &&
-                        pojo.findFieldByColumnName(it.columnName) == null
-                }
-                context.checker.check(
-                    missingRequiredFields.isEmpty(),
-                    executableElement,
-                    ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
-                        missingColumnNames = missingRequiredFields.map { it.columnName }
+                    // Verify all non null columns without a default value are in the POJO otherwise
+                    // the UPSERT will fail with a NOT NULL constraint.
+                    val missingRequiredFields =
+                        (entity.fields - entity.primaryKey.fields).filter {
+                            it.nonNull &&
+                                it.defaultValue == null &&
+                                pojo.findFieldByColumnName(it.columnName) == null
+                        }
+                    context.checker.check(
+                        missingRequiredFields.isEmpty(),
+                        executableElement,
+                        ProcessorErrors.missingRequiredColumnsInPartialEntity(
+                            partialEntityName = pojo.typeName.toString(context.codeLanguage),
+                            missingColumnNames = missingRequiredFields.map { it.columnName }
+                        )
                     )
-                )
-            }
-        )
+                }
+            )
 
         val methodBinder = delegate.findUpsertMethodBinder(returnType, params)
 

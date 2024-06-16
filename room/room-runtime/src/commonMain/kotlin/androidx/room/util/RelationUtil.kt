@@ -70,7 +70,5 @@ fun <K : Any, V> recursiveFetchMap(
     }
 }
 
-/**
- * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
- */
+/** Unfortunately, we cannot read this value so we are only setting it to the SQLite default. */
 internal const val MAX_BIND_PARAMETER_CNT = 999

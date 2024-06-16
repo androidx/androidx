@@ -43,9 +43,7 @@ class BaselineProfileActivity : ComponentActivity() {
 
         setContent {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { contentDescription = "IamLazy" }
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "IamLazy" }
             ) {
                 itemsIndexed(entries) { index, item ->
                     if (index % 2 == 0) {
@@ -69,16 +67,9 @@ class BaselineProfileActivity : ComponentActivity() {
 private fun ListRow(entry: Entry) {
     Card(modifier = Modifier.padding(8.dp)) {
         Row {
-            Text(
-                text = entry.contents,
-                modifier = Modifier.padding(16.dp)
-            )
+            Text(text = entry.contents, modifier = Modifier.padding(16.dp))
             Spacer(modifier = Modifier.weight(1f, fill = true))
-            Checkbox(
-                checked = false,
-                onCheckedChange = {},
-                modifier = Modifier.padding(16.dp)
-            )
+            Checkbox(checked = false, onCheckedChange = {}, modifier = Modifier.padding(16.dp))
         }
     }
 }

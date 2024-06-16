@@ -44,9 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Test for [TouchInjectionScope.swipe] between two [positions][Offset]
- */
+/** Test for [TouchInjectionScope.swipe] between two [positions][Offset] */
 @MediumTest
 @RunWith(Parameterized::class)
 class SwipeStartEndTest(private val config: TestConfig) {
@@ -64,25 +62,20 @@ class SwipeStartEndTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = SinglePointerInputRecorder()
 
     @Before
     fun setContent() {
         rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                ClickableTestBox(modifier = recorder, tag = tag)
-            }
+            Box(Modifier.fillMaxSize()) { ClickableTestBox(modifier = recorder, tag = tag) }
         }
     }
 
     @Test
     fun swipe() {
-        rule.onNodeWithTag(tag).performTouchInput {
-            swipe(start, end, config.duration)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { swipe(start, end, config.duration) }
         rule.runOnIdle {
             recorder.apply {
                 assertThat(events.size).isAtLeast(3)
@@ -100,11 +93,12 @@ class SwipeStartEndTest(private val config: TestConfig) {
                 // All events are evenly spaced in time
                 downEvents.hasSameTimeBetweenEvents()
                 // And the distance between each event is the same
-                downEvents.zipWithNext { a, b ->
-                    (b.position - a.position).getDistance() / (b.timestamp - a.timestamp)
-                }.sorted().apply {
-                    assertThat(last() - first()).isAtMost(1e-3f)
-                }
+                downEvents
+                    .zipWithNext { a, b ->
+                        (b.position - a.position).getDistance() / (b.timestamp - a.timestamp)
+                    }
+                    .sorted()
+                    .apply { assertThat(last() - first()).isAtMost(1e-3f) }
             }
         }
     }

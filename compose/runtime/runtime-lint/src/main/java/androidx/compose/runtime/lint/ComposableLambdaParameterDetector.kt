@@ -39,8 +39,8 @@ import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParameter
 
 /**
- * [Detector] that checks composable lambda parameters inside composable functions for
- * consistency with guidelines.
+ * [Detector] that checks composable lambda parameters inside composable functions for consistency
+ * with guidelines.
  *
  * Composable functions that have exactly one composable lambda parameter must:
  * - name this parameter `content`
@@ -49,120 +49,133 @@ import org.jetbrains.uast.UParameter
 class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UMethod::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitMethod(node: UMethod) {
-            // Ignore non-composable functions
-            if (!node.isComposable) return
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitMethod(node: UMethod) {
+                // Ignore non-composable functions
+                if (!node.isComposable) return
 
-            // Ignore non-unit composable functions
-            if (!node.returnsUnit) return
+                // Ignore non-unit composable functions
+                if (!node.returnsUnit) return
 
-            /**
-             * Small class to hold information from lambda properties needed for lint checks.
-             */
-            class ComposableLambdaParameterInfo(
-                val parameter: UParameter,
-                val functionType: KtFunctionType
-            )
+                /**
+                 * Small class to hold information from lambda properties needed for lint checks.
+                 */
+                class ComposableLambdaParameterInfo(
+                    val parameter: UParameter,
+                    val functionType: KtFunctionType
+                )
 
-            // Filter all parameters to only contain composable lambda parameters
-            val composableLambdaParameters = node.uastParameters.mapNotNull { parameter ->
-                // If it is not a KtParameter, it could be the implicit receiver 'parameter' for
-                // an extension function - just ignore it.
-                val ktParameter = parameter.sourcePsi as? KtParameter ?: return@mapNotNull null
+                // Filter all parameters to only contain composable lambda parameters
+                val composableLambdaParameters =
+                    node.uastParameters.mapNotNull { parameter ->
+                        // If it is not a KtParameter, it could be the implicit receiver 'parameter'
+                        // for
+                        // an extension function - just ignore it.
+                        val ktParameter =
+                            parameter.sourcePsi as? KtParameter ?: return@mapNotNull null
 
-                val isComposable = parameter.isComposable
+                        val isComposable = parameter.isComposable
 
-                val functionType = when (val type = ktParameter.typeReference!!.typeElement) {
-                    is KtFunctionType -> type
-                    is KtNullableType -> type.innerType as? KtFunctionType
-                    else -> null
+                        val functionType =
+                            when (val type = ktParameter.typeReference!!.typeElement) {
+                                is KtFunctionType -> type
+                                is KtNullableType -> type.innerType as? KtFunctionType
+                                else -> null
+                            }
+
+                        if (functionType != null && isComposable) {
+                            ComposableLambdaParameterInfo(parameter, functionType)
+                        } else {
+                            null
+                        }
+                    }
+
+                // Only look at functions with exactly 1 composable lambda parameter. This detector
+                // does not apply to functions with no composable lambda parameters, and there isn't
+                // an easily lintable rule for functions with multiple.
+                if (composableLambdaParameters.size != 1) return
+
+                val parameterInfo = composableLambdaParameters.first()
+
+                val parameter = parameterInfo.parameter
+
+                val name = parameter.name
+
+                // Need to strongly type this or else Kotlinc cannot resolve overloads for
+                // getNameLocation
+                val uElement: UElement = parameter
+
+                // Ignore composable lambda parameters with parameters, such as
+                // itemContent: @Composable (item: T) -> Unit - in this case content is not required
+                // as a name and more semantically meaningful names such as `itemContent` are
+                // preferred.
+                if (name != "content" && parameterInfo.functionType.parameters.isEmpty()) {
+                    context.report(
+                        ComposableLambdaParameterNaming,
+                        uElement,
+                        context.getNameLocation(uElement),
+                        "Composable lambda parameter should be named `content`",
+                        LintFix.create()
+                            .replace()
+                            .name("Rename $name to content")
+                            .text(name)
+                            .with("content")
+                            .autoFix()
+                            .build()
+                    )
                 }
 
-                if (functionType != null && isComposable) {
-                    ComposableLambdaParameterInfo(parameter, functionType)
-                } else {
-                    null
+                if (parameter !== node.uastParameters.last()) {
+                    context.report(
+                        ComposableLambdaParameterPosition,
+                        uElement,
+                        context.getNameLocation(uElement),
+                        "Composable lambda parameter should be the last parameter so it can be used " +
+                            "as a trailing lambda"
+                        // Hard to make a lint fix for this and keep parameter formatting, so ignore
+                        // it
+                    )
                 }
-            }
-
-            // Only look at functions with exactly 1 composable lambda parameter. This detector
-            // does not apply to functions with no composable lambda parameters, and there isn't
-            // an easily lintable rule for functions with multiple.
-            if (composableLambdaParameters.size != 1) return
-
-            val parameterInfo = composableLambdaParameters.first()
-
-            val parameter = parameterInfo.parameter
-
-            val name = parameter.name
-
-            // Need to strongly type this or else Kotlinc cannot resolve overloads for
-            // getNameLocation
-            val uElement: UElement = parameter
-
-            // Ignore composable lambda parameters with parameters, such as
-            // itemContent: @Composable (item: T) -> Unit - in this case content is not required
-            // as a name and more semantically meaningful names such as `itemContent` are preferred.
-            if (name != "content" && parameterInfo.functionType.parameters.isEmpty()) {
-                context.report(
-                    ComposableLambdaParameterNaming,
-                    uElement,
-                    context.getNameLocation(uElement),
-                    "Composable lambda parameter should be named `content`",
-                    LintFix.create()
-                        .replace()
-                        .name("Rename $name to content")
-                        .text(name)
-                        .with("content")
-                        .autoFix()
-                        .build()
-                )
-            }
-
-            if (parameter !== node.uastParameters.last()) {
-                context.report(
-                    ComposableLambdaParameterPosition,
-                    uElement,
-                    context.getNameLocation(uElement),
-                    "Composable lambda parameter should be the last parameter so it can be used " +
-                        "as a trailing lambda"
-                    // Hard to make a lint fix for this and keep parameter formatting, so ignore it
-                )
             }
         }
-    }
 
     companion object {
-        val ComposableLambdaParameterNaming = Issue.create(
-            id = "ComposableLambdaParameterNaming",
-            briefDescription = "Primary composable lambda parameter not named `content`",
-            explanation = "Composable functions with only one composable lambda parameter should " +
-                "use the name `content` for the parameter.",
-            category = Category.CORRECTNESS,
-            priority = 3,
-            severity = Severity.WARNING,
-            enabledByDefault = false,
-            implementation = Implementation(
-                ComposableLambdaParameterDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ComposableLambdaParameterNaming =
+            Issue.create(
+                id = "ComposableLambdaParameterNaming",
+                briefDescription = "Primary composable lambda parameter not named `content`",
+                explanation =
+                    "Composable functions with only one composable lambda parameter should " +
+                        "use the name `content` for the parameter.",
+                category = Category.CORRECTNESS,
+                priority = 3,
+                severity = Severity.WARNING,
+                enabledByDefault = false,
+                implementation =
+                    Implementation(
+                        ComposableLambdaParameterDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                    )
             )
-        )
 
-        val ComposableLambdaParameterPosition = Issue.create(
-            id = "ComposableLambdaParameterPosition",
-            briefDescription = "Non-trailing primary composable lambda parameter",
-            explanation = "Composable functions with only one composable lambda parameter should " +
-                "place the parameter at the end of the parameter list, so it can be used as a " +
-                "trailing lambda.",
-            category = Category.CORRECTNESS,
-            priority = 3,
-            severity = Severity.WARNING,
-            enabledByDefault = false,
-            implementation = Implementation(
-                ComposableLambdaParameterDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ComposableLambdaParameterPosition =
+            Issue.create(
+                id = "ComposableLambdaParameterPosition",
+                briefDescription = "Non-trailing primary composable lambda parameter",
+                explanation =
+                    "Composable functions with only one composable lambda parameter should " +
+                        "place the parameter at the end of the parameter list, so it can be used as a " +
+                        "trailing lambda.",
+                category = Category.CORRECTNESS,
+                priority = 3,
+                severity = Severity.WARNING,
+                enabledByDefault = false,
+                implementation =
+                    Implementation(
+                        ComposableLambdaParameterDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                    )
             )
-        )
     }
 }

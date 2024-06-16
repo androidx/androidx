@@ -28,9 +28,10 @@ import org.junit.Test
 class RemoveWorkManagerInitializerDetectorTest {
     @Test
     fun testNoWarningsWhenDefaultInitializerIsRemoved() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import android.app.Application
@@ -44,10 +45,13 @@ class RemoveWorkManagerInitializerDetectorTest {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val manifestWithNoInitializer = manifest(
-            """
+        val manifestWithNoInitializer =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -60,25 +64,29 @@ class RemoveWorkManagerInitializerDetectorTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
-        lint().files(
-            // Manifest file
-            manifestWithNoInitializer,
-            // Source files
-            ANDROID_APPLICATION,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            customApplication
-        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        lint()
+            .files(
+                // Manifest file
+                manifestWithNoInitializer,
+                // Source files
+                ANDROID_APPLICATION,
+                WORK_MANAGER_CONFIGURATION_PROVIDER,
+                customApplication
+            )
+            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun testNoWarningsWhenNotUsingOnDemandInitialization() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import android.app.Application
@@ -90,10 +98,13 @@ class RemoveWorkManagerInitializerDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val manifestWithInitializer = manifest(
-            """
+        val manifestWithInitializer =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -105,25 +116,29 @@ class RemoveWorkManagerInitializerDetectorTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
-        lint().files(
-            // Manifest file
-            manifestWithInitializer,
-            // Source files
-            ANDROID_APPLICATION,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            customApplication
-        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        lint()
+            .files(
+                // Manifest file
+                manifestWithInitializer,
+                // Source files
+                ANDROID_APPLICATION,
+                WORK_MANAGER_CONFIGURATION_PROVIDER,
+                customApplication
+            )
+            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun failWhenUsingDefaultManifestMergeStrategy() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import android.app.Application
@@ -137,27 +152,32 @@ class RemoveWorkManagerInitializerDetectorTest {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val emptyManifest = manifest(
-            """
+        val emptyManifest =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
                   <application />
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
-        /* ktlint-disable max-line-length */
-        lint().files(
-            // Manifest file
-            emptyManifest,
-            // Source files
-            ANDROID_APPLICATION,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            customApplication
-        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        lint()
+            .files(
+                // Manifest file
+                emptyManifest,
+                // Source files
+                ANDROID_APPLICATION,
+                WORK_MANAGER_CONFIGURATION_PROVIDER,
+                customApplication
+            )
+            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -165,16 +185,17 @@ class RemoveWorkManagerInitializerDetectorTest {
                    <application />
                    ~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun failWhenManifestHasDefaultInitializer() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import android.app.Application
@@ -188,10 +209,13 @@ class RemoveWorkManagerInitializerDetectorTest {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val manifestWithInitializer = manifest(
-            """
+        val manifestWithInitializer =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -206,17 +230,19 @@ class RemoveWorkManagerInitializerDetectorTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
-        /* ktlint-disable max-line-length */
-        lint().files(
-            // Manifest file
-            manifestWithInitializer,
-            // Source files
-            ANDROID_APPLICATION,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            customApplication
-        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        lint()
+            .files(
+                // Manifest file
+                manifestWithInitializer,
+                // Source files
+                ANDROID_APPLICATION,
+                WORK_MANAGER_CONFIGURATION_PROVIDER,
+                customApplication
+            )
+            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -224,16 +250,17 @@ class RemoveWorkManagerInitializerDetectorTest {
                            <meta-data
                            ^
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testSuppressWhenManifestHasDefaultInitializer() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import android.annotation.SuppressLint
@@ -249,10 +276,13 @@ class RemoveWorkManagerInitializerDetectorTest {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val manifestWithInitializer = manifest(
-            """
+        val manifestWithInitializer =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -267,19 +297,20 @@ class RemoveWorkManagerInitializerDetectorTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
-        /* ktlint-disable max-line-length */
-        lint().files(
-            // Manifest file
-            manifestWithInitializer,
-            // Source files
-            ANDROID_APPLICATION,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            customApplication
-        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
+        lint()
+            .files(
+                // Manifest file
+                manifestWithInitializer,
+                // Source files
+                ANDROID_APPLICATION,
+                WORK_MANAGER_CONFIGURATION_PROVIDER,
+                customApplication
+            )
+            .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
-        /* ktlint-enable max-line-length */
     }
 }

@@ -34,9 +34,8 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Registry where all views implementing [ViewRootForTest] should be registered while they
- * are attached to the window. This registry is used by the testing library to query the roots'
- * state.
+ * Registry where all views implementing [ViewRootForTest] should be registered while they are
+ * attached to the window. This registry is used by the testing library to query the roots' state.
  */
 internal class ComposeRootRegistry {
 
@@ -45,31 +44,23 @@ internal class ComposeRootRegistry {
     private val resumedRoots = mutableSetOf<ViewRootForTest>()
     private val registryListeners = mutableSetOf<OnRegistrationChangedListener>()
 
-    /**
-     * Returns if the registry is setup to receive registrations from [ViewRootForTest]s
-     */
+    /** Returns if the registry is setup to receive registrations from [ViewRootForTest]s */
     val isSetUp: Boolean
         get() = ViewRootForTest.onViewCreatedCallback == ::onViewRootCreated
 
-    /**
-     * Sets up this registry to be notified of any [ViewRootForTest] created
-     */
+    /** Sets up this registry to be notified of any [ViewRootForTest] created */
     private fun setupRegistry() {
         ViewRootForTest.onViewCreatedCallback = ::onViewRootCreated
     }
 
-    /**
-     * Cleans up the changes made by [setupRegistry]. Call this after your test has run.
-     */
+    /** Cleans up the changes made by [setupRegistry]. Call this after your test has run. */
     @VisibleForTesting
     internal fun tearDownRegistry() {
         synchronized(lock) {
             // Stop accepting new roots
             ViewRootForTest.onViewCreatedCallback = null
             // Unregister the world
-            getCreatedComposeRoots().forEach {
-                unregisterComposeRoot(it)
-            }
+            getCreatedComposeRoots().forEach { unregisterComposeRoot(it) }
             // Clear all references
             allRoots.clear()
             resumedRoots.clear()
@@ -89,8 +80,8 @@ internal class ComposeRootRegistry {
     }
 
     /**
-     * Returns a copy of the set of all created [ViewRootForTest]s, including ones that are
-     * normally not relevant (like those whose lifecycle state is not RESUMED). You probably need
+     * Returns a copy of the set of all created [ViewRootForTest]s, including ones that are normally
+     * not relevant (like those whose lifecycle state is not RESUMED). You probably need
      * [getRegisteredComposeRoots] though. Do not store any of these results, always call this
      * method again if you need access to anything in this set.
      */
@@ -164,22 +155,18 @@ internal class ComposeRootRegistry {
         synchronized(lock) { registryListeners.add(listener) }
     }
 
-    /**
-     * Removes the given [listener].
-     */
+    /** Removes the given [listener]. */
     fun removeOnRegistrationChangedListener(listener: OnRegistrationChangedListener) {
         synchronized(lock) { registryListeners.remove(listener) }
     }
 
     private fun dispatchOnRegistrationChanged(composeRoot: ViewRootForTest, isRegistered: Boolean) {
-        synchronized(lock) { registryListeners.toList() }.forEach {
-            it.onRegistrationChanged(composeRoot, isRegistered)
-        }
+        synchronized(lock) { registryListeners.toList() }
+            .forEach { it.onRegistrationChanged(composeRoot, isRegistered) }
     }
 
-    private inner class StateChangeHandler(
-        private val composeRoot: ViewRootForTest
-    ) : View.OnAttachStateChangeListener, LifecycleEventObserver, OnRegistrationChangedListener {
+    private inner class StateChangeHandler(private val composeRoot: ViewRootForTest) :
+        View.OnAttachStateChangeListener, LifecycleEventObserver, OnRegistrationChangedListener {
         private var removeObserver: (() -> Unit)? = null
 
         override fun onViewAttachedToWindow(view: View) {
@@ -191,9 +178,7 @@ internal class ComposeRootRegistry {
             lifecycle.addObserver(this)
             // Setup a lambda to remove the observer when we're detached from the window. When
             // that happens, we won't have access to the lifecycle anymore.
-            removeObserver = {
-                lifecycle.removeObserver(this)
-            }
+            removeObserver = { lifecycle.removeObserver(this) }
         }
 
         override fun onViewDetachedFromWindow(view: View) {
@@ -240,9 +225,7 @@ internal class ComposeRootRegistry {
         }
 
         private fun removeLifecycleObserverMainThread() {
-            removeObserver?.invoke()?.also {
-                removeObserver = null
-            }
+            removeObserver?.invoke()?.also { removeObserver = null }
         }
     }
 }
@@ -262,13 +245,17 @@ internal fun ComposeRootRegistry.waitForComposeRoots(atLeastOneRootExpected: Boo
 
     if (!hasComposeRoots) {
         val latch = CountDownLatch(1)
-        val listener = object : ComposeRootRegistry.OnRegistrationChangedListener {
-            override fun onRegistrationChanged(composeRoot: ViewRootForTest, registered: Boolean) {
-                if (hasComposeRoots) {
-                    latch.countDown()
+        val listener =
+            object : ComposeRootRegistry.OnRegistrationChangedListener {
+                override fun onRegistrationChanged(
+                    composeRoot: ViewRootForTest,
+                    registered: Boolean
+                ) {
+                    if (hasComposeRoots) {
+                        latch.countDown()
+                    }
                 }
             }
-        }
         try {
             addOnRegistrationChangedListener(listener)
             if (!hasComposeRoots) {
@@ -299,21 +286,20 @@ internal suspend fun ComposeRootRegistry.awaitComposeRoots() {
             }
 
             // Usually we resume if a compose root is registered while the listener is added
-            val listener = object : ComposeRootRegistry.OnRegistrationChangedListener {
-                override fun onRegistrationChanged(
-                    composeRoot: ViewRootForTest,
-                    registered: Boolean
-                ) {
-                    if (hasComposeRoots) {
-                        resume(this)
+            val listener =
+                object : ComposeRootRegistry.OnRegistrationChangedListener {
+                    override fun onRegistrationChanged(
+                        composeRoot: ViewRootForTest,
+                        registered: Boolean
+                    ) {
+                        if (hasComposeRoots) {
+                            resume(this)
+                        }
                     }
                 }
-            }
 
             addOnRegistrationChangedListener(listener)
-            continuation.invokeOnCancellation {
-                removeOnRegistrationChangedListener(listener)
-            }
+            continuation.invokeOnCancellation { removeOnRegistrationChangedListener(listener) }
 
             // But sometimes the compose root was registered before we added
             // the listener, in which case we missed our signal

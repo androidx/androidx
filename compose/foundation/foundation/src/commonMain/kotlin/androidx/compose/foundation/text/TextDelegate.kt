@@ -44,42 +44,32 @@ import kotlin.math.ceil
  * An object that paints text onto a [Canvas].
  *
  * To use a [TextDelegate], follow these steps:
- *
  * 1. Create an [AnnotatedString] and pass it to the [TextDelegate] constructor.
- *
  * 2. Call [layout] to prepare the paragraph.
- *
  * 3. Call [paint] as often as desired to paint the paragraph.
  *
- *  If the width of the area into which the text is being painted changes, return to step 2. If the
- *  text to be painted changes, return to step 1.
+ * If the width of the area into which the text is being painted changes, return to step 2. If the
+ * text to be painted changes, return to step 1.
  *
  * @param text the text to paint.
- *
- * @param style The text style specified to render the text. Notice that you can also set text
- * style on the given [AnnotatedString], and the style set on [text] always has higher priority
- * than this setting. But if only one global text style is needed, passing it to [TextDelegate]
- * is always preferred.
- *
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if
- * necessary. If the text exceeds the given number of lines, it is truncated such that subsequent
- * lines are dropped. It is required that 1 <= [minLines] <= [maxLines].
- *
+ * @param style The text style specified to render the text. Notice that you can also set text style
+ *   on the given [AnnotatedString], and the style set on [text] always has higher priority than
+ *   this setting. But if only one global text style is needed, passing it to [TextDelegate] is
+ *   always preferred.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
+ *   If the text exceeds the given number of lines, it is truncated such that subsequent lines are
+ *   dropped. It is required that 1 <= [minLines] <= [maxLines].
  * @param minLines The minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines].
- *
+ *   that 1 <= [minLines] <= [maxLines].
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- * [overflow] and [TextAlign] may have unexpected effects.
- *
- * @param overflow How visual overflow should be handled. Specifically, the ellipsis is applied
- * to the last line before the line truncated by [maxLines], if [maxLines] is non-null and that
- * line overflows the width constraint.
- *
+ *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ *   [overflow] and [TextAlign] may have unexpected effects.
+ * @param overflow How visual overflow should be handled. Specifically, the ellipsis is applied to
+ *   the last line before the line truncated by [maxLines], if [maxLines] is non-null and that line
+ *   overflows the width constraint.
  * @param density The [Density] object that provides pixel density information of the device
- *
- * @param placeholders a list of [Placeholder]s that specify ranges of text where the original
- * text is replaced empty spaces. It's typically used to embed images into text.
+ * @param placeholders a list of [Placeholder]s that specify ranges of text where the original text
+ *   is replaced empty spaces. It's typically used to embed images into text.
  */
 @Stable
 internal class TextDelegate(
@@ -100,22 +90,26 @@ internal class TextDelegate(
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
     internal var intrinsicsLayoutDirection: LayoutDirection? = null
 
-    private val nonNullIntrinsics: MultiParagraphIntrinsics get() = paragraphIntrinsics
-        ?: throw IllegalStateException("layoutIntrinsics must be called first")
+    private val nonNullIntrinsics: MultiParagraphIntrinsics
+        get() =
+            paragraphIntrinsics
+                ?: throw IllegalStateException("layoutIntrinsics must be called first")
 
     /**
      * The width for text if all soft wrap opportunities were taken.
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: Int get() = nonNullIntrinsics.minIntrinsicWidth.ceilToIntPx()
+    val minIntrinsicWidth: Int
+        get() = nonNullIntrinsics.minIntrinsicWidth.ceilToIntPx()
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: Int get() = nonNullIntrinsics.maxIntrinsicWidth.ceilToIntPx()
+    val maxIntrinsicWidth: Int
+        get() = nonNullIntrinsics.maxIntrinsicWidth.ceilToIntPx()
 
     init {
         require(maxLines > 0) { "no maxLines" }
@@ -125,22 +119,23 @@ internal class TextDelegate(
 
     fun layoutIntrinsics(layoutDirection: LayoutDirection) {
         val localIntrinsics = paragraphIntrinsics
-        val intrinsics = if (
-            localIntrinsics == null ||
-            layoutDirection != intrinsicsLayoutDirection ||
-            localIntrinsics.hasStaleResolvedFonts
-        ) {
-            intrinsicsLayoutDirection = layoutDirection
-            MultiParagraphIntrinsics(
-                annotatedString = text,
-                style = resolveDefaults(style, layoutDirection),
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                placeholders = placeholders
-            )
-        } else {
-            localIntrinsics
-        }
+        val intrinsics =
+            if (
+                localIntrinsics == null ||
+                    layoutDirection != intrinsicsLayoutDirection ||
+                    localIntrinsics.hasStaleResolvedFonts
+            ) {
+                intrinsicsLayoutDirection = layoutDirection
+                MultiParagraphIntrinsics(
+                    annotatedString = text,
+                    style = resolveDefaults(style, layoutDirection),
+                    density = density,
+                    fontFamilyResolver = fontFamilyResolver,
+                    placeholders = placeholders
+                )
+            } else {
+                localIntrinsics
+            }
 
         paragraphIntrinsics = intrinsics
     }
@@ -159,11 +154,12 @@ internal class TextDelegate(
 
         val minWidth = constraints.minWidth
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-        val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
-            constraints.maxWidth
-        } else {
-            Constraints.Infinity
-        }
+        val maxWidth =
+            if (widthMatters && constraints.hasBoundedWidth) {
+                constraints.maxWidth
+            } else {
+                Constraints.Infinity
+            }
 
         // This is a fallback behavior because native text layout doesn't support multiple
         // ellipsis in one text layout.
@@ -191,20 +187,22 @@ internal class TextDelegate(
         //           we can use it to layout
         //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
         //        else if max intrinsic width is less than minWidth, we should use minWidth
-        val width = if (minWidth == maxWidth) {
-            maxWidth
-        } else {
-            maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
-        }
+        val width =
+            if (minWidth == maxWidth) {
+                maxWidth
+            } else {
+                maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
+            }
 
         return MultiParagraph(
             intrinsics = nonNullIntrinsics,
-            constraints = Constraints.fitPrioritizingWidth(
-                minWidth = 0,
-                maxWidth = width,
-                minHeight = 0,
-                maxHeight = constraints.maxHeight
-            ),
+            constraints =
+                Constraints.fitPrioritizingWidth(
+                    minWidth = 0,
+                    maxWidth = width,
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight
+                ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines,
             ellipsis = overflow == TextOverflow.Ellipsis
@@ -216,48 +214,55 @@ internal class TextDelegate(
         layoutDirection: LayoutDirection,
         prevResult: TextLayoutResult? = null
     ): TextLayoutResult {
-        if (prevResult != null && prevResult.canReuse(
-                text, style, placeholders, maxLines, softWrap, overflow, density, layoutDirection,
-                fontFamilyResolver, constraints
-            )
+        if (
+            prevResult != null &&
+                prevResult.canReuse(
+                    text,
+                    style,
+                    placeholders,
+                    maxLines,
+                    softWrap,
+                    overflow,
+                    density,
+                    layoutDirection,
+                    fontFamilyResolver,
+                    constraints
+                )
         ) {
             // NOTE(text-perf-review): seems like there's a nontrivial chance for us to be able
             // to just return prevResult here directly?
             return with(prevResult) {
                 copy(
-                    layoutInput = TextLayoutInput(
-                        layoutInput.text,
-                        style,
-                        layoutInput.placeholders,
-                        layoutInput.maxLines,
-                        layoutInput.softWrap,
-                        layoutInput.overflow,
-                        layoutInput.density,
-                        layoutInput.layoutDirection,
-                        layoutInput.fontFamilyResolver,
-                        constraints
-                    ),
-                    size = constraints.constrain(
-                        IntSize(
-                            multiParagraph.width.ceilToIntPx(),
-                            multiParagraph.height.ceilToIntPx()
+                    layoutInput =
+                        TextLayoutInput(
+                            layoutInput.text,
+                            style,
+                            layoutInput.placeholders,
+                            layoutInput.maxLines,
+                            layoutInput.softWrap,
+                            layoutInput.overflow,
+                            layoutInput.density,
+                            layoutInput.layoutDirection,
+                            layoutInput.fontFamilyResolver,
+                            constraints
+                        ),
+                    size =
+                        constraints.constrain(
+                            IntSize(
+                                multiParagraph.width.ceilToIntPx(),
+                                multiParagraph.height.ceilToIntPx()
+                            )
                         )
-                    )
                 )
             }
         }
 
-        val multiParagraph = layoutText(
-            constraints,
-            layoutDirection
-        )
+        val multiParagraph = layoutText(constraints, layoutDirection)
 
-        val size = constraints.constrain(
-            IntSize(
-                multiParagraph.width.ceilToIntPx(),
-                multiParagraph.height.ceilToIntPx()
+        val size =
+            constraints.constrain(
+                IntSize(multiParagraph.width.ceilToIntPx(), multiParagraph.height.ceilToIntPx())
             )
-        )
 
         // NOTE(text-perf-review): it feels odd to create the input + result at the same time. if
         // the allocation of these objects is 1:1 then it might make sense to just merge them?
@@ -289,11 +294,11 @@ internal class TextDelegate(
          *
          * If you cannot see the text being painted, check that your text color does not conflict
          * with the background on which you are drawing. The default text color is white (to
-         * contrast with the default black background color), so if you are writing an
-         * application with a white background, the text will not be visible by default.
+         * contrast with the default black background color), so if you are writing an application
+         * with a white background, the text will not be visible by default.
          *
-         * To set the text style, specify a [SpanStyle] when creating the [AnnotatedString] that
-         * you pass to the [TextDelegate] constructor or to the [text] property.
+         * To set the text style, specify a [SpanStyle] when creating the [AnnotatedString] that you
+         * pass to the [TextDelegate] constructor or to the [text] property.
          */
         fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
             TextPainter.paint(canvas, textLayoutResult)
@@ -304,8 +309,8 @@ internal class TextDelegate(
 internal fun Float.ceilToIntPx(): Int = ceil(this).fastRoundToInt()
 
 /**
- * Returns the [TextDelegate] passed as a [current] param if the input didn't change
- * otherwise creates a new [TextDelegate].
+ * Returns the [TextDelegate] passed as a [current] param if the input didn't change otherwise
+ * creates a new [TextDelegate].
  */
 internal fun updateTextDelegate(
     current: TextDelegate,
@@ -321,15 +326,16 @@ internal fun updateTextDelegate(
 ): TextDelegate {
     // NOTE(text-perf-review): whenever we have remember intrinsic implemented, this might be a
     // lot slower than the equivalent `remember(a, b, c, ...) { ... }` call.
-    return if (current.text != text ||
-        current.style != style ||
-        current.softWrap != softWrap ||
-        current.overflow != overflow ||
-        current.maxLines != maxLines ||
-        current.minLines != minLines ||
-        current.density != density ||
-        current.placeholders != placeholders ||
-        current.fontFamilyResolver !== fontFamilyResolver
+    return if (
+        current.text != text ||
+            current.style != style ||
+            current.softWrap != softWrap ||
+            current.overflow != overflow ||
+            current.maxLines != maxLines ||
+            current.minLines != minLines ||
+            current.density != density ||
+            current.placeholders != placeholders ||
+            current.fontFamilyResolver !== fontFamilyResolver
     ) {
         TextDelegate(
             text = text,

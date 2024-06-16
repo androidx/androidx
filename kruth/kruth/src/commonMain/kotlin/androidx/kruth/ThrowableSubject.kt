@@ -20,17 +20,15 @@ package androidx.kruth
  * Propositions for [Throwable] subjects.
  *
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
- * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class ThrowableSubject<out T : Throwable> internal constructor(
-    actual: T?,
-    metadata: FailureMetadata,
-    typeDescriptionOverride: String?
-) : Subject<T>(actual, metadata, typeDescriptionOverride) {
+open class ThrowableSubject<out T : Throwable>
+internal constructor(actual: T?, metadata: FailureMetadata, typeDescriptionOverride: String?) :
+    Subject<T>(actual, metadata, typeDescriptionOverride) {
 
     /**
      * Constructor for use by subclasses. If you want to create an instance of this class
-     *  * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+     * * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
      */
     protected constructor(metadata: FailureMetadata, actual: T?) : this(actual, metadata, null)
 
@@ -39,30 +37,30 @@ open class ThrowableSubject<out T : Throwable> internal constructor(
      *  as a suppressed exception
      */
 
-    /**
-     * Returns a [StringSubject] to make assertions about the throwable's message.
-     */
+    /** Returns a [StringSubject] to make assertions about the throwable's message. */
     fun hasMessageThat(): StringSubject {
         var check: StandardSubjectBuilder = check("message")
         if (actual is AssertionErrorWithFacts && actual.facts.isNotEmpty()) {
-            check = check.withMessage(
-                "(Note from Truth: When possible, instead of asserting on the full message, " +
-                    "assert about individual facts by using ExpectFailure.assertThat.)"
-            )
+            check =
+                check.withMessage(
+                    "(Note from Truth: When possible, instead of asserting on the full message, " +
+                        "assert about individual facts by using ExpectFailure.assertThat.)"
+                )
         }
         return check.that(requireNonNull(actual).message)
     }
 
     /**
-     * Returns a new [ThrowableSubject] that supports assertions on this [Throwable]'s direct
-     * cause. This method can be invoked repeatedly (e.g.
-     * `assertThat(e).hasCauseThat().hasCauseThat()....` to assert on a particular indirect cause.
+     * Returns a new [ThrowableSubject] that supports assertions on this [Throwable]'s direct cause.
+     * This method can be invoked repeatedly (e.g. `assertThat(e).hasCauseThat().hasCauseThat()....`
+     * to assert on a particular indirect cause.
      */
     // Any Throwable is fine, and we use plain Throwable to emphasize that it's not used "for real."
     fun hasCauseThat(): ThrowableSubject<Throwable> {
         // provides a more helpful error message if hasCauseThat() methods are chained too deep
         // e.g. assertThat(new Exception()).hCT().hCT()....
-        // TODO(diamondm) in keeping with other subjects' behavior this should still NPE if the subject
+        // TODO(diamondm) in keeping with other subjects' behavior this should still NPE if the
+        // subject
         //  *itself* is null, since there's no context to lose. See also b/37645583
         if (actual == null) {
             check("cause")

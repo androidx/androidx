@@ -19,9 +19,7 @@ package androidx.room.concurrent
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.asContextElement
 
-/**
- * Container of thread-local data.
- */
+/** Container of thread-local data. */
 actual typealias ThreadLocal<T> = java.lang.ThreadLocal<T>
 
 /**
@@ -31,8 +29,6 @@ actual typealias ThreadLocal<T> = java.lang.ThreadLocal<T>
 internal actual fun <T> ThreadLocal<T>.asContextElement(value: T): CoroutineContext.Element =
     this.asContextElement(value)
 
-/**
- * Gets the current thread id.
- */
+/** Gets the current thread id. */
 @Suppress("deprecation") // b/323594292
 internal actual fun currentThreadId(): Long = Thread.currentThread().id

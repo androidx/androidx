@@ -24,13 +24,9 @@ import android.opengl.GLES20
  * @param width Current width of the buffer taking pre-rotation into account.
  * @param height Current height of the buffer taking pre-rotation into account
  * @param frameBufferId Frame buffer object identifier. This is useful for retargeting rendering
- * operations to the original destination after rendering to intermediate scratch buffers.
+ *   operations to the original destination after rendering to intermediate scratch buffers.
  */
-class BufferInfo internal constructor(
-    width: Int = 0,
-    height: Int = 0,
-    frameBufferId: Int = -1
-) {
+class BufferInfo internal constructor(width: Int = 0, height: Int = 0, frameBufferId: Int = -1) {
 
     /**
      * Width of the buffer that is being rendered into. This can be different than the corresponding
@@ -51,9 +47,8 @@ class BufferInfo internal constructor(
         internal set
 
     /**
-     * Identifier of the destination frame buffer object that is being rendered into. This is
-     * useful for re-binding to the original target after rendering to intermediate frame buffer
-     * objects.
+     * Identifier of the destination frame buffer object that is being rendered into. This is useful
+     * for re-binding to the original target after rendering to intermediate frame buffer objects.
      */
     var frameBufferId: Int = frameBufferId
         internal set

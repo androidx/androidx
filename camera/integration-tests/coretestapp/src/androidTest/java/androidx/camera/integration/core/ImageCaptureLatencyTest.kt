@@ -65,17 +65,18 @@ class ImageCaptureLatencyTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraXConfig)
+        )
 
-    @get:Rule
-    val labTest = LabTestRule()
+    @get:Rule val labTest = LabTestRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var camera: CameraUseCaseAdapter
@@ -84,12 +85,14 @@ class ImageCaptureLatencyTest(
 
     companion object {
         private const val TAG = "ImageCaptureLatencyTest"
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     @Before
@@ -107,9 +110,7 @@ class ImageCaptureLatencyTest(
     @After
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync() }
         }
     }
 
@@ -132,15 +133,18 @@ class ImageCaptureLatencyTest(
 
         val imageCapture = ImageCapture.Builder().setCaptureMode(captureMode).build()
 
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build(),
-            imageCapture
-        )
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context,
+                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build(),
+                imageCapture
+            )
 
         // Skip if capture mode is ZSL and the device doesn't support ZSL
-        if ((captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG) &&
-            !camera.cameraInfo.isZslSupported) {
+        if (
+            (captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG) &&
+                !camera.cameraInfo.isZslSupported
+        ) {
             Logger.d(TAG, "Skipping due to no ZSL support")
             return
         }
@@ -157,16 +161,20 @@ class ImageCaptureLatencyTest(
                         image.close()
                         countDownLatch.countDown()
                     }
-                })
+                }
+            )
         }
 
         assertTrue(countDownLatch.await(60, TimeUnit.SECONDS))
 
         val duration = System.currentTimeMillis() - startTimeMillis
 
-        // This log is used to profile the ImageCapture performance. The log parser identifies the log
+        // This log is used to profile the ImageCapture performance. The log parser identifies the
+        // log
         // pattern "Image capture performance profiling" in the device output log.
-        Logger.d(TAG,
-            "Image capture performance profiling, duration: [$duration] capture mode: $captureMode")
+        Logger.d(
+            TAG,
+            "Image capture performance profiling, duration: [$duration] capture mode: $captureMode"
+        )
     }
 }

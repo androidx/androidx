@@ -25,22 +25,22 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
 /**
  * Query stage request for getting user's credentials from a given credential provider.
  *
- * This request contains a list of [BeginGetCredentialOption] that have parameters
- * to be used to query credentials, and return a [BeginGetCredentialResponse], containing
- * a list [CredentialEntry] that are presented to the user on an selector.
+ * This request contains a list of [BeginGetCredentialOption] that have parameters to be used to
+ * query credentials, and return a [BeginGetCredentialResponse], containing a list [CredentialEntry]
+ * that are presented to the user on an selector.
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  *
- * @constructor constructs an instance of [BeginGetCredentialRequest]
- *
  * @param beginGetCredentialOptions the list of type specific credential options to to be processed
- * in order to produce a [BeginGetCredentialResponse]
+ *   in order to produce a [BeginGetCredentialResponse]
  * @param callingAppInfo info pertaining to the app requesting credentials
- *
+ * @constructor constructs an instance of [BeginGetCredentialRequest]
  * @throws NullPointerException If [beginGetCredentialOptions] is null
  */
-class BeginGetCredentialRequest @JvmOverloads constructor(
+class BeginGetCredentialRequest
+@JvmOverloads
+constructor(
     val beginGetCredentialOptions: List<BeginGetCredentialOption>,
     val callingAppInfo: CallingAppInfo? = null,
 ) {
@@ -60,10 +60,11 @@ class BeginGetCredentialRequest @JvmOverloads constructor(
         @JvmStatic
         @DoNotInline
         fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
-            val frameworkRequest = bundle.getParcelable(
-                REQUEST_KEY,
-                android.service.credentials.BeginGetCredentialRequest::class.java
-            )
+            val frameworkRequest =
+                bundle.getParcelable(
+                    REQUEST_KEY,
+                    android.service.credentials.BeginGetCredentialRequest::class.java
+                )
             if (frameworkRequest != null) {
                 return BeginGetCredentialUtil.convertToJetpackRequest(frameworkRequest)
             }
@@ -73,9 +74,9 @@ class BeginGetCredentialRequest @JvmOverloads constructor(
 
     companion object {
         /**
-         * Helper method to convert the class to a parcelable [Bundle], in case the class
-         * instance needs to be sent across a process. Consumers of this method should use
-         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
+         * Helper method to convert the class to a parcelable [Bundle], in case the class instance
+         * needs to be sent across a process. Consumers of this method should use [fromBundle] to
+         * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
         fun asBundle(request: BeginGetCredentialRequest): Bundle {
@@ -87,8 +88,8 @@ class BeginGetCredentialRequest @JvmOverloads constructor(
         }
 
         /**
-         * Helper method to convert a [Bundle] retrieved through [asBundle], back
-         * to an instance of [BeginGetCredentialRequest].
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back to an instance of
+         * [BeginGetCredentialRequest].
          */
         @JvmStatic
         fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {

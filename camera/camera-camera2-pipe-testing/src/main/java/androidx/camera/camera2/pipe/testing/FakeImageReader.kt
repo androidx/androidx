@@ -26,10 +26,9 @@ import androidx.camera.camera2.pipe.media.ImageWrapper
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
-/**
- * Utility class for simulating [FakeImage] and testing code that uses an [ImageReaderWrapper].
- */
-class FakeImageReader private constructor(
+/** Utility class for simulating [FakeImage] and testing code that uses an [ImageReaderWrapper]. */
+class FakeImageReader
+private constructor(
     private val format: StreamFormat,
     override val capacity: Int,
     override val surface: Surface,

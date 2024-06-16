@@ -30,28 +30,27 @@ import androidx.compose.ui.unit.dp
 
 /**
  * IconButton is a clickable icon, used to represent actions. An IconButton has an overall minimum
- * touch target size of 48 x 48dp, to meet accessibility guidelines. [content] is centered
- * inside the IconButton.
+ * touch target size of 48 x 48dp, to meet accessibility guidelines. [content] is centered inside
+ * the IconButton.
  *
- * This component is typically used inside an App Bar for the navigation icon / actions. See App
- * Bar documentation for samples of this.
+ * This component is typically used inside an App Bar for the navigation icon / actions. See App Bar
+ * documentation for samples of this.
  *
  * [content] should typically be an [Icon], using an icon from
- * [androidx.compose.material.icons.Icons]. If using a custom icon, note that the typical size for the
- * internal icon is 24 x 24 dp.
+ * [androidx.compose.material.icons.Icons]. If using a custom icon, note that the typical size for
+ * the internal icon is 24 x 24 dp.
  *
  * @sample androidx.compose.material.samples.IconButtonSample
  *
  * @param onClick the lambda to be invoked when this icon is pressed
  * @param modifier optional [Modifier] for this IconButton
  * @param enabled whether or not this IconButton will handle input events and appear enabled for
- * semantics purposes
+ *   semantics purposes
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this IconButton. You can use this to change the IconButton's
- * appearance or preview the IconButton in different states. Note that if `null` is provided,
- * interactions will still happen internally.
- * @param content the content (icon) to be drawn inside the IconButton. This is typically an
- * [Icon].
+ *   emitting [Interaction]s for this IconButton. You can use this to change the IconButton's
+ *   appearance or preview the IconButton in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the content (icon) to be drawn inside the IconButton. This is typically an [Icon].
  */
 @Composable
 fun IconButton(
@@ -62,15 +61,17 @@ fun IconButton(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier
-            .minimumInteractiveComponentSize()
-            .clickable(
-                onClick = onClick,
-                enabled = enabled,
-                role = Role.Button,
-                interactionSource = interactionSource,
-                indication = rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
-            ),
+        modifier =
+            modifier
+                .minimumInteractiveComponentSize()
+                .clickable(
+                    onClick = onClick,
+                    enabled = enabled,
+                    role = Role.Button,
+                    interactionSource = interactionSource,
+                    indication =
+                        rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
+                ),
         contentAlignment = Alignment.Center
     ) {
         val contentAlpha = if (enabled) LocalContentAlpha.current else ContentAlpha.disabled
@@ -79,8 +80,8 @@ fun IconButton(
 }
 
 /**
- * An [IconButton] with two states, for icons that can be toggled 'on' and 'off', such as a
- * bookmark icon, or a navigation icon that opens a drawer.
+ * An [IconButton] with two states, for icons that can be toggled 'on' and 'off', such as a bookmark
+ * icon, or a navigation icon that opens a drawer.
  *
  * @sample androidx.compose.material.samples.IconToggleButtonSample
  *
@@ -88,13 +89,13 @@ fun IconButton(
  * @param onCheckedChange callback to be invoked when this icon is selected
  * @param modifier optional [Modifier] for this IconToggleButton
  * @param enabled enabled whether or not this [IconToggleButton] will handle input events and appear
- * enabled for semantics purposes
+ *   enabled for semantics purposes
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this IconButton. You can use this to change the IconButton's
- * appearance or preview the IconButton in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this IconButton. You can use this to change the IconButton's
+ *   appearance or preview the IconButton in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param content the content (icon) to be drawn inside the IconToggleButton. This is typically an
- * [Icon].
+ *   [Icon].
  */
 @Composable
 fun IconToggleButton(
@@ -106,16 +107,18 @@ fun IconToggleButton(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier
-            .minimumInteractiveComponentSize()
-            .toggleable(
-            value = checked,
-            onValueChange = onCheckedChange,
-            enabled = enabled,
-            role = Role.Checkbox,
-            interactionSource = interactionSource,
-            indication = rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
-        ),
+        modifier =
+            modifier
+                .minimumInteractiveComponentSize()
+                .toggleable(
+                    value = checked,
+                    onValueChange = onCheckedChange,
+                    enabled = enabled,
+                    role = Role.Checkbox,
+                    interactionSource = interactionSource,
+                    indication =
+                        rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
+                ),
         contentAlignment = Alignment.Center
     ) {
         val contentAlpha = if (enabled) LocalContentAlpha.current else ContentAlpha.disabled

@@ -43,7 +43,6 @@ import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
@@ -51,10 +50,10 @@ import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
 
 /**
- * SwipeToDismiss demo - manages its own navigation between a List screen and a Detail screen,
- * using SwipeToDismissBox to recognise the swipe gesture and navigate backwards.
- * During the swipe gesture, a background is displayed that shows the previous screen.
- * Uses LaunchedEffect to reset the offset of the swipe by snapping back to original position.
+ * SwipeToDismiss demo - manages its own navigation between a List screen and a Detail screen, using
+ * SwipeToDismissBox to recognise the swipe gesture and navigate backwards. During the swipe
+ * gesture, a background is displayed that shows the previous screen. Uses LaunchedEffect to reset
+ * the offset of the swipe by snapping back to original position.
  */
 @Composable
 fun SwipeToDismissDemo(
@@ -85,12 +84,7 @@ fun SwipeToDismissDemo(
             // What to show behind the content whilst swiping.
             when (demoState.value) {
                 SwipeDismissDemoState.List -> {
-                    DisplayDemoList(
-                        SwipeToDismissDemos,
-                        {},
-                        0,
-                        remember { mutableListOf(ScalingLazyListState()) }
-                    )
+                    DisplayDemoList(SwipeToDismissDemos) {}
                 }
                 SwipeDismissDemoState.Detail -> {
                     SwipeToDismissOptionsList()
@@ -113,9 +107,10 @@ fun EdgeSwipeDemo(swipeToDismissBoxState: SwipeToDismissBoxState) {
             // When using Modifier.edgeSwipeToDismiss, it is required that the element on which the
             // modifier applies exists within a SwipeToDismissBox which shares the same state.
             // Here, we share the swipeToDismissBoxState used by DemoApp's SwipeToDismissBox.
-            modifier = Modifier.border(4.dp, Color.DarkGray)
-                .fillMaxSize()
-                .edgeSwipeToDismiss(swipeToDismissBoxState),
+            modifier =
+                Modifier.border(4.dp, Color.DarkGray)
+                    .fillMaxSize()
+                    .edgeSwipeToDismiss(swipeToDismissBoxState),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(5) { index ->
@@ -129,10 +124,8 @@ fun EdgeSwipeDemo(swipeToDismissBoxState: SwipeToDismissBoxState) {
         }
 
         Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(30.dp)
-                .background(Color.White.copy(alpha = 0.5f))
+            modifier =
+                Modifier.fillMaxHeight().width(30.dp).background(Color.White.copy(alpha = 0.5f))
         )
     }
 }
@@ -152,17 +145,19 @@ fun NestedSwipeToDismissDemo() {
         hasBackground = previous != null,
         onDismissed = { items.removeLastOrNull() }
     ) { isBackground ->
-        val item = if (isBackground) {
-            previous
-        } else {
-            current
-        }
+        val item =
+            if (isBackground) {
+                previous
+            } else {
+                current
+            }
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (item != null) {
                 Chip(
                     onClick = { items.add(items.size + 1) },
-                    label = { Text("Screen number $item") })
+                    label = { Text("Screen number $item") }
+                )
             } else {
                 Text("Empty Screen")
             }
@@ -176,16 +171,12 @@ enum class SwipeDismissDemoState {
 }
 
 @Composable
-private fun SwipeToDismissOptionsList(
-    state: MutableState<SwipeDismissDemoState>? = null
-) {
+private fun SwipeToDismissOptionsList(state: MutableState<SwipeDismissDemoState>? = null) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .verticalScroll(
-                rememberScrollState()
-            ),
+        modifier =
+            Modifier.fillMaxSize()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -209,9 +200,10 @@ private fun SwipeToDismissDetail() {
     ) {
         Text(text = "Swipe Dismiss Demo Detail", textAlign = TextAlign.Center)
         Text(
-            text = "Start swiping to reveal the previous level menu. " +
-                "Complete the swipe to " +
-                "dismiss this screen."
+            text =
+                "Start swiping to reveal the previous level menu. " +
+                    "Complete the swipe to " +
+                    "dismiss this screen."
         )
     }
 }

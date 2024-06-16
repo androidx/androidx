@@ -28,7 +28,8 @@ import org.junit.Test
 @SmallTest
 class PathTest {
     @SdkSuppress(minSdkVersion = 26)
-    @Test fun testFlatten() {
+    @Test
+    fun testFlatten() {
         val p = Path()
 
         // Start with several moves
@@ -52,7 +53,8 @@ class PathTest {
         assertEquals(3, count)
     }
 
-    @Test fun testUnion() {
+    @Test
+    fun testUnion() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
 
@@ -63,7 +65,8 @@ class PathTest {
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }
 
-    @Test fun testOr() {
+    @Test
+    fun testOr() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
 
@@ -74,7 +77,8 @@ class PathTest {
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }
 
-    @Test fun testDifference() {
+    @Test
+    fun testDifference() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
 
@@ -85,7 +89,8 @@ class PathTest {
         assertEquals(RectF(0.0f, 0.0f, 5.0f, 10.0f), r)
     }
 
-    @Test fun testIntersection() {
+    @Test
+    fun testIntersection() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
 
@@ -96,7 +101,8 @@ class PathTest {
         assertEquals(RectF(5.0f, 0.0f, 10.0f, 10.0f), r)
     }
 
-    @Test fun testEmptyIntersection() {
+    @Test
+    fun testEmptyIntersection() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 2.0f, 2.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 5.0f, 7.0f, 7.0f, Path.Direction.CW) }
 
@@ -104,7 +110,8 @@ class PathTest {
         assertTrue(p.isEmpty)
     }
 
-    @Test fun testXor() {
+    @Test
+    fun testXor() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 5.0f, 15.0f, 15.0f, Path.Direction.CW) }
 

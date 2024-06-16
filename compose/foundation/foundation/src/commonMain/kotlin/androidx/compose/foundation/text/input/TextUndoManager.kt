@@ -39,9 +39,8 @@ import androidx.compose.ui.text.substring
  */
 internal class TextUndoManager(
     initialStagingUndo: TextUndoOperation? = null,
-    private val undoManager: UndoManager<TextUndoOperation> = UndoManager(
-        capacity = TEXT_UNDO_CAPACITY
-    )
+    private val undoManager: UndoManager<TextUndoOperation> =
+        UndoManager(capacity = TEXT_UNDO_CAPACITY)
 ) {
     private var stagingUndo by mutableStateOf<TextUndoOperation?>(initialStagingUndo)
 
@@ -105,28 +104,16 @@ internal class TextUndoManager(
 
             override fun SaverScope.save(value: TextUndoManager): Any {
                 return listOf(
-                    value.stagingUndo?.let {
-                        with(TextUndoOperation.Saver) {
-                            save(it)
-                        }
-                    },
-                    with(undoManagerSaver) {
-                        save(value.undoManager)
-                    }
+                    value.stagingUndo?.let { with(TextUndoOperation.Saver) { save(it) } },
+                    with(undoManagerSaver) { save(value.undoManager) }
                 )
             }
 
             override fun restore(value: Any): TextUndoManager? {
                 val (savedStagingUndo, savedUndoManager) = value as List<*>
                 return TextUndoManager(
-                    savedStagingUndo?.let {
-                        with(TextUndoOperation.Saver) {
-                            restore(it)
-                        }
-                    },
-                    with(undoManagerSaver) {
-                        restore(savedUndoManager!!)
-                    }!!
+                    savedStagingUndo?.let { with(TextUndoOperation.Saver) { restore(it) } },
+                    with(undoManagerSaver) { restore(savedUndoManager!!) }!!
                 )
             }
         }
@@ -134,23 +121,22 @@ internal class TextUndoManager(
 }
 
 /**
- * Try to merge this [TextUndoOperation] with the [next]. Chronologically the [next] op must
- * come after this one. If merge is not possible, this function returns null.
+ * Try to merge this [TextUndoOperation] with the [next]. Chronologically the [next] op must come
+ * after this one. If merge is not possible, this function returns null.
  *
- * There are many rules that govern the grouping logic of successive undo operations. Here we try
- * to cover the most basic requirements but this is certainly not an exhaustive list.
- *
- * 1. Each action defines whether they can be merged at all. For example, text edits that are
- * caused by cut or paste define themselves as unmergeable no matter what comes before or next.
+ * There are many rules that govern the grouping logic of successive undo operations. Here we try to
+ * cover the most basic requirements but this is certainly not an exhaustive list.
+ * 1. Each action defines whether they can be merged at all. For example, text edits that are caused
+ *    by cut or paste define themselves as unmergeable no matter what comes before or next.
  * 2. If certain amount of time has passed since the latest grouping has begun.
  * 3. Enter key (hard line break) is unmergeable.
  * 4. Only same type of text edits can be merged. An insertion must be grouped by other insertions,
- * a deletion by other deletions. Replace type of edit is never mergeable.
- *   4.a. Two insertions can only be merged if the chronologically next one is a suffix of the
- *   previous insertion. In other words, cursor should always be moving forwards.
- *   4.b. Deletions have directionality. Cursor can only insert in place and move forwards but
- *   deletion can be requested either forwards (delete) or backwards (backspace). Only deletions
- *   that have the same direction can be merged. They also have to share a boundary.
+ *    a deletion by other deletions. Replace type of edit is never mergeable. 4.a. Two insertions
+ *    can only be merged if the chronologically next one is a suffix of the previous insertion. In
+ *    other words, cursor should always be moving forwards. 4.b. Deletions have directionality.
+ *    Cursor can only insert in place and move forwards but deletion can be requested either
+ *    forwards (delete) or backwards (backspace). Only deletions that have the same direction can be
+ *    merged. They also have to share a boundary.
  */
 internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation? {
     if (!canMerge || !next.canMerge) return null
@@ -158,8 +144,9 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
     // between these ops
     if (
         next.timeInMillis < timeInMillis ||
-        next.timeInMillis - timeInMillis >= SNAPSHOTS_INTERVAL_MILLIS
-    ) return null
+            next.timeInMillis - timeInMillis >= SNAPSHOTS_INTERVAL_MILLIS
+    )
+        return null
     // Do not merge undo history when one of the ops is a new line insertion
     if (isNewLineInsert || next.isNewLineInsert) return null
     // Only same type of ops can be merged together
@@ -180,7 +167,7 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
         // only merge consecutive deletions if both have the same directionality
         if (
             deletionType == next.deletionType &&
-            (deletionType == TextDeleteType.Start || deletionType == TextDeleteType.End)
+                (deletionType == TextDeleteType.Start || deletionType == TextDeleteType.End)
         ) {
             // This op deletes
             if (index == next.index + next.preText.length) {
@@ -208,14 +195,14 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
 }
 
 /**
- * Adds the [changes] to this [UndoManager] by converting from [TextFieldBuffer.ChangeList] space
- * to [TextUndoOperation] space.
+ * Adds the [changes] to this [UndoManager] by converting from [TextFieldBuffer.ChangeList] space to
+ * [TextUndoOperation] space.
  *
  * @param pre State of the [TextFieldBuffer] before any changes are applied
  * @param post State of the [TextFieldBuffer] after all the changes are applied
  * @param changes List of changes that are applied on [pre] that transforms it to [post].
- * @param allowMerge Whether to allow merging the calculated operation with the last operation
- * in the stack.
+ * @param allowMerge Whether to allow merging the calculated operation with the last operation in
+ *   the stack.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal fun TextUndoManager.recordChanges(

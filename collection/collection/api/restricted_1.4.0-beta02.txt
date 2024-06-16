@@ -1,0 +1,2197 @@
+// Signature format: 4.0
+package androidx.collection {
+
+  public class ArrayMap<K, V> extends androidx.collection.SimpleArrayMap<K,V> implements java.util.Map<K,V> {
+    ctor public ArrayMap();
+    ctor public ArrayMap(androidx.collection.SimpleArrayMap?);
+    ctor public ArrayMap(int);
+    method public boolean containsAll(java.util.Collection<? extends java.lang.Object!>);
+    method public boolean containsKey(Object?);
+    method public boolean containsValue(Object?);
+    method public java.util.Set<java.util.Map.Entry<K!,V!>!> entrySet();
+    method public V! get(Object?);
+    method public java.util.Set<K!> keySet();
+    method public void putAll(java.util.Map<? extends K!,? extends V!>);
+    method public V! remove(Object?);
+    method public boolean removeAll(java.util.Collection<? extends java.lang.Object!>);
+    method public boolean retainAll(java.util.Collection<? extends java.lang.Object!>);
+    method public java.util.Collection<V!> values();
+  }
+
+  public final class ArrayMapKt {
+    method public static inline <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf();
+    method public static <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+  }
+
+  public final class ArraySet<E> implements java.util.Collection<E> kotlin.jvm.internal.markers.KMutableCollection kotlin.jvm.internal.markers.KMutableSet java.util.Set<E> {
+    ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
+    ctor public ArraySet(E[]? array);
+    ctor public ArraySet();
+    ctor public ArraySet(optional int capacity);
+    ctor public ArraySet(java.util.Collection<? extends E>? set);
+    method public boolean add(E element);
+    method public void addAll(androidx.collection.ArraySet<? extends E> array);
+    method public boolean addAll(java.util.Collection<? extends E> elements);
+    method public void clear();
+    method public operator boolean contains(E element);
+    method public boolean containsAll(java.util.Collection<E> elements);
+    method public void ensureCapacity(int minimumCapacity);
+    method public int getSize();
+    method public int indexOf(Object? key);
+    method public boolean isEmpty();
+    method public java.util.Iterator<E> iterator();
+    method public boolean remove(E element);
+    method public boolean removeAll(androidx.collection.ArraySet<? extends E> array);
+    method public boolean removeAll(java.util.Collection<E> elements);
+    method public E removeAt(int index);
+    method public boolean retainAll(java.util.Collection<E> elements);
+    method public Object?[] toArray();
+    method public <T> T[] toArray(T[] array);
+    method public E valueAt(int index);
+    property public int size;
+  }
+
+  public final class ArraySetKt {
+    method public static inline <T> androidx.collection.ArraySet<T> arraySetOf();
+    method public static <T> androidx.collection.ArraySet<T> arraySetOf(T... values);
+  }
+
+  public final class CircularArray<E> {
+    ctor public CircularArray();
+    ctor public CircularArray(optional int minCapacity);
+    method public void addFirst(E element);
+    method public void addLast(E element);
+    method public void clear();
+    method public operator E get(int index);
+    method public E getFirst();
+    method public E getLast();
+    method public boolean isEmpty();
+    method public E popFirst();
+    method public E popLast();
+    method public void removeFromEnd(int count);
+    method public void removeFromStart(int count);
+    method public int size();
+    property public final E first;
+    property public final E last;
+  }
+
+  public final class CircularIntArray {
+    ctor public CircularIntArray();
+    ctor public CircularIntArray(optional int minCapacity);
+    method public void addFirst(int element);
+    method public void addLast(int element);
+    method public void clear();
+    method public operator int get(int index);
+    method public int getFirst();
+    method public int getLast();
+    method public boolean isEmpty();
+    method public int popFirst();
+    method public int popLast();
+    method public void removeFromEnd(int count);
+    method public void removeFromStart(int count);
+    method public int size();
+    property public final int first;
+    property public final int last;
+  }
+
+  public abstract sealed class FloatFloatMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float key);
+    method public final boolean containsKey(float key);
+    method public final boolean containsValue(float value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(float key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final operator float get(float key);
+    method public final int getCapacity();
+    method public final float getOrDefault(float key, float defaultValue);
+    method public final inline float getOrElse(float key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal float[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal float[] values;
+  }
+
+  public final class FloatFloatMapKt {
+    method public static androidx.collection.FloatFloatMap emptyFloatFloatMap();
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf();
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4, float key5, float value5);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf();
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4, float key5, float value5);
+  }
+
+  @kotlin.jvm.JvmInline public final value class FloatFloatPair {
+    ctor public FloatFloatPair(float first, float second);
+    method public inline operator float component1();
+    method public inline operator float component2();
+    method public inline float getFirst();
+    method public inline float getSecond();
+    property public final inline float first;
+    property public final inline float second;
+  }
+
+  public abstract sealed class FloatIntMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float key);
+    method public final boolean containsKey(float key);
+    method public final boolean containsValue(int value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(float key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final operator int get(float key);
+    method public final int getCapacity();
+    method public final int getOrDefault(float key, int defaultValue);
+    method public final inline int getOrElse(float key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal float[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal int[] values;
+  }
+
+  public final class FloatIntMapKt {
+    method public static androidx.collection.FloatIntMap emptyFloatIntMap();
+    method public static androidx.collection.FloatIntMap floatIntMapOf();
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4, float key5, int value5);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf();
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4, float key5, int value5);
+  }
+
+  public abstract sealed class FloatList {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float element);
+    method public final boolean containsAll(androidx.collection.FloatList elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final float elementAt(@IntRange(from=0L) int index);
+    method public final inline float elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Float> defaultValue);
+    method public final float first();
+    method public final inline float first(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super java.lang.Float,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super java.lang.Float,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super java.lang.Float,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Float,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
+    method public final operator float get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(float element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final float last();
+    method public final inline float last(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(float element);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal int _size;
+    field @kotlin.PublishedApi internal float[] content;
+  }
+
+  public final class FloatListKt {
+    method public static androidx.collection.FloatList emptyFloatList();
+    method public static androidx.collection.FloatList floatListOf();
+    method public static androidx.collection.FloatList floatListOf(float element1);
+    method public static androidx.collection.FloatList floatListOf(float element1, float element2);
+    method public static androidx.collection.FloatList floatListOf(float element1, float element2, float element3);
+    method public static androidx.collection.FloatList floatListOf(float... elements);
+    method public static inline androidx.collection.MutableFloatList mutableFloatListOf();
+    method public static androidx.collection.MutableFloatList mutableFloatListOf(float element1);
+    method public static androidx.collection.MutableFloatList mutableFloatListOf(float element1, float element2);
+    method public static androidx.collection.MutableFloatList mutableFloatListOf(float element1, float element2, float element3);
+    method public static inline androidx.collection.MutableFloatList mutableFloatListOf(float... elements);
+  }
+
+  public abstract sealed class FloatLongMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float key);
+    method public final boolean containsKey(float key);
+    method public final boolean containsValue(long value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(float key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final operator long get(float key);
+    method public final int getCapacity();
+    method public final long getOrDefault(float key, long defaultValue);
+    method public final inline long getOrElse(float key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal float[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal long[] values;
+  }
+
+  public final class FloatLongMapKt {
+    method public static androidx.collection.FloatLongMap emptyFloatLongMap();
+    method public static androidx.collection.FloatLongMap floatLongMapOf();
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4, float key5, long value5);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf();
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4, float key5, long value5);
+  }
+
+  public abstract sealed class FloatObjectMap<V> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float key);
+    method public final boolean containsKey(float key);
+    method public final boolean containsValue(V value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
+    method public final operator V? get(float key);
+    method public final int getCapacity();
+    method public final V getOrDefault(float key, V defaultValue);
+    method public final inline V getOrElse(float key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal float[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal Object?[] values;
+  }
+
+  public final class FloatObjectMapKt {
+    method public static <V> androidx.collection.FloatObjectMap<V> emptyFloatObjectMap();
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf();
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4, float key5, V value5);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf();
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4, float key5, V value5);
+  }
+
+  public abstract sealed class FloatSet {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline float first();
+    method public final inline float first(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal float[] elements;
+    field @kotlin.PublishedApi internal long[] metadata;
+  }
+
+  public final class FloatSetKt {
+    method public static androidx.collection.FloatSet emptyFloatSet();
+    method public static androidx.collection.FloatSet floatSetOf();
+    method public static androidx.collection.FloatSet floatSetOf(float element1);
+    method public static androidx.collection.FloatSet floatSetOf(float element1, float element2);
+    method public static androidx.collection.FloatSet floatSetOf(float element1, float element2, float element3);
+    method public static androidx.collection.FloatSet floatSetOf(float... elements);
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf();
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float element1);
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float element1, float element2);
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float element1, float element2, float element3);
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float... elements);
+  }
+
+  public abstract sealed class IntFloatMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int key);
+    method public final boolean containsKey(int key);
+    method public final boolean containsValue(float value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(int key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final operator float get(int key);
+    method public final int getCapacity();
+    method public final float getOrDefault(int key, float defaultValue);
+    method public final inline float getOrElse(int key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal int[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal float[] values;
+  }
+
+  public final class IntFloatMapKt {
+    method public static androidx.collection.IntFloatMap emptyIntFloatMap();
+    method public static androidx.collection.IntFloatMap intFloatMapOf();
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4, int key5, float value5);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf();
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4, int key5, float value5);
+  }
+
+  public abstract sealed class IntIntMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int key);
+    method public final boolean containsKey(int key);
+    method public final boolean containsValue(int value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(int key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final operator int get(int key);
+    method public final int getCapacity();
+    method public final int getOrDefault(int key, int defaultValue);
+    method public final inline int getOrElse(int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal int[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal int[] values;
+  }
+
+  public final class IntIntMapKt {
+    method public static androidx.collection.IntIntMap emptyIntIntMap();
+    method public static androidx.collection.IntIntMap intIntMapOf();
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4, int key5, int value5);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf();
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4, int key5, int value5);
+  }
+
+  @kotlin.jvm.JvmInline public final value class IntIntPair {
+    ctor public IntIntPair(int first, int second);
+    method public inline operator int component1();
+    method public inline operator int component2();
+    method public int getFirst();
+    method public int getSecond();
+    property public final int first;
+    property public final int second;
+  }
+
+  public abstract sealed class IntList {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int element);
+    method public final boolean containsAll(androidx.collection.IntList elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final int elementAt(@IntRange(from=0L) int index);
+    method public final inline int elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> defaultValue);
+    method public final int first();
+    method public final inline int first(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super java.lang.Integer,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super java.lang.Integer,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> block);
+    method public final operator int get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(int element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final int last();
+    method public final inline int last(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(int element);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal int _size;
+    field @kotlin.PublishedApi internal int[] content;
+  }
+
+  public final class IntListKt {
+    method public static androidx.collection.IntList emptyIntList();
+    method public static androidx.collection.IntList intListOf();
+    method public static androidx.collection.IntList intListOf(int element1);
+    method public static androidx.collection.IntList intListOf(int element1, int element2);
+    method public static androidx.collection.IntList intListOf(int element1, int element2, int element3);
+    method public static androidx.collection.IntList intListOf(int... elements);
+    method public static inline androidx.collection.MutableIntList mutableIntListOf();
+    method public static androidx.collection.MutableIntList mutableIntListOf(int element1);
+    method public static androidx.collection.MutableIntList mutableIntListOf(int element1, int element2);
+    method public static androidx.collection.MutableIntList mutableIntListOf(int element1, int element2, int element3);
+    method public static inline androidx.collection.MutableIntList mutableIntListOf(int... elements);
+  }
+
+  public abstract sealed class IntLongMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int key);
+    method public final boolean containsKey(int key);
+    method public final boolean containsValue(long value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(int key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final operator long get(int key);
+    method public final int getCapacity();
+    method public final long getOrDefault(int key, long defaultValue);
+    method public final inline long getOrElse(int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal int[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal long[] values;
+  }
+
+  public final class IntLongMapKt {
+    method public static androidx.collection.IntLongMap emptyIntLongMap();
+    method public static androidx.collection.IntLongMap intLongMapOf();
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4, int key5, long value5);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf();
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4, int key5, long value5);
+  }
+
+  public abstract sealed class IntObjectMap<V> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int key);
+    method public final boolean containsKey(int key);
+    method public final boolean containsValue(V value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
+    method public final operator V? get(int key);
+    method public final int getCapacity();
+    method public final V getOrDefault(int key, V defaultValue);
+    method public final inline V getOrElse(int key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal int[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal Object?[] values;
+  }
+
+  public final class IntObjectMapKt {
+    method public static <V> androidx.collection.IntObjectMap<V> emptyIntObjectMap();
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf();
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4, int key5, V value5);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf();
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4, int key5, V value5);
+  }
+
+  public abstract sealed class IntSet {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final inline int first();
+    method public final inline int first(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal int[] elements;
+    field @kotlin.PublishedApi internal long[] metadata;
+  }
+
+  public final class IntSetKt {
+    method public static androidx.collection.IntSet emptyIntSet();
+    method public static androidx.collection.IntSet intSetOf();
+    method public static androidx.collection.IntSet intSetOf(int element1);
+    method public static androidx.collection.IntSet intSetOf(int element1, int element2);
+    method public static androidx.collection.IntSet intSetOf(int element1, int element2, int element3);
+    method public static androidx.collection.IntSet intSetOf(int... elements);
+    method public static androidx.collection.MutableIntSet mutableIntSetOf();
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int element1);
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int element1, int element2);
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int element1, int element2, int element3);
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int... elements);
+  }
+
+  public abstract sealed class LongFloatMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long key);
+    method public final boolean containsKey(long key);
+    method public final boolean containsValue(float value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(long key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final operator float get(long key);
+    method public final int getCapacity();
+    method public final float getOrDefault(long key, float defaultValue);
+    method public final inline float getOrElse(long key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal long[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal float[] values;
+  }
+
+  public final class LongFloatMapKt {
+    method public static androidx.collection.LongFloatMap emptyLongFloatMap();
+    method public static androidx.collection.LongFloatMap longFloatMapOf();
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4, long key5, float value5);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf();
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4, long key5, float value5);
+  }
+
+  public abstract sealed class LongIntMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long key);
+    method public final boolean containsKey(long key);
+    method public final boolean containsValue(int value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(long key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final operator int get(long key);
+    method public final int getCapacity();
+    method public final int getOrDefault(long key, int defaultValue);
+    method public final inline int getOrElse(long key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal long[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal int[] values;
+  }
+
+  public final class LongIntMapKt {
+    method public static androidx.collection.LongIntMap emptyLongIntMap();
+    method public static androidx.collection.LongIntMap longIntMapOf();
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4, long key5, int value5);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf();
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4, long key5, int value5);
+  }
+
+  public abstract sealed class LongList {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long element);
+    method public final boolean containsAll(androidx.collection.LongList elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final long elementAt(@IntRange(from=0L) int index);
+    method public final inline long elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Long> defaultValue);
+    method public final long first();
+    method public final inline long first(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super java.lang.Long,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super java.lang.Long,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super java.lang.Long,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Long,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> block);
+    method public final operator long get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(long element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final long last();
+    method public final inline long last(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(long element);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal int _size;
+    field @kotlin.PublishedApi internal long[] content;
+  }
+
+  public final class LongListKt {
+    method public static androidx.collection.LongList emptyLongList();
+    method public static androidx.collection.LongList longListOf();
+    method public static androidx.collection.LongList longListOf(long element1);
+    method public static androidx.collection.LongList longListOf(long element1, long element2);
+    method public static androidx.collection.LongList longListOf(long element1, long element2, long element3);
+    method public static androidx.collection.LongList longListOf(long... elements);
+    method public static inline androidx.collection.MutableLongList mutableLongListOf();
+    method public static androidx.collection.MutableLongList mutableLongListOf(long element1);
+    method public static androidx.collection.MutableLongList mutableLongListOf(long element1, long element2);
+    method public static androidx.collection.MutableLongList mutableLongListOf(long element1, long element2, long element3);
+    method public static inline androidx.collection.MutableLongList mutableLongListOf(long... elements);
+  }
+
+  public abstract sealed class LongLongMap {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long key);
+    method public final boolean containsKey(long key);
+    method public final boolean containsValue(long value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(long key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final operator long get(long key);
+    method public final int getCapacity();
+    method public final long getOrDefault(long key, long defaultValue);
+    method public final inline long getOrElse(long key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal long[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal long[] values;
+  }
+
+  public final class LongLongMapKt {
+    method public static androidx.collection.LongLongMap emptyLongLongMap();
+    method public static androidx.collection.LongLongMap longLongMapOf();
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4, long key5, long value5);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf();
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4, long key5, long value5);
+  }
+
+  public final class LongLongPair {
+    ctor public LongLongPair(long first, long second);
+    method public inline operator long component1();
+    method public inline operator long component2();
+    method public long getFirst();
+    method public long getSecond();
+    property public final long first;
+    property public final long second;
+  }
+
+  public abstract sealed class LongObjectMap<V> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long key);
+    method public final boolean containsKey(long key);
+    method public final boolean containsValue(V value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
+    method public final operator V? get(long key);
+    method public final int getCapacity();
+    method public final V getOrDefault(long key, V defaultValue);
+    method public final inline V getOrElse(long key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal long[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal Object?[] values;
+  }
+
+  public final class LongObjectMapKt {
+    method public static <V> androidx.collection.LongObjectMap<V> emptyLongObjectMap();
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf();
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4, long key5, V value5);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf();
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4, long key5, V value5);
+  }
+
+  public abstract sealed class LongSet {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final inline long first();
+    method public final inline long first(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal long[] elements;
+    field @kotlin.PublishedApi internal long[] metadata;
+  }
+
+  public final class LongSetKt {
+    method public static androidx.collection.LongSet emptyLongSet();
+    method public static androidx.collection.LongSet longSetOf();
+    method public static androidx.collection.LongSet longSetOf(long element1);
+    method public static androidx.collection.LongSet longSetOf(long element1, long element2);
+    method public static androidx.collection.LongSet longSetOf(long element1, long element2, long element3);
+    method public static androidx.collection.LongSet longSetOf(long... elements);
+    method public static androidx.collection.MutableLongSet mutableLongSetOf();
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long element1);
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long element1, long element2);
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long element1, long element2, long element3);
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long... elements);
+  }
+
+  public class LongSparseArray<E> implements java.lang.Cloneable {
+    ctor public LongSparseArray();
+    ctor public LongSparseArray(optional int initialCapacity);
+    method public void append(long key, E value);
+    method public void clear();
+    method public androidx.collection.LongSparseArray<E> clone();
+    method public boolean containsKey(long key);
+    method public boolean containsValue(E value);
+    method @Deprecated public void delete(long key);
+    method public operator E? get(long key);
+    method public E get(long key, E defaultValue);
+    method public int indexOfKey(long key);
+    method public int indexOfValue(E value);
+    method public boolean isEmpty();
+    method public long keyAt(int index);
+    method public void put(long key, E value);
+    method public void putAll(androidx.collection.LongSparseArray<? extends E> other);
+    method public E? putIfAbsent(long key, E value);
+    method public void remove(long key);
+    method public boolean remove(long key, E value);
+    method public void removeAt(int index);
+    method public E? replace(long key, E value);
+    method public boolean replace(long key, E oldValue, E newValue);
+    method public void setValueAt(int index, E value);
+    method public int size();
+    method public E valueAt(int index);
+  }
+
+  public final class LongSparseArrayKt {
+    method public static inline operator <T> boolean contains(androidx.collection.LongSparseArray<T>, long key);
+    method public static inline <T> void forEach(androidx.collection.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
+    method public static inline <T> T getOrDefault(androidx.collection.LongSparseArray<T>, long key, T defaultValue);
+    method public static inline <T> T getOrElse(androidx.collection.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> int getSize(androidx.collection.LongSparseArray<T>);
+    method public static inline <T> boolean isNotEmpty(androidx.collection.LongSparseArray<T>);
+    method public static <T> kotlin.collections.LongIterator keyIterator(androidx.collection.LongSparseArray<T>);
+    method public static operator <T> androidx.collection.LongSparseArray<T> plus(androidx.collection.LongSparseArray<T>, androidx.collection.LongSparseArray<T> other);
+    method @Deprecated public static <T> boolean remove(androidx.collection.LongSparseArray<T>, long key, T value);
+    method public static inline operator <T> void set(androidx.collection.LongSparseArray<T>, long key, T value);
+    method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.LongSparseArray<T>);
+  }
+
+  public class LruCache<K, V> {
+    ctor public LruCache(@IntRange(from=1L, to=kotlin.jvm.internal.LongCompanionObject.MAX_VALUE) int maxSize);
+    method protected V? create(K key);
+    method public final int createCount();
+    method protected void entryRemoved(boolean evicted, K key, V oldValue, V? newValue);
+    method public final void evictAll();
+    method public final int evictionCount();
+    method public final operator V? get(K key);
+    method public final int hitCount();
+    method public final int maxSize();
+    method public final int missCount();
+    method public final V? put(K key, V value);
+    method public final int putCount();
+    method public final V? remove(K key);
+    method public void resize(@IntRange(from=1L, to=kotlin.jvm.internal.LongCompanionObject.MAX_VALUE) int maxSize);
+    method public final int size();
+    method protected int sizeOf(K key, V value);
+    method public final java.util.Map<K,V> snapshot();
+    method public void trimToSize(int maxSize);
+  }
+
+  public final class LruCacheKt {
+    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V?,kotlin.Unit> onEntryRemoved);
+  }
+
+  public final class MutableFloatFloatMap extends androidx.collection.FloatFloatMap {
+    ctor public MutableFloatFloatMap(optional int initialCapacity);
+    method public void clear();
+    method public inline float getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.FloatList keys);
+    method public inline operator void minusAssign(androidx.collection.FloatSet keys);
+    method public inline operator void minusAssign(float key);
+    method public inline operator void minusAssign(float[] keys);
+    method public inline operator void plusAssign(androidx.collection.FloatFloatMap from);
+    method public void put(float key, float value);
+    method public float put(float key, float value, float default);
+    method public void putAll(androidx.collection.FloatFloatMap from);
+    method public void remove(float key);
+    method public boolean remove(float key, float value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(float key, float value);
+    method public int trim();
+  }
+
+  public final class MutableFloatIntMap extends androidx.collection.FloatIntMap {
+    ctor public MutableFloatIntMap(optional int initialCapacity);
+    method public void clear();
+    method public inline int getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.FloatList keys);
+    method public inline operator void minusAssign(androidx.collection.FloatSet keys);
+    method public inline operator void minusAssign(float key);
+    method public inline operator void minusAssign(float[] keys);
+    method public inline operator void plusAssign(androidx.collection.FloatIntMap from);
+    method public void put(float key, int value);
+    method public int put(float key, int value, int default);
+    method public void putAll(androidx.collection.FloatIntMap from);
+    method public void remove(float key);
+    method public boolean remove(float key, int value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(float key, int value);
+    method public int trim();
+  }
+
+  public final class MutableFloatList extends androidx.collection.FloatList {
+    ctor public MutableFloatList(optional int initialCapacity);
+    method public boolean add(float element);
+    method public void add(@IntRange(from=0L) int index, float element);
+    method public boolean addAll(androidx.collection.FloatList elements);
+    method public boolean addAll(float[] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.FloatList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, float[] elements);
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.FloatList elements);
+    method public inline operator void minusAssign(float element);
+    method public operator void minusAssign(float[] elements);
+    method public operator void plusAssign(androidx.collection.FloatList elements);
+    method public inline operator void plusAssign(float element);
+    method public operator void plusAssign(float[] elements);
+    method public boolean remove(float element);
+    method public boolean removeAll(androidx.collection.FloatList elements);
+    method public boolean removeAll(float[] elements);
+    method public float removeAt(@IntRange(from=0L) int index);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.FloatList elements);
+    method public boolean retainAll(float[] elements);
+    method public operator float set(@IntRange(from=0L) int index, float element);
+    method public void sort();
+    method public void sortDescending();
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
+  }
+
+  public final class MutableFloatLongMap extends androidx.collection.FloatLongMap {
+    ctor public MutableFloatLongMap(optional int initialCapacity);
+    method public void clear();
+    method public inline long getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.FloatList keys);
+    method public inline operator void minusAssign(androidx.collection.FloatSet keys);
+    method public inline operator void minusAssign(float key);
+    method public inline operator void minusAssign(float[] keys);
+    method public inline operator void plusAssign(androidx.collection.FloatLongMap from);
+    method public void put(float key, long value);
+    method public long put(float key, long value, long default);
+    method public void putAll(androidx.collection.FloatLongMap from);
+    method public void remove(float key);
+    method public boolean remove(float key, long value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(float key, long value);
+    method public int trim();
+  }
+
+  public final class MutableFloatObjectMap<V> extends androidx.collection.FloatObjectMap<V> {
+    ctor public MutableFloatObjectMap(optional int initialCapacity);
+    method public void clear();
+    method public inline V getOrPut(float key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.FloatList keys);
+    method public inline operator void minusAssign(androidx.collection.FloatSet keys);
+    method public inline operator void minusAssign(float key);
+    method public inline operator void minusAssign(float[] keys);
+    method public inline operator void plusAssign(androidx.collection.FloatObjectMap<V> from);
+    method public V? put(float key, V value);
+    method public void putAll(androidx.collection.FloatObjectMap<V> from);
+    method public V? remove(float key);
+    method public boolean remove(float key, V value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method public operator void set(float key, V value);
+    method public int trim();
+  }
+
+  public final class MutableFloatSet extends androidx.collection.FloatSet {
+    ctor public MutableFloatSet(optional int initialCapacity);
+    method public boolean add(float element);
+    method public boolean addAll(androidx.collection.FloatSet elements);
+    method public boolean addAll(float[] elements);
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.FloatSet elements);
+    method public operator void minusAssign(float element);
+    method public operator void minusAssign(float[] elements);
+    method public operator void plusAssign(androidx.collection.FloatSet elements);
+    method public operator void plusAssign(float element);
+    method public operator void plusAssign(float[] elements);
+    method public boolean remove(float element);
+    method public boolean removeAll(androidx.collection.FloatSet elements);
+    method public boolean removeAll(float[] elements);
+    method @IntRange(from=0L) public int trim();
+  }
+
+  public final class MutableIntFloatMap extends androidx.collection.IntFloatMap {
+    ctor public MutableIntFloatMap(optional int initialCapacity);
+    method public void clear();
+    method public inline float getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.IntList keys);
+    method public inline operator void minusAssign(androidx.collection.IntSet keys);
+    method public inline operator void minusAssign(int key);
+    method public inline operator void minusAssign(int[] keys);
+    method public inline operator void plusAssign(androidx.collection.IntFloatMap from);
+    method public void put(int key, float value);
+    method public float put(int key, float value, float default);
+    method public void putAll(androidx.collection.IntFloatMap from);
+    method public void remove(int key);
+    method public boolean remove(int key, float value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(int key, float value);
+    method public int trim();
+  }
+
+  public final class MutableIntIntMap extends androidx.collection.IntIntMap {
+    ctor public MutableIntIntMap(optional int initialCapacity);
+    method public void clear();
+    method public inline int getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.IntList keys);
+    method public inline operator void minusAssign(androidx.collection.IntSet keys);
+    method public inline operator void minusAssign(int key);
+    method public inline operator void minusAssign(int[] keys);
+    method public inline operator void plusAssign(androidx.collection.IntIntMap from);
+    method public void put(int key, int value);
+    method public int put(int key, int value, int default);
+    method public void putAll(androidx.collection.IntIntMap from);
+    method public void remove(int key);
+    method public boolean remove(int key, int value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(int key, int value);
+    method public int trim();
+  }
+
+  public final class MutableIntList extends androidx.collection.IntList {
+    ctor public MutableIntList(optional int initialCapacity);
+    method public boolean add(int element);
+    method public void add(@IntRange(from=0L) int index, int element);
+    method public boolean addAll(androidx.collection.IntList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.IntList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, int[] elements);
+    method public boolean addAll(int[] elements);
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.IntList elements);
+    method public inline operator void minusAssign(int element);
+    method public operator void minusAssign(int[] elements);
+    method public operator void plusAssign(androidx.collection.IntList elements);
+    method public inline operator void plusAssign(int element);
+    method public operator void plusAssign(int[] elements);
+    method public boolean remove(int element);
+    method public boolean removeAll(androidx.collection.IntList elements);
+    method public boolean removeAll(int[] elements);
+    method public int removeAt(@IntRange(from=0L) int index);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.IntList elements);
+    method public boolean retainAll(int[] elements);
+    method public operator int set(@IntRange(from=0L) int index, int element);
+    method public void sort();
+    method public void sortDescending();
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
+  }
+
+  public final class MutableIntLongMap extends androidx.collection.IntLongMap {
+    ctor public MutableIntLongMap(optional int initialCapacity);
+    method public void clear();
+    method public inline long getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.IntList keys);
+    method public inline operator void minusAssign(androidx.collection.IntSet keys);
+    method public inline operator void minusAssign(int key);
+    method public inline operator void minusAssign(int[] keys);
+    method public inline operator void plusAssign(androidx.collection.IntLongMap from);
+    method public void put(int key, long value);
+    method public long put(int key, long value, long default);
+    method public void putAll(androidx.collection.IntLongMap from);
+    method public void remove(int key);
+    method public boolean remove(int key, long value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(int key, long value);
+    method public int trim();
+  }
+
+  public final class MutableIntObjectMap<V> extends androidx.collection.IntObjectMap<V> {
+    ctor public MutableIntObjectMap(optional int initialCapacity);
+    method public void clear();
+    method public inline V getOrPut(int key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.IntList keys);
+    method public inline operator void minusAssign(androidx.collection.IntSet keys);
+    method public inline operator void minusAssign(int key);
+    method public inline operator void minusAssign(int[] keys);
+    method public inline operator void plusAssign(androidx.collection.IntObjectMap<V> from);
+    method public V? put(int key, V value);
+    method public void putAll(androidx.collection.IntObjectMap<V> from);
+    method public V? remove(int key);
+    method public boolean remove(int key, V value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method public operator void set(int key, V value);
+    method public int trim();
+  }
+
+  public final class MutableIntSet extends androidx.collection.IntSet {
+    ctor public MutableIntSet(optional int initialCapacity);
+    method public boolean add(int element);
+    method public boolean addAll(androidx.collection.IntSet elements);
+    method public boolean addAll(int[] elements);
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.IntSet elements);
+    method public operator void minusAssign(int element);
+    method public operator void minusAssign(int[] elements);
+    method public operator void plusAssign(androidx.collection.IntSet elements);
+    method public operator void plusAssign(int element);
+    method public operator void plusAssign(int[] elements);
+    method public boolean remove(int element);
+    method public boolean removeAll(androidx.collection.IntSet elements);
+    method public boolean removeAll(int[] elements);
+    method @IntRange(from=0L) public int trim();
+  }
+
+  public final class MutableLongFloatMap extends androidx.collection.LongFloatMap {
+    ctor public MutableLongFloatMap(optional int initialCapacity);
+    method public void clear();
+    method public inline float getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.LongList keys);
+    method public inline operator void minusAssign(androidx.collection.LongSet keys);
+    method public inline operator void minusAssign(long key);
+    method public inline operator void minusAssign(long[] keys);
+    method public inline operator void plusAssign(androidx.collection.LongFloatMap from);
+    method public void put(long key, float value);
+    method public float put(long key, float value, float default);
+    method public void putAll(androidx.collection.LongFloatMap from);
+    method public void remove(long key);
+    method public boolean remove(long key, float value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(long key, float value);
+    method public int trim();
+  }
+
+  public final class MutableLongIntMap extends androidx.collection.LongIntMap {
+    ctor public MutableLongIntMap(optional int initialCapacity);
+    method public void clear();
+    method public inline int getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.LongList keys);
+    method public inline operator void minusAssign(androidx.collection.LongSet keys);
+    method public inline operator void minusAssign(long key);
+    method public inline operator void minusAssign(long[] keys);
+    method public inline operator void plusAssign(androidx.collection.LongIntMap from);
+    method public void put(long key, int value);
+    method public int put(long key, int value, int default);
+    method public void putAll(androidx.collection.LongIntMap from);
+    method public void remove(long key);
+    method public boolean remove(long key, int value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(long key, int value);
+    method public int trim();
+  }
+
+  public final class MutableLongList extends androidx.collection.LongList {
+    ctor public MutableLongList(optional int initialCapacity);
+    method public void add(@IntRange(from=0L) int index, long element);
+    method public boolean add(long element);
+    method public boolean addAll(androidx.collection.LongList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.LongList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, long[] elements);
+    method public boolean addAll(long[] elements);
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.LongList elements);
+    method public inline operator void minusAssign(long element);
+    method public operator void minusAssign(long[] elements);
+    method public operator void plusAssign(androidx.collection.LongList elements);
+    method public inline operator void plusAssign(long element);
+    method public operator void plusAssign(long[] elements);
+    method public boolean remove(long element);
+    method public boolean removeAll(androidx.collection.LongList elements);
+    method public boolean removeAll(long[] elements);
+    method public long removeAt(@IntRange(from=0L) int index);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.LongList elements);
+    method public boolean retainAll(long[] elements);
+    method public operator long set(@IntRange(from=0L) int index, long element);
+    method public void sort();
+    method public void sortDescending();
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
+  }
+
+  public final class MutableLongLongMap extends androidx.collection.LongLongMap {
+    ctor public MutableLongLongMap(optional int initialCapacity);
+    method public void clear();
+    method public inline long getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.LongList keys);
+    method public inline operator void minusAssign(androidx.collection.LongSet keys);
+    method public inline operator void minusAssign(long key);
+    method public inline operator void minusAssign(long[] keys);
+    method public inline operator void plusAssign(androidx.collection.LongLongMap from);
+    method public void put(long key, long value);
+    method public long put(long key, long value, long default);
+    method public void putAll(androidx.collection.LongLongMap from);
+    method public void remove(long key);
+    method public boolean remove(long key, long value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(long key, long value);
+    method public int trim();
+  }
+
+  public final class MutableLongObjectMap<V> extends androidx.collection.LongObjectMap<V> {
+    ctor public MutableLongObjectMap(optional int initialCapacity);
+    method public void clear();
+    method public inline V getOrPut(long key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.LongList keys);
+    method public inline operator void minusAssign(androidx.collection.LongSet keys);
+    method public inline operator void minusAssign(long key);
+    method public inline operator void minusAssign(long[] keys);
+    method public inline operator void plusAssign(androidx.collection.LongObjectMap<V> from);
+    method public V? put(long key, V value);
+    method public void putAll(androidx.collection.LongObjectMap<V> from);
+    method public V? remove(long key);
+    method public boolean remove(long key, V value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method public operator void set(long key, V value);
+    method public int trim();
+  }
+
+  public final class MutableLongSet extends androidx.collection.LongSet {
+    ctor public MutableLongSet(optional int initialCapacity);
+    method public boolean add(long element);
+    method public boolean addAll(androidx.collection.LongSet elements);
+    method public boolean addAll(long[] elements);
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.LongSet elements);
+    method public operator void minusAssign(long element);
+    method public operator void minusAssign(long[] elements);
+    method public operator void plusAssign(androidx.collection.LongSet elements);
+    method public operator void plusAssign(long element);
+    method public operator void plusAssign(long[] elements);
+    method public boolean remove(long element);
+    method public boolean removeAll(androidx.collection.LongSet elements);
+    method public boolean removeAll(long[] elements);
+    method @IntRange(from=0L) public int trim();
+  }
+
+  public final class MutableObjectFloatMap<K> extends androidx.collection.ObjectFloatMap<K> {
+    ctor public MutableObjectFloatMap(optional int initialCapacity);
+    method public void clear();
+    method public inline float getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
+    method public inline operator void minusAssign(Iterable<? extends K> keys);
+    method public inline operator void minusAssign(K key);
+    method public inline operator void minusAssign(K[] keys);
+    method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
+    method public inline operator void plusAssign(androidx.collection.ObjectFloatMap<K> from);
+    method public void put(K key, float value);
+    method public float put(K key, float value, float default);
+    method public void putAll(androidx.collection.ObjectFloatMap<K> from);
+    method public void remove(K key);
+    method public boolean remove(K key, float value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(K key, float value);
+    method public int trim();
+  }
+
+  public final class MutableObjectIntMap<K> extends androidx.collection.ObjectIntMap<K> {
+    ctor public MutableObjectIntMap(optional int initialCapacity);
+    method public void clear();
+    method public inline int getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
+    method public inline operator void minusAssign(Iterable<? extends K> keys);
+    method public inline operator void minusAssign(K key);
+    method public inline operator void minusAssign(K[] keys);
+    method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
+    method public inline operator void plusAssign(androidx.collection.ObjectIntMap<K> from);
+    method public void put(K key, int value);
+    method public int put(K key, int value, int default);
+    method public void putAll(androidx.collection.ObjectIntMap<K> from);
+    method public void remove(K key);
+    method public boolean remove(K key, int value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(K key, int value);
+    method public int trim();
+  }
+
+  public final class MutableObjectList<E> extends androidx.collection.ObjectList<E> {
+    ctor public MutableObjectList(optional int initialCapacity);
+    method public boolean add(E element);
+    method public void add(@IntRange(from=0L) int index, E element);
+    method public boolean addAll(androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean addAll(E[] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(@IntRange(from=0L) int index, E[] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, java.util.Collection<? extends E> elements);
+    method public boolean addAll(Iterable<? extends E> elements);
+    method public boolean addAll(java.util.List<? extends E> elements);
+    method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public java.util.List<E> asList();
+    method public java.util.List<E> asMutableList();
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
+    method public inline operator void minusAssign(E element);
+    method public operator void minusAssign(E[] elements);
+    method public operator void minusAssign(Iterable<? extends E> elements);
+    method public operator void minusAssign(java.util.List<? extends E> elements);
+    method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
+    method public inline operator void plusAssign(E element);
+    method public operator void plusAssign(E[] elements);
+    method public operator void plusAssign(Iterable<? extends E> elements);
+    method public operator void plusAssign(java.util.List<? extends E> elements);
+    method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public boolean remove(E element);
+    method public boolean removeAll(androidx.collection.ObjectList<E> elements);
+    method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean removeAll(E[] elements);
+    method public boolean removeAll(Iterable<? extends E> elements);
+    method public boolean removeAll(java.util.List<? extends E> elements);
+    method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public E removeAt(@IntRange(from=0L) int index);
+    method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.ObjectList<E> elements);
+    method public boolean retainAll(E[] elements);
+    method public boolean retainAll(Iterable<? extends E> elements);
+    method public boolean retainAll(java.util.Collection<? extends E> elements);
+    method public boolean retainAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator E set(@IntRange(from=0L) int index, E element);
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
+  }
+
+  public final class MutableObjectLongMap<K> extends androidx.collection.ObjectLongMap<K> {
+    ctor public MutableObjectLongMap(optional int initialCapacity);
+    method public void clear();
+    method public inline long getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
+    method public inline operator void minusAssign(Iterable<? extends K> keys);
+    method public inline operator void minusAssign(K key);
+    method public inline operator void minusAssign(K[] keys);
+    method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
+    method public inline operator void plusAssign(androidx.collection.ObjectLongMap<K> from);
+    method public void put(K key, long value);
+    method public long put(K key, long value, long default);
+    method public void putAll(androidx.collection.ObjectLongMap<K> from);
+    method public void remove(K key);
+    method public boolean remove(K key, long value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method public operator void set(K key, long value);
+    method public int trim();
+  }
+
+  public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
+    ctor public MutableScatterMap(optional int initialCapacity);
+    method public java.util.Map<K,V> asMutableMap();
+    method public void clear();
+    method public inline V compute(K key, kotlin.jvm.functions.Function2<? super K,? super V?,? extends V> computeBlock);
+    method @kotlin.PublishedApi internal int findInsertIndex(K key);
+    method public inline V getOrPut(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.ObjectList<K> keys);
+    method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
+    method public inline operator void minusAssign(Iterable<? extends K> keys);
+    method public inline operator void minusAssign(K key);
+    method public inline operator void minusAssign(K[] keys);
+    method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
+    method public inline operator void plusAssign(androidx.collection.ScatterMap<K,V> from);
+    method public inline operator void plusAssign(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public inline operator void plusAssign(java.util.Map<K,? extends V> from);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V> pair);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>[] pairs);
+    method public inline operator void plusAssign(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public V? put(K key, V value);
+    method public void putAll(androidx.collection.ScatterMap<K,V> from);
+    method public void putAll(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public void putAll(java.util.Map<K,? extends V> from);
+    method public void putAll(kotlin.Pair<? extends K,? extends V>[] pairs);
+    method public void putAll(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public V? remove(K key);
+    method public boolean remove(K key, V value);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method public operator void set(K key, V value);
+    method public int trim();
+  }
+
+  public final class MutableScatterSet<E> extends androidx.collection.ScatterSet<E> {
+    ctor public MutableScatterSet(optional int initialCapacity);
+    method public boolean add(E element);
+    method public boolean addAll(androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean addAll(E[] elements);
+    method public boolean addAll(Iterable<? extends E> elements);
+    method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public java.util.Set<E> asMutableSet();
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
+    method public operator void minusAssign(E element);
+    method public operator void minusAssign(E[] elements);
+    method public operator void minusAssign(Iterable<? extends E> elements);
+    method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
+    method public operator void plusAssign(E element);
+    method public operator void plusAssign(E[] elements);
+    method public operator void plusAssign(Iterable<? extends E> elements);
+    method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public boolean remove(E element);
+    method public boolean removeAll(androidx.collection.ObjectList<E> elements);
+    method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean removeAll(E[] elements);
+    method public boolean removeAll(Iterable<? extends E> elements);
+    method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
+    method @kotlin.PublishedApi internal void removeElementAt(int index);
+    method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method @IntRange(from=0L) public int trim();
+  }
+
+  public abstract sealed class ObjectFloatMap<K> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(K key);
+    method public final boolean containsKey(K key);
+    method public final boolean containsValue(float value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(K key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method public final operator float get(K key);
+    method public final int getCapacity();
+    method public final float getOrDefault(K key, float defaultValue);
+    method public final inline float getOrElse(K key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal Object?[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal float[] values;
+  }
+
+  public final class ObjectFloatMapKt {
+    method public static <K> androidx.collection.ObjectFloatMap<K> emptyObjectFloatMap();
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf();
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4, K key5, float value5);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMap();
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4, K key5, float value5);
+  }
+
+  public abstract sealed class ObjectIntMap<K> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(K key);
+    method public final boolean containsKey(K key);
+    method public final boolean containsValue(int value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(K key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final operator int get(K key);
+    method public final int getCapacity();
+    method public final int getOrDefault(K key, int defaultValue);
+    method public final inline int getOrElse(K key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal Object?[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal int[] values;
+  }
+
+  public final class ObjectIntMapKt {
+    method public static <K> androidx.collection.ObjectIntMap<K> emptyObjectIntMap();
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf();
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4, K key5, int value5);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMap();
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4, K key5, int value5);
+  }
+
+  public abstract sealed class ObjectList<E> {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public abstract java.util.List<E> asList();
+    method public final operator boolean contains(E element);
+    method public final boolean containsAll(androidx.collection.ObjectList<E> elements);
+    method public final boolean containsAll(E[] elements);
+    method public final boolean containsAll(Iterable<? extends E> elements);
+    method public final boolean containsAll(java.util.List<? extends E> elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final E elementAt(@IntRange(from=0L) int index);
+    method public final inline E elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends E> defaultValue);
+    method public final E first();
+    method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E? firstOrNull();
+    method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super E,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super E,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super E,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super E,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super E,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super E,kotlin.Unit> block);
+    method public final operator E get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(E element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, optional kotlin.jvm.functions.Function1<? super E,? extends java.lang.CharSequence>? transform);
+    method public final E last();
+    method public final inline E last(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(E element);
+    method public final inline E? lastOrNull();
+    method public final inline E? lastOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal int _size;
+    field @kotlin.PublishedApi internal Object?[] content;
+  }
+
+  public final class ObjectListKt {
+    method public static <E> androidx.collection.ObjectList<E> emptyObjectList();
+    method public static inline <E> androidx.collection.MutableObjectList<E> mutableObjectListOf();
+    method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1);
+    method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1, E element2);
+    method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1, E element2, E element3);
+    method public static inline <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E... elements);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf();
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1, E element2);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E... elements);
+  }
+
+  public abstract sealed class ObjectLongMap<K> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(K key);
+    method public final boolean containsKey(K key);
+    method public final boolean containsValue(long value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
+    method @kotlin.PublishedApi internal final int findKeyIndex(K key);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method public final operator long get(K key);
+    method public final int getCapacity();
+    method public final long getOrDefault(K key, long defaultValue);
+    method public final inline long getOrElse(K key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,? extends java.lang.CharSequence> transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal Object?[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal long[] values;
+  }
+
+  public final class ObjectLongMapKt {
+    method public static <K> androidx.collection.ObjectLongMap<K> emptyObjectLongMap();
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf();
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4, K key5, long value5);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMap();
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4, K key5, long value5);
+  }
+
+  public abstract sealed class ScatterMap<K, V> {
+    method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public final java.util.Map<K,V> asMap();
+    method public final operator boolean contains(K key);
+    method public final boolean containsKey(K key);
+    method public final boolean containsValue(V value);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super V,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
+    method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
+    method public final operator V? get(K key);
+    method public final int getCapacity();
+    method public final V getOrDefault(K key, V defaultValue);
+    method public final inline V getOrElse(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, optional kotlin.jvm.functions.Function2<? super K,? super V,? extends java.lang.CharSequence>? transform);
+    method public final boolean none();
+    property public final int capacity;
+    property public final int size;
+    field @kotlin.PublishedApi internal Object?[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal Object?[] values;
+  }
+
+  public final class ScatterMapKt {
+    method public static <K, V> androidx.collection.ScatterMap<K,V> emptyScatterMap();
+    method @kotlin.PublishedApi internal static inline boolean isFull(long value);
+    method @kotlin.PublishedApi internal static inline int lowestBitSet(long);
+    method @kotlin.PublishedApi internal static inline long maskEmptyOrDeleted(long);
+    method @kotlin.PublishedApi internal static inline long match(long, int m);
+    method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf();
+    method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+    method @kotlin.PublishedApi internal static inline long readRawMetadata(long[] data, int offset);
+    field @kotlin.PublishedApi internal static final long BitmaskLsb = 72340172838076673L; // 0x101010101010101L
+    field @kotlin.PublishedApi internal static final long BitmaskMsb = -9187201950435737472L; // 0x8080808080808080L
+    field @kotlin.PublishedApi internal static final long Sentinel = 255L; // 0xffL
+  }
+
+  public abstract sealed class ScatterSet<E> {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final java.util.Set<E> asSet();
+    method public final operator boolean contains(E element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E first();
+    method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, optional kotlin.jvm.functions.Function1<? super E,? extends java.lang.CharSequence>? transform);
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal Object?[] elements;
+    field @kotlin.PublishedApi internal long[] metadata;
+  }
+
+  public final class ScatterSetKt {
+    method public static <E> androidx.collection.ScatterSet<E> emptyScatterSet();
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf();
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1);
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1, E element2);
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E... elements);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf();
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E... elements);
+  }
+
+  public class SimpleArrayMap<K, V> {
+    ctor public SimpleArrayMap();
+    ctor public SimpleArrayMap(androidx.collection.SimpleArrayMap<? extends K,? extends V>? map);
+    ctor public SimpleArrayMap(optional int capacity);
+    method public void clear();
+    method public boolean containsKey(K key);
+    method public boolean containsValue(V value);
+    method public void ensureCapacity(int minimumCapacity);
+    method public operator V? get(K key);
+    method public V getOrDefault(Object? key, V defaultValue);
+    method public int indexOfKey(K key);
+    method public boolean isEmpty();
+    method public K keyAt(int index);
+    method public V? put(K key, V value);
+    method public void putAll(androidx.collection.SimpleArrayMap<? extends K,? extends V> map);
+    method public V? putIfAbsent(K key, V value);
+    method public V? remove(K key);
+    method public boolean remove(K key, V value);
+    method public V removeAt(int index);
+    method public V? replace(K key, V value);
+    method public boolean replace(K key, V oldValue, V newValue);
+    method public V setValueAt(int index, V value);
+    method public int size();
+    method public V valueAt(int index);
+  }
+
+  public class SparseArrayCompat<E> implements java.lang.Cloneable {
+    ctor public SparseArrayCompat();
+    ctor public SparseArrayCompat(optional int initialCapacity);
+    method public void append(int key, E value);
+    method public void clear();
+    method public androidx.collection.SparseArrayCompat<E> clone();
+    method public boolean containsKey(int key);
+    method public boolean containsValue(E value);
+    method @Deprecated public void delete(int key);
+    method public operator E? get(int key);
+    method public E get(int key, E defaultValue);
+    method public final boolean getIsEmpty();
+    method public int indexOfKey(int key);
+    method public int indexOfValue(E value);
+    method public boolean isEmpty();
+    method public int keyAt(int index);
+    method public void put(int key, E value);
+    method public void putAll(androidx.collection.SparseArrayCompat<? extends E> other);
+    method public E? putIfAbsent(int key, E value);
+    method public void remove(int key);
+    method public boolean remove(int key, Object? value);
+    method public void removeAt(int index);
+    method public void removeAtRange(int index, int size);
+    method public E? replace(int key, E value);
+    method public boolean replace(int key, E oldValue, E newValue);
+    method public void setValueAt(int index, E value);
+    method public int size();
+    method public E valueAt(int index);
+    property public final boolean isEmpty;
+  }
+
+  public final class SparseArrayKt {
+    method public static inline operator <T> boolean contains(androidx.collection.SparseArrayCompat<T>, int key);
+    method public static inline <T> void forEach(androidx.collection.SparseArrayCompat<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
+    method public static inline <T> T getOrDefault(androidx.collection.SparseArrayCompat<T>, int key, T defaultValue);
+    method public static inline <T> T getOrElse(androidx.collection.SparseArrayCompat<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> int getSize(androidx.collection.SparseArrayCompat<T>);
+    method public static inline <T> boolean isNotEmpty(androidx.collection.SparseArrayCompat<T>);
+    method public static <T> kotlin.collections.IntIterator keyIterator(androidx.collection.SparseArrayCompat<T>);
+    method public static operator <T> androidx.collection.SparseArrayCompat<T> plus(androidx.collection.SparseArrayCompat<T>, androidx.collection.SparseArrayCompat<T> other);
+    method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T value);
+    method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T value);
+    method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
+  }
+
+}
+
+package androidx.collection.internal {
+
+  public final class PackingHelpers_jvmKt {
+    method @kotlin.PublishedApi internal static inline float floatFromBits(int bits);
+  }
+
+}
+

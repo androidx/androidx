@@ -34,9 +34,7 @@ internal interface ExternalCameraPipeComponent {
 @Module
 internal abstract class ExternalCameraPipeModules {
     companion object {
-        @Singleton
-        @Provides
-        fun provideCameraSurfaceManager() = CameraSurfaceManager()
+        @Singleton @Provides fun provideCameraSurfaceManager() = CameraSurfaceManager()
     }
 
     @Binds

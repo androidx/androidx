@@ -27,14 +27,10 @@ import org.junit.runners.Parameterized
 class ValidatingOffsetMappingKtTest {
 
     companion object {
-        @Parameterized.Parameters
-        @JvmStatic
-        fun params() = (0..100).toList()
+        @Parameterized.Parameters @JvmStatic fun params() = (0..100).toList()
     }
 
-    @Parameterized.Parameter(0)
-    @JvmField
-    var index: Int = -1
+    @Parameterized.Parameter(0) @JvmField var index: Int = -1
     private val maxValue = 10
 
     private val longText = "a".repeat(100)
@@ -70,26 +66,27 @@ class ValidatingOffsetMappingKtTest {
         throwTransformedToOriginal(index).throwIfNotValidTransform(longText.length, maxValue)
     }
 
-    private fun throwOriginalToTransformed(throwAtPosition: Int) = TransformedText(
-        AnnotatedString(longText),
-        offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int) = if (offset == throwAtPosition)
-                Int.MAX_VALUE
-            else
-                offset
+    private fun throwOriginalToTransformed(throwAtPosition: Int) =
+        TransformedText(
+            AnnotatedString(longText),
+            offsetMapping =
+                object : OffsetMapping {
+                    override fun originalToTransformed(offset: Int) =
+                        if (offset == throwAtPosition) Int.MAX_VALUE else offset
 
-            override fun transformedToOriginal(offset: Int) = offset
-        }
-    )
+                    override fun transformedToOriginal(offset: Int) = offset
+                }
+        )
 
-    private fun throwTransformedToOriginal(throwAtPosition: Int) = TransformedText(
-        AnnotatedString(longText),
-        offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int) = offset
-            override fun transformedToOriginal(offset: Int) = if (offset == throwAtPosition)
-                Int.MAX_VALUE
-            else
-                offset
-        }
-    )
+    private fun throwTransformedToOriginal(throwAtPosition: Int) =
+        TransformedText(
+            AnnotatedString(longText),
+            offsetMapping =
+                object : OffsetMapping {
+                    override fun originalToTransformed(offset: Int) = offset
+
+                    override fun transformedToOriginal(offset: Int) =
+                        if (offset == throwAtPosition) Int.MAX_VALUE else offset
+                }
+        )
 }

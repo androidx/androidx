@@ -16,7 +16,7 @@
 
 package androidx.build.testutils
 
-/* ktlint-disable max-line-length */
+
 
 /**
  * POM for androidx.collection:collection:1.3.0-alpha04, which is a KMP library anchor artifact.
@@ -260,4 +260,4 @@ const val POM_CORE_CORE = """<?xml version="1.0" encoding="UTF-8"?>
   </dependencies>
 </project>
 """
-/* ktlint-enable max-line-length */
+

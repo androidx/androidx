@@ -35,17 +35,18 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InfiniteTransitionComposeAnimationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun apiAvailable() {
         assertTrue(InfiniteTransitionComposeAnimation.apiAvailable)
         rule.setContent {
-            val composeAnimation = AnimationSearch.InfiniteTransitionSearchInfo(
-                rememberInfiniteTransition(),
-                ToolingState(0L)
-            ).parse()
+            val composeAnimation =
+                AnimationSearch.InfiniteTransitionSearchInfo(
+                        rememberInfiniteTransition(),
+                        ToolingState(0L)
+                    )
+                    .parse()
             assertNotNull(composeAnimation)
             composeAnimation!!
             assertNotNull(composeAnimation.animationObject)
@@ -60,10 +61,12 @@ class InfiniteTransitionComposeAnimationTest {
         InfiniteTransitionComposeAnimation.testOverrideAvailability(false)
         assertFalse(InfiniteTransitionComposeAnimation.apiAvailable)
         rule.setContent {
-            val composeAnimation = AnimationSearch.InfiniteTransitionSearchInfo(
-                rememberInfiniteTransition(),
-                ToolingState(0L)
-            ).parse()
+            val composeAnimation =
+                AnimationSearch.InfiniteTransitionSearchInfo(
+                        rememberInfiniteTransition(),
+                        ToolingState(0L)
+                    )
+                    .parse()
             assertNull(composeAnimation)
         }
         InfiniteTransitionComposeAnimation.testOverrideAvailability(true)

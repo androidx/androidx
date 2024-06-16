@@ -37,14 +37,21 @@ import java.util.EnumSet
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.calls.KtCall
 import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
+import org.jetbrains.kotlin.analysis.api.calls.KtImplicitReceiverValue
 import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
+import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtFunctionSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtReceiverParameterSymbol
+import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
+import org.jetbrains.kotlin.psi.KtThisExpression
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
 import org.jetbrains.uast.UCallExpression
@@ -56,105 +63,112 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
  * [Detector] that checks functions returning Modifiers for consistency with guidelines.
- *
  * - Modifier factory functions should return Modifier as their type, and not a subclass of Modifier
  * - Modifier factory functions should be defined as an extension on Modifier to allow fluent
- * chaining
+ *   chaining
  * - Modifier factory functions should not be marked as @Composable, and should use `composed`
- * instead
+ *   instead
  * - Modifier factory functions should reference the receiver parameter inside their body to make
- * sure they don't drop old Modifiers in the chain
+ *   sure they don't drop old Modifiers in the chain
  */
 class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UMethod::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitMethod(node: UMethod) {
-            // Ignore functions that do not return
-            val returnType = node.returnType ?: return
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitMethod(node: UMethod) {
+                // Ignore functions that do not return
+                val returnType = node.returnType ?: return
 
-            // Ignore functions that do not return Modifier or something implementing Modifier
-            if (!returnType.inheritsFrom(Names.Ui.Modifier)) return
+                // Ignore functions that do not return Modifier or something implementing Modifier
+                if (!returnType.inheritsFrom(Names.Ui.Modifier)) return
 
-            // Ignore ParentDataModifiers - this is a special type of Modifier where the type is
-            // used to provide data for use in layout, so we don't want to warn here.
-            if (returnType.inheritsFrom(Names.Ui.Layout.ParentDataModifier)) return
+                // Ignore ParentDataModifiers - this is a special type of Modifier where the type is
+                // used to provide data for use in layout, so we don't want to warn here.
+                if (returnType.inheritsFrom(Names.Ui.Layout.ParentDataModifier)) return
 
-            val source = node.sourcePsi
+                val source = node.sourcePsi
 
-            // If this node is a property that is a constructor parameter, ignore it.
-            if (source is KtParameter) return
+                // If this node is a property that is a constructor parameter, ignore it.
+                if (source is KtParameter) return
 
-            // Ignore properties in some cases
-            if (source is KtProperty) {
-                // If this node is inside a class or object, ignore it.
-                if (source.containingClassOrObject != null) return
-                // If this node is a var, ignore it.
-                if (source.isVar) return
-                // If this node is a val with no getter, ignore it.
-                if (source.getter == null) return
+                // Ignore properties in some cases
+                if (source is KtProperty) {
+                    // If this node is inside a class or object, ignore it.
+                    if (source.containingClassOrObject != null) return
+                    // If this node is a var, ignore it.
+                    if (source.isVar) return
+                    // If this node is a val with no getter, ignore it.
+                    if (source.getter == null) return
+                }
+                if (source is KtPropertyAccessor) {
+                    // If this node is inside a class or object, ignore it.
+                    if (source.property.containingClassOrObject != null) return
+                    // If this node is a getter on a var, ignore it.
+                    if (source.property.isVar) return
+                }
+
+                node.checkReturnType(context, returnType)
+                node.checkReceiver(context)
             }
-            if (source is KtPropertyAccessor) {
-                // If this node is inside a class or object, ignore it.
-                if (source.property.containingClassOrObject != null) return
-                // If this node is a getter on a var, ignore it.
-                if (source.property.isVar) return
-            }
-
-            node.checkReturnType(context, returnType)
-            node.checkReceiver(context)
         }
-    }
 
     companion object {
-        val ModifierFactoryReturnType = Issue.create(
-            "ModifierFactoryReturnType",
-            "Modifier factory functions should return Modifier",
-            "Modifier factory functions should return Modifier as their type, and not a " +
-                "subtype of Modifier (such as Modifier.Element).",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                ModifierDeclarationDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ModifierFactoryReturnType =
+            Issue.create(
+                "ModifierFactoryReturnType",
+                "Modifier factory functions should return Modifier",
+                "Modifier factory functions should return Modifier as their type, and not a " +
+                    "subtype of Modifier (such as Modifier.Element).",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    ModifierDeclarationDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
 
-        val ModifierFactoryExtensionFunction = Issue.create(
-            "ModifierFactoryExtensionFunction",
-            "Modifier factory functions should be extensions on Modifier",
-            "Modifier factory functions should be defined as extension functions on" +
-                " Modifier to allow modifiers to be fluently chained.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                ModifierDeclarationDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ModifierFactoryExtensionFunction =
+            Issue.create(
+                "ModifierFactoryExtensionFunction",
+                "Modifier factory functions should be extensions on Modifier",
+                "Modifier factory functions should be defined as extension functions on" +
+                    " Modifier to allow modifiers to be fluently chained.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    ModifierDeclarationDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
 
-        val ModifierFactoryUnreferencedReceiver = Issue.create(
-            "ModifierFactoryUnreferencedReceiver",
-            "Modifier factory functions must use the receiver Modifier instance",
-            "Modifier factory functions are fluently chained to construct a chain of " +
-                "Modifier objects that will be applied to a layout. As a result, each factory " +
-                "function *must* use the receiver `Modifier` parameter, to ensure that the " +
-                "function is returning a chain that includes previous items in the chain. Make " +
-                "sure the returned chain either explicitly includes `this`, such as " +
-                "`return this.then(MyModifier)` or implicitly by returning a chain that starts " +
-                "with an implicit call to another factory function, such as " +
-                "`return myModifier()`, where `myModifier` is defined as " +
-                "`fun Modifier.myModifier(): Modifier`.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ModifierDeclarationDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ModifierFactoryUnreferencedReceiver =
+            Issue.create(
+                "ModifierFactoryUnreferencedReceiver",
+                "Modifier factory functions must use the receiver Modifier instance",
+                "Modifier factory functions are fluently chained to construct a chain of " +
+                    "Modifier objects that will be applied to a layout. As a result, each factory " +
+                    "function *must* use the receiver `Modifier` parameter, to ensure that the " +
+                    "function is returning a chain that includes previous items in the chain. Make " +
+                    "sure the returned chain either explicitly includes `this`, such as " +
+                    "`return this.then(MyModifier)` or implicitly by returning a chain that starts " +
+                    "with an implicit call to another factory function, such as " +
+                    "`return myModifier()`, where `myModifier` is defined as " +
+                    "`fun Modifier.myModifier(): Modifier`.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ModifierDeclarationDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 
-/**
- * @see [ModifierDeclarationDetector.ModifierFactoryExtensionFunction]
- */
+/** @see [ModifierDeclarationDetector.ModifierFactoryExtensionFunction] */
 private fun UMethod.checkReceiver(context: JavaContext) {
     fun report(lintFix: LintFix? = null) {
         context.report(
@@ -166,11 +180,12 @@ private fun UMethod.checkReceiver(context: JavaContext) {
         )
     }
 
-    val source = when (val source = sourcePsi) {
-        is KtFunction -> source
-        is KtPropertyAccessor -> source.property
-        else -> return
-    }
+    val source =
+        when (val source = sourcePsi) {
+            is KtFunction -> source
+            is KtPropertyAccessor -> source.property
+            else -> return
+        }
 
     val receiverTypeReference = source.receiverTypeReference
 
@@ -191,16 +206,17 @@ private fun UMethod.checkReceiver(context: JavaContext) {
         val receiverType = (receiverTypeReference.typeElement as KtUserType)
         val receiverShortName = receiverType.referencedName
         // Try to resolve the class definition of the receiver
-        val receiverFqn = (
-            receiverType.referenceExpression.toUElement()?.tryResolve().toUElement() as? PsiClass
-            )?.qualifiedName
-        val hasModifierReceiver = if (receiverFqn != null) {
-            // If we could resolve the class, match fqn
-            receiverFqn == Names.Ui.Modifier.javaFqn
-        } else {
-            // Otherwise just try and match the short names
-            receiverShortName == Names.Ui.Modifier.shortName
-        }
+        val receiverFqn =
+            (receiverType.referenceExpression.toUElement()?.tryResolve().toUElement() as? PsiClass)
+                ?.qualifiedName
+        val hasModifierReceiver =
+            if (receiverFqn != null) {
+                // If we could resolve the class, match fqn
+                receiverFqn == Names.Ui.Modifier.javaFqn
+            } else {
+                // Otherwise just try and match the short names
+                receiverShortName == Names.Ui.Modifier.shortName
+            }
         if (!hasModifierReceiver) {
             report(
                 LintFix.create()
@@ -221,49 +237,80 @@ private fun UMethod.checkReceiver(context: JavaContext) {
     }
 }
 
-/**
- * See [ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver]
- */
+/** See [ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver] */
 private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
+    val factoryMethod = this
     var isReceiverReferenced = false
-    accept(object : AbstractUastVisitor() {
-        /**
-         * If there is no receiver on the call, but the call has a Modifier receiver
-         * type, then the call is implicitly using the Modifier receiver
-         * TODO: consider checking for nested receivers, in case the implicit
-         *  receiver is an inner scope, and not the outer Modifier receiver
-         */
-        override fun visitCallExpression(node: UCallExpression): Boolean {
-            // We account for a receiver of `this` in `visitThisExpression`
-            if (node.receiver == null) {
-                val ktCallExpression = node.sourcePsi as? KtCallExpression
-                    ?: return isReceiverReferenced
+    accept(
+        object : AbstractUastVisitor() {
+            /**
+             * Checks for calls to functions with an implicit receiver (member / extension function)
+             * that use the Modifier receiver from the outer factory function.
+             */
+            override fun visitCallExpression(node: UCallExpression): Boolean {
+                val ktCallExpression =
+                    node.sourcePsi as? KtCallExpression ?: return isReceiverReferenced
                 analyze(ktCallExpression) {
                     val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
                     val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
-                    val receiver = callee?.extensionReceiver ?: callee?.dispatchReceiver
-                    val receiverClass = receiver?.type?.expandedClassSymbol?.classIdIfNonLocal
-                    if (receiverClass?.asFqNameString() == Names.Ui.Modifier.javaFqn) {
+                    val receiver =
+                        (callee?.extensionReceiver ?: callee?.dispatchReceiver)
+                        // Explicit receivers of `this` are handled separately in
+                        // visitThisExpression -
+                        // that lets us be more defensive and avoid warning for cases like passing
+                        // `this` as a parameter to a function / class where we may run into false
+                        // positives if we only account for explicit receivers in a call expression.
+                        as? KtImplicitReceiverValue ?: return isReceiverReferenced
+                    val symbol = receiver.symbol as? KtReceiverParameterSymbol
+                    // The symbol of the enclosing factory method
+                    val enclosingMethodSymbol =
+                        (factoryMethod.sourcePsi as? KtDeclaration)?.getSymbol()
+                            as? KtFunctionSymbol
+                    // If the receiver parameter symbol matches the outer modifier factory's
+                    // symbol, then that means that the receiver for this call is the
+                    // factory method, and not some other declaration that provides a modifier
+                    // receiver.
+                    if (symbol == enclosingMethodSymbol?.receiverParameter) {
                         isReceiverReferenced = true
                         // no further tree traversal, since we found receiver usage.
                         return true
                     }
                 }
+                return isReceiverReferenced
             }
-            return isReceiverReferenced
-        }
 
-        /**
-         * If `this` is explicitly referenced, no error.
-         * TODO: consider checking for nested receivers, in case `this` refers to an
-         * inner scope, and not the outer Modifier receiver
-         */
-        override fun visitThisExpression(node: UThisExpression): Boolean {
-            isReceiverReferenced = true
-            // no further tree traversal, since we found receiver usage.
-            return true
+            /**
+             * If `this` is explicitly referenced, and points to the receiver of the outer factory
+             * function, no error.
+             */
+            override fun visitThisExpression(node: UThisExpression): Boolean {
+                val ktThisExpression =
+                    node.sourcePsi as? KtThisExpression ?: return isReceiverReferenced
+                analyze(ktThisExpression) {
+                    val symbol = ktThisExpression.instanceReference.mainReference.resolveToSymbol()
+                    val referredMethodSymbol =
+                        when (symbol) {
+                            is KtReceiverParameterSymbol -> symbol.owningCallableSymbol
+                            is KtCallableSymbol -> symbol
+                            else -> null
+                        }
+                    // The symbol of the enclosing factory method
+                    val enclosingMethodSymbol =
+                        (factoryMethod.sourcePsi as? KtDeclaration)?.getSymbol()
+                            as? KtFunctionSymbol
+                    // If the symbol `this` points to matches the enclosing factory method, then we
+                    // consider the modifier receiver referenced. If the symbols do not match,
+                    // `this` might point to an inner scope
+                    if (referredMethodSymbol == enclosingMethodSymbol) {
+                        isReceiverReferenced = true
+                        // no further tree traversal, since we found receiver usage.
+                        return true
+                    }
+                }
+                return isReceiverReferenced
+            }
         }
-    })
+    )
     if (!isReceiverReferenced) {
         context.report(
             ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
@@ -274,9 +321,7 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
     }
 }
 
-/**
- * @see [ModifierDeclarationDetector.ModifierFactoryReturnType]
- */
+/** @see [ModifierDeclarationDetector.ModifierFactoryReturnType] */
 private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
     fun report(lintFix: LintFix? = null) {
         context.report(
@@ -362,9 +407,9 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
 
 /**
  * TODO: UMethod.returnTypeReference is not available in LINT_API_MIN, so instead use this with a
- * [KtCallableDeclaration].
- * See [org.jetbrains.uast.kotlin.declarations.KotlinUMethod.returnTypeReference] on newer UAST
- * versions.
+ *   [KtCallableDeclaration]. See
+ *   [org.jetbrains.uast.kotlin.declarations.KotlinUMethod.returnTypeReference] on newer UAST
+ *   versions.
  */
 private val KtCallableDeclaration.returnTypeString: String?
     get() {

@@ -17,7 +17,6 @@
 package androidx.camera.core.impl.capability;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Preview;
@@ -29,7 +28,6 @@ import androidx.camera.core.impl.CameraInfoInternal;
  * retrieve {@link Preview} related capabilities.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21)
 public class PreviewCapabilitiesImpl implements PreviewCapabilities {
 
     private boolean mIsStabilizationSupported;

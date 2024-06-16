@@ -20,12 +20,9 @@ import static org.junit.Assume.assumeFalse;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * Utility methods for testing related to Android OS.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AndroidUtil {
 
     private AndroidUtil() {

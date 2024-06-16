@@ -51,27 +51,31 @@ internal class CameraSelectionOptimizer {
                 }
 
                 // Skip camera ID by heuristic: 0 is back lens facing, 1 is front lens facing.
-                val skippedCameraId: String? = try {
-                    decideSkippedCameraIdByHeuristic(
-                        cameraDevices,
-                        availableCamerasSelector.lensFacing
-                    )
-                } catch (e: IllegalStateException) {
-                    // Device doesn't need to have front and/or back camera.
-                    // This exception doesn't mean error.
-                    Log.debug(e) { "Unable to get Metadata for cameraID 0 and/or 1" }
-                    // Don't skip camera if there is any conflict in camera lens facing.
-                    null
-                }
+                val skippedCameraId: String? =
+                    try {
+                        decideSkippedCameraIdByHeuristic(
+                            cameraDevices,
+                            availableCamerasSelector.lensFacing
+                        )
+                    } catch (e: IllegalStateException) {
+                        // Device doesn't need to have front and/or back camera.
+                        // This exception doesn't mean error.
+                        Log.debug(e) { "Unable to get Metadata for cameraID 0 and/or 1" }
+                        // Don't skip camera if there is any conflict in camera lens facing.
+                        null
+                    }
                 val cameraInfos = mutableListOf<CameraInfo>()
                 for (id in cameraIdList) {
                     if (id == skippedCameraId) {
                         continue
                     }
                     val cameraInfo =
-                        cameraAppComponent.cameraBuilder().config(CameraConfig(CameraId(id)))
+                        cameraAppComponent
+                            .cameraBuilder()
+                            .config(CameraConfig(CameraId(id)))
                             .build()
-                            .getCameraInternal().cameraInfoInternal
+                            .getCameraInternal()
+                            .cameraInfoInternal
                     cameraInfos.add(cameraInfo)
                 }
                 val filteredCameraInfos = availableCamerasSelector.filter(cameraInfos)
@@ -103,8 +107,9 @@ internal class CameraSelectionOptimizer {
                 if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_BACK) {
                     val camera0Metadata = cameraDevices.awaitCameraMetadata(CameraId("0"))
                     checkNotNull(camera0Metadata)
-                    if (camera0Metadata[CameraCharacteristics.LENS_FACING] ==
-                        CameraCharacteristics.LENS_FACING_BACK
+                    if (
+                        camera0Metadata[CameraCharacteristics.LENS_FACING] ==
+                            CameraCharacteristics.LENS_FACING_BACK
                     ) {
                         // If apps requires back lens facing,  and "0" is confirmed to be back
                         // We can safely ignore "1" as a optimization for initialization latency
@@ -113,8 +118,9 @@ internal class CameraSelectionOptimizer {
                 } else if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_FRONT) {
                     val camera1Metadata = cameraDevices.awaitCameraMetadata(CameraId("1"))
                     checkNotNull(camera1Metadata)
-                    if (camera1Metadata[CameraCharacteristics.LENS_FACING] ==
-                        CameraCharacteristics.LENS_FACING_FRONT
+                    if (
+                        camera1Metadata[CameraCharacteristics.LENS_FACING] ==
+                            CameraCharacteristics.LENS_FACING_FRONT
                     ) {
                         // If apps requires front lens facing,  and "1" is confirmed to be back
                         // We can safely ignore "0" as a optimization for initialization latency

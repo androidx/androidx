@@ -40,13 +40,8 @@ fun stateListSample() {
 
         Column {
             Row {
-                BasicTextField(
-                    value = name,
-                    onValueChange = { name = it }
-                )
-                Button(onClick = { names.add(name) }) {
-                    Text("Add")
-                }
+                BasicTextField(value = name, onValueChange = { name = it })
+                Button(onClick = { names.add(name) }) { Text("Add") }
             }
             Text("Added names:")
             Column {

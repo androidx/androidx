@@ -43,11 +43,9 @@ class OrientationConfigChangesOverriddenActivity : CameraActivity() {
                 mDisplayChanged.release()
             }
 
-            override fun onDisplayAdded(displayId: Int) {
-            }
+            override fun onDisplayAdded(displayId: Int) {}
 
-            override fun onDisplayRemoved(displayId: Int) {
-            }
+            override fun onDisplayRemoved(displayId: Int) {}
         }
     }
 
@@ -62,7 +60,6 @@ class OrientationConfigChangesOverriddenActivity : CameraActivity() {
     }
 
     // region For testing
-    @VisibleForTesting
-    val mDisplayChanged = Semaphore(0)
+    @VisibleForTesting val mDisplayChanged = Semaphore(0)
     // endregion
 }

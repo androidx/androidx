@@ -49,6 +49,7 @@ internal class InteractiveFrameClock(
         private const val TAG = "InteractiveFrameClock"
         private const val DEBUG = false
     }
+
     private val frameClock: BroadcastFrameClock = BroadcastFrameClock { onNewAwaiters() }
     private val lock = Any()
     private var currentHz = baselineHz
@@ -60,32 +61,29 @@ internal class InteractiveFrameClock(
      * rate is reset to [baselineHz]. If this function is called concurrently with itself, the
      * previous call is cancelled and a new interactive period is started.
      */
-    suspend fun startInteractive() = withTimeoutOrNull(interactiveTimeoutMs) {
-        stopInteractive()
-        suspendCancellableCoroutine { co ->
-            if (DEBUG) Log.d(TAG, "Starting interactive mode at ${interactiveHz}hz")
-            synchronized(lock) {
-                currentHz = interactiveHz
-                interactiveCoroutine = co
-            }
-
-            co.invokeOnCancellation {
-                if (DEBUG) Log.d(TAG, "Resetting frame rate to baseline at ${baselineHz}hz")
+    suspend fun startInteractive() =
+        withTimeoutOrNull(interactiveTimeoutMs) {
+            stopInteractive()
+            suspendCancellableCoroutine { co ->
+                if (DEBUG) Log.d(TAG, "Starting interactive mode at ${interactiveHz}hz")
                 synchronized(lock) {
-                    currentHz = baselineHz
-                    interactiveCoroutine = null
+                    currentHz = interactiveHz
+                    interactiveCoroutine = co
+                }
+
+                co.invokeOnCancellation {
+                    if (DEBUG) Log.d(TAG, "Resetting frame rate to baseline at ${baselineHz}hz")
+                    synchronized(lock) {
+                        currentHz = baselineHz
+                        interactiveCoroutine = null
+                    }
                 }
             }
         }
-    }
 
-    /**
-     * Cancel the call to startInteractive() if running, and reset the frame rate to baseline.
-     */
+    /** Cancel the call to startInteractive() if running, and reset the frame rate to baseline. */
     fun stopInteractive() {
-        synchronized(lock) {
-            interactiveCoroutine?.cancel()
-        }
+        synchronized(lock) { interactiveCoroutine?.cancel() }
     }
 
     override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
@@ -125,11 +123,8 @@ internal class InteractiveFrameClock(
     private fun sendFrame(now: Long) {
         if (DEBUG) Log.d(TAG, "Sending next frame")
         frameClock.sendFrame(now)
-        synchronized(lock) {
-            lastFrame = now
-        }
+        synchronized(lock) { lastFrame = now }
     }
 
-    @VisibleForTesting
-    internal fun currentHz() = synchronized(lock) { currentHz }
+    @VisibleForTesting internal fun currentHz() = synchronized(lock) { currentHz }
 }

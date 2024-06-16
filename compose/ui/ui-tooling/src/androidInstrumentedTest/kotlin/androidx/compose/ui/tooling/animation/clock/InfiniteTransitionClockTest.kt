@@ -42,16 +42,18 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InfiniteTransitionClockTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun checkAnimatedPropertiesForAnimateFloat() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateFloat(
-                0.2f, 2.1f, infiniteRepeatable(tween(300), RepeatMode.Reverse), label = "Test label"
+                0.2f,
+                2.1f,
+                infiniteRepeatable(tween(300), RepeatMode.Reverse),
+                label = "Test label"
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)
@@ -67,7 +69,7 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkAnimatedPropertiesForAnimateValue() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateValue(
@@ -91,7 +93,7 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkAnimatedPropertiesForAnimateColor() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateColor(
@@ -114,7 +116,7 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkAnimatedPropertiesForNullableAnimateValue() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateValue(
@@ -138,7 +140,7 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkTransitions() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateFloat(
@@ -197,7 +199,7 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkNullableTransitions() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateValue(
@@ -226,11 +228,12 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkDurationOfReverseAnimation() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateFloat(
-                0f, 1f,
+                0f,
+                1f,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
             )
         }
@@ -243,11 +246,12 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun checkDurationOfRestartAnimation() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateFloat(
-                0f, 1f,
+                0f,
+                1f,
                 infiniteRepeatable(tween(300, 50), RepeatMode.Restart),
             )
         }
@@ -260,19 +264,22 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun maxDurationIsCorrect() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateFloat(
-                0f, 1f,
+                0f,
+                1f,
                 infiniteRepeatable(tween(100), RepeatMode.Restart),
             )
             infiniteTransition.animateFloat(
-                0f, 1f,
+                0f,
+                1f,
                 infiniteRepeatable(tween(300), RepeatMode.Restart),
             )
             infiniteTransition.animateFloat(
-                0f, 1f,
+                0f,
+                1f,
                 infiniteRepeatable(tween(500), RepeatMode.Restart),
             )
         }
@@ -285,11 +292,12 @@ class InfiniteTransitionClockTest {
 
     @Test
     fun maxDurationFromOtherAnimations() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             val infiniteTransition = rememberInfiniteTransition()
             infiniteTransition.animateFloat(
-                0f, 1f,
+                0f,
+                1f,
                 infiniteRepeatable(tween(100), RepeatMode.Restart),
             )
         }

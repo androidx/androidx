@@ -45,7 +45,10 @@ data class DataPoint(
     val buttons: PointerButtons,
     val keyboardModifiers: PointerKeyboardModifiers,
 ) {
-    constructor(change: PointerInputChange, event: PointerEvent) : this(
+    constructor(
+        change: PointerInputChange,
+        event: PointerEvent
+    ) : this(
         change.id,
         change.uptimeMillis,
         change.position,
@@ -57,8 +60,11 @@ data class DataPoint(
         event.keyboardModifiers,
     )
 
-    val x get() = position.x
-    val y get() = position.y
+    val x
+        get() = position.x
+
+    val y
+        get() = position.y
 }
 
 /**
@@ -66,15 +72,16 @@ data class DataPoint(
  * [PointerEventPass.Initial] phase, without consuming anything. This modifier is supposed to be
  * completely transparent to the rest of the system.
  *
- * Does not support multiple pointers: all [PointerInputChange]s are flattened in the recorded
- * list.
+ * Does not support multiple pointers: all [PointerInputChange]s are flattened in the recorded list.
  */
 class SinglePointerInputRecorder : PointerInputModifier {
     private val _events = mutableListOf<DataPoint>()
-    val events get() = _events as List<DataPoint>
+    val events
+        get() = _events as List<DataPoint>
 
     private val velocityTracker = VelocityTracker()
-    val recordedVelocity get() = velocityTracker.calculateVelocity()
+    val recordedVelocity
+        get() = velocityTracker.calculateVelocity()
 
     override val pointerInputFilter = RecordingFilter { event ->
         event.changes.forEach {
@@ -89,17 +96,20 @@ class SinglePointerInputRecorder : PointerInputModifier {
  * [PointerEventPass.Initial] phase, without consuming anything. This modifier is supposed to be
  * completely transparent to the rest of the system.
  *
- * Supports multiple pointers: the set of [PointerInputChange]s from each event is kept together
- * in the recorded list.
+ * Supports multiple pointers: the set of [PointerInputChange]s from each event is kept together in
+ * the recorded list.
  */
 class MultiPointerInputRecorder : PointerInputModifier {
     data class Event(val pointers: List<DataPoint>) {
-        val pointerCount: Int get() = pointers.size
+        val pointerCount: Int
+            get() = pointers.size
+
         fun getPointer(index: Int) = pointers[index]
     }
 
     private val _events = mutableListOf<Event>()
-    val events get() = _events as List<Event>
+    val events
+        get() = _events as List<Event>
 
     override val pointerInputFilter = RecordingFilter { event ->
         _events.add(Event(event.changes.map { DataPoint(it, event) }))
@@ -111,9 +121,7 @@ class MultiPointerInputRecorder : PointerInputModifier {
  * [PointerEventPass.Initial] pass. Does not consume anything itself, although implementation can
  * (but really shouldn't).
  */
-class RecordingFilter(
-    private val record: (PointerEvent) -> Unit
-) : PointerInputFilter() {
+class RecordingFilter(private val record: (PointerEvent) -> Unit) : PointerInputFilter() {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -129,7 +137,8 @@ class RecordingFilter(
     }
 }
 
-val SinglePointerInputRecorder.downEvents get() = events.filter { it.down }
+val SinglePointerInputRecorder.downEvents
+    get() = events.filter { it.down }
 
 val SinglePointerInputRecorder.recordedDurationMillis: Long
     get() {
@@ -181,9 +190,7 @@ fun SinglePointerInputRecorder.verifyEvents(vararg verifiers: DataPoint.() -> Un
     assertThat(events).hasSize(verifiers.size)
     if (events.isNotEmpty()) {
         assertTimestampsAreIncreasing()
-        events.zip(verifiers) { event, verification ->
-            verification.invoke(event)
-        }
+        events.zip(verifiers) { event, verification -> verification.invoke(event) }
     }
 }
 
@@ -214,23 +221,19 @@ fun DataPoint.verify(
     assertWithMessage("keyModifiers$s").that(keyboardModifiers).isEqualTo(expectedKeyboardModifiers)
 }
 
-/**
- * Checks that the coordinates are progressing in a monotonous direction
- */
+/** Checks that the coordinates are progressing in a monotonous direction */
 fun List<DataPoint>.isMonotonicBetween(start: Offset, end: Offset) {
     map { it.x }.isMonotonicBetween(start.x, end.x, 1e-3f)
     map { it.y }.isMonotonicBetween(start.y, end.y, 1e-3f)
 }
 
 fun List<DataPoint>.hasSameTimeBetweenEvents() {
-    zipWithNext { a, b -> b.timestamp - a.timestamp }.sorted().apply {
-        assertThat(last() - first()).isAtMost(1L)
-    }
+    zipWithNext { a, b -> b.timestamp - a.timestamp }
+        .sorted()
+        .apply { assertThat(last() - first()).isAtMost(1L) }
 }
 
 fun List<DataPoint>.areSampledFromCurve(curve: (Long) -> Offset) {
     val t0 = first().timestamp
-    forEach {
-        it.position.isAlmostEqualTo(curve(it.timestamp - t0))
-    }
+    forEach { it.position.isAlmostEqualTo(curve(it.timestamp - t0)) }
 }

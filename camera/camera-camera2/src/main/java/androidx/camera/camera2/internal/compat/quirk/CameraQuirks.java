@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Provider of camera specific quirks. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraQuirks {
 
     private CameraQuirks() {
@@ -66,6 +64,12 @@ public class CameraQuirks {
         }
         if (CaptureNoResponseQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CaptureNoResponseQuirk());
+        }
+        if (LegacyCameraOutputConfigNullPointerQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new LegacyCameraOutputConfigNullPointerQuirk());
+        }
+        if (LegacyCameraSurfaceCleanupQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new LegacyCameraSurfaceCleanupQuirk());
         }
         if (ImageCaptureWashedOutImageQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new ImageCaptureWashedOutImageQuirk());
@@ -105,6 +109,18 @@ public class CameraQuirks {
         }
         if (TorchFlashRequiredFor3aUpdateQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new TorchFlashRequiredFor3aUpdateQuirk(cameraCharacteristicsCompat));
+        }
+        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new PreviewStretchWhenVideoCaptureIsBoundQuirk());
+        }
+        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new PreviewDelayWhenVideoCaptureIsBoundQuirk());
+        }
+        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
+        }
+        if (TemporalNoiseQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new TemporalNoiseQuirk());
         }
 
         return new Quirks(quirks);

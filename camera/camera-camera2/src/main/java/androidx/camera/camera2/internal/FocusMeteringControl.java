@@ -84,7 +84,6 @@ import java.util.concurrent.TimeUnit;
  * {@link FocusMeteringControl#addFocusMeteringOptions} to construct the 3A regions and append
  * them to all repeating requests and single requests.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 class FocusMeteringControl {
     private static final String TAG = "FocusMeteringControl";
@@ -404,8 +403,9 @@ class FocusMeteringControl {
             // On many devices, triggering Af with CONTROL_AE_MODE_ON_ALWAYS_FLASH or
             // CONTROL_AE_MODE_ON_AUTO_FLASH will fire the flash when it's low light.
             // Override it to AE_MODE_ON to prevent from this issue.
-            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
-                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+            configBuilder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AE_MODE,
+                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON),
+                    Config.OptionPriority.HIGH_PRIORITY_REQUIRED);
         }
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {

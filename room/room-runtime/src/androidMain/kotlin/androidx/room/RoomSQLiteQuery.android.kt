@@ -24,38 +24,26 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import java.util.TreeMap
 
 /**
- * This class is used as an intermediate place to keep binding arguments so that we can run
- * Cursor queries with correct types rather than passing everything as a string.
+ * This class is used as an intermediate place to keep binding arguments so that we can run Cursor
+ * queries with correct types rather than passing everything as a string.
  *
  * Because it is relatively a big object, they are pooled and must be released after each use.
- *
  */
 @SuppressLint("WrongConstant")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class RoomSQLiteQuery private constructor(
-    @field:VisibleForTesting val capacity: Int
-) : SupportSQLiteQuery, SupportSQLiteProgram {
-    @Volatile
-    private var query: String? = null
+class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity: Int) :
+    SupportSQLiteQuery, SupportSQLiteProgram {
+    @Volatile private var query: String? = null
 
-    @JvmField
-    @VisibleForTesting
-    val longBindings: LongArray
+    @JvmField @VisibleForTesting val longBindings: LongArray
 
-    @JvmField
-    @VisibleForTesting
-    val doubleBindings: DoubleArray
+    @JvmField @VisibleForTesting val doubleBindings: DoubleArray
 
-    @JvmField
-    @VisibleForTesting
-    val stringBindings: Array<String?>
+    @JvmField @VisibleForTesting val stringBindings: Array<String?>
 
-    @JvmField
-    @VisibleForTesting
-    val blobBindings: Array<ByteArray?>
+    @JvmField @VisibleForTesting val blobBindings: Array<ByteArray?>
 
-    @Binding
-    private val bindingTypes: IntArray
+    @Binding private val bindingTypes: IntArray
 
     // number of arguments in the query
     override var argCount = 0
@@ -79,8 +67,8 @@ class RoomSQLiteQuery private constructor(
     /**
      * Releases the query back to the pool.
      *
-     * After released, the statement might be returned when [.acquire] is called
-     * so you should never re-use it after releasing.
+     * After released, the statement might be returned when [.acquire] is called so you should never
+     * re-use it after releasing.
      */
     fun release() {
         synchronized(queryPool) {
@@ -160,17 +148,13 @@ class RoomSQLiteQuery private constructor(
 
     companion object {
         // Maximum number of queries we'll keep cached.
-        @VisibleForTesting
-        const val POOL_LIMIT = 15
+        @VisibleForTesting const val POOL_LIMIT = 15
 
         // Once we hit POOL_LIMIT, we'll bring the pool size back to the desired number. We always
         // clear the bigger queries (# of arguments).
-        @VisibleForTesting
-        const val DESIRED_POOL_SIZE = 10
+        @VisibleForTesting const val DESIRED_POOL_SIZE = 10
 
-        @JvmField
-        @VisibleForTesting
-        val queryPool = TreeMap<Int, RoomSQLiteQuery>()
+        @JvmField @VisibleForTesting val queryPool = TreeMap<Int, RoomSQLiteQuery>()
 
         /**
          * Copies the given SupportSQLiteQuery and converts it into RoomSQLiteQuery.
@@ -180,10 +164,7 @@ class RoomSQLiteQuery private constructor(
          */
         @JvmStatic
         fun copyFrom(supportSQLiteQuery: SupportSQLiteQuery): RoomSQLiteQuery {
-            val query = acquire(
-                supportSQLiteQuery.sql,
-                supportSQLiteQuery.argCount
-            )
+            val query = acquire(supportSQLiteQuery.sql, supportSQLiteQuery.argCount)
 
             supportSQLiteQuery.bindTo(object : SupportSQLiteProgram by query {})
             return query
@@ -193,10 +174,10 @@ class RoomSQLiteQuery private constructor(
          * Returns a new RoomSQLiteQuery that can accept the given number of arguments and holds the
          * given query.
          *
-         * @param query         The query to prepare
+         * @param query The query to prepare
          * @param argumentCount The number of query arguments
          * @return A RoomSQLiteQuery that holds the given query and has space for the given number
-         * of arguments.
+         *   of arguments.
          */
         @JvmStatic
         fun acquire(query: String, argumentCount: Int): RoomSQLiteQuery {

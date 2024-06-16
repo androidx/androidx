@@ -25,8 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-enable max-line-length */
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class UseGetLayoutInflaterTest : LintDetectorTest() {
 
@@ -34,8 +32,9 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
 
     override fun getIssues(): MutableList<Issue> = mutableListOf(UseGetLayoutInflater.ISSUE)
 
-    private val dialogFragmentCorrectImplementationStubJava = java(
-        """
+    private val dialogFragmentCorrectImplementationStubJava =
+        java(
+                """
             package foo;
             import android.os.Bundle;
             import android.view.View;
@@ -52,10 +51,12 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentCorrectImplementationStubKotlin = kotlin(
-        """
+    private val dialogFragmentCorrectImplementationStubKotlin =
+        kotlin(
+                """
             package foo
             import android.app.Dialog
             import android.os.Bundle
@@ -67,10 +68,12 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubJava = java(
-        """
+    private val dialogFragmentStubJava =
+        java(
+                """
             package foo;
             import android.os.Bundle;
             import android.view.LayoutInflater;
@@ -93,10 +96,12 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val fragmentStubJava = java(
-        """
+    private val fragmentStubJava =
+        java(
+                """
             package foo;
             import android.os.Bundle;
             import android.view.LayoutInflater;
@@ -116,10 +121,12 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubKotlin = kotlin(
-        """
+    private val dialogFragmentStubKotlin =
+        kotlin(
+                """
             package foo
             import android.os.Bundle
             import android.view.LayoutInflater
@@ -137,10 +144,12 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val fragmentStubKotlin = kotlin(
-        """
+    private val fragmentStubKotlin =
+        kotlin(
+                """
             package foo
             import android.os.Bundle
             import android.view.LayoutInflater
@@ -155,11 +164,13 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
     @Test
     fun `java expect fail dialog fragment with fix`() {
-        lint().files(dialogFragmentStubJava)
+        lint()
+            .files(dialogFragmentStubJava)
             .allowCompilationErrors(true) // b/193540422
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
@@ -178,27 +189,28 @@ src/foo/TestFragment.java:16: Warning: Use of LayoutInflater.from(requireContext
                     @@ -16 +16
                     -         LayoutInflater li = LayoutInflater.from(requireContext());
                     +         LayoutInflater li = getLayoutInflater();
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `java expect clean non dialog fragment`() {
-        lint().files(fragmentStubJava, DIALOG_FRAGMENT)
-            .run()
-            .expectClean()
+        lint().files(fragmentStubJava, DIALOG_FRAGMENT).run().expectClean()
     }
 
     @Test
     fun `java expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubJava, DIALOG_FRAGMENT)
+        lint()
+            .files(dialogFragmentCorrectImplementationStubJava, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `kotlin expect fail dialog fragment`() {
-        lint().files(dialogFragmentStubKotlin, DIALOG_FRAGMENT)
+        lint()
+            .files(dialogFragmentStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expect(
                 """
@@ -213,14 +225,13 @@ src/foo/TestFragment.kt:13: Warning: Use of LayoutInflater.from(Context) detecte
 
     @Test
     fun `kotlin expect clean non dialog fragment`() {
-        lint().files(fragmentStubKotlin, DIALOG_FRAGMENT)
-            .run()
-            .expectClean()
+        lint().files(fragmentStubKotlin, DIALOG_FRAGMENT).run().expectClean()
     }
 
     @Test
     fun `kotlin expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubKotlin, DIALOG_FRAGMENT)
+        lint()
+            .files(dialogFragmentCorrectImplementationStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }

@@ -16,7 +16,9 @@
 
 package androidx.benchmark.gradle
 
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
@@ -29,6 +31,12 @@ import org.gradle.api.tasks.TaskContainer
 private const val ADDITIONAL_TEST_OUTPUT_KEY = "android.enableAdditionalTestOutput"
 
 class BenchmarkPlugin : Plugin<Project> {
+
+    companion object {
+
+        private const val PROP_FORCE_AOT_COMPILATION = "androidx.benchmark.forceaotcompilation"
+    }
+
     private var foundAndroidPlugin = false
 
     override fun apply(project: Project) {
@@ -44,12 +52,14 @@ class BenchmarkPlugin : Plugin<Project> {
         // Verify that the configuration from this plugin dependent on AGP was successfully applied.
         project.afterEvaluate {
             if (!foundAndroidPlugin) {
-                throw StopExecutionException("""
+                throw StopExecutionException(
+                    """
                         The androidx.benchmark plugin currently supports only android library
                         modules. Ensure that `com.android.library` is applied in the project
                         build.gradle file. Note that to run macrobenchmarks, this plugin is not
                         required.
-                        """.trimIndent()
+                        """
+                        .trimIndent()
                 )
             }
         }
@@ -59,9 +69,8 @@ class BenchmarkPlugin : Plugin<Project> {
         if (!foundAndroidPlugin) {
             foundAndroidPlugin = true
             val extension = project.extensions.getByType(TestedExtension::class.java)
-            val componentsExtension = project.extensions.getByType(
-                AndroidComponentsExtension::class.java
-            )
+            val componentsExtension =
+                project.extensions.getByType(AndroidComponentsExtension::class.java)
             configureWithAndroidExtension(project, extension, componentsExtension)
         }
     }
@@ -91,8 +100,9 @@ class BenchmarkPlugin : Plugin<Project> {
         extension.testBuildType = testBuildType
         extension.buildTypes.named(testBuildType).configure { it.isDefault = true }
 
-        if (!project.rootProject.hasProperty("android.injected.invoked.from.ide") &&
-            !testInstrumentationArgs.containsKey("androidx.benchmark.output.enable")
+        if (
+            !project.rootProject.hasProperty("android.injected.invoked.from.ide") &&
+                !testInstrumentationArgs.containsKey("androidx.benchmark.output.enable")
         ) {
             // NOTE: This argument is checked by ResultWriter to enable CI reports.
             defaultConfig.testInstrumentationRunnerArguments["androidx.benchmark.output.enable"] =
@@ -115,25 +125,27 @@ class BenchmarkPlugin : Plugin<Project> {
         }
 
         if (!project.rootProject.tasks.exists("unlockClocks")) {
-            project.rootProject.tasks.register("unlockClocks", UnlockClocksTask::class.java)
-                .configure {
-                    it.adbPath.set(adbPathProvider)
-                }
+            project.rootProject.tasks
+                .register("unlockClocks", UnlockClocksTask::class.java)
+                .configure { it.adbPath.set(adbPathProvider) }
         }
 
-        val extensionVariants = when (extension) {
-            is AppExtension -> extension.applicationVariants
-            is LibraryExtension -> extension.libraryVariants
-            else -> throw StopExecutionException(
-                """Missing required Android extension in project ${project.name}, this typically
+        val extensionVariants =
+            when (extension) {
+                is AppExtension -> extension.applicationVariants
+                is LibraryExtension -> extension.libraryVariants
+                else ->
+                    throw StopExecutionException(
+                        """Missing required Android extension in project ${project.name}, this typically
                     means you are missing the required com.android.application or
                     com.android.library plugins or they could not be found. The
                     androidx.benchmark plugin currently only supports android application or
                     library modules. Ensure that the required plugin is applied in the project
                     build.gradle file.
-                """.trimIndent()
-            )
-        }
+                """
+                            .trimIndent()
+                    )
+            }
 
         // NOTE: .configureEach here is a Gradle API, which will run the callback passed to it after
         // the extension variants have been resolved.
@@ -143,13 +155,15 @@ class BenchmarkPlugin : Plugin<Project> {
                 applied = true
 
                 // Note, this directory is hard-coded in AGP
-                val outputDir = project.layout.buildDirectory.dir(
-                    "outputs/connected_android_test_additional_output"
-                )
+                val outputDir =
+                    project.layout.buildDirectory.dir(
+                        "outputs/connected_android_test_additional_output"
+                    )
                 if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
                     // Only enable pulling benchmark data through this plugin on older versions of
                     // AGP that do not yet enable this flag.
-                    project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
+                    project.tasks
+                        .register("benchmarkReport", BenchmarkReportTask::class.java)
                         .configure { reportTask ->
                             reportTask.benchmarkReportDir.set(outputDir)
                             reportTask.adbPath.set(adbPathProvider)
@@ -188,12 +202,33 @@ class BenchmarkPlugin : Plugin<Project> {
                 }
             }
         }
+
+        // Enables experimental property `android.experimental.force-aot-compilation` if AGP
+        // version is at least 8.4.0. and `androidx.benchmark.forceaotcompilation` is `true`.
+        // By default this property is `true`.
+        val forceAotCompilation =
+            project.providers
+                .gradleProperty(PROP_FORCE_AOT_COMPILATION)
+                .map { it.toBoolean() }
+                .getOrElse(true)
+        if (forceAotCompilation) {
+            project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.let {
+                if (it.pluginVersion < AndroidPluginVersion(8, 4, 0)) {
+                    return@let
+                }
+                it.onVariants { v ->
+                    @Suppress("UnstableApiUsage") // usage of experimentalProperties
+                    v.experimentalProperties.put("android.experimental.force-aot-compilation", true)
+                }
+            }
+        }
     }
 
-    private fun TaskContainer.exists(taskName: String) = try {
-        named(taskName)
-        true
-    } catch (e: UnknownTaskException) {
-        false
-    }
+    private fun TaskContainer.exists(taskName: String) =
+        try {
+            named(taskName)
+            true
+        } catch (e: UnknownTaskException) {
+            false
+        }
 }

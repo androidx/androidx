@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = OnCreateDialogIncorrectCallbackDetector()
@@ -35,8 +34,9 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
         return mutableListOf(OnCreateDialogIncorrectCallbackDetector.ISSUE)
     }
 
-    private val dialogFragmentCorrectImplementationStubJava = java(
-        """
+    private val dialogFragmentCorrectImplementationStubJava =
+        java(
+                """
             package foo;
             import android.app.Dialog;
             import android.content.DialogInterface;
@@ -52,10 +52,12 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentCorrectImplementationStubKotlin = kotlin(
-        """
+    private val dialogFragmentCorrectImplementationStubKotlin =
+        kotlin(
+                """
             package foo
             import android.app.Dialog
             import android.content.DialogInterface
@@ -76,10 +78,12 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubJavaWithCancelListener = java(
-        """
+    private val dialogFragmentStubJavaWithCancelListener =
+        java(
+                """
             package foo;
             import android.app.Dialog;
             import android.content.DialogInterface;
@@ -95,10 +99,12 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubJavaWithDismissListener = java(
-        """
+    private val dialogFragmentStubJavaWithDismissListener =
+        java(
+                """
             package foo;
             import android.app.Dialog;
             import android.content.DialogInterface;
@@ -114,10 +120,12 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubKotlinWithCancelListener = kotlin(
-        """
+    private val dialogFragmentStubKotlinWithCancelListener =
+        kotlin(
+                """
             package foo
             import android.app.Dialog
             import android.content.DialogInterface
@@ -136,10 +144,12 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubKotlinWithDismissListener = kotlin(
-        """
+    private val dialogFragmentStubKotlinWithDismissListener =
+        kotlin(
+                """
             package foo
             import android.app.Dialog
             import android.content.DialogInterface
@@ -158,10 +168,12 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
-    private val dialogFragmentStubKotlinWithDismissAndCancelListeners = kotlin(
-        """
+    private val dialogFragmentStubKotlinWithDismissAndCancelListeners =
+        kotlin(
+                """
             package foo
             import android.app.Dialog
             import android.content.DialogInterface
@@ -177,11 +189,13 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 }
             }
             """
-    ).indented()
+            )
+            .indented()
 
     @Test
     fun `java expect fail dialog fragment with cancel listener`() {
-        lint().files(dialogFragmentStubJavaWithCancelListener, DIALOG_FRAGMENT, ALERT_DIALOG)
+        lint()
+            .files(dialogFragmentStubJavaWithCancelListener, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
             .run()
             .expect(
@@ -197,7 +211,8 @@ src/foo/TestFragment.java:11: Warning: Use onCancel() instead of calling setOnCa
 
     @Test
     fun `java expect fail dialog fragment with dismiss listener`() {
-        lint().files(dialogFragmentStubJavaWithDismissListener, DIALOG_FRAGMENT, ALERT_DIALOG)
+        lint()
+            .files(dialogFragmentStubJavaWithDismissListener, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
             .run()
             .expect(
@@ -213,7 +228,8 @@ src/foo/TestFragment.java:11: Warning: Use onDismiss() instead of calling setOnD
 
     @Test
     fun `java expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubJava, DIALOG_FRAGMENT, ALERT_DIALOG)
+        lint()
+            .files(dialogFragmentCorrectImplementationStubJava, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -221,7 +237,8 @@ src/foo/TestFragment.java:11: Warning: Use onDismiss() instead of calling setOnD
 
     @Test
     fun `kotlin expect fail dialog fragment with cancel listener`() {
-        lint().files(dialogFragmentStubKotlinWithCancelListener, DIALOG_FRAGMENT, ALERT_DIALOG)
+        lint()
+            .files(dialogFragmentStubKotlinWithCancelListener, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269
             .run()
@@ -238,7 +255,8 @@ src/foo/TestDialog.kt:10: Warning: Use onCancel() instead of calling setOnCancel
 
     @Test
     fun `kotlin expect fail dialog fragment with dismiss listener`() {
-        lint().files(dialogFragmentStubKotlinWithDismissListener, DIALOG_FRAGMENT, ALERT_DIALOG)
+        lint()
+            .files(dialogFragmentStubKotlinWithDismissListener, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269
             .run()
@@ -255,11 +273,13 @@ src/foo/TestDialog.kt:10: Warning: Use onDismiss() instead of calling setOnDismi
 
     @Test
     fun `kotlin expect fail dialog fragment with dismiss and cancel listeners`() {
-        lint().files(
-            dialogFragmentStubKotlinWithDismissAndCancelListeners,
-            DIALOG_FRAGMENT,
-            ALERT_DIALOG
-        ).allowCompilationErrors(false)
+        lint()
+            .files(
+                dialogFragmentStubKotlinWithDismissAndCancelListeners,
+                DIALOG_FRAGMENT,
+                ALERT_DIALOG
+            )
+            .allowCompilationErrors(false)
             .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269
             .run()
             .expect(
@@ -278,11 +298,8 @@ src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancel
 
     @Test
     fun `kotlin expect clean dialog fragment`() {
-        lint().files(
-            dialogFragmentCorrectImplementationStubKotlin,
-            DIALOG_FRAGMENT,
-            ALERT_DIALOG
-        )
+        lint()
+            .files(dialogFragmentCorrectImplementationStubKotlin, DIALOG_FRAGMENT, ALERT_DIALOG)
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -290,58 +307,65 @@ src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancel
 
     @Test
     fun `kotlin empty interface clean`() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                        """
             package com.example
 
             class Foo
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun `java empty interface clean`() {
-        lint().files(
-            java(
-                """
+        lint()
+            .files(
+                java(
+                        """
             package com.example;
 
             public class Foo {
 
             }
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun `kotlin anonymous object`() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                        """
             package com.example
 
             val foo = object : Foo() {
                 override fun test() { }
             }
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun `java anonymous object`() {
-        lint().files(
-            java(
-                """
+        lint()
+            .files(
+                java(
+                        """
             package com.example;
 
             interface Foo {
@@ -352,8 +376,9 @@ src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancel
                 Foo foo = (com.example.Foo)()-> { };
             }
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }

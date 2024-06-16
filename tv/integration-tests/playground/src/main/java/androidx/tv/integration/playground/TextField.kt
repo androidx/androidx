@@ -78,53 +78,47 @@ fun SampleTextField(label: String, keyboardType: KeyboardType = KeyboardType.Tex
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },
-        label = {
-            Text(label)
-        },
+        label = { Text(label) },
         singleLine = true,
-        placeholder = {
-            Text("$label...")
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            platformImeOptions = PlatformImeOptions(TvKeyboardAlignment.Left),
-            imeAction = ImeAction.Next
-        ),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedBorderColor = MaterialTheme.colorScheme.border,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            cursorColor = MaterialTheme.colorScheme.primary,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            errorLabelColor = MaterialTheme.colorScheme.error,
-            errorBorderColor = MaterialTheme.colorScheme.error
-        )
+        placeholder = { Text("$label...") },
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = keyboardType,
+                platformImeOptions = PlatformImeOptions(TvKeyboardAlignment.Left),
+                imeAction = ImeAction.Next
+            ),
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedBorderColor = MaterialTheme.colorScheme.border,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+                errorBorderColor = MaterialTheme.colorScheme.error
+            )
     )
 }
 
 @Composable
 fun SampleButton(text: String) {
-    Button(
-        onClick = { }
-    ) {
-        Text(text)
-    }
+    Button(onClick = {}) { Text(text) }
 }
 
 @Composable
 private fun SampleCardItem() {
     Box(
-        modifier = Modifier
-            .background(Color.Magenta.copy(alpha = 0.3f))
-            .width(50.dp)
-            .height(50.dp)
-            .drawBorderOnFocus()
-            .focusable()
+        modifier =
+            Modifier.background(Color.Magenta.copy(alpha = 0.3f))
+                .width(50.dp)
+                .height(50.dp)
+                .drawBorderOnFocus()
+                .focusable()
     )
 }

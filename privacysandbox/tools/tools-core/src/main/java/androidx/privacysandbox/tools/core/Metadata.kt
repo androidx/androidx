@@ -22,10 +22,7 @@ import kotlin.io.path.Path
 /** Privacy Sandbox Tool metadata constants. */
 object Metadata {
     /** Tool metadata message. It's serialized and stored in every SDK API descriptor. */
-    val toolMetadata: ToolMetadata =
-        ToolMetadata.newBuilder()
-            .setCodeGenerationVersion(3)
-            .build()
+    val toolMetadata: ToolMetadata = ToolMetadata.newBuilder().setCodeGenerationVersion(3).build()
 
     /** Relative path to metadata file in SDK API descriptor jar. */
     val filePath = Path("META-INF/privacysandbox/tool-metadata.pb")

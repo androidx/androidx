@@ -47,22 +47,23 @@ class LowLatencyCanvasViewTest {
     fun testFrontBufferRender() {
         val frontBufferRenderLatch = CountDownLatch(1)
         lowLatencyViewTest(
-            renderCallbacks = object : LowLatencyCanvasView.Callback {
-                override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
-                    // NO-OP
-                }
+            renderCallbacks =
+                object : LowLatencyCanvasView.Callback {
+                    override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
+                        // NO-OP
+                    }
 
-                override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.BLUE)
-                }
+                    override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.BLUE)
+                    }
 
-                override fun onFrontBufferedLayerRenderComplete(
-                    frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                    transaction: SurfaceControlCompat.Transaction
-                ) {
-                    frontBufferRenderLatch.countDown()
-                }
-            },
+                    override fun onFrontBufferedLayerRenderComplete(
+                        frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                        transaction: SurfaceControlCompat.Transaction
+                    ) {
+                        frontBufferRenderLatch.countDown()
+                    }
+                },
             scenarioCallback = { scenario ->
                 scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                     it.getLowLatencyCanvasView().renderFrontBufferedLayer()
@@ -70,9 +71,7 @@ class LowLatencyCanvasViewTest {
                 assertTrue(frontBufferRenderLatch.await(3000, TimeUnit.MILLISECONDS))
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
-                Color.BLUE == bitmap.getPixel(
-                    left + (right - left) / 2,
-                    top + (bottom - top) / 2)
+                Color.BLUE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
             }
         )
     }
@@ -81,21 +80,20 @@ class LowLatencyCanvasViewTest {
     @Test
     fun testRedrawScene() {
         lowLatencyViewTest(
-            renderCallbacks = object : LowLatencyCanvasView.Callback {
-                override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.RED)
-                }
+            renderCallbacks =
+                object : LowLatencyCanvasView.Callback {
+                    override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.RED)
+                    }
 
-                override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
-                    // NO-OP
-                }
-            },
+                    override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
+                        // NO-OP
+                    }
+                },
             scenarioCallback = { scenario ->
                 val drawLatch = CountDownLatch(1)
                 scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                    it.getLowLatencyCanvasView().post {
-                        drawLatch.countDown()
-                    }
+                    it.getLowLatencyCanvasView().post { drawLatch.countDown() }
                 }
                 drawLatch.await(3000, TimeUnit.MILLISECONDS)
             },
@@ -109,23 +107,22 @@ class LowLatencyCanvasViewTest {
     @Test
     fun testClear() {
         lowLatencyViewTest(
-            renderCallbacks = object : LowLatencyCanvasView.Callback {
-                override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.RED)
-                }
+            renderCallbacks =
+                object : LowLatencyCanvasView.Callback {
+                    override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.RED)
+                    }
 
-                override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
-                    // NO-OP
-                }
-            },
+                    override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
+                        // NO-OP
+                    }
+                },
             scenarioCallback = { scenario ->
                 val drawLatch = CountDownLatch(1)
                 scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                     val view = it.getLowLatencyCanvasView()
                     view.clear()
-                    view.post {
-                        drawLatch.countDown()
-                    }
+                    view.post { drawLatch.countDown() }
                 }
                 assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
             },
@@ -141,16 +138,17 @@ class LowLatencyCanvasViewTest {
         val cancelLatch = CountDownLatch(1)
         val frontBufferRenderLatch = CountDownLatch(1)
         lowLatencyViewTest(
-            renderCallbacks = object : LowLatencyCanvasView.Callback {
-                override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.RED)
-                }
+            renderCallbacks =
+                object : LowLatencyCanvasView.Callback {
+                    override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.RED)
+                    }
 
-                override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.BLUE)
-                    frontBufferRenderLatch.countDown()
-                }
-            },
+                    override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.BLUE)
+                        frontBufferRenderLatch.countDown()
+                    }
+                },
             scenarioCallback = { scenario ->
                 val renderLatch = CountDownLatch(1)
                 var lowLatencyView: LowLatencyCanvasView? = null
@@ -160,13 +158,9 @@ class LowLatencyCanvasViewTest {
                 }
                 assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
-                lowLatencyView!!.execute {
-                    cancelLatch.await()
-                }
+                lowLatencyView!!.execute { cancelLatch.await() }
 
-                repeat(3) {
-                    lowLatencyView!!.renderFrontBufferedLayer()
-                }
+                repeat(3) { lowLatencyView!!.renderFrontBufferedLayer() }
 
                 lowLatencyView!!.cancel()
                 cancelLatch.countDown()
@@ -174,9 +168,7 @@ class LowLatencyCanvasViewTest {
                 assertFalse(frontBufferRenderLatch.await(1000, TimeUnit.MILLISECONDS))
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
-                Color.RED == bitmap.getPixel(
-                    left + (right - left) / 2,
-                    top + (bottom - top) / 2)
+                Color.RED == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
             }
         )
     }
@@ -186,23 +178,24 @@ class LowLatencyCanvasViewTest {
     fun testConfigureFrontBufferTransaction() {
         val renderFrontBufferLatch = CountDownLatch(1)
         lowLatencyViewTest(
-            renderCallbacks = object : LowLatencyCanvasView.Callback {
-                override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.RED)
-                }
+            renderCallbacks =
+                object : LowLatencyCanvasView.Callback {
+                    override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.RED)
+                    }
 
-                override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
-                    canvas.drawColor(Color.BLUE)
-                }
+                    override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
+                        canvas.drawColor(Color.BLUE)
+                    }
 
-                override fun onFrontBufferedLayerRenderComplete(
-                    frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                    transaction: SurfaceControlCompat.Transaction
-                ) {
-                    transaction.setAlpha(frontBufferedLayerSurfaceControl, 0f)
-                    renderFrontBufferLatch.countDown()
-                }
-            },
+                    override fun onFrontBufferedLayerRenderComplete(
+                        frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                        transaction: SurfaceControlCompat.Transaction
+                    ) {
+                        transaction.setAlpha(frontBufferedLayerSurfaceControl, 0f)
+                        renderFrontBufferLatch.countDown()
+                    }
+                },
             scenarioCallback = { scenario ->
                 scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                     it.getLowLatencyCanvasView().renderFrontBufferedLayer()
@@ -222,51 +215,48 @@ class LowLatencyCanvasViewTest {
         validateBitmap: (Bitmap, Int, Int, Int, Int) -> Boolean
     ) {
         val renderLatch = CountDownLatch(1)
-        val callbacks = object : LowLatencyCanvasView.Callback {
-            override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
-                renderCallbacks.onRedrawRequested(canvas, width, height)
-            }
-
-            override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
-                renderCallbacks.onDrawFrontBufferedLayer(canvas, width, height)
-            }
-
-            override fun onFrontBufferedLayerRenderComplete(
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction
-            ) {
-                renderCallbacks.onFrontBufferedLayerRenderComplete(
-                    frontBufferedLayerSurfaceControl,
-                    transaction
-                )
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    transaction.addTransactionCommittedListener(
-                        executor,
-                        object : SurfaceControlCompat.TransactionCommittedListener {
-                            override fun onTransactionCommitted() {
-                                renderLatch.countDown()
-                            }
-                        }
-                    )
-                } else {
-                    renderLatch.countDown()
+        val callbacks =
+            object : LowLatencyCanvasView.Callback {
+                override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
+                    renderCallbacks.onRedrawRequested(canvas, width, height)
                 }
-            }
-        }
-        val destroyLatch = CountDownLatch(1)
-        var lowLatencyView: LowLatencyCanvasView? = null
-        val scenario = ActivityScenario.launch(LowLatencyActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
-            .onActivity { activity ->
-                with(activity) {
-                    setOnDestroyCallback {
-                        destroyLatch.countDown()
+
+                override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
+                    renderCallbacks.onDrawFrontBufferedLayer(canvas, width, height)
+                }
+
+                override fun onFrontBufferedLayerRenderComplete(
+                    frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction
+                ) {
+                    renderCallbacks.onFrontBufferedLayerRenderComplete(
+                        frontBufferedLayerSurfaceControl,
+                        transaction
+                    )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        transaction.addTransactionCommittedListener(
+                            executor,
+                            object : SurfaceControlCompat.TransactionCommittedListener {
+                                override fun onTransactionCommitted() {
+                                    renderLatch.countDown()
+                                }
+                            }
+                        )
+                    } else {
+                        renderLatch.countDown()
                     }
                 }
-                lowLatencyView = activity.getLowLatencyCanvasView().apply {
-                    setRenderCallback(callbacks)
-                }
             }
+        val destroyLatch = CountDownLatch(1)
+        var lowLatencyView: LowLatencyCanvasView? = null
+        val scenario =
+            ActivityScenario.launch(LowLatencyActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity { activity ->
+                    with(activity) { setOnDestroyCallback { destroyLatch.countDown() } }
+                    lowLatencyView =
+                        activity.getLowLatencyCanvasView().apply { setRenderCallback(callbacks) }
+                }
         scenarioCallback(scenario)
 
         val coords = IntArray(2)

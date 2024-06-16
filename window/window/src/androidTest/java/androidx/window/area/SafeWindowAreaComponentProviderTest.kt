@@ -24,8 +24,8 @@ import org.junit.Test
 
 /**
  * An integration test to verify that if [WindowExtensionsProvider] is present then
- * [SafeWindowAreaComponentProvider.windowAreaComponent] will return a value. This can fail if
- * the implementation of window:extensions:extensions does not have the expected API.
+ * [SafeWindowAreaComponentProvider.windowAreaComponent] will return a value. This can fail if the
+ * implementation of window:extensions:extensions does not have the expected API.
  */
 class SafeWindowAreaComponentProviderTest {
 

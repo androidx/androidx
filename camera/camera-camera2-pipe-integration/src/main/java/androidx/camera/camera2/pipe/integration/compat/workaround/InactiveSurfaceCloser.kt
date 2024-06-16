@@ -35,7 +35,9 @@ import dagger.Provides
 interface InactiveSurfaceCloser {
 
     fun configure(streamId: StreamId, deferrableSurface: DeferrableSurface, graph: CameraGraph)
+
     fun onSurfaceInactive(deferrableSurface: DeferrableSurface)
+
     fun closeAll()
 
     @Module
@@ -43,11 +45,12 @@ interface InactiveSurfaceCloser {
         companion object {
             @Provides
             fun provideInactiveSurfaceCloser(cameraQuirks: CameraQuirks): InactiveSurfaceCloser {
-                val enabled = cameraQuirks.quirks.run {
-                    contains(ConfigureSurfaceToSecondarySessionFailQuirk::class.java) ||
-                        contains(PreviewOrientationIncorrectQuirk::class.java) ||
-                        contains(TextureViewIsClosedQuirk::class.java)
-                }
+                val enabled =
+                    cameraQuirks.quirks.run {
+                        contains(ConfigureSurfaceToSecondarySessionFailQuirk::class.java) ||
+                            contains(PreviewOrientationIncorrectQuirk::class.java) ||
+                            contains(TextureViewIsClosedQuirk::class.java)
+                    }
 
                 return if (enabled) InactiveSurfaceCloserImpl() else NoOpInactiveSurfaceCloser
             }
@@ -65,20 +68,12 @@ class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
         graph: CameraGraph
     ) {
         synchronized(lock) {
-            configuredOutputs.add(
-                ConfiguredOutput(
-                    streamId,
-                    deferrableSurface,
-                    graph
-                )
-            )
+            configuredOutputs.add(ConfiguredOutput(streamId, deferrableSurface, graph))
         }
     }
 
     override fun onSurfaceInactive(deferrableSurface: DeferrableSurface) {
-        synchronized(lock) {
-            configuredOutputs.closeIfConfigured(deferrableSurface)
-        }
+        synchronized(lock) { configuredOutputs.closeIfConfigured(deferrableSurface) }
     }
 
     override fun closeAll() {
@@ -103,13 +98,12 @@ class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
         }
     }
 
-    private fun List<ConfiguredOutput>.closeIfConfigured(
-        deferrableSurface: DeferrableSurface
-    ) = forEach {
-        if (it.contains(deferrableSurface)) {
-            deferrableSurface.close()
+    private fun List<ConfiguredOutput>.closeIfConfigured(deferrableSurface: DeferrableSurface) =
+        forEach {
+            if (it.contains(deferrableSurface)) {
+                deferrableSurface.close()
+            }
         }
-    }
 }
 
 object NoOpInactiveSurfaceCloser : InactiveSurfaceCloser {

@@ -22,7 +22,7 @@ import androidx.health.connect.client.records.Record
  * the data was generated.
  *
  * @property packageName auto-populated by Health Platform at insertion time of the client package
- * name.
+ *   name.
  */
 public class DataOrigin(public val packageName: String) {
     override fun equals(other: Any?): Boolean {

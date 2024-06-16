@@ -21,8 +21,8 @@ import android.view.View
 /**
  * Find a [Fragment] associated with a [View].
  *
- * This method will locate the [Fragment] associated with this view. This is automatically
- * populated for the View returned by [Fragment.onCreateView] and its children.
+ * This method will locate the [Fragment] associated with this view. This is automatically populated
+ * for the View returned by [Fragment.onCreateView] and its children.
  *
  * Calling this on a View that does not have a Fragment set will result in an
  * [IllegalStateException]

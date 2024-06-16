@@ -16,6 +16,7 @@
 package androidx.compose.material3
 
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +45,9 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,11 +59,16 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalTestApi::class)
 class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+
+    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
+    @After
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     val wrap = Modifier.wrapContentSize(Alignment.TopStart)
 
@@ -71,9 +79,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun checkBox_checked() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) {
-                Checkbox(checked = true, onCheckedChange = { })
-            }
+            Box(wrap.testTag(wrapperTestTag)) { Checkbox(checked = true, onCheckedChange = {}) }
         }
         assertToggeableAgainstGolden("checkBox_${scheme.name}_checked")
     }
@@ -82,7 +88,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_unchecked() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
+                Checkbox(modifier = wrap, checked = false, onCheckedChange = {})
             }
         }
         assertToggeableAgainstGolden("checkBox_${scheme.name}_unchecked")
@@ -92,13 +98,12 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_pressed() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
+                Checkbox(modifier = wrap, checked = false, onCheckedChange = {})
             }
         }
 
         rule.mainClock.autoAdvance = false
-        rule.onNode(isToggleable())
-            .performTouchInput { down(center) }
+        rule.onNode(isToggleable()).performTouchInput { down(center) }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
@@ -129,11 +134,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_disabled_checked() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Checkbox(
-                    modifier = wrap,
-                    checked = true,
-                    enabled = false,
-                    onCheckedChange = { })
+                Checkbox(modifier = wrap, checked = true, enabled = false, onCheckedChange = {})
             }
         }
         assertToggeableAgainstGolden("checkBox_${scheme.name}_disabled_checked")
@@ -143,11 +144,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_disabled_unchecked() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Checkbox(
-                    modifier = wrap,
-                    checked = false,
-                    enabled = false,
-                    onCheckedChange = { })
+                Checkbox(modifier = wrap, checked = false, enabled = false, onCheckedChange = {})
             }
         }
         assertToggeableAgainstGolden("checkBox_${scheme.name}_disabled_unchecked")
@@ -186,9 +183,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
         // Because Ripples are drawn on the RenderThread, it is hard to synchronize them with
         // Compose animations, so instead just manually change the value instead of triggering
         // and trying to screenshot a ripple
-        rule.runOnIdle {
-            isChecked.value = true
-        }
+        rule.runOnIdle { isChecked.value = true }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
@@ -215,9 +210,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
         // Because Ripples are drawn on the RenderThread, it is hard to synchronize them with
         // Compose animations, so instead just manually change the value instead of triggering
         // and trying to screenshot a ripple
-        rule.runOnIdle {
-            isChecked.value = false
-        }
+        rule.runOnIdle { isChecked.value = false }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
@@ -230,16 +223,11 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_hover() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Checkbox(
-                    modifier = wrap,
-                    checked = true,
-                    onCheckedChange = { }
-                )
+                Checkbox(modifier = wrap, checked = true, onCheckedChange = {})
             }
         }
 
-        rule.onNode(isToggleable())
-            .performMouseInput { enter(center) }
+        rule.onNode(isToggleable()).performMouseInput { enter(center) }
 
         rule.waitForIdle()
 
@@ -255,10 +243,9 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
             localInputModeManager = LocalInputModeManager.current
             Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(
-                    modifier = wrap
-                        .focusRequester(focusRequester),
+                    modifier = wrap.focusRequester(focusRequester),
                     checked = true,
-                    onCheckedChange = { }
+                    onCheckedChange = {}
                 )
             }
         }
@@ -278,14 +265,15 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_customColors() {
         rule.setMaterialContent(scheme.colorScheme) {
             Column(wrap.testTag(wrapperTestTag), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                val colors = CheckboxDefaults.colors(
-                    checkedColor = Color.Red,
-                    uncheckedColor = Color.Gray,
-                    checkmarkColor = Color.Green,
-                    disabledCheckedColor = Color.Red.copy(alpha = 0.38f),
-                    disabledUncheckedColor = Color.Gray.copy(alpha = 0.38f),
-                    disabledIndeterminateColor = Color.Magenta.copy(alpha = 0.38f)
-                )
+                val colors =
+                    CheckboxDefaults.colors(
+                        checkedColor = Color.Red,
+                        uncheckedColor = Color.Gray,
+                        checkmarkColor = Color.Green,
+                        disabledCheckedColor = Color.Red.copy(alpha = 0.38f),
+                        disabledUncheckedColor = Color.Gray.copy(alpha = 0.38f),
+                        disabledIndeterminateColor = Color.Magenta.copy(alpha = 0.38f)
+                    )
                 Checkboxes(colors = colors)
             }
         }
@@ -299,22 +287,23 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun checkBox_customCheckboxColorsConstruct() {
         rule.setMaterialContent(scheme.colorScheme) {
             Column(wrap.testTag(wrapperTestTag), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                val colors = CheckboxColors(
-                    checkedCheckmarkColor = Color.Black,
-                    // Irrelevant for the test, as this color only appears when the check mark
-                    // transitions from checked to unchecked.
-                    uncheckedCheckmarkColor = Color.Transparent,
-                    checkedBoxColor = Color.Green,
-                    uncheckedBoxColor = Color.Yellow,
-                    disabledCheckedBoxColor = Color.Green.copy(alpha = 0.38f),
-                    disabledUncheckedBoxColor = Color.Yellow.copy(alpha = 0.38f),
-                    disabledIndeterminateBoxColor = Color.Magenta.copy(alpha = 0.38f),
-                    checkedBorderColor = Color.Red,
-                    uncheckedBorderColor = Color.Black,
-                    disabledBorderColor = Color.Red.copy(alpha = 0.38f),
-                    disabledUncheckedBorderColor = Color.Blue,
-                    disabledIndeterminateBorderColor = Color.LightGray
-                )
+                val colors =
+                    CheckboxColors(
+                        checkedCheckmarkColor = Color.Black,
+                        // Irrelevant for the test, as this color only appears when the check mark
+                        // transitions from checked to unchecked.
+                        uncheckedCheckmarkColor = Color.Transparent,
+                        checkedBoxColor = Color.Green,
+                        uncheckedBoxColor = Color.Yellow,
+                        disabledCheckedBoxColor = Color.Green.copy(alpha = 0.38f),
+                        disabledUncheckedBoxColor = Color.Yellow.copy(alpha = 0.38f),
+                        disabledIndeterminateBoxColor = Color.Magenta.copy(alpha = 0.38f),
+                        checkedBorderColor = Color.Red,
+                        uncheckedBorderColor = Color.Black,
+                        disabledBorderColor = Color.Red.copy(alpha = 0.38f),
+                        disabledUncheckedBorderColor = Color.Blue,
+                        disabledIndeterminateBorderColor = Color.LightGray
+                    )
                 Checkboxes(colors = colors)
             }
         }
@@ -326,58 +315,32 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @Composable
     private fun Checkboxes(colors: CheckboxColors) {
-        TriStateCheckbox(state = ToggleableState.Off, onClick = { }, colors = colors)
+        TriStateCheckbox(state = ToggleableState.Off, onClick = {}, colors = colors)
         TriStateCheckbox(
             state = ToggleableState.Off,
-            onClick = { },
+            onClick = {},
             enabled = false,
             colors = colors
         )
-        TriStateCheckbox(state = ToggleableState.On, onClick = { }, colors = colors)
-        TriStateCheckbox(
-            state = ToggleableState.On,
-            onClick = { },
-            enabled = false,
-            colors = colors
-        )
+        TriStateCheckbox(state = ToggleableState.On, onClick = {}, colors = colors)
+        TriStateCheckbox(state = ToggleableState.On, onClick = {}, enabled = false, colors = colors)
+        TriStateCheckbox(state = ToggleableState.Indeterminate, onClick = {}, colors = colors)
         TriStateCheckbox(
             state = ToggleableState.Indeterminate,
-            onClick = { },
-            colors = colors
-        )
-        TriStateCheckbox(
-            state = ToggleableState.Indeterminate,
-            onClick = { },
+            onClick = {},
             enabled = false,
             colors = colors
         )
-        Checkbox(
-            checked = false,
-            onCheckedChange = { },
-            colors = colors
-        )
-        Checkbox(
-            checked = false,
-            onCheckedChange = { },
-            enabled = false,
-            colors = colors
-        )
-        Checkbox(
-            checked = true,
-            onCheckedChange = { },
-            colors = colors
-        )
-        Checkbox(
-            checked = true,
-            onCheckedChange = { },
-            enabled = false,
-            colors = colors
-        )
+        Checkbox(checked = false, onCheckedChange = {}, colors = colors)
+        Checkbox(checked = false, onCheckedChange = {}, enabled = false, colors = colors)
+        Checkbox(checked = true, onCheckedChange = {}, colors = colors)
+        Checkbox(checked = true, onCheckedChange = {}, enabled = false, colors = colors)
     }
 
     private fun assertToggeableAgainstGolden(goldenName: String) {
         // TODO: replace with find(isToggeable()) after b/157687898 is fixed
-        rule.onNodeWithTag(wrapperTestTag)
+        rule
+            .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -388,10 +351,11 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     class ColorSchemeWrapper(val name: String, val colorScheme: ColorScheme) {

@@ -24,14 +24,15 @@ private val topLambda2 = withArgument {}
 private val topLambda3 = withArguments({}, {})
 
 private fun withArgument(a: (Int) -> Unit = {}): (Int) -> Unit = a
+
 private fun withArguments(a1: () -> Unit = {}, a2: () -> Unit = {}): List<() -> Unit> =
     listOf(a1, a2)
 
 /**
  * Test the compiler generated lambda names.
  *
- * There is code in Studio that relies on this format.
- * If this test should start to fail, please check the LambdaResolver in the Layout Inspector.
+ * There is code in Studio that relies on this format. If this test should start to fail, please
+ * check the LambdaResolver in the Layout Inspector.
  */
 @Suppress("JoinDeclarationAndAssignment")
 class SynthesizedLambdaNameTest {

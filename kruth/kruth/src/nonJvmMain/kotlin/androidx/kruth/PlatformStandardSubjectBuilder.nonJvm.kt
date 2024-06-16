@@ -18,6 +18,7 @@ package androidx.kruth
 
 internal actual interface PlatformStandardSubjectBuilder
 
-internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
+internal actual class PlatformStandardSubjectBuilderImpl
+actual constructor(
     metadata: FailureMetadata,
 ) : PlatformStandardSubjectBuilder

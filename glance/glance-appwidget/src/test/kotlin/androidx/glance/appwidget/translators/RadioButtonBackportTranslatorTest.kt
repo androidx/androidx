@@ -66,221 +66,261 @@ class RadioButtonBackportTranslatorTest {
     }
 
     @Test
-    fun canTranslateRadioButton_fixed_unchecked() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            RadioButton(
-                checked = false,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(Color.Blue),
-                    uncheckedColor = ColorProvider(Color.Red),
-                )
-            )
-        }
+    fun canTranslateRadioButton_fixed_unchecked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = false,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(Color.Blue),
+                                uncheckedColor = ColorProvider(Color.Red),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Red)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Red)
+        }
 
     @Test
-    fun canTranslateRadioButton_fixed_checked() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(Color.Blue),
-                    uncheckedColor = ColorProvider(Color.Red),
-                )
-            )
-        }
+    fun canTranslateRadioButton_fixed_checked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(Color.Blue),
+                                uncheckedColor = ColorProvider(Color.Red),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
+        }
 
     @Test
-    fun canTranslateRadioButton_dayNight_unchecked_day() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            RadioButton(
-                checked = false,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
-                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
-                )
-            )
-        }
+    fun canTranslateRadioButton_dayNight_unchecked_day() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    RadioButton(
+                        checked = false,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Green, night = Color.Yellow),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Green)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Green)
+        }
 
     @Test
-    fun canTranslateRadioButton_dayNight_unchecked_night() = fakeCoroutineScope.runTest {
-        val rv = darkContext.runAndTranslate {
-            RadioButton(
-                checked = false,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
-                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
-                )
-            )
-        }
+    fun canTranslateRadioButton_dayNight_unchecked_night() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                darkContext.runAndTranslate {
+                    RadioButton(
+                        checked = false,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Green, night = Color.Yellow),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Yellow)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Yellow)
+        }
 
     @Test
-    fun canTranslateRadioButton_dayNight_checked_day() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
-                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
-                )
-            )
-        }
+    fun canTranslateRadioButton_dayNight_checked_day() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Green, night = Color.Yellow),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
+        }
 
     @Test
-    fun canTranslateRadioButton_dayNight_checked_night() = fakeCoroutineScope.runTest {
-        val rv = darkContext.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
-                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
-                )
-            )
-        }
+    fun canTranslateRadioButton_dayNight_checked_night() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                darkContext.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Green, night = Color.Yellow),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Red)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Red)
+        }
 
     @Test
-    fun canTranslateRadioButton_resource_unchecked() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            RadioButton(
-                checked = false,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
-                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
-                )
-            )
-        }
+    fun canTranslateRadioButton_resource_unchecked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    RadioButton(
+                        checked = false,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Green, night = Color.Yellow),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Green)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Green)
+        }
 
     @Test
-    fun canTranslateRadioButton_resource_checked() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = null,
-                text = "RadioButton",
-                colors = RadioButtonDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
-                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
-                )
-            )
-        }
+    fun canTranslateRadioButton_resource_checked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = null,
+                        text = "RadioButton",
+                        colors =
+                            RadioButtonDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Green, night = Color.Yellow),
+                            )
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.radioImageView).hasColorFilter(Color.Blue)
+        }
 
     @Test
-    fun canTranslateRadioButton_onClick_null() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = null,
-                text = "RadioButton",
-            )
-        }
+    fun canTranslateRadioButton_onClick_null() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = null,
+                        text = "RadioButton",
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.hasOnClickListeners()).isFalse()
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.hasOnClickListeners()).isFalse()
+        }
 
     @Test
-    fun canTranslateRadioButton_onClick_withAction() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = actionRunCallback<ActionCallback>(),
-                text = "RadioButton",
-            )
-        }
+    fun canTranslateRadioButton_onClick_withAction() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = actionRunCallback<ActionCallback>(),
+                        text = "RadioButton",
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.hasOnClickListeners()).isTrue()
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.hasOnClickListeners()).isTrue()
+        }
 
     @Test
-    fun canTranslateRadioButton_text() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = actionRunCallback<ActionCallback>(),
-                text = "RadioButton",
-            )
-        }
+    fun canTranslateRadioButton_text() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = actionRunCallback<ActionCallback>(),
+                        text = "RadioButton",
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        val text = radioButtonRoot.findViewByType<TextView>()
-        assertThat(text).isNotNull()
-        assertThat(text?.text).isEqualTo("RadioButton")
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            val text = radioButtonRoot.findViewByType<TextView>()
+            assertThat(text).isNotNull()
+            assertThat(text?.text).isEqualTo("RadioButton")
+        }
 
     @Test
-    fun canTranslateRadioButton_disabled() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            RadioButton(
-                checked = true,
-                onClick = actionRunCallback<ActionCallback>(),
-                enabled = false,
-                text = "RadioButton",
-            )
-        }
+    fun canTranslateRadioButton_disabled() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = actionRunCallback<ActionCallback>(),
+                        enabled = false,
+                        text = "RadioButton",
+                    )
+                }
 
-        val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(radioButtonRoot.hasOnClickListeners()).isFalse()
-    }
+            val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(radioButtonRoot.hasOnClickListeners()).isFalse()
+        }
 
     @Test
     fun canTranslateRadioButtonWithSemanticsModifier_contentDescription() =
         fakeCoroutineScope.runTest {
-            val rv = context.runAndTranslate {
-                RadioButton(
-                    checked = true,
-                    onClick = actionRunCallback<ActionCallback>(),
-                    text = "RadioButton",
-                    modifier = GlanceModifier.semantics {
-                        contentDescription = "Custom radio button description"
-                    },
-                )
-            }
+            val rv =
+                context.runAndTranslate {
+                    RadioButton(
+                        checked = true,
+                        onClick = actionRunCallback<ActionCallback>(),
+                        text = "RadioButton",
+                        modifier =
+                            GlanceModifier.semantics {
+                                contentDescription = "Custom radio button description"
+                            },
+                    )
+                }
 
             val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
             assertThat(radioButtonRoot.contentDescription)

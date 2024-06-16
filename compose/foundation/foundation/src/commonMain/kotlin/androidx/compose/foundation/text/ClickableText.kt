@@ -36,8 +36,7 @@ import kotlinx.coroutines.launch
 /**
  * A continent version of [BasicText] component to be able to handle click event on the text.
  *
- * This is a shorthand of [BasicText] with [pointerInput] to be able to handle click
- * event easily.
+ * This is a shorthand of [BasicText] with [pointerInput] to be able to handle click event easily.
  *
  * @sample androidx.compose.foundation.samples.ClickableText
  *
@@ -45,30 +44,30 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.compose.foundation.samples.LongClickableText
  *
- * @see BasicText
- * @see androidx.compose.ui.input.pointer.pointerInput
- * @see androidx.compose.foundation.gestures.detectTapGestures
- *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- * [overflow] and [TextAlign] may have unexpected effects.
+ *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ *   [overflow] and [TextAlign] may have unexpected effects.
  * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if
- * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
+ *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
+ *   [softWrap]. If it is not null, then it must be greater than zero.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw selection around the text.
- * @param onClick Callback that is executed when users click the text. This callback is called
- * with clicked character's offset.
+ *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ *   text, baselines and other details. The callback can be used to add additional decoration or
+ *   functionality to the text. For example, to draw selection around the text.
+ * @param onClick Callback that is executed when users click the text. This callback is called with
+ *   clicked character's offset.
  *
  * Note: this composable is now deprecated. Instead, use regular [androidx.compose.material3.Text]
  * or [androidx.compose.foundation.text.BasicText] and pass an AnnotatedString that contains a
  * [androidx.compose.ui.text.LinkAnnotation].
+ *
+ * @see BasicText
+ * @see androidx.compose.ui.input.pointer.pointerInput
+ * @see androidx.compose.foundation.gestures.detectTapGestures
  */
 @Composable
 @Deprecated("Use Text or BasicText and pass an AnnotatedString that contains a LinkAnnotation")
@@ -83,13 +82,14 @@ fun ClickableText(
     onClick: (Int) -> Unit
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val pressIndicator = Modifier.pointerInput(onClick) {
-        detectTapGestures { pos ->
-            layoutResult.value?.let { layoutResult ->
-                onClick(layoutResult.getOffsetForPosition(pos))
+    val pressIndicator =
+        Modifier.pointerInput(onClick) {
+            detectTapGestures { pos ->
+                layoutResult.value?.let { layoutResult ->
+                    onClick(layoutResult.getOffsetForPosition(pos))
+                }
             }
         }
-    }
 
     BasicText(
         text = text,
@@ -108,8 +108,7 @@ fun ClickableText(
 /**
  * A continent version of [BasicText] component to be able to handle click event on the text.
  *
- * This is a shorthand of [BasicText] with [pointerInput] to be able to handle click
- * event easily.
+ * This is a shorthand of [BasicText] with [pointerInput] to be able to handle click event easily.
  *
  * @sample androidx.compose.foundation.samples.ClickableText
  *
@@ -117,33 +116,33 @@ fun ClickableText(
  *
  * @sample androidx.compose.foundation.samples.LongClickableText
  *
- * @see BasicText
- * @see androidx.compose.ui.input.pointer.pointerInput
- * @see androidx.compose.foundation.gestures.detectTapGestures
- *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- * [overflow] and [TextAlign] may have unexpected effects.
+ *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ *   [overflow] and [TextAlign] may have unexpected effects.
  * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if
- * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
+ *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
+ *   [softWrap]. If it is not null, then it must be greater than zero.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw selection around the text.
+ *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ *   text, baselines and other details. The callback can be used to add additional decoration or
+ *   functionality to the text. For example, to draw selection around the text.
  * @param onHover Callback that is executed when user hovers over the text with a mouse or trackpad.
- * This callback is called with the hovered character's offset or null if the cursor is no longer
- * hovering this.
- * @param onClick Callback that is executed when users click the text. This callback is called
- * with clicked character's offset.
+ *   This callback is called with the hovered character's offset or null if the cursor is no longer
+ *   hovering this.
+ * @param onClick Callback that is executed when users click the text. This callback is called with
+ *   clicked character's offset.
  *
  * Note: this composable is now deprecated. Instead, use regular [androidx.compose.material3.Text]
  * or [androidx.compose.foundation.text.BasicText] and pass an AnnotatedString that contains a
  * [androidx.compose.ui.text.LinkAnnotation].
+ *
+ * @see BasicText
+ * @see androidx.compose.ui.input.pointer.pointerInput
+ * @see androidx.compose.foundation.gestures.detectTapGestures
  */
 @ExperimentalFoundationApi // when removing this experimental annotation,
 // onHover should be nullable with null as default. The other ClickableText
@@ -164,25 +163,27 @@ fun ClickableText(
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
-    fun getOffset(positionOffset: Offset): Int? = layoutResult.value
-        ?.multiParagraph
-        ?.takeIf { it.containsWithinBounds(positionOffset) }
-        ?.getOffsetForPosition(positionOffset)
+    fun getOffset(positionOffset: Offset): Int? =
+        layoutResult.value
+            ?.multiParagraph
+            ?.takeIf { it.containsWithinBounds(positionOffset) }
+            ?.getOffsetForPosition(positionOffset)
 
-    val pointerInputModifier = Modifier.pointerInput(onClick, onHover) {
-        coroutineScope.launch {
-            var previousIndex: Int? = null
-            detectMoves(PointerEventPass.Main) { pos ->
-                val index = getOffset(pos)
-                if (previousIndex != index) {
-                    previousIndex = index
-                    onHover(index)
+    val pointerInputModifier =
+        Modifier.pointerInput(onClick, onHover) {
+            coroutineScope.launch {
+                var previousIndex: Int? = null
+                detectMoves(PointerEventPass.Main) { pos ->
+                    val index = getOffset(pos)
+                    if (previousIndex != index) {
+                        previousIndex = index
+                        onHover(index)
+                    }
                 }
             }
-        }
 
-        detectTapGestures { pos -> getOffset(pos)?.let(onClick) }
-    }
+            detectTapGestures { pos -> getOffset(pos)?.let(onClick) }
+        }
 
     BasicText(
         text = text,

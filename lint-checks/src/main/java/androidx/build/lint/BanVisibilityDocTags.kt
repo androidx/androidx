@@ -29,69 +29,72 @@ import org.jetbrains.uast.UDeclaration
 
 @Suppress("unused")
 class BanVisibilityDocTags : Detector(), Detector.UastScanner {
-    private val tagToIssue = mapOf(
-        "@hide" to HIDE_ISSUE,
-        "@suppress" to SUPPRESS_ISSUE,
-        "@removed" to REMOVED_ISSUE,
-    )
+    private val tagToIssue =
+        mapOf(
+            "@hide" to HIDE_ISSUE,
+            "@suppress" to SUPPRESS_ISSUE,
+            "@removed" to REMOVED_ISSUE,
+        )
 
     override fun getApplicableUastTypes() = listOf(UDeclaration::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
 
-        override fun visitDeclaration(node: UDeclaration) {
-            tagToIssue.forEach { (tag, issue) ->
-                if (node.comments.any { it.text.contains(tag) }) {
-                    val incident = Incident(context)
-                        .issue(issue)
-                        .location(context.getNameLocation(node))
-                        .message("$tag is not allowed in documentation")
-                        .scope(node)
-                    context.report(incident)
+            override fun visitDeclaration(node: UDeclaration) {
+                tagToIssue.forEach { (tag, issue) ->
+                    if (node.comments.any { it.text.contains(tag) }) {
+                        val incident =
+                            Incident(context)
+                                .issue(issue)
+                                .location(context.getNameLocation(node))
+                                .message("$tag is not allowed in documentation")
+                                .scope(node)
+                        context.report(incident)
+                    }
                 }
             }
         }
-    }
 
     companion object {
-        val HIDE_ISSUE = Issue.create(
-            id = "BanHideTag",
-            briefDescription = "@hide is not allowed in Javadoc",
-            explanation = "Use of the @hide annotation in Javadoc is no longer allowed." +
-              " Please use @RestrictTo instead.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                BanVisibilityDocTags::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val HIDE_ISSUE =
+            Issue.create(
+                id = "BanHideTag",
+                briefDescription = "@hide is not allowed in Javadoc",
+                explanation =
+                    "Use of the @hide annotation in Javadoc is no longer allowed." +
+                        " Please use @RestrictTo instead.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
-        val SUPPRESS_ISSUE = Issue.create(
-            id = "BanSuppressTag",
-            briefDescription = "@suppress is not allowed in KDoc",
-            explanation = "Use of the @suppress annotation in KDoc is no longer allowed." +
-                " Please use @RestrictTo instead.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                BanVisibilityDocTags::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val SUPPRESS_ISSUE =
+            Issue.create(
+                id = "BanSuppressTag",
+                briefDescription = "@suppress is not allowed in KDoc",
+                explanation =
+                    "Use of the @suppress annotation in KDoc is no longer allowed." +
+                        " Please use @RestrictTo instead.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
-        val REMOVED_ISSUE = Issue.create(
-            id = "BanRemovedTag",
-            briefDescription = "@removed is not allowed in Javadoc",
-            explanation = "Use of the @removed annotation in Javadoc is no longer allowed." +
-                " Please use @RestrictTo(LIBRARY_GROUP_PREFIX) instead.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                BanVisibilityDocTags::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val REMOVED_ISSUE =
+            Issue.create(
+                id = "BanRemovedTag",
+                briefDescription = "@removed is not allowed in Javadoc",
+                explanation =
+                    "Use of the @removed annotation in Javadoc is no longer allowed." +
+                        " Please use @RestrictTo(LIBRARY_GROUP_PREFIX) instead.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }

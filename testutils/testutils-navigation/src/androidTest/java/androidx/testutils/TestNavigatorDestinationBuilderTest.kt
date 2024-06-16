@@ -33,9 +33,7 @@ class TestNavigatorDestinationBuilderTest {
     @Suppress("DEPRECATION")
     @Test
     fun test() {
-        val graph = provider.navigation(startDestination = DESTINATION_ID) {
-            test(DESTINATION_ID)
-        }
+        val graph = provider.navigation(startDestination = DESTINATION_ID) { test(DESTINATION_ID) }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ID in graph)
             .isTrue()
@@ -43,9 +41,8 @@ class TestNavigatorDestinationBuilderTest {
 
     @Test
     fun testRoute() {
-        val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
-            test(DESTINATION_ROUTE)
-        }
+        val graph =
+            provider.navigation(startDestination = DESTINATION_ROUTE) { test(DESTINATION_ROUTE) }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ROUTE in graph)
             .isTrue()
@@ -54,11 +51,10 @@ class TestNavigatorDestinationBuilderTest {
     @Suppress("DEPRECATION")
     @Test
     fun testWithBody() {
-        val graph = provider.navigation(startDestination = DESTINATION_ID) {
-            test(DESTINATION_ID) {
-                label = LABEL
+        val graph =
+            provider.navigation(startDestination = DESTINATION_ID) {
+                test(DESTINATION_ID) { label = LABEL }
             }
-        }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ID in graph)
             .isTrue()
@@ -69,11 +65,10 @@ class TestNavigatorDestinationBuilderTest {
 
     @Test
     fun testRouteWithBody() {
-        val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
-            test(DESTINATION_ROUTE) {
-                label = LABEL
+        val graph =
+            provider.navigation(startDestination = DESTINATION_ROUTE) {
+                test(DESTINATION_ROUTE) { label = LABEL }
             }
-        }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ROUTE in graph)
             .isTrue()

@@ -26,7 +26,9 @@ import javax.inject.Inject
 
 /** Provider of camera specific quirks. */
 @CameraScope
-class CameraQuirks @Inject constructor(
+class CameraQuirks
+@Inject
+constructor(
     private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) {
@@ -100,6 +102,18 @@ class CameraQuirks @Inject constructor(
         }
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
+        }
+        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+            quirks.add(PreviewStretchWhenVideoCaptureIsBoundQuirk())
+        }
+        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+            quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
+        }
+        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+            quirks.add(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk())
+        }
+        if (TemporalNoiseQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(TemporalNoiseQuirk())
         }
 
         Quirks(quirks)

@@ -34,15 +34,17 @@ internal class ImmLeaksCleaner(private val activity: Activity) : LifecycleEventO
             activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         with(cleaner) {
             val lock = inputMethodManager.lock ?: return
-            val success = synchronized(lock) {
-                val servedView = inputMethodManager.servedView ?: return
-                if (servedView.isAttachedToWindow) {
-                    return
+            val success =
+                synchronized(lock) {
+                    val servedView = inputMethodManager.servedView ?: return
+                    if (servedView.isAttachedToWindow) {
+                        return
+                    }
+                    // Here we have a detached mServedView.  Set null to mNextServedViewField so
+                    // that
+                    // everything will be cleared in the next InputMethodManager#checkFocus().
+                    inputMethodManager.clearNextServedView()
                 }
-                // Here we have a detached mServedView.  Set null to mNextServedViewField so that
-                // everything will be cleared in the next InputMethodManager#checkFocus().
-                inputMethodManager.clearNextServedView()
-            }
             if (success) {
                 // Assume that InputMethodManager#isActive() internally triggers
                 // InputMethodManager#checkFocus().
@@ -56,16 +58,11 @@ internal class ImmLeaksCleaner(private val activity: Activity) : LifecycleEventO
 
         abstract val InputMethodManager.servedView: View?
 
-        /**
-         * @return Whether the next served view was successfully cleared
-         */
+        /** @return Whether the next served view was successfully cleared */
         abstract fun InputMethodManager.clearNextServedView(): Boolean
     }
 
-    /**
-     * Cleaner that is used when reading the [InputMethodManager] fields via
-     * reflection failed.
-     */
+    /** Cleaner that is used when reading the [InputMethodManager] fields via reflection failed. */
     object FailedInitialization : Cleaner() {
         override val InputMethodManager.lock: Any?
             get() = null
@@ -76,36 +73,37 @@ internal class ImmLeaksCleaner(private val activity: Activity) : LifecycleEventO
         override fun InputMethodManager.clearNextServedView(): Boolean = false
     }
 
-    /**
-     * Cleaner that provides access to hidden fields via reflection
-     */
+    /** Cleaner that provides access to hidden fields via reflection */
     class ValidCleaner(
         private val hField: Field,
         private val servedViewField: Field,
         private val nextServedViewField: Field,
     ) : Cleaner() {
         override val InputMethodManager.lock: Any?
-            get() = try {
-                hField.get(this)
-            } catch (e: IllegalAccessException) {
-                null
-            }
+            get() =
+                try {
+                    hField.get(this)
+                } catch (e: IllegalAccessException) {
+                    null
+                }
 
         override val InputMethodManager.servedView: View?
-            get() = try {
-                servedViewField.get(this) as View?
-            } catch (e: IllegalAccessException) {
-                null
-            } catch (e: ClassCastException) {
-                null
-            }
+            get() =
+                try {
+                    servedViewField.get(this) as View?
+                } catch (e: IllegalAccessException) {
+                    null
+                } catch (e: ClassCastException) {
+                    null
+                }
 
-        override fun InputMethodManager.clearNextServedView() = try {
-            nextServedViewField.set(this, null)
-            true
-        } catch (e: IllegalAccessException) {
-            false
-        }
+        override fun InputMethodManager.clearNextServedView() =
+            try {
+                nextServedViewField.set(this, null)
+                true
+            } catch (e: IllegalAccessException) {
+                false
+            }
     }
 
     @SuppressLint("SoonBlockedPrivateApi") // This class is only used API <=23
@@ -113,15 +111,11 @@ internal class ImmLeaksCleaner(private val activity: Activity) : LifecycleEventO
         val cleaner by lazy {
             try {
                 val immClass = InputMethodManager::class.java
-                val servedViewField = immClass.getDeclaredField("mServedView").apply {
-                    isAccessible = true
-                }
-                val nextServedViewField = immClass.getDeclaredField("mNextServedView").apply {
-                    isAccessible = true
-                }
-                val hField = immClass.getDeclaredField("mH").apply {
-                    isAccessible = true
-                }
+                val servedViewField =
+                    immClass.getDeclaredField("mServedView").apply { isAccessible = true }
+                val nextServedViewField =
+                    immClass.getDeclaredField("mNextServedView").apply { isAccessible = true }
+                val hField = immClass.getDeclaredField("mH").apply { isAccessible = true }
                 ValidCleaner(hField, servedViewField, nextServedViewField)
             } catch (e: NoSuchFieldException) {
                 // very oem much custom ¯\_(ツ)_/¯

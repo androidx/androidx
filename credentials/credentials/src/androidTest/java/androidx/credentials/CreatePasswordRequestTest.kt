@@ -39,9 +39,7 @@ class CreatePasswordRequestTest {
 
     @Test
     fun constructor_emptyPassword_throws() {
-        assertThrows<IllegalArgumentException> {
-            CreatePasswordRequest("id", "")
-        }
+        assertThrows<IllegalArgumentException> { CreatePasswordRequest("id", "") }
     }
 
     @Test
@@ -67,11 +65,14 @@ class CreatePasswordRequestTest {
         val preferImmediatelyAvailableCredentialsExpected = true
         val isAutoSelectAllowedExpected = true
 
-        val request = CreatePasswordRequest(
-            idExpected, passwordExpected,
-            originExpected, preferImmediatelyAvailableCredentialsExpected,
-            isAutoSelectAllowedExpected,
-        )
+        val request =
+            CreatePasswordRequest(
+                idExpected,
+                passwordExpected,
+                originExpected,
+                preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowedExpected,
+            )
 
         assertThat(request.preferImmediatelyAvailableCredentials)
             .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
@@ -91,14 +92,16 @@ class CreatePasswordRequestTest {
         val preferImmediatelyAvailableCredentialsExpected = true
         val isAutoSelectAllowedExpected = true
 
-        val request = CreatePasswordRequest(
-            id = idExpected,
-            password = passwordExpected,
-            origin = originExpected,
-            preferDefaultProvider = defaultProviderExpected,
-            preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentialsExpected,
-            isAutoSelectAllowed = isAutoSelectAllowedExpected
-        )
+        val request =
+            CreatePasswordRequest(
+                id = idExpected,
+                password = passwordExpected,
+                origin = originExpected,
+                preferDefaultProvider = defaultProviderExpected,
+                preferImmediatelyAvailableCredentials =
+                    preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowed = isAutoSelectAllowedExpected
+            )
 
         assertThat(request.displayInfo.preferDefaultProvider).isEqualTo(defaultProviderExpected)
         assertThat(request.origin).isEqualTo(originExpected)
@@ -151,40 +154,39 @@ class CreatePasswordRequestTest {
             expectedAutoSelect
         )
 
-        val request = CreatePasswordRequest(
-            idExpected, passwordExpected, /*origin=*/null,
-            preferImmediatelyAvailableCredentialsExpected, expectedAutoSelect
-        )
+        val request =
+            CreatePasswordRequest(
+                idExpected,
+                passwordExpected,
+                /*origin=*/ null,
+                preferImmediatelyAvailableCredentialsExpected,
+                expectedAutoSelect
+            )
 
         assertThat(request.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         val displayInfo = request.displayInfo
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.userId).isEqualTo(idExpected)
-        assertThat(equals(request.candidateQueryData, expectedCandidateData))
-            .isTrue()
+        assertThat(equals(request.candidateQueryData, expectedCandidateData)).isTrue()
         assertThat(request.isSystemProviderRequired).isFalse()
-        val credentialData = getFinalCreateCredentialData(
-            request, mContext
-        )
+        val credentialData = getFinalCreateCredentialData(request, mContext)
         assertThat(credentialData.keySet())
-            .hasSize(expectedCredentialData.size() + /* added request info */1)
+            .hasSize(expectedCredentialData.size() + /* added request info */ 1)
         for (key in expectedCredentialData.keySet()) {
             assertThat(credentialData[key]).isEqualTo(expectedCredentialData[key])
         }
-        val displayInfoBundle = credentialData.getBundle(
-            DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO
-        )
+        val displayInfoBundle =
+            credentialData.getBundle(DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO)
         assertThat(displayInfoBundle!!.keySet()).hasSize(2)
+        assertThat(displayInfoBundle.getString(DisplayInfo.BUNDLE_KEY_USER_ID))
+            .isEqualTo(idExpected)
         assertThat(
-            displayInfoBundle.getString(
-                DisplayInfo.BUNDLE_KEY_USER_ID
+                (displayInfoBundle.getParcelable<Parcelable>(
+                        DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON
+                    ) as Icon?)!!
+                    .resId
             )
-        ).isEqualTo(idExpected)
-        assertThat(
-            (displayInfoBundle.getParcelable<Parcelable>(
-                DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON
-            ) as Icon?)!!.resId
-        ).isEqualTo(R.drawable.ic_password)
+            .isEqualTo(R.drawable.ic_password)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -196,10 +198,15 @@ class CreatePasswordRequestTest {
         val isAutoSelectAllowedExpected = true
         val originExpected = "origin"
         val defaultProviderExpected = "com.test/com.test.TestProviderComponent"
-        val request = CreatePasswordRequest(
-            idExpected, passwordExpected, originExpected, defaultProviderExpected,
-            preferImmediatelyAvailableCredentialsExpected, isAutoSelectAllowedExpected
-        )
+        val request =
+            CreatePasswordRequest(
+                idExpected,
+                passwordExpected,
+                originExpected,
+                defaultProviderExpected,
+                preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowedExpected
+            )
         // Add additional data to the request data and candidate query data to make sure
         // they persist after the conversion
         // Add additional data to the request data and candidate query data to make sure
@@ -213,14 +220,16 @@ class CreatePasswordRequestTest {
         val customCandidateQueryDataValue = true
         candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
 
-        val convertedRequest = createFrom(
-            request.type, credentialData, candidateQueryData, request.isSystemProviderRequired,
-            request.origin
-        )
+        val convertedRequest =
+            createFrom(
+                request.type,
+                credentialData,
+                candidateQueryData,
+                request.isSystemProviderRequired,
+                request.origin
+            )
 
-        assertThat(convertedRequest).isInstanceOf(
-            CreatePasswordRequest::class.java
-        )
+        assertThat(convertedRequest).isInstanceOf(CreatePasswordRequest::class.java)
         val convertedCreatePasswordRequest = convertedRequest as CreatePasswordRequest
         assertThat(convertedCreatePasswordRequest.password).isEqualTo(passwordExpected)
         assertThat(convertedCreatePasswordRequest.id).isEqualTo(idExpected)
@@ -232,8 +241,7 @@ class CreatePasswordRequestTest {
         val displayInfo = convertedCreatePasswordRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.userId).isEqualTo(idExpected)
-        assertThat(displayInfo.credentialTypeIcon!!.resId)
-            .isEqualTo(R.drawable.ic_password)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_password)
         assertThat(displayInfo.preferDefaultProvider).isEqualTo(defaultProviderExpected)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)

@@ -29,12 +29,15 @@ class TimelineModeTest {
         val time3 = Instant.parse("2021-11-12T17:45:30.00Z")
         val time4 = Instant.parse("2021-11-12T18:30:30.00Z")
 
-        val timeBoundEntries = TimelineMode.TimeBoundEntries(setOf(
-            TimeInterval(),
-            TimeInterval(time1, time2),
-            TimeInterval(time2, time3),
-            TimeInterval(time4)
-        ))
+        val timeBoundEntries =
+            TimelineMode.TimeBoundEntries(
+                setOf(
+                    TimeInterval(),
+                    TimeInterval(time1, time2),
+                    TimeInterval(time2, time3),
+                    TimeInterval(time4)
+                )
+            )
         val intervals = timeBoundEntries.timeIntervals
 
         assertThat(intervals.size).isEqualTo(4)

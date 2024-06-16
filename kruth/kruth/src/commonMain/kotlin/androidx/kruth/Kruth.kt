@@ -79,9 +79,7 @@ fun assertThat(actual: DoubleArray?): PrimitiveDoubleArraySubject = assert_().th
 
 fun <K, V> assertThat(actual: Map<K, V>?): MapSubject<K, V> = assert_().that(actual)
 
-/**
- * Begins an assertion that, if it fails, will prepend the given message to the failure message.
- */
+/** Begins an assertion that, if it fails, will prepend the given message to the failure message. */
 fun assertWithMessage(messageToPrepend: String): StandardSubjectBuilder =
     StandardSubjectBuilder(
         metadata = FailureMetadata(messagesToPrepend = listOf(messageToPrepend)),

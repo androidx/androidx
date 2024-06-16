@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.media.EncoderProfiles;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
@@ -39,7 +38,6 @@ import java.util.Locale;
  *                 with TP1A build (API 33), Xiaomi devices with TKQ1/TP1A build (API 33), OnePlus
  *                 and Oppo devices with API 33 build.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class InvalidVideoProfilesQuirk implements Quirk {
 
     private static final List<String> AFFECTED_PIXEL_MODELS = Arrays.asList(

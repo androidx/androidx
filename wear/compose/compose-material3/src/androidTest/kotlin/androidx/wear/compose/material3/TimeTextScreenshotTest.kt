@@ -46,14 +46,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class TimeTextScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun time_text_with_clock_only_on_round_device() = verifyScreenshot {
@@ -65,13 +62,14 @@ class TimeTextScreenshotTest {
     }
 
     @Test
-    fun time_text_with_clock_only_on_non_round_device() = verifyScreenshot(false) {
-        TimeText(
-            modifier = Modifier.testTag(TEST_TAG),
-        ) {
-            time()
+    fun time_text_with_clock_only_on_non_round_device() =
+        verifyScreenshot(false) {
+            TimeText(
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                time()
+            }
         }
-    }
 
     @Test
     fun time_text_with_status_on_round_device() = verifyScreenshot {
@@ -85,15 +83,16 @@ class TimeTextScreenshotTest {
     }
 
     @Test
-    fun time_text_with_status_on_non_round_device() = verifyScreenshot(false) {
-        TimeText(
-            modifier = Modifier.testTag(TEST_TAG),
-        ) {
-            text("ETA 12:48")
-            separator()
-            time()
+    fun time_text_with_status_on_non_round_device() =
+        verifyScreenshot(false) {
+            TimeText(
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                text("ETA 12:48")
+                separator()
+                time()
+            }
         }
-    }
 
     @Test
     fun time_text_with_icon_on_round_device() = verifyScreenshot {
@@ -113,21 +112,22 @@ class TimeTextScreenshotTest {
     }
 
     @Test
-    fun time_text_with_icon_on_non_round_device() = verifyScreenshot(false) {
-        TimeText(
-            modifier = Modifier.testTag(TEST_TAG),
-        ) {
-            time()
-            separator()
-            composable {
-                Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = "Favorite",
-                    modifier = Modifier.size(13.dp)
-                )
+    fun time_text_with_icon_on_non_round_device() =
+        verifyScreenshot(false) {
+            TimeText(
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                time()
+                separator()
+                composable {
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = "Favorite",
+                        modifier = Modifier.size(13.dp)
+                    )
+                }
             }
         }
-    }
 
     @Test
     fun time_text_with_custom_colors_on_round_device() = verifyScreenshot {
@@ -148,27 +148,25 @@ class TimeTextScreenshotTest {
     }
 
     @Test
-    fun time_text_with_custom_colors_on_non_round_device() = verifyScreenshot(false) {
-        val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)
-        val timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Cyan)
-        val separatorStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-        TimeText(
-            contentColor = Color.Green,
-            timeTextStyle = timeTextStyle,
-            modifier = Modifier.testTag(TEST_TAG),
-        ) {
-            text("ETA", customStyle)
-            composable { Spacer(modifier = Modifier.size(4.dp)) }
-            text("12:48")
-            separator(separatorStyle)
-            time()
+    fun time_text_with_custom_colors_on_non_round_device() =
+        verifyScreenshot(false) {
+            val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)
+            val timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Cyan)
+            val separatorStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+            TimeText(
+                contentColor = Color.Green,
+                timeTextStyle = timeTextStyle,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                text("ETA", customStyle)
+                composable { Spacer(modifier = Modifier.size(4.dp)) }
+                text("12:48")
+                separator(separatorStyle)
+                time()
+            }
         }
-    }
 
-    private fun verifyScreenshot(
-        isDeviceRound: Boolean = true,
-        content: @Composable () -> Unit
-    ) {
+    private fun verifyScreenshot(isDeviceRound: Boolean = true, content: @Composable () -> Unit) {
         rule.verifyScreenshot(
             methodName = testName.methodName,
             screenshotRule = screenshotRule,

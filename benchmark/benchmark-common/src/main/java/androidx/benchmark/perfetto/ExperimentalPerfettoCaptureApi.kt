@@ -16,9 +16,7 @@
 
 package androidx.benchmark.perfetto
 
-/**
- * Annotation indicating experimental API for capturing Perfetto traces.
- */
+/** Annotation indicating experimental API for capturing Perfetto traces. */
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)

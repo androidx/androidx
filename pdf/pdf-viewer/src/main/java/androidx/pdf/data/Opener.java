@@ -45,18 +45,18 @@ public class Opener {
 
     private final ContentUriOpener mContentOpener;
 
-    public Opener(Context ctx) {
+    public Opener(@NonNull Context ctx) {
         Context app = ctx.getApplicationContext();
         mContentOpener = new ContentUriOpener(app.getContentResolver());
     }
 
     @VisibleForTesting
-    public Opener(ContentUriOpener contentOpener) {
+    public Opener(@NonNull ContentUriOpener contentOpener) {
         this.mContentOpener = contentOpener;
     }
 
     @NonNull
-    protected Open open(ContentOpenable content) throws FileNotFoundException {
+    protected Open open(@NonNull ContentOpenable content) throws FileNotFoundException {
         String contentType = content.getContentType();
         AssetFileDescriptor afd;
         if (content.getSize() != null) {
@@ -75,7 +75,7 @@ public class Opener {
 
     /** Opens the given local Uri and returns an {@link Open} object to read its data. */
     @NonNull
-    public Open openLocal(Uri localUri) throws IOException {
+    public Open openLocal(@NonNull Uri localUri) throws IOException {
         Preconditions.checkNotNull(localUri);
         if (Uris.isContentUri(localUri)) {
             ContentOpenable content = new ContentOpenable(localUri);
@@ -89,7 +89,7 @@ public class Opener {
     }
 
     /** Returns the Exif orientation rotation value for a content thumbnail. */
-    public int getContentExifOrientation(ContentOpenable contentOpenable) {
+    public int getContentExifOrientation(@NonNull ContentOpenable contentOpenable) {
         return mContentOpener.getExifOrientation(contentOpenable.getContentUri());
     }
 
@@ -97,7 +97,7 @@ public class Opener {
      *
      */
     @Nullable
-    public String getContentType(Uri uri) {
+    public String getContentType(@NonNull Uri uri) {
         if (Uris.isContentUri(uri)) {
             return mContentOpener.getContentType(uri);
         } else {

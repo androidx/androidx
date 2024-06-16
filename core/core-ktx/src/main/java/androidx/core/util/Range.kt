@@ -51,10 +51,14 @@ public inline infix fun <T : Comparable<T>> Range<T>.and(other: Range<T>): Range
 
 /** Returns this [Range] as a [ClosedRange]. */
 @RequiresApi(21)
-public fun <T : Comparable<T>> Range<T>.toClosedRange(): ClosedRange<T> = object : ClosedRange<T> {
-    override val endInclusive get() = upper
-    override val start get() = lower
-}
+public fun <T : Comparable<T>> Range<T>.toClosedRange(): ClosedRange<T> =
+    object : ClosedRange<T> {
+        override val endInclusive
+            get() = upper
+
+        override val start
+            get() = lower
+    }
 
 /** Returns this [ClosedRange] as a [Range]. */
 @RequiresApi(21)

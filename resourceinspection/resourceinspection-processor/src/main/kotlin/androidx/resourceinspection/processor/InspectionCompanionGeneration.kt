@@ -34,134 +34,150 @@ internal fun generateInspectionCompanion(
     view: View,
     generatedAnnotation: AnnotationSpec?
 ): JavaFile {
-    val typeSpec = TypeSpec.classBuilder(
-        view.className.simpleNames().joinToString(
-            separator = "\$",
-            postfix = "\$InspectionCompanion"
-        )
-    ).apply {
-        addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-        addSuperinterface(INSPECTION_COMPANION.parameterized(view.className))
-        addAnnotation(REQUIRES_API)
-        addAnnotation(RESTRICT_TO)
+    val typeSpec =
+        TypeSpec.classBuilder(
+                view.className
+                    .simpleNames()
+                    .joinToString(separator = "\$", postfix = "\$InspectionCompanion")
+            )
+            .apply {
+                addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                addSuperinterface(INSPECTION_COMPANION.parameterized(view.className))
+                addAnnotation(REQUIRES_API)
+                addAnnotation(RESTRICT_TO)
 
-        generatedAnnotation?.let { addAnnotation(it) }
+                generatedAnnotation?.let { addAnnotation(it) }
 
-        addOriginatingElement(view.type)
+                addOriginatingElement(view.type)
 
-        addField(
-            FieldSpec.builder(TypeName.BOOLEAN, "mPropertiesMapped", Modifier.PRIVATE).run {
-                initializer("false")
-                build()
-            }
-        )
-
-        val attributeIdNames = NameAllocator().apply {
-            for (attribute in view.attributes) {
-                val attributeName = attribute.name.replaceFirstChar { it.uppercase() }
-                newName("m${attributeName}Id", attribute)
-            }
-        }
-
-        for (attribute in view.attributes) {
-            addField(TypeName.INT, attributeIdNames[attribute], Modifier.PRIVATE)
-        }
-
-        addMethod(
-            MethodSpec.methodBuilder("mapProperties").apply {
-                addAnnotation(OVERRIDE)
-                addModifiers(Modifier.PUBLIC)
-                addParameter(PROPERTY_MAPPER.annotated(NON_NULL), "propertyMapper")
-
-                for (attribute in view.attributes) {
-                    when (attribute.type) {
-                        AttributeType.INT_ENUM -> addStatement(
-                            "\$N = propertyMapper.mapIntEnum(\$S, \$L, \$L)",
-                            attributeIdNames[attribute],
-                            attribute.name,
-                            attribute.attrReference,
-                            intEnumLambda(attribute)
-                        )
-                        AttributeType.INT_FLAG -> addStatement(
-                            "\$N = propertyMapper.mapIntFlag(\$S, \$L, \$L)",
-                            attributeIdNames[attribute],
-                            attribute.name,
-                            attribute.attrReference,
-                            intFlagLambda(attribute)
-                        )
-                        else -> addStatement(
-                            "\$N = propertyMapper.map\$L(\$S, \$L)",
-                            attributeIdNames[attribute],
-                            attribute.type.apiSuffix,
-                            attribute.name,
-                            attribute.attrReference
-                        )
+                addField(
+                    FieldSpec.builder(TypeName.BOOLEAN, "mPropertiesMapped", Modifier.PRIVATE).run {
+                        initializer("false")
+                        build()
                     }
-                }
+                )
 
-                addStatement("mPropertiesMapped = true")
-            }.build()
-        )
-
-        addMethod(
-            MethodSpec.methodBuilder("readProperties").apply {
-                // Make sure the view parameter name doesn't conflict with anything
-                val decapitalizedClassName = view.className.simpleName()
-                    .replaceFirstChar { it.lowercase(Locale.US) }
-                val viewParameter = attributeIdNames.clone()
-                    .apply { newName("propertyReader") }
-                    .newName(decapitalizedClassName)
-
-                addAnnotation(OVERRIDE)
-                addModifiers(Modifier.PUBLIC)
-                addParameter(view.className.annotated(NON_NULL), viewParameter)
-                addParameter(PROPERTY_READER.annotated(NON_NULL), "propertyReader")
-
-                beginControlFlow("if (!mPropertiesMapped)")
-                addStatement("throw new \$T()", UNINITIALIZED_EXCEPTION)
-                endControlFlow()
+                val attributeIdNames =
+                    NameAllocator().apply {
+                        for (attribute in view.attributes) {
+                            val attributeName = attribute.name.replaceFirstChar { it.uppercase() }
+                            newName("m${attributeName}Id", attribute)
+                        }
+                    }
 
                 for (attribute in view.attributes) {
-                    addStatement(
-                        "propertyReader.read\$L(\$N, \$N.\$L)",
-                        attribute.type.apiSuffix,
-                        attributeIdNames[attribute],
-                        viewParameter,
-                        attribute.invocation
-                    )
+                    addField(TypeName.INT, attributeIdNames[attribute], Modifier.PRIVATE)
                 }
-            }.build()
-        )
-    }.build()
 
-    return JavaFile.builder(view.className.packageName(), typeSpec)
-        .indent(" ".repeat(4))
-        .build()
+                addMethod(
+                    MethodSpec.methodBuilder("mapProperties")
+                        .apply {
+                            addAnnotation(OVERRIDE)
+                            addModifiers(Modifier.PUBLIC)
+                            addParameter(PROPERTY_MAPPER.annotated(NON_NULL), "propertyMapper")
+
+                            for (attribute in view.attributes) {
+                                when (attribute.type) {
+                                    AttributeType.INT_ENUM ->
+                                        addStatement(
+                                            "\$N = propertyMapper.mapIntEnum(\$S, \$L, \$L)",
+                                            attributeIdNames[attribute],
+                                            attribute.name,
+                                            attribute.attrReference,
+                                            intEnumLambda(attribute)
+                                        )
+                                    AttributeType.INT_FLAG ->
+                                        addStatement(
+                                            "\$N = propertyMapper.mapIntFlag(\$S, \$L, \$L)",
+                                            attributeIdNames[attribute],
+                                            attribute.name,
+                                            attribute.attrReference,
+                                            intFlagLambda(attribute)
+                                        )
+                                    else ->
+                                        addStatement(
+                                            "\$N = propertyMapper.map\$L(\$S, \$L)",
+                                            attributeIdNames[attribute],
+                                            attribute.type.apiSuffix,
+                                            attribute.name,
+                                            attribute.attrReference
+                                        )
+                                }
+                            }
+
+                            addStatement("mPropertiesMapped = true")
+                        }
+                        .build()
+                )
+
+                addMethod(
+                    MethodSpec.methodBuilder("readProperties")
+                        .apply {
+                            // Make sure the view parameter name doesn't conflict with anything
+                            val decapitalizedClassName =
+                                view.className.simpleName().replaceFirstChar {
+                                    it.lowercase(Locale.US)
+                                }
+                            val viewParameter =
+                                attributeIdNames
+                                    .clone()
+                                    .apply { newName("propertyReader") }
+                                    .newName(decapitalizedClassName)
+
+                            addAnnotation(OVERRIDE)
+                            addModifiers(Modifier.PUBLIC)
+                            addParameter(view.className.annotated(NON_NULL), viewParameter)
+                            addParameter(PROPERTY_READER.annotated(NON_NULL), "propertyReader")
+
+                            beginControlFlow("if (!mPropertiesMapped)")
+                            addStatement("throw new \$T()", UNINITIALIZED_EXCEPTION)
+                            endControlFlow()
+
+                            for (attribute in view.attributes) {
+                                addStatement(
+                                    "propertyReader.read\$L(\$N, \$N.\$L)",
+                                    attribute.type.apiSuffix,
+                                    attributeIdNames[attribute],
+                                    viewParameter,
+                                    attribute.invocation
+                                )
+                            }
+                        }
+                        .build()
+                )
+            }
+            .build()
+
+    return JavaFile.builder(view.className.packageName(), typeSpec).indent(" ".repeat(4)).build()
 }
 
 /** The `(Int) -> String` lambda for int enums, as an anonymous class for Java 7 compatibility. */
 private fun intEnumLambda(attribute: Attribute): TypeSpec {
-    return TypeSpec.anonymousClassBuilder("").apply {
-        addSuperinterface(INT_FUNCTION.parameterized(STRING))
+    return TypeSpec.anonymousClassBuilder("")
+        .apply {
+            addSuperinterface(INT_FUNCTION.parameterized(STRING))
 
-        addMethod(
-            MethodSpec.methodBuilder("apply").apply {
-                addAnnotation(OVERRIDE)
-                addModifiers(Modifier.PUBLIC)
-                returns(STRING)
-                addParameter(TypeName.INT, "value")
+            addMethod(
+                MethodSpec.methodBuilder("apply")
+                    .apply {
+                        addAnnotation(OVERRIDE)
+                        addModifiers(Modifier.PUBLIC)
+                        returns(STRING)
+                        addParameter(TypeName.INT, "value")
 
-                beginControlFlow("switch (value)")
+                        beginControlFlow("switch (value)")
 
-                attribute.intMapping.forEach { (name, value, _) ->
-                    addCode("case \$L:\n\$>return \$S;\n\$<", value, name)
-                }
+                        attribute.intMapping.forEach { (name, value, _) ->
+                            addCode("case \$L:\n\$>return \$S;\n\$<", value, name)
+                        }
 
-                addCode("default:\n\$>return \$T.valueOf(value);\n\$<", STRING)
-                endControlFlow()
-            }.build()
-        )
-    }.build()
+                        addCode("default:\n\$>return \$T.valueOf(value);\n\$<", STRING)
+                        endControlFlow()
+                    }
+                    .build()
+            )
+        }
+        .build()
 }
 
 /** The `(Int) -> Set<String>` lambda for int flags, as an anonymous class. */
@@ -169,32 +185,36 @@ private fun intFlagLambda(attribute: Attribute): TypeSpec {
     val stringSet = SET.parameterized(STRING)
     val stringHashSet = HASH_SET.parameterized(STRING)
 
-    return TypeSpec.anonymousClassBuilder("").apply {
-        addSuperinterface(INT_FUNCTION.parameterized(stringSet))
+    return TypeSpec.anonymousClassBuilder("")
+        .apply {
+            addSuperinterface(INT_FUNCTION.parameterized(stringSet))
 
-        addMethod(
-            MethodSpec.methodBuilder("apply").apply {
-                addAnnotation(OVERRIDE)
-                addModifiers(Modifier.PUBLIC)
-                returns(stringSet)
-                addParameter(TypeName.INT, "value")
+            addMethod(
+                MethodSpec.methodBuilder("apply")
+                    .apply {
+                        addAnnotation(OVERRIDE)
+                        addModifiers(Modifier.PUBLIC)
+                        returns(stringSet)
+                        addParameter(TypeName.INT, "value")
 
-                addStatement("final \$T flags = new \$T()", stringSet, stringHashSet)
+                        addStatement("final \$T flags = new \$T()", stringSet, stringHashSet)
 
-                attribute.intMapping.forEach { (name, value, mask) ->
-                    if (value == mask || mask == 0) {
-                        beginControlFlow("if (value == \$L)", value)
-                    } else {
-                        beginControlFlow("if ((value & \$L) == \$L)", mask, value)
+                        attribute.intMapping.forEach { (name, value, mask) ->
+                            if (value == mask || mask == 0) {
+                                beginControlFlow("if (value == \$L)", value)
+                            } else {
+                                beginControlFlow("if ((value & \$L) == \$L)", mask, value)
+                            }
+                            addStatement("flags.add(\$S)", name)
+                            endControlFlow()
+                        }
+
+                        addStatement("return flags")
                     }
-                    addStatement("flags.add(\$S)", name)
-                    endControlFlow()
-                }
-
-                addStatement("return flags")
-            }.build()
-        )
-    }.build()
+                    .build()
+            )
+        }
+        .build()
 }
 
 /** A [CodeBlock] of the `$namespace.R.attr.$name` attribute ID reference. */

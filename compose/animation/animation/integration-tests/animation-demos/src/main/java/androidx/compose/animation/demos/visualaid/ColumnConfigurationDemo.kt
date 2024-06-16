@@ -53,25 +53,26 @@ import kotlinx.coroutines.delay
 @Preview
 @Composable
 fun ColumnConfigurationDemo() {
-    val height by produceState(250.dp) {
-        // Skip the animations in tests.
-        while (coroutineContext[InfiniteAnimationPolicy] == null) {
-            animate(
-                Dp.VectorConverter, 250.dp, 520.dp,
-                animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)
-            ) { value, _ ->
-                this.value = value
+    val height by
+        produceState(250.dp) {
+            // Skip the animations in tests.
+            while (coroutineContext[InfiniteAnimationPolicy] == null) {
+                animate(
+                    Dp.VectorConverter,
+                    250.dp,
+                    520.dp,
+                    animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)
+                ) { value, _ ->
+                    this.value = value
+                }
+                delay(1000)
+                animate(Dp.VectorConverter, 520.dp, 250.dp, animationSpec = tween(520)) { value, _
+                    ->
+                    this.value = value
+                }
+                delay(1000)
             }
-            delay(1000)
-            animate(
-                Dp.VectorConverter, 520.dp, 250.dp,
-                animationSpec = tween(520)
-            ) { value, _ ->
-                this.value = value
-            }
-            delay(1000)
         }
-    }
     ResizableColumn(height)
 }
 
@@ -89,7 +90,8 @@ fun ResizableColumn(height: Dp) {
             Text(
                 text = "Equal\nWeight",
                 modifier = Modifier.width(50.dp).padding(2.dp),
-                fontSize = 12.sp, textAlign = TextAlign.Center
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = "Space\nBetween",
@@ -169,15 +171,20 @@ fun ResizableColumn(height: Dp) {
 }
 
 private fun Modifier.default(backgroundColor: Color) =
-    this.width(50.dp).padding(2.dp)
-        .background(backgroundColor, RoundedCornerShape(5.dp)).padding(top = 3.dp, bottom = 3.dp)
+    this.width(50.dp)
+        .padding(2.dp)
+        .background(backgroundColor, RoundedCornerShape(5.dp))
+        .padding(top = 3.dp, bottom = 3.dp)
         .fillMaxHeight()
 
 @Composable
 fun ColumnScope.ColumnItem(text: String, fixedSize: Boolean = true) {
     val modifier = if (fixedSize) Modifier.height(80.dp) else Modifier.weight(1f)
     Box(
-        modifier.width(50.dp).padding(5.dp).shadow(10.dp)
+        modifier
+            .width(50.dp)
+            .padding(5.dp)
+            .shadow(10.dp)
             .background(Color.White, shape = RoundedCornerShape(5.dp))
             .padding(top = 5.dp, bottom = 5.dp)
     ) {

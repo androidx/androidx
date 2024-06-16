@@ -29,10 +29,7 @@ sealed class Section {
             get() = ""
     }
 
-    data class BindVar(
-        override val text: String,
-        val isMultiple: Boolean
-    ) : Section() {
+    data class BindVar(override val text: String, val isMultiple: Boolean) : Section() {
         val varName by lazy {
             if (text.startsWith(":")) {
                 text.substring(1)
@@ -44,7 +41,9 @@ sealed class Section {
 
     companion object {
         fun text(text: String) = Text(text)
+
         fun newline() = NewLine
+
         fun bindVar(text: String, isMultiple: Boolean) = BindVar(text, isMultiple)
     }
 }
@@ -61,20 +60,21 @@ data class ParsedQuery(
 ) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
-        val MISSING = ParsedQuery(
-            original = "missing query",
-            type = QueryType.UNKNOWN,
-            inputs = emptyList(),
-            tables = emptySet(),
-            hasTopStarProjection = null,
-            syntaxErrors = emptyList()
-        )
+        val MISSING =
+            ParsedQuery(
+                original = "missing query",
+                type = QueryType.UNKNOWN,
+                inputs = emptyList(),
+                tables = emptySet(),
+                hasTopStarProjection = null,
+                syntaxErrors = emptyList()
+            )
     }
 
     /**
      * Optional data that might be assigned when the query is parsed inside an annotation processor.
-     * User may turn this off or it might be disabled for any reason so generated code should
-     * always handle not having it.
+     * User may turn this off or it might be disabled for any reason so generated code should always
+     * handle not having it.
      */
     var resultInfo: QueryResultInfo? = null
     val sections by lazy {
@@ -86,20 +86,10 @@ data class ParsedQuery(
             inputsByLine[index + 1]?.forEach { bindVar ->
                 if (charInLine < bindVar.symbol.charPositionInLine) {
                     sections.add(
-                        Section.text(
-                            line.substring(
-                                charInLine,
-                                bindVar.symbol.charPositionInLine
-                            )
-                        )
+                        Section.text(line.substring(charInLine, bindVar.symbol.charPositionInLine))
                     )
                 }
-                sections.add(
-                    Section.bindVar(
-                        bindVar.text,
-                        bindVar.isMultiple
-                    )
-                )
+                sections.add(Section.bindVar(bindVar.text, bindVar.isMultiple))
                 charInLine = bindVar.symbol.charPositionInLine + bindVar.symbol.text.length
             }
             if (charInLine < line.length) {
@@ -112,17 +102,20 @@ data class ParsedQuery(
         sections
     }
     val bindSections by lazy { sections.filterIsInstance<Section.BindVar>() }
+
     private fun unnamedVariableErrors(): List<String> {
-        val anonymousBindError = if (inputs.any { it.text == "?" }) {
-            arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
-        } else {
-            emptyList<String>()
-        }
-        return anonymousBindError + inputs.filter {
-            it.text.matches(STARTS_WITH_NUMBER)
-        }.map {
-            ParserErrors.cannotUseVariableIndices(it.text, it.symbol.charPositionInLine)
-        }
+        val anonymousBindError =
+            if (inputs.any { it.text == "?" }) {
+                arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
+            } else {
+                emptyList<String>()
+            }
+        return anonymousBindError +
+            inputs
+                .filter { it.text.matches(STARTS_WITH_NUMBER) }
+                .map {
+                    ParserErrors.cannotUseVariableIndices(it.text, it.symbol.charPositionInLine)
+                }
     }
 
     private fun unknownQueryTypeErrors(): List<String> {

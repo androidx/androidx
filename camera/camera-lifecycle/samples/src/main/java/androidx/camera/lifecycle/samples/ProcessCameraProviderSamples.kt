@@ -66,22 +66,20 @@ fun bindConcurrentCameraSample() {
     }
     val previewFront = Preview.Builder().build()
     previewFront.setSurfaceProvider(frontPreviewView.getSurfaceProvider())
-    val primary = SingleCameraConfig(
-        cameraSelectorPrimary,
-        UseCaseGroup.Builder()
-            .addUseCase(previewFront)
-            .build(),
-        lifecycleOwner
-    )
+    val primary =
+        SingleCameraConfig(
+            cameraSelectorPrimary,
+            UseCaseGroup.Builder().addUseCase(previewFront).build(),
+            lifecycleOwner
+        )
     val previewBack = Preview.Builder().build()
     previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider())
-    val secondary = SingleCameraConfig(
-        cameraSelectorSecondary,
-        UseCaseGroup.Builder()
-            .addUseCase(previewBack)
-            .build(),
-        lifecycleOwner
-    )
+    val secondary =
+        SingleCameraConfig(
+            cameraSelectorSecondary,
+            UseCaseGroup.Builder().addUseCase(previewBack).build(),
+            lifecycleOwner
+        )
     cameraProvider.bindToLifecycle(listOf(primary, secondary))
 }
 
@@ -96,10 +94,10 @@ fun getCameraXConfigSample() {
     }
 }
 
+// TODO(b/332277796): Change the samples to be more kotlin idiomatic.
 @Sampled
 fun configureAndGetInstanceSample() {
     fun getInstance(context: Context): ListenableFuture<ProcessCameraProvider> {
-        // TODO(b/332277796): Change the samples to be more kotlin idiomatic.
         synchronized(CameraProvider::class.java) {
             if (!configured) {
                 configured = true

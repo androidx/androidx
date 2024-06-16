@@ -22,21 +22,22 @@ import androidx.kruth.Fact.Companion.fact
  * Propositions for [Comparable] typed subjects.
  *
  * @param T the type of the object being tested by this [ComparableSubject]
- *
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
- * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class ComparableSubject<T : Comparable<T>> protected constructor(
+open class ComparableSubject<T : Comparable<T>>
+protected constructor(
     metadata: FailureMetadata,
     actual: T?,
-) : Subject<T>(actual, metadata, typeDescriptionOverride = null),
+) :
+    Subject<T>(actual, metadata, typeDescriptionOverride = null),
     PlatformComparableSubject<T> by PlatformComparableSubjectImpl(actual, metadata) {
 
     internal constructor(actual: T?, metadata: FailureMetadata) : this(metadata, actual)
 
     /**
-     * Checks that the subject is equivalent to [other] according to [Comparable.compareTo],
-     * (i.e., checks that `a.comparesTo(b) == 0`).
+     * Checks that the subject is equivalent to [other] according to [Comparable.compareTo], (i.e.,
+     * checks that `a.comparesTo(b) == 0`).
      *
      * **Note:** Do not use this method for checking object equality. Instead, use [isEqualTo].
      */

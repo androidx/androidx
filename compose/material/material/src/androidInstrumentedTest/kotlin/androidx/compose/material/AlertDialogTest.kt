@@ -53,8 +53,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Should be O: b/163023027
 class AlertDialogTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @FlakyTest(bugId = 170333139)
     @Test
@@ -75,7 +74,8 @@ class AlertDialogTest {
         }
 
         // Assert background
-        rule.onNode(isDialog())
+        rule
+            .onNode(isDialog())
             .captureToImage()
             .assertContainsColor(Color.Yellow) // Background
             .assertContainsColor(Color.Blue) // Modifier border
@@ -87,9 +87,7 @@ class AlertDialogTest {
         }
     }
 
-    /**
-     * Ensure that AlertDialogs don't press up against the edges of the screen.
-     */
+    /** Ensure that AlertDialogs don't press up against the edges of the screen. */
     @Test
     fun alertDialogDoesNotConsumeFullScreenWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
@@ -101,8 +99,8 @@ class AlertDialogTest {
             with(density) { screenWidth = resScreenWidth.dp.roundToPx() }
 
             AlertDialog(
-                modifier = Modifier.onSizeChanged { dialogWidthCh.trySend(it.width) }
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier.onSizeChanged { dialogWidthCh.trySend(it.width) }.fillMaxWidth(),
                 onDismissRequest = {},
                 title = { Text(text = "Title") },
                 text = {
@@ -132,9 +130,7 @@ class AlertDialogTest {
                 confirmButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(ConfirmButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Confirm with a long text")
                     }
@@ -142,9 +138,7 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(DismissButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Dismiss with a long text")
                     }

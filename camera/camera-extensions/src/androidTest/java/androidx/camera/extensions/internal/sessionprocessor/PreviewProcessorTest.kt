@@ -61,9 +61,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PreviewProcessorTest {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
     private lateinit var cameraDevice: Api21Impl.CameraDeviceWrapper
     private lateinit var cameraCaptureSession: CameraCaptureSession
     private lateinit var surfaceTexture: SurfaceTexture
@@ -90,9 +91,7 @@ class PreviewProcessorTest {
         // PreviewImageProcessorImpl doesn't exist on Xiaomi devices
         Assume.assumeFalse(Build.BRAND.uppercase().equals("XIAOMI"))
 
-        backgroundThread = HandlerThread(
-            CameraXThreads.TAG + "preview_processor_test"
-        )
+        backgroundThread = HandlerThread(CameraXThreads.TAG + "preview_processor_test")
         backgroundThread.start()
         backgroundHandler = Handler(backgroundThread.looper)
         surfaceTexture = SurfaceTexture(0)
@@ -101,24 +100,20 @@ class PreviewProcessorTest {
 
         previewSurface = Surface(surfaceTexture)
         fakePreviewImageProcessorImpl = FakePreviewImageProcessorImpl()
-        previewProcessor = PreviewProcessor(
-            fakePreviewImageProcessorImpl, previewSurface, Size(WIDTH, HEIGHT)
-        )
-        imageReaderYuv = ImageReader.newInstance(
-            WIDTH, HEIGHT, ImageFormat.YUV_420_888, MAX_IMAGES
-        )
+        previewProcessor =
+            PreviewProcessor(fakePreviewImageProcessorImpl, previewSurface, Size(WIDTH, HEIGHT))
+        imageReaderYuv = ImageReader.newInstance(WIDTH, HEIGHT, ImageFormat.YUV_420_888, MAX_IMAGES)
 
-        cameraDevice = Camera2Util.openCameraDevice(
-            cameraManager,
-            CAMERA_ID,
-            backgroundHandler
-        ).toCameraDeviceWrapper()
+        cameraDevice =
+            Camera2Util.openCameraDevice(cameraManager, CAMERA_ID, backgroundHandler)
+                .toCameraDeviceWrapper()
 
-        cameraCaptureSession = Camera2Util.openCaptureSession(
-            cameraDevice.unwrap(),
-            arrayListOf(imageReaderYuv.surface),
-            backgroundHandler
-        )
+        cameraCaptureSession =
+            Camera2Util.openCaptureSession(
+                cameraDevice.unwrap(),
+                arrayListOf(imageReaderYuv.surface),
+                backgroundHandler
+            )
     }
 
     @After
@@ -156,39 +151,39 @@ class PreviewProcessorTest {
     }
 
     @Test
-    fun canOutputToPreview(): Unit = runBlocking {
-        startPreviewProcessorAndAwaitFrameUpdate()
-    }
+    fun canOutputToPreview(): Unit = runBlocking { startPreviewProcessorAndAwaitFrameUpdate() }
 
     private suspend fun startPreviewProcessorAndAwaitFrameUpdate() {
         previewProcessor.start { _, _ -> }
 
         var imageFetched = false
         var captureResultFetched = false
-        imageReaderYuv.setOnImageAvailableListener({
-            if (!imageFetched) {
-                imageFetched = true
-                val image = it.acquireNextImage()
-                previewProcessor.notifyImage(createImageReference(image))
-            }
-        }, backgroundHandler)
+        imageReaderYuv.setOnImageAvailableListener(
+            {
+                if (!imageFetched) {
+                    imageFetched = true
+                    val image = it.acquireNextImage()
+                    previewProcessor.notifyImage(createImageReference(image))
+                }
+            },
+            backgroundHandler
+        )
 
         val previewUpdateDeferred = CompletableDeferred<Boolean>()
-        surfaceTexture.setOnFrameAvailableListener {
-            previewUpdateDeferred.complete(true)
-        }
+        surfaceTexture.setOnFrameAvailableListener { previewUpdateDeferred.complete(true) }
 
-        Camera2Util.startRepeating(cameraDevice.unwrap(), cameraCaptureSession,
-            arrayListOf(imageReaderYuv.surface)) {
+        Camera2Util.startRepeating(
+            cameraDevice.unwrap(),
+            cameraCaptureSession,
+            arrayListOf(imageReaderYuv.surface)
+        ) {
             if (!captureResultFetched) {
                 captureResultFetched = true
                 previewProcessor.notifyCaptureResult(it)
             }
         }
 
-        withTimeout(3000) {
-            assertTrue(previewUpdateDeferred.await())
-        }
+        withTimeout(3000) { assertTrue(previewUpdateDeferred.await()) }
     }
 
     @Test
@@ -207,6 +202,7 @@ class PreviewProcessorTest {
     private fun createImageReference(image: Image): ImageReference {
         return object : ImageReference {
             private var refCount = 1
+
             override fun increment(): Boolean {
                 if (refCount <= 0) return false
                 refCount++
@@ -230,6 +226,7 @@ class PreviewProcessorTest {
 
     private class FakePreviewImageProcessorImpl : PreviewImageProcessorImpl {
         private var imageWriter: ImageWriter? = null
+
         override fun process(image: Image, result: TotalCaptureResult) {
             val emptyImage = imageWriter!!.dequeueInputImage()
             imageWriter!!.queueInputImage(emptyImage)
@@ -249,11 +246,9 @@ class PreviewProcessorTest {
             imageWriter = ImageWriter.newInstance(surface, 2, RGBA_8888)
         }
 
-        override fun onResolutionUpdate(size: Size) {
-        }
+        override fun onResolutionUpdate(size: Size) {}
 
-        override fun onImageFormatUpdate(imageFormat: Int) {
-        }
+        override fun onImageFormatUpdate(imageFormat: Int) {}
 
         fun close() {
             imageWriter?.close()

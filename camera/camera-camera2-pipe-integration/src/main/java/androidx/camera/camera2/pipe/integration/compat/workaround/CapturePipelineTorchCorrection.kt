@@ -46,15 +46,17 @@ import kotlinx.coroutines.launch
  * OFF then ON after the capturing.
  */
 @UseCaseCameraScope
-class CapturePipelineTorchCorrection @Inject constructor(
+class CapturePipelineTorchCorrection
+@Inject
+constructor(
     cameraProperties: CameraProperties,
     private val capturePipelineImpl: CapturePipelineImpl,
     private val threads: UseCaseThreads,
     private val torchControl: TorchControl,
 ) : CapturePipeline {
-    private val isLegacyDevice = cameraProperties.metadata[
-        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-    ] == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    private val isLegacyDevice =
+        cameraProperties.metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] ==
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 
     override suspend fun submitStillCaptures(
         configs: List<CaptureConfig>,
@@ -97,8 +99,8 @@ class CapturePipelineTorchCorrection @Inject constructor(
         }
 
     /**
-     * Return true means the Torch will be unexpectedly closed, and it requires turning on the
-     * Torch again after the capturing.
+     * Return true means the Torch will be unexpectedly closed, and it requires turning on the Torch
+     * again after the capturing.
      */
     private fun isCorrectionRequired(
         captureConfigs: List<CaptureConfig>,
@@ -106,9 +108,10 @@ class CapturePipelineTorchCorrection @Inject constructor(
     ): Boolean {
         return captureConfigs.any {
             it.getStillCaptureTemplate(
-                requestTemplate,
-                isLegacyDevice,
-            ).value == CameraDevice.TEMPLATE_STILL_CAPTURE
+                    requestTemplate,
+                    isLegacyDevice,
+                )
+                .value == CameraDevice.TEMPLATE_STILL_CAPTURE
         } && isTorchOn()
     }
 

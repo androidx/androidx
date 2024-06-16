@@ -23,18 +23,17 @@ package androidx.metrics.performance
  *
  * @property frameStartNanos The time at which this frame began (in nanoseconds)
  * @property frameDurationUiNanos The time spent in the UI portion of this frame (in nanoseconds).
- * This is essentially the time spent on the UI thread to draw this frame, but does
- * not include any time spent on the RenderThread.
+ *   This is essentially the time spent on the UI thread to draw this frame, but does not include
+ *   any time spent on the RenderThread.
  * @property frameDurationCpuNanos The time spent in the non-GPU portions of this frame (in
- * nanoseconds).  This includes the time spent on the UI thread [frameDurationUiNanos] plus time
- * spent on the RenderThread.
- * @property isJank Whether this frame was determined to be janky, meaning that its
- * duration exceeds the duration determined by the system to indicate jank (@see
- * [JankStats.jankHeuristicMultiplier]).
- * @property states The UI/app state during this frame.
- * This is the information set by the app, or by other library code, that can be analyzed
- * later to determine the UI state that was current when jank occurred.
- *
+ *   nanoseconds). This includes the time spent on the UI thread [frameDurationUiNanos] plus time
+ *   spent on the RenderThread.
+ * @property isJank Whether this frame was determined to be janky, meaning that its duration exceeds
+ *   the duration determined by the system to indicate jank (@see
+ *   [JankStats.jankHeuristicMultiplier]).
+ * @property states The UI/app state during this frame. This is the information set by the app, or
+ *   by other library code, that can be analyzed later to determine the UI state that was current
+ *   when jank occurred.
  * @see JankStats.jankHeuristicMultiplier
  * @see PerformanceMetricsState.putState
  */
@@ -50,8 +49,13 @@ open class FrameDataApi24(
         private set
 
     override fun copy(): FrameData {
-        return FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank,
-            ArrayList(states))
+        return FrameDataApi24(
+            frameStartNanos,
+            frameDurationUiNanos,
+            frameDurationCpuNanos,
+            isJank,
+            ArrayList(states)
+        )
     }
 
     internal fun update(

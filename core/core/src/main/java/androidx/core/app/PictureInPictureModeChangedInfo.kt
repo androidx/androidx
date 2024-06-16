@@ -32,16 +32,15 @@ class PictureInPictureModeChangedInfo(
      */
     val isInPictureInPictureMode: Boolean
 ) {
-    @RequiresApi(26)
-    private var newConfiguration: Configuration? = null
+    @RequiresApi(26) private var newConfiguration: Configuration? = null
 
     /**
-     * Construct an instance that contains the new picture-in-picture mode and the new
-     * configuration with the new picture-in-picture mode applied.
+     * Construct an instance that contains the new picture-in-picture mode and the new configuration
+     * with the new picture-in-picture mode applied.
      *
      * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
-     * @param newConfig The new configuration of the activity with the state
-     * {@param isInPictureInPictureMode}.
+     * @param newConfig The new configuration of the activity with the state {@param
+     *   isInPictureInPictureMode}.
      */
     @RequiresApi(26)
     constructor(
@@ -60,11 +59,10 @@ class PictureInPictureModeChangedInfo(
          * Note that this is only valid on devices that are running API 26
          * ([android.os.Build.VERSION_CODES.O]) or higher.
          *
-         * @return The new configuration of the activity with the state
-         * [isInPictureInPictureMode].
-         * @throws IllegalStateException if the new [Configuration] is not available (i.e.,
-         * you are running on a device less that [android.os.Build.VERSION_CODES.O] which is
-         * when this information first became available).
+         * @return The new configuration of the activity with the state [isInPictureInPictureMode].
+         * @throws IllegalStateException if the new [Configuration] is not available (i.e., you are
+         *   running on a device less that [android.os.Build.VERSION_CODES.O] which is when this
+         *   information first became available).
          */
         get() {
             return checkNotNull(newConfiguration) {

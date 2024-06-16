@@ -53,8 +53,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ReusableAndroidViewBindingTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<EmptyFragmentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<EmptyFragmentActivity>()
 
     @Test
     fun testViewIsReused_whenMovedAndUpdated() {
@@ -83,9 +82,7 @@ class ReusableAndroidViewBindingTest {
             Column {
                 repeat(10) { slot ->
                     if (slot == slotWithContent) {
-                        ReusableContent(Unit) {
-                            movableContext()
-                        }
+                        ReusableContent(Unit) { movableContext() }
                     } else {
                         BasicText("Slot $slot")
                     }
@@ -162,8 +159,7 @@ class ReusableAndroidViewBindingTest {
         events.clear()
         includeContent = false
 
-        onView(withClassName(`is`(ButtonFqClassName)))
-            .check(doesNotExist())
+        onView(withClassName(`is`(ButtonFqClassName))).check(doesNotExist())
 
         assertEquals(
             "Binding should be released when its containing group is removed from composition",
@@ -188,8 +184,7 @@ class ReusableAndroidViewBindingTest {
         events.clear()
         enableContent = false
 
-        onView(withClassName(`is`(ButtonFqClassName)))
-            .check(doesNotExist())
+        onView(withClassName(`is`(ButtonFqClassName))).check(doesNotExist())
 
         assertEquals(
             "Binding should be reset when its parent ReusableContentHost is deactivated",
@@ -232,9 +227,7 @@ class ReusableAndroidViewBindingTest {
             Column {
                 repeat(10) { slot ->
                     if (slot == slotWithContent) {
-                        ReusableContent(Unit) {
-                            movableContext()
-                        }
+                        ReusableContent(Unit) { movableContext() }
                     } else {
                         BasicText("Slot $slot")
                     }

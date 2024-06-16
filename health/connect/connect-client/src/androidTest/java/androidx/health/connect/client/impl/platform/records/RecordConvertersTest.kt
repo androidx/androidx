@@ -321,7 +321,8 @@ class RecordConvertersTest {
             assertThat(samples)
                 .comparingElementsUsing(
                     Correspondence.from<
-                        PlatformCyclingPedalingCadenceSample, PlatformCyclingPedalingCadenceSample
+                        PlatformCyclingPedalingCadenceSample,
+                        PlatformCyclingPedalingCadenceSample
                     >(
                         { actual, expected ->
                             actual!!.revolutionsPerMinute == expected!!.revolutionsPerMinute &&

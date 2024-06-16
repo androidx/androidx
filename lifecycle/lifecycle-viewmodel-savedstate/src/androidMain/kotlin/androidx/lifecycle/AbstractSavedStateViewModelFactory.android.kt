@@ -25,14 +25,12 @@ import androidx.savedstate.SavedStateRegistryOwner
 import kotlin.reflect.KClass
 
 /**
- * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory
- * that creates [SavedStateHandle] for every requested [ViewModel].
- * The subclasses implement [create] to actually instantiate
+ * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory that creates [SavedStateHandle] for
+ * every requested [ViewModel]. The subclasses implement [create] to actually instantiate
  * `androidx.lifecycle.ViewModel`s.
  */
 public actual abstract class AbstractSavedStateViewModelFactory :
-    ViewModelProvider.OnRequeryFactory,
-    ViewModelProvider.Factory {
+    ViewModelProvider.OnRequeryFactory, ViewModelProvider.Factory {
 
     private var savedStateRegistry: SavedStateRegistry? = null
     private var lifecycle: Lifecycle? = null
@@ -41,10 +39,9 @@ public actual abstract class AbstractSavedStateViewModelFactory :
     /**
      * Constructs this factory.
      *
-     * When a factory is constructed this way, a component for which [SavedStateHandle] is
-     * scoped must have called [enableSavedStateHandles].
-     * See [CreationExtras.createSavedStateHandle] docs for more
-     * details.
+     * When a factory is constructed this way, a component for which [SavedStateHandle] is scoped
+     * must have called [enableSavedStateHandles]. See [CreationExtras.createSavedStateHandle] docs
+     * for more details.
      */
     actual constructor() {}
 
@@ -52,15 +49,12 @@ public actual abstract class AbstractSavedStateViewModelFactory :
      * Constructs this factory.
      *
      * @param owner [SavedStateRegistryOwner] that will provide restored state for created
-     * [ViewModels][ViewModel]
-     * @param defaultArgs values from this `Bundle` will be used as defaults by
-     * [SavedStateHandle] passed in [ViewModels][ViewModel] if there is no
-     * previously saved state or previously saved state misses a value by such key
+     *   [ViewModels][ViewModel]
+     * @param defaultArgs values from this `Bundle` will be used as defaults by [SavedStateHandle]
+     *   passed in [ViewModels][ViewModel] if there is no previously saved state or previously saved
+     *   state misses a value by such key
      */
-    actual constructor(
-        owner: SavedStateRegistryOwner,
-        defaultArgs: Bundle?
-    ) {
+    actual constructor(owner: SavedStateRegistryOwner, defaultArgs: Bundle?) {
         savedStateRegistry = owner.savedStateRegistry
         lifecycle = owner.lifecycle
         this.defaultArgs = defaultArgs
@@ -71,19 +65,15 @@ public actual abstract class AbstractSavedStateViewModelFactory :
      *
      * @param modelClass a `Class` whose instance is requested
      * @param extras an additional information for this creation request
-     *
      * @return a newly created ViewModel
-     *
      * @throws IllegalStateException if no VIEW_MODEL_KEY provided by ViewModelProvider
      */
-    public override fun <T : ViewModel> create(
-        modelClass: Class<T>,
-        extras: CreationExtras
-    ): T {
-        val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
-            ?: throw IllegalStateException(
-                "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
-            )
+    public override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+        val key =
+            extras[ViewModelProvider.VIEW_MODEL_KEY]
+                ?: throw IllegalStateException(
+                    "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
+                )
         // if a factory constructed in the old way use the old infra to create SavedStateHandle
         return if (savedStateRegistry != null) {
             create(key, modelClass)
@@ -93,8 +83,13 @@ public actual abstract class AbstractSavedStateViewModelFactory :
     }
 
     private fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
-        val controller = LegacySavedStateHandleController
-            .create(savedStateRegistry!!, lifecycle!!, key, defaultArgs)
+        val controller =
+            LegacySavedStateHandleController.create(
+                savedStateRegistry!!,
+                lifecycle!!,
+                key,
+                defaultArgs
+            )
         val viewModel = create(key, modelClass, controller.handle)
         viewModel.addCloseable(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
         return viewModel
@@ -104,19 +99,20 @@ public actual abstract class AbstractSavedStateViewModelFactory :
      * Creates a new instance of the given `Class`.
      *
      * @param modelClass a `Class` whose instance is requested
-     *
      * @return a newly created ViewModel
-     *
      * @throws IllegalArgumentException if the given [modelClass] is local or anonymous class.
-     * @throws UnsupportedOperationException if AbstractSavedStateViewModelFactory constructed
-     * with empty constructor, therefore no [SavedStateRegistryOwner] available for lifecycle
+     * @throws UnsupportedOperationException if AbstractSavedStateViewModelFactory constructed with
+     *   empty constructor, therefore no [SavedStateRegistryOwner] available for lifecycle
      */
     public override fun <T : ViewModel> create(modelClass: Class<T>): T {
         // ViewModelProvider calls correct create that support same modelClass with different keys
         // If a developer manually calls this method, there is no "key" in picture, so factory
         // simply uses classname internally as as key.
-        val canonicalName = modelClass.canonicalName
-            ?: throw IllegalArgumentException("Local and anonymous classes can not be ViewModels")
+        val canonicalName =
+            modelClass.canonicalName
+                ?: throw IllegalArgumentException(
+                    "Local and anonymous classes can not be ViewModels"
+                )
         if (lifecycle == null) {
             throw UnsupportedOperationException(
                 "AbstractSavedStateViewModelFactory constructed " +
@@ -133,9 +129,8 @@ public actual abstract class AbstractSavedStateViewModelFactory :
      * @param key a key associated with the requested ViewModel
      * @param modelClass a `Class` whose instance is requested
      * @param handle a handle to saved state associated with the requested ViewModel
-     *
-     * @return the newly created ViewModel
-    </T> */
+     * @return the newly created ViewModel </T>
+     */
     protected open fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,

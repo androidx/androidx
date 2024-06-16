@@ -33,20 +33,16 @@ class EmbeddingCompatTest {
 
     private val component = mock<ActivityEmbeddingComponent>()
     private val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
-    private val embeddingCompat = EmbeddingCompat(
-        component,
-        EMBEDDING_ADAPTER,
-        CONSUMER_ADAPTER,
-        mock()
-    )
+    private val embeddingCompat =
+        EmbeddingCompat(component, EMBEDDING_ADAPTER, CONSUMER_ADAPTER, mock())
 
     @Suppress("Deprecation")
     @Test
     fun setSplitInfoCallback_callsActualMethod() {
-        val callback = object : EmbeddingInterfaceCompat.EmbeddingCallbackInterface {
-            override fun onSplitInfoChanged(splitInfo: List<SplitInfo>) {
+        val callback =
+            object : EmbeddingInterfaceCompat.EmbeddingCallbackInterface {
+                override fun onSplitInfoChanged(splitInfo: List<SplitInfo>) {}
             }
-        }
         embeddingCompat.setEmbeddingCallback(callback)
 
         if (vendorApiLevel < 2) {

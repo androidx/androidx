@@ -16,13 +16,11 @@
 
 package androidx.camera.testing.impl.fakes
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.impl.Identifier
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FakeCameraFilter(val id: Identifier = CameraFilter.DEFAULT_ID) : CameraFilter {
 

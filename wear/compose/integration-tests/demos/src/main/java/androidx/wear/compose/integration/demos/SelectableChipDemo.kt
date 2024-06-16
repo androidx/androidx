@@ -83,9 +83,7 @@ fun SelectableChips(
                 SelectableChip(
                     selected = selectedRadioIndex == 0,
                     onClick = { selectedRadioIndex = 0 },
-                    label = {
-                        Text("Selectable", maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    },
+                    label = { Text("Selectable", maxLines = 2, overflow = TextOverflow.Ellipsis) },
                     enabled = enabled,
                 )
             }
@@ -95,13 +93,7 @@ fun SelectableChips(
                 SelectableChip(
                     selected = selectedRadioIndex == 1,
                     onClick = { selectedRadioIndex = 1 },
-                    label = {
-                        Text(
-                            "Selectable",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
+                    label = { Text("Selectable", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                     secondaryLabel = {
                         Text("Custom", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
@@ -109,19 +101,21 @@ fun SelectableChips(
                         RadioButton(
                             selected = selectedRadioIndex == 1,
                             enabled = enabled,
-                            colors = RadioButtonDefaults.colors(
-                                selectedRingColor = MaterialTheme.colors.primary,
-                                selectedDotColor = Color.Green,
-                                unselectedRingColor = Color.Magenta,
-                                unselectedDotColor = Color.Red,
-                            ),
+                            colors =
+                                RadioButtonDefaults.colors(
+                                    selectedRingColor = MaterialTheme.colors.primary,
+                                    selectedDotColor = Color.Green,
+                                    unselectedRingColor = Color.Magenta,
+                                    unselectedDotColor = Color.Red,
+                                ),
                         )
                     },
                     enabled = enabled,
-                    colors = SelectableChipDefaults.selectableChipColors(
-                        selectedSelectionControlColor = AlternatePrimaryColor3,
-                        selectedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
-                    )
+                    colors =
+                        SelectableChipDefaults.selectableChipColors(
+                            selectedSelectionControlColor = AlternatePrimaryColor3,
+                            selectedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
+                        )
                 )
             }
         }
@@ -162,16 +156,15 @@ fun SelectableChips(
                 ToggleChip(
                     checked = enabled,
                     onCheckedChange = { enabled = it },
-                    label = {
-                        Text("Chips enabled")
-                    },
+                    label = { Text("Chips enabled") },
                     // For Switch  toggle controls the Wear Material UX guidance is to set the
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
-                    colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlColor = ToggleChipDefaults
-                            .SwitchUncheckedIconColor
-                    ),
+                    colors =
+                        ToggleChipDefaults.toggleChipColors(
+                            uncheckedToggleControlColor =
+                                ToggleChipDefaults.SwitchUncheckedIconColor
+                        ),
                     toggleControl = {
                         Switch(
                             checked = enabled,
@@ -204,9 +197,8 @@ private fun DemoSplitSelectableChip(
             RadioButton(
                 selected = selected,
                 enabled = true,
-                modifier = Modifier.semantics {
-                    contentDescription = primaryLabel
-                })
+                modifier = Modifier.semantics { contentDescription = primaryLabel }
+            )
         }
     )
 }

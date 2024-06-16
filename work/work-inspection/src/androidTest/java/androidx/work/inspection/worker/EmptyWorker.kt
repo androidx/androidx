@@ -21,14 +21,10 @@ import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-class EmptyWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+class EmptyWorker(context: Context, workerParams: WorkerParameters) :
+    Worker(context, workerParams) {
     companion object {
-        val DATA = Data.Builder()
-            .putString("key", "value")
-            .build()
+        val DATA = Data.Builder().putString("key", "value").build()
     }
 
     override fun doWork(): Result {

@@ -49,14 +49,15 @@ class PrereleaseSdkCoreDependencyDetector : Detector(), Detector.UastScanner {
             // Check if the project is using a versioned dependency on core
             val dependencies = context.project.buildVariant.artifact.dependencies.getAll()
             if (dependencies.any { it.isInvalidCoreDependency() }) {
-                val incident = Incident(context)
-                    .issue(ISSUE)
-                    .location(context.getLocation(node))
-                    .message(
-                        "Prelease SDK check ${method.name} cannot be called as this project has " +
-                            "a versioned dependency on androidx.core:core"
-                    )
-                    .scope(node)
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getLocation(node))
+                        .message(
+                            "Prelease SDK check ${method.name} cannot be called as this project has " +
+                                "a versioned dependency on androidx.core:core"
+                        )
+                        .scope(node)
                 context.report(incident)
             }
         }
@@ -78,11 +79,12 @@ class PrereleaseSdkCoreDependencyDetector : Detector(), Detector.UastScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "PrereleaseSdkCoreDependency",
-            "Prerelease SDK checks can only be used by projects with a TOT dependency on " +
-                "androidx.core:core",
-            """
+        val ISSUE =
+            Issue.create(
+                "PrereleaseSdkCoreDependency",
+                "Prerelease SDK checks can only be used by projects with a TOT dependency on " +
+                    "androidx.core:core",
+                """
                 The implementation of a prerelease SDK check will change when the SDK is finalized,
                 so projects using these checks must have a tip-of-tree dependency on core to ensure
                 the check stays up-to-date.
@@ -92,12 +94,14 @@ class PrereleaseSdkCoreDependencyDetector : Detector(), Detector.UastScanner {
 
                 See go/androidx-api-guidelines#compat-sdk for more information.
             """,
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                PrereleaseSdkCoreDependencyDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(
+                    PrereleaseSdkCoreDependencyDetector::class.java,
+                    Scope.JAVA_FILE_SCOPE
+                )
             )
-        )
 
         private const val BUILD_COMPAT = "androidx.core.os.BuildCompat"
         private const val PRERELEASE_SDK_CHECK = "$BUILD_COMPAT.PrereleaseSdkCheck"

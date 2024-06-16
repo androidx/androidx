@@ -39,13 +39,14 @@ class RowTest {
 
     @Test
     fun gettersSetters() {
-        val row = rowOf(
-            "string" to "foo",
-            "double" to 0.0,
-            "long" to 1L,
-            "bytes" to byteArrayOf(0x00, 0x01),
-            "null" to null
-        )
+        val row =
+            rowOf(
+                "string" to "foo",
+                "double" to 0.0,
+                "long" to 1L,
+                "bytes" to byteArrayOf(0x00, 0x01),
+                "null" to null
+            )
 
         assertEquals("foo", row.string("string"))
         assertEquals("foo", row.nullableString("string"))

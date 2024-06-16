@@ -39,7 +39,6 @@ import java.util.concurrent.Executor;
 /**
  * Helper for accessing features in {@link CameraManager} in a backwards compatible fashion.
  */
-@RequiresApi(21)
 public final class CameraManagerCompat {
     private final CameraManagerCompatImpl mImpl;
 
@@ -303,7 +302,6 @@ public final class CameraManagerCompat {
         }
     }
 
-    @RequiresApi(21)
     static final class AvailabilityCallbackExecutorWrapper extends
             CameraManager.AvailabilityCallback {
 

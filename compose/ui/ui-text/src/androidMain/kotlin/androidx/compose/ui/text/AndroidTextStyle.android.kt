@@ -18,18 +18,12 @@ package androidx.compose.ui.text
 
 internal const val DefaultIncludeFontPadding = false
 
-/**
- * Provides Android specific [TextStyle] configuration options for styling and compatibility.
- */
+/** Provides Android specific [TextStyle] configuration options for styling and compatibility. */
 actual class PlatformTextStyle {
-    /**
-     * Android specific text span styling and compatibility configuration.
-     */
+    /** Android specific text span styling and compatibility configuration. */
     actual val spanStyle: PlatformSpanStyle?
 
-    /**
-     * Android specific paragraph styling and compatibility configuration.
-     */
+    /** Android specific paragraph styling and compatibility configuration. */
     actual val paragraphStyle: PlatformParagraphStyle?
 
     /**
@@ -38,16 +32,14 @@ actual class PlatformTextStyle {
      * @param spanStyle platform specific span styling
      * @param paragraphStyle platform specific paragraph styling
      */
-    constructor(
-        spanStyle: PlatformSpanStyle?,
-        paragraphStyle: PlatformParagraphStyle?
-    ) {
+    constructor(spanStyle: PlatformSpanStyle?, paragraphStyle: PlatformParagraphStyle?) {
         this.spanStyle = spanStyle
         this.paragraphStyle = paragraphStyle
     }
 
     /**
-     * Enables turning on and off for Android [includeFontPadding](https://developer.android.com/reference/android/text/StaticLayout.Builder#setIncludePad(boolean)).
+     * Enables turning on and off for Android
+     * [includeFontPadding](https://developer.android.com/reference/android/text/StaticLayout.Builder#setIncludePad(boolean)).
      *
      * includeFontPadding was added to Android in order to prevent clipping issues on tall scripts.
      * However that issue has been fixed since Android 28. Jetpack Compose backports the fix for
@@ -75,10 +67,7 @@ actual class PlatformTextStyle {
      */
     constructor(
         emojiSupportMatch: EmojiSupportMatch
-    ) : this(
-        paragraphStyle = PlatformParagraphStyle(emojiSupportMatch),
-        spanStyle = null
-    )
+    ) : this(paragraphStyle = PlatformParagraphStyle(emojiSupportMatch), spanStyle = null)
 
     override fun hashCode(): Int {
         var result = spanStyle?.hashCode() ?: 0
@@ -98,7 +87,7 @@ actual class PlatformTextStyle {
         return "PlatformTextStyle(" +
             "spanStyle=$spanStyle, " +
             "paragraphSyle=$paragraphStyle" +
-        ")"
+            ")"
     }
 }
 
@@ -114,21 +103,21 @@ internal actual fun createPlatformTextStyle(
  */
 actual class PlatformParagraphStyle {
     actual companion object {
-        actual val Default: PlatformParagraphStyle =
-            PlatformParagraphStyle()
+        actual val Default: PlatformParagraphStyle = PlatformParagraphStyle()
     }
 
     /**
      * Include extra space beyond font ascent and descent.
      *
-     * Enables turning on and off for Android [includeFontPadding](https://developer.android.com/reference/android/text/StaticLayout.Builder#setIncludePad(boolean)).
+     * Enables turning on and off for Android
+     * [includeFontPadding](https://developer.android.com/reference/android/text/StaticLayout.Builder#setIncludePad(boolean)).
      *
      * includeFontPadding was added to Android in order to prevent clipping issues on tall scripts.
      * However that issue has been fixed since Android 28. Jetpack Compose backports the fix for
      * Android versions prior to Android 28. Therefore the original reason why includeFontPadding
      * was needed in invalid on Compose.
      *
-     * This configuration was added for migration of the apps in case some code or design  was
+     * This configuration was added for migration of the apps in case some code or design was
      * relying includeFontPadding=true behavior.
      */
     @Suppress("GetterSetterNames")
@@ -176,13 +165,12 @@ actual class PlatformParagraphStyle {
         this.emojiSupportMatch = emojiSupportMatch
     }
 
-    /**
-     * Default platform paragraph style
-     */
-    constructor() : this(
-        includeFontPadding = DefaultIncludeFontPadding,
-        emojiSupportMatch = EmojiSupportMatch.Default
-    )
+    /** Default platform paragraph style */
+    constructor() :
+        this(
+            includeFontPadding = DefaultIncludeFontPadding,
+            emojiSupportMatch = EmojiSupportMatch.Default
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -202,7 +190,7 @@ actual class PlatformParagraphStyle {
         return "PlatformParagraphStyle(" +
             "includeFontPadding=$includeFontPadding, " +
             "emojiSupportMatch=$emojiSupportMatch" +
-        ")"
+            ")"
     }
 
     actual fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle {
@@ -212,9 +200,7 @@ actual class PlatformParagraphStyle {
     }
 }
 
-/**
- * Provides Android specific [SpanStyle] configuration options for styling and compatibility.
- */
+/** Provides Android specific [SpanStyle] configuration options for styling and compatibility. */
 actual class PlatformSpanStyle {
     actual companion object {
         actual val Default: PlatformSpanStyle = PlatformSpanStyle()
@@ -245,13 +231,12 @@ actual class PlatformSpanStyle {
  *
  * This will not work well if the styles don't set the same fields.
  *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning that the
+ * interpolation has not started, returning [start] (or something equivalent to [start]), 1.0
+ * meaning that the interpolation has finished, returning [stop] (or something equivalent to
+ * [stop]), and values in between meaning that the interpolation is at the relevant point on the
+ * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
+ * negative values and values greater than 1.0 are valid.
  */
 actual fun lerp(
     start: PlatformParagraphStyle,
@@ -261,16 +246,9 @@ actual fun lerp(
     if (start.includeFontPadding == stop.includeFontPadding) return start
 
     return PlatformParagraphStyle(
-        emojiSupportMatch = lerpDiscrete(
-            start.emojiSupportMatch,
-            stop.emojiSupportMatch,
-            fraction
-        ),
-        includeFontPadding = lerpDiscrete(
-            start.includeFontPadding,
-            stop.includeFontPadding,
-            fraction
-        )
+        emojiSupportMatch = lerpDiscrete(start.emojiSupportMatch, stop.emojiSupportMatch, fraction),
+        includeFontPadding =
+            lerpDiscrete(start.includeFontPadding, stop.includeFontPadding, fraction)
     )
 }
 
@@ -279,13 +257,12 @@ actual fun lerp(
  *
  * This will not work well if the styles don't set the same fields.
  *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning that the
+ * interpolation has not started, returning [start] (or something equivalent to [start]), 1.0
+ * meaning that the interpolation has finished, returning [stop] (or something equivalent to
+ * [stop]), and values in between meaning that the interpolation is at the relevant point on the
+ * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
+ * negative values and values greater than 1.0 are valid.
  */
 actual fun lerp(
     start: PlatformSpanStyle,

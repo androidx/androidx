@@ -45,28 +45,27 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SessionManagerImplTest {
     private val key = "KEY"
-    private val session = object : Session(key) {
-        override fun createRootEmittable(): EmittableWithChildren {
-            TODO("Not yet implemented")
-        }
+    private val session =
+        object : Session(key) {
+            override fun createRootEmittable(): EmittableWithChildren {
+                TODO("Not yet implemented")
+            }
 
-        override fun provideGlance(
-            context: Context
-        ): @Composable @GlanceComposable () -> Unit {
-            TODO("Not yet implemented")
-        }
+            override fun provideGlance(context: Context): @Composable @GlanceComposable () -> Unit {
+                TODO("Not yet implemented")
+            }
 
-        override suspend fun processEmittableTree(
-            context: Context,
-            root: EmittableWithChildren
-        ): Boolean {
-            TODO("Not yet implemented")
-        }
+            override suspend fun processEmittableTree(
+                context: Context,
+                root: EmittableWithChildren
+            ): Boolean {
+                TODO("Not yet implemented")
+            }
 
-        override suspend fun processEvent(context: Context, event: Any) {
-            TODO("Not yet implemented")
+            override suspend fun processEvent(context: Context, event: Any) {
+                TODO("Not yet implemented")
+            }
         }
-    }
     private lateinit var context: Context
     private lateinit var sessionManager: SessionManagerImpl
 
@@ -133,9 +132,7 @@ class SessionManagerImplTest {
         // This call to runWithLock should suspend until the first transaction finishes, then run
         // the block. If it is not mutually exclusive, it will run right away and firstRan will not
         // be true.
-        sessionManager.runWithLock {
-            assertThat(firstRan.get()).isTrue()
-        }
+        sessionManager.runWithLock { assertThat(firstRan.get()).isTrue() }
     }
 }
 

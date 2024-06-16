@@ -16,6 +16,7 @@
 
 @file:JvmName("SnapshotStateKt")
 @file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
@@ -24,8 +25,8 @@ import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 /**
- * A policy to control how the result of [mutableStateOf] report and merge changes to
- * the state object.
+ * A policy to control how the result of [mutableStateOf] report and merge changes to the state
+ * object.
  *
  * A mutation policy can be passed as an parameter to [mutableStateOf], and [compositionLocalOf].
  *
@@ -47,9 +48,9 @@ interface SnapshotMutationPolicy<T> {
      * Merge conflicting changes in snapshots. This is only called if [current] and [applied] are
      * not [equivalent]. If a valid merged value can be calculated then it should be returned.
      *
-     * For example, if the state object holds an immutable data class with multiple fields,
-     * and [applied] has changed fields that are unmodified by [current] it might be valid to return
-     * a new copy of the data class that combines that changes from both [current] and [applied]
+     * For example, if the state object holds an immutable data class with multiple fields, and
+     * [applied] has changed fields that are unmodified by [current] it might be valid to return a
+     * new copy of the data class that combines that changes from both [current] and [applied]
      * allowing a snapshot to apply that would have otherwise failed.
      *
      * @sample androidx.compose.runtime.samples.counterSample
@@ -60,9 +61,9 @@ interface SnapshotMutationPolicy<T> {
 /**
  * A policy to treat values of a [MutableState] as equivalent if they are referentially (===) equal.
  *
- * Setting [MutableState.value] to its current referentially (===) equal value is not considered
- * a change. When applying a [MutableSnapshot], if the snapshot changes the value to the
- * equivalent value the parent snapshot has is not considered a conflict.
+ * Setting [MutableState.value] to its current referentially (===) equal value is not considered a
+ * change. When applying a [MutableSnapshot], if the snapshot changes the value to the equivalent
+ * value the parent snapshot has is not considered a conflict.
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> referentialEqualityPolicy(): SnapshotMutationPolicy<T> =
@@ -77,9 +78,9 @@ private object ReferentialEqualityPolicy : SnapshotMutationPolicy<Any?> {
 /**
  * A policy to treat values of a [MutableState] as equivalent if they are structurally (==) equal.
  *
- * Setting [MutableState.value] to its current structurally (==) equal value is not considered
- * a change. When applying a [MutableSnapshot], if the snapshot changes the value to the
- * equivalent value the parent snapshot has is not considered a conflict.
+ * Setting [MutableState.value] to its current structurally (==) equal value is not considered a
+ * change. When applying a [MutableSnapshot], if the snapshot changes the value to the equivalent
+ * value the parent snapshot has is not considered a conflict.
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> structuralEqualityPolicy(): SnapshotMutationPolicy<T> =

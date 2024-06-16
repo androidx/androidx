@@ -41,39 +41,27 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ToggleChipScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
-    @Test
-    fun toggle_chip_checkbox() = verifyScreenshot {
-        sampleToggleChip(checked = true)
-    }
+    @Test fun toggle_chip_checkbox() = verifyScreenshot { sampleToggleChip(checked = true) }
 
     @Test
-    fun toggle_chip_checkbox_unchecked() = verifyScreenshot {
-        sampleToggleChip(checked = false)
-    }
+    fun toggle_chip_checkbox_unchecked() = verifyScreenshot { sampleToggleChip(checked = false) }
 
     @Test
-    fun toggle_chip_checkbox_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleToggleChip()
-    }
+    fun toggle_chip_checkbox_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { sampleToggleChip() }
 
     @Test
     fun toggle_chip_radio() = verifyScreenshot {
         val checked = true
         sampleToggleChip(
             toggleControl = {
-                Icon(
-                    imageVector = ToggleChipDefaults.radioIcon(checked),
-                    contentDescription = ""
-                )
+                Icon(imageVector = ToggleChipDefaults.radioIcon(checked), contentDescription = "")
             },
             checked = checked
         )
@@ -84,10 +72,7 @@ class ToggleChipScreenshotTest {
         val checked = false
         sampleToggleChip(
             toggleControl = {
-                Icon(
-                    imageVector = ToggleChipDefaults.radioIcon(checked),
-                    contentDescription = ""
-                )
+                Icon(imageVector = ToggleChipDefaults.radioIcon(checked), contentDescription = "")
             },
             checked = checked,
         )
@@ -98,10 +83,7 @@ class ToggleChipScreenshotTest {
         val checked = true
         sampleToggleChip(
             toggleControl = {
-                Icon(
-                    imageVector = ToggleChipDefaults.switchIcon(checked),
-                    contentDescription = ""
-                )
+                Icon(imageVector = ToggleChipDefaults.switchIcon(checked), contentDescription = "")
             },
             checked = checked,
         )
@@ -111,17 +93,15 @@ class ToggleChipScreenshotTest {
     fun toggle_chip_switch_unchecked() = verifyScreenshot {
         val checked = false
         sampleToggleChip(
-            colors = ToggleChipDefaults.toggleChipColors(
-                uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
-            ),
+            colors =
+                ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                ),
             toggleControl = {
                 // For Switch  toggle controls the Wear Material UX guidance is to set the
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
-                Icon(
-                    imageVector = ToggleChipDefaults.switchIcon(checked),
-                    contentDescription = ""
-                )
+                Icon(imageVector = ToggleChipDefaults.switchIcon(checked), contentDescription = "")
             },
             checked = checked,
         )
@@ -134,20 +114,14 @@ class ToggleChipScreenshotTest {
         )
     }
 
-    @Test
-    fun split_toggle_chip() = verifyScreenshot {
-        sampleSplitToggleChip()
-    }
+    @Test fun split_toggle_chip() = verifyScreenshot { sampleSplitToggleChip() }
 
     @Test
-    fun split_toggle_chip_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleSplitToggleChip()
-    }
+    fun split_toggle_chip_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { sampleSplitToggleChip() }
 
     @Test
-    fun split_toggle_chip_disabled() = verifyScreenshot {
-        sampleSplitToggleChip(enabled = false)
-    }
+    fun split_toggle_chip_disabled() = verifyScreenshot { sampleSplitToggleChip(enabled = false) }
 
     @Composable
     private fun sampleToggleChip(
@@ -183,12 +157,8 @@ class ToggleChipScreenshotTest {
         enabled: Boolean = true,
     ) {
         SplitToggleChip(
-            label = {
-                Text("Split chip", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            secondaryLabel = {
-                Text("Secondary", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
+            label = { Text("Split chip", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            secondaryLabel = { Text("Secondary", maxLines = 1, overflow = TextOverflow.Ellipsis) },
             checked = true,
             enabled = enabled,
             toggleControl = {
@@ -208,12 +178,11 @@ class ToggleChipScreenshotTest {
         content: @Composable () -> Unit
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                content()
-            }
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

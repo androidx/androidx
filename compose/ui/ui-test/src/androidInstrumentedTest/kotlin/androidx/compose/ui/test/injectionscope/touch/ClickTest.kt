@@ -40,9 +40,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Test for [TouchInjectionScope.click]
- */
+/** Test for [TouchInjectionScope.click] */
 @MediumTest
 @RunWith(Parameterized::class)
 class ClickTest(private val config: TestConfig) {
@@ -66,11 +64,9 @@ class ClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    private val expectedClickPosition =
-        config.position ?: Offset(squareSize / 2, squareSize / 2)
+    private val expectedClickPosition = config.position ?: Offset(squareSize / 2, squareSize / 2)
 
     @Test
     fun click() {

@@ -39,10 +39,7 @@ fun CatalogTheme(content: @Composable () -> Unit) {
         WindowCompat.getInsetsController(context.findActivity().window, view)
             .isAppearanceLightStatusBars = !darkTheme
     }
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, content = content)
 }
 
 private tailrec fun Context.findActivity(): Activity =

@@ -85,8 +85,7 @@ const val FrameCount = 12
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 @RunWith(AndroidJUnit4::class)
 class AndroidExternalSurfaceTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val size = 48.dp
 
@@ -98,9 +97,7 @@ class AndroidExternalSurfaceTest {
         var expectedSize = 0
 
         rule.setContent {
-            expectedSize = with(LocalDensity.current) {
-                size.toPx().roundToInt()
-            }
+            expectedSize = with(LocalDensity.current) { size.toPx().roundToInt() }
 
             AndroidExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, width, height ->
@@ -111,10 +108,7 @@ class AndroidExternalSurfaceTest {
             }
         }
 
-        rule.onRoot()
-            .assertWidthIsEqualTo(size)
-            .assertHeightIsEqualTo(size)
-            .assertIsDisplayed()
+        rule.onRoot().assertWidthIsEqualTo(size).assertHeightIsEqualTo(size).assertIsDisplayed()
 
         rule.runOnIdle {
             assertNotNull(surfaceRef)
@@ -132,9 +126,7 @@ class AndroidExternalSurfaceTest {
         var desiredSize by mutableStateOf(size)
 
         rule.setContent {
-            expectedSize = with(LocalDensity.current) {
-                desiredSize.toPx().roundToInt()
-            }
+            expectedSize = with(LocalDensity.current) { desiredSize.toPx().roundToInt() }
 
             AndroidExternalSurface(modifier = Modifier.size(desiredSize)) {
                 onSurface { surface, _, _ ->
@@ -146,9 +138,7 @@ class AndroidExternalSurfaceTest {
             }
         }
 
-        rule.onRoot()
-            .assertWidthIsEqualTo(desiredSize)
-            .assertHeightIsEqualTo(desiredSize)
+        rule.onRoot().assertWidthIsEqualTo(desiredSize).assertHeightIsEqualTo(desiredSize)
 
         // onChanged() hasn't been called yet
         rule.runOnIdle {
@@ -160,9 +150,7 @@ class AndroidExternalSurfaceTest {
         val prevSurfaceWidth = surfaceWidth
         val prevSurfaceHeight = surfaceHeight
 
-        rule.onRoot()
-            .assertWidthIsEqualTo(desiredSize)
-            .assertHeightIsEqualTo(desiredSize)
+        rule.onRoot().assertWidthIsEqualTo(desiredSize).assertHeightIsEqualTo(desiredSize)
 
         rule.runOnIdle {
             assertNotEquals(prevSurfaceWidth, surfaceWidth)
@@ -183,23 +171,17 @@ class AndroidExternalSurfaceTest {
                     onSurface { surface, _, _ ->
                         surfaceRef = surface
 
-                        surface.onDestroyed {
-                            surfaceRef = null
-                        }
+                        surface.onDestroyed { surfaceRef = null }
                     }
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertNotNull(surfaceRef)
-        }
+        rule.runOnIdle { assertNotNull(surfaceRef) }
 
         visible = false
 
-        rule.runOnIdle {
-            assertNull(surfaceRef)
-        }
+        rule.runOnIdle { assertNull(surfaceRef) }
     }
 
     @Test
@@ -214,9 +196,7 @@ class AndroidExternalSurfaceTest {
             AndroidExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, _, _ ->
                     surfaceCreatedCount++
-                    surface.onDestroyed {
-                        surfaceDestroyedCount++
-                    }
+                    surface.onDestroyed { surfaceDestroyedCount++ }
                 }
             }
         }
@@ -249,9 +229,7 @@ class AndroidExternalSurfaceTest {
         var expectedSize = 0
 
         rule.setContent {
-            expectedSize = with(LocalDensity.current) {
-                size.toPx().roundToInt()
-            }
+            expectedSize = with(LocalDensity.current) { size.toPx().roundToInt() }
             AndroidExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, _, _ ->
                     surfaceRef = surface
@@ -263,13 +241,9 @@ class AndroidExternalSurfaceTest {
             }
         }
 
-        rule.runOnIdle {
-            assertNotNull(surfaceRef)
-        }
+        rule.runOnIdle { assertNotNull(surfaceRef) }
 
-        surfaceRef!!
-            .captureToImage(expectedSize, expectedSize)
-            .assertPixels { Color.Blue }
+        surfaceRef!!.captureToImage(expectedSize, expectedSize).assertPixels { Color.Blue }
     }
 
     @Test
@@ -285,11 +259,7 @@ class AndroidExternalSurfaceTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
-                AndroidExternalSurface(
-                    modifier = Modifier
-                        .size(size)
-                        .testTag("GraphicSurface")
-                ) {
+                AndroidExternalSurface(modifier = Modifier.size(size).testTag("GraphicSurface")) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
                         // a SurfaceFlinger composition that includes our Surface
@@ -304,9 +274,7 @@ class AndroidExternalSurfaceTest {
                         }
                     }
                 }
-                Canvas(modifier = Modifier.size(size)) {
-                    drawRect(Color.Green)
-                }
+                Canvas(modifier = Modifier.size(size)) { drawRect(Color.Green) }
             }
         }
 
@@ -314,10 +282,7 @@ class AndroidExternalSurfaceTest {
             throw AssertionError("Failed waiting for render")
         }
 
-        rule
-            .onNodeWithTag("GraphicSurface")
-            .screenshotToImage()!!
-            .assertPixels { Color.Green }
+        rule.onNodeWithTag("GraphicSurface").screenshotToImage()!!.assertPixels { Color.Green }
     }
 
     @Test
@@ -352,9 +317,7 @@ class AndroidExternalSurfaceTest {
                     }
                 }
                 AndroidExternalSurface(
-                    modifier = Modifier
-                        .size(size)
-                        .testTag("GraphicSurface"),
+                    modifier = Modifier.size(size).testTag("GraphicSurface"),
                     zOrder = AndroidExternalSurfaceZOrder.MediaOverlay
                 ) {
                     onSurface { surface, _, _ ->
@@ -376,10 +339,7 @@ class AndroidExternalSurfaceTest {
             throw AssertionError("Failed waiting for render")
         }
 
-        rule
-            .onNodeWithTag("GraphicSurface")
-            .screenshotToImage()!!
-            .assertPixels { Color.Red }
+        rule.onNodeWithTag("GraphicSurface").screenshotToImage()!!.assertPixels { Color.Red }
     }
 
     @Test
@@ -396,9 +356,7 @@ class AndroidExternalSurfaceTest {
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
                 AndroidExternalSurface(
-                    modifier = Modifier
-                        .size(size)
-                        .testTag("GraphicSurface"),
+                    modifier = Modifier.size(size).testTag("GraphicSurface"),
                     zOrder = AndroidExternalSurfaceZOrder.OnTop
                 ) {
                     onSurface { surface, _, _ ->
@@ -415,9 +373,7 @@ class AndroidExternalSurfaceTest {
                         }
                     }
                 }
-                Canvas(modifier = Modifier.size(size)) {
-                    drawRect(Color.Green)
-                }
+                Canvas(modifier = Modifier.size(size)) { drawRect(Color.Green) }
             }
         }
 
@@ -425,10 +381,7 @@ class AndroidExternalSurfaceTest {
             throw AssertionError("Failed waiting for render")
         }
 
-        rule
-            .onNodeWithTag("GraphicSurface")
-            .screenshotToImage()!!
-            .assertPixels { Color.Blue }
+        rule.onNodeWithTag("GraphicSurface").screenshotToImage()!!.assertPixels { Color.Blue }
     }
 
     @Test
@@ -446,9 +399,7 @@ class AndroidExternalSurfaceTest {
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
                 AndroidExternalSurface(
-                    modifier = Modifier
-                        .size(size)
-                        .testTag("GraphicSurface"),
+                    modifier = Modifier.size(size).testTag("GraphicSurface"),
                     isOpaque = false,
                     zOrder = AndroidExternalSurfaceZOrder.OnTop
                 ) {
@@ -469,9 +420,7 @@ class AndroidExternalSurfaceTest {
                         }
                     }
                 }
-                Canvas(modifier = Modifier.size(size)) {
-                    drawRect(Color.White)
-                }
+                Canvas(modifier = Modifier.size(size)) { drawRect(Color.White) }
             }
         }
 
@@ -481,10 +430,7 @@ class AndroidExternalSurfaceTest {
 
         val expectedColor = Color(ColorUtils.compositeColors(translucentRed, Color.White.toArgb()))
 
-        rule
-            .onNodeWithTag("GraphicSurface")
-            .screenshotToImage()!!
-            .assertPixels { expectedColor }
+        rule.onNodeWithTag("GraphicSurface").screenshotToImage()!!.assertPixels { expectedColor }
     }
 
     @Test
@@ -500,9 +446,7 @@ class AndroidExternalSurfaceTest {
 
         rule.setContent {
             AndroidExternalSurface(
-                modifier = Modifier
-                    .size(size)
-                    .testTag("GraphicSurface"),
+                modifier = Modifier.size(size).testTag("GraphicSurface"),
                 isSecure = true
             ) {
                 onSurface { surface, _, _ ->
@@ -525,9 +469,7 @@ class AndroidExternalSurfaceTest {
             throw AssertionError("Failed waiting for render")
         }
 
-        val screen = rule
-            .onNodeWithTag("GraphicSurface")
-            .screenshotToImage(true)
+        val screen = rule.onNodeWithTag("GraphicSurface").screenshotToImage(true)
 
         // Before API 33 taking a screenshot with a secure surface returns null
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
@@ -539,8 +481,8 @@ class AndroidExternalSurfaceTest {
 }
 
 /**
- * Returns an ImageBitmap containing a screenshot of the device. On API < 33,
- * a secure surface present on screen can cause this function to return null.
+ * Returns an ImageBitmap containing a screenshot of the device. On API < 33, a secure surface
+ * present on screen can cause this function to return null.
  */
 private fun SemanticsNodeInteraction.screenshotToImage(
     hasSecureSurfaces: Boolean = false
@@ -556,54 +498,57 @@ private fun SemanticsNodeInteraction.screenshotToImage(
     return withDrawingEnabled {
         val bitmapFuture: ResolvableFuture<Bitmap> = ResolvableFuture.create()
 
-        var cleanup = { }
+        var cleanup = {}
 
         val mainExecutor = HandlerExecutor(Handler(Looper.getMainLooper()))
         mainExecutor.execute {
-            cleanup = view.waitForWindowManager {
-                Choreographer.getInstance().postFrameCallback {
-                    val location = IntArray(2)
-                    view.getLocationOnScreen(location)
+            cleanup =
+                view.waitForWindowManager {
+                    Choreographer.getInstance().postFrameCallback {
+                        val location = IntArray(2)
+                        view.getLocationOnScreen(location)
 
-                    val bounds = node.boundsInRoot.translate(
-                        location[0].toFloat(),
-                        location[1].toFloat()
-                    ).deflate(1.0f) // inset the rectangle to avoid rounding errors
+                        val bounds =
+                            node.boundsInRoot
+                                .translate(location[0].toFloat(), location[1].toFloat())
+                                .deflate(1.0f) // inset the rectangle to avoid rounding errors
 
-                    // do multiple retries of uiAutomation.takeScreenshot because it is
-                    // known to return null on API 31+ b/257274080
-                    var bitmap: Bitmap? = null
-                    var i = 0
-                    while (i < 3 && bitmap == null) {
-                        bitmap = uiAutomation.takeScreenshot()
-                        i++
-                    }
-
-                    if (bitmap != null) {
-                        bitmap = Bitmap.createBitmap(
-                            bitmap,
-                            bounds.left.toInt(),
-                            bounds.top.toInt(),
-                            bounds.width.toInt(),
-                            bounds.height.toInt()
-                        )
-                        bitmapFuture.set(bitmap)
-                    } else {
-                        if (hasSecureSurfaces) {
-                            // may be null on older API levels when a secure surface is showing
-                            bitmapFuture.set(null)
+                        // do multiple retries of uiAutomation.takeScreenshot because it is
+                        // known to return null on API 31+ b/257274080
+                        var bitmap: Bitmap? = null
+                        var i = 0
+                        while (i < 3 && bitmap == null) {
+                            bitmap = uiAutomation.takeScreenshot()
+                            i++
                         }
-                        // if we don't show secure surfaces, let the future timeout on get()
+
+                        if (bitmap != null) {
+                            bitmap =
+                                Bitmap.createBitmap(
+                                    bitmap,
+                                    bounds.left.toInt(),
+                                    bounds.top.toInt(),
+                                    bounds.width.toInt(),
+                                    bounds.height.toInt()
+                                )
+                            bitmapFuture.set(bitmap)
+                        } else {
+                            if (hasSecureSurfaces) {
+                                // may be null on older API levels when a secure surface is showing
+                                bitmapFuture.set(null)
+                            }
+                            // if we don't show secure surfaces, let the future timeout on get()
+                        }
                     }
                 }
-            }
         }
 
-        val bitmap = try {
-            bitmapFuture.get(5, TimeUnit.SECONDS)?.asImageBitmap()
-        } catch (e: ExecutionException) {
-            null
-        }
+        val bitmap =
+            try {
+                bitmapFuture.get(5, TimeUnit.SECONDS)?.asImageBitmap()
+            } catch (e: ExecutionException) {
+                null
+            }
 
         cleanup()
 
@@ -617,10 +562,11 @@ internal fun Surface.captureToImage(width: Int, height: Int): ImageBitmap {
 
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
-        copyResult = result
-        latch.countDown()
-    }
+    val onCopyFinished =
+        PixelCopy.OnPixelCopyFinishedListener { result ->
+            copyResult = result
+            latch.countDown()
+        }
 
     PixelCopy.request(
         this,
@@ -656,37 +602,37 @@ private fun <R> withDrawingEnabled(block: () -> R): R {
 }
 
 /**
- * Waits for the WindowManager to be "ready" and then runs [onWindowManagerReady].
- * The wait is implemented by creating a new window and waiting for its content to
- * draw once. Doing so should in theory guarantee that SurfaceViews from the parent
- * window are also ready and visible, and thus reduce flakes.
+ * Waits for the WindowManager to be "ready" and then runs [onWindowManagerReady]. The wait is
+ * implemented by creating a new window and waiting for its content to draw once. Doing so should in
+ * theory guarantee that SurfaceViews from the parent window are also ready and visible, and thus
+ * reduce flakes.
  *
- * This method returns a lambda that must be executed to perform cleanup before
- * the test finishes and the activity is torn down.
+ * This method returns a lambda that must be executed to perform cleanup before the test finishes
+ * and the activity is torn down.
  */
 @UiThread
 private fun View.waitForWindowManager(onWindowManagerReady: () -> Unit): () -> Unit {
-    val subWindow = TextView(context).apply {
-        text = "WM Ready"
-        setBackgroundColor(Color.White.toArgb())
-    }
+    val subWindow =
+        TextView(context).apply {
+            text = "WM Ready"
+            setBackgroundColor(Color.White.toArgb())
+        }
 
     val windowManager = context.getSystemService<WindowManager>()!!
     windowManager.addView(
         subWindow,
         WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        ).apply {
-            width = WindowManager.LayoutParams.WRAP_CONTENT
-            height = WindowManager.LayoutParams.WRAP_CONTENT
-            gravity = Gravity.RIGHT or Gravity.BOTTOM
-        }
+                WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            )
+            .apply {
+                width = WindowManager.LayoutParams.WRAP_CONTENT
+                height = WindowManager.LayoutParams.WRAP_CONTENT
+                gravity = Gravity.RIGHT or Gravity.BOTTOM
+            }
     )
 
-    subWindow.doOnPreDraw {
-        onWindowManagerReady()
-    }
+    subWindow.doOnPreDraw { onWindowManagerReady() }
 
     return { windowManager.removeView(subWindow) }
 }

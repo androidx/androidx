@@ -115,7 +115,6 @@ package androidx.collection {
     method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Double,kotlin.Unit> block);
     method public final operator double get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
-    method public final double[] getInternalArray();
     method @IntRange(from=-1L) public final inline int getLastIndex();
     method @IntRange(from=0L) public final int getSize();
     method public final int indexOf(double element);
@@ -141,7 +140,6 @@ package androidx.collection {
     method public final boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
-    property public final double[] internalArray;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final int size;
     field @kotlin.PublishedApi internal int _size;
@@ -227,6 +225,7 @@ package androidx.collection {
     method public inline float getSecond();
     property public final inline float first;
     property public final inline float second;
+    field public final long packedValue;
   }
 
   public abstract sealed class FloatIntMap {
@@ -307,7 +306,6 @@ package androidx.collection {
     method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
     method public final operator float get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
-    method public final float[] getInternalArray();
     method @IntRange(from=-1L) public final inline int getLastIndex();
     method @IntRange(from=0L) public final int getSize();
     method public final int indexOf(float element);
@@ -333,7 +331,6 @@ package androidx.collection {
     method public final boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
-    property public final float[] internalArray;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final int size;
     field @kotlin.PublishedApi internal int _size;
@@ -637,6 +634,7 @@ package androidx.collection {
     method public int getSecond();
     property public final int first;
     property public final int second;
+    field public final long packedValue;
   }
 
   public abstract sealed class IntList {
@@ -660,7 +658,6 @@ package androidx.collection {
     method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> block);
     method public final operator int get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
-    method public final int[] getInternalArray();
     method @IntRange(from=-1L) public final inline int getLastIndex();
     method @IntRange(from=0L) public final int getSize();
     method public final int indexOf(int element);
@@ -686,7 +683,6 @@ package androidx.collection {
     method public final boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
-    property public final int[] internalArray;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final int size;
     field @kotlin.PublishedApi internal int _size;
@@ -1003,7 +999,6 @@ package androidx.collection {
     method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> block);
     method public final operator long get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
-    method public final long[] getInternalArray();
     method @IntRange(from=-1L) public final inline int getLastIndex();
     method @IntRange(from=0L) public final int getSize();
     method public final int indexOf(long element);
@@ -1029,7 +1024,6 @@ package androidx.collection {
     method public final boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
-    property public final long[] internalArray;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final int size;
     field @kotlin.PublishedApi internal int _size;

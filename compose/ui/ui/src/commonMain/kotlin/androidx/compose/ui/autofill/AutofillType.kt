@@ -22,24 +22,18 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  * Autofill type information.
  *
  * Autofill services use the [AutofillType] to determine what value to use to autofill fields
- * associated with this type. If the [AutofillType] is not specified, the autofill services have
- * to use heuristics to determine the right value to use while autofilling the corresponding field.
+ * associated with this type. If the [AutofillType] is not specified, the autofill services have to
+ * use heuristics to determine the right value to use while autofilling the corresponding field.
  */
 @ExperimentalComposeUiApi
 enum class AutofillType {
-    /**
-     * Indicates that the associated component can be autofilled with an email address.
-     */
+    /** Indicates that the associated component can be autofilled with an email address. */
     EmailAddress,
 
-    /**
-     * Indicates that the associated component can be autofilled with a username.
-     */
+    /** Indicates that the associated component can be autofilled with a username. */
     Username,
 
-    /**
-     * Indicates that the associated component can be autofilled with a password.
-     */
+    /** Indicates that the associated component can be autofilled with a password. */
     Password,
 
     /**
@@ -54,19 +48,13 @@ enum class AutofillType {
      */
     NewPassword,
 
-    /**
-     * Indicates that the associated component can be autofilled with a postal address.
-     */
+    /** Indicates that the associated component can be autofilled with a postal address. */
     PostalAddress,
 
-    /**
-     * Indicates that the associated component can be autofilled with a postal code.
-     */
+    /** Indicates that the associated component can be autofilled with a postal code. */
     PostalCode,
 
-    /**
-     * Indicates that the associated component can be autofilled with a credit card number.
-     */
+    /** Indicates that the associated component can be autofilled with a credit card number. */
     CreditCardNumber,
 
     /**
@@ -86,8 +74,7 @@ enum class AutofillType {
     CreditCardExpirationMonth,
 
     /**
-     * Indicates that the associated component can be autofilled with a credit card expiration
-     * year.
+     * Indicates that the associated component can be autofilled with a credit card expiration year.
      */
     CreditCardExpirationYear,
 
@@ -96,14 +83,10 @@ enum class AutofillType {
      */
     CreditCardExpirationDay,
 
-    /**
-     * Indicates that the associated component can be autofilled with a country name/code.
-     */
+    /** Indicates that the associated component can be autofilled with a country name/code. */
     AddressCountry,
 
-    /**
-     * Indicates that the associated component can be autofilled with a region/state.
-     */
+    /** Indicates that the associated component can be autofilled with a region/state. */
     AddressRegion,
 
     /**
@@ -112,28 +95,21 @@ enum class AutofillType {
      */
     AddressLocality,
 
-    /**
-     * Indicates that the associated component can be autofilled with a street address.
-     */
+    /** Indicates that the associated component can be autofilled with a street address. */
     AddressStreet,
 
-    /**
-     * Indicates that the associated component can be autofilled with auxiliary address details.
-     */
+    /** Indicates that the associated component can be autofilled with auxiliary address details. */
     AddressAuxiliaryDetails,
 
     /**
      * Indicates that the associated component can be autofilled with an extended ZIP/POSTAL code.
      *
-     * Example: In forms that split the U.S. ZIP+4 Code with nine digits 99999-9999 into two
-     * fields annotate the delivery route code with this hint.
+     * Example: In forms that split the U.S. ZIP+4 Code with nine digits 99999-9999 into two fields
+     * annotate the delivery route code with this hint.
      */
     PostalCodeExtended,
 
-    /**
-     * Indicates that the associated component can be autofilled with a person's full name.
-     *
-     */
+    /** Indicates that the associated component can be autofilled with a person's full name. */
     PersonFullName,
 
     /**
@@ -146,37 +122,29 @@ enum class AutofillType {
      */
     PersonLastName,
 
-    /**
-     * Indicates that the associated component can be autofilled with a person's middle name.
-     */
+    /** Indicates that the associated component can be autofilled with a person's middle name. */
     PersonMiddleName,
 
-    /**
-     * Indicates that the associated component can be autofilled with a person's middle initial.
-     */
+    /** Indicates that the associated component can be autofilled with a person's middle initial. */
     PersonMiddleInitial,
 
-    /**
-     * Indicates that the associated component can be autofilled with a person's name prefix.
-     */
+    /** Indicates that the associated component can be autofilled with a person's name prefix. */
     PersonNamePrefix,
 
-    /**
-     * Indicates that the associated component can be autofilled with a person's name suffix.
-     */
+    /** Indicates that the associated component can be autofilled with a person's name suffix. */
     PersonNameSuffix,
 
     /**
-     * Indicates that the associated component can be autofilled with a phone number with
-     * country code.
+     * Indicates that the associated component can be autofilled with a phone number with country
+     * code.
      *
      * Example: +1 123-456-7890
      */
     PhoneNumber,
 
     /**
-     * Indicates that the associated component can be autofilled with the current device's phone number
-     * usually for Sign Up / OTP flows.
+     * Indicates that the associated component can be autofilled with the current device's phone
+     * number usually for Sign Up / OTP flows.
      */
     PhoneNumberDevice,
 
@@ -186,34 +154,24 @@ enum class AutofillType {
     PhoneCountryCode,
 
     /**
-     * Indicates that the associated component can be autofilled with a phone number without
-     * country code.
+     * Indicates that the associated component can be autofilled with a phone number without country
+     * code.
      */
     PhoneNumberNational,
 
-    /**
-     * Indicates that the associated component can be autofilled with a gender.
-     */
+    /** Indicates that the associated component can be autofilled with a gender. */
     Gender,
 
-    /**
-     * Indicates that the associated component can be autofilled with a full birth date.
-     */
+    /** Indicates that the associated component can be autofilled with a full birth date. */
     BirthDateFull,
 
-    /**
-     * Indicates that the associated component can be autofilled with a birth day(of the month).
-     */
+    /** Indicates that the associated component can be autofilled with a birth day(of the month). */
     BirthDateDay,
 
-    /**
-     * Indicates that the associated component can be autofilled with a birth day(of the month).
-     */
+    /** Indicates that the associated component can be autofilled with a birth day(of the month). */
     BirthDateMonth,
 
-    /**
-     * Indicates that the associated component can be autofilled with a birth year.
-     */
+    /** Indicates that the associated component can be autofilled with a birth year. */
     BirthDateYear,
 
     /**

@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalRetryPolicy;
 import androidx.camera.core.RetryPolicy;
 
@@ -25,7 +24,6 @@ import androidx.camera.core.RetryPolicy;
  * Internal interface for constructing tailored RetryPolicies.
  * @see RetryPolicy
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalRetryPolicy
 public interface RetryPolicyInternal extends RetryPolicy {
 

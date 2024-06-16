@@ -27,7 +27,6 @@ import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
 import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
 import android.util.Rational
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 
@@ -52,18 +51,14 @@ fun MediaMetadataRetriever.getWidth(): Int = extractMetadata(METADATA_KEY_VIDEO_
 
 fun MediaMetadataRetriever.getHeight(): Int = extractMetadata(METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
 
-@RequiresApi(21)
 fun MediaMetadataRetriever.getResolution(): Size = Size(getWidth(), getHeight())
 
-@RequiresApi(21)
 fun MediaMetadataRetriever.getRotatedResolution(): Size = rotateSize(getResolution(), getRotation())
 
-@RequiresApi(21)
 fun MediaMetadataRetriever.getAspectRatio(): Rational = Rational(getWidth(), getHeight())
 
-@RequiresApi(21)
-fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational = if (is90or270(getRotation()))
-    Rational(getHeight(), getWidth()) else getAspectRatio()
+fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational =
+    if (is90or270(getRotation())) Rational(getHeight(), getWidth()) else getAspectRatio()
 
 fun MediaMetadataRetriever.getMimeType(): String = extractMetadata(METADATA_KEY_MIMETYPE)!!
 

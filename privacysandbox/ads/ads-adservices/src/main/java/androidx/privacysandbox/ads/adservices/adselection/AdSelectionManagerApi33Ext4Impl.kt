@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-class AdSelectionManagerApi33Ext4Impl(context: Context) : AdSelectionManagerImplCommon(
-    context.getSystemService(
-        android.adservices.adselection.AdSelectionManager::class.java))
+class AdSelectionManagerApi33Ext4Impl(context: Context) :
+    AdSelectionManagerImplCommon(
+        context.getSystemService(android.adservices.adselection.AdSelectionManager::class.java)
+    )

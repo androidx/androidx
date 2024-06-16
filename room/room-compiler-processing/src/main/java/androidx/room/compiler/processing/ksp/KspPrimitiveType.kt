@@ -25,9 +25,9 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 /**
  * This tries to mimic primitive types in Kotlin.
  *
- * Primitiveness of a type cannot always be driven from itself (e.g. its nullability).
- * For instance, a kotlin.Int might be non-null but still be non primitive if it is derived from a
- * generic type argument or is part of type parameters.
+ * Primitiveness of a type cannot always be driven from itself (e.g. its nullability). For instance,
+ * a kotlin.Int might be non-null but still be non primitive if it is derived from a generic type
+ * argument or is part of type parameters.
  */
 internal class KspPrimitiveType(
     env: KspProcessingEnv,
@@ -44,10 +44,7 @@ internal class KspPrimitiveType(
     }
 
     override fun boxed(): KspType {
-        return env.wrap(
-            ksType = ksType,
-            allowPrimitives = false
-        )
+        return env.wrap(ksType = ksType, allowPrimitives = false)
     }
 
     override fun copy(

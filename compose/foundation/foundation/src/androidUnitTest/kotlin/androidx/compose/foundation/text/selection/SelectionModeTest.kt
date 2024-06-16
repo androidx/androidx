@@ -186,11 +186,7 @@ class SelectionModeTest {
     fun compare_Vertical() {
         val listX = listOf(smallerThanLeft, betweenLeftAndRight, largerThanRight)
         val listY = listOf(smallerThanTop, betweenTopAndBottom, largerThanBottom)
-        val results = listOf(
-            listOf(-1, -1, -1),
-            listOf(-1, 0, 1),
-            listOf(1, 1, 1)
-        )
+        val results = listOf(listOf(-1, -1, -1), listOf(-1, 0, 1), listOf(1, 1, 1))
 
         for (i in listY.indices) {
             for (j in listX.indices) {
@@ -205,11 +201,7 @@ class SelectionModeTest {
     fun compare_Horizontal() {
         val listX = listOf(smallerThanLeft, betweenLeftAndRight, largerThanRight)
         val listY = listOf(smallerThanTop, betweenTopAndBottom, largerThanBottom)
-        val results = listOf(
-            listOf(-1, -1, 1),
-            listOf(-1, 0, 1),
-            listOf(-1, 1, 1)
-        )
+        val results = listOf(listOf(-1, -1, 1), listOf(-1, 0, 1), listOf(-1, 1, 1))
 
         for (i in listY.indices) {
             for (j in listX.indices) {

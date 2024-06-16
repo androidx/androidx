@@ -28,7 +28,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.EncoderProfilesProvider;
@@ -58,7 +57,6 @@ import java.util.TreeMap;
  * When a quality is explored, the corresponding profile will be derived from a nearest higher
  * supported profile.
  */
-@RequiresApi(21)
 public class QualityExploredEncoderProfilesProvider implements EncoderProfilesProvider {
     private final EncoderProfilesProvider mBaseEncoderProfilesProvider;
     private final Set<Quality> mTargetQualities;

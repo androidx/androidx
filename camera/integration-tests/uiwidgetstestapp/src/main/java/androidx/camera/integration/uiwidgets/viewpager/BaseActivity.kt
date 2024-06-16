@@ -41,25 +41,26 @@ open class BaseActivity : AppCompatActivity() {
     private var latchForState: CountDownLatch = CountDownLatch(0)
     var previewView: PreviewView? = null
 
-    private val streamStateObserver = Observer<PreviewView.StreamState> { state ->
-        when (state) {
-            PreviewView.StreamState.STREAMING -> {
-                Log.d(TAG, "PreviewView.StreamState.STREAMING")
-                if (expectedStreamState == PreviewView.StreamState.STREAMING) {
-                    latchForState.countDown()
+    private val streamStateObserver =
+        Observer<PreviewView.StreamState> { state ->
+            when (state) {
+                PreviewView.StreamState.STREAMING -> {
+                    Log.d(TAG, "PreviewView.StreamState.STREAMING")
+                    if (expectedStreamState == PreviewView.StreamState.STREAMING) {
+                        latchForState.countDown()
+                    }
                 }
-            }
-            PreviewView.StreamState.IDLE -> {
-                Log.d(TAG, "PreviewView.StreamState.IDLE")
-                if (expectedStreamState == PreviewView.StreamState.IDLE) {
-                    latchForState.countDown()
+                PreviewView.StreamState.IDLE -> {
+                    Log.d(TAG, "PreviewView.StreamState.IDLE")
+                    if (expectedStreamState == PreviewView.StreamState.IDLE) {
+                        latchForState.countDown()
+                    }
                 }
-            }
-            else -> {
-                Log.e(TAG, "Wrong PreviewView.StreamState! Return IDLE still.")
+                else -> {
+                    Log.e(TAG, "Wrong PreviewView.StreamState! Return IDLE still.")
+                }
             }
         }
-    }
 
     @VisibleForTesting
     suspend fun waitForStreamState(expectedState: PreviewView.StreamState): Boolean {

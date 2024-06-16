@@ -59,8 +59,7 @@ class FontListFontFamilyTypefaceAdapterTest {
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
     private lateinit var subject: FontListFontFamilyTypefaceAdapter
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private lateinit var scope: TestCoroutineScope
+    @OptIn(ExperimentalCoroutinesApi::class) private lateinit var scope: TestCoroutineScope
     private lateinit var cache: AsyncTypefaceCache
 
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -91,25 +90,20 @@ class FontListFontFamilyTypefaceAdapterTest {
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal,
         fontSynthesis: FontSynthesis = FontSynthesis.All
-    ) = TypefaceRequest(
-        this,
-        fontWeight,
-        fontStyle,
-        fontSynthesis,
-        fontLoader.cacheKey
-    )
+    ) = TypefaceRequest(this, fontWeight, fontStyle, fontSynthesis, fontLoader.cacheKey)
 
     @Test
     fun onResolve_onlyBlockingFonts_doesNotLoad() {
         val expected = Typeface.MONOSPACE
         val font = BlockingFauxFont(typefaceLoader, expected)
         val fontFamily = font.toFontFamily()
-        val result = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { error("Should not call") },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val result =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { error("Should not call") },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         assertThat(result).isImmutableTypefaceOf(expected)
     }
 
@@ -119,12 +113,13 @@ class FontListFontFamilyTypefaceAdapterTest {
         val blockingFont = BlockingFauxFont(typefaceLoader, expected)
         val asyncFont = AsyncFauxFont(typefaceLoader)
         val fontFamily = FontFamily(blockingFont, asyncFont)
-        val result = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { error("Should not call") },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val result =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { error("Should not call") },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         assertThat(result).isImmutableTypefaceOf(expected)
     }
 
@@ -135,12 +130,13 @@ class FontListFontFamilyTypefaceAdapterTest {
         doCompleteAsync: (TypefaceResult) -> Unit
     ): Pair<TypefaceResult, Deferred<TypefaceResult>> {
         val result = CompletableDeferred<TypefaceResult>()
-        val reply = subject.resolve(
-            request,
-            fontLoader,
-            onAsyncCompletion = { result.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )!!
+        val reply =
+            subject.resolve(
+                request,
+                fontLoader,
+                onAsyncCompletion = { result.complete(it) },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )!!
         beforeAsyncLoad(reply)
         scope.runCurrent()
         doCompleteAsync(reply)
@@ -155,15 +151,12 @@ class FontListFontFamilyTypefaceAdapterTest {
         val blockingFont = BlockingFauxFont(typefaceLoader, Typeface.MONOSPACE)
         val fontFamily = FontFamily(asyncFont, blockingFont)
 
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.MONOSPACE)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, Typeface.SERIF)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.MONOSPACE) },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, Typeface.SERIF) }
+            )
         assertThat(reply).currentAsyncTypefaceValue(Typeface.SERIF)
         scope.runBlockingTest {
             assertThat(finalResult.await()).isImmutableTypefaceOf(Typeface.SERIF)
@@ -180,47 +173,36 @@ class FontListFontFamilyTypefaceAdapterTest {
         val blockingFont = BlockingFauxFont(typefaceLoader, expectedInitial)
         val blockingFont2 = BlockingFauxFont(typefaceLoader, Typeface.SERIF)
         val fontFamily = FontFamily(asyncFont, blockingFont, blockingFont2)
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(expectedInitial)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(expectedInitial) },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+            )
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.completedRequests()).containsExactly(blockingFont, asyncFont)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_blockingAndAsyncFonts_differentStyles_onlyLoadsAsync() {
-        val blockingFont = BlockingFauxFont(
-            typefaceLoader,
-            Typeface.MONOSPACE,
-            weight = FontWeight.W100
-        )
+        val blockingFont =
+            BlockingFauxFont(typefaceLoader, Typeface.MONOSPACE, weight = FontWeight.W100)
         val expected = Typeface.SANS_SERIF
         val asyncFont = AsyncFauxFont(typefaceLoader)
         val fontFamily = FontFamily(asyncFont, blockingFont)
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                // this hits platform default
-                assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = {
+                    // this hits platform default
+                    assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
+                },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+            )
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont)
     }
 
@@ -231,20 +213,17 @@ class FontListFontFamilyTypefaceAdapterTest {
         val asyncFont100 = AsyncFauxFont(typefaceLoader, weight = FontWeight.W100)
         val expected = Typeface.MONOSPACE
         val fontFamily = FontFamily(asyncFont100, asyncFont400)
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                // this hits platform default
-                assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont400, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = {
+                    // this hits platform default
+                    assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
+                },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont400, expected) }
+            )
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
         assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont400)
     }
@@ -256,20 +235,15 @@ class FontListFontFamilyTypefaceAdapterTest {
         val asyncFontFallback = AsyncFauxFont(typefaceLoader, name = "AsyncFallbackFont")
         val fontFamily = FontFamily(asyncFont, asyncFontFallback)
         val expected = Typeface.MONOSPACE
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT) },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+            )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
         assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont)
     }
@@ -281,25 +255,22 @@ class FontListFontFamilyTypefaceAdapterTest {
         val asyncFontFallback = AsyncFauxFont(typefaceLoader, name = "AsyncFallbackFont")
         val fontFamily = FontFamily(asyncFont, asyncFontFallback)
         val expected = Typeface.MONOSPACE
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
-            },
-            doCompleteAsync = {
-                scope.testScheduler.apply {
-                    advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
-                    runCurrent()
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT) },
+                doCompleteAsync = {
+                    scope.testScheduler.apply {
+                        advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+                        runCurrent()
+                    }
+                    scope.runCurrent()
+                    typefaceLoader.completeOne(asyncFontFallback, expected)
                 }
-                scope.runCurrent()
-                typefaceLoader.completeOne(asyncFontFallback, expected)
-            }
-        )
+            )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).containsExactly(asyncFont)
         assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFontFallback)
     }
@@ -311,27 +282,21 @@ class FontListFontFamilyTypefaceAdapterTest {
         val asyncFontFallback = AsyncFauxFont(typefaceLoader, name = "AsyncFallbackFont")
         val fontFamily = FontFamily(asyncFont, asyncFontFallback)
         val expected = Typeface.MONOSPACE
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
-            },
-            doCompleteAsync = {
-                typefaceLoader.errorOne(asyncFont, RuntimeException("FooBared"))
-                scope.runCurrent()
-                typefaceLoader.completeOne(asyncFontFallback, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT) },
+                doCompleteAsync = {
+                    typefaceLoader.errorOne(asyncFont, RuntimeException("FooBared"))
+                    scope.runCurrent()
+                    typefaceLoader.completeOne(asyncFontFallback, expected)
+                }
+            )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
-        assertThat(typefaceLoader.completedRequests()).containsExactly(
-            asyncFont,
-            asyncFontFallback
-        )
+        assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont, asyncFontFallback)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -340,14 +305,15 @@ class FontListFontFamilyTypefaceAdapterTest {
         val asyncFont = AsyncFauxFont(typefaceLoader)
         val asyncFontFallback = AsyncFauxFont(typefaceLoader, name = "AsyncFallbackFont")
         val fontFamily = FontFamily(asyncFont, asyncFontFallback)
-        val typefaceResult = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = {
-                // don't care in this test
-            },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val typefaceResult =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = {
+                    // don't care in this test
+                },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         // start first load
         typefaceLoader.errorOne(asyncFont, RuntimeException("Failed to load"))
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
@@ -357,10 +323,7 @@ class FontListFontFamilyTypefaceAdapterTest {
         typefaceLoader.completeOne(asyncFontFallback, Typeface.SERIF)
         scope.runCurrent()
         assertThat(typefaceResult).currentAsyncTypefaceValue(Typeface.SERIF)
-        assertThat(typefaceLoader.completedRequests()).containsExactly(
-            asyncFont,
-            asyncFontFallback
-        )
+        assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont, asyncFontFallback)
     }
 
     @Test
@@ -369,12 +332,13 @@ class FontListFontFamilyTypefaceAdapterTest {
         val optionalFont = OptionalFauxFont(typefaceLoader, expected)
         val asyncFont = AsyncFauxFont(typefaceLoader)
         val fontFamily = FontFamily(optionalFont, asyncFont)
-        val result = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { error("Should not call") },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val result =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { error("Should not call") },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         assertThat(result).isImmutableTypefaceOf(expected)
     }
 
@@ -385,25 +349,17 @@ class FontListFontFamilyTypefaceAdapterTest {
         val optionalFont = OptionalFauxFont(typefaceLoader, null)
         val fontFamily = FontFamily(optionalFont, asyncFont)
         val expected = Typeface.MONOSPACE
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT) },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+            )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
-        assertThat(typefaceLoader.completedRequests()).containsExactly(
-            asyncFont,
-            optionalFont
-        )
+        assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont, optionalFont)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -414,26 +370,18 @@ class FontListFontFamilyTypefaceAdapterTest {
         val blockingFont = BlockingFauxFont(typefaceLoader, Typeface.SERIF)
         val fontFamily = FontFamily(optionalFont, asyncFont, blockingFont)
         val expected = Typeface.MONOSPACE
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.SERIF)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.SERIF) },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+            )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
-        assertThat(typefaceLoader.completedRequests()).containsExactly(
-            asyncFont,
-            optionalFont,
-            blockingFont
-        )
+        assertThat(typefaceLoader.completedRequests())
+            .containsExactly(asyncFont, optionalFont, blockingFont)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -445,25 +393,17 @@ class FontListFontFamilyTypefaceAdapterTest {
         // this is a weird order, but lets make sure it doesn't break :)
         val fontFamily = FontFamily(asyncFont, optionalFont, blockingFont)
         val expected = Typeface.MONOSPACE
-        val (reply, finalResult) = doOneAsyncRequest(
-            fontFamily.toTypefaceRequest(),
-            beforeAsyncLoad = {
-                assertThat(it).currentAsyncTypefaceValue(Typeface.SANS_SERIF)
-            },
-            doCompleteAsync = {
-                typefaceLoader.completeOne(asyncFont, expected)
-            }
-        )
+        val (reply, finalResult) =
+            doOneAsyncRequest(
+                fontFamily.toTypefaceRequest(),
+                beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.SANS_SERIF) },
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+            )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypefaceOf(expected)
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
-        assertThat(typefaceLoader.completedRequests()).containsExactly(
-            asyncFont,
-            optionalFont
-        )
+        assertThat(typefaceLoader.completedRequests()).containsExactly(asyncFont, optionalFont)
         scope.advanceUntilIdle()
     }
 
@@ -474,12 +414,13 @@ class FontListFontFamilyTypefaceAdapterTest {
         val blockingFont = BlockingFauxFont(typefaceLoader, Typeface.MONOSPACE)
         // this is expected order
         val fontFamily = FontFamily(optionalFont, asyncFont, blockingFont)
-        val result = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { error("Should not call") },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val result =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { error("Should not call") },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
 
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
         assertThat(typefaceLoader.completedRequests()).containsExactly(optionalFont)
@@ -500,12 +441,13 @@ class FontListFontFamilyTypefaceAdapterTest {
         val fontFamily = FontFamily(asyncFont)
         val finalResult = CompletableDeferred<TypefaceResult>()
 
-        val result = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { finalResult.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val result =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { finalResult.complete(it) },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
 
         scope.runCurrent()
         newDispatcher.scheduler.runCurrent()
@@ -532,37 +474,38 @@ class FontListFontFamilyTypefaceAdapterTest {
         val fontFamily = FontFamily(asyncFont)
         val finalResult = CompletableDeferred<TypefaceResult>()
 
-        val firstResult = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { finalResult.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val firstResult =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { finalResult.complete(it) },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         scope.runCurrent()
         typefaceLoader.errorOne(asyncFont, CancellationException())
-        scope.runBlockingTest {
-            assertThat(finalResult.await()).isImmutableTypeface()
-        }
+        scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypeface() }
         assertThat(firstResult).currentAsyncTypefaceValue(Typeface.DEFAULT)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun cancellationOfFirstRequest_cannotCancelJob() {
-        val cancellingLoader = object : AndroidFont.TypefaceLoader {
-            override fun loadBlocking(context: Context, font: AndroidFont): Typeface? {
-                TODO("Not yet implemented")
-            }
+        val cancellingLoader =
+            object : AndroidFont.TypefaceLoader {
+                override fun loadBlocking(context: Context, font: AndroidFont): Typeface? {
+                    TODO("Not yet implemented")
+                }
 
-            override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
-                coroutineContext[Job]?.cancel()
-                return null
+                override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
+                    coroutineContext[Job]?.cancel()
+                    return null
+                }
             }
-        }
-        val asyncFont = object : AndroidFont(FontLoadingStrategy.Async, cancellingLoader) {
-            override val weight: FontWeight = FontWeight.Normal
-            override val style: FontStyle = FontStyle.Normal
-        }
+        val asyncFont =
+            object : AndroidFont(FontLoadingStrategy.Async, cancellingLoader) {
+                override val weight: FontWeight = FontWeight.Normal
+                override val style: FontStyle = FontStyle.Normal
+            }
 
         val asyncFontFallback = AsyncFauxFont(typefaceLoader, name = "AsyncFontFallback")
         val finalResult = CompletableDeferred<TypefaceResult>()
@@ -615,30 +558,32 @@ class FontListFontFamilyTypefaceAdapterTest {
         val lock = Object()
         val latch = CountDownLatch(1)
 
-        val typefaceLoader = object : AndroidFont.TypefaceLoader {
-            override fun loadBlocking(context: Context, font: AndroidFont): Typeface? {
-                TODO("Not yet implemented")
-            }
+        val typefaceLoader =
+            object : AndroidFont.TypefaceLoader {
+                override fun loadBlocking(context: Context, font: AndroidFont): Typeface? {
+                    TODO("Not yet implemented")
+                }
 
-            override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
-                synchronized(lock) {
-                    // should be on the testing thread here
-                    beforeThread = Thread.currentThread()
+                override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
+                    synchronized(lock) {
+                        // should be on the testing thread here
+                        beforeThread = Thread.currentThread()
+                    }
+                    // yield causes dispatch
+                    yield()
+                    synchronized(lock) {
+                        // should be on a worker thread here
+                        afterThread = Thread.currentThread()
+                    }
+                    latch.countDown()
+                    return Typeface.SERIF
                 }
-                // yield causes dispatch
-                yield()
-                synchronized(lock) {
-                    // should be on a worker thread here
-                    afterThread = Thread.currentThread()
-                }
-                latch.countDown()
-                return Typeface.SERIF
             }
-        }
-        val font = object : AndroidFont(FontLoadingStrategy.Async, typefaceLoader) {
-            override val weight: FontWeight = FontWeight.W400
-            override val style: FontStyle = FontStyle.Normal
-        }
+        val font =
+            object : AndroidFont(FontLoadingStrategy.Async, typefaceLoader) {
+                override val weight: FontWeight = FontWeight.W400
+                override val style: FontStyle = FontStyle.Normal
+            }
         val fontFamily = FontFamily(font)
         subject.resolve(
             fontFamily.toTypefaceRequest(),
@@ -686,12 +631,11 @@ class FontListFontFamilyTypefaceAdapterTest {
     @Test
     fun runtimeExceptionOnRealDispatcher_informsExceptionHandler() {
         val exception: CompletableDeferred<Throwable> = CompletableDeferred()
-        subject = FontListFontFamilyTypefaceAdapter(
-            cache,
-            CoroutineExceptionHandler { _, throwable ->
-                exception.complete(throwable)
-            }
-        )
+        subject =
+            FontListFontFamilyTypefaceAdapter(
+                cache,
+                CoroutineExceptionHandler { _, throwable -> exception.complete(throwable) }
+            )
         val cause = RuntimeException("fail the request")
         requestAndThrowOnRealDispatcher(cause)
         runBlocking {
@@ -717,12 +661,13 @@ class FontListFontFamilyTypefaceAdapterTest {
         val requestLatch = CountDownLatch(1)
         val result = CompletableDeferred<TypefaceResult?>()
         typefaceLoader.onAsyncLoad { requestLatch.countDown() }
-        val asyncRequest: TypefaceResult? = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { result.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val asyncRequest: TypefaceResult? =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { result.complete(it) },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         assertThat(asyncRequest!!.cacheable).isFalse()
         assertThat(asyncRequest).currentAsyncTypefaceValue(Typeface.DEFAULT)
         val typefaceResult = runBlocking { result.await() }
@@ -736,18 +681,17 @@ class FontListFontFamilyTypefaceAdapterTest {
         val requestLatch = CountDownLatch(1)
         val result = CompletableDeferred<TypefaceResult>()
         typefaceLoader.onAsyncLoad { requestLatch.countDown() }
-        val asyncResult = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { result.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val asyncResult =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { result.complete(it) },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         // we're running on a real dispatcher, sync manually
         requestLatch.await()
         typefaceLoader.completeOne(asyncFont, Typeface.SERIF)
-        runBlocking {
-            assertThat(result.await()).isImmutableTypefaceOf(Typeface.SERIF)
-        }
+        runBlocking { assertThat(result.await()).isImmutableTypefaceOf(Typeface.SERIF) }
         assertThat(asyncResult).currentAsyncTypefaceValue(Typeface.SERIF)
     }
 
@@ -758,18 +702,17 @@ class FontListFontFamilyTypefaceAdapterTest {
         val requestLatch = CountDownLatch(1)
 
         typefaceLoader.onAsyncLoad { requestLatch.countDown() }
-        val asyncResult = subject.resolve(
-            fontFamily.toTypefaceRequest(),
-            fontLoader,
-            onAsyncCompletion = { result.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
-        )
+        val asyncResult =
+            subject.resolve(
+                fontFamily.toTypefaceRequest(),
+                fontLoader,
+                onAsyncCompletion = { result.complete(it) },
+                createDefaultTypeface = { Typeface.DEFAULT }
+            )
         // we're running on a real dispatcher, sync manually
         requestLatch.await()
         typefaceLoader.errorOne(font, cause)
-        runBlocking {
-            assertThat(result.await()).isImmutableTypefaceOf(Typeface.DEFAULT)
-        }
+        runBlocking { assertThat(result.await()).isImmutableTypefaceOf(Typeface.DEFAULT) }
         assertThat(asyncResult).currentAsyncTypefaceValue(Typeface.DEFAULT)
     }
 }

@@ -45,9 +45,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun InputFieldDemo() {
     LazyColumn {
-        item {
-            TagLine(tag = "LTR Layout")
-        }
+        item { TagLine(tag = "LTR Layout") }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -60,9 +58,7 @@ fun InputFieldDemo() {
                 }
             }
         }
-        item {
-            TagLine(tag = "RTL Layout")
-        }
+        item { TagLine(tag = "RTL Layout") }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -90,17 +86,12 @@ internal fun EditLine(
         modifier = demoTextFieldModifiers,
         value = state.value,
         singleLine = singleLine,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = KeyboardActions { keyboardController?.hide() },
         onValueChange = { state.value = it },
         textStyle = TextStyle(fontSize = fontSize8),
     )
 }
 
-val demoTextFieldModifiers = Modifier
-    .padding(6.dp)
-    .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
-    .padding(6.dp)
+val demoTextFieldModifiers =
+    Modifier.padding(6.dp).border(1.dp, Color.LightGray, RoundedCornerShape(6.dp)).padding(6.dp)

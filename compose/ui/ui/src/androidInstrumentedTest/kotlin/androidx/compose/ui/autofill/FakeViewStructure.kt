@@ -39,16 +39,12 @@ import androidx.annotation.RequiresApi
  * @param children A list of [ViewStructure]s that are children of the current [ViewStructure].
  * @param bounds The bounds (Dimensions) of the component represented by this [ViewStructure].
  * @param autofillId The [autofillId] for the parent component. The same autofillId is used for
- * other child components.
- * @param autofillType The data type. Can be one of the following:
- * [View.AUTOFILL_TYPE_DATE],
- * [View.AUTOFILL_TYPE_LIST],
- * [View.AUTOFILL_TYPE_TEXT],
- * [View.AUTOFILL_TYPE_TOGGLE] or
- * [View.AUTOFILL_TYPE_NONE].
+ *   other child components.
+ * @param autofillType The data type. Can be one of the following: [View.AUTOFILL_TYPE_DATE],
+ *   [View.AUTOFILL_TYPE_LIST], [View.AUTOFILL_TYPE_TEXT], [View.AUTOFILL_TYPE_TOGGLE] or
+ *   [View.AUTOFILL_TYPE_NONE].
  * @param autofillHints The autofill hint. If this value not specified, we use heuristics to
- * determine what data to use while performing autofill.
- *
+ *   determine what data to use while performing autofill.
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal data class FakeViewStructure(
@@ -93,8 +89,7 @@ internal data class FakeViewStructure(
     private var webDomain: String? = null
 
     internal companion object {
-        @GuardedBy("this")
-        private var previousId = 0
+        @GuardedBy("this") private var previousId = 0
         private val NO_SESSION = 0
 
         @Synchronized
@@ -152,15 +147,43 @@ internal data class FakeViewStructure(
         this.bounds = Rect(left, top, width - left, height - top)
     }
 
-    override fun equals(other: Any?) = other is FakeViewStructure &&
-        other.virtualId == virtualId &&
-        other.packageName == packageName &&
-        other.typeName == typeName &&
-        other.entryName == entryName &&
-        other.autofillType == autofillType &&
-        other.autofillHints.contentEquals(autofillHints) &&
-        other.bounds.contentEquals(bounds) &&
-        other.children == children
+    override fun equals(other: Any?) =
+        other is FakeViewStructure &&
+            other.virtualId == virtualId &&
+            other.packageName == packageName &&
+            other.typeName == typeName &&
+            other.entryName == entryName &&
+            other.autofillType == autofillType &&
+            other.autofillHints.contentEquals(autofillHints) &&
+            other.bounds.contentEquals(bounds) &&
+            other.activated == activated &&
+            other.alpha == alpha &&
+            other.autofillOptions.contentEquals(autofillOptions) &&
+            other.autofillValue == autofillValue &&
+            other.className == className &&
+            other.children.count() == children.count() &&
+            other.contentDescription == contentDescription &&
+            other.dataIsSensitive == dataIsSensitive &&
+            other.elevation == elevation &&
+            other.hint == hint &&
+            other.htmlInfo == htmlInfo &&
+            other.inputType == inputType &&
+            other.isEnabled == isEnabled &&
+            other.isCheckable == isCheckable &&
+            other.isChecked == isChecked &&
+            other.isClickable == isClickable &&
+            other.isContextClickable == isContextClickable &&
+            other.isAccessibilityFocused == isAccessibilityFocused &&
+            other.isFocused == isFocused &&
+            other.isLongClickable == isLongClickable &&
+            other.isOpaque == isOpaque &&
+            other.isFocusable == isFocusable &&
+            other.selected == selected &&
+            other.text == text &&
+            other.textLines.contentEquals(textLines) &&
+            other.transformation == transformation &&
+            other.visibility == visibility &&
+            other.webDomain == webDomain
 
     override fun hashCode() = super.hashCode()
 
@@ -172,93 +195,163 @@ internal data class FakeViewStructure(
 
     override fun hasExtras() = !extras.isEmpty
 
-    override fun setActivated(p0: Boolean) { activated = p0 }
+    override fun setActivated(p0: Boolean) {
+        activated = p0
+    }
 
-    override fun setAccessibilityFocused(p0: Boolean) { isAccessibilityFocused = p0 }
+    override fun setAccessibilityFocused(p0: Boolean) {
+        isAccessibilityFocused = p0
+    }
 
-    override fun setAlpha(p0: Float) { alpha = p0 }
+    override fun setAlpha(p0: Float) {
+        alpha = p0
+    }
 
-    override fun setAutofillOptions(p0: Array<CharSequence>?) { autofillOptions = p0 }
+    override fun setAutofillOptions(p0: Array<CharSequence>?) {
+        autofillOptions = p0
+    }
 
-    override fun setAutofillValue(p0: AutofillValue?) { autofillValue = p0 }
+    override fun setAutofillValue(p0: AutofillValue?) {
+        autofillValue = p0
+    }
 
-    override fun setCheckable(p0: Boolean) { isCheckable = p0 }
+    override fun setCheckable(p0: Boolean) {
+        isCheckable = p0
+    }
 
-    override fun setChecked(p0: Boolean) { isChecked = p0 }
+    override fun setChecked(p0: Boolean) {
+        isChecked = p0
+    }
 
-    override fun setClassName(p0: String?) { className = p0 }
+    override fun setClassName(p0: String?) {
+        className = p0
+    }
 
-    override fun setClickable(p0: Boolean) { isClickable = p0 }
+    override fun setClickable(p0: Boolean) {
+        isClickable = p0
+    }
 
-    override fun setContentDescription(p0: CharSequence?) { contentDescription = p0 }
+    override fun setContentDescription(p0: CharSequence?) {
+        contentDescription = p0
+    }
 
-    override fun setContextClickable(p0: Boolean) { isContextClickable = p0 }
+    override fun setContextClickable(p0: Boolean) {
+        isContextClickable = p0
+    }
 
-    override fun setDataIsSensitive(p0: Boolean) { dataIsSensitive = p0 }
+    override fun setDataIsSensitive(p0: Boolean) {
+        dataIsSensitive = p0
+    }
 
-    override fun setElevation(p0: Float) { elevation = p0 }
+    override fun setElevation(p0: Float) {
+        elevation = p0
+    }
 
-    override fun setEnabled(p0: Boolean) { isEnabled = p0 }
+    override fun setEnabled(p0: Boolean) {
+        isEnabled = p0
+    }
 
-    override fun setFocusable(p0: Boolean) { isFocusable = p0 }
+    override fun setFocusable(p0: Boolean) {
+        isFocusable = p0
+    }
 
-    override fun setFocused(p0: Boolean) { isFocused = p0 }
+    override fun setFocused(p0: Boolean) {
+        isFocused = p0
+    }
 
-    override fun setHtmlInfo(p0: HtmlInfo) { htmlInfo = p0 }
+    override fun setHtmlInfo(p0: HtmlInfo) {
+        htmlInfo = p0
+    }
 
-    override fun setHint(p0: CharSequence?) { hint = p0 }
+    override fun setHint(p0: CharSequence?) {
+        hint = p0
+    }
 
-    override fun setInputType(p0: Int) { inputType = p0 }
+    override fun setInputType(p0: Int) {
+        inputType = p0
+    }
 
-    override fun setLongClickable(p0: Boolean) { isLongClickable = p0 }
+    override fun setLongClickable(p0: Boolean) {
+        isLongClickable = p0
+    }
 
-    override fun setOpaque(p0: Boolean) { isOpaque = p0 }
+    override fun setOpaque(p0: Boolean) {
+        isOpaque = p0
+    }
 
-    override fun setSelected(p0: Boolean) { selected = p0 }
+    override fun setSelected(p0: Boolean) {
+        selected = p0
+    }
 
-    override fun setText(p0: CharSequence?) { p0?.let { text = it } }
+    override fun setText(p0: CharSequence?) {
+        p0?.let { text = it }
+    }
 
     override fun setText(p0: CharSequence?, p1: Int, p2: Int) {
         p0?.let { text = it.subSequence(p1, p2) }
     }
 
-    override fun setTextLines(p0: IntArray?, p1: IntArray?) { textLines = p0 }
+    override fun setTextLines(p0: IntArray?, p1: IntArray?) {
+        textLines = p0
+    }
 
-    override fun setTransformation(p0: Matrix?) { transformation = p0 }
+    override fun setTransformation(p0: Matrix?) {
+        transformation = p0
+    }
 
-    override fun setVisibility(p0: Int) { visibility = p0 }
+    override fun setVisibility(p0: Int) {
+        visibility = p0
+    }
 
-    override fun setWebDomain(p0: String?) { webDomain = p0 }
+    override fun setWebDomain(p0: String?) {
+        webDomain = p0
+    }
 
     // Unimplemented methods.
-    override fun asyncCommit() { TODO("not implemented") }
+    override fun asyncCommit() {
+        TODO("not implemented")
+    }
 
-    override fun asyncNewChild(p0: Int): ViewStructure { TODO("not implemented") }
+    override fun asyncNewChild(p0: Int): ViewStructure {
+        TODO("not implemented")
+    }
 
-    override fun getTextSelectionEnd(): Int { TODO("not implemented") }
+    override fun getTextSelectionEnd(): Int {
+        TODO("not implemented")
+    }
 
-    override fun getTextSelectionStart(): Int { TODO("not implemented") }
+    override fun getTextSelectionStart(): Int {
+        TODO("not implemented")
+    }
 
-    override fun newHtmlInfoBuilder(p0: String): HtmlInfo.Builder { TODO("not implemented") }
+    override fun newHtmlInfoBuilder(p0: String): HtmlInfo.Builder {
+        TODO("not implemented")
+    }
 
-    override fun setAutofillId(p0: AutofillId) { TODO("not implemented") }
+    override fun setAutofillId(p0: AutofillId) {
+        TODO("not implemented")
+    }
 
-    override fun setChildCount(p0: Int) { TODO("not implemented") }
+    override fun setChildCount(p0: Int) {
+        TODO("not implemented")
+    }
 
-    override fun setLocaleList(p0: LocaleList?) { TODO("not implemented") }
+    override fun setLocaleList(p0: LocaleList?) {
+        TODO("not implemented")
+    }
 
-    override fun setTextStyle(p0: Float, p1: Int, p2: Int, p3: Int) { TODO("not implemented") }
+    override fun setTextStyle(p0: Float, p1: Int, p2: Int, p3: Int) {
+        TODO("not implemented")
+    }
 }
 
-private fun Rect?.contentEquals(other: Rect?) = when {
-    (other == null && this == null) -> true
-    (other == null || this == null) -> false
-    else ->
-        other.left == left &&
-            other.right == right &&
-            other.bottom == bottom &&
-            other.top == top
-}
+private fun Rect?.contentEquals(other: Rect?) =
+    when {
+        (other == null && this == null) -> true
+        (other == null || this == null) -> false
+        else ->
+            other.left == left && other.right == right && other.bottom == bottom && other.top == top
+    }
 
 /** Obtains a parcel and then recycles it correctly whether an exception is thrown or not. */
 private fun useParcel(block: (Parcel) -> Unit) {

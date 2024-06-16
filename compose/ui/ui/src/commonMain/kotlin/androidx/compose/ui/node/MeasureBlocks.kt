@@ -26,8 +26,7 @@ import androidx.compose.ui.unit.Constraints
 @Deprecated("MeasureBlocks was deprecated. Please use MeasurePolicy instead.")
 internal interface MeasureBlocks {
     /**
-     * The function used to measure the child. It must call [MeasureScope.layout] before
-     * completing.
+     * The function used to measure the child. It must call [MeasureScope.layout] before completing.
      */
     fun measure(
         measureScope: MeasureScope,
@@ -35,36 +34,28 @@ internal interface MeasureBlocks {
         constraints: Constraints
     ): MeasureResult
 
-    /**
-     * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
-     */
+    /** The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth]. */
     fun minIntrinsicWidth(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
         h: Int
     ): Int
 
-    /**
-     * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
-     */
+    /** The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight]. */
     fun minIntrinsicHeight(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
         w: Int
     ): Int
 
-    /**
-     * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
-     */
+    /** The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth]. */
     fun maxIntrinsicWidth(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
         h: Int
     ): Int
 
-    /**
-     * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
-     */
+    /** The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight]. */
     fun maxIntrinsicHeight(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,

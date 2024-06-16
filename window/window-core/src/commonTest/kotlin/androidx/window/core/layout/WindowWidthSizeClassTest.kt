@@ -28,24 +28,21 @@ class WindowWidthSizeClassTest {
     @Test
     fun testComputeForDifferentBuckets() {
         val expected = listOf(COMPACT, MEDIUM, EXPANDED)
-        val actual = listOf(599f, 839f, 840f)
-            .map { value -> WindowWidthSizeClass.compute(value) }
+        val actual = listOf(599f, 839f, 840f).map { value -> WindowWidthSizeClass.compute(value) }
         assertEquals(expected, actual)
     }
 
     @Test
     fun testToStringContainsName() {
-        val expected = listOf("COMPACT", "MEDIUM", "EXPANDED")
-            .map { value -> "WindowWidthSizeClass: $value" }
-        val actual = listOf(599f, 839f, 840f)
-            .map { value -> WindowWidthSizeClass.compute(value).toString() }
+        val expected =
+            listOf("COMPACT", "MEDIUM", "EXPANDED").map { value -> "WindowWidthSizeClass: $value" }
+        val actual =
+            listOf(599f, 839f, 840f).map { value -> WindowWidthSizeClass.compute(value).toString() }
         assertEquals(expected, actual)
     }
 
     @Test
     fun testInvalidSizeBucket() {
-        assertFailsWith(IllegalArgumentException::class) {
-            WindowWidthSizeClass.compute(-1f)
-        }
+        assertFailsWith(IllegalArgumentException::class) { WindowWidthSizeClass.compute(-1f) }
     }
 }

@@ -53,56 +53,54 @@ class WindowStateCallbackActivity : AppCompatActivity() {
     private lateinit var displayFeatureView: WindowStateView
 
     /**
-     * Runnable to poll configuration every 500ms.
-     * To always provide an up-to-date configuration so it can be used to verify the configurations
-     * from other callbacks.
+     * Runnable to poll configuration every 500ms. To always provide an up-to-date configuration so
+     * it can be used to verify the configurations from other callbacks.
      */
-    private val updateWindowStateIfChanged = object : Runnable {
-        override fun run() {
-            latestUpdateView.onWindowStateCallbackInvoked()
-            handler.postDelayed(this, 500)
+    private val updateWindowStateIfChanged =
+        object : Runnable {
+            override fun run() {
+                latestUpdateView.onWindowStateCallbackInvoked()
+                handler.postDelayed(this, 500)
+            }
         }
-    }
 
     /** [DisplayListener] on `Application`. */
-    private val applicationDisplayListener = object : DisplayListener {
-        override fun onDisplayAdded(displayId: Int) {
-        }
+    private val applicationDisplayListener =
+        object : DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
 
-        override fun onDisplayRemoved(displayId: Int) {
-        }
+            override fun onDisplayRemoved(displayId: Int) {}
 
-        override fun onDisplayChanged(displayId: Int) {
-            if (displayId == DEFAULT_DISPLAY) {
-                applicationDisplayListenerView.onWindowStateCallbackInvoked()
+            override fun onDisplayChanged(displayId: Int) {
+                if (displayId == DEFAULT_DISPLAY) {
+                    applicationDisplayListenerView.onWindowStateCallbackInvoked()
+                }
             }
         }
-    }
 
     /** [DisplayListener] on `Activity`. */
-    private val activityDisplayListener = object : DisplayListener {
-        override fun onDisplayAdded(displayId: Int) {
-        }
+    private val activityDisplayListener =
+        object : DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
 
-        override fun onDisplayRemoved(displayId: Int) {
-        }
+            override fun onDisplayRemoved(displayId: Int) {}
 
-        override fun onDisplayChanged(displayId: Int) {
-            if (displayId == DEFAULT_DISPLAY) {
-                activityDisplayListenerView.onWindowStateCallbackInvoked()
+            override fun onDisplayChanged(displayId: Int) {
+                if (displayId == DEFAULT_DISPLAY) {
+                    activityDisplayListenerView.onWindowStateCallbackInvoked()
+                }
             }
         }
-    }
 
     /** [onConfigurationChanged] on `Application`. */
-    private val applicationComponentCallback = object : ComponentCallbacks {
-        override fun onConfigurationChanged(p0: Configuration) {
-            applicationConfigurationView.onWindowStateCallbackInvoked()
-        }
+    private val applicationComponentCallback =
+        object : ComponentCallbacks {
+            override fun onConfigurationChanged(p0: Configuration) {
+                applicationConfigurationView.onWindowStateCallbackInvoked()
+            }
 
-        override fun onLowMemory() {
+            override fun onLowMemory() {}
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,9 +126,7 @@ class WindowStateCallbackActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 WindowInfoTracker.getOrCreate(this@WindowStateCallbackActivity)
                     .windowLayoutInfo(this@WindowStateCallbackActivity)
-                    .collect { _ ->
-                        displayFeatureView.onWindowStateCallbackInvoked()
-                    }
+                    .collect { _ -> displayFeatureView.onWindowStateCallbackInvoked() }
             }
         }
     }

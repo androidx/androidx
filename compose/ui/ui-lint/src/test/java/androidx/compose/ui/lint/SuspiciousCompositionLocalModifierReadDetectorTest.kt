@@ -24,18 +24,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
 
     override fun getDetector(): Detector = SuspiciousCompositionLocalModifierReadDetector()
 
-    override fun getIssues(): MutableList<Issue> = mutableListOf(
-        SuspiciousCompositionLocalModifierRead
-    )
+    override fun getIssues(): MutableList<Issue> =
+        mutableListOf(SuspiciousCompositionLocalModifierRead)
 
-    private val CompositionLocalConsumerModifierStub = kotlin(
-        """
+    private val CompositionLocalConsumerModifierStub =
+        kotlin(
+            """
             package androidx.compose.ui.node
 
             import androidx.compose.runtime.CompositionLocal
@@ -49,10 +48,11 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
                 throw RuntimeException("Not implemented in lint stubs.")
             }
         """
-    )
+        )
 
-    private val ModifierNodeStub = kotlin(
-        """
+    private val ModifierNodeStub =
+        kotlin(
+            """
         package androidx.compose.ui
 
         interface Modifier {
@@ -62,10 +62,11 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
             }
         }
         """
-    )
+        )
 
-    private val CompositionLocalStub = kotlin(
-        """
+    private val CompositionLocalStub =
+        kotlin(
+            """
             package androidx.compose.runtime
 
             import java.lang.RuntimeException
@@ -84,13 +85,14 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
             fun <T> staticCompositionLocalOf(defaultFactory: () -> T): CompositionLocal<T> =
                 throw RuntimeException("Not implemented in lint stubs.")
         """
-    )
+        )
 
     @Test
     fun testCompositionLocalReadInModifierAttachAndDetach() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -113,11 +115,11 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            CompositionLocalStub,
-            CompositionLocalConsumerModifierStub,
-            ModifierNodeStub
-        )
+                ),
+                CompositionLocalStub,
+                CompositionLocalConsumerModifierStub,
+                ModifierNodeStub
+            )
             .run()
             .expect(
                 """
@@ -134,9 +136,10 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
 
     @Test
     fun testCompositionLocalReadInAttachDetachLambdaNotReported() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -163,20 +166,21 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
                     }
                 }
             """
-            ),
-            CompositionLocalStub,
-            CompositionLocalConsumerModifierStub,
-            ModifierNodeStub
-        )
+                ),
+                CompositionLocalStub,
+                CompositionLocalConsumerModifierStub,
+                ModifierNodeStub
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun testCompositionLocalReadInModifierInitializer() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -196,11 +200,11 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
                     }
                 }
             """
-            ),
-            CompositionLocalStub,
-            CompositionLocalConsumerModifierStub,
-            ModifierNodeStub
-        )
+                ),
+                CompositionLocalStub,
+                CompositionLocalConsumerModifierStub,
+                ModifierNodeStub
+            )
             .run()
             .expect(
                 """
@@ -217,9 +221,10 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
 
     @Test
     fun testCompositionLocalReadInModifierComputedProperty() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -237,20 +242,21 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
                     val readValue: Int get() = currentValueOf(staticLocalInt)
                 }
             """
-            ),
-            CompositionLocalStub,
-            CompositionLocalConsumerModifierStub,
-            ModifierNodeStub
-        )
+                ),
+                CompositionLocalStub,
+                CompositionLocalConsumerModifierStub,
+                ModifierNodeStub
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun testCompositionLocalReadInLazyPropertyDelegate() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -268,11 +274,11 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
                     val staticReadValue by lazy { currentValueOf(staticLocalInt) }
                 }
             """
-            ),
-            CompositionLocalStub,
-            CompositionLocalConsumerModifierStub,
-            ModifierNodeStub
-        )
+                ),
+                CompositionLocalStub,
+                CompositionLocalConsumerModifierStub,
+                ModifierNodeStub
+            )
             .run()
             .expect(
                 """
@@ -289,9 +295,10 @@ src/test/NodeUnderTest.kt:16: Error: Reading staticLocalInt lazily will only acc
 
     @Test
     fun testCompositionLocalReadInArbitraryFunction() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -311,13 +318,12 @@ src/test/NodeUnderTest.kt:16: Error: Reading staticLocalInt lazily will only acc
                     }
                 }
             """
-            ),
-            CompositionLocalStub,
-            CompositionLocalConsumerModifierStub,
-            ModifierNodeStub
-        )
+                ),
+                CompositionLocalStub,
+                CompositionLocalConsumerModifierStub,
+                ModifierNodeStub
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

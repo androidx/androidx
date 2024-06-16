@@ -28,8 +28,8 @@ import org.junit.runners.model.Statement
 /**
  * Helper rule to run profiling tests.
  *
- * These tests are run along with `scripts/profile.sh` to build an async profile
- * output based on a test scenario.
+ * These tests are run along with `scripts/profile.sh` to build an async profile output based on a
+ * test scenario.
  *
  * If this rule is applied outside a profiling session, it will ignore the test.
  */
@@ -38,23 +38,14 @@ class ProfileRule : TestRule {
     /**
      * Runs the given block, repeatedly :).
      *
-     * It will first run it [warmUps] times with a fake tracer. Then it will run
-     * the block [repeat] times with a real profiling scope that will be captured by
-     * profile.sh.
+     * It will first run it [warmUps] times with a fake tracer. Then it will run the block [repeat]
+     * times with a real profiling scope that will be captured by profile.sh.
      */
-    fun runRepeated(
-        warmUps: Int,
-        repeat: Int,
-        block: (ProfileScope) -> Unit
-    ) {
+    fun runRepeated(warmUps: Int, repeat: Int, block: (ProfileScope) -> Unit) {
         val warmUpScope = WarmUpProfileScope()
-        repeat(warmUps) {
-            block(warmUpScope)
-        }
+        repeat(warmUps) { block(warmUpScope) }
         val realProfileScope = RealProfileScope()
-        repeat(repeat) {
-            block(realProfileScope)
-        }
+        repeat(repeat) { block(realProfileScope) }
         println(buildReport(realProfileScope.measurements).toString())
     }
 
@@ -63,18 +54,13 @@ class ProfileRule : TestRule {
         val min = measurements.minByOrNull { it.toLong(DurationUnit.NANOSECONDS) }!!
         val max = measurements.maxByOrNull { it.toLong(DurationUnit.NANOSECONDS) }!!
         val avg = measurements.fold(Duration.ZERO) { acc, next -> acc + next } / measurements.size
-        val mean = if (measurements.size % 2 == 0) {
-            (measurements[measurements.size / 2] + measurements[measurements.size / 2 - 1]) / 2
-        } else {
-            measurements[measurements.size / 2]
-        }
-        return Stats(
-            allMeasurements = measurements,
-            min = min,
-            max = max,
-            avg = avg,
-            mean = mean
-        )
+        val mean =
+            if (measurements.size % 2 == 0) {
+                (measurements[measurements.size / 2] + measurements[measurements.size / 2 - 1]) / 2
+            } else {
+                measurements[measurements.size / 2]
+            }
+        return Stats(allMeasurements = measurements, min = min, max = max, avg = avg, mean = mean)
     }
 
     override fun apply(base: Statement, description: Description): Statement {
@@ -96,8 +82,8 @@ class ProfileRule : TestRule {
         /**
          * Utility function for tests to mark certain areas of their code for tracking.
          *
-         * This method is explicitly not marked as inline to ensure it shows up in the
-         * profiling output.
+         * This method is explicitly not marked as inline to ensure it shows up in the profiling
+         * output.
          */
         fun trace(block: () -> Unit)
     }
@@ -106,6 +92,7 @@ class ProfileRule : TestRule {
         private val _measurements = mutableListOf<Duration>()
         val measurements: List<Duration>
             get() = _measurements
+
         @OptIn(ExperimentalTime::class)
         override fun trace(block: () -> Unit) {
             // this doesn't do anything but profile.sh trace profiler checks

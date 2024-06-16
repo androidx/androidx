@@ -29,26 +29,22 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ComposableFlowOperatorDetector].
- */
+/** Test for [ComposableFlowOperatorDetector]. */
 class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposableFlowOperatorDetector()
 
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ComposableFlowOperatorDetector.FlowOperatorInvokedInComposition)
 
-    /**
-     * Combined stub of some Flow APIs
-     */
-    private val flowStub: TestFile = bytecodeStub(
-        filename = "Flow.kt",
-        filepath = "kotlinx/coroutines/flow",
-        checksum = 0xab106046,
-        """
+    /** Combined stub of some Flow APIs */
+    private val flowStub: TestFile =
+        bytecodeStub(
+            filename = "Flow.kt",
+            filepath = "kotlinx/coroutines/flow",
+            checksum = 0xab106046,
+            """
         package kotlinx.coroutines.flow
 
         interface Flow<out T>
@@ -59,13 +55,13 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
 
         fun <T> Flow<T>.drop(count: Int): Flow<T> = this
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuOSScxLKcrPTKnQS87PLcgvTtUr
         Ks0rycxN1UvLzxdiC0ktLvEu4VLkEs/OL8nJzAMpK8ovLcnMSy3WS8vJLxdi
         cwOS3iVKDFoMAPfFl7BjAAAA
         """,
-        """
+            """
         kotlinx/coroutines/flow/Flow.class:
         H4sIAAAAAAAA/31QPUsDQRSct9Fccn5d/Iwgop1YeDFYqQg2gYOIYIJNqk2y
         CWsue5Ddiynvd1nI1f4o8V3SKbjFzJvZgXm7X98fnwBuUCecTBIXa7MIB8ks
@@ -75,7 +71,7 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
         khqnp+pVW92P1aMxiZNOJ8aWuQzrWJ0SDhgF8+GS93G0/FNCmTNeD6UIlQjV
         CD42eMRmhC1s90AWOwj43qJmsWux9wOUHf5akAEAAA==
         """,
-        """
+            """
         kotlinx/coroutines/flow/FlowKt＄map＄1.class:
         H4sIAAAAAAAA/7VSW28SQRT+ZqEFRuwFq7a2tmixtrS6bqOJkaZJU0tCStWU
         pi8kJgNs6cAya3ZnkUd+kj6Z+GB49kcZzy6QGDUbX3yYb87tO5eZ8/3H128A
@@ -92,7 +88,7 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
         XSpjUUNz1OR8HYkKFipYrCCHWyRiqYLbuFMH83EXy3UYfiiuYI9oc0TL03kQ
         uR/+BILNGH6EBAAA
         """,
-        """
+            """
         kotlinx/coroutines/flow/FlowKt.class:
         H4sIAAAAAAAA/41T32/bVBT+rpM6jpu2jteVJhulbIalLZ3TbvxasoxRqapF
         KaiNCqgScJu6nVvHRr5O2GOf+EP4C3gDMQlFe+SV/wdxruOEbC0JDz6/7nfO
@@ -116,13 +112,14 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
         Ne8eIePgnoOKgxWsOljDew7Wcf8ITMBG9QhzAssCS3StApbApsCUwAOBosBD
         gfcFPhD4UOCj5Ej9ByMF+2JjBwAA
         """
-    )
+        )
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -189,10 +186,10 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            flowStub
-        )
+                ),
+                Stubs.Composable,
+                flowStub
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -267,9 +264,10 @@ src/androidx/compose/runtime/foo/test.kt:64: Error: Flow operator functions shou
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -333,12 +331,11 @@ src/androidx/compose/runtime/foo/test.kt:64: Error: Flow operator functions shou
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            flowStub
-        )
+                ),
+                Stubs.Composable,
+                flowStub
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

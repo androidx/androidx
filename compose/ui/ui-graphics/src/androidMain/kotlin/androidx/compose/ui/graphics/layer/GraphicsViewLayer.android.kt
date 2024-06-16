@@ -29,6 +29,7 @@ import android.view.ViewOutlineProvider
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Color
@@ -47,7 +48,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPorterDuffMode
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
@@ -102,6 +102,10 @@ internal class ViewLayer(
         this.parentLayer = parentLayer
     }
 
+    fun resetDrawBlock() {
+        drawBlock = DefaultDrawBlock
+    }
+
     init {
         setWillNotDraw(false) // we WILL draw
         this.clipBounds = null
@@ -132,8 +136,7 @@ internal class ViewLayer(
         isInvalidated = false
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-    }
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {}
 
     override fun forceLayout() {
         // Don't do anything. These Views are treated as RenderNodes, so a forced layout
@@ -141,21 +144,19 @@ internal class ViewLayer(
     }
 
     companion object {
-        internal val LayerOutlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View?, outline: Outline) {
-                if (view is ViewLayer) {
-                    view.layerOutline?.let { layerOutline ->
-                        outline.set(layerOutline)
+        internal val LayerOutlineProvider =
+            object : ViewOutlineProvider() {
+                override fun getOutline(view: View?, outline: Outline) {
+                    if (view is ViewLayer) {
+                        view.layerOutline?.let { layerOutline -> outline.set(layerOutline) }
                     }
                 }
             }
-        }
     }
 }
 
 internal class GraphicsViewLayer(
     private val layerContainer: DrawChildContainer,
-    override val ownerId: Long,
     val canvasHolder: CanvasHolder = CanvasHolder(),
     canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
 ) : GraphicsLayerImpl {
@@ -165,17 +166,20 @@ internal class GraphicsViewLayer(
     private val clipRect = android.graphics.Rect()
     private var layerPaint: android.graphics.Paint? = null
 
-    private val picture: Picture? = if (mayRenderInSoftware) {
+    private val picture: Picture? =
+        if (mayRenderInSoftware) {
             Picture()
         } else {
             null
         }
-    private val pictureDrawScope: CanvasDrawScope? = if (mayRenderInSoftware) {
+    private val pictureDrawScope: CanvasDrawScope? =
+        if (mayRenderInSoftware) {
             CanvasDrawScope()
         } else {
             null
         }
-    private val pictureCanvasHolder: CanvasHolder? = if (mayRenderInSoftware) {
+    private val pictureCanvasHolder: CanvasHolder? =
+        if (mayRenderInSoftware) {
             CanvasHolder()
         } else {
             null
@@ -186,7 +190,8 @@ internal class GraphicsViewLayer(
         viewLayer.clipBounds = null
     }
 
-    private var topLeft = IntOffset.Zero
+    private var x: Int = 0
+    private var y: Int = 0
     private var size = IntSize.Zero
     private var clipBoundsInvalidated = false
     override var isInvalidated: Boolean = true
@@ -201,12 +206,14 @@ internal class GraphicsViewLayer(
             obtainLayerPaint().apply { xfermode = PorterDuffXfermode(value.toPorterDuffMode()) }
             updateLayerProperties()
         }
+
     override var colorFilter: ColorFilter? = null
         set(value) {
             field = value
             obtainLayerPaint().apply { this.colorFilter = value?.asAndroidColorFilter() }
             updateLayerProperties()
         }
+
     override var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
         set(value) {
             field = value
@@ -214,20 +221,21 @@ internal class GraphicsViewLayer(
         }
 
     private fun applyCompositingLayer(compositingStrategy: CompositingStrategy) {
-        viewLayer.canUseCompositingLayer = when (compositingStrategy) {
-            CompositingStrategy.Offscreen -> {
-                viewLayer.setLayerType(LAYER_TYPE_HARDWARE, layerPaint)
-                true
+        viewLayer.canUseCompositingLayer =
+            when (compositingStrategy) {
+                CompositingStrategy.Offscreen -> {
+                    viewLayer.setLayerType(LAYER_TYPE_HARDWARE, layerPaint)
+                    true
+                }
+                CompositingStrategy.ModulateAlpha -> {
+                    viewLayer.setLayerType(LAYER_TYPE_NONE, layerPaint)
+                    false
+                }
+                else -> {
+                    viewLayer.setLayerType(LAYER_TYPE_NONE, layerPaint)
+                    true
+                }
             }
-            CompositingStrategy.ModulateAlpha -> {
-                viewLayer.setLayerType(LAYER_TYPE_NONE, layerPaint)
-                false
-            }
-            else -> {
-                viewLayer.setLayerType(LAYER_TYPE_NONE, layerPaint)
-                true
-            }
-        }
     }
 
     private fun updateLayerProperties() {
@@ -242,8 +250,7 @@ internal class GraphicsViewLayer(
         layerPaint ?: android.graphics.Paint().also { layerPaint = it }
 
     private fun requiresCompositingLayer(): Boolean =
-        compositingStrategy == CompositingStrategy.Offscreen ||
-            requiresLayerPaint()
+        compositingStrategy == CompositingStrategy.Offscreen || requiresLayerPaint()
 
     private fun requiresLayerPaint(): Boolean =
         blendMode != BlendMode.SrcOver || colorFilter != null
@@ -254,17 +261,32 @@ internal class GraphicsViewLayer(
             viewLayer.setAlpha(value)
         }
 
+    private var shouldManuallySetCenterPivot = false
+
     override var pivotOffset: Offset = Offset.Zero
         set(value) {
             field = value
-            viewLayer.pivotX = value.x
-            viewLayer.pivotY = value.y
+            if (value.isUnspecified) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ViewLayerVerificationHelper28.resetPivot(viewLayer)
+                } else {
+                    shouldManuallySetCenterPivot = true
+                    viewLayer.pivotX = size.width / 2f
+                    viewLayer.pivotY = size.height / 2f
+                }
+            } else {
+                shouldManuallySetCenterPivot = false
+                viewLayer.pivotX = value.x
+                viewLayer.pivotY = value.y
+            }
         }
+
     override var scaleX: Float = 1f
         set(value) {
             field = value
             viewLayer.scaleX = value
         }
+
     override var scaleY: Float = 1f
         set(value) {
             field = value
@@ -276,6 +298,7 @@ internal class GraphicsViewLayer(
             field = value
             viewLayer.translationX = value
         }
+
     override var translationY: Float = 0f
         set(value) {
             field = value
@@ -287,38 +310,44 @@ internal class GraphicsViewLayer(
             field = value
             viewLayer.elevation = value
         }
+
     override var ambientShadowColor: Color = Color.Black
         set(value) {
-            field = value
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                field = value
                 ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
                     viewLayer,
                     value.toArgb()
                 )
             }
         }
+
     override var spotShadowColor: Color = Color.Black
         set(value) {
-            field = value
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                field = value
                 ViewLayerVerificationHelper28.setOutlineSpotShadowColor(viewLayer, value.toArgb())
             }
         }
+
     override var rotationX: Float = 0f
         set(value) {
             field = value
             viewLayer.rotationX = value
         }
+
     override var rotationY: Float = 0f
         set(value) {
             field = value
             viewLayer.rotationY = value
         }
+
     override var rotationZ: Float = 0f
         set(value) {
             field = value
             viewLayer.rotation = value
         }
+
     override var cameraDistance: Float
         get() {
             return viewLayer.getCameraDistance() / resources.displayMetrics.densityDpi
@@ -334,6 +363,7 @@ internal class GraphicsViewLayer(
             clipBoundsInvalidated = true
             viewLayer.clipToOutline = value && outlineIsProvided
         }
+
     override var renderEffect: RenderEffect? = null
         set(value) {
             field = value
@@ -342,23 +372,27 @@ internal class GraphicsViewLayer(
             }
         }
 
-    override fun setPosition(topLeft: IntOffset, size: IntSize) {
-        if (this.topLeft.x != topLeft.x) {
-            viewLayer.offsetLeftAndRight(topLeft.x - this.topLeft.x)
-        }
-
-        if (this.topLeft.y != topLeft.y) {
-            viewLayer.offsetTopAndBottom(topLeft.y - this.topLeft.y)
-        }
-
+    override fun setPosition(x: Int, y: Int, size: IntSize) {
         if (this.size != size) {
             if (clip) {
                 clipBoundsInvalidated = true
             }
-            viewLayer.layout(topLeft.x, topLeft.y, topLeft.x + size.width, topLeft.y + size.height)
+            viewLayer.layout(x, y, x + size.width, y + size.height)
+            this.size = size
+            if (shouldManuallySetCenterPivot) {
+                viewLayer.pivotX = size.width / 2f
+                viewLayer.pivotY = size.height / 2f
+            }
+        } else {
+            if (this.x != x) {
+                viewLayer.offsetLeftAndRight(x - this.x)
+            }
+            if (this.y != y) {
+                viewLayer.offsetTopAndBottom(y - this.y)
+            }
         }
-        this.topLeft = topLeft
-        this.size = size
+        this.x = x
+        this.y = y
     }
 
     override fun setOutline(outline: Outline?) {
@@ -400,19 +434,18 @@ internal class GraphicsViewLayer(
             recordDrawingOperations()
             picture?.let { p ->
                 val pictureCanvas = p.beginRecording(size.width, size.height)
-                pictureCanvasHolder?.drawInto(pictureCanvas) {
-                    pictureDrawScope?.draw(
-                        density,
-                        layoutDirection,
-                        this,
-                        size.toSize(),
-                        block
-                    )
+                try {
+                    pictureCanvasHolder?.drawInto(pictureCanvas) {
+                        pictureDrawScope?.draw(density, layoutDirection, this, size.toSize(), block)
+                    }
+                } finally {
+                    p.endRecording()
                 }
-                p.endRecording()
             }
         }
     }
+
+    override val supportsSoftwareRendering: Boolean = mayRenderInSoftware
 
     private fun recordDrawingOperations() {
         try {
@@ -439,39 +472,47 @@ internal class GraphicsViewLayer(
     override fun calculateMatrix(): Matrix = viewLayer.matrix
 
     private fun updateClipBounds() {
-       if (clipBoundsInvalidated) {
-           viewLayer.clipBounds = if (clip && !outlineIsProvided) {
-               clipRect.apply {
-                   left = 0
-                   top = 0
-                   right = viewLayer.width
-                   bottom = viewLayer.height
-               }
-           } else {
-               null
-           }
-       }
+        if (clipBoundsInvalidated) {
+            viewLayer.clipBounds =
+                if (clip && !outlineIsProvided) {
+                    clipRect.apply {
+                        left = 0
+                        top = 0
+                        right = viewLayer.width
+                        bottom = viewLayer.height
+                    }
+                } else {
+                    null
+                }
+        }
     }
 
     override fun discardDisplayList() {
         layerContainer.removeViewInLayout(viewLayer)
     }
 
+    override fun onReused() {
+        viewLayer.resetDrawBlock()
+        // it was removed in discardDisplayList()
+        layerContainer.addView(viewLayer)
+    }
+
     companion object {
 
         val mayRenderInSoftware = !isLockHardwareCanvasAvailable()
 
-        val PlaceholderCanvas = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // For Android M+ we just need a Canvas that returns true for isHardwareAccelerated
-            // in order to get the draw calls to update the displaylist of the backing View
-            object : Canvas() {
-                override fun isHardwareAccelerated(): Boolean = true
+        val PlaceholderCanvas =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // For Android M+ we just need a Canvas that returns true for isHardwareAccelerated
+                // in order to get the draw calls to update the displaylist of the backing View
+                object : Canvas() {
+                    override fun isHardwareAccelerated(): Boolean = true
+                }
+            } else {
+                // On Android L, there is an instanceof check that verify that the Canvas is a
+                // HardwareCanvas so return our subclass of the HardwareCanvas stub
+                PlaceholderHardwareCanvas()
             }
-        } else {
-            // On Android L, there is an instanceof check that verify that the Canvas is a
-            // HardwareCanvas so return our subclass of the HardwareCanvas stub
-            PlaceholderHardwareCanvas()
-        }
     }
 }
 
@@ -496,6 +537,11 @@ private object ViewLayerVerificationHelper28 {
     fun setOutlineSpotShadowColor(view: View, target: Int) {
         view.outlineSpotShadowColor = target
     }
+
+    @androidx.annotation.DoNotInline
+    fun resetPivot(view: View) {
+        view.resetPivot()
+    }
 }
 
 private object OutlineUtils {
@@ -503,8 +549,8 @@ private object OutlineUtils {
     private var hasRetrievedMethod = false
 
     /**
-     * Returns true if the outline was rebuilt successfully, false otherwise.
-     * This can only return false on API 21 if the reflective API call had failed
+     * Returns true if the outline was rebuilt successfully, false otherwise. This can only return
+     * false on API 21 if the reflective API call had failed
      */
     fun rebuildOutline(view: View): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {

@@ -63,8 +63,8 @@ import kotlin.math.min
  * Cards can be enabled or disabled. A disabled card will not respond to click events.
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * Wear OS Material design guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) Wear OS Material
+ * design guide.
  *
  * Note that the Wear OS design guidance recommends a gradient or image background for Cards which
  * is not the case for Mobile Cards. As a result you will see a backgroundPainter rather than a
@@ -73,23 +73,23 @@ import kotlin.math.min
  *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
- * @param backgroundPainter A painter used to paint the background of the card. A card will
- * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
- * appropriate painter
+ * @param backgroundPainter A painter used to paint the background of the card. A card will normally
+ *   have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an appropriate
+ *   painter
  * @param contentColor The default color to use for content() unless explicitly set.
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this card. You can use this to change the card's appearance
- * or preview the card in different states. Note that if `null` is provided, interactions will
- * still happen internally.
- * @param role The type of user interface element. Accessibility services might use this
- * to describe the element or do customizations
+ *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param role The type of user interface element. Accessibility services might use this to describe
+ *   the element or do customizations
  * @param content Slot for composable body content displayed on the Card
  */
 @Composable
@@ -136,48 +136,48 @@ public fun Card(
  * The first row of the layout has three slots, 1) a small optional application [Image] or [Icon] of
  * size [CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] dp, 2) an application name
  * (emphasised with the [CardColors.appColor()] color), it is expected to be a short start aligned
- * [Text] composable, and 3) the time that the application activity has occurred which will be
- * shown on the top row of the card, this is expected to be an end aligned [Text] composable
- * showing a time relevant to the contents of the [Card].
+ * [Text] composable, and 3) the time that the application activity has occurred which will be shown
+ * on the top row of the card, this is expected to be an end aligned [Text] composable showing a
+ * time relevant to the contents of the [Card].
  *
  * The second row shows a title, this is expected to be a single row of start aligned [Text].
  *
- * The rest of the [Card] contains the content which can be either [Text] or an [Image].
- * If the content is text it can be single or multiple line and is expected to be Top and Start
- * aligned.
+ * The rest of the [Card] contains the content which can be either [Text] or an [Image]. If the
+ * content is text it can be single or multiple line and is expected to be Top and Start aligned.
  *
  * If more than one composable is provided in the content slot it is the responsibility of the
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
  *
  * Example of an [AppCard] with icon, title, time and two lines of body text:
+ *
  * @sample androidx.wear.compose.material.samples.AppCardWithIcon
  *
  * Example of an [AppCard] with image content:
+ *
  * @sample androidx.wear.compose.material.samples.AppCardWithImage
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param appName A slot for displaying the application name, expected to be a single line of start
- * aligned text of [Typography.title3]
+ *   aligned text of [Typography.title3]
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
- * short piece of end aligned text.
+ *   short piece of end aligned text.
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
- * start aligned text of [Typography.button]
+ *   start aligned text of [Typography.button]
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
- * [Image] associated with the application.
- * @param backgroundPainter A painter used to paint the background of the card. A card will
- * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
- * appropriate painter
+ *   [Image] associated with the application.
+ * @param backgroundPainter A painter used to paint the background of the card. A card will normally
+ *   have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an appropriate
+ *   painter
  * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param appColor The default color to use for appName() and appImage() slots unless explicitly
- * set.
+ *   set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
  * @param content Slot for composable body content displayed on the Card
@@ -266,28 +266,29 @@ public fun AppCard(
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
  *
  * Example of a [TitleCard] with two lines of body text:
+ *
  * @sample androidx.wear.compose.material.samples.TitleCardStandard
  *
  * Example of a title card with a background image:
+ *
  * @sample androidx.wear.compose.material.samples.TitleCardWithImageBackground
  *
  * For more information, see the
- * [Cards](https://developer.android.com/training/wearables/components/cards)
- * guide.
+ * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text
- * of [Typography.button]
+ *   of [Typography.button]
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
+ * @param enabled Controls the enabled state of the card. When false, this card will not be
+ *   clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ *   elevation or alpha differences when not enabled - they are simply not clickable.
  * @param time An optional slot for displaying the time relevant to the contents of the card,
- * expected to be a short piece of end aligned text.
+ *   expected to be a short piece of end aligned text.
  * @param backgroundPainter A painter used to paint the background of the card. A title card can
- * have either a gradient background or an image background, use
- * [CardDefaults.cardBackgroundPainter()] or [CardDefaults.imageBackgroundPainter()] to obtain an
- * appropriate painter
+ *   have either a gradient background or an image background, use
+ *   [CardDefaults.cardBackgroundPainter()] or [CardDefaults.imageBackgroundPainter()] to obtain an
+ *   appropriate painter
  * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
@@ -350,40 +351,36 @@ public fun TitleCard(
     }
 }
 
-/**
- * Contains the default values used by [Card]
- */
+/** Contains the default values used by [Card] */
 public object CardDefaults {
     /**
      * Creates a [Painter] for background colors for a [Card]. Cards typically have a linear
-     * gradient for a background. The gradient will be between startBackgroundColor
-     * and endBackgroundColor and at an angle of 45 degrees.
+     * gradient for a background. The gradient will be between startBackgroundColor and
+     * endBackgroundColor and at an angle of 45 degrees.
      *
-     * Cards should have a content color that contrasts with the background
-     * gradient.
+     * Cards should have a content color that contrasts with the background gradient.
      *
      * @param startBackgroundColor The background color used at the start of the gradient of this
-     * [Card]
+     *   [Card]
      * @param endBackgroundColor The background color used at the end of the gradient of this [Card]
      * @param gradientDirection Whether the cards gradient should be start to end (indicated by
-     * [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
+     *   [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
      */
     @Composable
     public fun cardBackgroundPainter(
         startBackgroundColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = 0.30f)
+            MaterialTheme.colors.primary
+                .copy(alpha = 0.30f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
+            MaterialTheme.colors.onSurfaceVariant
+                .copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {
         return BrushPainter(
             FortyFiveDegreeLinearGradient(
-                colors = listOf(
-                    startBackgroundColor,
-                    endBackgroundColor
-                ),
+                colors = listOf(startBackgroundColor, endBackgroundColor),
                 ltr = gradientDirection == LayoutDirection.Ltr
             )
         )
@@ -400,17 +397,19 @@ public object CardDefaults {
      *
      * @param backgroundImagePainter The [Painter] to use to draw the background of the [Card]
      * @param backgroundImageScrimBrush The [Brush] to use to paint a scrim over the background
-     * image to ensure that any text drawn over the image is legible
+     *   image to ensure that any text drawn over the image is legible
      */
     @Composable
     public fun imageWithScrimBackgroundPainter(
         backgroundImagePainter: Painter,
-        backgroundImageScrimBrush: Brush = Brush.linearGradient(
-            colors = listOf(
-                MaterialTheme.colors.surface.copy(alpha = 1.0f),
-                MaterialTheme.colors.surface.copy(alpha = 0f)
+        backgroundImageScrimBrush: Brush =
+            Brush.linearGradient(
+                colors =
+                    listOf(
+                        MaterialTheme.colors.surface.copy(alpha = 1.0f),
+                        MaterialTheme.colors.surface.copy(alpha = 0f)
+                    )
             )
-        )
     ): Painter {
         return ImageWithScrimPainter(
             imagePainter = backgroundImagePainter,
@@ -421,27 +420,23 @@ public object CardDefaults {
     private val CardHorizontalPadding = 12.dp
     private val CardVerticalPadding = 12.dp
 
-    /**
-     * The default content padding used by [Card]
-     */
-    public val ContentPadding: PaddingValues = PaddingValues(
-        start = CardHorizontalPadding,
-        top = CardVerticalPadding,
-        end = CardHorizontalPadding,
-        bottom = CardVerticalPadding
-    )
+    /** The default content padding used by [Card] */
+    public val ContentPadding: PaddingValues =
+        PaddingValues(
+            start = CardHorizontalPadding,
+            top = CardVerticalPadding,
+            end = CardHorizontalPadding,
+            bottom = CardVerticalPadding
+        )
 
-    /**
-     * The default size of the app icon/image when used inside a [AppCard].
-     */
+    /** The default size of the app icon/image when used inside a [AppCard]. */
     public val AppImageSize: Dp = 16.dp
 }
 
-/**
- * A linear gradient that draws the gradient at 45 degrees from Top|Start.
- */
+/** A linear gradient that draws the gradient at 45 degrees from Top|Start. */
 @Immutable
-internal class FortyFiveDegreeLinearGradient internal constructor(
+internal class FortyFiveDegreeLinearGradient
+internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
     private val tileMode: TileMode = TileMode.Clamp,

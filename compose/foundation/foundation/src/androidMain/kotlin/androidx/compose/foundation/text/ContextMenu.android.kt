@@ -61,10 +61,7 @@ internal actual fun ContextMenuArea(
 }
 
 @Composable
-internal actual fun ContextMenuArea(
-    manager: SelectionManager,
-    content: @Composable () -> Unit
-) {
+internal actual fun ContextMenuArea(manager: SelectionManager, content: @Composable () -> Unit) {
     val state = remember { ContextMenuState() }
     androidx.compose.foundation.contextmenu.ContextMenuArea(
         state = state,
@@ -85,9 +82,7 @@ internal enum class TextContextMenuItems(private val stringId: Int) {
     Paste(android.R.string.paste),
     SelectAll(android.R.string.selectAll);
 
-    @ReadOnlyComposable
-    @Composable
-    fun resolvedString(): String = stringResource(stringId)
+    @ReadOnlyComposable @Composable fun resolvedString(): String = stringResource(stringId)
 }
 
 internal inline fun ContextMenuScope.TextItem(

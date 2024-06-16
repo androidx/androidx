@@ -52,8 +52,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                 InstrumentationRegistry.getInstrumentation().context.cacheDir
             }
             else -> InstrumentationRegistry.getInstrumentation().context.externalCacheDir
-        }
-            ?: throw IllegalStateException("Unable to select a directory for writing files.")
+        } ?: throw IllegalStateException("Unable to select a directory for writing files.")
     }
 
     public fun uninstall() = executeCommand("pm uninstall $packageName")

@@ -35,27 +35,30 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTestApi::class)
 class CancelTest {
     @Test
-    fun cancel() = runMouseInputInjectionTest(
-        mouseInput = {
-            // press the primary button
-            press(MouseButton.Primary)
-            // cancel the gesture
-            cancel()
-        },
-        eventVerifiers = arrayOf(
-            { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
-            { this.verifyMouseEvent(0, Press, true, Offset.Zero, PrimaryButton) },
+    fun cancel() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // press the primary button
+                press(MouseButton.Primary)
+                // cancel the gesture
+                cancel()
+            },
+            eventVerifiers =
+                arrayOf(
+                    { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(0, Press, true, Offset.Zero, PrimaryButton) },
+                )
         )
-    )
 
     @Test
-    fun cancel_withoutPress() = runMouseInputInjectionTest(
-        mouseInput = {
-            expectError<IllegalStateException>(
-                expectedMessage = "Cannot send mouse cancel event, no mouse buttons are pressed"
-            ) {
-                cancel()
+    fun cancel_withoutPress() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                expectError<IllegalStateException>(
+                    expectedMessage = "Cannot send mouse cancel event, no mouse buttons are pressed"
+                ) {
+                    cancel()
+                }
             }
-        }
-    )
+        )
 }

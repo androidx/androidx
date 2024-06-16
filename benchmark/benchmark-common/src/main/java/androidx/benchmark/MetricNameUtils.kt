@@ -20,18 +20,19 @@ import android.annotation.SuppressLint
 import java.util.Locale
 
 @SuppressLint("DefaultLocale")
-internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z0-9])")) {
-    it.groups[1]!!.value + "_" + it.groups[2]!!.value.lowercase()
-}
+internal fun String.toSnakeCase(): String =
+    replace(Regex("([a-z])([A-Z0-9])")) {
+        it.groups[1]!!.value + "_" + it.groups[2]!!.value.lowercase()
+    }
 
 /**
- * Converts a metric name from the camelCase JSON output format to the snake_case version
- * used by AndroidX CI, and reducing abbreviations for clarity.
+ * Converts a metric name from the camelCase JSON output format to the snake_case version used by
+ * AndroidX CI, and reducing abbreviations for clarity.
  *
  * This functionality is a stopgap as we migrate to actually using JSON in CI.
  */
-internal fun String.toOutputMetricName() = this
-    .replaceFirstChar { it.lowercase(Locale.getDefault()) }
-    .toSnakeCase()
-    .replace(Regex("_ns$"), "_nanos")
-    .replace(Regex("_ms$"), "_millis")
+internal fun String.toOutputMetricName() =
+    this.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+        .toSnakeCase()
+        .replace(Regex("_ns$"), "_nanos")
+        .replace(Regex("_ms$"), "_millis")

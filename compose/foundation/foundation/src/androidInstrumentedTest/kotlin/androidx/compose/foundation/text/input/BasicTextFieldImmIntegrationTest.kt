@@ -45,7 +45,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -59,11 +58,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextFieldImmIntegrationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val immRule = ComposeInputMethodManagerTestRule()
+    @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
@@ -99,9 +96,7 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
-        rule.runOnIdle {
-            focusManager.clearFocus()
-        }
+        rule.runOnIdle { focusManager.clearFocus() }
         inputMethodInterceptor.assertNoSessionActive()
     }
 
@@ -110,16 +105,18 @@ internal class BasicTextFieldImmIntegrationTest {
         val state = TextFieldState()
         var windowFocus by mutableStateOf(true)
         inputMethodInterceptor.setContent {
-            CompositionLocalProvider(LocalWindowInfo provides object : WindowInfo {
-                override val isWindowFocused: Boolean get() = windowFocus
-            }) {
+            CompositionLocalProvider(
+                LocalWindowInfo provides
+                    object : WindowInfo {
+                        override val isWindowFocused: Boolean
+                            get() = windowFocus
+                    }
+            ) {
                 BasicTextField(state, Modifier.testTag(Tag))
             }
         }
         requestFocus(Tag)
-        rule.runOnIdle {
-            windowFocus = false
-        }
+        rule.runOnIdle { windowFocus = false }
         inputMethodInterceptor.assertSessionActive()
     }
 
@@ -183,9 +180,7 @@ internal class BasicTextFieldImmIntegrationTest {
             }
         }
         requestFocus(Tag)
-        rule.runOnIdle {
-            compose = false
-        }
+        rule.runOnIdle { compose = false }
 
         inputMethodInterceptor.assertNoSessionActive()
     }
@@ -210,7 +205,39 @@ internal class BasicTextFieldImmIntegrationTest {
     }
 
     @Test
-    fun immUpdated_whenFilterChangesText_fromInputConnection() {
+    fun immUpdated_whenFilterChangesText_withComposition_fromInputConnection() {
+        val state = TextFieldState()
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = {
+                    // Force the selection not to change.
+                    val initialSelection = selection
+                    append("world")
+                    selection = initialSelection
+                }
+            )
+        }
+        requestFocus(Tag)
+        inputMethodInterceptor.withInputConnection {
+            // TODO move this before withInputConnection?
+            imm.resetCalls()
+
+            setComposingText("hello", 1)
+
+            @Suppress("SpellCheckingInspection")
+            assertThat(state.text.toString()).isEqualTo("helloworld")
+        }
+
+        rule.runOnIdle {
+            imm.expectCall("restartInput")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    @Test
+    fun immNotUpdated_whenFilterChangesText_withoutComposition_fromInputConnection() {
         val state = TextFieldState()
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
@@ -235,14 +262,11 @@ internal class BasicTextFieldImmIntegrationTest {
             assertThat(state.text.toString()).isEqualTo("helloworld")
         }
 
-        rule.runOnIdle {
-            imm.expectCall("restartInput")
-            imm.expectNoMoreCalls()
-        }
+        rule.runOnIdle { imm.expectNoMoreCalls() }
     }
 
     @Test
-    fun immUpdated_whenFilterChangesText_fromKeyEvent() {
+    fun immNotUpdated_whenFilterChangesText_withoutComposition_fromKeyEvent() {
         val state = TextFieldState()
         inputMethodInterceptor.setContent {
             BasicTextField(
@@ -260,13 +284,9 @@ internal class BasicTextFieldImmIntegrationTest {
 
         rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
 
-        rule.runOnIdle {
-            imm.expectCall("restartInput")
-            imm.expectNoMoreCalls()
-        }
+        rule.runOnIdle { imm.expectNoMoreCalls() }
     }
 
-    @FlakyTest(bugId = 290927588)
     @Test
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
         val state = TextFieldState()
@@ -284,17 +304,16 @@ internal class BasicTextFieldImmIntegrationTest {
         }
 
         rule.runOnIdle {
-            imm.expectCall("updateSelection(0, 5, 0, 5)")
+            // nullify composition since selection has been changed programmatically
+            imm.expectCall("updateSelection(0, 5, -1, -1)")
             imm.expectNoMoreCalls()
         }
     }
 
     @Test
-    fun immUpdated_whenEditChangesText() {
+    fun immNotUpdated_whenEditOnlyChangesText() {
         val state = TextFieldState()
-        inputMethodInterceptor.setContent {
-            BasicTextField(state, Modifier.testTag(Tag))
-        }
+        inputMethodInterceptor.setContent { BasicTextField(state, Modifier.testTag(Tag)) }
         requestFocus(Tag)
         rule.runOnIdle {
             imm.resetCalls()
@@ -305,25 +324,18 @@ internal class BasicTextFieldImmIntegrationTest {
             }
         }
 
-        rule.runOnIdle {
-            imm.expectCall("restartInput")
-            imm.expectNoMoreCalls()
-        }
+        rule.runOnIdle { imm.expectNoMoreCalls() }
     }
 
     @Test
     fun immUpdated_whenEditChangesSelection() {
         val state = TextFieldState("hello", initialSelection = TextRange(0))
-        inputMethodInterceptor.setContent {
-            BasicTextField(state, Modifier.testTag(Tag))
-        }
+        inputMethodInterceptor.setContent { BasicTextField(state, Modifier.testTag(Tag)) }
         requestFocus(Tag)
         rule.runOnIdle {
             imm.resetCalls()
 
-            state.edit {
-                placeCursorAtEnd()
-            }
+            state.edit { placeCursorAtEnd() }
         }
 
         rule.runOnIdle {
@@ -335,9 +347,7 @@ internal class BasicTextFieldImmIntegrationTest {
     @Test
     fun immUpdated_whenEditChangesTextAndSelection() {
         val state = TextFieldState()
-        inputMethodInterceptor.setContent {
-            BasicTextField(state, Modifier.testTag(Tag))
-        }
+        inputMethodInterceptor.setContent { BasicTextField(state, Modifier.testTag(Tag)) }
         requestFocus(Tag)
         rule.runOnIdle {
             imm.resetCalls()
@@ -350,7 +360,6 @@ internal class BasicTextFieldImmIntegrationTest {
 
         rule.runOnIdle {
             imm.expectCall("updateSelection(5, 5, -1, -1)")
-            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }
@@ -361,9 +370,7 @@ internal class BasicTextFieldImmIntegrationTest {
         // Following edits are simulated as if they are coming from IME through InputConnection.
         // We expect calls to `updateSelection` but never `restartInput`
         val state = TextFieldState("Hello")
-        inputMethodInterceptor.setContent {
-            BasicTextField(state, Modifier.testTag(Tag))
-        }
+        inputMethodInterceptor.setContent { BasicTextField(state, Modifier.testTag(Tag)) }
         requestFocus(Tag)
         inputMethodInterceptor.withInputConnection {
             beginBatchEdit()
@@ -420,14 +427,15 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = object : InputTransformation {
-                    override val keyboardOptions: KeyboardOptions =
-                        KeyboardOptions(keyboardType = KeyboardType.Password)
+                inputTransformation =
+                    object : InputTransformation {
+                        override val keyboardOptions: KeyboardOptions =
+                            KeyboardOptions(keyboardType = KeyboardType.Password)
 
-                    override fun TextFieldBuffer.transformInput() {
-                        append('A')
+                        override fun TextFieldBuffer.transformInput() {
+                            append('A')
+                        }
                     }
-                }
             )
         }
         requestFocus(Tag)
@@ -463,25 +471,20 @@ internal class BasicTextFieldImmIntegrationTest {
         }
     }
 
-    private fun requestFocus(tag: String) =
-        rule.onNodeWithTag(tag).requestFocus()
+    private fun requestFocus(tag: String) = rule.onNodeWithTag(tag).requestFocus()
 }
 
 // sets the WindowInfo with isWindowFocused is true
-internal fun InputMethodInterceptor.setTextFieldTestContent(
-    content: @Composable () -> Unit
-) {
-    val windowInfo = object : WindowInfo {
-        override val isWindowFocused = true
-    }
+internal fun InputMethodInterceptor.setTextFieldTestContent(content: @Composable () -> Unit) {
+    val windowInfo =
+        object : WindowInfo {
+            override val isWindowFocused = true
+        }
     this.setContent {
         CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
             Row {
                 // Extra focusable that takes initial focus when focus is cleared.
-                Box(
-                    Modifier
-                        .size(10.dp)
-                        .focusable())
+                Box(Modifier.size(10.dp).focusable())
                 Box { content() }
             }
         }

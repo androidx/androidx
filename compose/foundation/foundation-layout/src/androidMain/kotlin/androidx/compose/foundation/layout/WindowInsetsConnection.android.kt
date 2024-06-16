@@ -60,8 +60,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Controls the soft keyboard as a nested scrolling on Android [R][Build.VERSION_CODES.R]
- * and later. This allows the user to drag the soft keyboard up and down.
+ * Controls the soft keyboard as a nested scrolling on Android [R][Build.VERSION_CODES.R] and later.
+ * This allows the user to drag the soft keyboard up and down.
  *
  * After scrolling, the IME will animate either to the fully shown or fully hidden position,
  * depending on the position and fling.
@@ -73,15 +73,12 @@ fun Modifier.imeNestedScroll(): Modifier {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         return this
     }
-    return composed(
-        debugInspectorInfo {
-            name = "imeNestedScroll"
-        }
-    ) {
-        val nestedScrollConnection = rememberWindowInsetsConnection(
-            WindowInsetsHolder.current().ime,
-            WindowInsetsSides.Bottom
-        )
+    return composed(debugInspectorInfo { name = "imeNestedScroll" }) {
+        val nestedScrollConnection =
+            rememberWindowInsetsConnection(
+                WindowInsetsHolder.current().ime,
+                WindowInsetsSides.Bottom
+            )
         nestedScroll(nestedScrollConnection)
     }
 }
@@ -92,14 +89,14 @@ fun Modifier.imeNestedScroll(): Modifier {
  *
  * The [NestedScrollConnection] can be used when a developer wants to control a [WindowInsets],
  * either directly animating it or allowing the user to manually manipulate it. User interactions
- * will result in the [WindowInsets] animating either hidden or shown, depending on its
- * current position and the fling velocity received in [NestedScrollConnection.onPreFling] and
+ * will result in the [WindowInsets] animating either hidden or shown, depending on its current
+ * position and the fling velocity received in [NestedScrollConnection.onPreFling] and
  * [NestedScrollConnection.onPostFling].
  *
  * @param windowInsets The insets to be changed by the scroll effect
  * @param side The side of the [windowInsets] that is to be affected. Can only be one of
- * [WindowInsetsSides.Left], [WindowInsetsSides.Top], [WindowInsetsSides.Right],
- * [WindowInsetsSides.Bottom], [WindowInsetsSides.Start], [WindowInsetsSides.End].
+ *   [WindowInsetsSides.Left], [WindowInsetsSides.Top], [WindowInsetsSides.Right],
+ *   [WindowInsetsSides.Bottom], [WindowInsetsSides.Start], [WindowInsetsSides.End].
  */
 @ExperimentalLayoutApi
 @Composable
@@ -114,30 +111,24 @@ internal fun rememberWindowInsetsConnection(
     val sideCalculator = SideCalculator.chooseCalculator(side, layoutDirection)
     val view = LocalView.current
     val density = LocalDensity.current
-    val connection = remember(windowInsets, view, sideCalculator, density) {
-        WindowInsetsNestedScrollConnection(windowInsets, view, sideCalculator, density)
-    }
-    DisposableEffect(connection) {
-        onDispose {
-            connection.dispose()
+    val connection =
+        remember(windowInsets, view, sideCalculator, density) {
+            WindowInsetsNestedScrollConnection(windowInsets, view, sideCalculator, density)
         }
-    }
+    DisposableEffect(connection) { onDispose { connection.dispose() } }
     return connection
 }
 
-/**
- * A [NestedScrollConnection] that does nothing, for versions before R.
- */
+/** A [NestedScrollConnection] that does nothing, for versions before R. */
 private object DoNothingNestedScrollConnection : NestedScrollConnection
 
 /**
- * Used in place of the standard Job cancellation pathway to avoid reflective
- * javaClass.simpleName lookups to build the exception message and stack trace collection.
- * Remove if these are changed in kotlinx.coroutines.
+ * Used in place of the standard Job cancellation pathway to avoid reflective javaClass.simpleName
+ * lookups to build the exception message and stack trace collection. Remove if these are changed in
+ * kotlinx.coroutines.
  */
-private class WindowInsetsAnimationCancelledException : CancellationException(
-    "Window insets animation cancelled"
-) {
+private class WindowInsetsAnimationCancelledException :
+    CancellationException("Window insets animation cancelled") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
         stackTrace = emptyArray()
@@ -152,44 +143,43 @@ private class WindowInsetsNestedScrollConnection(
     val view: View,
     val sideCalculator: SideCalculator,
     val density: Density
-) : NestedScrollConnection,
-    WindowInsetsAnimationControlListener {
+) : NestedScrollConnection, WindowInsetsAnimationControlListener {
 
     /**
-     * The [WindowInsetsAnimationController] is only available once the insets are starting
-     * to be manipulated. This is used to set the current insets position.
+     * The [WindowInsetsAnimationController] is only available once the insets are starting to be
+     * manipulated. This is used to set the current insets position.
      */
     private var animationController: WindowInsetsAnimationController? = null
 
     /**
-     * `true` when we've requested a [WindowInsetsAnimationController] so that we don't
-     * ask for one when we've already asked for one. This should be `false` until we've
-     * made a request or when we've cleared [animationController] after it is finished.
+     * `true` when we've requested a [WindowInsetsAnimationController] so that we don't ask for one
+     * when we've already asked for one. This should be `false` until we've made a request or when
+     * we've cleared [animationController] after it is finished.
      */
     private var isControllerRequested = false
 
     /**
-     * We never need to cancel the animation because we always control it directly instead
-     * of using the [WindowInsetsAnimationController] to animate its value.
+     * We never need to cancel the animation because we always control it directly instead of using
+     * the [WindowInsetsAnimationController] to animate its value.
      */
     private val cancellationSignal = CancellationSignal()
 
     /**
      * Because touch motion has finer granularity than integers, we capture the fractions of
-     * integers here so that we can keep the finger more in line with the touch. Without this,
-     * we'd accumulate error.
+     * integers here so that we can keep the finger more in line with the touch. Without this, we'd
+     * accumulate error.
      */
     private var partialConsumption = 0f
 
     /**
-     * The [Job] that is launched to animate the insets during a fling. This can be canceled
-     * when the user touches the screen.
+     * The [Job] that is launched to animate the insets during a fling. This can be canceled when
+     * the user touches the screen.
      */
     private var animationJob: Job? = null
 
     /**
-     * Request an animation controller because it is `null`. If one has already been requested,
-     * this method does nothing.
+     * Request an animation controller because it is `null`. If one has already been requested, this
+     * method does nothing.
      */
     private fun requestAnimationController() {
         if (!isControllerRequested) {
@@ -206,33 +196,26 @@ private class WindowInsetsNestedScrollConnection(
 
     private var continuation: CancellableContinuation<WindowInsetsAnimationController?>? = null
 
-    /**
-     * Allows us to suspend, waiting for the animation controller to be returned.
-     */
+    /** Allows us to suspend, waiting for the animation controller to be returned. */
     private suspend fun getAnimationController(): WindowInsetsAnimationController? =
-        animationController ?: suspendCancellableCoroutine { continuation ->
-            this.continuation = continuation
-            requestAnimationController()
-        }
+        animationController
+            ?: suspendCancellableCoroutine { continuation ->
+                this.continuation = continuation
+                requestAnimationController()
+            }
 
-    /**
-     * Handle the dragging that hides the WindowInsets.
-     */
+    /** Handle the dragging that hides the WindowInsets. */
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
         scroll(available, sideCalculator.hideMotion(available.x, available.y))
 
-    /**
-     * Handle the dragging that exposes the WindowInsets.
-     */
+    /** Handle the dragging that exposes the WindowInsets. */
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource
     ): Offset = scroll(available, sideCalculator.showMotion(available.x, available.y))
 
-    /**
-     * Scrolls [scrollAmount] and returns the consumed amount of [available].
-     */
+    /** Scrolls [scrollAmount] and returns the consumed amount of [available]. */
     private fun scroll(available: Offset, scrollAmount: Float): Offset {
         animationJob?.let {
             it.cancel(WindowInsetsAnimationCancelledException())
@@ -241,8 +224,9 @@ private class WindowInsetsNestedScrollConnection(
 
         val animationController = animationController
 
-        if (scrollAmount == 0f ||
-            (windowInsets.isVisible == (scrollAmount > 0f) && animationController == null)
+        if (
+            scrollAmount == 0f ||
+                (windowInsets.isVisible == (scrollAmount > 0f) && animationController == null)
         ) {
             // No motion in the right direction or this is already fully shown/hidden.
             return Offset.Zero
@@ -282,23 +266,19 @@ private class WindowInsetsNestedScrollConnection(
         return sideCalculator.consumedOffsets(available)
     }
 
-    /**
-     * Handle flinging toward hiding the insets.
-     */
+    /** Handle flinging toward hiding the insets. */
     override suspend fun onPreFling(available: Velocity): Velocity =
         fling(available, sideCalculator.hideMotion(available.x, available.y), false)
 
-    /**
-     * Handle flinging toward showing the insets.
-     */
+    /** Handle flinging toward showing the insets. */
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity =
         fling(available, sideCalculator.showMotion(available.x, available.y), true)
 
     /**
      * Handle flinging by [flingAmount] and return the consumed velocity of [available].
-     * [towardShown] should be `true` when the intended motion is to show the insets or `false`
-     * if to hide them. We always handle flinging toward the insets if the [flingAmount] is
-     * `0` so that the insets animate to a fully-shown or fully-hidden state.
+     * [towardShown] should be `true` when the intended motion is to show the insets or `false` if
+     * to hide them. We always handle flinging toward the insets if the [flingAmount] is `0` so that
+     * the insets animate to a fully-shown or fully-hidden state.
      */
     private suspend fun fling(
         available: Velocity,
@@ -309,8 +289,9 @@ private class WindowInsetsNestedScrollConnection(
         animationJob = null
         partialConsumption = 0f
 
-        if ((flingAmount == 0f && !towardShown) ||
-            (animationController == null && windowInsets.isVisible == towardShown)
+        if (
+            (flingAmount == 0f && !towardShown) ||
+                (animationController == null && windowInsets.isVisible == towardShown)
         ) {
             // Either there's no motion to hide or we're certain that
             // the inset is already correct.
@@ -382,9 +363,7 @@ private class WindowInsetsNestedScrollConnection(
         }
     }
 
-    /**
-     * Change the inset's side to [inset].
-     */
+    /** Change the inset's side to [inset]. */
     private fun adjustInsets(inset: Float) {
         animationController?.let {
             val currentInsets = it.currentInsets
@@ -397,18 +376,16 @@ private class WindowInsetsNestedScrollConnection(
         }
     }
 
-    /**
-     * Called after [requestAnimationController] and the [animationController] is ready.
-     */
+    /** Called after [requestAnimationController] and the [animationController] is ready. */
     override fun onReady(controller: WindowInsetsAnimationController, types: Int) {
         animationController = controller
         isControllerRequested = false
-        continuation?.resume(controller) { }
+        continuation?.resume(controller) {}
         continuation = null
     }
 
     fun dispose() {
-        continuation?.resume(null) { }
+        continuation?.resume(null) {}
         animationJob?.cancel()
         val animationController = animationController
         if (animationController != null) {
@@ -427,9 +404,7 @@ private class WindowInsetsNestedScrollConnection(
         animationEnded()
     }
 
-    /**
-     * The controlled animation has been terminated.
-     */
+    /** The controlled animation has been terminated. */
     private fun animationEnded() {
         if (animationController?.isReady == true) {
             animationController?.finish(windowInsets.isVisible)
@@ -438,7 +413,7 @@ private class WindowInsetsNestedScrollConnection(
 
         // The animation controller may not have been given to us, so we have to cancel animations
         // waiting for it.
-        continuation?.resume(null) { }
+        continuation?.resume(null) {}
         continuation = null
 
         // Cancel any animation that's running.
@@ -451,34 +426,31 @@ private class WindowInsetsNestedScrollConnection(
 }
 
 /**
- * This interface allows logic for the specific side (left, top, right, bottom) to be
- * extracted from the logic controlling showing and hiding insets. For example, an inset
- * at the top will show when dragging down, while an inset at the bottom will hide
- * when dragging down.
+ * This interface allows logic for the specific side (left, top, right, bottom) to be extracted from
+ * the logic controlling showing and hiding insets. For example, an inset at the top will show when
+ * dragging down, while an inset at the bottom will hide when dragging down.
  */
 @RequiresApi(Build.VERSION_CODES.R)
 private interface SideCalculator {
-    /**
-     * Returns the insets value for the side that this [SideCalculator] is associated with.
-     */
+    /** Returns the insets value for the side that this [SideCalculator] is associated with. */
     fun valueOf(insets: Insets): Int
 
     /**
      * Returns the motion, adjusted for side direction, that the [x], and [y] grant. A positive
-     * result indicates that it is in the direction of opening the insets on that side and
-     * a negative result indicates a closing of the insets on that side.
+     * result indicates that it is in the direction of opening the insets on that side and a
+     * negative result indicates a closing of the insets on that side.
      */
     fun motionOf(x: Float, y: Float): Float
 
     /**
-     * The motion of [x], [y] that indicates showing more of the insets on the side or `0` if
-     * no motion is given to showing more insets.
+     * The motion of [x], [y] that indicates showing more of the insets on the side or `0` if no
+     * motion is given to showing more insets.
      */
     fun showMotion(x: Float, y: Float): Float = motionOf(x, y).coerceAtLeast(0f)
 
     /**
-     * The motion of [x], [y] that indicates showing less of the insets on the side or `0` if
-     * no motion is given to showing less insets.
+     * The motion of [x], [y] that indicates showing less of the insets on the side or `0` if no
+     * motion is given to showing less insets.
      */
     fun hideMotion(x: Float, y: Float): Float = motionOf(x, y).coerceAtMost(0f)
 
@@ -487,20 +459,16 @@ private interface SideCalculator {
      */
     fun adjustInsets(oldInsets: Insets, newValue: Int): Insets
 
-    /**
-     * Returns the [Offset] that consumes [available] in the direction of this side.
-     */
+    /** Returns the [Offset] that consumes [available] in the direction of this side. */
     fun consumedOffsets(available: Offset): Offset
 
-    /**
-     * Returns the [Velocity] that consumes [available] in the direction of this side.
-     */
+    /** Returns the [Velocity] that consumes [available] in the direction of this side. */
     fun consumedVelocity(available: Velocity, remaining: Float): Velocity
 
     companion object {
         /**
-         * Returns a [SideCalculator] for [side] and the given [layoutDirection]. This only
-         * works for one side and no combination of sides.
+         * Returns a [SideCalculator] for [side] and the given [layoutDirection]. This only works
+         * for one side and no combination of sides.
          */
         fun chooseCalculator(side: WindowInsetsSides, layoutDirection: LayoutDirection) =
             when (side) {
@@ -508,58 +476,80 @@ private interface SideCalculator {
                 WindowInsetsSides.Top -> TopSideCalculator
                 WindowInsetsSides.Right -> RightSideCalculator
                 WindowInsetsSides.Bottom -> BottomSideCalculator
-                WindowInsetsSides.Start -> if (layoutDirection == LayoutDirection.Ltr) {
-                    LeftSideCalculator
-                } else {
-                    RightSideCalculator
-                }
-                WindowInsetsSides.End -> if (layoutDirection == LayoutDirection.Ltr) {
-                    RightSideCalculator
-                } else {
-                    LeftSideCalculator
-                }
+                WindowInsetsSides.Start ->
+                    if (layoutDirection == LayoutDirection.Ltr) {
+                        LeftSideCalculator
+                    } else {
+                        RightSideCalculator
+                    }
+                WindowInsetsSides.End ->
+                    if (layoutDirection == LayoutDirection.Ltr) {
+                        RightSideCalculator
+                    } else {
+                        LeftSideCalculator
+                    }
                 else -> error("Only Left, Top, Right, Bottom, Start and End are allowed")
             }
 
-        private val LeftSideCalculator = object : SideCalculator {
-            override fun valueOf(insets: Insets): Int = insets.left
-            override fun motionOf(x: Float, y: Float): Float = x
-            override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
-                Insets.of(newValue, oldInsets.top, oldInsets.right, oldInsets.bottom)
-            override fun consumedOffsets(available: Offset): Offset = Offset(available.x, 0f)
-            override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
-                Velocity(available.x - remaining, 0f)
-        }
+        private val LeftSideCalculator =
+            object : SideCalculator {
+                override fun valueOf(insets: Insets): Int = insets.left
 
-        private val TopSideCalculator = object : SideCalculator {
-            override fun valueOf(insets: Insets): Int = insets.top
-            override fun motionOf(x: Float, y: Float): Float = y
-            override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
-                Insets.of(oldInsets.left, newValue, oldInsets.right, oldInsets.bottom)
-            override fun consumedOffsets(available: Offset): Offset = Offset(0f, available.y)
-            override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
-                Velocity(0f, available.y - remaining)
-        }
+                override fun motionOf(x: Float, y: Float): Float = x
 
-        private val RightSideCalculator = object : SideCalculator {
-            override fun valueOf(insets: Insets): Int = insets.right
-            override fun motionOf(x: Float, y: Float): Float = -x
-            override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
-                Insets.of(oldInsets.left, oldInsets.top, newValue, oldInsets.bottom)
-            override fun consumedOffsets(available: Offset): Offset = Offset(available.x, 0f)
-            override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
-                Velocity(available.x + remaining, 0f)
-        }
+                override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
+                    Insets.of(newValue, oldInsets.top, oldInsets.right, oldInsets.bottom)
 
-        private val BottomSideCalculator = object : SideCalculator {
-            override fun valueOf(insets: Insets): Int = insets.bottom
-            override fun motionOf(x: Float, y: Float): Float = -y
-            override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
-                Insets.of(oldInsets.left, oldInsets.top, oldInsets.right, newValue)
-            override fun consumedOffsets(available: Offset): Offset = Offset(0f, available.y)
-            override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
-                Velocity(0f, available.y + remaining)
-        }
+                override fun consumedOffsets(available: Offset): Offset = Offset(available.x, 0f)
+
+                override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
+                    Velocity(available.x - remaining, 0f)
+            }
+
+        private val TopSideCalculator =
+            object : SideCalculator {
+                override fun valueOf(insets: Insets): Int = insets.top
+
+                override fun motionOf(x: Float, y: Float): Float = y
+
+                override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
+                    Insets.of(oldInsets.left, newValue, oldInsets.right, oldInsets.bottom)
+
+                override fun consumedOffsets(available: Offset): Offset = Offset(0f, available.y)
+
+                override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
+                    Velocity(0f, available.y - remaining)
+            }
+
+        private val RightSideCalculator =
+            object : SideCalculator {
+                override fun valueOf(insets: Insets): Int = insets.right
+
+                override fun motionOf(x: Float, y: Float): Float = -x
+
+                override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
+                    Insets.of(oldInsets.left, oldInsets.top, newValue, oldInsets.bottom)
+
+                override fun consumedOffsets(available: Offset): Offset = Offset(available.x, 0f)
+
+                override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
+                    Velocity(available.x + remaining, 0f)
+            }
+
+        private val BottomSideCalculator =
+            object : SideCalculator {
+                override fun valueOf(insets: Insets): Int = insets.bottom
+
+                override fun motionOf(x: Float, y: Float): Float = -y
+
+                override fun adjustInsets(oldInsets: Insets, newValue: Int): Insets =
+                    Insets.of(oldInsets.left, oldInsets.top, oldInsets.right, newValue)
+
+                override fun consumedOffsets(available: Offset): Offset = Offset(0f, available.y)
+
+                override fun consumedVelocity(available: Velocity, remaining: Float): Velocity =
+                    Velocity(0f, available.y + remaining)
+            }
     }
 }
 
@@ -578,14 +568,12 @@ private const val EndTension = 1.0f
 private const val P1 = StartTension * Inflection
 private const val P2 = 1.0f - EndTension * (1.0f - Inflection)
 
-private class SplineBasedFloatDecayAnimationSpec(density: Density) :
-    FloatDecayAnimationSpec {
+private class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayAnimationSpec {
 
-    override val absVelocityThreshold: Float get() = 0f
+    override val absVelocityThreshold: Float
+        get() = 0f
 
-    /**
-     * A density-specific coefficient adjusted to physical values.
-     */
+    /** A density-specific coefficient adjusted to physical values. */
     private val magicPhysicalCoefficient: Float =
         GravityEarth * InchesPerMeter * density.density * 160f * 0.84f
 
@@ -595,15 +583,13 @@ private class SplineBasedFloatDecayAnimationSpec(density: Density) :
             PlatformFlingScrollFriction * magicPhysicalCoefficient
         )
 
-    /**
-     * Compute the distance of a fling in units given an initial [velocity] of units/second
-     */
+    /** Compute the distance of a fling in units given an initial [velocity] of units/second */
     fun flingDistance(velocity: Float): Float {
         val l = getSplineDeceleration(velocity)
-        return (
-            PlatformFlingScrollFriction * magicPhysicalCoefficient
-                * exp(DecelerationRate / DecelMinusOne * l)
-            ).toFloat() * sign(velocity)
+        return (PlatformFlingScrollFriction *
+                magicPhysicalCoefficient *
+                exp(DecelerationRate / DecelMinusOne * l))
+            .toFloat() * sign(velocity)
     }
 
     override fun getTargetValue(initialValue: Float, initialVelocity: Float): Float =
@@ -618,8 +604,8 @@ private class SplineBasedFloatDecayAnimationSpec(density: Density) :
         val duration = getDurationNanos(0f, initialVelocity)
         val splinePos = if (duration > 0) playTimeNanos / duration.toFloat() else 1f
         val distance = flingDistance(initialVelocity)
-        return initialValue + distance *
-            AndroidFlingSpline.flingPosition(splinePos).distanceCoefficient
+        return initialValue +
+            distance * AndroidFlingSpline.flingPosition(splinePos).distanceCoefficient
     }
 
     @Suppress("MethodNameUnits")
@@ -637,8 +623,8 @@ private class SplineBasedFloatDecayAnimationSpec(density: Density) :
         val duration = getDurationNanos(0f, initialVelocity)
         val splinePos = if (duration > 0L) playTimeNanos / duration.toFloat() else 1f
         val distance = flingDistance(initialVelocity)
-        return AndroidFlingSpline.flingPosition(splinePos).velocityCoefficient *
-            distance / duration * 1_000_000_000.0f
+        return AndroidFlingSpline.flingPosition(splinePos).velocityCoefficient * distance /
+            duration * 1_000_000_000.0f
     }
 }
 
@@ -700,25 +686,22 @@ private object AndroidFlingSpline {
         return FlingResult(packFloats(distanceCoef, velocityCoef))
     }
 
-    /**
-     * The rate of deceleration along the spline motion given [velocity] and [friction].
-     */
+    /** The rate of deceleration along the spline motion given [velocity] and [friction]. */
     fun deceleration(velocity: Float, friction: Float): Double =
         ln(Inflection * abs(velocity) / friction.toDouble())
 
-    /**
-     * Result coefficients of a scroll computation
-     */
+    /** Result coefficients of a scroll computation */
     @JvmInline
     value class FlingResult(private val packedValue: Long) {
+        /** Linear distance traveled from 0-1, from source (0) to destination (1) */
+        val distanceCoefficient: Float
+            get() = unpackFloat1(packedValue)
+
         /**
-         * Linear distance traveled from 0-1, from source (0) to destination (1)
+         * Instantaneous velocity coefficient at this point in the fling expressed in total distance
+         * per unit time
          */
-        val distanceCoefficient: Float get() = unpackFloat1(packedValue)
-        /**
-         * Instantaneous velocity coefficient at this point in the fling expressed in
-         * total distance per unit time
-         */
-        val velocityCoefficient: Float get() = unpackFloat2(packedValue)
+        val velocityCoefficient: Float
+            get() = unpackFloat2(packedValue)
     }
 }

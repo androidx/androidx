@@ -40,22 +40,19 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.ULambdaExpression
 
 class BackHandlerOnBackPressedDetector : Detector(), Detector.UastScanner, SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        PredictiveBackHandler.shortName,
-        BackHandler.shortName
-    )
+    override fun getApplicableMethodNames(): List<String> =
+        listOf(PredictiveBackHandler.shortName, BackHandler.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(ComposePackageName)) {
             // Find the back lambda
-            val backLambda = computeKotlinArgumentMapping(node, method)
-                .orEmpty()
-                .filter { (_, parameter) ->
-                    parameter.name == OnBack
-                }
-                .keys
-                .filterIsInstance<ULambdaExpression>()
-                .firstOrNull() ?: return
+            val backLambda =
+                computeKotlinArgumentMapping(node, method)
+                    .orEmpty()
+                    .filter { (_, parameter) -> parameter.name == OnBack }
+                    .keys
+                    .filterIsInstance<ULambdaExpression>()
+                    .firstOrNull() ?: return
 
             // If the parameter is not referenced, immediately trigger the warning
             val unreferencedParameter = backLambda.findUnreferencedParameters().firstOrNull()
@@ -65,12 +62,14 @@ class BackHandlerOnBackPressedDetector : Detector(), Detector.UastScanner, Sourc
                 val lambdaExpression = backLambda.sourcePsi as? KtLambdaExpression
                 // Find all of the reference inside of the lambda
                 val references =
-                    lambdaExpression?.functionLiteral
+                    lambdaExpression
+                        ?.functionLiteral
                         ?.collectDescendantsOfType<KtSimpleNameExpression>()
                 // Check for references to OnBackPressed
-                val matchingReferences = references?.filter {
-                    it.getReferencedName() == OnBackPressed.shortName
-                }.orEmpty()
+                val matchingReferences =
+                    references
+                        ?.filter { it.getReferencedName() == OnBackPressed.shortName }
+                        .orEmpty()
                 // If references call onBackPressed(), trigger the warning
                 if (matchingReferences.isNotEmpty()) {
                     matchingReferences.forEach { reference ->
@@ -88,23 +87,27 @@ class BackHandlerOnBackPressedDetector : Detector(), Detector.UastScanner, Sourc
     }
 
     companion object {
-        val InvalidOnBackPressed = Issue.create(
-            id = "OnBackPressedInsideOfBackHandler",
-            briefDescription = "Do not call onBackPressed() within" +
-                "BackHandler/PredictiveBackHandler",
-            explanation = """You should not used OnBackPressedCallback for non-UI cases. If you
+        val InvalidOnBackPressed =
+            Issue.create(
+                    id = "OnBackPressedInsideOfBackHandler",
+                    briefDescription =
+                        "Do not call onBackPressed() within" + "BackHandler/PredictiveBackHandler",
+                    explanation =
+                        """You should not used OnBackPressedCallback for non-UI cases. If you
                 |add a callback, you have to handle back completely in the callback.
             """,
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                BackHandlerOnBackPressedDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-            )
-        ).addMoreInfo(
-            "https://developer.android.com/guide/navigation/custom-back/" +
-                "predictive-back-gesture#ui-logic"
-        )
+                    category = Category.CORRECTNESS,
+                    severity = Severity.WARNING,
+                    implementation =
+                        Implementation(
+                            BackHandlerOnBackPressedDetector::class.java,
+                            EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                        )
+                )
+                .addMoreInfo(
+                    "https://developer.android.com/guide/navigation/custom-back/" +
+                        "predictive-back-gesture#ui-logic"
+                )
     }
 }
 

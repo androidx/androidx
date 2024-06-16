@@ -7,8 +7,6 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
-    method public static androidx.work.BackoffPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
   }
@@ -179,7 +177,7 @@ package androidx.work {
 
   public final class DataKt {
     method public static inline <reified T> boolean hasKeyWithValueOfType(androidx.work.Data, String key);
-    method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
   }
 
   public class DelegatingWorkerFactory extends androidx.work.WorkerFactory {
@@ -189,8 +187,6 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
-    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy CANCEL_AND_REENQUEUE;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
     enum_constant @Deprecated public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
@@ -198,8 +194,6 @@ package androidx.work {
   }
 
   public enum ExistingWorkPolicy {
-    method public static androidx.work.ExistingWorkPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
@@ -257,8 +251,6 @@ package androidx.work {
   }
 
   public enum NetworkType {
-    method public static androidx.work.NetworkType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
@@ -312,8 +304,6 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
-    method public static androidx.work.OutOfQuotaPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
   }
@@ -331,9 +321,9 @@ package androidx.work {
 
   public static final class PeriodicWorkRequest.Builder extends androidx.work.WorkRequest.Builder<androidx.work.PeriodicWorkRequest.Builder,androidx.work.PeriodicWorkRequest> {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval);
-    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
-    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
-    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
+    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
+    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
     method public androidx.work.PeriodicWorkRequest.Builder clearNextScheduleTimeOverride();
     method public androidx.work.PeriodicWorkRequest.Builder setNextScheduleTimeOverride(long nextScheduleTimeOverrideMillis);
   }
@@ -434,9 +424,7 @@ package androidx.work {
   }
 
   public enum WorkInfo.State {
-    method public final boolean isFinished();
-    method public static androidx.work.WorkInfo.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.work.WorkInfo.State[] values();
+    method public boolean isFinished();
     property public final boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
     enum_constant public static final androidx.work.WorkInfo.State CANCELLED;
@@ -457,7 +445,7 @@ package androidx.work {
     method public abstract androidx.work.Operation cancelWorkById(java.util.UUID);
     method public abstract android.app.PendingIntent createCancelPendingIntent(java.util.UUID);
     method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
-    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
+    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest!>);
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
     method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
@@ -490,10 +478,10 @@ package androidx.work {
     enum_constant public static final androidx.work.WorkManager.UpdateResult NOT_APPLIED;
   }
 
-  public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
+  public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager!> {
     ctor public WorkManagerInitializer();
     method public androidx.work.WorkManager create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>!> dependencies();
   }
 
   public final class WorkQuery {

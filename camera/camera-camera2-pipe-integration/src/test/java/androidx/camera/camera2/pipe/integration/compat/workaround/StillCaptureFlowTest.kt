@@ -48,11 +48,17 @@ class StillCaptureFlowTest(
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", brand)
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", model)
 
-        assertThat(listOf(Request(
-                streams = emptyList(),
-                parameters = mapOf(CaptureRequest.CONTROL_AE_MODE to aeMode),
-                template = RequestTemplate(template),
-        )).shouldStopRepeatingBeforeCapture()).isEqualTo(stopRepeatingExpected)
+        assertThat(
+                listOf(
+                        Request(
+                            streams = emptyList(),
+                            parameters = mapOf(CaptureRequest.CONTROL_AE_MODE to aeMode),
+                            template = RequestTemplate(template),
+                        )
+                    )
+                    .shouldStopRepeatingBeforeCapture()
+            )
+            .isEqualTo(stopRepeatingExpected)
     }
 
     companion object {
@@ -60,42 +66,109 @@ class StillCaptureFlowTest(
         @ParameterizedRobolectricTestRunner.Parameters(
             name = "brand={0}, model={1}, aeMode={2}, template={3}"
         )
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf(
-                "Samsung", "SM-A716B", CONTROL_AE_MODE_ON, TEMPLATE_STILL_CAPTURE, false
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A716B", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_STILL_CAPTURE, true
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A716B", CONTROL_AE_MODE_ON_ALWAYS_FLASH, TEMPLATE_STILL_CAPTURE, true
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A716B", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_PREVIEW, false
-            ))
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716B",
+                        CONTROL_AE_MODE_ON,
+                        TEMPLATE_STILL_CAPTURE,
+                        false
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716B",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716B",
+                        CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716B",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_PREVIEW,
+                        false
+                    )
+                )
 
-            add(arrayOf(
-                "Samsung", "SM-A716U", CONTROL_AE_MODE_ON, TEMPLATE_STILL_CAPTURE, false
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A716U", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_STILL_CAPTURE, true
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A716U", CONTROL_AE_MODE_ON_ALWAYS_FLASH, TEMPLATE_STILL_CAPTURE, true
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A716U", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_PREVIEW, false
-            ))
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716U",
+                        CONTROL_AE_MODE_ON,
+                        TEMPLATE_STILL_CAPTURE,
+                        false
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716U",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716U",
+                        CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A716U",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_PREVIEW,
+                        false
+                    )
+                )
 
-            add(arrayOf(
-                "Google", "Pixel 2", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_STILL_CAPTURE, false
-            ))
-            add(arrayOf(
-                "Moto", "G3", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_STILL_CAPTURE, false
-            ))
-            add(arrayOf(
-                "Samsung", "SM-A722", CONTROL_AE_MODE_ON_AUTO_FLASH, TEMPLATE_STILL_CAPTURE, false
-            ))
-        }
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 2",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        false
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Moto",
+                        "G3",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        false
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Samsung",
+                        "SM-A722",
+                        CONTROL_AE_MODE_ON_AUTO_FLASH,
+                        TEMPLATE_STILL_CAPTURE,
+                        false
+                    )
+                )
+            }
     }
 }

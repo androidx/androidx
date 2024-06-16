@@ -47,9 +47,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 
-/**
- * A [Modifier.Element] that draws into the space of the layout.
- */
+/** A [Modifier.Element] that draws into the space of the layout. */
 @JvmDefaultWithCompatibility
 interface DrawModifier : Modifier.Element {
 
@@ -57,18 +55,17 @@ interface DrawModifier : Modifier.Element {
 }
 
 /**
- * [DrawModifier] implementation that supports building a cache of objects
- * to be referenced across draw calls
+ * [DrawModifier] implementation that supports building a cache of objects to be referenced across
+ * draw calls
  */
 @JvmDefaultWithCompatibility
 interface DrawCacheModifier : DrawModifier {
 
     /**
-     * Callback invoked to re-build objects to be re-used across draw calls.
-     * This is useful to conditionally recreate objects only if the size of the
-     * drawing environment changes, or if state parameters that are inputs
-     * to objects change. This method is guaranteed to be called before
-     * [DrawModifier.draw].
+     * Callback invoked to re-build objects to be re-used across draw calls. This is useful to
+     * conditionally recreate objects only if the size of the drawing environment changes, or if
+     * state parameters that are inputs to objects change. This method is guaranteed to be called
+     * before [DrawModifier.draw].
      *
      * @param params The params to be used to build the cache.
      */
@@ -81,32 +78,21 @@ interface DrawCacheModifier : DrawModifier {
  * @see DrawCacheModifier.onBuildCache
  */
 interface BuildDrawCacheParams {
-    /**
-     * The current size of the drawing environment
-     */
+    /** The current size of the drawing environment */
     val size: Size
 
-    /**
-     * The current layout direction.
-     */
+    /** The current layout direction. */
     val layoutDirection: LayoutDirection
 
-    /**
-     * The current screen density to provide the ability to convert between
-     */
+    /** The current screen density to provide the ability to convert between */
     val density: Density
 }
 
-/**
- * Draw into a [Canvas] behind the modified content.
- */
-fun Modifier.drawBehind(
-    onDraw: DrawScope.() -> Unit
-) = this then DrawBehindElement(onDraw)
+/** Draw into a [Canvas] behind the modified content. */
+fun Modifier.drawBehind(onDraw: DrawScope.() -> Unit) = this then DrawBehindElement(onDraw)
 
-private data class DrawBehindElement(
-    val onDraw: DrawScope.() -> Unit
-) : ModifierNodeElement<DrawBackgroundModifier>() {
+private data class DrawBehindElement(val onDraw: DrawScope.() -> Unit) :
+    ModifierNodeElement<DrawBackgroundModifier>() {
     override fun create() = DrawBackgroundModifier(onDraw)
 
     override fun update(node: DrawBackgroundModifier) {
@@ -119,9 +105,8 @@ private data class DrawBehindElement(
     }
 }
 
-internal class DrawBackgroundModifier(
-    var onDraw: DrawScope.() -> Unit
-) : Modifier.Node(), DrawModifierNode {
+internal class DrawBackgroundModifier(var onDraw: DrawScope.() -> Unit) :
+    Modifier.Node(), DrawModifierNode {
 
     override fun ContentDrawScope.draw() {
         onDraw()
@@ -130,27 +115,26 @@ internal class DrawBackgroundModifier(
 }
 
 /**
- * Draw into a [DrawScope] with content that is persisted across
- * draw calls as long as the size of the drawing area is the same or
- * any state objects that are read have not changed. In the event that
- * the drawing area changes, or the underlying state values that are being read
- * change, this method is invoked again to recreate objects to be used during drawing
+ * Draw into a [DrawScope] with content that is persisted across draw calls as long as the size of
+ * the drawing area is the same or any state objects that are read have not changed. In the event
+ * that the drawing area changes, or the underlying state values that are being read change, this
+ * method is invoked again to recreate objects to be used during drawing
  *
- * For example, a [androidx.compose.ui.graphics.LinearGradient] that is to occupy the full
- * bounds of the drawing area can be created once the size has been defined and referenced
- * for subsequent draw calls without having to re-allocate.
+ * For example, a [androidx.compose.ui.graphics.LinearGradient] that is to occupy the full bounds of
+ * the drawing area can be created once the size has been defined and referenced for subsequent draw
+ * calls without having to re-allocate.
  *
  * @sample androidx.compose.ui.samples.DrawWithCacheModifierSample
+ *
  * @sample androidx.compose.ui.samples.DrawWithCacheModifierStateParameterSample
+ *
  * @sample androidx.compose.ui.samples.DrawWithCacheContentSample
  */
-fun Modifier.drawWithCache(
-    onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) = this then DrawWithCacheElement(onBuildDrawCache)
+fun Modifier.drawWithCache(onBuildDrawCache: CacheDrawScope.() -> DrawResult) =
+    this then DrawWithCacheElement(onBuildDrawCache)
 
-private data class DrawWithCacheElement(
-    val onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) : ModifierNodeElement<CacheDrawModifierNodeImpl>() {
+private data class DrawWithCacheElement(val onBuildDrawCache: CacheDrawScope.() -> DrawResult) :
+    ModifierNodeElement<CacheDrawModifierNodeImpl>() {
     override fun create(): CacheDrawModifierNodeImpl {
         return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
     }
@@ -181,9 +165,9 @@ sealed interface CacheDrawModifierNode : DrawModifierNode {
 }
 
 /**
- * Wrapper [GraphicsContext] implementation that maintains a list of the [GraphicsLayer]
- * instances that were created through this instance so it can release only those [GraphicsLayer]s
- * when it is disposed of within the corresponding Modifier is disposed
+ * Wrapper [GraphicsContext] implementation that maintains a list of the [GraphicsLayer] instances
+ * that were created through this instance so it can release only those [GraphicsLayer]s when it is
+ * disposed of within the corresponding Modifier is disposed
  */
 private class ScopedGraphicsContext : GraphicsContext {
 
@@ -240,17 +224,20 @@ private class CacheDrawModifierNodeImpl(
         cacheDrawScope.graphicsContextProvider = { graphicsContext }
     }
 
-    override val density: Density get() = requireDensity()
-    override val layoutDirection: LayoutDirection get() = requireLayoutDirection()
-    override val size: Size get() = requireCoordinator(Nodes.LayoutAware).size.toSize()
+    override val density: Density
+        get() = requireDensity()
+
+    override val layoutDirection: LayoutDirection
+        get() = requireLayoutDirection()
+
+    override val size: Size
+        get() = requireCoordinator(Nodes.LayoutAware).size.toSize()
 
     val graphicsContext: GraphicsContext
         get() {
             var localGraphicsContext = cachedGraphicsContext
             if (localGraphicsContext == null) {
-                localGraphicsContext = ScopedGraphicsContext().also {
-                    cachedGraphicsContext = it
-                }
+                localGraphicsContext = ScopedGraphicsContext().also { cachedGraphicsContext = it }
             }
             if (localGraphicsContext.graphicsContext == null) {
                 localGraphicsContext.graphicsContext = requireGraphicsContext()
@@ -315,21 +302,19 @@ class CacheDrawScope internal constructor() : Density {
     internal var contentDrawScope: ContentDrawScope? = null
     internal var graphicsContextProvider: (() -> GraphicsContext)? = null
 
-    /**
-     * Provides the dimensions of the current drawing environment
-     */
-    val size: Size get() = cacheParams.size
+    /** Provides the dimensions of the current drawing environment */
+    val size: Size
+        get() = cacheParams.size
+
+    /** Provides the [LayoutDirection]. */
+    val layoutDirection: LayoutDirection
+        get() = cacheParams.layoutDirection
 
     /**
-     * Provides the [LayoutDirection].
-     */
-    val layoutDirection: LayoutDirection get() = cacheParams.layoutDirection
-
-    /**
-     * Returns a managed [GraphicsLayer] instance. This [GraphicsLayer] maybe newly created
-     * or return a previously allocated instance. Consumers are not expected to release this
-     * instance as it is automatically recycled upon invalidation of the CacheDrawScope and released
-     * when the [DrawCacheModifier] is detached.
+     * Returns a managed [GraphicsLayer] instance. This [GraphicsLayer] maybe newly created or
+     * return a previously allocated instance. Consumers are not expected to release this instance
+     * as it is automatically recycled upon invalidation of the CacheDrawScope and released when the
+     * [DrawCacheModifier] is detached.
      */
     fun obtainGraphicsLayer(): GraphicsLayer =
         graphicsContextProvider!!.invoke().createGraphicsLayer()
@@ -343,31 +328,28 @@ class CacheDrawScope internal constructor() : Density {
         layoutDirection: LayoutDirection = this@CacheDrawScope.layoutDirection,
         size: IntSize = this@CacheDrawScope.size.toIntSize(),
         block: ContentDrawScope.() -> Unit
-    ) = record(density, layoutDirection, size) {
-        val contentDrawScope = this@CacheDrawScope.contentDrawScope!!
-        drawIntoCanvas { canvas ->
-            contentDrawScope.draw(
-                density,
-                layoutDirection,
-                canvas,
-                Size(size.width.toFloat(), size.height.toFloat())
-            ) {
-                block(contentDrawScope)
+    ) =
+        record(density, layoutDirection, size) {
+            val contentDrawScope = this@CacheDrawScope.contentDrawScope!!
+            drawIntoCanvas { canvas ->
+                contentDrawScope.draw(
+                    density,
+                    layoutDirection,
+                    canvas,
+                    Size(size.width.toFloat(), size.height.toFloat())
+                ) {
+                    block(contentDrawScope)
+                }
             }
         }
-    }
 
-    /**
-     * Issue drawing commands to be executed before the layout content is drawn
-     */
+    /** Issue drawing commands to be executed before the layout content is drawn */
     fun onDrawBehind(block: DrawScope.() -> Unit): DrawResult = onDrawWithContent {
         block()
         drawContent()
     }
 
-    /**
-     * Issue drawing commands before or after the layout's drawing contents
-     */
+    /** Issue drawing commands before or after the layout's drawing contents */
     fun onDrawWithContent(block: ContentDrawScope.() -> Unit): DrawResult {
         return DrawResult(block).also { drawResult = it }
     }
@@ -386,22 +368,20 @@ private object EmptyBuildDrawCacheParams : BuildDrawCacheParams {
 }
 
 /**
- * Holder to a callback to be invoked during draw operations. This lambda
- * captures and reuses parameters defined within the CacheDrawScope receiver scope lambda.
+ * Holder to a callback to be invoked during draw operations. This lambda captures and reuses
+ * parameters defined within the CacheDrawScope receiver scope lambda.
  */
 class DrawResult internal constructor(internal var block: ContentDrawScope.() -> Unit)
 
 /**
- * Creates a [DrawModifier] that allows the developer to draw before or after the layout's
- * contents. It also allows the modifier to adjust the layout's canvas.
+ * Creates a [DrawModifier] that allows the developer to draw before or after the layout's contents.
+ * It also allows the modifier to adjust the layout's canvas.
  */
-fun Modifier.drawWithContent(
-    onDraw: ContentDrawScope.() -> Unit
-): Modifier = this then DrawWithContentElement(onDraw)
+fun Modifier.drawWithContent(onDraw: ContentDrawScope.() -> Unit): Modifier =
+    this then DrawWithContentElement(onDraw)
 
-private data class DrawWithContentElement(
-    val onDraw: ContentDrawScope.() -> Unit
-) : ModifierNodeElement<DrawWithContentModifier>() {
+private data class DrawWithContentElement(val onDraw: ContentDrawScope.() -> Unit) :
+    ModifierNodeElement<DrawWithContentModifier>() {
     override fun create() = DrawWithContentModifier(onDraw)
 
     override fun update(node: DrawWithContentModifier) {
@@ -414,9 +394,8 @@ private data class DrawWithContentElement(
     }
 }
 
-private class DrawWithContentModifier(
-    var onDraw: ContentDrawScope.() -> Unit
-) : Modifier.Node(), DrawModifierNode {
+private class DrawWithContentModifier(var onDraw: ContentDrawScope.() -> Unit) :
+    Modifier.Node(), DrawModifierNode {
 
     override fun ContentDrawScope.draw() {
         onDraw()

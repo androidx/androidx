@@ -69,31 +69,31 @@ class SurfaceControlCompatTest {
     }
 
     private abstract class SurfaceHolderCallback : SurfaceHolder.Callback {
-        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
-        }
+        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
 
-        override fun surfaceDestroyed(p0: SurfaceHolder) {
-        }
+        override fun surfaceDestroyed(p0: SurfaceHolder) {}
     }
 
     @Test
     fun testSurfaceControlCompatBuilder_parent() {
         val callbackLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         try {
             scenario.onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        SurfaceControlCompat.Builder()
-                            .setParent(it.mSurfaceView)
-                            .setName("SurfaceControlCompatTest")
-                            .build()
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            SurfaceControlCompat.Builder()
+                                .setParent(it.mSurfaceView)
+                                .setName("SurfaceControlCompatTest")
+                                .build()
 
-                        callbackLatch.countDown()
+                            callbackLatch.countDown()
+                        }
                     }
-                }
 
                 it.addSurface(it.getSurfaceView(), callback)
             }
@@ -110,26 +110,29 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlCompatBuilder_parentSurfaceControl() {
         val callbackLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         try {
             scenario.onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        val parentSc = SurfaceControlCompat.Builder()
-                            .setParent(it.mSurfaceView)
-                            .setName("ParentSurfaceControl")
-                            .build()
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            val parentSc =
+                                SurfaceControlCompat.Builder()
+                                    .setParent(it.mSurfaceView)
+                                    .setName("ParentSurfaceControl")
+                                    .build()
 
-                        SurfaceControlCompat.Builder()
-                            .setParent(parentSc)
-                            .setName("ChildSurfaceControl")
-                            .build()
+                            SurfaceControlCompat.Builder()
+                                .setParent(parentSc)
+                                .setName("ChildSurfaceControl")
+                                .build()
 
-                        callbackLatch.countDown()
+                            callbackLatch.countDown()
+                        }
                     }
-                }
 
                 it.addSurface(it.getSurfaceView(), callback)
             }
@@ -167,8 +170,9 @@ class SurfaceControlCompatTest {
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
 
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         try {
             scenario.onActivity {
@@ -193,8 +197,9 @@ class SurfaceControlCompatTest {
         val listener = TransactionOnCommitListener()
         val listener2 = TransactionOnCommitListener()
 
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         try {
             scenario.onActivity {
@@ -223,21 +228,24 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlIsValid_valid() {
         val callbackLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
         try {
             scenario.onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        val scCompat = SurfaceControlCompat.Builder()
-                            .setParent(it.getSurfaceView())
-                            .setName("SurfaceControlCompatTest")
-                            .build()
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            val scCompat =
+                                SurfaceControlCompat.Builder()
+                                    .setParent(it.getSurfaceView())
+                                    .setName("SurfaceControlCompatTest")
+                                    .build()
 
-                        assertTrue(scCompat.isValid())
-                        callbackLatch.countDown()
+                            assertTrue(scCompat.isValid())
+                            callbackLatch.countDown()
+                        }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -255,24 +263,27 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlIsValid_validNotValid() {
         val callbackLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
         try {
             scenario.onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        val scCompat = SurfaceControlCompat.Builder()
-                            .setParent(it.getSurfaceView())
-                            .setName("SurfaceControlCompatTest")
-                            .build()
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            val scCompat =
+                                SurfaceControlCompat.Builder()
+                                    .setParent(it.getSurfaceView())
+                                    .setName("SurfaceControlCompatTest")
+                                    .build()
 
-                        assertTrue(scCompat.isValid())
-                        scCompat.release()
-                        assertFalse(scCompat.isValid())
+                            assertTrue(scCompat.isValid())
+                            scCompat.release()
+                            assertFalse(scCompat.isValid())
 
-                        callbackLatch.countDown()
+                            callbackLatch.countDown()
+                        }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -290,25 +301,28 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlIsValid_multipleReleases() {
         val callbackLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
         try {
             scenario.onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        val scCompat = SurfaceControlCompat.Builder()
-                            .setParent(it.getSurfaceView())
-                            .setName("SurfaceControlCompatTest")
-                            .build()
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            val scCompat =
+                                SurfaceControlCompat.Builder()
+                                    .setParent(it.getSurfaceView())
+                                    .setName("SurfaceControlCompatTest")
+                                    .build()
 
-                        assertTrue(scCompat.isValid())
-                        scCompat.release()
-                        scCompat.release()
-                        assertFalse(scCompat.isValid())
+                            assertTrue(scCompat.isValid())
+                            scCompat.release()
+                            scCompat.release()
+                            assertFalse(scCompat.isValid())
 
-                        callbackLatch.countDown()
+                            callbackLatch.countDown()
+                        }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -326,11 +340,11 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionReparent_null() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -369,11 +383,11 @@ class SurfaceControlCompatTest {
 
         try {
             verifySurfaceControlTest({ surfaceView ->
-                val scCompat = SurfaceControlCompat
-                    .Builder()
-                    .setParent(surfaceView)
-                    .setName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlCompat.Builder()
+                        .setParent(surfaceView)
+                        .setName("SurfaceControlCompatTest")
+                        .build()
                 SurfaceControlCompat.Transaction()
                     .setBuffer(scCompat, buffer1) {
                         releaseCallbackInvoked = true
@@ -383,19 +397,16 @@ class SurfaceControlCompatTest {
 
                 var visibility = false
                 repeat(3) {
-                    SurfaceControlCompat.Transaction()
-                        .setVisibility(scCompat, visibility)
-                        .commit()
+                    SurfaceControlCompat.Transaction().setVisibility(scCompat, visibility).commit()
                     visibility = !visibility
                 }
 
                 assertFalse(setBuffer1Latch.await(1000, TimeUnit.MILLISECONDS))
                 assertFalse(releaseCallbackInvoked)
 
-                SurfaceControlCompat.Transaction()
-                    .setBuffer(scCompat, buffer2) {
-                        // NO-OP
-                    }
+                SurfaceControlCompat.Transaction().setBuffer(scCompat, buffer2) {
+                    // NO-OP
+                }
             }) { _, _ ->
                 setBuffer1Latch.await(3000, TimeUnit.MILLISECONDS) && releaseCallbackInvoked
             }
@@ -408,16 +419,16 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionReparent_childOfSibling() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
-            val scCompat2 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
+            val scCompat2 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -441,9 +452,7 @@ class SurfaceControlCompatTest {
                 .setBuffer(scCompat2, buffer2)
                 .setVisibility(scCompat, true)
                 .setVisibility(scCompat2, true)
-                .apply {
-                    reparent(scCompat, scCompat2)
-                }
+                .apply { reparent(scCompat, scCompat2) }
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -452,11 +461,11 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetBuffer_nullFence() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -469,10 +478,7 @@ class SurfaceControlCompatTest {
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer, null)
-                .setVisibility(
-                    scCompat,
-                    true
-                )
+                .setVisibility(scCompat, true)
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -482,21 +488,22 @@ class SurfaceControlCompatTest {
     fun testTransactionSetBuffer_simpleFence() {
         var eglManager: EGLManager? = null
         verifySurfaceControlTest({ surfaceView ->
-            val manager = EGLManager().apply {
-                initialize()
-                val config = loadConfig(EGLConfigAttributes.RGBA_8888)
-                if (config == null) {
-                    fail("Config 8888 should be supported")
+            val manager =
+                EGLManager().apply {
+                    initialize()
+                    val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+                    if (config == null) {
+                        fail("Config 8888 should be supported")
+                    }
+                    createContext(config!!)
                 }
-                createContext(config!!)
-            }
             eglManager = manager
 
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -507,17 +514,15 @@ class SurfaceControlCompatTest {
                 )
             assertNotNull(buffer)
 
-            val fence = if (manager.supportsNativeAndroidFence()) {
-                SyncFenceCompat.createNativeSyncFence()
-            } else {
-                null
-            }
+            val fence =
+                if (manager.supportsNativeAndroidFence()) {
+                    SyncFenceCompat.createNativeSyncFence()
+                } else {
+                    null
+                }
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer, fence)
-                .setVisibility(
-                    scCompat,
-                    true
-                )
+                .setVisibility(scCompat, true)
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -527,11 +532,11 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetBuffer_nullCallback() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -544,10 +549,7 @@ class SurfaceControlCompatTest {
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
-                .setVisibility(
-                    scCompat,
-                    true
-                )
+                .setVisibility(scCompat, true)
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -557,11 +559,11 @@ class SurfaceControlCompatTest {
     fun testTransactionSetBuffer_singleReleaseCallback() {
         val releaseLatch = CountDownLatch(1)
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             val buffer =
                 SurfaceControlUtils.getSolidBuffer(
@@ -603,11 +605,11 @@ class SurfaceControlCompatTest {
         val releaseLatch2 = CountDownLatch(1)
 
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             val buffer =
                 SurfaceControlUtils.getSolidBuffer(
@@ -643,10 +645,8 @@ class SurfaceControlCompatTest {
                     assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
                     releaseLatch2.countDown()
                 }
-                .setVisibility(
-                    scCompat,
-                    true
-                ).commit()
+                .setVisibility(scCompat, true)
+                .commit()
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer3)
@@ -661,11 +661,11 @@ class SurfaceControlCompatTest {
     fun testTransactionSetBuffer_multipleNullCallbacksWithOneNonNull() {
         val releaseLatch = CountDownLatch(1)
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             val buffer =
                 SurfaceControlUtils.getSolidBuffer(
@@ -698,10 +698,8 @@ class SurfaceControlCompatTest {
                     releaseLatch.countDown()
                 }
                 .setBuffer(scCompat, buffer2)
-                .setVisibility(
-                    scCompat,
-                    true
-                ).commit()
+                .setVisibility(scCompat, true)
+                .commit()
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer3)
@@ -717,16 +715,16 @@ class SurfaceControlCompatTest {
         val releaseLatch = CountDownLatch(1)
         val releaseLatch2 = CountDownLatch(1)
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
-            val scCompat2 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
+            val scCompat2 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             val buffer =
                 SurfaceControlUtils.getSolidBuffer(
@@ -787,11 +785,11 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetVisibility_show() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -804,10 +802,7 @@ class SurfaceControlCompatTest {
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
-                .setVisibility(
-                    scCompat,
-                    true
-                )
+                .setVisibility(scCompat, true)
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -816,11 +811,11 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetVisibility_hide() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             val buffer =
@@ -833,10 +828,7 @@ class SurfaceControlCompatTest {
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
-                .setVisibility(
-                    scCompat,
-                    false
-                )
+                .setVisibility(scCompat, false)
         }) { bitmap, rect ->
             Color.BLACK == bitmap.getPixel(rect.left, rect.top)
         }
@@ -845,16 +837,16 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetLayer_zero() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat1 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
-            val scCompat2 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat1 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
+            val scCompat2 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             SurfaceControlCompat.Transaction()
@@ -886,16 +878,16 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetLayer_positive() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat1 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
-            val scCompat2 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat1 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
+            val scCompat2 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             SurfaceControlCompat.Transaction()
@@ -927,16 +919,16 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetLayer_negative() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat1 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
-            val scCompat2 = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat1 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
+            val scCompat2 =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             SurfaceControlCompat.Transaction()
@@ -968,11 +960,11 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetDamageRegion_all() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             SurfaceControlCompat.Transaction()
@@ -1002,18 +994,15 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetDamageRegion_null() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
             SurfaceControlCompat.Transaction()
-                .setDamageRegion(
-                    scCompat,
-                    null
-                )
+                .setDamageRegion(scCompat, null)
                 .setBuffer(
                     scCompat,
                     SurfaceControlUtils.getSolidBuffer(
@@ -1031,26 +1020,24 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetBufferTransparency_opaque() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
                 .setVisibility(scCompat, true)
-                .setOpaque(
-                    scCompat,
-                    true
-                )
+                .setOpaque(scCompat, true)
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -1059,28 +1046,25 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetNullBuffer() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
-                .setOpaque(
-                    scCompat,
-                    false
-                )
+                .setOpaque(scCompat, false)
                 .commit()
 
-            SurfaceControlCompat.Transaction()
-                .setBuffer(scCompat, null)
+            SurfaceControlCompat.Transaction().setBuffer(scCompat, null)
         }) { bitmap, rect ->
             Color.BLACK == bitmap.getPixel(rect.left, rect.top)
         }
@@ -1089,24 +1073,22 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetAlpha_0_0() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
-                .setOpaque(
-                    scCompat,
-                    false
-                )
+                .setOpaque(scCompat, false)
                 .setAlpha(scCompat, 0.0f)
         }) { bitmap, rect ->
             Color.BLACK == bitmap.getPixel(rect.left, rect.top)
@@ -1116,18 +1098,19 @@ class SurfaceControlCompatTest {
     @Test
     fun testTransactionSetAlpha_0_5() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
                 .setVisibility(scCompat, true)
@@ -1135,43 +1118,37 @@ class SurfaceControlCompatTest {
         }) { bitmap, rect ->
             val left = rect.left
             val top = rect.top
-            val fConnector: ColorSpace.Connector = ColorSpace.connect(
-                ColorSpace.get(ColorSpace.Named.SRGB),
-                bitmap.colorSpace!!
-            )
+            val fConnector: ColorSpace.Connector =
+                ColorSpace.connect(ColorSpace.get(ColorSpace.Named.SRGB), bitmap.colorSpace!!)
 
             val red = fConnector.transform(1.0f, 0.0f, 0.0f)
             val black = fConnector.transform(0.0f, 0.0f, 0.0f)
-            val expectedResult = Color.valueOf(red[0], red[1], red[2], 0.5f)
-                .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
+            val expectedResult =
+                Color.valueOf(red[0], red[1], red[2], 0.5f)
+                    .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
 
-            (Math.abs(
-                expectedResult.red() - bitmap.getColor(left, top).red()
-            ) < 2.5e-3f) &&
-                (Math.abs(
-                    expectedResult.green() - bitmap.getColor(left, top).green()
-                ) < 2.5e-3f) &&
-                (Math.abs(
-                    expectedResult.blue() - bitmap.getColor(left, top).blue()
-                ) < 2.5e-3f)
+            (Math.abs(expectedResult.red() - bitmap.getColor(left, top).red()) < 2.5e-3f) &&
+                (Math.abs(expectedResult.green() - bitmap.getColor(left, top).green()) < 2.5e-3f) &&
+                (Math.abs(expectedResult.blue() - bitmap.getColor(left, top).blue()) < 2.5e-3f)
         }
     }
 
     @Test
     fun testTransactionSetAlpha_1_0() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
                 .setVisibility(scCompat, true)
@@ -1185,18 +1162,19 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_null() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
@@ -1211,18 +1189,19 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardCrop() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
@@ -1240,38 +1219,40 @@ class SurfaceControlCompatTest {
         val listener = TransactionOnCommitListener()
         var scCompat: SurfaceControlCompat? = null
         var surfaceView: SurfaceView? = null
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                it.setDestroyCallback { destroyLatch.countDown() }
-                surfaceView = it.mSurfaceView
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        scCompat = SurfaceControlCompat
-                            .Builder()
-                            .setParent(it.getSurfaceView())
-                            .setName("SurfaceControlCompatTest")
-                            .build()
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    it.setDestroyCallback { destroyLatch.countDown() }
+                    surfaceView = it.mSurfaceView
+                    val callback =
+                        object : SurfaceHolderCallback() {
+                            override fun surfaceCreated(sh: SurfaceHolder) {
+                                scCompat =
+                                    SurfaceControlCompat.Builder()
+                                        .setParent(it.getSurfaceView())
+                                        .setName("SurfaceControlCompatTest")
+                                        .build()
 
-                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                        val buffer = SurfaceControlUtils.getSolidBuffer(
-                            SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                            SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                            Color.BLUE
-                        )
+                                // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                                val buffer =
+                                    SurfaceControlUtils.getSolidBuffer(
+                                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                                        Color.BLUE
+                                    )
 
-                        SurfaceControlCompat.Transaction()
-                            .addTransactionCommittedListener(executor!!, listener)
-                            .setBuffer(scCompat!!, buffer)
-                            .setVisibility(scCompat!!, true)
-                            .setCrop(scCompat!!, Rect(20, 30, 90, 60))
-                            .commit()
-                    }
+                                SurfaceControlCompat.Transaction()
+                                    .addTransactionCommittedListener(executor!!, listener)
+                                    .setBuffer(scCompat!!, buffer)
+                                    .setVisibility(scCompat!!, true)
+                                    .setCrop(scCompat!!, Rect(20, 30, 90, 60))
+                                    .commit()
+                            }
+                        }
+
+                    it.addSurface(it.mSurfaceView, callback)
                 }
-
-                it.addSurface(it.mSurfaceView, callback)
-            }
 
         scenario.moveToState(Lifecycle.State.RESUMED)
 
@@ -1285,11 +1266,12 @@ class SurfaceControlCompatTest {
             }
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             val cropLatchListener = TransactionOnCommitListener()
             SurfaceControlCompat.Transaction()
@@ -1316,18 +1298,19 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetPosition() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
@@ -1342,10 +1325,10 @@ class SurfaceControlCompatTest {
                     top + 29
                 ) &&
                 Color.BLACK ==
-                bitmap.getPixel(
-                    left + 29,
-                    top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                ) &&
+                    bitmap.getPixel(
+                        left + 29,
+                        top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    ) &&
                 Color.RED == bitmap.getPixel(left + 30, top + 30)
         }
     }
@@ -1354,18 +1337,19 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetScale() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
@@ -1376,16 +1360,16 @@ class SurfaceControlCompatTest {
             val top = rect.top
             Color.RED == bitmap.getPixel(left, top) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
-                    top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                ) &&
+                    bitmap.getPixel(
+                        left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
+                        top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                    ) &&
                 // Scale reduced by 50%, so should be black here
                 Color.BLACK ==
-                bitmap.getPixel(
-                    left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                )
+                    bitmap.getPixel(
+                        left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    )
         }
     }
 
@@ -1393,45 +1377,42 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_identity() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getQuadrantBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE,
-                Color.BLACK,
-                Color.BLACK,
-                Color.BLACK
-            )
+            val buffer =
+                SurfaceControlUtils.getQuadrantBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE,
+                    Color.BLACK,
+                    Color.BLACK,
+                    Color.BLACK
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
                 .setVisibility(scCompat, true)
-                .setBufferTransform(
-                    scCompat,
-                    SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
-                )
+                .setBufferTransform(scCompat, SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY)
         }) { bitmap, rect ->
-
             val left = rect.left
             val top = rect.top
             // Check outer bounds of square to ensure its scaled correctly
             Color.RED == bitmap.getPixel(left, top) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
-                    top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                ) &&
+                    bitmap.getPixel(
+                        left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
+                        top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                    ) &&
                 Color.BLACK ==
-                bitmap.getPixel(
-                    left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                )
+                    bitmap.getPixel(
+                        left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    )
         }
     }
 
@@ -1439,21 +1420,22 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_singleTransform() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getQuadrantBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE,
-                Color.BLACK,
-                Color.BLACK,
-                Color.BLACK
-            )
+            val buffer =
+                SurfaceControlUtils.getQuadrantBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE,
+                    Color.BLACK,
+                    Color.BLACK,
+                    Color.BLACK
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
@@ -1470,15 +1452,15 @@ class SurfaceControlCompatTest {
                     rect.top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 4 - 1
                 ) &&
                 Color.BLACK ==
-                bitmap.getPixel(
-                    rect.left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH * 3 / 4,
-                    rect.top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                ) &&
+                    bitmap.getPixel(
+                        rect.left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH * 3 / 4,
+                        rect.top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    ) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    rect.left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 + 1,
-                    rect.top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                )
+                    bitmap.getPixel(
+                        rect.left + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 + 1,
+                        rect.top + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                    )
         }
     }
 
@@ -1486,25 +1468,25 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceTransactionCommitOnDraw() {
         verifySurfaceControlTest({ surfaceView ->
-            val scCompat = SurfaceControlCompat
-                .Builder()
-                .setParent(surfaceView)
-                .setName("SurfaceControlCompatTest")
-                .build()
+            val scCompat =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlCompat.Transaction()
                 .setBuffer(scCompat, buffer)
                 .setVisibility(scCompat, true)
-                .setAlpha(scCompat, 1.0f).apply {
-                    commitTransactionOnDraw(surfaceView.rootSurfaceControl!!)
-                }
+                .setAlpha(scCompat, 1.0f)
+                .apply { commitTransactionOnDraw(surfaceView.rootSurfaceControl!!) }
         }) { bitmap, rect ->
             Color.RED == bitmap.getPixel(rect.left, rect.top)
         }
@@ -1515,23 +1497,24 @@ class SurfaceControlCompatTest {
     @Test
     fun testSetExtendedRangeBrightnessThrowsOnUnsupportedPlatforms() {
         ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
 
-                        assertThrows(UnsupportedOperationException::class.java) {
-                            val surfaceControl = SurfaceControlCompat.Builder()
-                                .setName("testSurfaceControl")
-                                .setParent(it.mSurfaceView)
-                                .build()
-                            SurfaceControlCompat.Transaction()
-                                .setExtendedRangeBrightness(surfaceControl, 1.0f, 2.0f)
-                                .commit()
+                            assertThrows(UnsupportedOperationException::class.java) {
+                                val surfaceControl =
+                                    SurfaceControlCompat.Builder()
+                                        .setName("testSurfaceControl")
+                                        .setParent(it.mSurfaceView)
+                                        .build()
+                                SurfaceControlCompat.Transaction()
+                                    .setExtendedRangeBrightness(surfaceControl, 1.0f, 2.0f)
+                                    .commit()
+                            }
                         }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -1572,43 +1555,36 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateInvalidCompatibility() {
-        testFrameRate(
-            120f,
-            42,
-            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
-        )
+        testFrameRate(120f, 42, SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS)
     }
 
     @SuppressLint("NewApi")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateInvalidStrategy() {
-        testFrameRate(
-            120f,
-            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
-            108
-        )
+        testFrameRate(120f, SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT, 108)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testClearFrameRate() {
         ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
 
-                        val surfaceControl = SurfaceControlCompat.Builder()
-                            .setName("testSurfaceControl")
-                            .setParent(it.mSurfaceView)
-                            .build()
-                        SurfaceControlCompat.Transaction()
-                            .clearFrameRate(surfaceControl)
-                            .commit()
+                            val surfaceControl =
+                                SurfaceControlCompat.Builder()
+                                    .setName("testSurfaceControl")
+                                    .setParent(it.mSurfaceView)
+                                    .build()
+                            SurfaceControlCompat.Transaction()
+                                .clearFrameRate(surfaceControl)
+                                .commit()
+                        }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -1616,21 +1592,22 @@ class SurfaceControlCompatTest {
 
     private fun testFrameRate(frameRate: Float, compatibility: Int, strategy: Int) {
         ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
 
-                        val surfaceControl = SurfaceControlCompat.Builder()
-                            .setName("testSurfaceControl")
-                            .setParent(it.mSurfaceView)
-                            .build()
-                        SurfaceControlCompat.Transaction()
-                            .setFrameRate(surfaceControl, frameRate, compatibility, strategy)
-                            .commit()
+                            val surfaceControl =
+                                SurfaceControlCompat.Builder()
+                                    .setName("testSurfaceControl")
+                                    .setParent(it.mSurfaceView)
+                                    .build()
+                            SurfaceControlCompat.Transaction()
+                                .setFrameRate(surfaceControl, frameRate, compatibility, strategy)
+                                .commit()
+                        }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -1641,28 +1618,31 @@ class SurfaceControlCompatTest {
     @Test
     fun testSetDataSpaceThrowsOnUnsupportedPlatforms() {
         ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
 
-                        assertThrows(UnsupportedOperationException::class.java) {
-                            val surfaceControl = SurfaceControlCompat.Builder()
-                                .setName("testSurfaceControl")
-                                .setParent(it.mSurfaceView)
-                                .build()
+                            assertThrows(UnsupportedOperationException::class.java) {
+                                val surfaceControl =
+                                    SurfaceControlCompat.Builder()
+                                        .setName("testSurfaceControl")
+                                        .setParent(it.mSurfaceView)
+                                        .build()
 
-                            val extendedDataspace = DataSpace.pack(
-                                DataSpace.STANDARD_BT709,
-                                DataSpace.TRANSFER_SRGB, DataSpace.RANGE_EXTENDED
-                            )
-                            SurfaceControlCompat.Transaction()
-                                .setDataSpace(surfaceControl, extendedDataspace)
-                                .commit()
+                                val extendedDataspace =
+                                    DataSpace.pack(
+                                        DataSpace.STANDARD_BT709,
+                                        DataSpace.TRANSFER_SRGB,
+                                        DataSpace.RANGE_EXTENDED
+                                    )
+                                SurfaceControlCompat.Transaction()
+                                    .setDataSpace(surfaceControl, extendedDataspace)
+                                    .commit()
+                            }
                         }
                     }
-                }
 
                 it.addSurface(it.mSurfaceView, callback)
             }
@@ -1672,96 +1652,100 @@ class SurfaceControlCompatTest {
     @Test
     fun testSetExtendedRangeBrightness() {
         val destroyLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                it.setDestroyCallback { destroyLatch.countDown() }
-                val display = it.display
-                assertNotNull(display)
-                if (display!!.isHdrSdrRatioAvailable) {
-                    assertEquals(1.0f, display.hdrSdrRatio, .0001f)
-                }
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    it.setDestroyCallback { destroyLatch.countDown() }
+                    val display = it.display
+                    assertNotNull(display)
+                    if (display!!.isHdrSdrRatioAvailable) {
+                        assertEquals(1.0f, display.hdrSdrRatio, .0001f)
+                    }
 
-                it.window.attributes.screenBrightness = 0.01f
-                val hdrReady = CountDownLatch(1)
-                val listenerErrors = arrayOfNulls<Exception>(1)
-                if (display.isHdrSdrRatioAvailable) {
-                    display.registerHdrSdrRatioChangedListener(
-                        executor!!,
-                        object : Consumer<Display?> {
-                            var mIsRegistered = true
-                            override fun accept(updatedDisplay: Display?) {
-                                try {
-                                    assertEquals(display.displayId, updatedDisplay!!.displayId)
-                                    assertTrue(mIsRegistered)
-                                    if (display.hdrSdrRatio > 2f) {
-                                        hdrReady.countDown()
-                                        display.unregisterHdrSdrRatioChangedListener(this)
-                                        mIsRegistered = false
-                                    }
-                                } catch (e: Exception) {
-                                    synchronized(it) {
-                                        listenerErrors[0] = e
-                                        hdrReady.countDown()
+                    it.window.attributes.screenBrightness = 0.01f
+                    val hdrReady = CountDownLatch(1)
+                    val listenerErrors = arrayOfNulls<Exception>(1)
+                    if (display.isHdrSdrRatioAvailable) {
+                        display.registerHdrSdrRatioChangedListener(
+                            executor!!,
+                            object : Consumer<Display?> {
+                                var mIsRegistered = true
+
+                                override fun accept(updatedDisplay: Display?) {
+                                    try {
+                                        assertEquals(display.displayId, updatedDisplay!!.displayId)
+                                        assertTrue(mIsRegistered)
+                                        if (display.hdrSdrRatio > 2f) {
+                                            hdrReady.countDown()
+                                            display.unregisterHdrSdrRatioChangedListener(this)
+                                            mIsRegistered = false
+                                        }
+                                    } catch (e: Exception) {
+                                        synchronized(it) {
+                                            listenerErrors[0] = e
+                                            hdrReady.countDown()
+                                        }
                                     }
                                 }
                             }
-                        })
-                } else {
-                    assertThrows(IllegalStateException::class.java) {
-                        display.registerHdrSdrRatioChangedListener(
-                            executor!!,
-                            Consumer { _: Display? -> })
+                        )
+                    } else {
+                        assertThrows(IllegalStateException::class.java) {
+                            display.registerHdrSdrRatioChangedListener(
+                                executor!!,
+                                Consumer { _: Display? -> }
+                            )
+                        }
                     }
-                }
-                val extendedDataspace = DataSpace.pack(DataSpace.STANDARD_BT709,
-                    DataSpace.TRANSFER_SRGB, DataSpace.RANGE_EXTENDED)
-                val buffer = getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.RED)
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        val scCompat = SurfaceControlCompat
-                            .Builder()
-                            .setParent(it.getSurfaceView())
-                            .setName("SurfaceControlCompatTest")
-                            .build()
+                    val extendedDataspace =
+                        DataSpace.pack(
+                            DataSpace.STANDARD_BT709,
+                            DataSpace.TRANSFER_SRGB,
+                            DataSpace.RANGE_EXTENDED
+                        )
+                    val buffer =
+                        getSolidBuffer(
+                            SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                            SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                            Color.RED
+                        )
+                    val callback =
+                        object : SurfaceHolderCallback() {
+                            override fun surfaceCreated(sh: SurfaceHolder) {
+                                val scCompat =
+                                    SurfaceControlCompat.Builder()
+                                        .setParent(it.getSurfaceView())
+                                        .setName("SurfaceControlCompatTest")
+                                        .build()
 
-                        SurfaceControlCompat.Transaction()
-                            .setBuffer(scCompat, buffer)
-                            .setDataSpace(scCompat, extendedDataspace)
-                            .setExtendedRangeBrightness(scCompat, 1.0f, 3.0f)
-                            .setVisibility(scCompat, true)
-                            .commit()
-                    }
-                }
+                                SurfaceControlCompat.Transaction()
+                                    .setBuffer(scCompat, buffer)
+                                    .setDataSpace(scCompat, extendedDataspace)
+                                    .setExtendedRangeBrightness(scCompat, 1.0f, 3.0f)
+                                    .setVisibility(scCompat, true)
+                                    .commit()
+                            }
+                        }
 
-                it.addSurface(it.mSurfaceView, callback)
-            }
+                    it.addSurface(it.mSurfaceView, callback)
+                }
 
         try {
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                 SurfaceControlUtils.validateOutput(it.window) { bitmap ->
                     val coord = intArrayOf(0, 0)
                     it.mSurfaceView.getLocationInWindow(coord)
-                    val topLeft = bitmap.getPixel(
-                        coord[0] + 2,
-                        coord[1] + 2
-                    )
-                    val topRight = bitmap.getPixel(
-                        coord[0] + it.mSurfaceView.width - 2,
-                        coord[1] + 2
-                    )
-                    val bottomLeft = bitmap.getPixel(
-                        coord[0] + 2,
-                        coord[1] + it.mSurfaceView.height - 2
-                    )
-                    val bottomRight = bitmap.getPixel(
-                        coord[0] + it.mSurfaceView.width - 2,
-                        coord[1] + it.mSurfaceView.height - 2
-                    )
+                    val topLeft = bitmap.getPixel(coord[0] + 2, coord[1] + 2)
+                    val topRight =
+                        bitmap.getPixel(coord[0] + it.mSurfaceView.width - 2, coord[1] + 2)
+                    val bottomLeft =
+                        bitmap.getPixel(coord[0] + 2, coord[1] + it.mSurfaceView.height - 2)
+                    val bottomRight =
+                        bitmap.getPixel(
+                            coord[0] + it.mSurfaceView.width - 2,
+                            coord[1] + it.mSurfaceView.height - 2
+                        )
 
                     Color.RED == topLeft &&
                         topLeft == topRight &&

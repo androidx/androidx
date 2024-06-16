@@ -74,7 +74,9 @@ interface SharedOutputImage : OutputImage {
             private val sharedReference: SharedReference<OutputImage>
         ) : OutputImage by outputImage, SharedOutputImage {
             private val closed = atomic(false)
+
             override fun acquire(): SharedOutputImage = checkNotNull(acquireOrNull())
+
             override fun acquireOrNull(): SharedOutputImage? {
                 if (closed.value) {
                     return null
@@ -111,7 +113,6 @@ interface SharedOutputImage : OutputImage {
                                 "Cannot unwrap $this as android.media.Image. Use setFinalizer" +
                                     "instead and close all outstanding references."
                             )
-
                         else -> null
                     }
                 }

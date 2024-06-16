@@ -16,10 +16,9 @@
 
 package androidx.kruth
 
-/**
- * A Subject for [Char] arrays.
- */
-class PrimitiveDoubleArraySubject internal constructor(
+/** A Subject for [Char] arrays. */
+class PrimitiveDoubleArraySubject
+internal constructor(
     actual: DoubleArray?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<DoubleArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
@@ -45,11 +44,10 @@ class PrimitiveDoubleArraySubject internal constructor(
      * precision for the intermediate result.) This method is recommended when the code under test
      * is specified as either copying values without modification from its input or returning
      * well-defined literal or constant values.
-     *
-     * - It considers [Double.POSITIVE_INFINITY], [Double.NEGATIVE_INFINITY], and
-     * [Double.NaN] to be equal to themselves (contrast with `usingTolerance(0.0)` which does not).
+     * - It considers [Double.POSITIVE_INFINITY], [Double.NEGATIVE_INFINITY], and [Double.NaN] to be
+     *   equal to themselves (contrast with `usingTolerance(0.0)` which does not).
      * - It does *not* consider `-0.0` to be equal to `0.0` (contrast with `usingTolerance(0.0)`
-     * which does).
+     *   which does).
      */
     @Suppress("RedundantOverride") // Documented
     override fun isEqualTo(expected: Any?) {
@@ -62,9 +60,8 @@ class PrimitiveDoubleArraySubject internal constructor(
      * actual array, and in the same position, with element equality defined the same way that
      * [Double.equals] define it (which is different to the way that the `==` operator on primitive
      * [Double] defines it). See [isEqualTo] for advice on when exact equality is recommended.
-     *
      * - It considers [Double.POSITIVE_INFINITY], [Double.NEGATIVE_INFINITY], and [Double.NaN] to be
-     * equal to themselves.
+     *   equal to themselves.
      * - It does *not* consider `-0.0` to be equal to `0.0`.
      */
     @Suppress("RedundantOverride") // Documented
@@ -91,7 +88,7 @@ class PrimitiveDoubleArraySubject internal constructor(
         helper.hasLength(length)
     }
 
-    /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject].*/
+    /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject]. */
     fun asList(): IterableSubject<Double> {
         requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)

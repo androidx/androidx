@@ -41,35 +41,36 @@ import androidx.tv.material3.tokens.Elevation
  *
  * Choose the best button for an action based on the amount of emphasis it needs. The more important
  * an action is, the higher emphasis its button should be.
- *
  * - See [Button] for high emphasis (important, final actions that complete a flow).
  * - See [OutlinedButton] for a medium-emphasis button with a border.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
  * Samples:
+ *
  * @sample androidx.tv.material3.samples.ButtonSample
+ *
  * @sample androidx.tv.material3.samples.LikeButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
  * @param shape Defines the Button's shape.
  * @param colors Color to be used for background and content of the Button
  * @param tonalElevation tonal elevation used to apply a color shift to the button to give the it
- * higher emphasis
+ *   higher emphasis
  * @param border Defines a border around the Button.
  * @param contentPadding the spacing values to apply internally between the container and the
- * content
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this button. You can use this to change the button's appearance
- * or preview the button in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
+ *   preview the button in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param content the content of the button
  */
 @NonRestartableComposable
@@ -115,34 +116,34 @@ fun Button(
  *
  * Choose the best button for an action based on the amount of emphasis it needs. The more important
  * an action is, the higher emphasis its button should be.
- *
  * - See [Button] for high emphasis (important, final actions that complete a flow).
  * - See [OutlinedButton] for a medium-emphasis button with a border.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
  * Samples:
+ *
  * @sample androidx.tv.material3.samples.OutlinedButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
  * @param shape Defines the Button's shape.
  * @param colors Color to be used for background and content of the Button
  * @param tonalElevation tonal elevation used to apply a color shift to the button to give the it
- * higher emphasis
+ *   higher emphasis
  * @param border Defines a border around the Button.
  * @param contentPadding the spacing values to apply internally between the container and the
- * content
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this button. You can use this to change the button's appearance
- * or preview the button in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
+ *   preview the button in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param content the content of the button
  */
 @NonRestartableComposable
@@ -210,12 +211,12 @@ private fun ButtonImpl(
     ) {
         ProvideTextStyle(value = MaterialTheme.typography.labelLarge) {
             Row(
-                modifier = Modifier
-                    .defaultMinSize(
-                        minWidth = BaseButtonDefaults.MinWidth,
-                        minHeight = BaseButtonDefaults.MinHeight
-                    )
-                    .padding(contentPadding),
+                modifier =
+                    Modifier.defaultMinSize(
+                            minWidth = BaseButtonDefaults.MinWidth,
+                            minHeight = BaseButtonDefaults.MinHeight
+                        )
+                        .padding(contentPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 content = content

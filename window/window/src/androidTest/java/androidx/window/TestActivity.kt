@@ -52,18 +52,18 @@ public open class TestActivity : Activity(), View.OnLayoutChangeListener {
     }
 
     /**
-     * Resets layout counter when waiting for a layout to happen before calling
-     * [.waitForLayout].
+     * Resets layout counter when waiting for a layout to happen before calling [.waitForLayout].
      */
     public fun resetLayoutCounter() {
         layoutLatch = CountDownLatch(1)
     }
 
     /**
-     * Blocks and waits for the next layout to happen. [.resetLayoutCounter] must be called
-     * before calling this method.
-     * @return `true` if the layout happened before the timeout count reached zero and
-     * `false` if the waiting time elapsed before the layout happened.
+     * Blocks and waits for the next layout to happen. [.resetLayoutCounter] must be called before
+     * calling this method.
+     *
+     * @return `true` if the layout happened before the timeout count reached zero and `false` if
+     *   the waiting time elapsed before the layout happened.
      */
     public fun waitForLayout(): Boolean {
         return try {
@@ -86,10 +86,11 @@ public open class TestActivity : Activity(), View.OnLayoutChangeListener {
         }
 
         /**
-         * Same as [.waitForLayout], but waits for onResume() to be called for any activity of
-         * this class. This can be used to track activity re-creation.
+         * Same as [.waitForLayout], but waits for onResume() to be called for any activity of this
+         * class. This can be used to track activity re-creation.
+         *
          * @return `true` if the onResume() happened before the timeout count reached zero and
-         * `false` if the waiting time elapsed before the onResume() happened.
+         *   `false` if the waiting time elapsed before the onResume() happened.
          */
         @JvmStatic
         fun waitForOnResume(): Boolean {

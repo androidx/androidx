@@ -24,13 +24,11 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertTrue
 
 /**
- * Extension of [AppCompatActivity] that keeps track of when it is recreated.
- * In order to use this class, have your activity extend it and call
- * [recreate] API.
+ * Extension of [AppCompatActivity] that keeps track of when it is recreated. In order to use this
+ * class, have your activity extend it and call [recreate] API.
  */
-open class RecreatedAppCompatActivity(
-    @LayoutRes contentLayoutId: Int = 0
-) : AppCompatActivity(contentLayoutId) {
+open class RecreatedAppCompatActivity(@LayoutRes contentLayoutId: Int = 0) :
+    AppCompatActivity(contentLayoutId) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +46,9 @@ open class RecreatedAppCompatActivity(
     }
 
     companion object {
-        @JvmStatic
-        var activity: RecreatedAppCompatActivity? = null
-        @JvmStatic
-        internal var resumedLatch: CountDownLatch? = null
-        @JvmStatic
-        internal var destroyedLatch: CountDownLatch? = null
+        @JvmStatic var activity: RecreatedAppCompatActivity? = null
+        @JvmStatic internal var resumedLatch: CountDownLatch? = null
+        @JvmStatic internal var destroyedLatch: CountDownLatch? = null
 
         @JvmStatic
         internal fun clearState() {

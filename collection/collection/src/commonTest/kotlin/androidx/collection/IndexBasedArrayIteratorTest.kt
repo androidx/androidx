@@ -131,10 +131,9 @@ internal class IndexBasedArrayIteratorTest {
         assertEquals(expected, subject)
     }
 
-    private fun <V> Iterator<V>.convertToList(): List<V> =
-        buildList {
-            for (item in this@convertToList) {
-                add(item)
-            }
+    private fun <V> Iterator<V>.convertToList(): List<V> = buildList {
+        for (item in this@convertToList) {
+            add(item)
         }
+    }
 }

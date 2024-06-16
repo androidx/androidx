@@ -46,11 +46,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComposeViewOverlayTest {
     /**
-     * Note: this test does not use the compose rule to ensure default behavior
-     * of window-scoped Recomposer installation.
+     * Note: this test does not use the compose rule to ensure default behavior of window-scoped
+     * Recomposer installation.
      */
-    @get:Rule
-    val rule = activityScenarioRule<ComponentActivity>()
+    @get:Rule val rule = activityScenarioRule<ComponentActivity>()
 
     /**
      * Moving a ComposeView to an [android.view.ViewOverlay] means it won't have a correct parent
@@ -64,14 +63,12 @@ class ComposeViewOverlayTest {
     fun testComposeViewMovedToOverlay() {
         var factoryCallCount = 0
         lateinit var createdRecomposer: Recomposer
-        WindowRecomposerPolicy.withFactory(
-            { view ->
-                factoryCallCount++
-                WindowRecomposerFactory.LifecycleAware.createRecomposer(view).also {
-                    createdRecomposer = it
-                }
+        WindowRecomposerPolicy.withFactory({ view ->
+            factoryCallCount++
+            WindowRecomposerFactory.LifecycleAware.createRecomposer(view).also {
+                createdRecomposer = it
             }
-        ) {
+        }) {
             val expectedText = "Hello, world"
             lateinit var composeView: ComposeView
             lateinit var contentAView: ViewGroup
@@ -81,30 +78,28 @@ class ComposeViewOverlayTest {
             var consumedStage by mutableStateOf(-1)
             var compositionCount = 0
             rule.scenario.onActivity { activity ->
-                composeView = ComposeView(activity).apply {
-                    setContent {
-                        BasicText(expectedText)
-                        localLifecycleOwner = LocalLifecycleOwner.current
-                        consumedStage = publishedStage
-                        SideEffect {
-                            compositionCount++
+                composeView =
+                    ComposeView(activity).apply {
+                        setContent {
+                            BasicText(expectedText)
+                            localLifecycleOwner = LocalLifecycleOwner.current
+                            consumedStage = publishedStage
+                            SideEffect { compositionCount++ }
                         }
                     }
-                }
-                contentAView = FrameLayout(activity).apply {
-                    addView(composeView)
-                }
+                contentAView = FrameLayout(activity).apply { addView(composeView) }
                 contentBView = FrameLayout(activity)
-                val views = LinearLayout(activity).apply {
-                    addView(
-                        contentAView,
-                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
-                    )
-                    addView(
-                        contentBView,
-                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
-                    )
-                }
+                val views =
+                    LinearLayout(activity).apply {
+                        addView(
+                            contentAView,
+                            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                        )
+                        addView(
+                            contentBView,
+                            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                        )
+                    }
                 activity.setContentView(views)
             }
 

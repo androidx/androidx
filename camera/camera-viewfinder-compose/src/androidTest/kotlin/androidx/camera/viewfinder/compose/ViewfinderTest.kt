@@ -47,8 +47,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ViewfinderTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
@@ -65,7 +64,6 @@ class ViewfinderTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun coordinatesTransformationSameSizeNoRotation(): Unit = runBlocking {
-
         val coordinateTransformer = MutableCoordinateTransformer()
 
         val surfaceRequest =
@@ -82,17 +80,13 @@ class ViewfinderTest {
             }
         }
 
-        val expectedMatrix = Matrix(
-            values = floatArrayOf(
-                1f, 0f, 0f, 0f,
-                0f, 1f, 0f, 0f,
-                0f, 0f, 1f, 0f,
-                0f, 0f, 0f, 1f
+        val expectedMatrix =
+            Matrix(
+                values =
+                    floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
             )
-        )
 
-        assertThat(coordinateTransformer.transformMatrix.values)
-            .isEqualTo(expectedMatrix.values)
+        assertThat(coordinateTransformer.transformMatrix.values).isEqualTo(expectedMatrix.values)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
@@ -111,49 +105,44 @@ class ViewfinderTest {
                 Viewfinder(
                     modifier = Modifier.size(540.toDp(), 960.toDp()),
                     surfaceRequest = surfaceRequest,
-                    transformationInfo = TransformationInfo(
-                        sourceRotation = 0,
-                        cropRectLeft = 0,
-                        cropRectRight = 270,
-                        cropRectTop = 0,
-                        cropRectBottom = 480,
-                        shouldMirror = false
-                    ),
+                    transformationInfo =
+                        TransformationInfo(
+                            sourceRotation = 0,
+                            cropRectLeft = 0,
+                            cropRectRight = 270,
+                            cropRectTop = 0,
+                            cropRectBottom = 480,
+                            shouldMirror = false
+                        ),
                     implementationMode = ImplementationMode.EXTERNAL,
                     coordinateTransformer = coordinateTransformer
                 )
             }
         }
 
-        val expectedMatrix = Matrix(
-            values = floatArrayOf(
-                0.5f, 0f, 0f, 0f,
-                0f, 0.5f, 0f, 0f,
-                0f, 0f, 1f, 0f,
-                0f, 0f, 0f, 1f
+        val expectedMatrix =
+            Matrix(
+                values =
+                    floatArrayOf(0.5f, 0f, 0f, 0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
             )
-        )
 
-        assertThat(coordinateTransformer.transformMatrix.values)
-            .isEqualTo(expectedMatrix.values)
+        assertThat(coordinateTransformer.transformMatrix.values).isEqualTo(expectedMatrix.values)
     }
 
     @Test
     fun verifySurfacesAreReleased_surfaceRequestReleased_thenComposableDestroyed(): Unit =
         runBlocking {
             val surfaceDeferred = CompletableDeferred<Surface>()
-            val surfaceRequest = ViewfinderSurfaceRequest.Builder(
-                ViewfinderTestParams.Default.sourceResolution
-            ).build()
+            val surfaceRequest =
+                ViewfinderSurfaceRequest.Builder(ViewfinderTestParams.Default.sourceResolution)
+                    .build()
 
             val showViewfinder = mutableStateOf(true)
 
             rule.setContent {
                 val showView by remember { showViewfinder }
                 TestComposable(surfaceRequest = surfaceRequest, showView)
-                LaunchedEffect(Unit) {
-                    surfaceDeferred.complete(surfaceRequest.getSurface())
-                }
+                LaunchedEffect(Unit) { surfaceDeferred.complete(surfaceRequest.getSurface()) }
             }
 
             val surface = surfaceDeferred.await()
@@ -172,20 +161,16 @@ class ViewfinderTest {
     fun verifySurfacesAreReleased_composableDestroyed_thenSurfaceRequestReleased(): Unit =
         runBlocking {
             val surfaceDeferred = CompletableDeferred<Surface>()
-            val surfaceRequest = ViewfinderSurfaceRequest.Builder(
-                ViewfinderTestParams.Default.sourceResolution
-            ).build()
+            val surfaceRequest =
+                ViewfinderSurfaceRequest.Builder(ViewfinderTestParams.Default.sourceResolution)
+                    .build()
 
             val showViewFinder = mutableStateOf(true)
 
             rule.setContent {
-                val showView by remember {
-                    showViewFinder
-                }
+                val showView by remember { showViewFinder }
                 TestComposable(surfaceRequest = surfaceRequest, showView)
-                LaunchedEffect(Unit) {
-                    surfaceDeferred.complete(surfaceRequest.getSurface())
-                }
+                LaunchedEffect(Unit) { surfaceDeferred.complete(surfaceRequest.getSurface()) }
             }
 
             val surface = surfaceDeferred.await()
@@ -213,20 +198,14 @@ class ViewfinderTest {
                 implementationMode = implementationMode
             )
 
-            LaunchedEffect(Unit) {
-                surfaceDeferred.complete(surfaceRequest.getSurface())
-            }
+            LaunchedEffect(Unit) { surfaceDeferred.complete(surfaceRequest.getSurface()) }
         }
 
         val surface = surfaceDeferred.await()
         surface.lockHardwareCanvas().apply {
             try {
-                assertThat(
-                    Size(
-                        width,
-                        height
-                    )
-                ).isEqualTo(ViewfinderTestParams.Default.sourceResolution)
+                assertThat(Size(width, height))
+                    .isEqualTo(ViewfinderTestParams.Default.sourceResolution)
             } finally {
                 surface.unlockCanvasAndPost(this)
                 surfaceRequest.markSurfaceSafeToRelease()
@@ -240,8 +219,7 @@ fun TestComposable(surfaceRequest: ViewfinderSurfaceRequest, showView: Boolean) 
     Column {
         if (showView) {
             Viewfinder(
-                modifier = Modifier
-                    .size(ViewfinderTestParams.Default.viewfinderSize),
+                modifier = Modifier.size(ViewfinderTestParams.Default.viewfinderSize),
                 surfaceRequest = surfaceRequest,
                 transformationInfo = ViewfinderTestParams.Default.transformationInfo,
                 implementationMode = ImplementationMode.EXTERNAL,

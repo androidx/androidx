@@ -43,16 +43,19 @@ import org.junit.runner.RunWith
 class CoroutineWorkerTest {
     val workerFactory = TrackingWorkerFactory()
     val configuration =
-        Configuration.Builder().setWorkerFactory(workerFactory)
-            .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .setTaskExecutor(Executors.newSingleThreadExecutor())
+            .build()
     val env = TestEnv(configuration)
     val taskExecutor = env.taskExecutor
     val fakeChargingTracker = TestConstraintTracker(true, env.context, env.taskExecutor)
-    val trackers = Trackers(
-        context = env.context,
-        taskExecutor = env.taskExecutor,
-        batteryChargingTracker = fakeChargingTracker
-    )
+    val trackers =
+        Trackers(
+            context = env.context,
+            taskExecutor = env.taskExecutor,
+            batteryChargingTracker = fakeChargingTracker
+        )
     val greedyScheduler = GreedyScheduler(env, trackers)
     val workManager = WorkManager(env, listOf(greedyScheduler), trackers)
 
@@ -97,13 +100,21 @@ class CoroutineWorkerTest {
         workManager.enqueue(request)
         val worker = workerFactory.await(request.id) as ProgressUpdatingWorker
 
-        val progress1 = workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
-            .first { it.progress.getInt("progress", 0) != 0 }.progress
+        val progress1 =
+            workManager
+                .getWorkInfoByIdFlow(request.id)
+                .filterNotNull()
+                .first { it.progress.getInt("progress", 0) != 0 }
+                .progress
         assertThat(progress1.getInt("progress", 0)).isEqualTo(1)
         worker.firstCheckPoint.complete(Unit)
 
-        val progress2 = workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
-            .first { it.progress.getInt("progress", 0) != 1 }.progress
+        val progress2 =
+            workManager
+                .getWorkInfoByIdFlow(request.id)
+                .filterNotNull()
+                .first { it.progress.getInt("progress", 0) != 1 }
+                .progress
         assertThat(progress2.getInt("progress", 0)).isEqualTo(100)
         worker.secondCheckPoint.complete(Unit)
         val workInfo = workManager.awaitWorkerFinished(request.id)
@@ -112,28 +123,23 @@ class CoroutineWorkerTest {
     }
 }
 
-class SuccessCoroutineWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class SuccessCoroutineWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = Result.success(workDataOf("output" to 999L))
 }
 
-class ThrowingCoroutineWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class ThrowingCoroutineWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
         throw IllegalStateException("Failing worker")
     }
 }
 
-class CancellationCheckingWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class CancellationCheckingWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     var cancelled = false
     val doWorkCalled = CompletableDeferred<Unit>()
+
     override suspend fun doWork(): Result {
         doWorkCalled.complete(Unit)
         try {
@@ -147,10 +153,8 @@ class CancellationCheckingWorker(
     }
 }
 
-class ProgressUpdatingWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class ProgressUpdatingWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     val firstCheckPoint = CompletableDeferred<Unit>()
     val secondCheckPoint = CompletableDeferred<Unit>()
 

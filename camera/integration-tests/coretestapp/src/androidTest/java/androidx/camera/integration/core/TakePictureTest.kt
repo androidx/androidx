@@ -47,20 +47,18 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class TakePictureTest(
-    private val implName: String,
-    private val cameraConfig: String
-) {
+class TakePictureTest(private val implName: String, private val cameraConfig: String) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(
-            if (implName == Camera2Config::class.simpleName) {
-                Camera2Config.defaultConfig()
-            } else {
-                CameraPipeConfig.defaultConfig()
-            }
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(
+                if (implName == Camera2Config::class.simpleName) {
+                    Camera2Config.defaultConfig()
+                } else {
+                    CameraPipeConfig.defaultConfig()
+                }
+            )
         )
-    )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -70,31 +68,31 @@ class TakePictureTest(
         )
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
-    private val launchIntent = Intent(
-        ApplicationProvider.getApplicationContext(),
-        CameraXActivity::class.java
-    ).apply {
-        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
-        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
-    }
+    private val launchIntent =
+        Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
+            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
+        }
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(
-                Camera2Config::class.simpleName,
-                CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
-            ),
-            arrayOf(
-                CameraPipeConfig::class.simpleName,
-                CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
+        fun data() =
+            listOf(
+                arrayOf(
+                    Camera2Config::class.simpleName,
+                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+                ),
+                arrayOf(
+                    CameraPipeConfig::class.simpleName,
+                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
+                )
             )
-        )
     }
 
     @Before
@@ -151,23 +149,26 @@ class TakePictureTest(
 
                 // Act. continuously take 5 photos.
                 withActivity {
-                    cleanTakePictureErrorMessage()
-                    imageSavedIdlingResource
-                }.apply {
-                    for (i in 5 downTo 1) {
-                        onView(withId(R.id.Picture)).perform(click())
+                        cleanTakePictureErrorMessage()
+                        imageSavedIdlingResource
                     }
-                    waitForIdle()
-                }
+                    .apply {
+                        for (i in 5 downTo 1) {
+                            onView(withId(R.id.Picture)).perform(click())
+                        }
+                        waitForIdle()
+                    }
 
                 // Assert, there's no error message.
                 withActivity {
-                    deleteSessionImages()
-                    lastTakePictureErrorMessage ?: ""
-                }.let { errorMessage ->
-                    assertWithMessage("Fail to take picture: $errorMessage").that(errorMessage)
-                        .isEmpty()
-                }
+                        deleteSessionImages()
+                        lastTakePictureErrorMessage ?: ""
+                    }
+                    .let { errorMessage ->
+                        assertWithMessage("Fail to take picture: $errorMessage")
+                            .that(errorMessage)
+                            .isEmpty()
+                    }
             }
         }
     }

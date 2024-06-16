@@ -129,7 +129,7 @@ interface HealthConnectClient {
      * filtered to [Record] belonging to the calling application). Deletion of multiple [Record] is
      * executed in a transaction - if one fails, none is deleted.
      *
-     * @param recordType Which type of [Record] to delete, such as `Steps::class`
+     * @param recordType Which type of [Record] to delete, such as `StepsRecord::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
@@ -364,6 +364,7 @@ interface HealthConnectClient {
          * @param providerPackageName optional package provider to choose for backend implementation
          * @return One of [SDK_UNAVAILABLE], [SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED], or
          *   [SDK_AVAILABLE]
+         *
          * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
          */
         @JvmOverloads
@@ -479,7 +480,7 @@ interface HealthConnectClient {
                 } catch (e: PackageManager.NameNotFoundException) {
                     return false
                 }
-            return packageInfo.applicationInfo.enabled &&
+            return (packageInfo.applicationInfo?.enabled == true) &&
                 (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
                     PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode) &&
                 hasBindableService(packageManager, packageName)

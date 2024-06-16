@@ -16,10 +16,9 @@
 
 package androidx.kruth
 
-/**
- * A Subject for [Char] arrays.
- */
-class PrimitiveLongArraySubject internal constructor(
+/** A Subject for [Char] arrays. */
+class PrimitiveLongArraySubject
+internal constructor(
     actual: LongArray?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<LongArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
@@ -50,7 +49,7 @@ class PrimitiveLongArraySubject internal constructor(
         helper.hasLength(length)
     }
 
-    /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject].*/
+    /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject]. */
     fun asList(): IterableSubject<Long> {
         requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)

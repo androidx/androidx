@@ -22,10 +22,7 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 
-/**
- * Wrap the specified [block] in calls to [Canvas.save]
- * and [Canvas.restoreToCount].
- */
+/** Wrap the specified [block] in calls to [Canvas.save] and [Canvas.restoreToCount]. */
 public inline fun Canvas.withSave(block: Canvas.() -> Unit) {
     val checkpoint = save()
     try {
@@ -36,8 +33,8 @@ public inline fun Canvas.withSave(block: Canvas.() -> Unit) {
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.translate]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.translate] and
+ * [Canvas.restoreToCount].
  */
 public inline fun Canvas.withTranslation(
     x: Float = 0.0f,
@@ -54,8 +51,7 @@ public inline fun Canvas.withTranslation(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.rotate]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.rotate] and [Canvas.restoreToCount].
  */
 public inline fun Canvas.withRotation(
     degrees: Float = 0.0f,
@@ -73,8 +69,7 @@ public inline fun Canvas.withRotation(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.scale]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.scale] and [Canvas.restoreToCount].
  */
 public inline fun Canvas.withScale(
     x: Float = 1.0f,
@@ -93,14 +88,9 @@ public inline fun Canvas.withScale(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.skew]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.skew] and [Canvas.restoreToCount].
  */
-public inline fun Canvas.withSkew(
-    x: Float = 0.0f,
-    y: Float = 0.0f,
-    block: Canvas.() -> Unit
-) {
+public inline fun Canvas.withSkew(x: Float = 0.0f, y: Float = 0.0f, block: Canvas.() -> Unit) {
     val checkpoint = save()
     skew(x, y)
     try {
@@ -111,13 +101,9 @@ public inline fun Canvas.withSkew(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.concat]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.concat] and [Canvas.restoreToCount].
  */
-public inline fun Canvas.withMatrix(
-    matrix: Matrix = Matrix(),
-    block: Canvas.() -> Unit
-) {
+public inline fun Canvas.withMatrix(matrix: Matrix = Matrix(), block: Canvas.() -> Unit) {
     val checkpoint = save()
     concat(matrix)
     try {
@@ -128,13 +114,10 @@ public inline fun Canvas.withMatrix(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect] and
+ * [Canvas.restoreToCount].
  */
-public inline fun Canvas.withClip(
-    clipRect: Rect,
-    block: Canvas.() -> Unit
-) {
+public inline fun Canvas.withClip(clipRect: Rect, block: Canvas.() -> Unit) {
     val checkpoint = save()
     clipRect(clipRect)
     try {
@@ -145,13 +128,10 @@ public inline fun Canvas.withClip(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect] and
+ * [Canvas.restoreToCount].
  */
-public inline fun Canvas.withClip(
-    clipRect: RectF,
-    block: Canvas.() -> Unit
-) {
+public inline fun Canvas.withClip(clipRect: RectF, block: Canvas.() -> Unit) {
     val checkpoint = save()
     clipRect(clipRect)
     try {
@@ -162,8 +142,8 @@ public inline fun Canvas.withClip(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect] and
+ * [Canvas.restoreToCount].
  */
 public inline fun Canvas.withClip(
     left: Int,
@@ -182,8 +162,8 @@ public inline fun Canvas.withClip(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipRect] and
+ * [Canvas.restoreToCount].
  */
 public inline fun Canvas.withClip(
     left: Float,
@@ -202,13 +182,10 @@ public inline fun Canvas.withClip(
 }
 
 /**
- * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipPath]
- * and [Canvas.restoreToCount].
+ * Wrap the specified [block] in calls to [Canvas.save]/[Canvas.clipPath] and
+ * [Canvas.restoreToCount].
  */
-public inline fun Canvas.withClip(
-    clipPath: Path,
-    block: Canvas.() -> Unit
-) {
+public inline fun Canvas.withClip(clipPath: Path, block: Canvas.() -> Unit) {
     val checkpoint = save()
     clipPath(clipPath)
     try {

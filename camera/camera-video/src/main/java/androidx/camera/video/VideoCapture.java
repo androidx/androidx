@@ -42,6 +42,7 @@ import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
+import static androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk.workaroundBySurfaceProcessing;
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 import static androidx.camera.video.QualitySelector.getQualityToResolutionMap;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
@@ -60,7 +61,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
-import android.hardware.camera2.CameraDevice;
 import android.media.MediaCodec;
 import android.os.SystemClock;
 import android.util.Pair;
@@ -72,7 +72,6 @@ import android.view.Surface;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
@@ -126,11 +125,7 @@ import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk;
-import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk;
-import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
-import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk;
-import androidx.camera.video.internal.compat.quirk.TemporalNoiseQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
@@ -174,7 +169,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @param <T> the type of VideoOutput
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String TAG = "VideoCapture";
     private static final String SURFACE_UPDATE_KEY =
@@ -182,30 +176,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final Defaults DEFAULT_CONFIG = new Defaults();
     @VisibleForTesting
     static boolean sEnableSurfaceProcessingByQuirk;
-    private static final boolean USE_TEMPLATE_PREVIEW_BY_QUIRK;
 
     static {
-        boolean hasPreviewStretchQuirk =
-                DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
-        boolean hasPreviewDelayQuirk =
-                DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
-        ImageCaptureFailedWhenVideoCaptureIsBoundQuirk imageCaptureFailedQuirk =
-                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class);
-        boolean useTemplatePreviewByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
-                && imageCaptureFailedQuirk.workaroundByTemplatePreview();
-        boolean enableSurfaceProcessingByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
-                && imageCaptureFailedQuirk.workaroundBySurfaceProcessing();
         boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
                 hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
         boolean hasExtraSupportedResolutionQuirk =
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
-        boolean hasTemporalNoiseQuirk = DeviceQuirks.get(TemporalNoiseQuirk.class) != null;
-        USE_TEMPLATE_PREVIEW_BY_QUIRK =
-                hasPreviewStretchQuirk || hasPreviewDelayQuirk
-                        || useTemplatePreviewByImageCaptureFailedQuirk || hasTemporalNoiseQuirk;
         sEnableSurfaceProcessingByQuirk =
-                hasPreviewDelayQuirk || enableSurfaceProcessingByImageCaptureFailedQuirk
-                        || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
+                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
                         || hasExtraSupportedResolutionQuirk;
     }
 
@@ -356,7 +334,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @MirrorMode.Mirror
     public int getMirrorMode() {
-        return getMirrorModeInternal();
+        int mirrorMode = getMirrorModeInternal();
+        if (mirrorMode == MirrorMode.MIRROR_MODE_UNSPECIFIED) {
+            return MirrorMode.MIRROR_MODE_OFF;
+        }
+        return mirrorMode;
     }
 
     @SuppressWarnings("unchecked")
@@ -707,9 +689,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         sessionConfigBuilder.setVideoStabilization(config.getVideoStabilizationMode());
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
-        if (USE_TEMPLATE_PREVIEW_BY_QUIRK) {
-            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        }
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
@@ -903,7 +882,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
         if (!isStreamError && mDeferrableSurface != null) {
             if (isStreamActive) {
-                sessionConfigBuilder.addSurface(mDeferrableSurface, dynamicRange, null);
+                sessionConfigBuilder.addSurface(mDeferrableSurface,
+                        dynamicRange,
+                        null,
+                        MirrorMode.MIRROR_MODE_UNSPECIFIED);
             } else {
                 sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface, dynamicRange);
             }
@@ -1137,7 +1119,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
         // If there has been a buffer copy, it means the surface processing is already enabled on
         // input stream. Otherwise, enable it as needed.
-        return camera.getHasTransform() && sEnableSurfaceProcessingByQuirk;
+        return camera.getHasTransform() && (sEnableSurfaceProcessingByQuirk
+                || workaroundBySurfaceProcessing(camera.getCameraInfoInternal().getCameraQuirks()));
     }
 
     private static int alignDown(int length, int alignment,
@@ -1534,7 +1517,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @param <T> the type of VideoOutput
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements
             UseCaseConfig.Builder<VideoCapture<T>, VideoCaptureConfig<T>, Builder<T>>,
@@ -1614,6 +1596,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public VideoCaptureConfig<T> getUseCaseConfig() {
             return new VideoCaptureConfig<>(OptionsBundle.from(mMutableConfig));
+        }
+
+        /** Sets the associated {@link VideoOutput}. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder<T> setVideoOutput(@NonNull VideoOutput videoOutput) {
+            getMutableConfig().insertOption(OPTION_VIDEO_OUTPUT, videoOutput);
+            return this;
         }
 
         @NonNull

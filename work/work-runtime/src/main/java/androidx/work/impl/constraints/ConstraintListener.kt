@@ -25,8 +25,8 @@ import androidx.annotation.MainThread
 interface ConstraintListener<T> {
     /**
      * Called when the value of a constraint has changed.
+     *
      * @param newValue the new value of the constraint
      */
-    @MainThread
-    fun onConstraintChanged(newValue: T)
+    @MainThread fun onConstraintChanged(newValue: T)
 }

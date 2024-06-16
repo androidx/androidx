@@ -39,6 +39,7 @@ public class TestTileClientTest {
     private companion object {
         private val RESOURCES_VERSION = "10"
     }
+
     private val fakeTileService = FakeTileService()
     private lateinit var clientUnderTest: TestTileClient<FakeTileService>
 
@@ -68,9 +69,10 @@ public class TestTileClientTest {
 
     @Test
     public fun canCallOnResourcesRequest() {
-        val future = clientUnderTest.requestTileResourcesAsync(
-            RequestBuilders.ResourcesRequest.Builder().build()
-        )
+        val future =
+            clientUnderTest.requestTileResourcesAsync(
+                RequestBuilders.ResourcesRequest.Builder().build()
+            )
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(future.isDone).isTrue()

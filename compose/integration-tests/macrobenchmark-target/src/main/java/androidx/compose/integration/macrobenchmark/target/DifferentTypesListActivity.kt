@@ -65,9 +65,7 @@ class DifferentTypesListActivity : ComponentActivity() {
 
         setContent {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { contentDescription = "IamLazy" }
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "IamLazy" }
             ) {
                 items(count = itemCount, key = { it }, contentType = { it % 2 }) {
                     if (it % 2 == 0) {
@@ -84,16 +82,17 @@ class DifferentTypesListActivity : ComponentActivity() {
 
     internal fun ComponentActivity.launchIdlenessTracking() {
         val contentView: View = findViewById(android.R.id.content)
-        val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
-            override fun doFrame(frameTimeNanos: Long) {
-                if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
-                    contentView.contentDescription = "COMPOSE-BUSY"
-                } else {
-                    contentView.contentDescription = "COMPOSE-IDLE"
+        val callback: Choreographer.FrameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
+                        contentView.contentDescription = "COMPOSE-BUSY"
+                    } else {
+                        contentView.contentDescription = "COMPOSE-IDLE"
+                    }
+                    Choreographer.getInstance().postFrameCallback(this)
                 }
-                Choreographer.getInstance().postFrameCallback(this)
             }
-        }
         Choreographer.getInstance().postFrameCallback(callback)
     }
 
@@ -104,9 +103,7 @@ class DifferentTypesListActivity : ComponentActivity() {
 
 @Composable
 private fun OddItem(index: Int) {
-    Card(modifier = Modifier
-        .padding(8.dp)
-        .fillMaxWidth()) {
+    Card(modifier = Modifier.padding(8.dp).fillMaxWidth()) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -115,11 +112,7 @@ private fun OddItem(index: Int) {
                     modifier = Modifier.padding(16.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f, fill = true))
-                Checkbox(
-                    checked = false,
-                    onCheckedChange = {},
-                    modifier = Modifier.padding(16.dp)
-                )
+                Checkbox(checked = false, onCheckedChange = {}, modifier = Modifier.padding(16.dp))
             }
             Row {
                 LazyRow {
@@ -127,43 +120,26 @@ private fun OddItem(index: Int) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_launcher),
                             contentDescription = "ic launcher",
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .border(2.dp, Color.White)
-                                .padding(8.dp)
-                                .border(2.dp, Color.Green)
-                                .padding(8.dp)
+                            modifier =
+                                Modifier.padding(8.dp)
+                                    .border(2.dp, Color.White)
+                                    .padding(8.dp)
+                                    .border(2.dp, Color.Green)
+                                    .padding(8.dp)
                         )
                     }
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-
                 var expanded by remember { mutableStateOf(false) }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.TopEnd)
-                ) {
+                Box(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.TopEnd)) {
                     IconButton(onClick = { expanded = !expanded }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More"
-                        )
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More")
                     }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Load") },
-                            onClick = {}
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Save") },
-                            onClick = {}
-                        )
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenuItem(text = { Text("Load") }, onClick = {})
+                        DropdownMenuItem(text = { Text("Save") }, onClick = {})
                     }
                 }
             }
@@ -173,7 +149,5 @@ private fun OddItem(index: Int) {
 
 @Composable
 private fun EvenItem(index: Int) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Even item $index", fontSize = 17.sp)
-    }
+    Column(modifier = Modifier.padding(16.dp)) { Text(text = "Even item $index", fontSize = 17.sp) }
 }

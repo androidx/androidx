@@ -40,129 +40,123 @@ class FlattenedPageEventStorageTest {
     fun refresh() {
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c"))
-                ),
+                pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("a", "b", "c"),
-                placeholdersBefore = 3,
-                placeholdersAfter = 5
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("a", "b", "c"),
+                    placeholdersBefore = 3,
+                    placeholdersAfter = 5
+                )
             )
-        )
     }
 
     @Test
     fun refresh_thenPrepend() {
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c"))
-                ),
+                pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
             )
         )
         list.add(
             localPrepend(
-                pages = listOf(
-                    TransformablePage(data = listOf("x1")),
-                    TransformablePage(data = listOf("x2"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("x1")),
+                        TransformablePage(data = listOf("x2"))
+                    ),
                 placeholdersBefore = 1,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("x1", "x2", "a", "b", "c"),
-                placeholdersBefore = 1,
-                placeholdersAfter = 5
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("x1", "x2", "a", "b", "c"),
+                    placeholdersBefore = 1,
+                    placeholdersAfter = 5
+                )
             )
-        )
     }
 
     @Test
     fun refresh_thenAppend() {
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c"))
-                ),
+                pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
             )
         )
         list.add(
             localAppend(
-                pages = listOf(
-                    TransformablePage(data = listOf("x1")),
-                    TransformablePage(data = listOf("x2")),
-                    TransformablePage(data = listOf("x3"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("x1")),
+                        TransformablePage(data = listOf("x2")),
+                        TransformablePage(data = listOf("x3"))
+                    ),
                 placeholdersAfter = 2,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("a", "b", "c", "x1", "x2", "x3"),
-                placeholdersBefore = 3,
-                placeholdersAfter = 2
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("a", "b", "c", "x1", "x2", "x3"),
+                    placeholdersBefore = 3,
+                    placeholdersAfter = 2
+                )
             )
-        )
     }
 
     @Test
     fun refresh_refreshAgain() {
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c"))
-                ),
+                pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
             )
         )
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("x", "y"))
-                ),
+                pages = listOf(TransformablePage(data = listOf("x", "y"))),
                 placeholdersBefore = 2,
                 placeholdersAfter = 4,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("x", "y"),
-                placeholdersBefore = 2,
-                placeholdersAfter = 4
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(items = listOf("x", "y"), placeholdersBefore = 2, placeholdersAfter = 4)
             )
-        )
     }
 
     @Test
     fun drop_fromStart() {
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("a", "b", "c", "d", "e"),
-                placeholdersBefore = 3,
-                placeholdersAfter = 5
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("a", "b", "c", "d", "e"),
+                    placeholdersBefore = 3,
+                    placeholdersAfter = 5
+                )
             )
-        )
         list.add(
             Drop(
                 loadType = PREPEND,
@@ -171,80 +165,78 @@ class FlattenedPageEventStorageTest {
                 placeholdersRemaining = 6
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("d", "e"),
-                placeholdersBefore = 6,
-                placeholdersAfter = 5
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(items = listOf("d", "e"), placeholdersBefore = 6, placeholdersAfter = 5)
             )
-        )
     }
 
     @Test
     fun drop_fromEnd() {
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("a", "b", "c", "d", "e"),
-                placeholdersBefore = 3,
-                placeholdersAfter = 5
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("a", "b", "c", "d", "e"),
+                    placeholdersBefore = 3,
+                    placeholdersAfter = 5
+                )
             )
-        )
         list.add(
-            Drop(
-                loadType = APPEND,
-                minPageOffset = 1,
-                maxPageOffset = 1,
-                placeholdersRemaining = 7
-            )
+            Drop(loadType = APPEND, minPageOffset = 1, maxPageOffset = 1, placeholdersRemaining = 7)
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("a", "b", "c"),
-                placeholdersBefore = 3,
-                placeholdersAfter = 7
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("a", "b", "c"),
+                    placeholdersBefore = 3,
+                    placeholdersAfter = 7
+                )
             )
-        )
     }
 
     @Test
     fun staticList_initWithoutLoadStates() {
         list.add(StaticList(listOf("a", "b", "c")))
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                items = listOf("a", "b", "c"),
-                sourceLoadStates = LoadStates.IDLE,
-                mediatorLoadStates = null,
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    items = listOf("a", "b", "c"),
+                    sourceLoadStates = LoadStates.IDLE,
+                    mediatorLoadStates = null,
+                )
             )
-        )
-        assertThat(list.getAsEvents()).containsExactly(
-            localRefresh(
-                pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                source = LoadStates.IDLE,
+        assertThat(list.getAsEvents())
+            .containsExactly(
+                localRefresh(
+                    pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    source = LoadStates.IDLE,
+                )
             )
-        )
     }
 
     @Test
     fun staticList_initWithLoadStates() {
-        val nonDefaultloadStates = loadStates(
-            refresh = Error(TEST_EXCEPTION),
-            prepend = Error(TEST_EXCEPTION),
-            append = Error(TEST_EXCEPTION),
-        )
+        val nonDefaultloadStates =
+            loadStates(
+                refresh = Error(TEST_EXCEPTION),
+                prepend = Error(TEST_EXCEPTION),
+                append = Error(TEST_EXCEPTION),
+            )
         list.add(
             StaticList(
                 data = listOf("a", "b", "c"),
@@ -252,44 +244,49 @@ class FlattenedPageEventStorageTest {
                 mediatorLoadStates = nonDefaultloadStates,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                items = listOf("a", "b", "c"),
-                sourceLoadStates = nonDefaultloadStates,
-                mediatorLoadStates = nonDefaultloadStates,
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    items = listOf("a", "b", "c"),
+                    sourceLoadStates = nonDefaultloadStates,
+                    mediatorLoadStates = nonDefaultloadStates,
+                )
             )
-        )
-        assertThat(list.getAsEvents()).containsExactly(
-            remoteRefresh(
-                pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                source = nonDefaultloadStates,
-                mediator = nonDefaultloadStates,
+        assertThat(list.getAsEvents())
+            .containsExactly(
+                remoteRefresh(
+                    pages = listOf(TransformablePage(data = listOf("a", "b", "c"))),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    source = nonDefaultloadStates,
+                    mediator = nonDefaultloadStates,
+                )
             )
-        )
     }
 
     @Test
     fun staticList_afterInsertOverridesStates() {
-        val initialLoadStates = loadStates(
-            refresh = Loading,
-            prepend = Loading,
-            append = Loading,
-        )
-        val overridenloadStates = loadStates(
-            refresh = Error(TEST_EXCEPTION),
-            prepend = Error(TEST_EXCEPTION),
-            append = Error(TEST_EXCEPTION),
-        )
+        val initialLoadStates =
+            loadStates(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+            )
+        val overridenloadStates =
+            loadStates(
+                refresh = Error(TEST_EXCEPTION),
+                prepend = Error(TEST_EXCEPTION),
+                append = Error(TEST_EXCEPTION),
+            )
         list.add(
             remoteRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 source = initialLoadStates,
@@ -303,44 +300,49 @@ class FlattenedPageEventStorageTest {
                 mediatorLoadStates = overridenloadStates,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                items = listOf("x", "y", "z"),
-                sourceLoadStates = overridenloadStates,
-                mediatorLoadStates = overridenloadStates,
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    items = listOf("x", "y", "z"),
+                    sourceLoadStates = overridenloadStates,
+                    mediatorLoadStates = overridenloadStates,
+                )
             )
-        )
-        assertThat(list.getAsEvents()).containsExactly(
-            remoteRefresh(
-                pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                source = overridenloadStates,
-                mediator = overridenloadStates,
+        assertThat(list.getAsEvents())
+            .containsExactly(
+                remoteRefresh(
+                    pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    source = overridenloadStates,
+                    mediator = overridenloadStates,
+                )
             )
-        )
     }
 
     @Test
     fun staticList_afterInsertOverridesOnlySourceStates() {
-        val initialLoadStates = loadStates(
-            refresh = Loading,
-            prepend = Loading,
-            append = Loading,
-        )
-        val overridenloadStates = loadStates(
-            refresh = Error(TEST_EXCEPTION),
-            prepend = Error(TEST_EXCEPTION),
-            append = Error(TEST_EXCEPTION),
-        )
+        val initialLoadStates =
+            loadStates(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+            )
+        val overridenloadStates =
+            loadStates(
+                refresh = Error(TEST_EXCEPTION),
+                prepend = Error(TEST_EXCEPTION),
+                append = Error(TEST_EXCEPTION),
+            )
         list.add(
             remoteRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 source = initialLoadStates,
@@ -354,44 +356,49 @@ class FlattenedPageEventStorageTest {
                 mediatorLoadStates = null,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                items = listOf("x", "y", "z"),
-                sourceLoadStates = overridenloadStates,
-                mediatorLoadStates = initialLoadStates,
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    items = listOf("x", "y", "z"),
+                    sourceLoadStates = overridenloadStates,
+                    mediatorLoadStates = initialLoadStates,
+                )
             )
-        )
-        assertThat(list.getAsEvents()).containsExactly(
-            remoteRefresh(
-                pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                source = overridenloadStates,
-                mediator = initialLoadStates,
+        assertThat(list.getAsEvents())
+            .containsExactly(
+                remoteRefresh(
+                    pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    source = overridenloadStates,
+                    mediator = initialLoadStates,
+                )
             )
-        )
     }
 
     @Test
     fun staticList_afterInsertOverridesOnlyMediatorStates() {
-        val initialLoadStates = loadStates(
-            refresh = Loading,
-            prepend = Loading,
-            append = Loading,
-        )
-        val overridenloadStates = loadStates(
-            refresh = Error(TEST_EXCEPTION),
-            prepend = Error(TEST_EXCEPTION),
-            append = Error(TEST_EXCEPTION),
-        )
+        val initialLoadStates =
+            loadStates(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+            )
+        val overridenloadStates =
+            loadStates(
+                refresh = Error(TEST_EXCEPTION),
+                prepend = Error(TEST_EXCEPTION),
+                append = Error(TEST_EXCEPTION),
+            )
         list.add(
             remoteRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 source = initialLoadStates,
@@ -405,39 +412,43 @@ class FlattenedPageEventStorageTest {
                 mediatorLoadStates = overridenloadStates,
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                items = listOf("x", "y", "z"),
-                sourceLoadStates = initialLoadStates,
-                mediatorLoadStates = overridenloadStates,
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    items = listOf("x", "y", "z"),
+                    sourceLoadStates = initialLoadStates,
+                    mediatorLoadStates = overridenloadStates,
+                )
             )
-        )
-        assertThat(list.getAsEvents()).containsExactly(
-            remoteRefresh(
-                pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                source = initialLoadStates,
-                mediator = overridenloadStates,
+        assertThat(list.getAsEvents())
+            .containsExactly(
+                remoteRefresh(
+                    pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    source = initialLoadStates,
+                    mediator = overridenloadStates,
+                )
             )
-        )
     }
 
     @Test
     fun staticList_afterInsertPreservesStates() {
-        val nonDefaultloadStates = loadStates(
-            refresh = Error(TEST_EXCEPTION),
-            prepend = Error(TEST_EXCEPTION),
-            append = Error(TEST_EXCEPTION),
-        )
+        val nonDefaultloadStates =
+            loadStates(
+                refresh = Error(TEST_EXCEPTION),
+                prepend = Error(TEST_EXCEPTION),
+                append = Error(TEST_EXCEPTION),
+            )
         list.add(
             remoteRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 source = nonDefaultloadStates,
@@ -445,24 +456,26 @@ class FlattenedPageEventStorageTest {
             )
         )
         list.add(StaticList(listOf("x", "y", "z")))
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                items = listOf("x", "y", "z"),
-                sourceLoadStates = nonDefaultloadStates,
-                mediatorLoadStates = nonDefaultloadStates,
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    items = listOf("x", "y", "z"),
+                    sourceLoadStates = nonDefaultloadStates,
+                    mediatorLoadStates = nonDefaultloadStates,
+                )
             )
-        )
-        assertThat(list.getAsEvents()).containsExactly(
-            remoteRefresh(
-                pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                source = nonDefaultloadStates,
-                mediator = nonDefaultloadStates,
+        assertThat(list.getAsEvents())
+            .containsExactly(
+                remoteRefresh(
+                    pages = listOf(TransformablePage(data = listOf("x", "y", "z"))),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    source = nonDefaultloadStates,
+                    mediator = nonDefaultloadStates,
+                )
             )
-        )
     }
 
     @Test
@@ -470,36 +483,37 @@ class FlattenedPageEventStorageTest {
         val error = Error(RuntimeException("?"))
         list.add(
             localRefresh(
-                pages = listOf(
-                    TransformablePage(data = listOf("a", "b", "c")),
-                    TransformablePage(data = listOf("d", "e"))
-                ),
+                pages =
+                    listOf(
+                        TransformablePage(data = listOf("a", "b", "c")),
+                        TransformablePage(data = listOf("d", "e"))
+                    ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 source = loadStates(prepend = Loading, append = error)
             )
         )
-        assertThat(list.snapshot()).isEqualTo(
-            Snapshot(
-                items = listOf("a", "b", "c", "d", "e"),
-                placeholdersBefore = 3,
-                placeholdersAfter = 5,
-                sourceLoadStates = loadStates(
-                    refresh = NotLoading.Incomplete,
-                    prepend = Loading,
-                    append = error
+        assertThat(list.snapshot())
+            .isEqualTo(
+                Snapshot(
+                    items = listOf("a", "b", "c", "d", "e"),
+                    placeholdersBefore = 3,
+                    placeholdersAfter = 5,
+                    sourceLoadStates =
+                        loadStates(
+                            refresh = NotLoading.Incomplete,
+                            prepend = Loading,
+                            append = error
+                        )
                 )
             )
-        )
     }
 
     private fun <T : Any> FlattenedPageEventStorage<T>.snapshot(): Snapshot<T> {
         return this.getAsEvents().fold(Snapshot()) { snapshot, event ->
             when (event) {
                 is PageEvent.Insert -> {
-                    check(event.loadType == REFRESH) {
-                        "should only send refresh event"
-                    }
+                    check(event.loadType == REFRESH) { "should only send refresh event" }
                     snapshot.copy(
                         items = snapshot.items + event.pages.flatMap { it.data },
                         placeholdersBefore = event.placeholdersBefore,
@@ -520,8 +534,8 @@ class FlattenedPageEventStorageTest {
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = event.sourceLoadStates ?: snapshot.sourceLoadStates,
-                        mediatorLoadStates = event.mediatorLoadStates
-                            ?: snapshot.mediatorLoadStates,
+                        mediatorLoadStates =
+                            event.mediatorLoadStates ?: snapshot.mediatorLoadStates,
                     )
                 }
             }

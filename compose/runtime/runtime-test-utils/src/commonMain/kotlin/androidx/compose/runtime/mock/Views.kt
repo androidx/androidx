@@ -26,14 +26,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
 
 @Composable
-fun <T : Any> Repeated(
-    of: Iterable<T>,
-    block: @Composable (value: T) -> Unit
-) {
+fun <T : Any> Repeated(of: Iterable<T>, block: @Composable (value: T) -> Unit) {
     for (value in of) {
-        key(value) {
-            block(value)
-        }
+        key(value) { block(value) }
     }
 }
 
@@ -41,7 +36,7 @@ fun <T : Any> Repeated(
 fun Linear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
-        update = { }
+        update = {}
     ) {
         content()
     }
@@ -51,7 +46,7 @@ fun Linear(content: @Composable () -> Unit) {
 inline fun InlineLinear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
-        update = { }
+        update = {}
     ) {
         content()
     }
@@ -88,9 +83,7 @@ fun Linear(
                 }
             }
         },
-        update = {
-            set(onSet) { onSet() }
-        },
+        update = { set(onSet) { onSet() } },
     ) {
         content()
     }
@@ -98,15 +91,13 @@ fun Linear(
 
 @Composable
 fun NonReusableLinear(content: @Composable () -> Unit) {
-    ComposeNode<View, ViewApplier>(
-        factory = { View().also { it.name = "linear" } },
-        update = { }
-    ) {
+    ComposeNode<View, ViewApplier>(factory = { View().also { it.name = "linear" } }, update = {}) {
         content()
     }
 }
 
-@Composable @NonRestartableComposable
+@Composable
+@NonRestartableComposable
 fun Text(value: String) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "text" } },
@@ -131,14 +122,11 @@ fun Edit(value: String) {
 }
 
 @Composable
-fun SelectBox(
-    selected: Boolean,
-    content: @Composable () -> Unit
-) {
+fun SelectBox(selected: Boolean, content: @Composable () -> Unit) {
     if (selected) {
         ReusableComposeNode<View, ViewApplier>(
             factory = { View().also { it.name = "box" } },
-            update = { },
+            update = {},
             content = { content() }
         )
     } else {

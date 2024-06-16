@@ -75,10 +75,7 @@ class LocalesStackedHandlingTestCase {
         val result = Instrumentation.ActivityResult(0, Intent())
         val monitorA = ActivityMonitor(LocalesActivityA::class.java.name, result, false)
         val monitorB = ActivityMonitor(LocalesActivityB::class.java.name, result, false)
-        val monitorC = ActivityMonitor(
-            LocalesConfigChangesActivity::class.java.name,
-            result, false
-        )
+        val monitorC = ActivityMonitor(LocalesConfigChangesActivity::class.java.name, result, false)
         instr.addMonitor(monitorA)
         instr.addMonitor(monitorB)
         instr.addMonitor(monitorC)
@@ -96,8 +93,8 @@ class LocalesStackedHandlingTestCase {
         )
 
         // From activity A, start activity B.
-        val activityA = monitorA.waitForActivityWithTimeout(/* timeout= */ 3000)
-            as LocalesUpdateActivity
+        val activityA =
+            monitorA.waitForActivityWithTimeout(/* timeout= */ 3000) as LocalesUpdateActivity
         assertNotNull(activityA)
         activityA.startActivity(
             Intent(instr.context, LocalesActivityB::class.java).apply {
@@ -105,9 +102,8 @@ class LocalesStackedHandlingTestCase {
             }
         )
 
-        var systemLocales = LocalesUpdateActivity.getConfigLocales(
-            activityA.resources.configuration
-        )
+        var systemLocales =
+            LocalesUpdateActivity.getConfigLocales(activityA.resources.configuration)
 
         // Activity A is hidden, wait for it to stop.
         waitUntilState(activityA, Lifecycle.State.CREATED)
@@ -129,9 +125,7 @@ class LocalesStackedHandlingTestCase {
         val activityC =
             monitorC.waitForActivityWithTimeout(/* timeout= */ 3000) as LocalesUpdateActivity
         assertNotNull(activityC)
-        activityC.runOnUiThread {
-            AppCompatDelegate.setApplicationLocales(CUSTOM_LOCALE_LIST)
-        }
+        activityC.runOnUiThread { AppCompatDelegate.setApplicationLocales(CUSTOM_LOCALE_LIST) }
 
         // Activity C should receive a configuration change.
         activityC.expectOnConfigurationChange(/* timeout= */ 3000)
@@ -140,9 +134,8 @@ class LocalesStackedHandlingTestCase {
         val activityA2 = expectRecreate(monitorA, activityA) as LocalesUpdateActivity
         val activityB2 = expectRecreate(monitorB, activityB) as LocalesUpdateActivity
 
-        var expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
-            CUSTOM_LOCALE_LIST, systemLocales
-        )
+        var expectedLocales =
+            LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
         // Activity C should have received a locales configuration change.
         listOf(activityC, activityA2, activityB2).forEach { activity ->
             activityC.runOnUiThread {
@@ -160,8 +153,8 @@ class LocalesStackedHandlingTestCase {
      *
      * If you have a stack of activities where every activity has `android:configChanges="locale"`
      * and android:configChanges="layoutDirection" and you call
-     * [AppCompatDelegate.setApplicationLocales] from thread other than the top activity,
-     * then it can cause the bottom activity to not receive `onConfigurationChanged`.
+     * [AppCompatDelegate.setApplicationLocales] from thread other than the top activity, then it
+     * can cause the bottom activity to not receive `onConfigurationChanged`.
      *
      * Eg:
      * - Activity A DOES intercept locales and layoutDirection changes in manifest
@@ -171,10 +164,9 @@ class LocalesStackedHandlingTestCase {
      * Here is your stack : A > B > C (C on top)
      *
      * Call [AppCompatDelegate.setApplicationLocales] with a new mode on activity C (but not
-     * directly
-     * from this activity, ex with RX AndroidSchedulers.mainThread or an handler). Activity C
-     * receives both `onConfigurationChanged` and `onLocalesChanged`, but activities A and B
-     * may not receive either callback or change their configurations.
+     * directly from this activity, ex with RX AndroidSchedulers.mainThread or an handler). Activity
+     * C receives both `onConfigurationChanged` and `onLocalesChanged`, but activities A and B may
+     * not receive either callback or change their configurations.
      *
      * Process:
      * 1. A > B > C > setApplicationLocales YES
@@ -185,18 +177,11 @@ class LocalesStackedHandlingTestCase {
     fun testLocalesWithStackedActivitiesAndNavigation() {
         val instr = InstrumentationRegistry.getInstrumentation()
         val result = Instrumentation.ActivityResult(0, Intent())
-        val monitorA = ActivityMonitor(
-            LocalesConfigChangesActivity::class.java.name,
-            result, false
-        )
-        val monitorB = ActivityMonitor(
-            LocalesConfigChangesActivityA::class.java.name,
-            result, false
-        )
-        val monitorC = ActivityMonitor(
-            LocalesConfigChangesActivityB::class.java.name,
-            result, false
-        )
+        val monitorA = ActivityMonitor(LocalesConfigChangesActivity::class.java.name, result, false)
+        val monitorB =
+            ActivityMonitor(LocalesConfigChangesActivityA::class.java.name, result, false)
+        val monitorC =
+            ActivityMonitor(LocalesConfigChangesActivityB::class.java.name, result, false)
         instr.addMonitor(monitorA)
         instr.addMonitor(monitorB)
         instr.addMonitor(monitorC)
@@ -223,9 +208,8 @@ class LocalesStackedHandlingTestCase {
             }
         )
 
-        var systemLocales = LocalesUpdateActivity.getConfigLocales(
-            activityA.resources.configuration
-        )
+        var systemLocales =
+            LocalesUpdateActivity.getConfigLocales(activityA.resources.configuration)
 
         // Activity A is hidden, wait for it to stop.
         waitUntilState(activityA, Lifecycle.State.CREATED)
@@ -258,9 +242,8 @@ class LocalesStackedHandlingTestCase {
             activity.expectOnConfigurationChange(/* timeout= */ 3000)
         }
 
-        var expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
-            CUSTOM_LOCALE_LIST, systemLocales
-        )
+        var expectedLocales =
+            LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
 
         // Activities A, B, and C should have all received the new configuration.
         listOf(activityA, activityB, activityC).forEach { activity ->
@@ -275,9 +258,7 @@ class LocalesStackedHandlingTestCase {
 
         // Tear down activities C and B, in that order.
         listOf(activityC, activityB).forEach { activity ->
-            activity.runOnUiThread {
-                activity.finish()
-            }
+            activity.runOnUiThread { activity.finish() }
             waitUntilState(activity, Lifecycle.State.DESTROYED)
         }
 

@@ -29,20 +29,19 @@ import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
 import androidx.compose.ui.unit.Constraints
 
 /**
- * A layout that only composes and lays out currently needed items. Can be used to build
- * efficient scrollable layouts.
+ * A layout that only composes and lays out currently needed items. Can be used to build efficient
+ * scrollable layouts.
  *
- * @param itemProvider provides all the needed info about the items which could be used to
- * compose and measure items as part of [measurePolicy].
+ * @param itemProvider provides all the needed info about the items which could be used to compose
+ *   and measure items as part of [measurePolicy].
  * @param modifier to apply on the layout
  * @param prefetchState allows to schedule items for prefetching
  * @param measurePolicy Measure policy which allows to only compose and measure needed items.
  */
 @Deprecated(
     message = "Use an overload accepting a lambda prodicing an item provider instead",
-    replaceWith = ReplaceWith(
-        "LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)"
-    )
+    replaceWith =
+        ReplaceWith("LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)")
 )
 @ExperimentalFoundationApi
 @Composable
@@ -56,11 +55,11 @@ fun LazyLayout(
 }
 
 /**
- * A layout that only composes and lays out currently needed items. Can be used to build
- * efficient scrollable layouts.
+ * A layout that only composes and lays out currently needed items. Can be used to build efficient
+ * scrollable layouts.
  *
- * @param itemProvider lambda producing an item provider containing all the needed info about
- * the items which could be used to compose and measure items as part of [measurePolicy].
+ * @param itemProvider lambda producing an item provider containing all the needed info about the
+ *   items which could be used to compose and measure items as part of [measurePolicy].
  * @param modifier to apply on the layout
  * @param prefetchState allows to schedule items for prefetching
  * @param measurePolicy Measure policy which allows to only compose and measure needed items.
@@ -88,20 +87,10 @@ fun LazyLayout(
         }
         if (prefetchState != null) {
             val executor = prefetchState.prefetchScheduler ?: rememberDefaultPrefetchScheduler()
-            DisposableEffect(
-                prefetchState,
-                itemContentFactory,
-                subcomposeLayoutState,
-                executor
-            ) {
-                prefetchState.prefetchHandleProvider = PrefetchHandleProvider(
-                    itemContentFactory,
-                    subcomposeLayoutState,
-                    executor
-                )
-                onDispose {
-                    prefetchState.prefetchHandleProvider = null
-                }
+            DisposableEffect(prefetchState, itemContentFactory, subcomposeLayoutState, executor) {
+                prefetchState.prefetchHandleProvider =
+                    PrefetchHandleProvider(itemContentFactory, subcomposeLayoutState, executor)
+                onDispose { prefetchState.prefetchHandleProvider = null }
             }
         }
 
@@ -110,12 +99,7 @@ fun LazyLayout(
             modifier.traversablePrefetchState(prefetchState),
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
-                    with(
-                        LazyLayoutMeasureScopeImpl(
-                            itemContentFactory,
-                            this
-                        )
-                    ) {
+                    with(LazyLayoutMeasureScopeImpl(itemContentFactory, this)) {
                         measurePolicy(constraints)
                     }
                 }
@@ -125,9 +109,8 @@ fun LazyLayout(
 }
 
 @ExperimentalFoundationApi
-private class LazyLayoutItemReusePolicy(
-    private val factory: LazyLayoutItemContentFactory
-) : SubcomposeSlotReusePolicy {
+private class LazyLayoutItemReusePolicy(private val factory: LazyLayoutItemContentFactory) :
+    SubcomposeSlotReusePolicy {
     private val countPerType = mutableMapOf<Any?, Int>()
 
     override fun getSlotsToRetain(slotIds: SubcomposeSlotReusePolicy.SlotIdsSet) {
@@ -151,7 +134,7 @@ private class LazyLayoutItemReusePolicy(
 }
 
 /**
- * We currently use the same number of items to reuse (recycle) items as RecyclerView does:
- * 5 (RecycledViewPool.DEFAULT_MAX_SCRAP) + 2 (Recycler.DEFAULT_CACHE_SIZE)
+ * We currently use the same number of items to reuse (recycle) items as RecyclerView does: 5
+ * (RecycledViewPool.DEFAULT_MAX_SCRAP) + 2 (Recycler.DEFAULT_CACHE_SIZE)
  */
 private const val MaxItemsToRetainForReuse = 7

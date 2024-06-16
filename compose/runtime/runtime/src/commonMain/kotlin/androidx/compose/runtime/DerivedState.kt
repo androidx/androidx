@@ -16,6 +16,7 @@
 
 @file:JvmName("SnapshotStateKt")
 @file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 import androidx.collection.MutableObjectIntMap
@@ -23,6 +24,8 @@ import androidx.collection.ObjectIntMap
 import androidx.collection.emptyObjectIntMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.internal.IntRef
+import androidx.compose.runtime.internal.SnapshotThreadLocal
+import androidx.compose.runtime.internal.identityHashCode
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
@@ -42,21 +45,20 @@ import kotlin.math.min
  * @see derivedStateOf
  */
 internal interface DerivedState<T> : State<T> {
-    /**
-     * Provides a current [Record].
-     */
+    /** Provides a current [Record]. */
     val currentRecord: Record<T>
 
     /**
-     * Mutation policy that controls how changes are handled after state dependencies update.
-     * If the policy is `null`, the derived state update is triggered regardless of the value
-     * produced and it is up to observer to invalidate it correctly.
+     * Mutation policy that controls how changes are handled after state dependencies update. If the
+     * policy is `null`, the derived state update is triggered regardless of the value produced and
+     * it is up to observer to invalidate it correctly.
      */
     val policy: SnapshotMutationPolicy<T>?
 
     interface Record<T> {
         /**
-         * The value of the derived state retrieved without triggering a notification to read observers.
+         * The value of the derived state retrieved without triggering a notification to read
+         * observers.
          */
         val currentValue: T
 
@@ -71,10 +73,10 @@ internal interface DerivedState<T> : State<T> {
 }
 
 private val calculationBlockNestedLevel = SnapshotThreadLocal<IntRef>()
+
 private inline fun <T> withCalculationNestedLevel(block: (IntRef) -> T): T {
-    val ref = calculationBlockNestedLevel.get() ?: IntRef(0).also {
-        calculationBlockNestedLevel.set(it)
-    }
+    val ref =
+        calculationBlockNestedLevel.get() ?: IntRef(0).also { calculationBlockNestedLevel.set(it) }
     return block(ref)
 }
 
@@ -97,8 +99,7 @@ private class DerivedSnapshotState<T>(
         var resultHash: Int = 0
 
         override fun assign(value: StateRecord) {
-            @Suppress("UNCHECKED_CAST")
-            val other = value as ResultRecord<T>
+            @Suppress("UNCHECKED_CAST") val other = value as ResultRecord<T>
             dependencies = other.dependencies
             result = other.result
             resultHash = other.resultHash
@@ -110,8 +111,9 @@ private class DerivedSnapshotState<T>(
             val snapshotChanged = sync {
                 validSnapshotId != snapshot.id || validSnapshotWriteCount != snapshot.writeCount
             }
-            val isValid = result !== Unset &&
-                (!snapshotChanged || resultHash == readableHash(derivedState, snapshot))
+            val isValid =
+                result !== Unset &&
+                    (!snapshotChanged || resultHash == readableHash(derivedState, snapshot))
 
             if (isValid && snapshotChanged) {
                 sync {
@@ -135,15 +137,16 @@ private class DerivedSnapshotState<T>(
                         }
 
                         // Find the first record without triggering an observer read.
-                        val record = if (stateObject is DerivedSnapshotState<*>) {
-                            // eagerly access the parent derived states without recording the
-                            // read
-                            // that way we can be sure derived states in deps were recalculated,
-                            // and are updated to the last values
-                            stateObject.current(snapshot)
-                        } else {
-                            current(stateObject.firstStateRecord, snapshot)
-                        }
+                        val record =
+                            if (stateObject is DerivedSnapshotState<*>) {
+                                // eagerly access the parent derived states without recording the
+                                // read
+                                // that way we can be sure derived states in deps were recalculated,
+                                // and are updated to the last values
+                                stateObject.current(snapshot)
+                            } else {
+                                current(stateObject.firstStateRecord, snapshot)
+                            }
 
                         hash = 31 * hash + identityHashCode(record)
                         hash = 31 * hash + record.snapshotId
@@ -154,13 +157,12 @@ private class DerivedSnapshotState<T>(
         }
 
         override val currentValue: T
-            @Suppress("UNCHECKED_CAST")
-            get() = result as T
+            @Suppress("UNCHECKED_CAST") get() = result as T
     }
 
     /**
-     * Get current record in snapshot. Forces recalculation if record is invalid to refresh
-     * state value.
+     * Get current record in snapshot. Forces recalculation if record is invalid to refresh state
+     * value.
      *
      * @return latest state record for the derived state.
      */
@@ -198,20 +200,22 @@ private class DerivedSnapshotState<T>(
             notifyObservers(this) {
                 calculationLevelRef.element = nestedCalculationLevel + 1
 
-                val result = Snapshot.observe(
-                    {
-                        if (it === this)
-                            error("A derived state calculation cannot read itself")
-                        if (it is StateObject) {
-                            val readNestedLevel = calculationLevelRef.element
-                            newDependencies[it] = min(
-                                readNestedLevel - nestedCalculationLevel,
-                                newDependencies.getOrDefault(it, Int.MAX_VALUE)
-                            )
-                        }
-                    },
-                    null, calculation
-                )
+                val result =
+                    Snapshot.observe(
+                        {
+                            if (it === this) error("A derived state calculation cannot read itself")
+                            if (it is StateObject) {
+                                val readNestedLevel = calculationLevelRef.element
+                                newDependencies[it] =
+                                    min(
+                                        readNestedLevel - nestedCalculationLevel,
+                                        newDependencies.getOrDefault(it, Int.MAX_VALUE)
+                                    )
+                            }
+                        },
+                        null,
+                        calculation
+                    )
 
                 calculationLevelRef.element = nestedCalculationLevel
                 result
@@ -223,8 +227,8 @@ private class DerivedSnapshotState<T>(
 
             if (
                 readable.result !== ResultRecord.Unset &&
-                @Suppress("UNCHECKED_CAST")
-                policy?.equivalent(result, readable.result as T) == true
+                    @Suppress("UNCHECKED_CAST") policy?.equivalent(result, readable.result as T) ==
+                        true
             ) {
                 readable.dependencies = newDependencies
                 readable.resultHash = readable.readableHash(this, currentSnapshot)
@@ -251,7 +255,8 @@ private class DerivedSnapshotState<T>(
         return record
     }
 
-    override val firstStateRecord: StateRecord get() = first
+    override val firstStateRecord: StateRecord
+        get() = first
 
     override fun prependStateRecord(value: StateRecord) {
         @Suppress("UNCHECKED_CAST")
@@ -260,7 +265,8 @@ private class DerivedSnapshotState<T>(
 
     override val value: T
         get() {
-            // Unlike most state objects, the record list of a derived state can change during a read
+            // Unlike most state objects, the record list of a derived state can change during a
+            // read
             // because reading updates the cache. To account for this, instead of calling readable,
             // which sends the read notification, the read observer is notified directly and current
             // value is used instead which doesn't notify. This allow the read observer to read the
@@ -280,9 +286,8 @@ private class DerivedSnapshotState<T>(
             return currentRecord(record, snapshot, false, calculation)
         }
 
-    override fun toString(): String = first.withCurrent {
-        "DerivedState(value=${displayValue()})@${hashCode()}"
-    }
+    override fun toString(): String =
+        first.withCurrent { "DerivedState(value=${displayValue()})@${hashCode()}" }
 
     /**
      * A function used by the debugger to display the value of the current value of the mutable
@@ -291,12 +296,11 @@ private class DerivedSnapshotState<T>(
     @Suppress("unused")
     val debuggerDisplayValue: T?
         @JvmName("getDebuggerDisplayValue")
-        get() = first.withCurrent {
-            @Suppress("UNCHECKED_CAST")
-            if (it.isValid(this, Snapshot.current))
-                it.result as T
-            else null
-        }
+        get() =
+            first.withCurrent {
+                @Suppress("UNCHECKED_CAST")
+                if (it.isValid(this, Snapshot.current)) it.result as T else null
+            }
 
     private fun displayValue(): String {
         first.withCurrent {
@@ -312,12 +316,11 @@ private class DerivedSnapshotState<T>(
  * Creates a [State] object whose [State.value] is the result of [calculation]. The result of
  * calculation will be cached in such a way that calling [State.value] repeatedly will not cause
  * [calculation] to be executed multiple times, but reading [State.value] will cause all [State]
- * objects that got read during the [calculation] to be read in the current [Snapshot], meaning
- * that this will correctly subscribe to the derived state objects if the value is being read in
- * an observed context such as a [Composable] function.
- * Derived states without mutation policy trigger updates on each dependency change. To avoid
- * invalidation on update, provide suitable [SnapshotMutationPolicy] through [derivedStateOf]
- * overload.
+ * objects that got read during the [calculation] to be read in the current [Snapshot], meaning that
+ * this will correctly subscribe to the derived state objects if the value is being read in an
+ * observed context such as a [Composable] function. Derived states without mutation policy trigger
+ * updates on each dependency change. To avoid invalidation on update, provide suitable
+ * [SnapshotMutationPolicy] through [derivedStateOf] overload.
  *
  * @sample androidx.compose.runtime.samples.DerivedStateSample
  *
@@ -332,9 +335,9 @@ fun <T> derivedStateOf(
  * Creates a [State] object whose [State.value] is the result of [calculation]. The result of
  * calculation will be cached in such a way that calling [State.value] repeatedly will not cause
  * [calculation] to be executed multiple times, but reading [State.value] will cause all [State]
- * objects that got read during the [calculation] to be read in the current [Snapshot], meaning
- * that this will correctly subscribe to the derived state objects if the value is being read in
- * an observed context such as a [Composable] function.
+ * objects that got read during the [calculation] to be read in the current [Snapshot], meaning that
+ * this will correctly subscribe to the derived state objects if the value is being read in an
+ * observed context such as a [Composable] function.
  *
  * @sample androidx.compose.runtime.samples.DerivedStateSample
  *
@@ -347,27 +350,20 @@ fun <T> derivedStateOf(
     calculation: () -> T,
 ): State<T> = DerivedSnapshotState(calculation, policy)
 
-/**
- * Observe the recalculations performed by derived states.
- */
+/** Observe the recalculations performed by derived states. */
 internal interface DerivedStateObserver {
-    /**
-     * Called before a calculation starts.
-     */
+    /** Called before a calculation starts. */
     fun start(derivedState: DerivedState<*>)
 
-    /**
-     * Called after the started calculation is complete.
-     */
+    /** Called after the started calculation is complete. */
     fun done(derivedState: DerivedState<*>)
 }
 
 private val derivedStateObservers = SnapshotThreadLocal<MutableVector<DerivedStateObserver>>()
 
 internal fun derivedStateObservers(): MutableVector<DerivedStateObserver> =
-    derivedStateObservers.get() ?: MutableVector<DerivedStateObserver>(0).also {
-        derivedStateObservers.set(it)
-    }
+    derivedStateObservers.get()
+        ?: MutableVector<DerivedStateObserver>(0).also { derivedStateObservers.set(it) }
 
 private inline fun <R> notifyObservers(derivedState: DerivedState<*>, block: () -> R): R {
     val observers = derivedStateObservers()

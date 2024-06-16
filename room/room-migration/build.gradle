@@ -32,6 +32,8 @@ plugins {
 }
 
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     jvm() {
         withJava()
     }
@@ -71,7 +73,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinSerializationJsonOkio)
             }
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nativeMain)

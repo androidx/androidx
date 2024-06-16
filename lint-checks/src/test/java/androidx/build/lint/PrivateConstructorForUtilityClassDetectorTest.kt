@@ -23,16 +23,18 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class PrivateConstructorForUtilityClassDetectorTest : AbstractLintDetectorTest(
-    useDetector = PrivateConstructorForUtilityClassDetector(),
-    useIssues = listOf(PrivateConstructorForUtilityClassDetector.ISSUE),
-) {
+class PrivateConstructorForUtilityClassDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = PrivateConstructorForUtilityClassDetector(),
+        useIssues = listOf(PrivateConstructorForUtilityClassDetector.ISSUE),
+    ) {
 
     @Test
     fun testInnerClassVisibilityJava() {
-        val input = java(
-            "src/androidx/PrivateConstructorForUtilityClassJava.java",
-            """
+        val input =
+            java(
+                "src/androidx/PrivateConstructorForUtilityClassJava.java",
+                """
                 public class PrivateConstructorForUtilityClassJava {
 
                     // This class has a default private constructor, which is allowed.
@@ -55,11 +57,12 @@ class PrivateConstructorForUtilityClassDetectorTest : AbstractLintDetectorTest(
                         static void method() { }
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/PrivateConstructorForUtilityClassJava.java:9: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
     static class DefaultInnerClass {
                  ~~~~~~~~~~~~~~~~~
@@ -70,8 +73,8 @@ src/androidx/PrivateConstructorForUtilityClassJava.java:19: Error: Utility class
     public static class PublicInnerClass {
                         ~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }

@@ -41,8 +41,9 @@ class AutoFlashAEModeDisablerTest {
     fun changeAeAutoFlashToAeOn_onSamsungA300H() {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-A300H")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 
@@ -50,8 +51,9 @@ class AutoFlashAEModeDisablerTest {
     fun changeOnAutoFlashToOn_onSamsungA300YZ() {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-A300YZ")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 
@@ -59,8 +61,9 @@ class AutoFlashAEModeDisablerTest {
     fun keepAeOn_onSamsungA300H() {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-A300H")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 
@@ -68,8 +71,9 @@ class AutoFlashAEModeDisablerTest {
     fun keepAeAlwaysOn_onSamsungA300H() {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-A300H")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
     }
 
@@ -77,8 +81,9 @@ class AutoFlashAEModeDisablerTest {
     fun changeOnAutoFlashToOn_onSamsungJ5() {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J510FN")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 
@@ -86,24 +91,27 @@ class AutoFlashAEModeDisablerTest {
     fun keepAeAutoFlash_onSamsungOtherDevices() {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-A3XXX")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
     }
 
     @Test
     fun changeOnAutoFlashToOn_onSamsungJ7FrontCamera() {
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "sm-j710f")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_FRONT)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 
     @Test
     fun keepAeAutoFlash_onSamsungJ7MainCamera() {
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "sm-j710f")
-        val aeMode: Int = createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_BACK)
-            .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        val aeMode: Int =
+            createAutoFlashAEModeDisabler(CameraCharacteristics.LENS_FACING_BACK)
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
     }
 
@@ -111,7 +119,8 @@ class AutoFlashAEModeDisablerTest {
         val metadata = FakeCameraMetadata(mapOf(CameraCharacteristics.LENS_FACING to lensFacing))
         return AutoFlashAEModeDisabler.Bindings.provideAEModeDisabler(
             CameraQuirks(
-                metadata, StreamConfigurationMapCompat(
+                metadata,
+                StreamConfigurationMapCompat(
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
                         FakeCameraMetadata(),

@@ -63,13 +63,13 @@ import kotlinx.coroutines.launch
  *
  * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
- * in a darker color in light theme and lighter color in dark theme.
+ *   in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param colors Defines the background & content color to be used in this Surface.
- * See [SurfaceDefaults.colors].
+ * @param colors Defines the background & content color to be used in this Surface. See
+ *   [SurfaceDefaults.colors].
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
- * levels below 28 as it is not supported by the underlying OS
+ *   levels below 28 as it is not supported by the underlying OS
  * @param content defines the [Composable] content inside the surface
  */
 @NonRestartableComposable
@@ -99,33 +99,33 @@ fun Surface(
 }
 
 /**
- * The [Surface] is a building block component that will be used for any focusable
- * element on TV such as buttons, cards, navigation, etc. This clickable Surface is similar to
- * Compose Material's Surface composable but will have more functionality that will make focus
- * management easier. [Surface] will automatically apply the relevant modifier(s) based on
- * the current interaction state.
+ * The [Surface] is a building block component that will be used for any focusable element on TV
+ * such as buttons, cards, navigation, etc. This clickable Surface is similar to Compose Material's
+ * Surface composable but will have more functionality that will make focus management easier.
+ * [Surface] will automatically apply the relevant modifier(s) based on the current interaction
+ * state.
  *
  * @param onClick callback to be called when the surface is clicked. Note: DPad Enter button won't
- * work if this value is null
+ *   work if this value is null
  * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
- * clickable. A disabled surface will still be focusable (reason:
- * https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
- * using the Non-interactive variant of the Surface.
+ *   clickable. A disabled surface will still be focusable (reason:
+ *   https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
+ *   using the Non-interactive variant of the Surface.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
- * in a darker color in light theme and lighter color in dark theme.
+ *   in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
  * @param colors Defines the background & content colors to be used in this surface for different
- * interaction states. See [ClickableSurfaceDefaults.colors].
+ *   interaction states. See [ClickableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
- * levels below 28 as it is not supported by the underlying OS
+ *   levels below 28 as it is not supported by the underlying OS
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this surface. You can use this to change the surface's appearance
- * or preview the surface in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
+ *   or preview the surface in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param content defines the [Composable] content inside the surface
  */
 @Composable
@@ -148,65 +148,72 @@ fun Surface(
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
     SurfaceImpl(
-        modifier = modifier.tvClickable(
-            enabled = enabled,
-            onClick = onClick,
-            onLongClick = onLongClick,
-            interactionSource = interactionSource,
-        ),
+        modifier =
+            modifier.tvClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick,
+                interactionSource = interactionSource,
+            ),
         selected = false,
         enabled = enabled,
         tonalElevation = tonalElevation,
-        shape = ClickableSurfaceDefaults.shape(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            shape = shape
-        ),
-        color = ClickableSurfaceDefaults.containerColor(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            colors = colors
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            colors = colors
-        ),
-        scale = ClickableSurfaceDefaults.scale(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            scale = scale
-        ),
-        border = ClickableSurfaceDefaults.border(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            border = border
-        ),
-        glow = ClickableSurfaceDefaults.glow(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            glow = glow
-        ),
+        shape =
+            ClickableSurfaceDefaults.shape(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                shape = shape
+            ),
+        color =
+            ClickableSurfaceDefaults.containerColor(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                colors = colors
+            ),
+        contentColor =
+            ClickableSurfaceDefaults.contentColor(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                colors = colors
+            ),
+        scale =
+            ClickableSurfaceDefaults.scale(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                scale = scale
+            ),
+        border =
+            ClickableSurfaceDefaults.border(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                border = border
+            ),
+        glow =
+            ClickableSurfaceDefaults.glow(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                glow = glow
+            ),
         interactionSource = interactionSource,
         content = content
     )
 }
 
 /**
- * The Surface is a building block component that will be used for any focusable
- * element on TV such as buttons, cards, navigation, etc.
+ * The Surface is a building block component that will be used for any focusable element on TV such
+ * as buttons, cards, navigation, etc.
  *
  * This version of Surface is responsible for a toggling its selected state as well as everything
  * else that a regular Surface does:
  *
- * This version of surface will react to the select toggles, calling
- * [onClick] lambda, updating the [interactionSource] when [PressInteraction] occurs.
+ * This version of surface will react to the select toggles, calling [onClick] lambda, updating the
+ * [interactionSource] when [PressInteraction] occurs.
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
@@ -214,24 +221,24 @@ fun Surface(
  * @param onClick callback to be invoked when the selectable Surface is clicked.
  * @param modifier [Modifier] to be applied to the layout corresponding to the surface
  * @param onLongClick callback to be called when the selectable surface is long clicked
- * (long-pressed).
+ *   (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
- * clickable. A disabled surface will still be focusable (reason:
- * https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
- * using the Non-interactive variant of the Surface.
+ *   clickable. A disabled surface will still be focusable (reason:
+ *   https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
+ *   using the Non-interactive variant of the Surface.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
- * in a darker color in light theme and lighter color in dark theme.
+ *   in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param colors  Defines the background & content colors to be used in this surface for different
- * interaction states. See [SelectableSurfaceDefaults.colors].
+ * @param colors Defines the background & content colors to be used in this surface for different
+ *   interaction states. See [SelectableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
- * levels below 28 as it is not supported by the underlying OS
+ *   levels below 28 as it is not supported by the underlying OS
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this surface. You can use this to change the surface's appearance
- * or preview the surface in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
+ *   or preview the surface in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param content defines the [Composable] content inside the surface
  */
 @Composable
@@ -256,58 +263,65 @@ fun Surface(
     val pressed by interactionSource.collectIsPressedAsState()
 
     SurfaceImpl(
-        modifier = modifier.tvSelectable(
-            enabled = enabled,
-            selected = selected,
-            onClick = onClick,
-            interactionSource = interactionSource,
-            onLongClick = onLongClick
-        ),
+        modifier =
+            modifier.tvSelectable(
+                enabled = enabled,
+                selected = selected,
+                onClick = onClick,
+                interactionSource = interactionSource,
+                onLongClick = onLongClick
+            ),
         selected = selected,
         enabled = enabled,
         tonalElevation = tonalElevation,
-        shape = SelectableSurfaceDefaults.shape(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            selected = selected,
-            shape = shape
-        ),
-        color = SelectableSurfaceDefaults.containerColor(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            selected = selected,
-            colors = colors
-        ),
-        contentColor = SelectableSurfaceDefaults.contentColor(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            selected = selected,
-            colors = colors
-        ),
-        scale = SelectableSurfaceDefaults.scale(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            selected = selected,
-            scale = scale
-        ),
-        border = SelectableSurfaceDefaults.border(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            selected = selected,
-            border = border
-        ),
-        glow = SelectableSurfaceDefaults.glow(
-            enabled = enabled,
-            focused = focused,
-            pressed = pressed,
-            selected = selected,
-            glow = glow
-        ),
+        shape =
+            SelectableSurfaceDefaults.shape(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                selected = selected,
+                shape = shape
+            ),
+        color =
+            SelectableSurfaceDefaults.containerColor(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                selected = selected,
+                colors = colors
+            ),
+        contentColor =
+            SelectableSurfaceDefaults.contentColor(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                selected = selected,
+                colors = colors
+            ),
+        scale =
+            SelectableSurfaceDefaults.scale(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                selected = selected,
+                scale = scale
+            ),
+        border =
+            SelectableSurfaceDefaults.border(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                selected = selected,
+                border = border
+            ),
+        glow =
+            SelectableSurfaceDefaults.glow(
+                enabled = enabled,
+                focused = focused,
+                pressed = pressed,
+                selected = selected,
+                glow = glow
+            ),
         interactionSource = interactionSource,
         content = content
     )
@@ -333,12 +347,8 @@ private fun SurfaceImpl(
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
 
-    val surfaceAlpha = stateAlpha(
-        enabled = enabled,
-        focused = focused,
-        pressed = pressed,
-        selected = selected
-    )
+    val surfaceAlpha =
+        stateAlpha(enabled = enabled, focused = focused, pressed = pressed, selected = selected)
 
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
 
@@ -346,40 +356,41 @@ private fun SurfaceImpl(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
-        val zIndex by animateFloatAsState(
-            targetValue = if (focused) FocusedZIndex else NonFocusedZIndex,
-            label = "zIndex"
-        )
+        val zIndex by
+            animateFloatAsState(
+                targetValue = if (focused) FocusedZIndex else NonFocusedZIndex,
+                label = "zIndex"
+            )
 
-        val backgroundColorByState = surfaceColorAtElevation(
-            color = color,
-            elevation = LocalAbsoluteTonalElevation.current
-        )
+        val backgroundColorByState =
+            surfaceColorAtElevation(color = color, elevation = LocalAbsoluteTonalElevation.current)
 
         Box(
-            modifier = modifier
-                .tvSurfaceScale(
-                    scale = scale,
-                    interactionSource = interactionSource,
-                )
-                .ifElse(API_28_OR_ABOVE, Modifier.tvSurfaceGlow(shape, glow))
-                // Increasing the zIndex of this Surface when it is in the focused state to
-                // avoid the glowIndication from being overlapped by subsequent items if
-                // this Surface is inside a list composable (like a Row/Column).
-                .zIndex(zIndex)
-                .ifElse(border != Border.None, Modifier.tvSurfaceBorder(shape, border))
-                .background(backgroundColorByState, shape)
-                .graphicsLayer {
-                    this.alpha = surfaceAlpha
-                    this.shape = shape
-                    this.clip = true
-                },
+            modifier =
+                modifier
+                    .tvSurfaceScale(
+                        scale = scale,
+                        interactionSource = interactionSource,
+                    )
+                    .ifElse(API_28_OR_ABOVE, Modifier.tvSurfaceGlow(shape, glow))
+                    // Increasing the zIndex of this Surface when it is in the focused state to
+                    // avoid the glowIndication from being overlapped by subsequent items if
+                    // this Surface is inside a list composable (like a Row/Column).
+                    .zIndex(zIndex)
+                    .ifElse(border != Border.None, Modifier.tvSurfaceBorder(shape, border))
+                    .background(backgroundColorByState, shape)
+                    .graphicsLayer {
+                        this.alpha = surfaceAlpha
+                        this.shape = shape
+                        this.clip = true
+                    },
             propagateMinConstraints = true
         ) {
             Box(
-                modifier = Modifier.graphicsLayer {
-                    this.alpha = if (!enabled) DisabledContentAlpha else EnabledContentAlpha
-                },
+                modifier =
+                    Modifier.graphicsLayer {
+                        this.alpha = if (!enabled) DisabledContentAlpha else EnabledContentAlpha
+                    },
                 content = content
             )
         }
@@ -388,6 +399,7 @@ private fun SurfaceImpl(
 
 /**
  * This modifier handles click, press, and focus events for a TV composable.
+ *
  * @param enabled decides whether [onClick] is executed
  * @param onClick executes the provided lambda on click.
  * @param onLongClick executes the provided lambda on long press.
@@ -398,42 +410,44 @@ private fun Modifier.tvClickable(
     onClick: (() -> Unit)?,
     onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource
-) = handleDPadEnter(
-    enabled = enabled,
-    interactionSource = interactionSource,
-    onClick = onClick,
-    onLongClick = onLongClick
-)
-    // We are not using "clickable" modifier here because if we set "enabled" to false
-    // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
-    // should be focusable
-    .focusable(interactionSource = interactionSource)
-    .semantics(mergeDescendants = true) {
-        onClick {
-            onClick?.let { nnOnClick ->
-                nnOnClick()
-                return@onClick true
+) =
+    handleDPadEnter(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
+        // We are not using "clickable" modifier here because if we set "enabled" to false
+        // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
+        // should be focusable
+        .focusable(interactionSource = interactionSource)
+        .semantics(mergeDescendants = true) {
+            onClick {
+                onClick?.let { nnOnClick ->
+                    nnOnClick()
+                    return@onClick true
+                }
+                false
             }
-            false
-        }
-        onLongClick {
-            onLongClick?.let { nnOnLongClick ->
-                nnOnLongClick()
-                return@onLongClick true
+            onLongClick {
+                onLongClick?.let { nnOnLongClick ->
+                    nnOnLongClick()
+                    return@onLongClick true
+                }
+                false
             }
-            false
+            if (!enabled) {
+                disabled()
+            }
         }
-        if (!enabled) {
-            disabled()
-        }
-    }
 
 /**
  * This modifier handles click, press, and focus events for a TV composable.
+ *
  * @param enabled decides whether [onClick] is executed
  * @param selected differentiates whether the current item is selected or unselected
- * @param onClick executes the provided lambda on click, while returning the inverse state
- * of [selected].
+ * @param onClick executes the provided lambda on click, while returning the inverse state of
+ *   [selected].
  * @param onLongClick executes the provided lambda on long press.
  * @param interactionSource used to emit [PressInteraction] events
  */
@@ -443,34 +457,35 @@ private fun Modifier.tvSelectable(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource,
-) = handleDPadEnter(
-    enabled = enabled,
-    interactionSource = interactionSource,
-    selected = selected,
-    onClick = onClick,
-    onLongClick = onLongClick
-)
-    // We are not using "selectable" modifier here because if we set "enabled" to false
-    // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
-    // should be focusable
-    .focusable(interactionSource = interactionSource)
-    .semantics(mergeDescendants = true) {
-        this.selected = selected
-        onClick {
-            onClick()
-            true
-        }
-        onLongClick {
-            onLongClick?.let { nnOnLongClick ->
-                nnOnLongClick()
-                return@onLongClick true
+) =
+    handleDPadEnter(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            selected = selected,
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
+        // We are not using "selectable" modifier here because if we set "enabled" to false
+        // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
+        // should be focusable
+        .focusable(interactionSource = interactionSource)
+        .semantics(mergeDescendants = true) {
+            this.selected = selected
+            onClick {
+                onClick()
+                true
             }
-            false
+            onLongClick {
+                onLongClick?.let { nnOnLongClick ->
+                    nnOnLongClick()
+                    return@onLongClick true
+                }
+                false
+            }
+            if (!enabled) {
+                disabled()
+            }
         }
-        if (!enabled) {
-            disabled()
-        }
-    }
 
 /**
  * This modifier is used to perform some actions when the user clicks the D-PAD enter button
@@ -487,70 +502,69 @@ private fun Modifier.handleDPadEnter(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     selected: Boolean = false,
-) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "handleDPadEnter"
-        properties["enabled"] = enabled
-        properties["interactionSource"] = interactionSource
-        properties["onClick"] = onClick
-        properties["onLongClick"] = onLongClick
-        properties["selected"] = selected
-    }
-) {
-    if (!enabled) return@composed this
+) =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "handleDPadEnter"
+                properties["enabled"] = enabled
+                properties["interactionSource"] = interactionSource
+                properties["onClick"] = onClick
+                properties["onLongClick"] = onLongClick
+                properties["selected"] = selected
+            }
+    ) {
+        if (!enabled) return@composed this
 
-    val coroutineScope = rememberCoroutineScope()
-    val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
-    var isLongClick by remember { mutableStateOf(false) }
-    val isPressed by interactionSource.collectIsPressedAsState()
+        val coroutineScope = rememberCoroutineScope()
+        val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
+        var isLongClick by remember { mutableStateOf(false) }
+        val isPressed by interactionSource.collectIsPressedAsState()
 
-    this
-        .onFocusChanged {
-            if (!it.isFocused && isPressed) {
-                coroutineScope.launch {
-                    interactionSource.emit(PressInteraction.Release(pressInteraction))
+        this.onFocusChanged {
+                if (!it.isFocused && isPressed) {
+                    coroutineScope.launch {
+                        interactionSource.emit(PressInteraction.Release(pressInteraction))
+                    }
                 }
             }
-        }
-        .onKeyEvent { keyEvent ->
-            if (AcceptableKeys.contains(keyEvent.nativeKeyEvent.keyCode)) {
-                when (keyEvent.nativeKeyEvent.action) {
-                    NativeKeyEvent.ACTION_DOWN -> {
-                        when (keyEvent.nativeKeyEvent.repeatCount) {
-                            0 ->
-                                coroutineScope.launch {
-                                    interactionSource.emit(pressInteraction)
-                                }
-
-                            1 ->
-                                onLongClick?.let {
-                                    isLongClick = true
+            .onKeyEvent { keyEvent ->
+                if (AcceptableKeys.contains(keyEvent.nativeKeyEvent.keyCode)) {
+                    when (keyEvent.nativeKeyEvent.action) {
+                        NativeKeyEvent.ACTION_DOWN -> {
+                            when (keyEvent.nativeKeyEvent.repeatCount) {
+                                0 ->
                                     coroutineScope.launch {
-                                        interactionSource.emit(
-                                            PressInteraction.Release(
-                                                pressInteraction
-                                            )
-                                        )
+                                        interactionSource.emit(pressInteraction)
                                     }
-                                    it.invoke()
+                                1 ->
+                                    onLongClick?.let {
+                                        isLongClick = true
+                                        coroutineScope.launch {
+                                            interactionSource.emit(
+                                                PressInteraction.Release(pressInteraction)
+                                            )
+                                        }
+                                        it.invoke()
+                                    }
+                            }
+                        }
+                        NativeKeyEvent.ACTION_UP -> {
+                            if (!isLongClick) {
+                                coroutineScope.launch {
+                                    interactionSource.emit(
+                                        PressInteraction.Release(pressInteraction)
+                                    )
                                 }
+                                onClick?.invoke()
+                            } else isLongClick = false
                         }
                     }
-
-                    NativeKeyEvent.ACTION_UP -> {
-                        if (!isLongClick) {
-                            coroutineScope.launch {
-                                interactionSource.emit(PressInteraction.Release(pressInteraction))
-                            }
-                            onClick?.invoke()
-                        } else isLongClick = false
-                    }
+                    return@onKeyEvent KeyEventPropagation.StopPropagation
                 }
-                return@onKeyEvent KeyEventPropagation.StopPropagation
+                KeyEventPropagation.ContinuePropagation
             }
-            KeyEventPropagation.ContinuePropagation
-        }
-}
+    }
 
 @Composable
 internal fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
@@ -562,8 +576,8 @@ internal fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
 }
 
 /**
- * Returns the alpha value for Surface's background based on its current indication state. The
- * value ranges between 0f and 1f.
+ * Returns the alpha value for Surface's background based on its current indication state. The value
+ * ranges between 0f and 1f.
  */
 private fun stateAlpha(
     enabled: Boolean,
@@ -598,8 +612,9 @@ internal const val EnabledContentAlpha = 1f
  */
 internal val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
 
-private val AcceptableKeys = intArrayOf(
-    NativeKeyEvent.KEYCODE_DPAD_CENTER,
-    NativeKeyEvent.KEYCODE_ENTER,
-    NativeKeyEvent.KEYCODE_NUMPAD_ENTER
-)
+private val AcceptableKeys =
+    intArrayOf(
+        NativeKeyEvent.KEYCODE_DPAD_CENTER,
+        NativeKeyEvent.KEYCODE_ENTER,
+        NativeKeyEvent.KEYCODE_NUMPAD_ENTER
+    )

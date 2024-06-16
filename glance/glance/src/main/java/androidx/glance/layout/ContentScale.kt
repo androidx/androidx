@@ -19,8 +19,8 @@ package androidx.glance.layout
 import androidx.glance.Image
 
 /**
- * Scaling to be used when an element is smaller than its available bounds. Mainly used by
- * [Image] to dictate how the image should be drawn within the [Image] element's bounding box.
+ * Scaling to be used when an element is smaller than its available bounds. Mainly used by [Image]
+ * to dictate how the image should be drawn within the [Image] element's bounding box.
  */
 @JvmInline
 value class ContentScale(private val value: Int) {
@@ -39,9 +39,7 @@ value class ContentScale(private val value: Int) {
          */
         val Fit: ContentScale = ContentScale(1)
 
-        /**
-         * Scale horizontal and vertically non-uniformly to fill the destination bounds.
-         */
+        /** Scale horizontal and vertically non-uniformly to fill the destination bounds. */
         val FillBounds: ContentScale = ContentScale(2)
     }
 }

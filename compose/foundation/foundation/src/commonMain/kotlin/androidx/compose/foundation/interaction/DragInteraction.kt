@@ -47,7 +47,6 @@ interface DragInteraction : Interaction {
      * An interaction representing the stopping of a [Start] event on a component.
      *
      * @property start the source [Start] interaction that is being stopped
-     *
      * @see androidx.compose.foundation.gestures.draggable
      * @see Start
      */
@@ -57,7 +56,6 @@ interface DragInteraction : Interaction {
      * An interaction representing the cancellation of a [Start] event on a component.
      *
      * @property start the source [Start] interaction that is being cancelled
-     *
      * @see androidx.compose.foundation.gestures.draggable
      * @see Start
      */
@@ -68,8 +66,8 @@ interface DragInteraction : Interaction {
  * Subscribes to this [MutableInteractionSource] and returns a [State] representing whether this
  * component is dragged or not.
  *
- * [DragInteraction] is typically set by interactions
- * such as [androidx.compose.foundation.gestures.draggable] and
+ * [DragInteraction] is typically set by interactions such as
+ * [androidx.compose.foundation.gestures.draggable] and
  * [androidx.compose.foundation.gestures.scrollable], and higher level components such as
  * [androidx.compose.foundation.lazy.LazyRow], available through
  * [androidx.compose.foundation.lazy.LazyListState.interactionSource].

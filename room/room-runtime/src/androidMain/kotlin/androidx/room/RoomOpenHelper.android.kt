@@ -22,9 +22,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 
-/**
- * An open helper that holds a reference to the configuration until the database is opened.
- */
+/** An open helper that holds a reference to the configuration until the database is opened. */
 @Suppress("DEPRECATION") // Due to usage of RoomOpenHelper.Delegate
 @Deprecated("Replaced by RoomConnectionManager and no longer used in generated code.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -40,8 +38,8 @@ open class RoomOpenHelper(
     private val identityHash: String
 
     /**
-     * Room v1 had a bug where the hash was not consistent if fields are reordered.
-     * The new has fixes it but we still need to accept the legacy hash.
+     * Room v1 had a bug where the hash was not consistent if fields are reordered. The new has
+     * fixes it but we still need to accept the legacy hash.
      */
     // b/64290754
     private val legacyHash: String
@@ -86,17 +84,14 @@ open class RoomOpenHelper(
     override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
         var migrated = false
         configuration?.let { config ->
-            val migrations = config.migrationContainer.findMigrationPath(
-                oldVersion, newVersion
-            )
+            val migrations = config.migrationContainer.findMigrationPath(oldVersion, newVersion)
             if (migrations != null) {
                 delegate.onPreMigrate(db)
                 migrations.forEach { it.migrate(SupportSQLiteConnection(db)) }
                 val result = delegate.onValidateSchema(db)
                 if (!result.isValid) {
                     throw IllegalStateException(
-                        ("Migration didn't properly handle: " +
-                            result.expectedFoundMsg)
+                        ("Migration didn't properly handle: " + result.expectedFoundMsg)
                     )
                 }
                 delegate.onPostMigrate(db)
@@ -144,15 +139,14 @@ open class RoomOpenHelper(
 
     private fun checkIdentity(db: SupportSQLiteDatabase) {
         if (hasRoomMasterTable(db)) {
-            val identityHash: String? = db.query(
-                SimpleSQLiteQuery(RoomMasterTable.READ_QUERY)
-            ).useCursor { cursor ->
-                if (cursor.moveToFirst()) {
-                    cursor.getString(0)
-                } else {
-                    null
+            val identityHash: String? =
+                db.query(SimpleSQLiteQuery(RoomMasterTable.READ_QUERY)).useCursor { cursor ->
+                    if (cursor.moveToFirst()) {
+                        cursor.getString(0)
+                    } else {
+                        null
+                    }
                 }
-            }
 
             if (this.identityHash != identityHash && this.legacyHash != identityHash) {
                 throw IllegalStateException(
@@ -189,8 +183,11 @@ open class RoomOpenHelper(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     abstract class Delegate(@JvmField val version: Int) {
         abstract fun dropAllTables(db: SupportSQLiteDatabase)
+
         abstract fun createAllTables(db: SupportSQLiteDatabase)
+
         abstract fun onOpen(db: SupportSQLiteDatabase)
+
         abstract fun onCreate(db: SupportSQLiteDatabase)
 
         /**
@@ -216,12 +213,14 @@ open class RoomOpenHelper(
 
         /**
          * Called before migrations execute to perform preliminary work.
+         *
          * @param db The SQLite database.
          */
         open fun onPreMigrate(db: SupportSQLiteDatabase) {}
 
         /**
          * Called after migrations execute to perform additional work.
+         *
          * @param db The SQLite database.
          */
         open fun onPostMigrate(db: SupportSQLiteDatabase) {}
@@ -233,40 +232,39 @@ open class RoomOpenHelper(
         @JvmField val isValid: Boolean,
         @JvmField val expectedFoundMsg: String?
     )
+
     companion object {
         internal fun hasRoomMasterTable(db: SupportSQLiteDatabase): Boolean {
             db.query(
-                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND " +
-                    "name='${ RoomMasterTable.TABLE_NAME }'"
-            ).useCursor { cursor ->
-                return cursor.moveToFirst() && cursor.getInt(0) != 0
-            }
+                    "SELECT 1 FROM sqlite_master WHERE type = 'table' AND " +
+                        "name='${ RoomMasterTable.TABLE_NAME }'"
+                )
+                .useCursor { cursor ->
+                    return cursor.moveToFirst() && cursor.getInt(0) != 0
+                }
         }
 
         internal fun hasEmptySchema(db: SupportSQLiteDatabase): Boolean {
-            db.query(
-                "SELECT count(*) FROM sqlite_master WHERE name != 'android_metadata'"
-            ).useCursor { cursor ->
-                return cursor.moveToFirst() && cursor.getInt(0) == 0
-            }
+            db.query("SELECT count(*) FROM sqlite_master WHERE name != 'android_metadata'")
+                .useCursor { cursor ->
+                    return cursor.moveToFirst() && cursor.getInt(0) == 0
+                }
         }
 
         internal fun dropAllTables(db: SupportSQLiteDatabase) {
-            db.query(
-                "SELECT name FROM sqlite_master WHERE type = 'table'"
-            ).useCursor { cursor ->
-                buildList {
-                    while (cursor.moveToNext()) {
-                        val name = cursor.getString(0)
-                        if (name.startsWith("sqlite_") || name == "android_metadata") {
-                            continue
+            db.query("SELECT name FROM sqlite_master WHERE type = 'table'")
+                .useCursor { cursor ->
+                    buildList {
+                        while (cursor.moveToNext()) {
+                            val name = cursor.getString(0)
+                            if (name.startsWith("sqlite_") || name == "android_metadata") {
+                                continue
+                            }
+                            add(name)
                         }
-                        add(name)
                     }
                 }
-            }.forEach { table ->
-                db.execSQL("DROP TABLE IF EXISTS $table")
-            }
+                .forEach { table -> db.execSQL("DROP TABLE IF EXISTS $table") }
         }
     }
 }

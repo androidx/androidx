@@ -57,7 +57,8 @@ fun TintedIconButtonSample() {
         Icon(
             rememberVectorPainter(image = Icons.Outlined.Lock),
             contentDescription = "Localized description",
-            tint = { Color.Red })
+            tint = { Color.Red }
+        )
     }
 }
 

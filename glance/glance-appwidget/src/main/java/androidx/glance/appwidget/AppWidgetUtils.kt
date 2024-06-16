@@ -63,22 +63,24 @@ internal fun appWidgetMinSize(
     appWidgetId: Int
 ): DpSize {
     val info = appWidgetManager.getAppWidgetInfo(appWidgetId) ?: return DpSize.Zero
-    val minWidth = min(
-        info.minWidth,
-        if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
-            info.minResizeWidth
-        } else {
-            Int.MAX_VALUE
-        }
-    )
-    val minHeight = min(
-        info.minHeight,
-        if (info.resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0) {
-            info.minResizeHeight
-        } else {
-            Int.MAX_VALUE
-        }
-    )
+    val minWidth =
+        min(
+            info.minWidth,
+            if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
+                info.minResizeWidth
+            } else {
+                Int.MAX_VALUE
+            }
+        )
+    val minHeight =
+        min(
+            info.minHeight,
+            if (info.resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0) {
+                info.minResizeHeight
+            } else {
+                Int.MAX_VALUE
+            }
+        )
     return DpSize(minWidth.pixelsToDp(displayMetrics), minHeight.pixelsToDp(displayMetrics))
 }
 
@@ -135,8 +137,7 @@ internal fun Bundle.extractOrientationSizes() =
 
 // True if the object fits in the given size.
 private infix fun DpSize.fitsIn(other: DpSize) =
-    (ceil(other.width.value) + 1 > width.value) &&
-        (ceil(other.height.value) + 1 > height.value)
+    (ceil(other.width.value) + 1 > width.value) && (ceil(other.height.value) + 1 > height.value)
 
 internal fun DpSize.toSizeF(): SizeF = SizeF(width.value, height.value)
 
@@ -149,34 +150,37 @@ private fun squareDistance(widgetSize: DpSize, layoutSize: DpSize): Float {
 // Find the best size that fits in the available [widgetSize] or null if no layout fits.
 @SuppressLint("ListIterator")
 internal fun findBestSize(widgetSize: DpSize, layoutSizes: Collection<DpSize>): DpSize? =
-    layoutSizes.mapNotNull { layoutSize ->
-        if (layoutSize fitsIn widgetSize) {
-            layoutSize to squareDistance(widgetSize, layoutSize)
-        } else {
-            null
+    layoutSizes
+        .mapNotNull { layoutSize ->
+            if (layoutSize fitsIn widgetSize) {
+                layoutSize to squareDistance(widgetSize, layoutSize)
+            } else {
+                null
+            }
         }
-    }.minByOrNull { it.second }?.first
+        .minByOrNull { it.second }
+        ?.first
 
-/**
- * @return the minimum size as configured by the App Widget provider.
- */
+/** @return the minimum size as configured by the App Widget provider. */
 internal fun AppWidgetProviderInfo.getMinSize(displayMetrics: DisplayMetrics): DpSize {
-    val minWidth = min(
-        minWidth,
-        if (resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
-            minResizeWidth
-        } else {
-            Int.MAX_VALUE
-        }
-    )
-    val minHeight = min(
-        minHeight,
-        if (resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0) {
-            minResizeHeight
-        } else {
-            Int.MAX_VALUE
-        }
-    )
+    val minWidth =
+        min(
+            minWidth,
+            if (resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
+                minResizeWidth
+            } else {
+                Int.MAX_VALUE
+            }
+        )
+    val minHeight =
+        min(
+            minHeight,
+            if (resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0) {
+                minResizeHeight
+            } else {
+                Int.MAX_VALUE
+            }
+        )
     return DpSize(minWidth.pixelsToDp(displayMetrics), minHeight.pixelsToDp(displayMetrics))
 }
 
@@ -188,9 +192,7 @@ internal fun logException(throwable: Throwable) {
     Log.e(GlanceAppWidgetTag, "Error in Glance App Widget", throwable)
 }
 
-/**
- * [Tracing] contains methods for tracing sections of GlanceAppWidget.
- */
+/** [Tracing] contains methods for tracing sections of GlanceAppWidget. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Tracing {
     val enabled = AtomicBoolean(false)
@@ -232,17 +234,15 @@ internal fun AppWidgetId.toSessionKey() = createUniqueRemoteUiName(appWidgetId)
 
 internal fun interface ContentReceiver : CoroutineContext.Element {
     /**
-     * Provide [content] to the Glance session, suspending until the session is
-     * shut down.
+     * Provide [content] to the Glance session, suspending until the session is shut down.
      *
      * If this function is called concurrently with itself, the previous call will throw
      * [CancellationException] and the new content will replace it.
      */
-    suspend fun provideContent(
-        content: @Composable @GlanceComposable () -> Unit
-    ): Nothing
+    suspend fun provideContent(content: @Composable @GlanceComposable () -> Unit): Nothing
 
-    override val key: CoroutineContext.Key<*> get() = Key
+    override val key: CoroutineContext.Key<*>
+        get() = Key
 
     companion object Key : CoroutineContext.Key<ContentReceiver>
 }
@@ -251,8 +251,7 @@ internal fun GlanceAppWidget.runGlance(
     context: Context,
     id: GlanceId,
 ): Flow<(@GlanceComposable @Composable () -> Unit)?> = channelFlow {
-    val contentCoroutine: AtomicReference<CancellableContinuation<Nothing>?> =
-        AtomicReference(null)
+    val contentCoroutine: AtomicReference<CancellableContinuation<Nothing>?> = AtomicReference(null)
     val receiver = ContentReceiver { content ->
         suspendCancellableCoroutine {
             it.invokeOnCancellation { trySend(null) }
@@ -266,28 +265,20 @@ internal fun GlanceAppWidget.runGlance(
 internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
 
 @SuppressLint("ListIterator")
-internal fun optionsBundleOf(
-    @SuppressLint("PrimitiveInCollection") sizes: List<DpSize>
-): Bundle {
+internal fun optionsBundleOf(@SuppressLint("PrimitiveInCollection") sizes: List<DpSize>): Bundle {
     require(sizes.isNotEmpty()) { "There must be at least one size" }
-    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
-        DpSize(
-            androidx.compose.ui.unit.min(acc.first.width, s.width),
-            androidx.compose.ui.unit.min(acc.first.height, s.height)
-        ) to
-            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
-    }
+    val (minSize, maxSize) =
+        sizes.fold(sizes[0] to sizes[0]) { acc, s ->
+            DpSize(
+                androidx.compose.ui.unit.min(acc.first.width, s.width),
+                androidx.compose.ui.unit.min(acc.first.height, s.height)
+            ) to DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
+        }
     return Bundle().apply {
         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
-        putInt(
-            AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
-            minSize.height.value.toInt()
-        )
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minSize.height.value.toInt())
         putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
-        putInt(
-            AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
-            maxSize.height.value.toInt()
-        )
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxSize.height.value.toInt())
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val sizeList = sizes.map { it.toSizeF() }.toArrayList()
             putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
@@ -296,8 +287,7 @@ internal fun optionsBundleOf(
 }
 
 // Create a fake ID that we can use for sessions that do not publish to a bound app widget.
-internal fun createFakeAppWidgetId(): AppWidgetId =
-    AppWidgetId(Random.nextInt(Int.MIN_VALUE..-2))
+internal fun createFakeAppWidgetId(): AppWidgetId = AppWidgetId(Random.nextInt(Int.MIN_VALUE..-2))
 
 internal val AppWidgetId.isFakeId
     get() = appWidgetId in Int.MIN_VALUE..-2

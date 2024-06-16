@@ -45,7 +45,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
@@ -68,9 +70,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlin.math.abs
 import org.junit.Assert
 
-/**
- * Constant to emulate very big but finite constraints
- */
+/** Constant to emulate very big but finite constraints */
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
 
@@ -80,10 +80,9 @@ internal const val TEST_TAG = "test-item"
 fun TestImage(iconLabel: String = "TestIcon") {
     val testImage = Icons.Outlined.Add
     Image(
-        testImage, iconLabel,
-        modifier = Modifier
-            .fillMaxSize()
-            .testTag(iconLabel),
+        testImage,
+        iconLabel,
+        modifier = Modifier.fillMaxSize().testTag(iconLabel),
         contentScale = ContentScale.Fit,
         alignment = Alignment.Center
     )
@@ -100,13 +99,8 @@ fun TestIcon(modifier: Modifier = Modifier, iconLabel: String = "TestIcon") {
 }
 
 @Composable
-fun CenteredText(
-    text: String
-) {
-    Column(
-        modifier = Modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.Center
-    ) {
+fun CenteredText(text: String) {
+    Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
         Text(text)
     }
 }
@@ -120,10 +114,8 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
     setContent {
         MaterialTheme {
             Box(
-                Modifier.sizeIn(
-                    maxWidth = parentMaxWidth,
-                    maxHeight = parentMaxHeight
-                ).testTag("containerForSizeAssertion")
+                Modifier.sizeIn(maxWidth = parentMaxWidth, maxHeight = parentMaxHeight)
+                    .testTag("containerForSizeAssertion")
             ) {
                 content()
             }
@@ -135,10 +127,11 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
 
 fun ComposeContentTestRule.textStyleOf(text: String): TextStyle {
     val textLayoutResults = mutableListOf<TextLayoutResult>()
-    onNodeWithText(text, useUnmergedTree = true)
-        .performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
-            it(textLayoutResults)
-        }
+    onNodeWithText(text, useUnmergedTree = true).performSemanticsAction(
+        SemanticsActions.GetTextLayoutResult
+    ) {
+        it(textLayoutResults)
+    }
     return textLayoutResults[0].layoutInput.style
 }
 
@@ -146,20 +139,14 @@ fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
     composable: @Composable BoxScope.() -> Unit
 ) {
-    setContent {
-        MaterialTheme {
-            Box(modifier = modifier, content = composable)
-        }
-    }
+    setContent { MaterialTheme { Box(modifier = modifier, content = composable) } }
 }
 
 internal fun ComposeContentTestRule.verifyTapSize(
     expectedSize: Dp,
     content: @Composable (modifier: Modifier) -> Unit
 ) {
-    setContentWithTheme {
-        content(Modifier.testTag(TEST_TAG))
-    }
+    setContentWithTheme { content(Modifier.testTag(TEST_TAG)) }
     waitForIdle()
 
     onNodeWithTag(TEST_TAG)
@@ -171,14 +158,10 @@ internal fun ComposeContentTestRule.verifyActualSize(
     expectedSize: Dp,
     content: @Composable (modifier: Modifier) -> Unit
 ) {
-    setContentWithTheme {
-        content(Modifier.testTag(TEST_TAG))
-    }
+    setContentWithTheme { content(Modifier.testTag(TEST_TAG)) }
     waitForIdle()
 
-    onNodeWithTag(TEST_TAG)
-        .assertHeightIsEqualTo(expectedSize)
-        .assertWidthIsEqualTo(expectedSize)
+    onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(expectedSize).assertWidthIsEqualTo(expectedSize)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -196,33 +179,26 @@ internal fun ComposeContentTestRule.verifyColors(
     setContentWithTheme {
         finalExpectedContainerColor =
             if (status.enabled() || !applyAlphaForDisabled) {
-                expectedContainerColor()
-            } else {
-                expectedContainerColor().copy(DisabledContentAlpha)
-            }.compositeOver(testBackgroundColor)
+                    expectedContainerColor()
+                } else {
+                    expectedContainerColor().copy(DisabledContentAlpha)
+                }
+                .compositeOver(testBackgroundColor)
         finalExpectedContent =
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContentColor()
             } else {
                 expectedContentColor().copy(DisabledContentAlpha)
             }
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(testBackgroundColor)
-        ) {
+        Box(Modifier.fillMaxSize().background(testBackgroundColor)) {
             actualContentColor = content()
         }
     }
     Assert.assertEquals(finalExpectedContent, actualContentColor)
-    onNodeWithTag(TEST_TAG)
-        .captureToImage()
-        .assertContainsColor(finalExpectedContainerColor)
+    onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(finalExpectedContainerColor)
 }
 
-/**
- * Checks that [expectedColor]  is in the percentage [range] of an [ImageBitmap] color histogram
- */
+/** Checks that [expectedColor] is in the percentage [range] of an [ImageBitmap] color histogram */
 fun ImageBitmap.assertColorInPercentageRange(
     expectedColor: Color,
     range: ClosedFloatingPointRange<Float> = 50.0f..100.0f
@@ -260,13 +236,25 @@ private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
     assertion: (DpRect) -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
-    val bounds = with(node.root!!.density) {
-        node.unclippedBoundsInRoot.let {
-            DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+    val bounds =
+        with(node.root!!.density) {
+            node.unclippedBoundsInRoot.let {
+                DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+            }
         }
-    }
     assertion.invoke(bounds)
     return this
+}
+
+internal fun SemanticsNodeInteraction.assertOnLongClickLabelMatches(
+    expectedValue: String
+): SemanticsNodeInteraction {
+    return assert(
+        SemanticsMatcher("onLongClickLabel = '$expectedValue'") {
+            it.config.getOrElseNullable(SemanticsActions.OnLongClick) { null }?.label ==
+                expectedValue
+        }
+    )
 }
 
 private val SemanticsNode.unclippedBoundsInRoot: Rect
@@ -279,9 +267,9 @@ private val SemanticsNode.unclippedBoundsInRoot: Rect
     }
 
 /**
- * Returns if this value is equal to the [reference], within a given [tolerance]. If the
- * reference value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this
- * only returns true if this value is exactly the same (tolerance is disregarded).
+ * Returns if this value is equal to the [reference], within a given [tolerance]. If the reference
+ * value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this only returns
+ * true if this value is exactly the same (tolerance is disregarded).
  */
 private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
     return when {
@@ -302,15 +290,12 @@ private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
  * @param expected The expected value to which this one should be equal to.
  * @param subject Used in the error message to identify which item this assertion failed on.
  * @param tolerance The tolerance within which the values should be treated as equal.
- *
  * @throws AssertionError if comparison fails.
  */
 internal fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = Dp(.5f)) {
     if (!isWithinTolerance(expected, tolerance)) {
         // Comparison failed, report the error in DPs
-        throw AssertionError(
-            "Actual $subject is $this, expected $expected (tolerance: $tolerance)"
-        )
+        throw AssertionError("Actual $subject is $this, expected $expected (tolerance: $tolerance)")
     }
 }
 
@@ -325,17 +310,14 @@ internal fun ComposeContentTestRule.verifyScreenshot(
     setContentWithTheme {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             ) {
                 content()
             }
         }
     }
 
-    onNodeWithTag(testTag).captureToImage()
-        .assertAgainstGolden(screenshotRule, methodName)
+    onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, methodName)
 }
 
 private fun ImageBitmap.histogram(): MutableMap<Color, Long> {

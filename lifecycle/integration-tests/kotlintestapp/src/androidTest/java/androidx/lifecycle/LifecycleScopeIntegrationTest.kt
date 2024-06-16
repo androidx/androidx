@@ -44,9 +44,7 @@ import org.junit.runner.RunWith
 class LifecycleScopeIntegrationTest {
     private val testScope = CoroutineScope(Job() + Dispatchers.Default)
 
-    @JvmField
-    @Rule
-    val rule = activityScenarioRule<TestActivity>()
+    @JvmField @Rule val rule = activityScenarioRule<TestActivity>()
 
     @After
     fun cancelScope() {
@@ -56,21 +54,13 @@ class LifecycleScopeIntegrationTest {
     @Test
     fun alreadyResumed() = runBlocking {
         rule.scenario.moveToState(RESUMED)
-        assertThat(
-            owner().lifecycleScope.async {
-                true
-            }.await()
-        ).isTrue()
+        assertThat(owner().lifecycleScope.async { true }.await()).isTrue()
     }
 
     @Test
     fun createdState() = runBlocking {
         rule.scenario.moveToState(CREATED)
-        assertThat(
-            owner().lifecycleScope.async {
-                true
-            }.await()
-        ).isTrue()
+        assertThat(owner().lifecycleScope.async { true }.await()).isTrue()
     }
 
     @Test
@@ -78,21 +68,20 @@ class LifecycleScopeIntegrationTest {
         rule.scenario.moveToState(RESUMED)
         val owner = owner()
         assertThat(
-            testScope.async(Dispatchers.Main) {
-                withContext(owner.lifecycleScope.coroutineContext) {
-                    true
-                }
-            }.await()
-        ).isTrue()
+                testScope
+                    .async(Dispatchers.Main) {
+                        withContext(owner.lifecycleScope.coroutineContext) { true }
+                    }
+                    .await()
+            )
+            .isTrue()
     }
 
     @Test
     fun alreadyDestroyed() = runBlocking {
         val owner = owner() // grab it before destroying
         rule.scenario.moveToState(DESTROYED)
-        val action = owner.lifecycleScope.async {
-            true
-        }
+        val action = owner.lifecycleScope.async { true }
         action.join()
         assertThat(action.isCancelled).isTrue()
     }
@@ -102,10 +91,11 @@ class LifecycleScopeIntegrationTest {
         val owner = owner() // grab it before destroying
         rule.scenario.moveToState(STARTED)
         val runningMutex = Mutex(true)
-        val action = owner.lifecycleScope.async {
-            runningMutex.unlock()
-            delay(10_000)
-        }
+        val action =
+            owner.lifecycleScope.async {
+                runningMutex.unlock()
+                delay(10_000)
+            }
         runningMutex.lock()
         assertThat(action.isActive).isTrue()
         rule.scenario.moveToState(DESTROYED)
@@ -115,9 +105,7 @@ class LifecycleScopeIntegrationTest {
 
     private fun owner(): LifecycleOwner {
         lateinit var owner: LifecycleOwner
-        rule.scenario.onActivity {
-            owner = it
-        }
+        rule.scenario.onActivity { owner = it }
         return owner
     }
 }

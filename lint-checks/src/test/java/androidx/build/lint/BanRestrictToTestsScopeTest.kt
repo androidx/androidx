@@ -23,20 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanRestrictToTestsScopeTest : AbstractLintDetectorTest(
-    useDetector = BanRestrictToTestsScope(),
-    useIssues = listOf(BanRestrictToTestsScope.ISSUE),
-    stubs = arrayOf(Stubs.RestrictTo),
-) {
+class BanRestrictToTestsScopeTest :
+    AbstractLintDetectorTest(
+        useDetector = BanRestrictToTestsScope(),
+        useIssues = listOf(BanRestrictToTestsScope.ISSUE),
+        stubs = arrayOf(Stubs.RestrictTo),
+    ) {
 
     @Test
     fun `Detection of @RestrictTo(TESTS) usage in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.RestrictToTestsAnnotationUsageJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.RestrictToTestsAnnotationUsageJava"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/RestrictToTestsAnnotationUsageJava.java:26: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
     @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,9 +55,11 @@ src/androidx/RestrictToTestsAnnotationUsageJava.java:38: Error: Replace @Restric
     @RestrictTo({Scope.TESTS, Scope.LIBRARY})
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 5 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val fixDiffs = """
+        val fixDiffs =
+            """
 Fix for src/androidx/RestrictToTestsAnnotationUsageJava.java line 26: Replace with `@VisibleForTesting`:
 @@ -26 +26
 -     @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS)
@@ -72,47 +76,51 @@ Fix for src/androidx/RestrictToTestsAnnotationUsageJava.java line 35: Replace wi
 @@ -35 +35
 -     @RestrictTo(TESTS)
 +     @androidx.annotation.VisibleForTesting
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(fixDiffs)
+        check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }
+
     @Test
     fun `Detection of @RestrictTo(TESTS) usage in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.RestrictToTestsAnnotationUsageKotlin"),
-        )
+        val input =
+            arrayOf(
+                ktSample("androidx.RestrictToTestsAnnotationUsageKotlin"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/RestrictToTestsAnnotationUsageKotlin.kt:24: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @RestrictTo(RestrictTo.Scope.TESTS) fun testMethod() {}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/RestrictToTestsAnnotationUsageKotlin.kt:27: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
-    @RestrictTo(RestrictTo.Scope.TESTS, RestrictTo.Scope.LIBRARY)
+src/androidx/RestrictToTestsAnnotationUsageKotlin.kt:26: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
+    @RestrictTo(RestrictTo.Scope.TESTS, RestrictTo.Scope.LIBRARY) fun testMethodVarArg() {}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/RestrictToTestsAnnotationUsageKotlin.kt:30: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
-    @get:RestrictTo(RestrictTo.Scope.TESTS)
+src/androidx/RestrictToTestsAnnotationUsageKotlin.kt:28: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
+    @get:RestrictTo(RestrictTo.Scope.TESTS) val testPropertyGet = "test"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val fixDiffs = """
+        val fixDiffs =
+            """
 Fix for src/androidx/RestrictToTestsAnnotationUsageKotlin.kt line 24: Replace with `@VisibleForTesting`:
-@@ -24 +24
--     @RestrictTo(RestrictTo.Scope.TESTS)
-+     @androidx.annotation.VisibleForTesting
-Fix for src/androidx/RestrictToTestsAnnotationUsageKotlin.kt line 30: Replace with `@get:VisibleForTesting`:
-@@ -30 +30
--     @get:RestrictTo(RestrictTo.Scope.TESTS)
-+     @get:androidx.annotation.VisibleForTesting
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+@@ -22 +22
++ import androidx.annotation.VisibleForTesting
+@@ -24 +25
+-     @RestrictTo(RestrictTo.Scope.TESTS) fun testMethod() {}
++     @VisibleForTesting fun testMethod() {}
+Fix for src/androidx/RestrictToTestsAnnotationUsageKotlin.kt line 28: Replace with `@get:VisibleForTesting`:
+@@ -22 +22
++ import androidx.annotation.VisibleForTesting
+@@ -28 +29
+-     @get:RestrictTo(RestrictTo.Scope.TESTS) val testPropertyGet = "test"
++     @get:VisibleForTesting val testPropertyGet = "test"
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(fixDiffs)
+        check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }
 }

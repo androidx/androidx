@@ -18,9 +18,9 @@ package androidx.credentials.exceptions.domerrors
 
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
- * exception contains and transaction_inactive_err from the fido spec, indicating a request
- * was placed against a transaction which is currently not active. The
- * fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
+ * exception contains and transaction_inactive_err from the fido spec, indicating a request was
+ * placed against a transaction which is currently not active. The fido spec can be found
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
 class TransactionInactiveError :

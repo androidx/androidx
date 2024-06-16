@@ -14,13 +14,65 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused", "UNUSED_PARAMETER")
+@file:Suppress("unused", "UNUSED_PARAMETER", "MemberVisibilityCanBePrivate")
 
 package replacewith
 
 import android.view.View
 
 class ReplaceWithUsageKotlin {
+    var otherBooleanProperty: Boolean = false
+    var otherProperty: String = "value"
+
+    @Deprecated(message = "Use [otherProperty] instead", replaceWith = ReplaceWith("otherProperty"))
+    var someProperty: String = "value"
+
+    @Deprecated(
+        message = "Use [otherBooleanProperty] instead",
+        replaceWith = ReplaceWith("otherBooleanProperty")
+    )
+    var someBooleanProperty: Boolean = false
+
+    @get:Deprecated(message = "Use [getMethod] instead", replaceWith = ReplaceWith("getMethod"))
+    @set:Deprecated(
+        message = "Use [setMethod(String)] instead",
+        replaceWith = ReplaceWith("setMethod(value)")
+    )
+    var deprecatedSetGetProperty: String = "value"
+
+    var deprecatedAccessorProperty: String
+        @Deprecated(message = "Use [getMethod] instead", replaceWith = ReplaceWith("getMethod"))
+        get() {
+            return otherProperty
+        }
+        @Deprecated(
+            message = "Use [setMethod(String)] instead",
+            replaceWith = ReplaceWith("setMethod(value)")
+        )
+        set(value) {
+            otherProperty = value
+        }
+
+    @Deprecated(
+        message = "Use [otherProperty] instead",
+        replaceWith = ReplaceWith("otherProperty = arg")
+    )
+    fun setMethodDeprecated(arg: String) {
+        otherProperty = arg
+    }
+
+    @Deprecated(message = "Use [otherProperty] instead", replaceWith = ReplaceWith("otherProperty"))
+    fun getMethodDeprecated(): String {
+        return otherProperty
+    }
+
+    fun setMethod(arg: String) {
+        otherProperty = arg
+    }
+
+    fun getMethod(): String {
+        return otherProperty
+    }
 
     /**
      * Constructor.
@@ -48,9 +100,7 @@ class ReplaceWithUsageKotlin {
         // Stub.
     }
 
-    /**
-     * Constructor.
-     */
+    /** Constructor. */
     constructor() {
         // Stub.
     }
@@ -61,15 +111,12 @@ class ReplaceWithUsageKotlin {
          *
          * @deprecated Use [InnerClass#InnerClass()] instead.
          */
-
         @Deprecated("Use [InnerClass#InnerClass()] instead.", ReplaceWith("InnerClass()"))
         constructor(param: String) {
             // Stub.
         }
 
-        /**
-         * Constructor.
-         */
+        /** Constructor. */
         constructor() {
             // Stub.
         }
@@ -87,17 +134,13 @@ class ReplaceWithUsageKotlin {
             obj.toString()
         }
 
-        /**
-         * Returns a new object.
-         */
+        /** Returns a new object. */
         @JvmStatic
         fun obtain(param: Int): ReplaceWithUsageKotlin {
             return ReplaceWithUsageKotlin()
         }
 
-        /**
-         * String constant.
-         */
+        /** String constant. */
         @Deprecated(
             message = "Use {@link View#AUTOFILL_HINT_NAME} directly.",
             ReplaceWith(expression = "View.AUTOFILL_HINT_NAME")

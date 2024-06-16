@@ -2,17 +2,17 @@
 package androidx.preference {
 
   public class CheckBoxPreference extends androidx.preference.TwoStatePreference {
+    ctor public CheckBoxPreference(android.content.Context);
+    ctor public CheckBoxPreference(android.content.Context, android.util.AttributeSet?);
     ctor public CheckBoxPreference(android.content.Context, android.util.AttributeSet?, int);
     ctor public CheckBoxPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public CheckBoxPreference(android.content.Context, android.util.AttributeSet?);
-    ctor public CheckBoxPreference(android.content.Context);
   }
 
   public abstract class DialogPreference extends androidx.preference.Preference {
-    ctor public DialogPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public DialogPreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public DialogPreference(android.content.Context, android.util.AttributeSet?);
     ctor public DialogPreference(android.content.Context);
+    ctor public DialogPreference(android.content.Context, android.util.AttributeSet?);
+    ctor public DialogPreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public DialogPreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public android.graphics.drawable.Drawable? getDialogIcon();
     method public int getDialogLayoutResource();
     method public CharSequence? getDialogMessage();
@@ -22,14 +22,14 @@ package androidx.preference {
     method public void setDialogIcon(android.graphics.drawable.Drawable?);
     method public void setDialogIcon(int);
     method public void setDialogLayoutResource(int);
-    method public void setDialogMessage(CharSequence?);
     method public void setDialogMessage(int);
-    method public void setDialogTitle(CharSequence?);
+    method public void setDialogMessage(CharSequence?);
     method public void setDialogTitle(int);
-    method public void setNegativeButtonText(CharSequence?);
+    method public void setDialogTitle(CharSequence?);
     method public void setNegativeButtonText(int);
-    method public void setPositiveButtonText(CharSequence?);
+    method public void setNegativeButtonText(CharSequence?);
     method public void setPositiveButtonText(int);
+    method public void setPositiveButtonText(CharSequence?);
   }
 
   public static interface DialogPreference.TargetFragment {
@@ -45,10 +45,10 @@ package androidx.preference {
   }
 
   public class EditTextPreference extends androidx.preference.DialogPreference {
-    ctor public EditTextPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public EditTextPreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public EditTextPreference(android.content.Context, android.util.AttributeSet?);
     ctor public EditTextPreference(android.content.Context);
+    ctor public EditTextPreference(android.content.Context, android.util.AttributeSet?);
+    ctor public EditTextPreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public EditTextPreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public String? getText();
     method public void setOnBindEditTextListener(androidx.preference.EditTextPreference.OnBindEditTextListener?);
     method public void setText(String?);
@@ -58,7 +58,7 @@ package androidx.preference {
     method public void onBindEditText(android.widget.EditText);
   }
 
-  public static final class EditTextPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.EditTextPreference> {
+  public static final class EditTextPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.EditTextPreference!> {
     method public static androidx.preference.EditTextPreference.SimpleSummaryProvider getInstance();
     method public CharSequence? provideSummary(androidx.preference.EditTextPreference);
   }
@@ -77,24 +77,24 @@ package androidx.preference {
   }
 
   public class ListPreference extends androidx.preference.DialogPreference {
-    ctor public ListPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public ListPreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public ListPreference(android.content.Context, android.util.AttributeSet?);
     ctor public ListPreference(android.content.Context);
+    ctor public ListPreference(android.content.Context, android.util.AttributeSet?);
+    ctor public ListPreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public ListPreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public int findIndexOfValue(String!);
     method public CharSequence![]! getEntries();
     method public CharSequence? getEntry();
     method public CharSequence![]! getEntryValues();
     method public String! getValue();
-    method public void setEntries(CharSequence![]!);
     method public void setEntries(@ArrayRes int);
-    method public void setEntryValues(CharSequence![]!);
+    method public void setEntries(CharSequence![]!);
     method public void setEntryValues(@ArrayRes int);
+    method public void setEntryValues(CharSequence![]!);
     method public void setValue(String!);
     method public void setValueIndex(int);
   }
 
-  public static final class ListPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.ListPreference> {
+  public static final class ListPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.ListPreference!> {
     method public static androidx.preference.ListPreference.SimpleSummaryProvider getInstance();
     method public CharSequence? provideSummary(androidx.preference.ListPreference);
   }
@@ -113,19 +113,19 @@ package androidx.preference {
   }
 
   public class MultiSelectListPreference extends androidx.preference.DialogPreference {
-    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet?);
     ctor public MultiSelectListPreference(android.content.Context);
+    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet?);
+    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public int findIndexOfValue(String!);
     method public CharSequence![]! getEntries();
     method public CharSequence![]! getEntryValues();
     method protected boolean[]! getSelectedItems();
     method public java.util.Set<java.lang.String!>! getValues();
-    method public void setEntries(CharSequence![]!);
     method public void setEntries(@ArrayRes int);
-    method public void setEntryValues(CharSequence![]!);
+    method public void setEntries(CharSequence![]!);
     method public void setEntryValues(@ArrayRes int);
+    method public void setEntryValues(CharSequence![]!);
     method public void setValues(java.util.Set<java.lang.String!>!);
   }
 
@@ -142,11 +142,11 @@ package androidx.preference {
     method public void onDialogClosed(boolean);
   }
 
-  public class Preference implements java.lang.Comparable<androidx.preference.Preference> {
-    ctor public Preference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public Preference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public Preference(android.content.Context, android.util.AttributeSet?);
+  public class Preference implements java.lang.Comparable<androidx.preference.Preference!> {
     ctor public Preference(android.content.Context);
+    ctor public Preference(android.content.Context, android.util.AttributeSet?);
+    ctor public Preference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public Preference(android.content.Context, android.util.AttributeSet?, int, int);
     method public boolean callChangeListener(Object!);
     method public int compareTo(androidx.preference.Preference);
     method protected <T extends androidx.preference.Preference> T? findPreferenceInHierarchy(String);
@@ -230,11 +230,11 @@ package androidx.preference {
     method public void setSelectable(boolean);
     method public void setShouldDisableView(boolean);
     method public void setSingleLineTitle(boolean);
-    method public void setSummary(CharSequence?);
     method public void setSummary(int);
+    method public void setSummary(CharSequence?);
     method public final void setSummaryProvider(androidx.preference.Preference.SummaryProvider?);
-    method public void setTitle(CharSequence?);
     method public void setTitle(int);
+    method public void setTitle(CharSequence?);
     method public void setViewId(int);
     method public final void setVisible(boolean);
     method public void setWidgetLayoutResource(int);
@@ -262,10 +262,10 @@ package androidx.preference {
   }
 
   public class PreferenceCategory extends androidx.preference.PreferenceGroup {
-    ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet?, int);
-    ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet?);
     ctor public PreferenceCategory(android.content.Context);
+    ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet?);
+    ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet?, int);
+    ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet?, int, int);
   }
 
   public abstract class PreferenceDataStore {
@@ -331,8 +331,8 @@ package androidx.preference {
     method @Deprecated public void onStart();
     method @Deprecated public void onStop();
     method @Deprecated public void onViewCreated(android.view.View, android.os.Bundle?);
-    method @Deprecated public void scrollToPreference(String);
     method @Deprecated public void scrollToPreference(androidx.preference.Preference);
+    method @Deprecated public void scrollToPreference(String);
     method @Deprecated public void setDivider(android.graphics.drawable.Drawable?);
     method @Deprecated public void setDividerHeight(int);
     method @Deprecated public void setPreferenceScreen(androidx.preference.PreferenceScreen!);
@@ -366,8 +366,8 @@ package androidx.preference {
     method public void onDisplayPreferenceDialog(androidx.preference.Preference);
     method public void onNavigateToScreen(androidx.preference.PreferenceScreen);
     method public boolean onPreferenceTreeClick(androidx.preference.Preference);
-    method public void scrollToPreference(String);
     method public void scrollToPreference(androidx.preference.Preference);
+    method public void scrollToPreference(String);
     method public void setDivider(android.graphics.drawable.Drawable?);
     method public void setDividerHeight(int);
     method public void setPreferenceScreen(androidx.preference.PreferenceScreen!);
@@ -388,9 +388,9 @@ package androidx.preference {
   }
 
   public abstract class PreferenceGroup extends androidx.preference.Preference {
-    ctor public PreferenceGroup(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public PreferenceGroup(android.content.Context, android.util.AttributeSet?, int);
     ctor public PreferenceGroup(android.content.Context, android.util.AttributeSet?);
+    ctor public PreferenceGroup(android.content.Context, android.util.AttributeSet?, int);
+    ctor public PreferenceGroup(android.content.Context, android.util.AttributeSet?, int, int);
     method public void addItemFromInflater(androidx.preference.Preference);
     method public boolean addPreference(androidx.preference.Preference);
     method protected void dispatchRestoreInstanceState(android.os.Bundle);
@@ -410,8 +410,8 @@ package androidx.preference {
   }
 
   public static interface PreferenceGroup.PreferencePositionCallback {
-    method public int getPreferenceAdapterPosition(String);
     method public int getPreferenceAdapterPosition(androidx.preference.Preference);
+    method public int getPreferenceAdapterPosition(String);
   }
 
   public abstract class PreferenceHeaderFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -493,10 +493,10 @@ package androidx.preference {
   }
 
   public class SeekBarPreference extends androidx.preference.Preference {
-    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet?);
     ctor public SeekBarPreference(android.content.Context);
+    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet?);
+    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public int getMax();
     method public int getMin();
     method public final int getSeekBarIncrement();
@@ -514,46 +514,46 @@ package androidx.preference {
   }
 
   public class SwitchPreference extends androidx.preference.TwoStatePreference {
-    ctor public SwitchPreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public SwitchPreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public SwitchPreference(android.content.Context, android.util.AttributeSet?);
     ctor public SwitchPreference(android.content.Context);
+    ctor public SwitchPreference(android.content.Context, android.util.AttributeSet?);
+    ctor public SwitchPreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public SwitchPreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public CharSequence? getSwitchTextOff();
     method public CharSequence? getSwitchTextOn();
-    method public void setSwitchTextOff(CharSequence?);
     method public void setSwitchTextOff(int);
-    method public void setSwitchTextOn(CharSequence?);
+    method public void setSwitchTextOff(CharSequence?);
     method public void setSwitchTextOn(int);
+    method public void setSwitchTextOn(CharSequence?);
   }
 
   public class SwitchPreferenceCompat extends androidx.preference.TwoStatePreference {
-    ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet?, int);
-    ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet?);
     ctor public SwitchPreferenceCompat(android.content.Context);
+    ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet?);
+    ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet?, int);
+    ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet?, int, int);
     method public CharSequence? getSwitchTextOff();
     method public CharSequence? getSwitchTextOn();
-    method public void setSwitchTextOff(CharSequence?);
     method public void setSwitchTextOff(int);
-    method public void setSwitchTextOn(CharSequence?);
+    method public void setSwitchTextOff(CharSequence?);
     method public void setSwitchTextOn(int);
+    method public void setSwitchTextOn(CharSequence?);
   }
 
   public abstract class TwoStatePreference extends androidx.preference.Preference {
-    ctor public TwoStatePreference(android.content.Context, android.util.AttributeSet?, int, int);
-    ctor public TwoStatePreference(android.content.Context, android.util.AttributeSet?, int);
-    ctor public TwoStatePreference(android.content.Context, android.util.AttributeSet?);
     ctor public TwoStatePreference(android.content.Context);
+    ctor public TwoStatePreference(android.content.Context, android.util.AttributeSet?);
+    ctor public TwoStatePreference(android.content.Context, android.util.AttributeSet?, int);
+    ctor public TwoStatePreference(android.content.Context, android.util.AttributeSet?, int, int);
     method public boolean getDisableDependentsState();
     method public CharSequence? getSummaryOff();
     method public CharSequence? getSummaryOn();
     method public boolean isChecked();
     method public void setChecked(boolean);
     method public void setDisableDependentsState(boolean);
-    method public void setSummaryOff(CharSequence?);
     method public void setSummaryOff(int);
-    method public void setSummaryOn(CharSequence?);
+    method public void setSummaryOff(CharSequence?);
     method public void setSummaryOn(int);
+    method public void setSummaryOn(CharSequence?);
     method protected void syncSummaryView(androidx.preference.PreferenceViewHolder);
     field protected boolean mChecked;
   }

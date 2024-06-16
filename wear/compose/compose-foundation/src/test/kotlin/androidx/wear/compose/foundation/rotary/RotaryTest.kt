@@ -27,9 +27,7 @@ class ThresholdHandlerTest {
     @Test
     fun testMinVelocityThreshold() {
         val itemHeight = 100f
-        val thresholdHandler = ThresholdHandler(
-            2.0f,
-            averageItemSize = { itemHeight })
+        val thresholdHandler = ThresholdHandler(2.0f, averageItemSize = { itemHeight })
 
         thresholdHandler.startThresholdTracking(0L)
         // Simulate very slow scroll
@@ -44,9 +42,7 @@ class ThresholdHandlerTest {
     fun testMaxVelocityThreshold() {
         val itemHeight = 100f
         val thresholdDivider = 2.0f
-        val thresholdHandler = ThresholdHandler(
-            thresholdDivider,
-            averageItemSize = { itemHeight })
+        val thresholdHandler = ThresholdHandler(thresholdDivider, averageItemSize = { itemHeight })
 
         thresholdHandler.startThresholdTracking(0L)
         // Simulate very fast scroll

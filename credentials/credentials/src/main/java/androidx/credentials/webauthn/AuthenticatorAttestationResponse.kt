@@ -23,84 +23,84 @@ import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class AuthenticatorAttestationResponse(
-  private val requestOptions: PublicKeyCredentialCreationOptions,
-  private val credentialId: ByteArray,
-  private val credentialPublicKey: ByteArray,
-  private val origin: String,
-  private val up: Boolean,
-  private val uv: Boolean,
-  private val be: Boolean,
-  private val bs: Boolean,
-  private val packageName: String? = null,
-  private val clientDataHash: ByteArray? = null,
+    private val requestOptions: PublicKeyCredentialCreationOptions,
+    private val credentialId: ByteArray,
+    private val credentialPublicKey: ByteArray,
+    private val origin: String,
+    private val up: Boolean,
+    private val uv: Boolean,
+    private val be: Boolean,
+    private val bs: Boolean,
+    private val packageName: String? = null,
+    private val clientDataHash: ByteArray? = null,
 ) : AuthenticatorResponse {
-  override var clientJson = JSONObject()
-  var attestationObject: ByteArray
+    override var clientJson = JSONObject()
+    var attestationObject: ByteArray
 
-  init {
-    clientJson.put("type", "webauthn.create")
-    clientJson.put("challenge", WebAuthnUtils.b64Encode(requestOptions.challenge))
-    clientJson.put("origin", origin)
-    if (packageName != null) {
-      clientJson.put("androidPackageName", packageName)
+    init {
+        clientJson.put("type", "webauthn.create")
+        clientJson.put("challenge", WebAuthnUtils.b64Encode(requestOptions.challenge))
+        clientJson.put("origin", origin)
+        if (packageName != null) {
+            clientJson.put("androidPackageName", packageName)
+        }
+
+        attestationObject = defaultAttestationObject()
     }
 
-    attestationObject = defaultAttestationObject()
-  }
+    private fun authData(): ByteArray {
+        val md = MessageDigest.getInstance("SHA-256")
+        val rpHash = md.digest(requestOptions.rp.id.toByteArray())
+        var flags: Int = 0
+        if (up) {
+            flags = flags or 0x01
+        }
+        if (uv) {
+            flags = flags or 0x04
+        }
+        if (be) {
+            flags = flags or 0x08
+        }
+        if (bs) {
+            flags = flags or 0x10
+        }
+        flags = flags or 0x40
 
-  private fun authData(): ByteArray {
-    val md = MessageDigest.getInstance("SHA-256")
-    val rpHash = md.digest(requestOptions.rp.id.toByteArray())
-    var flags: Int = 0
-    if (up) {
-      flags = flags or 0x01
+        val aaguid = ByteArray(16) { 0 }
+        val credIdLen = byteArrayOf((credentialId.size shr 8).toByte(), credentialId.size.toByte())
+
+        val ret =
+            rpHash +
+                byteArrayOf(flags.toByte()) +
+                byteArrayOf(0, 0, 0, 0) +
+                aaguid +
+                credIdLen +
+                credentialId +
+                credentialPublicKey
+
+        return ret
     }
-    if (uv) {
-      flags = flags or 0x04
+
+    internal fun defaultAttestationObject(): ByteArray {
+        val ao = mutableMapOf<String, Any>()
+        ao.put("fmt", "none")
+        ao.put("attStmt", emptyMap<Any, Any>())
+        ao.put("authData", authData())
+        return Cbor().encode(ao)
     }
-    if (be) {
-      flags = flags or 0x08
+
+    override fun json(): JSONObject {
+        // See AuthenticatorAttestationResponseJSON at
+        // https://w3c.github.io/webauthn/#ref-for-dom-publickeycredential-tojson
+
+        val clientData = clientJson.toString().toByteArray()
+        val response = JSONObject()
+        if (clientDataHash == null) {
+            response.put("clientDataJSON", WebAuthnUtils.b64Encode(clientData))
+        }
+        response.put("attestationObject", WebAuthnUtils.b64Encode(attestationObject))
+        response.put("transports", JSONArray(listOf("internal", "hybrid")))
+
+        return response
     }
-    if (bs) {
-      flags = flags or 0x10
-    }
-    flags = flags or 0x40
-
-    val aaguid = ByteArray(16) { 0 }
-    val credIdLen = byteArrayOf((credentialId.size shr 8).toByte(), credentialId.size.toByte())
-
-    val ret =
-      rpHash +
-        byteArrayOf(flags.toByte()) +
-        byteArrayOf(0, 0, 0, 0) +
-        aaguid +
-        credIdLen +
-        credentialId +
-        credentialPublicKey
-
-    return ret
-  }
-
-  internal fun defaultAttestationObject(): ByteArray {
-    val ao = mutableMapOf<String, Any>()
-    ao.put("fmt", "none")
-    ao.put("attStmt", emptyMap<Any, Any>())
-    ao.put("authData", authData())
-    return Cbor().encode(ao)
-  }
-
-  override fun json(): JSONObject {
-    // See AuthenticatorAttestationResponseJSON at
-    // https://w3c.github.io/webauthn/#ref-for-dom-publickeycredential-tojson
-
-    val clientData = clientJson.toString().toByteArray()
-    val response = JSONObject()
-    if (clientDataHash == null) {
-      response.put("clientDataJSON", WebAuthnUtils.b64Encode(clientData))
-    }
-    response.put("attestationObject", WebAuthnUtils.b64Encode(attestationObject))
-    response.put("transports", JSONArray(listOf("internal", "hybrid")))
-
-    return response
-  }
 }

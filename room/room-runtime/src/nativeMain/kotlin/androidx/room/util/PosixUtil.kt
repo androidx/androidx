@@ -31,9 +31,7 @@ import kotlinx.cinterop.toKString
 import platform.posix.errno
 import platform.posix.strerror
 
-/**
- * Convenience function to get a String description of the last error number.
- */
+/** Convenience function to get a String description of the last error number. */
 @OptIn(ExperimentalForeignApi::class)
 fun stringError(): String = strerror(errno)?.toKString() ?: "Unknown error"
 >>>>>>>> 4ddd0ca0d2033b1ddbe4311683067312bc2be853:room/room-runtime/src/nativeMain/kotlin/androidx/room/util/PosixUtil.kt

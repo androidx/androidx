@@ -35,11 +35,9 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class ImageCaptureLifecycleStatusChangeStressTest constructor(
-    implName: String,
-    cameraConfig: CameraXConfig,
-    cameraId: String
-) : LifecycleStatusChangeStressTestBase(implName, cameraConfig, cameraId) {
+class ImageCaptureLifecycleStatusChangeStressTest
+constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
+    LifecycleStatusChangeStressTestBase(implName, cameraConfig, cameraId) {
 
     @LabTestRule.LabTestOnly
     @Test

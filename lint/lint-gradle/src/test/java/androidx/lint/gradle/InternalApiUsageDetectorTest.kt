@@ -22,17 +22,20 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class InternalApiUsageDetectorTest : GradleLintDetectorTest(
-    detector = InternalApiUsageDetector(),
-    issues = listOf(
-        InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
-        InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
-    )
-) {
+class InternalApiUsageDetectorTest :
+    GradleLintDetectorTest(
+        detector = InternalApiUsageDetector(),
+        issues =
+            listOf(
+                InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
+                InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
+            )
+    ) {
     @Test
     fun `Test usage of internal Gradle API`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.component.SoftwareComponent
                 import org.gradle.api.internal.component.SoftwareComponentInternal
 
@@ -43,8 +46,9 @@ class InternalApiUsageDetectorTest : GradleLintDetectorTest(
                         }
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         lint()
             .files(*STUBS, input)
@@ -57,7 +61,8 @@ class InternalApiUsageDetectorTest : GradleLintDetectorTest(
                     import org.gradle.api.internal.component.SoftwareComponentInternal
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
 
         lint()
@@ -74,17 +79,20 @@ class InternalApiUsageDetectorTest : GradleLintDetectorTest(
                     import org.gradle.api.internal.component.SoftwareComponentInternal as IMPORT_ALIAS_2_SOFTWARECOMPONENTINTERNAL
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     2 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `Test usage of internal Android Gradle API`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import com.android.build.gradle.internal.lint.VariantInputs
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         lint()
             .files(*STUBS, input)
@@ -97,14 +105,16 @@ class InternalApiUsageDetectorTest : GradleLintDetectorTest(
                 import com.android.build.gradle.internal.lint.VariantInputs
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `Test usage of Internal annotation`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import java.io.File
                 import org.gradle.api.Task
                 import org.gradle.api.tasks.Internal
@@ -113,8 +123,9 @@ class InternalApiUsageDetectorTest : GradleLintDetectorTest(
                     @get:Internal
                     val notInput: File
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         check(input).expectClean()
     }
 }

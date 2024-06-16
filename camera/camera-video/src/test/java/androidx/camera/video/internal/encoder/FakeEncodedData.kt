@@ -18,16 +18,12 @@ package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodec
 import android.media.MediaCodec.BufferInfo
-import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.ResolvableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import java.nio.ByteBuffer
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class FakeEncodedData(
-    private val byteBuffer: ByteBuffer,
-    private val bufferInfo: BufferInfo
-) : EncodedData {
+class FakeEncodedData(private val byteBuffer: ByteBuffer, private val bufferInfo: BufferInfo) :
+    EncodedData {
     private val terminationFuture = ResolvableFuture.create<Void>()
 
     override fun getByteBuffer(): ByteBuffer {

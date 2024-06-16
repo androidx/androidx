@@ -27,10 +27,10 @@ import sample.annotation.provider.RequiresOptInSampleAnnotationJavaDuplicate
 class OutsideGroupExperimentalAnnotatedClass {
 
     // b/201564937 (comments 3, 5-7) - temporarily commenting out due to import issue
-//    @ExperimentalSampleAnnotation
-//    fun invalidAnnotatedFunction() {
-//        // Nothing to see here.
-//    }
+    //    @ExperimentalSampleAnnotation
+    //    fun invalidAnnotatedFunction() {
+    //        // Nothing to see here.
+    //    }
 
     @ExperimentalSampleAnnotationJava
     fun invalidExperimentalAnnotatedMethod() {
@@ -55,12 +55,13 @@ class OutsideGroupExperimentalAnnotatedClass {
         // Nothing to see here.
     }
 
-    /* ktlint-disable max-line-length */
-    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class, RequiresOptInSampleAnnotationJavaDuplicate::class)
+    @kotlin.OptIn(
+        RequiresOptInSampleAnnotationJava::class,
+        RequiresOptInSampleAnnotationJavaDuplicate::class
+    )
     fun invalidMethodWithMultipleOptInsWithoutLineBreaks() {
         // Nothing to see here.
     }
-    /* ktlint-enable max-line-length */
 
     @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
     fun invalidMethodWithSingleAndroidXOptIn() {
@@ -75,10 +76,11 @@ class OutsideGroupExperimentalAnnotatedClass {
         // Nothing to see here.
     }
 
-    /* ktlint-disable max-line-length */
-    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class, RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class)
+    @androidx.annotation.OptIn(
+        RequiresAndroidXOptInSampleAnnotationJava::class,
+        RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class
+    )
     fun invalidMethodWithMultipleAndroidXOptInsWithoutLineBreaks() {
         // Nothing to see here.
     }
-    /* ktlint-enable max-line-length */
 }

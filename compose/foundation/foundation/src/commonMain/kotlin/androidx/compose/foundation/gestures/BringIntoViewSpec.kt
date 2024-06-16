@@ -39,6 +39,7 @@ expect val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
  * Note: API shape and naming are still being refined, therefore API is marked as experimental.
  *
  * Check the following sample for a use case usage of this API:
+ *
  * @sample androidx.compose.foundation.samples.FocusScrollingInLazyRowSample
  */
 @ExperimentalFoundationApi
@@ -48,34 +49,33 @@ interface BringIntoViewSpec {
     /**
      * An Animation Spec to be used as the animation to run to fulfill the BringIntoView requests.
      */
-    val scrollAnimationSpec: AnimationSpec<Float> get() = DefaultScrollAnimationSpec
+    @Deprecated("Animation spec customization is no longer supported.")
+    @get:Deprecated("Animation spec customization is no longer supported.")
+    val scrollAnimationSpec: AnimationSpec<Float>
+        get() = DefaultScrollAnimationSpec
 
     /**
-     * Calculate the offset needed to bring one of the scrollable container's child into view.
-     * This will be called for every frame of the scrolling animation. This means that, as the
-     * animation progresses, the offset will naturally change to fulfill the scroll request.
+     * Calculate the offset needed to bring one of the scrollable container's child into view. This
+     * will be called for every frame of the scrolling animation. This means that, as the animation
+     * progresses, the offset will naturally change to fulfill the scroll request.
      *
      * All distances below are represented in pixels.
+     *
      * @param offset from the side closest to the start of the container.
      * @param size is the child size.
      * @param containerSize Is the main axis size of the scrollable container.
-     *
-     * @return The necessary amount to scroll to satisfy the bring into view request.
-     * Returning zero from here means that the request was satisfied and the scrolling animation
-     * should stop.
+     * @return The necessary amount to scroll to satisfy the bring into view request. Returning zero
+     *   from here means that the request was satisfied and the scrolling animation should stop.
      */
-    fun calculateScrollDistance(
-        offset: Float,
-        size: Float,
-        containerSize: Float
-    ): Float = defaultCalculateScrollDistance(offset, size, containerSize)
+    fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float =
+        defaultCalculateScrollDistance(offset, size, containerSize)
 
     companion object {
 
         /**
          * The default animation spec used by [Modifier.scrollable] to run Bring Into View requests.
          */
-        val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
+        internal val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
 
         internal val DefaultBringIntoViewSpec = object : BringIntoViewSpec {}
 
@@ -94,7 +94,8 @@ interface BringIntoViewSpec {
                 // If the item is visible but larger than the parent, we don't scroll.
                 leadingEdge < 0 && trailingEdge > containerSize -> 0f
 
-                // Find the minimum scroll needed to make one of the edges coincide with the parent's
+                // Find the minimum scroll needed to make one of the edges coincide with the
+                // parent's
                 // edge.
                 abs(leadingEdge) < abs(trailingEdge - containerSize) -> leadingEdge
                 else -> trailingEdge - containerSize

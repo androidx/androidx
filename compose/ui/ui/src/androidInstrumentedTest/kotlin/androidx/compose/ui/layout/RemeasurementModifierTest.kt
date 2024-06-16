@@ -31,11 +31,12 @@ class RemeasurementModifierTest {
         val root = root {
             add(
                 node {
-                    modifier = object : RemeasurementModifier {
-                        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-                            remeasurementObj = remeasurement
+                    modifier =
+                        object : RemeasurementModifier {
+                            override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                                remeasurementObj = remeasurement
+                            }
                         }
-                    }
                 }
             )
         }
@@ -47,9 +48,7 @@ class RemeasurementModifierTest {
         assertMeasuredAndLaidOut(root.first)
         // but still remeasured
         assertRemeasured(root.first) {
-            assertRelaidOut(root.first) {
-                remeasurementObj!!.forceRemeasure()
-            }
+            assertRelaidOut(root.first) { remeasurementObj!!.forceRemeasure() }
         }
     }
 
@@ -59,11 +58,12 @@ class RemeasurementModifierTest {
         val root = root {
             add(
                 node {
-                    modifier = object : RemeasurementModifier {
-                        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-                            remeasurementObj = remeasurement
+                    modifier =
+                        object : RemeasurementModifier {
+                            override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                                remeasurementObj = remeasurement
+                            }
                         }
-                    }
                 }
             )
             add(node())
@@ -74,9 +74,7 @@ class RemeasurementModifierTest {
         assertThat(remeasurementObj).isNotNull()
         root.second.requestRemeasure()
         assertNotRemeasured(root.second) {
-            assertNotRelaidOut(root.second) {
-                remeasurementObj!!.forceRemeasure()
-            }
+            assertNotRelaidOut(root.second) { remeasurementObj!!.forceRemeasure() }
         }
     }
 }

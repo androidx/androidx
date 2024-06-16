@@ -37,104 +37,77 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayoutReuseTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun reuseBox() {
-        assertNoRemeasureOnReuse { modifier ->
-            Box(modifier.size(10.dp))
-        }
+        assertNoRemeasureOnReuse { modifier -> Box(modifier.size(10.dp)) }
     }
 
     @Test
     fun reuseBoxWithNonDefaultAlignment() {
         assertNoRemeasureOnReuse { modifier ->
-            Box(modifier.size(10.dp), contentAlignment = Alignment.Center) {
-            }
+            Box(modifier.size(10.dp), contentAlignment = Alignment.Center) {}
         }
     }
 
     @Test
     fun reuseRow() {
-        assertNoRemeasureOnReuse { modifier ->
-            Row(modifier.size(10.dp)) {
-            }
-        }
+        assertNoRemeasureOnReuse { modifier -> Row(modifier.size(10.dp)) {} }
     }
 
     @Test
     fun reuseRowWithNonDefaultAlignment() {
         assertNoRemeasureOnReuse { modifier ->
-            Row(modifier.size(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            }
+            Row(modifier.size(10.dp), verticalAlignment = Alignment.CenterVertically) {}
         }
     }
 
     @Test
     fun reuseColumn() {
-        assertNoRemeasureOnReuse { modifier ->
-            Column(modifier.size(10.dp)) {
-            }
-        }
+        assertNoRemeasureOnReuse { modifier -> Column(modifier.size(10.dp)) {} }
     }
 
     @Test
     fun reuseColumnWithNonDefaultAlignment() {
         assertNoRemeasureOnReuse { modifier ->
-            Column(modifier.size(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            }
+            Column(modifier.size(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {}
         }
     }
 
     @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun reuseFlowRow() {
-        assertNoRemeasureOnReuse { modifier ->
-            FlowRow(modifier.size(10.dp)) {
-            }
-        }
+        assertNoRemeasureOnReuse { modifier -> FlowRow(modifier.size(10.dp)) {} }
     }
 
     @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun reuseFlowColumn() {
-        assertNoRemeasureOnReuse { modifier ->
-            FlowColumn(modifier.size(10.dp)) {
-            }
-        }
+        assertNoRemeasureOnReuse { modifier -> FlowColumn(modifier.size(10.dp)) {} }
     }
 
     @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun reuseSpacer() {
-        assertNoRemeasureOnReuse { modifier ->
-            Spacer(modifier.size(10.dp))
-        }
+        assertNoRemeasureOnReuse { modifier -> Spacer(modifier.size(10.dp)) }
     }
 
     private fun assertNoRemeasureOnReuse(content: @Composable (Modifier) -> Unit) {
         var measureCount = 0
-        val layoutModifier = Modifier.layout { measurable, constraints ->
-            measureCount++
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
+        val layoutModifier =
+            Modifier.layout { measurable, constraints ->
+                measureCount++
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
-        }
         var key by mutableStateOf(0)
-        rule.setContent {
-            ReusableContent(key = key) {
-                content(layoutModifier)
-            }
-        }
+        rule.setContent { ReusableContent(key = key) { content(layoutModifier) } }
         rule.runOnIdle {
             measureCount = 0
             key++
         }
 
-        rule.runOnIdle {
-            assertThat(measureCount).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(measureCount).isEqualTo(0) }
     }
 }

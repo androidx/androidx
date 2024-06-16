@@ -17,7 +17,6 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
@@ -38,7 +37,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun Draggable2DSample() {
@@ -52,26 +50,23 @@ fun Draggable2DSample() {
     var offsetPositionY by remember { mutableStateOf(0f) }
 
     Box(
-        modifier = Modifier
-            .width(max)
-            .height(max)
-            .draggable2D(
-                state = rememberDraggable2DState { delta ->
-                    val newValueX = offsetPositionX + delta.x
-                    val newValueY = offsetPositionY + delta.y
-                    offsetPositionX = newValueX.coerceIn(minPx, maxPx)
-                    offsetPositionY = newValueY.coerceIn(minPx, maxPx)
-                }
-            )
-            .background(Color.LightGray)
+        modifier =
+            Modifier.width(max)
+                .height(max)
+                .draggable2D(
+                    state =
+                        rememberDraggable2DState { delta ->
+                            val newValueX = offsetPositionX + delta.x
+                            val newValueY = offsetPositionY + delta.y
+                            offsetPositionX = newValueX.coerceIn(minPx, maxPx)
+                            offsetPositionY = newValueY.coerceIn(minPx, maxPx)
+                        }
+                )
+                .background(Color.LightGray)
     ) {
         Box(
-            Modifier
-                .offset {
-                    IntOffset(
-                        offsetPositionX.roundToInt(),
-                        offsetPositionY.roundToInt()
-                    )
+            Modifier.offset {
+                    IntOffset(offsetPositionX.roundToInt(), offsetPositionY.roundToInt())
                 }
                 .size(50.dp)
                 .background(Color.Red)

@@ -43,18 +43,16 @@ import androidx.compose.ui.text.TextRange
  * mapping is ambiguous because all of the offsets in the inserted text map back to the same offset
  * in the source text - the offset where the text was inserted. That means the insertion point can
  * map to any of the offsets in the inserted text. I.e. I -> I..N'
- *
- * - This is slightly different than the replacement case, because the offset of the start of
- *   the operation and the offset of the end of the operation (which are the same) map to a
- *   range instead of a scalar. This is because there is not enough information to map the start
- *   and end offsets 1-to-1 to offsets in the transformed text.
+ * - This is slightly different than the replacement case, because the offset of the start of the
+ *   operation and the offset of the end of the operation (which are the same) map to a range
+ *   instead of a scalar. This is because there is not enough information to map the start and end
+ *   offsets 1-to-1 to offsets in the transformed text.
  * - This is symmetric with deletion: Mapping backward from an insertion is the same as mapping
  *   forward from a deletion.
  *
  * ### Deletions
- * In the inverse case, when text is deleted, mapping is unambiguous. All the offsets in the
- * deleted range map to the start of the deleted range. I.e. I..N -> I
- *
+ * In the inverse case, when text is deleted, mapping is unambiguous. All the offsets in the deleted
+ * range map to the start of the deleted range. I.e. I..N -> I
  * - This is symmetric with insertion: Mapping backward from a deletion is the same as mapping
  *   forward from an insertion.
  *
@@ -64,13 +62,14 @@ import androidx.compose.ui.text.TextRange
  *   corresponding edges of the replaced text. I -> I and I+1 -> I+N
  * - The offsets _inside_ the replaced range (exclusive) map ambiguously to the entire replaced
  *   range. I+1..I+N-1 -> I+1..I+N'-1
- * - Note that this means that when a string with length >1 is replaced by a single character,
- *   all the offsets inside that string will map not to the index of the replacement character
- *   but to a single-char _range_ containing that character.
+ * - Note that this means that when a string with length >1 is replaced by a single character, all
+ *   the offsets inside that string will map not to the index of the replacement character but to a
+ *   single-char _range_ containing that character.
  *
  * ### Examples
  *
  * #### Inserting text
+ *
  * ```
  *     012
  * A: "ab"
@@ -82,17 +81,18 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward mapping:
  *
- * | from A: | 0 | 1 | 2 |
- * |--------:|:-:|:-:|:-:|
- * |   to B: | 0 |1-4| 5 |
+ * | from A: | 0   | 1   | 2   |
+ * |--------:|:---:|:---:|:---:|
+ * |   to B: |  0  | 1-4 |  5  |
  *
  * Reverse mapping:
  *
- * | from B: | 0 | 1 | 2 | 3 | 4 | 5 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|:-:|
- * |   to A: | 0 | 1 | 1 | 1 | 1 | 2 |
+ * | from B: | 0   | 1   | 2   | 3   | 4   | 5   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|:---:|
+ * |   to A: |  0  |  1  |  1  |  1  |  1  |  2  |
  *
  * #### Deleting text
+ *
  * ```
  *     012345
  * A: "azzzb"
@@ -104,17 +104,18 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward mapping:
  *
- * | from A: | 0 | 1 | 2 | 3 | 4 | 5 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|:-:|
- * |   to B: | 0 | 1 | 1 | 1 | 1 | 2 |
+ * | from A: | 0   | 1   | 2   | 3   | 4   | 5   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|:---:|
+ * |   to B: |  0  |  1  |  1  |  1  |  1  |  2  |
  *
  * Reverse mapping:
  *
- * | from B: | 0 | 1 | 2 |
- * |--------:|:-:|:-:|:-:|
- * |   to A: | 0 |1-4| 5 |
+ * | from B: | 0   | 1   | 2   |
+ * |--------:|:---:|:---:|:---:|
+ * |   to A: |  0  | 1-4 |  5  |
  *
  * #### Replacing text: single char with char
+ *
  * ```
  *     0123
  * A: "abc"
@@ -126,11 +127,12 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward/reverse mapping: identity
  *
- * | from: | 0 | 1 | 2 | 3 |
- * |------:|:-:|:-:|:-:|:-:|
- * |   to: | 0 | 1 | 2 | 3 |
+ * | from: | 0   | 1   | 2   | 3   |
+ * |------:|:---:|:---:|:---:|:---:|
+ * |   to: |  0  |  1  |  2  |  3  |
  *
  * #### Replacing text: char with chars
+ *
  * ```
  *     0123
  * A: "abc"
@@ -142,17 +144,18 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward mapping:
  *
- * | from A: | 0 | 1 | 2 | 3 |
- * |--------:|:-:|:-:|:-:|:-:|
- * |   to B: | 0 | 1 | 3 | 4 |
+ * | from A: | 0   | 1   | 2   | 3   |
+ * |--------:|:---:|:---:|:---:|:---:|
+ * |   to B: |  0  |  1  |  3  |  4  |
  *
  * Reverse mapping:
  *
- * | from B: | 0 | 1 | 2 | 3 | 4 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|
- * |   to A: | 0 | 1 | 1 | 2 | 3 |
+ * | from B: | 0   | 1   | 2   | 3   | 4   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|
+ * |   to A: |  0  |  1  |  1  |  2  |  3  |
  *
  * #### Replacing text: chars with chars
+ *
  * ```
  *     012345
  * A: "abcde"
@@ -164,23 +167,23 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward mapping:
  *
- * | from A: | 0 | 1 | 2 | 3 | 4 | 5 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|:-:|
- * |   to B: | 0 | 1 |1-3|1-3| 3 | 4 |
+ * | from A: | 0   | 1   | 2   | 3   | 4   | 5   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|:---:|
+ * |   to B: |  0  |  1  | 1-3 | 1-3 |  3  |  4  |
  *
  * Reverse mapping:
  *
- * | from B: | 0 | 1 | 2 | 3 | 4 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|
- * |   to A: | 0 | 1 |1-4| 4 | 5 |
+ * | from B: | 0   | 1   | 2   | 3   | 4   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|
+ * |   to A: |  0  |  1  | 1-4 |  4  |  5  |
  *
  * ### Multiple operations
  *
  * While the above apply to single edit operations, when multiple edit operations are recorded the
  * same rules apply. The rules are applied to the first operation, then the result of that is
  * effectively used as the input text for the next operation, etc. Because an offset can map to a
- * range at each step, we track both a start and end offset (which start as the same value), and
- * at each step combine the start and end _ranges_ by taking their union.
+ * range at each step, we track both a start and end offset (which start as the same value), and at
+ * each step combine the start and end _ranges_ by taking their union.
  *
  * #### Multiple char-to-char replacements (codepoint transformation):
  * ```
@@ -197,9 +200,9 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward/reverse mapping: identity
  *
- * | from: | 0 | 1 | 2 | 3 |
- * |------:|:-:|:-:|:-:|:-:|
- * |   to: | 0 | 1 | 2 | 3 |
+ * | from: | 0   | 1   | 2   | 3   |
+ * |------:|:---:|:---:|:---:|:---:|
+ * |   to: |  0  |  1  |  2  |  3  |
  *
  * #### Multiple inserts:
  * ```
@@ -214,15 +217,15 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward mapping:
  *
- * | from A: | 0 | 1 | 2 | 3 | 4 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|
- * |   to B: | 0 |1-2| 3 |4-5| 6 |
+ * | from A: | 0   | 1   | 2   | 3   | 4   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|
+ * |   to B: |  0  | 1-2 |  3  | 4-5 |  6  |
  *
  * Reverse mapping:
  *
- * | from B: | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
- * |   to A: | 0 | 1 | 1 | 2 | 3 | 3 | 4 |
+ * | from B: | 0   | 1   | 2   | 3   | 4   | 5   | 6   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+ * |   to A: |  0  |  1  |  1  |  2  |  3  |  3  |  4  |
  *
  * #### Multiple replacements of the same range:
  * ```
@@ -237,15 +240,15 @@ import androidx.compose.ui.text.TextRange
  *
  * Forward mapping:
  *
- * | from A: | 0 | 1 | 2 | 3 | 4 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|
- * |   to B: | 0 | 1 |1-3| 3 | 4 |
+ * | from A: | 0   | 1   | 2   | 3   | 4   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|
+ * |   to B: |  0  |  1  | 1-3 |  3  |  4  |
  *
  * Reverse mapping:
  *
- * | from B: | 0 | 1 | 2 | 3 | 4 |
- * |--------:|:-:|:-:|:-:|:-:|:-:|
- * |   to A: | 0 | 1 |1-3| 3 | 4 |
+ * | from B: | 0   | 1   | 2   | 3   | 4   |
+ * |--------:|:---:|:---:|:---:|:---:|:---:|
+ * |   to A: |  0  |  1  | 1-3 |  3  |  4  |
  *
  * For other edge cases, including overlapping replacements, see `OffsetMappingCalculatorTest`.
  */
@@ -278,14 +281,14 @@ internal class OffsetMappingCalculator {
     }
 
     /**
-     * Maps an [offset] in the original string to the corresponding offset, or range of offsets,
-     * in the transformed string.
+     * Maps an [offset] in the original string to the corresponding offset, or range of offsets, in
+     * the transformed string.
      */
     fun mapFromSource(offset: Int): TextRange = map(offset, fromSource = true)
 
     /**
-     * Maps an [offset] in the original string to the corresponding offset, or range of offsets,
-     * in the transformed string.
+     * Maps an [offset] in the original string to the corresponding offset, or range of offsets, in
+     * the transformed string.
      */
     fun mapFromDest(offset: Int): TextRange = map(offset, fromSource = false)
 
@@ -296,20 +299,22 @@ internal class OffsetMappingCalculator {
         // This algorithm works for both forward and reverse mapping, we just need to iterate
         // backwards to do reverse mapping.
         ops.forEach(max = opsSize, reversed = !fromSource) { opOffset, opSrcLen, opDestLen ->
-            val newStart = mapStep(
-                offset = start,
-                opOffset = opOffset,
-                untransformedLen = opSrcLen,
-                transformedLen = opDestLen,
-                fromSource = fromSource
-            )
-            val newEnd = mapStep(
-                offset = end,
-                opOffset = opOffset,
-                untransformedLen = opSrcLen,
-                transformedLen = opDestLen,
-                fromSource = fromSource
-            )
+            val newStart =
+                mapStep(
+                    offset = start,
+                    opOffset = opOffset,
+                    untransformedLen = opSrcLen,
+                    transformedLen = opDestLen,
+                    fromSource = fromSource
+                )
+            val newEnd =
+                mapStep(
+                    offset = end,
+                    opOffset = opOffset,
+                    untransformedLen = opSrcLen,
+                    transformedLen = opDestLen,
+                    fromSource = fromSource
+                )
             // range = newStart ∪ newEnd
             // Note we don't read TextRange.min/max here because the above code always returns
             // normalized ranges. It's no less correct, but there's no need to do the additional
@@ -333,7 +338,6 @@ internal class OffsetMappingCalculator {
         return when {
             // Before the operation, no change.
             offset < opOffset -> TextRange(offset)
-
             offset == opOffset -> {
                 if (srcLen == 0) {
                     // On insertion point, map to inserted range.
@@ -343,7 +347,6 @@ internal class OffsetMappingCalculator {
                     TextRange(opOffset)
                 }
             }
-
             offset < opOffset + srcLen -> {
                 if (destLen == 0) {
                     // In deleted range, map to start of deleted range.
@@ -368,7 +371,8 @@ internal class OffsetMappingCalculator {
 private value class OpArray private constructor(private val values: IntArray) {
     constructor(size: Int) : this(IntArray(size * ElementSize))
 
-    val size: Int get() = values.size / ElementSize
+    val size: Int
+        get() = values.size / ElementSize
 
     fun set(index: Int, offset: Int, srcLen: Int, destLen: Int) {
         values[index * ElementSize] = offset

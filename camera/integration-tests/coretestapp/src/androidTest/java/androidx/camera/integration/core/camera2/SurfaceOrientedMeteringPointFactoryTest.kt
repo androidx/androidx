@@ -49,12 +49,14 @@ class SurfaceOrientedMeteringPointFactoryTest(
     private val cameraConfig: CameraXConfig
 ) {
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
     private var pointFactory: SurfaceOrientedMeteringPointFactory? = null
     private var context: Context? = null
+
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
@@ -113,55 +115,47 @@ class SurfaceOrientedMeteringPointFactoryTest(
     @Test
     fun createPointWithFoVUseCase_success() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetName("ImageAnalysis")
-            .build()
-        val cameraSelector = CameraSelector.Builder().requireLensFacing(
-            CameraSelector.LENS_FACING_BACK
-        ).build()
-        val camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            cameraSelector, imageAnalysis
-        )
+        val imageAnalysis = ImageAnalysis.Builder().setTargetName("ImageAnalysis").build()
+        val cameraSelector =
+            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+        val camera =
+            CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, imageAnalysis)
         val surfaceResolution = imageAnalysis.attachedSurfaceResolution
-        val factory = SurfaceOrientedMeteringPointFactory(
-            WIDTH, HEIGHT, imageAnalysis
-        )
+        val factory = SurfaceOrientedMeteringPointFactory(WIDTH, HEIGHT, imageAnalysis)
         val point = factory.createPoint(0f, 0f)
-        Truth.assertThat(point.surfaceAspectRatio).isEqualTo(
-            Rational(surfaceResolution!!.width, surfaceResolution.height)
-        )
-        InstrumentationRegistry.getInstrumentation()
-            .runOnMainSync {
-                // TODO: The removeUseCases() call might be removed after clarifying the
-                //  abortCaptures() issue in b/162314023.
-                camera.removeUseCases(camera.useCases)
-            }
+        Truth.assertThat(point.surfaceAspectRatio)
+            .isEqualTo(Rational(surfaceResolution!!.width, surfaceResolution.height))
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            // TODO: The removeUseCases() call might be removed after clarifying the
+            //  abortCaptures() issue in b/162314023.
+            camera.removeUseCases(camera.useCases)
+        }
     }
 
     @Suppress("DEPRECATION") // test for legacy resolution API
     @Test(expected = IllegalStateException::class)
     fun createPointWithFoVUseCase_FailedNotBound() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetName("ImageAnalysis")
-            .build()
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setTargetName("ImageAnalysis")
+                .build()
 
         // This will throw IllegalStateException.
-        SurfaceOrientedMeteringPointFactory(
-            WIDTH, HEIGHT, imageAnalysis
-        )
+        SurfaceOrientedMeteringPointFactory(WIDTH, HEIGHT, imageAnalysis)
     }
 
     companion object {
         private const val WIDTH = 480f
         private const val HEIGHT = 640f
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 }

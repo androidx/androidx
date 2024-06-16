@@ -96,18 +96,21 @@ internal fun LazyLayoutMeasureScope.measurePager(
         )
     } else {
 
-        val childConstraints = Constraints(
-            maxWidth = if (orientation == Orientation.Vertical) {
-                constraints.maxWidth
-            } else {
-                pageAvailableSize
-            },
-            maxHeight = if (orientation != Orientation.Vertical) {
-                constraints.maxHeight
-            } else {
-                pageAvailableSize
-            }
-        )
+        val childConstraints =
+            Constraints(
+                maxWidth =
+                    if (orientation == Orientation.Vertical) {
+                        constraints.maxWidth
+                    } else {
+                        pageAvailableSize
+                    },
+                maxHeight =
+                    if (orientation != Orientation.Vertical) {
+                        constraints.maxHeight
+                    } else {
+                        pageAvailableSize
+                    }
+            )
 
         var firstVisiblePage = currentPage
         var firstVisiblePageOffset = currentPageOffset
@@ -159,18 +162,19 @@ internal fun LazyLayoutMeasureScope.measurePager(
         // firstPageScrollOffset
         while (currentFirstPageScrollOffset < 0 && currentFirstPage > 0) {
             val previous = currentFirstPage - 1
-            val measuredPage = getAndMeasure(
-                index = previous,
-                childConstraints = childConstraints,
-                pagerItemProvider = pagerItemProvider,
-                visualPageOffset = visualPageOffset,
-                orientation = orientation,
-                horizontalAlignment = horizontalAlignment,
-                verticalAlignment = verticalAlignment,
-                layoutDirection = layoutDirection,
-                reverseLayout = reverseLayout,
-                pageAvailableSize = pageAvailableSize
-            )
+            val measuredPage =
+                getAndMeasure(
+                    index = previous,
+                    childConstraints = childConstraints,
+                    pagerItemProvider = pagerItemProvider,
+                    visualPageOffset = visualPageOffset,
+                    orientation = orientation,
+                    horizontalAlignment = horizontalAlignment,
+                    verticalAlignment = verticalAlignment,
+                    layoutDirection = layoutDirection,
+                    reverseLayout = reverseLayout,
+                    pageAvailableSize = pageAvailableSize
+                )
 
             debugLog { "Composed Page=$previous" }
 
@@ -215,32 +219,35 @@ internal fun LazyLayoutMeasureScope.measurePager(
         // then composing visible pages forward until we fill the whole viewport.
         // we want to have at least one page in visiblePages even if in fact all the pages are
         // offscreen, this can happen if the content padding is larger than the available size.
-        while (index < pageCount &&
-            (currentMainAxisOffset < maxMainAxis ||
-                currentMainAxisOffset <= 0 || // filling beforeContentPadding area
-                visiblePages.isEmpty())
+        while (
+            index < pageCount &&
+                (currentMainAxisOffset < maxMainAxis ||
+                    currentMainAxisOffset <= 0 || // filling beforeContentPadding area
+                    visiblePages.isEmpty())
         ) {
-            val measuredPage = getAndMeasure(
-                index = index,
-                childConstraints = childConstraints,
-                pagerItemProvider = pagerItemProvider,
-                visualPageOffset = visualPageOffset,
-                orientation = orientation,
-                horizontalAlignment = horizontalAlignment,
-                verticalAlignment = verticalAlignment,
-                layoutDirection = layoutDirection,
-                reverseLayout = reverseLayout,
-                pageAvailableSize = pageAvailableSize
-            )
+            val measuredPage =
+                getAndMeasure(
+                    index = index,
+                    childConstraints = childConstraints,
+                    pagerItemProvider = pagerItemProvider,
+                    visualPageOffset = visualPageOffset,
+                    orientation = orientation,
+                    horizontalAlignment = horizontalAlignment,
+                    verticalAlignment = verticalAlignment,
+                    layoutDirection = layoutDirection,
+                    reverseLayout = reverseLayout,
+                    pageAvailableSize = pageAvailableSize
+                )
 
             debugLog { "Composed Page=$index at $currentFirstPageScrollOffset" }
 
             // do not add space to the last page
-            currentMainAxisOffset += if (index == pageCount - 1) {
-                pageAvailableSize
-            } else {
-                pageSizeWithSpacing
-            }
+            currentMainAxisOffset +=
+                if (index == pageCount - 1) {
+                    pageAvailableSize
+                } else {
+                    pageSizeWithSpacing
+                }
 
             if (currentMainAxisOffset <= minOffset && index != pageCount - 1) {
                 // this page is offscreen and will not be visible. advance currentFirstPage
@@ -261,22 +268,21 @@ internal fun LazyLayoutMeasureScope.measurePager(
             val toScrollBack = maxOffset - currentMainAxisOffset
             currentFirstPageScrollOffset -= toScrollBack
             currentMainAxisOffset += toScrollBack
-            while (currentFirstPageScrollOffset < beforeContentPadding &&
-                currentFirstPage > 0
-            ) {
+            while (currentFirstPageScrollOffset < beforeContentPadding && currentFirstPage > 0) {
                 val previousIndex = currentFirstPage - 1
-                val measuredPage = getAndMeasure(
-                    index = previousIndex,
-                    childConstraints = childConstraints,
-                    pagerItemProvider = pagerItemProvider,
-                    visualPageOffset = visualPageOffset,
-                    orientation = orientation,
-                    horizontalAlignment = horizontalAlignment,
-                    verticalAlignment = verticalAlignment,
-                    layoutDirection = layoutDirection,
-                    reverseLayout = reverseLayout,
-                    pageAvailableSize = pageAvailableSize
-                )
+                val measuredPage =
+                    getAndMeasure(
+                        index = previousIndex,
+                        childConstraints = childConstraints,
+                        pagerItemProvider = pagerItemProvider,
+                        visualPageOffset = visualPageOffset,
+                        orientation = orientation,
+                        horizontalAlignment = horizontalAlignment,
+                        verticalAlignment = verticalAlignment,
+                        layoutDirection = layoutDirection,
+                        reverseLayout = reverseLayout,
+                        pageAvailableSize = pageAvailableSize
+                    )
                 visiblePages.add(0, measuredPage)
                 maxCrossAxis = maxOf(maxCrossAxis, measuredPage.crossAxisSize)
                 currentFirstPageScrollOffset += pageSizeWithSpacing
@@ -300,8 +306,10 @@ internal fun LazyLayoutMeasureScope.measurePager(
         if (beforeContentPadding > 0 || spaceBetweenPages < 0) {
             for (i in visiblePages.indices) {
                 val size = pageSizeWithSpacing
-                if (currentFirstPageScrollOffset != 0 && size <= currentFirstPageScrollOffset &&
-                    i != visiblePages.lastIndex
+                if (
+                    currentFirstPageScrollOffset != 0 &&
+                        size <= currentFirstPageScrollOffset &&
+                        i != visiblePages.lastIndex
                 ) {
                     currentFirstPageScrollOffset -= size
                     firstPage = visiblePages[i + 1]
@@ -312,108 +320,107 @@ internal fun LazyLayoutMeasureScope.measurePager(
         }
 
         // Compose extra pages before
-        val extraPagesBefore = createPagesBeforeList(
-            currentFirstPage = currentFirstPage,
-            beyondViewportPageCount = beyondViewportPageCount,
-            pinnedPages = pinnedPages
-        ) {
-            getAndMeasure(
-                index = it,
-                childConstraints = childConstraints,
-                pagerItemProvider = pagerItemProvider,
-                visualPageOffset = visualPageOffset,
-                orientation = orientation,
-                horizontalAlignment = horizontalAlignment,
-                verticalAlignment = verticalAlignment,
-                layoutDirection = layoutDirection,
-                reverseLayout = reverseLayout,
-                pageAvailableSize = pageAvailableSize
-            )
-        }
+        val extraPagesBefore =
+            createPagesBeforeList(
+                currentFirstPage = currentFirstPage,
+                beyondViewportPageCount = beyondViewportPageCount,
+                pinnedPages = pinnedPages
+            ) {
+                getAndMeasure(
+                    index = it,
+                    childConstraints = childConstraints,
+                    pagerItemProvider = pagerItemProvider,
+                    visualPageOffset = visualPageOffset,
+                    orientation = orientation,
+                    horizontalAlignment = horizontalAlignment,
+                    verticalAlignment = verticalAlignment,
+                    layoutDirection = layoutDirection,
+                    reverseLayout = reverseLayout,
+                    pageAvailableSize = pageAvailableSize
+                )
+            }
 
         // Update maxCrossAxis with extra pages
-        extraPagesBefore.fastForEach {
-            maxCrossAxis = maxOf(maxCrossAxis, it.crossAxisSize)
-        }
+        extraPagesBefore.fastForEach { maxCrossAxis = maxOf(maxCrossAxis, it.crossAxisSize) }
 
         // Compose pages after last page
-        val extraPagesAfter = createPagesAfterList(
-            currentLastPage = visiblePages.last().index,
-            pagesCount = pageCount,
-            beyondViewportPageCount = beyondViewportPageCount,
-            pinnedPages = pinnedPages
-        ) {
-            getAndMeasure(
-                index = it,
-                childConstraints = childConstraints,
-                pagerItemProvider = pagerItemProvider,
-                visualPageOffset = visualPageOffset,
-                orientation = orientation,
-                horizontalAlignment = horizontalAlignment,
-                verticalAlignment = verticalAlignment,
-                layoutDirection = layoutDirection,
-                reverseLayout = reverseLayout,
-                pageAvailableSize = pageAvailableSize
-            )
-        }
+        val extraPagesAfter =
+            createPagesAfterList(
+                currentLastPage = visiblePages.last().index,
+                pagesCount = pageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
+                pinnedPages = pinnedPages
+            ) {
+                getAndMeasure(
+                    index = it,
+                    childConstraints = childConstraints,
+                    pagerItemProvider = pagerItemProvider,
+                    visualPageOffset = visualPageOffset,
+                    orientation = orientation,
+                    horizontalAlignment = horizontalAlignment,
+                    verticalAlignment = verticalAlignment,
+                    layoutDirection = layoutDirection,
+                    reverseLayout = reverseLayout,
+                    pageAvailableSize = pageAvailableSize
+                )
+            }
 
         // Update maxCrossAxis with extra pages
-        extraPagesAfter.fastForEach {
-            maxCrossAxis = maxOf(maxCrossAxis, it.crossAxisSize)
-        }
+        extraPagesAfter.fastForEach { maxCrossAxis = maxOf(maxCrossAxis, it.crossAxisSize) }
 
-        val noExtraPages = firstPage == visiblePages.first() &&
-            extraPagesBefore.isEmpty() &&
-            extraPagesAfter.isEmpty()
+        val noExtraPages =
+            firstPage == visiblePages.first() &&
+                extraPagesBefore.isEmpty() &&
+                extraPagesAfter.isEmpty()
 
-        val layoutWidth = constraints
-            .constrainWidth(
-                if (orientation == Orientation.Vertical)
-                    maxCrossAxis
-                else
-                    currentMainAxisOffset
+        val layoutWidth =
+            constraints.constrainWidth(
+                if (orientation == Orientation.Vertical) maxCrossAxis else currentMainAxisOffset
             )
 
-        val layoutHeight = constraints
-            .constrainHeight(
-                if (orientation == Orientation.Vertical)
-                    currentMainAxisOffset
-                else
-                    maxCrossAxis
+        val layoutHeight =
+            constraints.constrainHeight(
+                if (orientation == Orientation.Vertical) currentMainAxisOffset else maxCrossAxis
             )
 
-        val positionedPages = calculatePagesOffsets(
-            pages = visiblePages,
-            extraPagesBefore = extraPagesBefore,
-            extraPagesAfter = extraPagesAfter,
-            layoutWidth = layoutWidth,
-            layoutHeight = layoutHeight,
-            finalMainAxisOffset = currentMainAxisOffset,
-            maxOffset = maxOffset,
-            pagesScrollOffset = visiblePagesScrollOffset,
-            orientation = orientation,
-            reverseLayout = reverseLayout,
-            density = this,
-            pageAvailableSize = pageAvailableSize,
-            spaceBetweenPages = spaceBetweenPages
-        )
+        val positionedPages =
+            calculatePagesOffsets(
+                pages = visiblePages,
+                extraPagesBefore = extraPagesBefore,
+                extraPagesAfter = extraPagesAfter,
+                layoutWidth = layoutWidth,
+                layoutHeight = layoutHeight,
+                finalMainAxisOffset = currentMainAxisOffset,
+                maxOffset = maxOffset,
+                pagesScrollOffset = visiblePagesScrollOffset,
+                orientation = orientation,
+                reverseLayout = reverseLayout,
+                density = this,
+                pageAvailableSize = pageAvailableSize,
+                spaceBetweenPages = spaceBetweenPages
+            )
 
-        val visiblePagesInfo = if (noExtraPages) positionedPages else positionedPages.fastFilter {
-            (it.index >= visiblePages.first().index && it.index <= visiblePages.last().index)
-        }
+        val visiblePagesInfo =
+            if (noExtraPages) positionedPages
+            else
+                positionedPages.fastFilter {
+                    (it.index >= visiblePages.first().index &&
+                        it.index <= visiblePages.last().index)
+                }
 
         val positionedPagesBefore =
-            if (extraPagesBefore.isEmpty()) emptyList() else positionedPages.fastFilter {
-                it.index < visiblePages.first().index
-            }
+            if (extraPagesBefore.isEmpty()) emptyList()
+            else positionedPages.fastFilter { it.index < visiblePages.first().index }
 
         val positionedPagesAfter =
-            if (extraPagesAfter.isEmpty()) emptyList() else positionedPages.fastFilter {
-                it.index > visiblePages.last().index
-            }
+            if (extraPagesAfter.isEmpty()) emptyList()
+            else positionedPages.fastFilter { it.index > visiblePages.last().index }
+
+        val layoutSize = mainAxisAvailableSize + beforeContentPadding + afterContentPadding
+
         val newCurrentPage =
             calculateNewCurrentPage(
-                if (orientation == Orientation.Vertical) layoutHeight else layoutWidth,
+                layoutSize,
                 visiblePagesInfo,
                 beforeContentPadding,
                 afterContentPadding,
@@ -422,25 +429,25 @@ internal fun LazyLayoutMeasureScope.measurePager(
                 pageCount
             )
 
-        val snapOffset = snapPosition.position(
-            mainAxisAvailableSize,
-            pageAvailableSize,
-            beforeContentPadding,
-            afterContentPadding,
-            newCurrentPage?.index ?: 0,
-            pageCount
-        )
+        val snapOffset =
+            snapPosition.position(
+                layoutSize,
+                pageAvailableSize,
+                beforeContentPadding,
+                afterContentPadding,
+                newCurrentPage?.index ?: 0,
+                pageCount
+            )
 
         val currentPagePositionOffset = (newCurrentPage?.offset ?: 0)
 
-        val currentPageOffsetFraction = if (pageSizeWithSpacing == 0) {
-            0.0f
-        } else {
-            ((snapOffset - currentPagePositionOffset) / (pageSizeWithSpacing.toFloat())).coerceIn(
-                MinPageOffset,
-                MaxPageOffset
-            )
-        }
+        val currentPageOffsetFraction =
+            if (pageSizeWithSpacing == 0) {
+                0.0f
+            } else {
+                ((snapOffset - currentPagePositionOffset) / (pageSizeWithSpacing.toFloat()))
+                    .coerceIn(MinPageOffset, MaxPageOffset)
+            }
 
         debugLog {
             "Finished Measure Pass" +
@@ -452,13 +459,12 @@ internal fun LazyLayoutMeasureScope.measurePager(
         return PagerMeasureResult(
             firstVisiblePage = firstPage,
             firstVisiblePageScrollOffset = currentFirstPageScrollOffset,
-            measureResult = layout(layoutWidth, layoutHeight) {
-                positionedPages.fastForEach {
-                    it.place(this)
-                }
-                // we attach it during the placement so PagerState can trigger re-placement
-                placementScopeInvalidator.attachToScope()
-            },
+            measureResult =
+                layout(layoutWidth, layoutHeight) {
+                    positionedPages.fastForEach { it.place(this) }
+                    // we attach it during the placement so PagerState can trigger re-placement
+                    placementScopeInvalidator.attachToScope()
+                },
             viewportStartOffset = -beforeContentPadding,
             viewportEndOffset = maxOffset + afterContentPadding,
             visiblePagesInfo = visiblePagesInfo,
@@ -615,8 +621,7 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
         require(extraPagesBefore.isEmpty() && extraPagesAfter.isEmpty()) { "No extra pages" }
 
         val pagesCount = pages.size
-        fun Int.reverseAware() =
-            if (!reverseLayout) this else pagesCount - this - 1
+        fun Int.reverseAware() = if (!reverseLayout) this else pagesCount - this - 1
 
         val sizes = IntArray(pagesCount) { pageAvailableSize }
         val offsets = IntArray(pagesCount) { 0 }
@@ -637,12 +642,13 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
             val absoluteOffset = offsets[index]
             // when reverseLayout == true, offsets are stored in the reversed order to pages
             val page = pages[index.reverseAware()]
-            val relativeOffset = if (reverseLayout) {
-                // inverse offset to align with scroll direction for positioning
-                mainAxisLayoutSize - absoluteOffset - page.size
-            } else {
-                absoluteOffset
-            }
+            val relativeOffset =
+                if (reverseLayout) {
+                    // inverse offset to align with scroll direction for positioning
+                    mainAxisLayoutSize - absoluteOffset - page.size
+                } else {
+                    absoluteOffset
+                }
             page.position(relativeOffset, layoutWidth, layoutHeight)
             positionedPages.add(page)
         }

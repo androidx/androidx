@@ -41,46 +41,52 @@ internal class SingleTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTe
     private val testTag = "testTag"
     private val ltrWord = "hello"
     private val rtlWord = RtlChar.repeat(5)
-    override val textContent = mutableStateOf("""
+    override val textContent =
+        mutableStateOf(
+            """
         $ltrWord $rtlWord $ltrWord
         $rtlWord $ltrWord $rtlWord
         $ltrWord $rtlWord $ltrWord
-    """.trimIndent().trim())
+    """
+                .trimIndent()
+                .trim()
+        )
 
     override lateinit var asserter: TextSelectionAsserter
 
     @Before
     fun setupAsserter() {
-        asserter = object : TextSelectionAsserter(
-            textContent = textContent.value,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { selection.value },
-        ) {
-            override fun subAssert() {
-                Truth.assertAbout(SelectionSubject.withContent(textContent))
-                    .that(getActual())
-                    .hasSelection(
-                        expected = selection,
-                        startTextDirection = startLayoutDirection,
-                        endTextDirection = endLayoutDirection,
-                    )
+        asserter =
+            object :
+                TextSelectionAsserter(
+                    textContent = textContent.value,
+                    rule = rule,
+                    textToolbar = textToolbar,
+                    hapticFeedback = hapticFeedback,
+                    getActual = { selection.value },
+                ) {
+                override fun subAssert() {
+                    Truth.assertAbout(SelectionSubject.withContent(textContent))
+                        .that(getActual())
+                        .hasSelection(
+                            expected = selection,
+                            startTextDirection = startLayoutDirection,
+                            endTextDirection = endLayoutDirection,
+                        )
+                }
             }
-        }
     }
 
     @Composable
     override fun TextContent() {
         BasicText(
             text = textContent.value,
-            style = TextStyle(
-                fontFamily = fontFamily,
-                fontSize = fontSize,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(testTag),
+            style =
+                TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSize,
+                ),
+            modifier = Modifier.fillMaxWidth().testTag(testTag),
         )
     }
 

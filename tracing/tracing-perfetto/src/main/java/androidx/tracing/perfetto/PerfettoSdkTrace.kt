@@ -86,18 +86,17 @@ object PerfettoSdkTrace {
         try {
             when (descriptor) {
                 null -> PerfettoNative.loadLib()
-                else -> descriptor.let { (file, context) ->
-                    PerfettoNative.loadLib(file, SafeLibLoader(context))
-                }
+                else ->
+                    descriptor.let { (file, context) ->
+                        PerfettoNative.loadLib(file, SafeLibLoader(context))
+                    }
             }
         } catch (t: Throwable) {
             return when (t) {
                 is IncorrectChecksumException ->
                     Response(RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR, t)
-                is UnsatisfiedLinkError ->
-                    Response(RESULT_CODE_ERROR_BINARY_MISSING, t)
-                is Exception ->
-                    Response(RESULT_CODE_ERROR_OTHER, t)
+                is UnsatisfiedLinkError -> Response(RESULT_CODE_ERROR_BINARY_MISSING, t)
+                is Exception -> Response(RESULT_CODE_ERROR_OTHER, t)
                 else -> throw t
             }
         }
@@ -124,8 +123,8 @@ object PerfettoSdkTrace {
     }
 
     /**
-     * Writes a trace message to indicate that a given section of code has begun. This call must
-     * be followed by a corresponding call to [endSection] on the same thread.
+     * Writes a trace message to indicate that a given section of code has begun. This call must be
+     * followed by a corresponding call to [endSection] on the same thread.
      *
      * @param sectionName The name of the code section to appear in the trace.
      */
@@ -137,19 +136,17 @@ object PerfettoSdkTrace {
     }
 
     /**
-     * Writes a trace message to indicate that a given section of code has ended. This call must
-     * be preceded by a corresponding call to [beginSection]. Calling this method
-     * will mark the end of the most recently begun section of code, so care must be taken to
-     * ensure that [beginSection] / [endSection] pairs are properly nested and called from the same
-     * thread.
+     * Writes a trace message to indicate that a given section of code has ended. This call must be
+     * preceded by a corresponding call to [beginSection]. Calling this method will mark the end of
+     * the most recently begun section of code, so care must be taken to ensure that [beginSection]
+     * / [endSection] pairs are properly nested and called from the same thread.
      */
     fun endSection() {
         if (isEnabled) PerfettoNative.nativeTraceEventEnd()
     }
 
-    private fun errorMessage(t: Throwable): String = t.run {
-        javaClass.name + if (message != null) ": $message" else ""
-    }
+    private fun errorMessage(t: Throwable): String =
+        t.run { javaClass.name + if (message != null) ": $message" else "" }
 
     internal fun Response(resultCode: Int, message: String? = null) =
         Response(resultCode, PerfettoNative.Metadata.version, message)

@@ -54,10 +54,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import java.util.concurrent.Executor
 
-/**
- * [ExerciseClient] implementation that is backed by Health Services.
- *
- */
+/** [ExerciseClient] implementation that is backed by Health Services. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ServiceBackedExerciseClient(
     private val context: Context,
@@ -141,18 +138,13 @@ internal class ServiceBackedExerciseClient(
         setUpdateCallback(ContextCompat.getMainExecutor(context), callback)
     }
 
-    override fun setUpdateCallback(
-        executor: Executor,
-        callback: ExerciseUpdateCallback
-    ) {
+    override fun setUpdateCallback(executor: Executor, callback: ExerciseUpdateCallback) {
         val listenerStub =
             ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.create(
                 callback,
                 executor,
                 requestedDataTypesProvider = {
-                    synchronized(requestedDataTypesLock) {
-                        requestedDataTypes.toSet()
-                    }
+                    synchronized(requestedDataTypesLock) { requestedDataTypes.toSet() }
                 }
             )
         val future =
@@ -170,7 +162,8 @@ internal class ServiceBackedExerciseClient(
                     callback.onRegistrationFailed(t)
                 }
             },
-            executor)
+            executor
+        )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -188,13 +181,12 @@ internal class ServiceBackedExerciseClient(
 
     override fun addGoalToActiveExerciseAsync(
         exerciseGoal: ExerciseGoal<*>
-    ): ListenableFuture<Void> =
-        execute { service, resultFuture ->
-            service.addGoalToActiveExercise(
-                ExerciseGoalRequest(packageName, exerciseGoal),
-                StatusCallback(resultFuture)
-            )
-        }
+    ): ListenableFuture<Void> = execute { service, resultFuture ->
+        service.addGoalToActiveExercise(
+            ExerciseGoalRequest(packageName, exerciseGoal),
+            StatusCallback(resultFuture)
+        )
+    }
 
     override fun removeGoalFromActiveExerciseAsync(
         exerciseGoal: ExerciseGoal<*>

@@ -44,7 +44,8 @@ import org.junit.runners.JUnit4
 class TransactionMethodProcessorTest {
 
     companion object {
-        const val DAO_PREFIX = """
+        const val DAO_PREFIX =
+            """
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
@@ -79,9 +80,7 @@ class TransactionMethodProcessorTest {
         ) { transaction, invocation ->
             assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.TRANSACTION_METHOD_MODIFIERS
-                )
+                hasErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
             }
         }
     }
@@ -325,38 +324,48 @@ class TransactionMethodProcessorTest {
         vararg input: String,
         handler: (TransactionMethod, XTestInvocation) -> Unit
     ) {
-        val inputSource = listOf(
-            Source.java(
-                "foo.bar.MyClass",
-                DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
+        val inputSource =
+            listOf(
+                Source.java("foo.bar.MyClass", DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX)
             )
-        )
-        val otherSources = listOf(
-            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER,
-            COMMON.RX2_COMPLETABLE, COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
-            COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE, COMMON.FLOW
-        )
+        val otherSources =
+            listOf(
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
+                COMMON.RX2_FLOWABLE,
+                COMMON.PUBLISHER,
+                COMMON.RX2_COMPLETABLE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_COMPLETABLE,
+                COMMON.RX3_SINGLE,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.FLOW
+            )
         runProcessorTest(
             sources = inputSource + otherSources,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false")
         ) { invocation ->
-            val (owner, methods) = invocation.roundEnv
-                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map {
-                    Pair(
-                        it,
-                        it.getAllMethods().filter {
-                            it.hasAnnotation(Transaction::class)
-                        }.toList()
-                    )
-                }.first { it.second.isNotEmpty() }
-            val processor = TransactionMethodProcessor(
-                baseContext = invocation.context,
-                containingElement = owner,
-                containingType = owner.type,
-                executableElement = methods.first()
-            )
+            val (owner, methods) =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map {
+                        Pair(
+                            it,
+                            it.getAllMethods()
+                                .filter { it.hasAnnotation(Transaction::class) }
+                                .toList()
+                        )
+                    }
+                    .first { it.second.isNotEmpty() }
+            val processor =
+                TransactionMethodProcessor(
+                    baseContext = invocation.context,
+                    containingElement = owner,
+                    containingType = owner.type,
+                    executableElement = methods.first()
+                )
             val processed = processor.process()
             handler(processed, invocation)
         }

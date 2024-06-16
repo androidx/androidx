@@ -64,12 +64,12 @@ interface DraggableState {
     /**
      * Call this function to take control of drag logic.
      *
-     * All actions that change the logical drag position must be performed within a [drag]
-     * block (even if they don't call any other methods on this object) in order to guarantee
-     * that mutual exclusion is enforced.
+     * All actions that change the logical drag position must be performed within a [drag] block
+     * (even if they don't call any other methods on this object) in order to guarantee that mutual
+     * exclusion is enforced.
      *
-     * If [drag] is called from elsewhere with the [dragPriority] higher or equal to ongoing
-     * drag, ongoing drag will be canceled.
+     * If [drag] is called from elsewhere with the [dragPriority] higher or equal to ongoing drag,
+     * ongoing drag will be canceled.
      *
      * @param dragPriority of the drag operation
      * @param block to perform drag in
@@ -82,27 +82,23 @@ interface DraggableState {
     /**
      * Dispatch drag delta in pixels avoiding all drag related priority mechanisms.
      *
-     * **NOTE:** unlike [drag], dispatching any delta with this method will bypass scrolling of
-     * any priority. This method will also ignore `reverseDirection` and other parameters set in
+     * **NOTE:** unlike [drag], dispatching any delta with this method will bypass scrolling of any
+     * priority. This method will also ignore `reverseDirection` and other parameters set in
      * [draggable].
      *
      * This method is used internally for low level operations, allowing implementers of
      * [DraggableState] influence the consumption as suits them, e.g. introduce nested scrolling.
-     * Manually dispatching delta via this method will likely result in a bad user experience,
-     * you must prefer [drag] method over this one.
+     * Manually dispatching delta via this method will likely result in a bad user experience, you
+     * must prefer [drag] method over this one.
      *
      * @param delta amount of scroll dispatched in the nested drag process
      */
     fun dispatchRawDelta(delta: Float)
 }
 
-/**
- * Scope used for suspending drag blocks
- */
+/** Scope used for suspending drag blocks */
 interface DragScope {
-    /**
-     * Attempts to drag by [pixels] px.
-     */
+    /** Attempts to drag by [pixels] px. */
     fun dragBy(pixels: Float)
 }
 
@@ -111,25 +107,22 @@ interface DragScope {
  * will be invoked when the drag occurs.
  *
  * This is the simplest way to set up a [draggable] modifier. When constructing this
- * [DraggableState], you must provide a [onDelta] lambda, which will be invoked whenever
- * drag happens (by gesture input or a custom [DraggableState.drag] call) with the delta in
- * pixels.
+ * [DraggableState], you must provide a [onDelta] lambda, which will be invoked whenever drag
+ * happens (by gesture input or a custom [DraggableState.drag] call) with the delta in pixels.
  *
  * If you are creating [DraggableState] in composition, consider using [rememberDraggableState].
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-fun DraggableState(onDelta: (Float) -> Unit): DraggableState =
-    DefaultDraggableState(onDelta)
+fun DraggableState(onDelta: (Float) -> Unit): DraggableState = DefaultDraggableState(onDelta)
 
 /**
  * Create and remember default implementation of [DraggableState] interface that allows to pass a
  * simple action that will be invoked when the drag occurs.
  *
  * This is the simplest way to set up a [draggable] modifier. When constructing this
- * [DraggableState], you must provide a [onDelta] lambda, which will be invoked whenever
- * drag happens (by gesture input or a custom [DraggableState.drag] call) with the delta in
- * pixels.
+ * [DraggableState], you must provide a [onDelta] lambda, which will be invoked whenever drag
+ * happens (by gesture input or a custom [DraggableState.drag] call) with the delta in pixels.
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
@@ -140,11 +133,11 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
 }
 
 /**
- * Configure touch dragging for the UI element in a single [Orientation]. The drag distance
- * reported to [DraggableState], allowing users to react on the drag delta and update their state.
+ * Configure touch dragging for the UI element in a single [Orientation]. The drag distance reported
+ * to [DraggableState], allowing users to react on the drag delta and update their state.
  *
- * The common usecase for this component is when you need to be able to drag something
- * inside the component on the screen and represent this state via one float value
+ * The common usecase for this component is when you need to be able to drag something inside the
+ * component on the screen and represent this state via one float value
  *
  * If you need to control the whole dragging flow, consider using [pointerInput] instead with the
  * helper functions like [detectDragGestures].
@@ -155,29 +148,29 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  *
  * @sample androidx.compose.foundation.samples.DraggableSample
  *
- * @param state [DraggableState] state of the draggable. Defines how drag events will be
- * interpreted by the user land logic.
+ * @param state [DraggableState] state of the draggable. Defines how drag events will be interpreted
+ *   by the user land logic.
  * @param orientation orientation of the drag
  * @param enabled whether or not drag is enabled
  * @param interactionSource [MutableInteractionSource] that will be used to emit
- * [DragInteraction.Start] when this draggable is being dragged.
+ *   [DragInteraction.Start] when this draggable is being dragged.
  * @param startDragImmediately when set to true, draggable will start dragging immediately and
- * prevent other gesture detectors from reacting to "down" events (in order to block composed
- * press-based gestures).  This is intended to allow end users to "catch" an animating widget by
- * pressing on it. It's useful to set it when value you're dragging is settling / animating.
+ *   prevent other gesture detectors from reacting to "down" events (in order to block composed
+ *   press-based gestures). This is intended to allow end users to "catch" an animating widget by
+ *   pressing on it. It's useful to set it when value you're dragging is settling / animating.
  * @param onDragStarted callback that will be invoked when drag is about to start at the starting
- * position, allowing user to suspend and perform preparation for drag, if desired. This suspend
- * function is invoked with the draggable scope, allowing for async processing, if desired. Note
- * that the scope used here is the one provided by the draggable node, for long running work that
- * needs to outlast the modifier being in the composition you should use a scope that fits the
- * lifecycle needed.
- * @param onDragStopped callback that will be invoked when drag is finished, allowing the
- * user to react on velocity and process it. This suspend function is invoked with the draggable
- * scope, allowing for async processing, if desired.  Note that the scope used here is the one
- * provided by the draggable node, for long running work that needs to outlast the modifier being
- * in the composition you should use a scope that fits the lifecycle needed.
- * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
- * behave like bottom to top and left to right will behave like right to left.
+ *   position, allowing user to suspend and perform preparation for drag, if desired. This suspend
+ *   function is invoked with the draggable scope, allowing for async processing, if desired. Note
+ *   that the scope used here is the one provided by the draggable node, for long running work that
+ *   needs to outlast the modifier being in the composition you should use a scope that fits the
+ *   lifecycle needed.
+ * @param onDragStopped callback that will be invoked when drag is finished, allowing the user to
+ *   react on velocity and process it. This suspend function is invoked with the draggable scope,
+ *   allowing for async processing, if desired. Note that the scope used here is the one provided by
+ *   the draggable node, for long running work that needs to outlast the modifier being in the
+ *   composition you should use a scope that fits the lifecycle needed.
+ * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will behave
+ *   like bottom to top and left to right will behave like right to left.
  */
 @Stable
 fun Modifier.draggable(
@@ -189,16 +182,18 @@ fun Modifier.draggable(
     onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = NoOpOnDragStarted,
     onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = NoOpOnDragStopped,
     reverseDirection: Boolean = false
-): Modifier = this then DraggableElement(
-    state = state,
-    orientation = orientation,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    startDragImmediately = startDragImmediately,
-    onDragStarted = onDragStarted,
-    onDragStopped = onDragStopped,
-    reverseDirection = reverseDirection
-)
+): Modifier =
+    this then
+        DraggableElement(
+            state = state,
+            orientation = orientation,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            startDragImmediately = startDragImmediately,
+            onDragStarted = onDragStarted,
+            onDragStopped = onDragStopped,
+            reverseDirection = reverseDirection
+        )
 
 internal class DraggableElement(
     private val state: DraggableState,
@@ -210,17 +205,18 @@ internal class DraggableElement(
     private val onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
     private val reverseDirection: Boolean
 ) : ModifierNodeElement<DraggableNode>() {
-    override fun create(): DraggableNode = DraggableNode(
-        state,
-        CanDrag,
-        orientation,
-        enabled,
-        interactionSource,
-        startDragImmediately,
-        onDragStarted,
-        onDragStopped,
-        reverseDirection
-    )
+    override fun create(): DraggableNode =
+        DraggableNode(
+            state,
+            CanDrag,
+            orientation,
+            enabled,
+            interactionSource,
+            startDragImmediately,
+            onDragStarted,
+            onDragStopped,
+            reverseDirection
+        )
 
     override fun update(node: DraggableNode) {
         node.update(
@@ -294,12 +290,13 @@ internal class DraggableNode(
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
     private var reverseDirection: Boolean
-) : DragGestureNode(
-    canDrag = canDrag,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    orientationLock = orientation
-) {
+) :
+    DragGestureNode(
+        canDrag = canDrag,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        orientationLock = orientation
+    ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.drag(MutatePriority.UserInput) {
@@ -311,9 +308,7 @@ internal class DraggableNode(
 
     override fun onDragStarted(startedPosition: Offset) {
         if (!isAttached || onDragStarted == NoOpOnDragStarted) return
-        coroutineScope.launch {
-            this@DraggableNode.onDragStarted(this, startedPosition)
-        }
+        coroutineScope.launch { this@DraggableNode.onDragStarted(this, startedPosition) }
     }
 
     override fun onDragStopped(velocity: Velocity) {
@@ -354,22 +349,15 @@ internal class DraggableNode(
         this.onDragStopped = onDragStopped
         this.startDragImmediately = startDragImmediately
 
-        update(
-            canDrag,
-            enabled,
-            interactionSource,
-            orientation,
-            resetPointerInputHandling
-        )
+        update(canDrag, enabled, interactionSource, orientation, resetPointerInputHandling)
     }
 
     private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+
     private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
-/**
- * A node that performs drag gesture recognition and event propagation.
- */
+/** A node that performs drag gesture recognition and event propagation. */
 internal abstract class DragGestureNode(
     canDrag: (PointerInputChange) -> Boolean,
     enabled: Boolean,
@@ -379,8 +367,10 @@ internal abstract class DragGestureNode(
 
     protected var canDrag = canDrag
         private set
+
     protected var enabled = enabled
         private set
+
     protected var interactionSource = interactionSource
         private set
 
@@ -422,10 +412,10 @@ internal abstract class DragGestureNode(
 
         /**
          * To preserve the original behavior we had (before the Modifier.Node migration) we need to
-         * scope the DragStopped and DragCancel methods to the node's coroutine scope instead of using
-         * the one provided by the pointer input modifier, this is to ensure that even when the pointer
-         * input scope is reset we will continue any coroutine scope scope that we started from these
-         * methods while the pointer input scope was active.
+         * scope the DragStopped and DragCancel methods to the node's coroutine scope instead of
+         * using the one provided by the pointer input modifier, this is to ensure that even when
+         * the pointer input scope is reset we will continue any coroutine scope scope that we
+         * started from these methods while the pointer input scope was active.
          */
         coroutineScope.launch {
             while (isActive) {
@@ -486,8 +476,9 @@ internal abstract class DragGestureNode(
                         val overSlopOffset = initialDelta
                         val xSign = sign(startEvent.position.x)
                         val ySign = sign(startEvent.position.y)
-                        val adjustedStart = startEvent.position -
-                            Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
+                        val adjustedStart =
+                            startEvent.position -
+                                Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
 
                         channel?.trySend(DragStarted(adjustedStart))
                     }
@@ -495,22 +486,16 @@ internal abstract class DragGestureNode(
 
             val onDragEnd: (change: PointerInputChange) -> Unit = { upEvent ->
                 velocityTracker.addPointerInputChange(upEvent)
-                val maximumVelocity = currentValueOf(LocalViewConfiguration)
-                    .maximumFlingVelocity
-                val velocity = velocityTracker.calculateVelocity(
-                    Velocity(maximumVelocity, maximumVelocity)
-                )
+                val maximumVelocity = currentValueOf(LocalViewConfiguration).maximumFlingVelocity
+                val velocity =
+                    velocityTracker.calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
                 velocityTracker.resetTracking()
                 channel?.trySend(DragStopped(velocity))
             }
 
-            val onDragCancel: () -> Unit = {
-                channel?.trySend(DragCancelled)
-            }
+            val onDragCancel: () -> Unit = { channel?.trySend(DragCancelled) }
 
-            val shouldAwaitTouchSlop: () -> Boolean = {
-                !startDragImmediately()
-            }
+            val shouldAwaitTouchSlop: () -> Boolean = { !startDragImmediately() }
 
             val onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit =
                 { change, delta ->
@@ -610,18 +595,17 @@ internal abstract class DragGestureNode(
 
 private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableState {
 
-    private val dragScope: DragScope = object : DragScope {
-        override fun dragBy(pixels: Float): Unit = onDelta(pixels)
-    }
+    private val dragScope: DragScope =
+        object : DragScope {
+            override fun dragBy(pixels: Float): Unit = onDelta(pixels)
+        }
 
     private val scrollMutex = MutatorMutex()
 
     override suspend fun drag(
         dragPriority: MutatePriority,
         block: suspend DragScope.() -> Unit
-    ): Unit = coroutineScope {
-        scrollMutex.mutateWith(dragScope, dragPriority, block)
-    }
+    ): Unit = coroutineScope { scrollMutex.mutateWith(dragScope, dragPriority, block) }
 
     override fun dispatchRawDelta(delta: Float) {
         return onDelta(delta)
@@ -630,8 +614,11 @@ private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableSta
 
 internal sealed class DragEvent {
     class DragStarted(val startPoint: Offset) : DragEvent()
+
     class DragStopped(val velocity: Velocity) : DragEvent()
+
     object DragCancelled : DragEvent()
+
     class DragDelta(val delta: Offset) : DragEvent()
 }
 

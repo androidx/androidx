@@ -32,20 +32,22 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 /**
  * Returns an existing
  * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] or creates a new one scoped to the current navigation graph present on
- * the {@link NavController} back stack.
+ * -annotated [ViewModel] or creates a new one scoped to the current navigation graph present on the
+ * {@link NavController} back stack.
  *
  * If no navigation graph is currently present then the current scope will be used, usually, a
  * fragment or an activity.
  *
  * @sample androidx.hilt.navigation.compose.samples.NavComposable
+ *
  * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable
 inline fun <reified VM : ViewModel> hiltViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
+    viewModelStoreOwner: ViewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) {
+            "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+        },
     key: String? = null
 ): VM {
     val factory = createHiltViewModelFactory(viewModelStoreOwner)
@@ -55,20 +57,22 @@ inline fun <reified VM : ViewModel> hiltViewModel(
 /**
  * Returns an existing
  * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel]  with an [@AssistedInject]-annotated constructor or creates a new one scoped to the current navigation graph present on
- * the {@link NavController} back stack.
+ * -annotated [ViewModel] with an [@AssistedInject]-annotated constructor or creates a new one
+ * scoped to the current navigation graph present on the {@link NavController} back stack.
  *
  * If no navigation graph is currently present then the current scope will be used, usually, a
  * fragment or an activity.
  *
  * @sample androidx.hilt.navigation.compose.samples.NavComposable
+ *
  * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable
 inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
+    viewModelStoreOwner: ViewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) {
+            "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+        },
     key: String? = null,
     noinline creationCallback: (VMF) -> VM
 ): VM {
@@ -77,13 +81,14 @@ inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
         viewModelStoreOwner = viewModelStoreOwner,
         key = key,
         factory = factory,
-        extras = viewModelStoreOwner.run {
-            if (this is HasDefaultViewModelProviderFactory) {
-                this.defaultViewModelCreationExtras.withCreationCallback(creationCallback)
-            } else {
-                CreationExtras.Empty.withCreationCallback(creationCallback)
+        extras =
+            viewModelStoreOwner.run {
+                if (this is HasDefaultViewModelProviderFactory) {
+                    this.defaultViewModelCreationExtras.withCreationCallback(creationCallback)
+                } else {
+                    CreationExtras.Empty.withCreationCallback(creationCallback)
+                }
             }
-        }
     )
 }
 
@@ -91,13 +96,14 @@ inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
 @PublishedApi
 internal fun createHiltViewModelFactory(
     viewModelStoreOwner: ViewModelStoreOwner
-): ViewModelProvider.Factory? = if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
-    HiltViewModelFactory(
-        context = LocalContext.current,
-        delegateFactory = viewModelStoreOwner.defaultViewModelProviderFactory
-    )
-} else {
-    // Use the default factory provided by the ViewModelStoreOwner
-    // and assume it is an @AndroidEntryPoint annotated fragment or activity
-    null
-}
+): ViewModelProvider.Factory? =
+    if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
+        HiltViewModelFactory(
+            context = LocalContext.current,
+            delegateFactory = viewModelStoreOwner.defaultViewModelProviderFactory
+        )
+    } else {
+        // Use the default factory provided by the ViewModelStoreOwner
+        // and assume it is an @AndroidEntryPoint annotated fragment or activity
+        null
+    }

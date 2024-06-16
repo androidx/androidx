@@ -26,9 +26,7 @@ class LoadStateCapture : (LoadType, LoadState) -> Unit {
     }
 
     fun newEvents(): List<LoadStateEvent> {
-        return events.drop(lastEventsListIndex + 1).also {
-            lastEventsListIndex = events.lastIndex
-        }
+        return events.drop(lastEventsListIndex + 1).also { lastEventsListIndex = events.lastIndex }
     }
 }
 

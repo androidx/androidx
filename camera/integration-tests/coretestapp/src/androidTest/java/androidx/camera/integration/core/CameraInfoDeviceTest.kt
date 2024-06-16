@@ -44,25 +44,24 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class CameraInfoDeviceTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig
-) {
+class CameraInfoDeviceTest(private val implName: String, private val cameraXConfig: CameraXConfig) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(
-            if (implName == Camera2Config::class.simpleName) {
-                Camera2Config.defaultConfig()
-            } else {
-                CameraPipeConfig.defaultConfig()
-            }
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(
+                if (implName == Camera2Config::class.simpleName) {
+                    Camera2Config.defaultConfig()
+                } else {
+                    CameraPipeConfig.defaultConfig()
+                }
+            )
         )
-    )
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -70,10 +69,11 @@ class CameraInfoDeviceTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     @Before
@@ -106,11 +106,9 @@ class CameraInfoDeviceTest(
     fun underSpecifiedDynamicRange_neverReturnedFromQuery() {
         cameraProvider.availableCameraInfos.forEach { cameraInfo ->
             cameraInfo.querySupportedDynamicRanges(setOf(DynamicRange.UNSPECIFIED)).forEach {
-                assertWithMessage(
-                    "$cameraInfo advertises under-specified dynamic range: $it"
-                ).that(
-                    it.isFullySpecified
-                ).isTrue()
+                assertWithMessage("$cameraInfo advertises under-specified dynamic range: $it")
+                    .that(it.isFullySpecified)
+                    .isTrue()
             }
         }
     }

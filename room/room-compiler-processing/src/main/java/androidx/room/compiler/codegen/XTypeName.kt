@@ -51,12 +51,13 @@ import kotlin.reflect.KClass
  * Represents a type name in Java and Kotlin's type system.
  *
  * It simply contains a [com.squareup.javapoet.TypeName] and a [com.squareup.kotlinpoet.TypeName].
- * If the name comes from xprocessing APIs then the KotlinPoet name will default to 'Unavailable'
- * if the processing backend is not KSP.
+ * If the name comes from xprocessing APIs then the KotlinPoet name will default to 'Unavailable' if
+ * the processing backend is not KSP.
  *
  * @see [androidx.room.compiler.processing.XType.asTypeName]
  */
-open class XTypeName protected constructor(
+open class XTypeName
+protected constructor(
     internal open val java: JTypeName,
     internal open val kotlin: KTypeName,
     val nullability: XNullability
@@ -74,12 +75,8 @@ open class XTypeName protected constructor(
      */
     val rawTypeName: XTypeName
         get() {
-            val javaRawType = java.let {
-                if (it is JParameterizedTypeName) it.rawType else it
-            }
-            val kotlinRawType = kotlin.let {
-                if (it is KParameterizedTypeName) it.rawType else it
-            }
+            val javaRawType = java.let { if (it is JParameterizedTypeName) it.rawType else it }
+            val kotlinRawType = kotlin.let { if (it is KParameterizedTypeName) it.rawType else it }
             return XTypeName(javaRawType, kotlinRawType, nullability)
         }
 
@@ -87,11 +84,12 @@ open class XTypeName protected constructor(
         // TODO(b/248633751): Handle primitive to boxed when becoming nullable?
         return XTypeName(
             java = java,
-            kotlin = if (kotlin != UNAVAILABLE_KTYPE_NAME) {
-                kotlin.copy(nullable = nullable)
-            } else {
-                UNAVAILABLE_KTYPE_NAME
-            },
+            kotlin =
+                if (kotlin != UNAVAILABLE_KTYPE_NAME) {
+                    kotlin.copy(nullable = nullable)
+                } else {
+                    UNAVAILABLE_KTYPE_NAME
+                },
             nullability = if (nullable) XNullability.NULLABLE else XNullability.NONNULL
         )
     }
@@ -126,36 +124,28 @@ open class XTypeName protected constructor(
         append("]")
     }
 
-    fun toString(codeLanguage: CodeLanguage) = when (codeLanguage) {
-        CodeLanguage.JAVA -> java.toString()
-        CodeLanguage.KOTLIN -> kotlin.toString()
-    }
+    fun toString(codeLanguage: CodeLanguage) =
+        when (codeLanguage) {
+            CodeLanguage.JAVA -> java.toString()
+            CodeLanguage.KOTLIN -> kotlin.toString()
+        }
 
     companion object {
-        /**
-         * A convenience [XTypeName] that represents [Unit] in Kotlin and `void` in Java.
-         */
-        val UNIT_VOID = XTypeName(
-            java = JTypeName.VOID,
-            kotlin = com.squareup.kotlinpoet.UNIT
-        )
+        /** A convenience [XTypeName] that represents [Unit] in Kotlin and `void` in Java. */
+        val UNIT_VOID = XTypeName(java = JTypeName.VOID, kotlin = com.squareup.kotlinpoet.UNIT)
+
+        /** A convenience [XTypeName] that represents [Any] in Kotlin and [Object] in Java. */
+        val ANY_OBJECT = XTypeName(java = JTypeName.OBJECT, kotlin = com.squareup.kotlinpoet.ANY)
 
         /**
-         * A convenience [XTypeName] that represents [Any] in Kotlin and [Object] in Java.
+         * A convenience [XTypeName] that represents [kotlin.Enum] in Kotlin and [java.lang.Enum] in
+         * Java.
          */
-        val ANY_OBJECT = XTypeName(
-            java = JTypeName.OBJECT,
-            kotlin = com.squareup.kotlinpoet.ANY
-        )
-
-        /**
-         * A convenience [XTypeName] that represents [kotlin.Enum] in Kotlin and
-         * [java.lang.Enum] in Java.
-         */
-        val ENUM = XTypeName(
-            java = JClassName.get(java.lang.Enum::class.java),
-            kotlin = com.squareup.kotlinpoet.ENUM
-        )
+        val ENUM =
+            XTypeName(
+                java = JClassName.get(java.lang.Enum::class.java),
+                kotlin = com.squareup.kotlinpoet.ENUM
+            )
 
         val PRIMITIVE_BOOLEAN = Boolean::class.asPrimitiveTypeName()
         val PRIMITIVE_BYTE = Byte::class.asPrimitiveTypeName()
@@ -175,14 +165,13 @@ open class XTypeName protected constructor(
         val BOXED_FLOAT = Float::class.asClassName()
         val BOXED_DOUBLE = Double::class.asClassName()
 
-        val ANY_WILDCARD = XTypeName(
-            java = JWildcardTypeName.subtypeOf(Object::class.java),
-            kotlin = com.squareup.kotlinpoet.STAR
-        )
+        val ANY_WILDCARD =
+            XTypeName(
+                java = JWildcardTypeName.subtypeOf(Object::class.java),
+                kotlin = com.squareup.kotlinpoet.STAR
+            )
 
-        /**
-         * The default [KTypeName] returned by xprocessing APIs when the backend is not KSP.
-         */
+        /** The default [KTypeName] returned by xprocessing APIs when the backend is not KSP. */
         internal val UNAVAILABLE_KTYPE_NAME =
             KClassName("androidx.room.compiler.codegen", "Unavailable")
 
@@ -208,41 +197,34 @@ open class XTypeName protected constructor(
                 }
             }
 
-            val (java, kotlin) = when (componentTypeName) {
-                PRIMITIVE_BOOLEAN ->
-                    JArrayTypeName.of(JTypeName.BOOLEAN) to BOOLEAN_ARRAY
-                PRIMITIVE_BYTE ->
-                    JArrayTypeName.of(JTypeName.BYTE) to BYTE_ARRAY
-                PRIMITIVE_SHORT ->
-                    JArrayTypeName.of(JTypeName.SHORT) to SHORT_ARRAY
-                PRIMITIVE_INT ->
-                    JArrayTypeName.of(JTypeName.INT) to INT_ARRAY
-                PRIMITIVE_LONG ->
-                    JArrayTypeName.of(JTypeName.LONG) to LONG_ARRAY
-                PRIMITIVE_CHAR ->
-                    JArrayTypeName.of(JTypeName.CHAR) to CHAR_ARRAY
-                PRIMITIVE_FLOAT ->
-                    JArrayTypeName.of(JTypeName.FLOAT) to FLOAT_ARRAY
-                PRIMITIVE_DOUBLE ->
-                    JArrayTypeName.of(JTypeName.DOUBLE) to DOUBLE_ARRAY
-                else -> {
-                    componentTypeName.java.let {
-                        if (it is JWildcardTypeName) {
-                            JArrayTypeName.of(it.upperBounds.single())
-                        } else {
-                            JArrayTypeName.of(it)
-                        }
-                    } to
-                    ARRAY.parameterizedBy(componentTypeName.kotlin)
+            val (java, kotlin) =
+                when (componentTypeName) {
+                    PRIMITIVE_BOOLEAN -> JArrayTypeName.of(JTypeName.BOOLEAN) to BOOLEAN_ARRAY
+                    PRIMITIVE_BYTE -> JArrayTypeName.of(JTypeName.BYTE) to BYTE_ARRAY
+                    PRIMITIVE_SHORT -> JArrayTypeName.of(JTypeName.SHORT) to SHORT_ARRAY
+                    PRIMITIVE_INT -> JArrayTypeName.of(JTypeName.INT) to INT_ARRAY
+                    PRIMITIVE_LONG -> JArrayTypeName.of(JTypeName.LONG) to LONG_ARRAY
+                    PRIMITIVE_CHAR -> JArrayTypeName.of(JTypeName.CHAR) to CHAR_ARRAY
+                    PRIMITIVE_FLOAT -> JArrayTypeName.of(JTypeName.FLOAT) to FLOAT_ARRAY
+                    PRIMITIVE_DOUBLE -> JArrayTypeName.of(JTypeName.DOUBLE) to DOUBLE_ARRAY
+                    else -> {
+                        componentTypeName.java.let {
+                            if (it is JWildcardTypeName) {
+                                JArrayTypeName.of(it.upperBounds.single())
+                            } else {
+                                JArrayTypeName.of(it)
+                            }
+                        } to ARRAY.parameterizedBy(componentTypeName.kotlin)
+                    }
                 }
-            }
             return XTypeName(
                 java = java,
-                kotlin = if (componentTypeName.kotlin != UNAVAILABLE_KTYPE_NAME) {
-                    kotlin
-                } else {
-                    UNAVAILABLE_KTYPE_NAME
-                }
+                kotlin =
+                    if (componentTypeName.kotlin != UNAVAILABLE_KTYPE_NAME) {
+                        kotlin
+                    } else {
+                        UNAVAILABLE_KTYPE_NAME
+                    }
             )
         }
 
@@ -250,41 +232,38 @@ open class XTypeName protected constructor(
          * Create a contravariant wildcard type name, to use as a consumer site-variance
          * declaration.
          *
-         * In Java: `? super <bound>`
-         * In Kotlin `in <bound>
+         * In Java: `? super <bound>` In Kotlin `in <bound>
          */
         fun getConsumerSuperName(bound: XTypeName): XTypeName {
             return XTypeName(
                 java = JWildcardTypeName.supertypeOf(bound.java),
-                kotlin = if (bound.kotlin != UNAVAILABLE_KTYPE_NAME) {
-                    KWildcardTypeName.consumerOf(bound.kotlin)
-                } else {
-                    UNAVAILABLE_KTYPE_NAME
-                }
+                kotlin =
+                    if (bound.kotlin != UNAVAILABLE_KTYPE_NAME) {
+                        KWildcardTypeName.consumerOf(bound.kotlin)
+                    } else {
+                        UNAVAILABLE_KTYPE_NAME
+                    }
             )
         }
 
         /**
-         * Create a covariant wildcard type name, to use as a producer site-variance
-         * declaration.
+         * Create a covariant wildcard type name, to use as a producer site-variance declaration.
          *
-         * In Java: `? extends <bound>`
-         * In Kotlin `out <bound>
+         * In Java: `? extends <bound>` In Kotlin `out <bound>
          */
         fun getProducerExtendsName(bound: XTypeName): XTypeName {
             return XTypeName(
                 java = JWildcardTypeName.subtypeOf(bound.java),
-                kotlin = if (bound.kotlin != UNAVAILABLE_KTYPE_NAME) {
-                    KWildcardTypeName.producerOf(bound.kotlin)
-                } else {
-                    UNAVAILABLE_KTYPE_NAME
-                }
+                kotlin =
+                    if (bound.kotlin != UNAVAILABLE_KTYPE_NAME) {
+                        KWildcardTypeName.producerOf(bound.kotlin)
+                    } else {
+                        UNAVAILABLE_KTYPE_NAME
+                    }
             )
         }
 
-        /**
-         * Creates a type variable named with bounds.
-         */
+        /** Creates a type variable named with bounds. */
         fun getTypeVariableName(name: String, bounds: List<XTypeName> = emptyList()): XTypeName {
             return XTypeName(
                 java = JTypeVariableName.get(name, *bounds.map { it.java }.toTypedArray()),
@@ -301,7 +280,8 @@ open class XTypeName protected constructor(
  *
  * @see [androidx.room.compiler.processing.XTypeElement.asClassName]
  */
-class XClassName internal constructor(
+class XClassName
+internal constructor(
     override val java: JClassName,
     override val kotlin: KClassName,
     nullability: XNullability
@@ -325,38 +305,35 @@ class XClassName internal constructor(
     ): XTypeName {
         return XTypeName(
             java = JParameterizedTypeName.get(java, *typeArguments.map { it.java }.toTypedArray()),
-            kotlin = if (
-                kotlin != UNAVAILABLE_KTYPE_NAME &&
-                typeArguments.none { it.kotlin == UNAVAILABLE_KTYPE_NAME }
-            ) {
-                kotlin.parameterizedBy(typeArguments.map { it.kotlin })
-            } else {
-                UNAVAILABLE_KTYPE_NAME
-            }
+            kotlin =
+                if (
+                    kotlin != UNAVAILABLE_KTYPE_NAME &&
+                        typeArguments.none { it.kotlin == UNAVAILABLE_KTYPE_NAME }
+                ) {
+                    kotlin.parameterizedBy(typeArguments.map { it.kotlin })
+                } else {
+                    UNAVAILABLE_KTYPE_NAME
+                }
         )
     }
 
     override fun copy(nullable: Boolean): XClassName {
         return XClassName(
             java = java,
-            kotlin = if (kotlin != UNAVAILABLE_KTYPE_NAME) {
-                kotlin.copy(nullable = nullable) as KClassName
-            } else {
-                UNAVAILABLE_KTYPE_NAME
-            },
+            kotlin =
+                if (kotlin != UNAVAILABLE_KTYPE_NAME) {
+                    kotlin.copy(nullable = nullable) as KClassName
+                } else {
+                    UNAVAILABLE_KTYPE_NAME
+                },
             nullability = if (nullable) XNullability.NULLABLE else XNullability.NONNULL
         )
     }
 
     companion object {
-        /**
-         * Creates an class name from the given parts.
-         */
+        /** Creates a class name from the given parts. */
         // TODO(b/248633751): Handle interop types.
-        fun get(
-            packageName: String,
-            vararg names: String
-        ): XClassName {
+        fun get(packageName: String, vararg names: String): XClassName {
             return XClassName(
                 java = JClassName.get(packageName, names.first(), *names.drop(1).toTypedArray()),
                 kotlin = KClassName(packageName, *names),
@@ -372,40 +349,35 @@ class XClassName internal constructor(
  * When the receiver [KClass] is a Kotlin interop primitive, such as [kotlin.Int] then the returned
  * [XClassName] contains the boxed JavaPoet class name.
  *
- * When the receiver [KClass] is a Kotlin interop collection, such as [kotlin.collections.List]
- * then the returned [XClassName] contains the corresponding JavaPoet class name. See:
+ * When the receiver [KClass] is a Kotlin interop collection, such as [kotlin.collections.List] then
+ * the returned [XClassName] contains the corresponding JavaPoet class name. See:
  * https://kotlinlang.org/docs/reference/java-interop.html#mapped-types.
  *
  * When the receiver [KClass] is a Kotlin mutable collection, such as
- * [kotlin.collections.MutableList] then the non-mutable [XClassName] is returned due to the
- * mutable interfaces only existing at compile-time, see:
- * https://youtrack.jetbrains.com/issue/KT-11754.
+ * [kotlin.collections.MutableList] then the non-mutable [XClassName] is returned due to the mutable
+ * interfaces only existing at compile-time, see: https://youtrack.jetbrains.com/issue/KT-11754.
  *
  * If the mutable [XClassName] is needed, use [asMutableClassName].
  */
 fun KClass<*>.asClassName(): XClassName {
-    val jClassName = if (this.java.isPrimitive) {
-        getBoxedJClassName(this.java)
-    } else {
-        JClassName.get(this.java)
-    }
+    val jClassName =
+        if (this.java.isPrimitive) {
+            getBoxedJClassName(this.java)
+        } else {
+            JClassName.get(this.java)
+        }
     val kClassName = this.asKClassName()
-    return XClassName(
-        java = jClassName,
-        kotlin = kClassName,
-        nullability = XNullability.NONNULL
-    )
+    return XClassName(java = jClassName, kotlin = kClassName, nullability = XNullability.NONNULL)
 }
 
 /**
  * Creates a mutable [XClassName] from the receiver [KClass]
  *
- * This is a workaround for:
- * https://github.com/square/kotlinpoet/issues/279
+ * This is a workaround for: https://github.com/square/kotlinpoet/issues/279
  * https://youtrack.jetbrains.com/issue/KT-11754
  *
- * When the receiver [KClass] is a Kotlin interop collection, such as [kotlin.collections.List]
- * then the returned [XClassName] contains the corresponding JavaPoet class name. See:
+ * When the receiver [KClass] is a Kotlin interop collection, such as [kotlin.collections.List] then
+ * the returned [XClassName] contains the corresponding JavaPoet class name. See:
  * https://kotlinlang.org/docs/reference/java-interop.html#mapped-types.
  *
  * When the receiver [KClass] is a Kotlin mutable collection, such as
@@ -417,30 +389,33 @@ fun KClass<*>.asClassName(): XClassName {
  */
 fun KClass<*>.asMutableClassName(): XClassName {
     val java = JClassName.get(this.java)
-    val kotlin = when (this) {
-        Iterable::class -> MUTABLE_ITERABLE
-        Collection::class -> MUTABLE_COLLECTION
-        List::class -> MUTABLE_LIST
-        Set::class -> MUTABLE_SET
-        Map::class -> MUTABLE_MAP
-        Map.Entry::class -> MUTABLE_MAP_ENTRY
-        else -> error("No equivalent mutable Kotlin interop found for `$this`.")
-    }
+    val kotlin =
+        when (this) {
+            Iterable::class -> MUTABLE_ITERABLE
+            Collection::class -> MUTABLE_COLLECTION
+            List::class -> MUTABLE_LIST
+            Set::class -> MUTABLE_SET
+            Map::class -> MUTABLE_MAP
+            Map.Entry::class -> MUTABLE_MAP_ENTRY
+            else -> error("No equivalent mutable Kotlin interop found for `$this`.")
+        }
     return XClassName(java, kotlin, XNullability.NONNULL)
 }
 
-private fun getBoxedJClassName(klass: Class<*>): JClassName = when (klass) {
-    java.lang.Void.TYPE -> JTypeName.VOID.box()
-    java.lang.Boolean.TYPE -> JTypeName.BOOLEAN.box()
-    java.lang.Byte.TYPE -> JTypeName.BYTE.box()
-    java.lang.Short.TYPE -> JTypeName.SHORT.box()
-    java.lang.Integer.TYPE -> JTypeName.INT.box()
-    java.lang.Long.TYPE -> JTypeName.LONG.box()
-    java.lang.Character.TYPE -> JTypeName.CHAR.box()
-    java.lang.Float.TYPE -> JTypeName.FLOAT.box()
-    java.lang.Double.TYPE -> JTypeName.DOUBLE.box()
-    else -> error("Can't get JTypeName from java.lang.Class: $klass")
-} as JClassName
+private fun getBoxedJClassName(klass: Class<*>): JClassName =
+    when (klass) {
+        java.lang.Void.TYPE -> JTypeName.VOID.box()
+        java.lang.Boolean.TYPE -> JTypeName.BOOLEAN.box()
+        java.lang.Byte.TYPE -> JTypeName.BYTE.box()
+        java.lang.Short.TYPE -> JTypeName.SHORT.box()
+        java.lang.Integer.TYPE -> JTypeName.INT.box()
+        java.lang.Long.TYPE -> JTypeName.LONG.box()
+        java.lang.Character.TYPE -> JTypeName.CHAR.box()
+        java.lang.Float.TYPE -> JTypeName.FLOAT.box()
+        java.lang.Double.TYPE -> JTypeName.DOUBLE.box()
+        else -> error("Can't get JTypeName from java.lang.Class: $klass")
+    }
+        as JClassName
 
 /**
  * Creates a [XTypeName] whose JavaPoet name is a primitive name and KotlinPoet is the interop type.
@@ -449,31 +424,34 @@ private fun getBoxedJClassName(klass: Class<*>): JClassName = when (klass) {
  * only the boxed version of primitives.
  */
 internal fun KClass<*>.asPrimitiveTypeName(): XTypeName {
-    require(this.java.isPrimitive) {
-        "$this does not represent a primitive."
-    }
+    require(this.java.isPrimitive) { "$this does not represent a primitive." }
     val jTypeName = getPrimitiveJTypeName(this.java)
     val kTypeName = this.asKTypeName()
     return XTypeName(jTypeName, kTypeName)
 }
 
-private fun getPrimitiveJTypeName(klass: Class<*>): JTypeName = when (klass) {
-    java.lang.Void.TYPE -> JTypeName.VOID
-    java.lang.Boolean.TYPE -> JTypeName.BOOLEAN
-    java.lang.Byte.TYPE -> JTypeName.BYTE
-    java.lang.Short.TYPE -> JTypeName.SHORT
-    java.lang.Integer.TYPE -> JTypeName.INT
-    java.lang.Long.TYPE -> JTypeName.LONG
-    java.lang.Character.TYPE -> JTypeName.CHAR
-    java.lang.Float.TYPE -> JTypeName.FLOAT
-    java.lang.Double.TYPE -> JTypeName.DOUBLE
-    else -> error("Can't get JTypeName from java.lang.Class: $klass")
-}
+private fun getPrimitiveJTypeName(klass: Class<*>): JTypeName =
+    when (klass) {
+        java.lang.Void.TYPE -> JTypeName.VOID
+        java.lang.Boolean.TYPE -> JTypeName.BOOLEAN
+        java.lang.Byte.TYPE -> JTypeName.BYTE
+        java.lang.Short.TYPE -> JTypeName.SHORT
+        java.lang.Integer.TYPE -> JTypeName.INT
+        java.lang.Long.TYPE -> JTypeName.LONG
+        java.lang.Character.TYPE -> JTypeName.CHAR
+        java.lang.Float.TYPE -> JTypeName.FLOAT
+        java.lang.Double.TYPE -> JTypeName.DOUBLE
+        else -> error("Can't get JTypeName from java.lang.Class: $klass")
+    }
 
 fun XTypeName.box() = XTypeName(java.box(), kotlin)
+
 fun XTypeName.unbox() = XTypeName(java.unbox(), kotlin.copy(nullable = false), XNullability.NONNULL)
 
 fun XTypeName.toJavaPoet(): JTypeName = this.java
+
 fun XClassName.toJavaPoet(): JClassName = this.java
+
 fun XTypeName.toKotlinPoet(): KTypeName = this.kotlin
+
 fun XClassName.toKotlinPoet(): KClassName = this.kotlin

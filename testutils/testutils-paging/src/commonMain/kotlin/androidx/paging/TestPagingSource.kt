@@ -25,8 +25,8 @@ import kotlinx.coroutines.withContext
  * [PagingSource] for testing which pages through a list of conesecutive integers from 0..99 where
  * position == key == value.
  *
- * Note: This class has a delay of 1000ms is built into its load method and is meant to be used
- * with APIs from [kotlinx.coroutines.test.DelayController].
+ * Note: This class has a delay of 1000ms is built into its load method and is meant to be used with
+ * APIs from [kotlinx.coroutines.test.DelayController].
  */
 class TestPagingSource(
     counted: Boolean = true,
@@ -67,10 +67,8 @@ class TestPagingSource(
         val key = params.key ?: 0
 
         val isPrepend = params is LoadParams.Prepend
-        val start = (if (isPrepend) key - params.loadSize + 1 else key)
-            .coerceAtLeast(0)
-        val end = (if (isPrepend) key + 1 else key + params.loadSize)
-            .coerceAtMost(items.size)
+        val start = (if (isPrepend) key - params.loadSize + 1 else key).coerceAtLeast(0)
+        val end = (if (isPrepend) key + 1 else key + params.loadSize).coerceAtMost(items.size)
 
         if (errorNextLoad) {
             errorNextLoad = false
@@ -84,14 +82,13 @@ class TestPagingSource(
         }
 
         return LoadResult.Page(
-            items.subList(start, end),
-            if (start > 0) start - 1 else null,
-            if (end < items.size) end else null,
-            if (placeholdersEnabled) start else Int.MIN_VALUE,
-            if (placeholdersEnabled) (items.size - end) else Int.MIN_VALUE
-        ).also {
-            loadedPages.add(it)
-        }
+                items.subList(start, end),
+                if (start > 0) start - 1 else null,
+                if (end < items.size) end else null,
+                if (placeholdersEnabled) start else Int.MIN_VALUE,
+                if (placeholdersEnabled) (items.size - end) else Int.MIN_VALUE
+            )
+            .also { loadedPages.add(it) }
     }
 
     override fun getRefreshKey(state: PagingState<Int, Int>): Int? {

@@ -95,31 +95,29 @@ import org.junit.runner.RunWith
 
 /**
  * These tests are for testing the text field scrolling modifiers [Modifier.textFieldScroll] and
- * [Modifier.textFieldScrollable] working together.
- * The tests are structured in a way that
+ * [Modifier.textFieldScrollable] working together. The tests are structured in a way that
  * - two modifiers are applied to the text which exposes its [TextLayoutResult]
  * - swipe gesture applied
- * - [TextFieldScrollerPosition] state is checked to see if scrolling happened
- * Previously we were able to test using CoreTextField. But with the decoration box change these
- * two modifiers are already applied to the CoreTextField internally. Therefore we have no access
- * to the [TextFieldScrollerPosition] object anymore. As such, CoreTextField was replaced with
- * [BasicText] which is equivalent for testing these modifiers
+ * - [TextFieldScrollerPosition] state is checked to see if scrolling happened Previously we were
+ *   able to test using CoreTextField. But with the decoration box change these two modifiers are
+ *   already applied to the CoreTextField internally. Therefore we have no access to the
+ *   [TextFieldScrollerPosition] object anymore. As such, CoreTextField was replaced with
+ *   [BasicText] which is equivalent for testing these modifiers
  */
-
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldScrollTest : FocusedWindowTest {
 
     private val TextfieldTag = "textField"
 
-    private val longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
-        "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
-        " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
-        "fugiat nulla pariatur."
+    private val longText =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+            "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
+            " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
+            "fugiat nulla pariatur."
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -136,7 +134,9 @@ class TextFieldScrollTest : FocusedWindowTest {
         val scrollerPosition = TextFieldScrollerPosition(Orientation.Horizontal)
 
         rule.setupHorizontallyScrollableContent(
-            scrollerPosition, longText, Modifier.size(width = 300.dp, height = 50.dp)
+            scrollerPosition,
+            longText,
+            Modifier.size(width = 300.dp, height = 50.dp)
         )
 
         rule.runOnIdle {
@@ -188,9 +188,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
-        rule.runOnIdle {
-            assertThat(scrollerPosition.maximum).isEqualTo(0f)
-        }
+        rule.runOnIdle { assertThat(scrollerPosition.maximum).isEqualTo(0f) }
     }
 
     @Test
@@ -203,9 +201,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             modifier = Modifier.size(width = 300.dp, height = 100.dp)
         )
 
-        rule.runOnIdle {
-            assertThat(scrollerPosition.maximum).isEqualTo(0f)
-        }
+        rule.runOnIdle { assertThat(scrollerPosition.maximum).isEqualTo(0f) }
     }
 
     @Test
@@ -218,12 +214,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         with(rule.density) {
             rule.setTextFieldTestContent {
-                Box(
-                    Modifier
-                        .size(parentSize.toDp())
-                        .background(color = Color.White)
-                        .testTag(tag)
-                ) {
+                Box(Modifier.size(parentSize.toDp()).background(color = Color.White).testTag(tag)) {
                     ScrollableContent(
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollerPosition = TextFieldScrollerPosition(Orientation.Horizontal),
@@ -236,11 +227,11 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(tag)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(parentSize, parentSize)) { position ->
-                if (position.x > textFieldSize || position.y > textFieldSize) Color.White else null
-            }
+        rule.onNodeWithTag(tag).captureToImage().assertPixels(
+            expectedSize = IntSize(parentSize, parentSize)
+        ) { position ->
+            if (position.x > textFieldSize || position.y > textFieldSize) Color.White else null
+        }
     }
 
     @Test
@@ -253,12 +244,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         with(rule.density) {
             rule.setTextFieldTestContent {
-                Box(
-                    Modifier
-                        .size(parentSize.toDp())
-                        .background(color = Color.White)
-                        .testTag(tag)
-                ) {
+                Box(Modifier.size(parentSize.toDp()).background(color = Color.White).testTag(tag)) {
                     ScrollableContent(
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollerPosition = TextFieldScrollerPosition(),
@@ -271,11 +257,11 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(tag)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(parentSize, parentSize)) { position ->
-                if (position.x > textFieldSize || position.y > textFieldSize) Color.White else null
-            }
+        rule.onNodeWithTag(tag).captureToImage().assertPixels(
+            expectedSize = IntSize(parentSize, parentSize)
+        ) { position ->
+            if (position.x > textFieldSize || position.y > textFieldSize) Color.White else null
+        }
     }
 
     @Test
@@ -288,23 +274,15 @@ class TextFieldScrollTest : FocusedWindowTest {
             modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
-        rule.runOnIdle {
-            assertThat(scrollerPosition.offset).isEqualTo(0f)
-        }
+        rule.runOnIdle { assertThat(scrollerPosition.offset).isEqualTo(0f) }
 
-        rule.onNodeWithTag(TextfieldTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeLeft() }
 
-        val firstSwipePosition = rule.runOnIdle {
-            scrollerPosition.offset
-        }
+        val firstSwipePosition = rule.runOnIdle { scrollerPosition.offset }
         assertThat(firstSwipePosition).isGreaterThan(0f)
 
-        rule.onNodeWithTag(TextfieldTag)
-            .performTouchInput { swipeRight() }
-        rule.runOnIdle {
-            assertThat(scrollerPosition.offset).isLessThan(firstSwipePosition)
-        }
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeRight() }
+        rule.runOnIdle { assertThat(scrollerPosition.offset).isLessThan(firstSwipePosition) }
     }
 
     @Test
@@ -317,23 +295,15 @@ class TextFieldScrollTest : FocusedWindowTest {
             modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
-        rule.runOnIdle {
-            assertThat(scrollerPosition.offset).isEqualTo(0f)
-        }
+        rule.runOnIdle { assertThat(scrollerPosition.offset).isEqualTo(0f) }
 
-        rule.onNodeWithTag(TextfieldTag)
-            .performTouchInput { swipeUp() }
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeUp() }
 
-        val firstSwipePosition = rule.runOnIdle {
-            scrollerPosition.offset
-        }
+        val firstSwipePosition = rule.runOnIdle { scrollerPosition.offset }
         assertThat(firstSwipePosition).isGreaterThan(0f)
 
-        rule.onNodeWithTag(TextfieldTag)
-            .performTouchInput { swipeDown() }
-        rule.runOnIdle {
-            assertThat(scrollerPosition.offset).isLessThan(firstSwipePosition)
-        }
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeDown() }
+        rule.runOnIdle { assertThat(scrollerPosition.offset).isLessThan(firstSwipePosition) }
     }
 
     @Test
@@ -342,11 +312,10 @@ class TextFieldScrollTest : FocusedWindowTest {
         var scrollerPosition: TextFieldScrollerPosition? = null
 
         restorationTester.setContent {
-            scrollerPosition = rememberSaveable(
-                saver = TextFieldScrollerPosition.Saver
-            ) {
-                TextFieldScrollerPosition(Orientation.Horizontal)
-            }
+            scrollerPosition =
+                rememberSaveable(saver = TextFieldScrollerPosition.Saver) {
+                    TextFieldScrollerPosition(Orientation.Horizontal)
+                }
             ScrollableContent(
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
                 scrollerPosition = scrollerPosition!!,
@@ -355,12 +324,9 @@ class TextFieldScrollTest : FocusedWindowTest {
             )
         }
 
-        rule.onNodeWithTag(TextfieldTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeLeft() }
 
-        val swipePosition = rule.runOnIdle {
-            scrollerPosition!!.offset
-        }
+        val swipePosition = rule.runOnIdle { scrollerPosition!!.offset }
         assertThat(swipePosition).isGreaterThan(0f)
 
         rule.runOnIdle {
@@ -370,9 +336,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        rule.runOnIdle {
-            assertThat(scrollerPosition!!.offset).isEqualTo(swipePosition)
-        }
+        rule.runOnIdle { assertThat(scrollerPosition!!.offset).isEqualTo(swipePosition) }
     }
 
     @Test
@@ -384,23 +348,22 @@ class TextFieldScrollTest : FocusedWindowTest {
                 Modifier.textFieldScrollable(position, interactionSource) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("textFieldScrollable")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
-                "scrollerPosition",
-                "interactionSource",
-                "enabled"
-            )
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable())
+                .containsExactly("scrollerPosition", "interactionSource", "enabled")
         }
     }
 
     @Test
     fun textFieldScroll_testNestedScrolling() = runBlocking {
         val size = 300.dp
-        val text = """
+        val text =
+            """
             First Line
             Second Line
             Third Line
             Fourth Line
-        """.trimIndent()
+        """
+                .trimIndent()
 
         val textFieldScrollPosition = TextFieldScrollerPosition()
         val scrollerPosition = ScrollState(0)
@@ -409,11 +372,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         rule.setTextFieldTestContent {
             touchSlop = LocalViewConfiguration.current.touchSlop
-            Column(
-                Modifier
-                    .size(size)
-                    .verticalScroll(scrollerPosition)
-            ) {
+            Column(Modifier.size(size).verticalScroll(scrollerPosition)) {
                 ScrollableContent(
                     modifier = Modifier.size(size, height),
                     scrollerPosition = textFieldScrollPosition,
@@ -437,15 +396,13 @@ class TextFieldScrollTest : FocusedWindowTest {
             val slopStartY = minOf(desiredY + touchSlop, nearEdge.toPx())
             val slopStart = Offset(x, slopStartY)
             val end = Offset(x, 0f)
-            rule.onNodeWithTag(TextfieldTag)
-                .performTouchInput {
-                    swipe(slopStart, end)
-                }
+            rule.onNodeWithTag(TextfieldTag).performTouchInput { swipe(slopStart, end) }
         }
 
         assertThat(textFieldScrollPosition.offset).isGreaterThan(0f)
         assertThat(textFieldScrollPosition.offset)
-            .isWithin(0.5f).of(textFieldScrollPosition.maximum)
+            .isWithin(0.5f)
+            .of(textFieldScrollPosition.maximum)
         assertThat(scrollerPosition.value).isGreaterThan(0)
     }
 
@@ -466,36 +423,36 @@ class TextFieldScrollTest : FocusedWindowTest {
 
             Layout(
                 content = {},
-                modifier = Modifier
-                    .size(widthDp, heightDp)
-                    .textFieldScroll(
+                modifier =
+                    Modifier.size(widthDp, heightDp).textFieldScroll(
                         remember { scrollerPosition },
                         TextFieldValue(text),
                         VisualTransformation.None
-                    ) { textLayoutResultRef.value },
-                measurePolicy = object : MeasurePolicy {
-                    override fun MeasureScope.measure(
-                        measurables: List<Measurable>,
-                        constraints: Constraints
-                    ): MeasureResult {
-                        measuredConstraints = constraints
-                        return layout(width / 2, height) {}
-                    }
+                    ) {
+                        textLayoutResultRef.value
+                    },
+                measurePolicy =
+                    object : MeasurePolicy {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints
+                        ): MeasureResult {
+                            measuredConstraints = constraints
+                            return layout(width / 2, height) {}
+                        }
 
-                    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                        measurables: List<IntrinsicMeasurable>,
-                        height: Int
-                    ): Int {
-                        return width / 2
+                        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                            measurables: List<IntrinsicMeasurable>,
+                            height: Int
+                        ): Int {
+                            return width / 2
+                        }
                     }
-                }
             )
         }
 
         rule.runOnIdle {
-            assertThat(measuredConstraints).isEqualTo(
-                Constraints.fixed(width, height)
-            )
+            assertThat(measuredConstraints).isEqualTo(Constraints.fixed(width, height))
         }
     }
 
@@ -516,41 +473,44 @@ class TextFieldScrollTest : FocusedWindowTest {
 
             Layout(
                 content = {},
-                modifier = Modifier
-                    .size(widthDp, heightDp)
-                    .textFieldScroll(
+                modifier =
+                    Modifier.size(widthDp, heightDp).textFieldScroll(
                         remember { scrollerPosition },
                         TextFieldValue(text),
                         VisualTransformation.None
-                    ) { textLayoutResultRef.value },
-                measurePolicy = object : MeasurePolicy {
-                    override fun MeasureScope.measure(
-                        measurables: List<Measurable>,
-                        constraints: Constraints
-                    ): MeasureResult {
-                        measuredConstraints = constraints
-                        return layout(width * 2, height) {}
-                    }
+                    ) {
+                        textLayoutResultRef.value
+                    },
+                measurePolicy =
+                    object : MeasurePolicy {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints
+                        ): MeasureResult {
+                            measuredConstraints = constraints
+                            return layout(width * 2, height) {}
+                        }
 
-                    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                        measurables: List<IntrinsicMeasurable>,
-                        height: Int
-                    ): Int {
-                        return width * 2
+                        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                            measurables: List<IntrinsicMeasurable>,
+                            height: Int
+                        ): Int {
+                            return width * 2
+                        }
                     }
-                }
             )
         }
 
         rule.runOnIdle {
-            assertThat(measuredConstraints).isEqualTo(
-                Constraints(
-                    minWidth = width,
-                    maxWidth = Constraints.Infinity,
-                    minHeight = height,
-                    maxHeight = height
+            assertThat(measuredConstraints)
+                .isEqualTo(
+                    Constraints(
+                        minWidth = width,
+                        maxWidth = Constraints.Infinity,
+                        minHeight = height,
+                        maxHeight = height
+                    )
                 )
-            )
         }
     }
 
@@ -564,35 +524,27 @@ class TextFieldScrollTest : FocusedWindowTest {
                 BasicTextField(
                     value = longText,
                     onValueChange = {},
-                    modifier = Modifier
-                        .padding(size.toDp())
-                        .size(size.toDp())
-                        .testTag(tag)
+                    modifier = Modifier.padding(size.toDp()).size(size.toDp()).testTag(tag)
                 )
             }
         }
 
         // Click to focus and show handle.
-        rule.onNodeWithTag(tag)
-            .performClick()
+        rule.onNodeWithTag(tag).performClick()
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
 
         // Scroll up by twice the height to move the cursor out of the visible area.
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(x = 0f, y = -size * 2f))
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(x = 0f, y = -size * 2f))
+        }
 
         // Check that cursor is hidden.
         rule.onAllNodes(isSelectionHandle()).assertCountEquals(0)
 
         // Scroll back and make sure the handles are shown again.
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                moveBy(Offset(x = 0f, y = size * 2f))
-            }
+        rule.onNodeWithTag(tag).performTouchInput { moveBy(Offset(x = 0f, y = size * 2f)) }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
     }
@@ -607,45 +559,39 @@ class TextFieldScrollTest : FocusedWindowTest {
                 BasicTextField(
                     value = longText,
                     onValueChange = {},
-                    modifier = Modifier
-                        .border(0.dp, Color.Gray)
-                        .padding(size.toDp())
-                        .border(0.dp, Color.Black)
-                        .size(size.toDp())
-                        .testTag(tag)
+                    modifier =
+                        Modifier.border(0.dp, Color.Gray)
+                            .padding(size.toDp())
+                            .border(0.dp, Color.Black)
+                            .size(size.toDp())
+                            .testTag(tag)
                 )
             }
         }
 
         // Select something to ensure both handles are visible.
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             // TODO(b/209698586) Use performTextInputSelection once that method actually updates
             //  the text handles.
             // .performTextInputSelection(TextRange(0, 1))
-            .performTouchInput {
-                longClick()
-            }
+            .performTouchInput { longClick() }
 
         // Check that both handles are displayed (if not, we can't check that they get hidden).
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
 
         // Scroll up by twice the height to move the cursor out of the visible area.
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset(x = 0f, y = -size * 2f))
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(x = 0f, y = -size * 2f))
+        }
 
         // Check that cursor is hidden.
-        rule.onAllNodes(isPopup())
-            .assertCountEquals(0)
+        rule.onAllNodes(isPopup()).assertCountEquals(0)
 
         // Scroll back and make sure the handles are shown again.
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                moveBy(Offset(x = 0f, y = size * 2f))
-            }
+        rule.onNodeWithTag(tag).performTouchInput { moveBy(Offset(x = 0f, y = size * 2f)) }
 
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
@@ -697,20 +643,19 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         BasicText(
             text = text,
-            onTextLayout = {
-                textLayoutResultRef.value = TextLayoutResultProxy(it)
-            },
+            onTextLayout = { textLayoutResultRef.value = TextLayoutResultProxy(it) },
             softWrap = isVertical,
-            modifier = modifier
-                .testTag(TextfieldTag)
-                .heightInLines(textStyle = TextStyle.Default, maxLines = resolvedMaxLines)
-                .textFieldScrollable(scrollerPosition)
-                .textFieldScroll(
-                    remember { scrollerPosition },
-                    TextFieldValue(text),
-                    VisualTransformation.None,
-                    { textLayoutResultRef.value }
-                )
+            modifier =
+                modifier
+                    .testTag(TextfieldTag)
+                    .heightInLines(textStyle = TextStyle.Default, maxLines = resolvedMaxLines)
+                    .textFieldScrollable(scrollerPosition)
+                    .textFieldScroll(
+                        remember { scrollerPosition },
+                        TextFieldValue(text),
+                        VisualTransformation.None,
+                        { textLayoutResultRef.value }
+                    )
         )
     }
 }

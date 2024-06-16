@@ -32,22 +32,23 @@ import org.junit.runner.RunWith
 @MediumTest
 class FragmentManagerSavedStateRegistryTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     @Throws(Throwable::class)
     fun savedState() {
-       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
-            fragmentManager.beginTransaction()
+            fragmentManager
+                .beginTransaction()
                 .add(StateSaveFragment(TEST_FRAGMENT_STRING), FRAGMENT_TAG)
                 .commit()
             executePendingTransactions()
 
             recreate()
-            val fragment = withActivity { supportFragmentManager }
-                .findFragmentByTag(FRAGMENT_TAG) as StateSaveFragment
+            val fragment =
+                withActivity { supportFragmentManager }.findFragmentByTag(FRAGMENT_TAG)
+                    as StateSaveFragment
             assertThat(fragment.savedState).isEqualTo(TEST_FRAGMENT_STRING)
         }
     }

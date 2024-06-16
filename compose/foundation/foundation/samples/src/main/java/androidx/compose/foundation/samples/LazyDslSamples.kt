@@ -50,17 +50,11 @@ fun LazyColumnSample() {
     val itemsIndexedList = listOf("A", "B", "C")
 
     LazyColumn {
-        items(itemsList) {
-            Text("Item is $it")
-        }
+        items(itemsList) { Text("Item is $it") }
 
-        item {
-            Text("Single item")
-        }
+        item { Text("Single item") }
 
-        itemsIndexed(itemsIndexedList) { index, item ->
-            Text("Item at index $index is $item")
-        }
+        itemsIndexed(itemsIndexedList) { index, item -> Text("Item at index $index is $item") }
     }
 }
 
@@ -71,17 +65,11 @@ fun LazyRowSample() {
     val itemsIndexedList = listOf("A", "B", "C")
 
     LazyRow {
-        items(itemsList) {
-            Text("Item is $it")
-        }
+        items(itemsList) { Text("Item is $it") }
 
-        item {
-            Text("Single item")
-        }
+        item { Text("Single item") }
 
-        itemsIndexed(itemsIndexedList) { index, item ->
-            Text("Item at index $index is $item")
-        }
+        itemsIndexed(itemsIndexedList) { index, item -> Text("Item at index $index is $item") }
     }
 }
 
@@ -96,15 +84,10 @@ fun StickyHeaderSample() {
             stickyHeader {
                 Text(
                     "Section $section",
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.LightGray)
-                        .padding(8.dp)
+                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
                 )
             }
-            items(10) {
-                Text("Item $it from the section $section")
-            }
+            items(10) { Text("Item $it from the section $section") }
         }
     }
 }
@@ -114,17 +97,9 @@ fun StickyHeaderSample() {
 fun AnimateItemSample() {
     var list by remember { mutableStateOf(listOf("1", "2", "3")) }
     Column {
-        Button(onClick = { list = list + "${list.count() + 1}" }) {
-            Text("Add new item")
-        }
-        Button(onClick = { list = list.shuffled() }) {
-            Text("Shuffle")
-        }
-        LazyColumn {
-            items(list, key = { it }) {
-                Text("Item $it", Modifier.animateItem())
-            }
-        }
+        Button(onClick = { list = list + "${list.count() + 1}" }) { Text("Add new item") }
+        Button(onClick = { list = list.shuffled() }) { Text("Shuffle") }
+        LazyColumn { items(list, key = { it }) { Text("Item $it", Modifier.animateItem()) } }
     }
 }
 
@@ -166,6 +141,4 @@ fun UsingListLayoutInfoForSideEffectSample() {
     }
 }
 
-@Composable
-private fun ScrollToTopButton(@Suppress("UNUSED_PARAMETER") listState: LazyListState) {
-}
+@Composable private fun ScrollToTopButton(@Suppress("UNUSED_PARAMETER") listState: LazyListState) {}

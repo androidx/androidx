@@ -44,9 +44,11 @@ import org.robolectric.util.ReflectionHelpers
 )
 class AvailableKeysRetrieverTest {
     private val context: Context = RuntimeEnvironment.getApplication()
-    private val availableKeys = listOf<CaptureRequest.Key<out Any>>(
-        CaptureRequest.CONTROL_AE_REGIONS, CaptureRequest.CONTROL_AF_MODE
-    )
+    private val availableKeys =
+        listOf<CaptureRequest.Key<out Any>>(
+            CaptureRequest.CONTROL_AE_REGIONS,
+            CaptureRequest.CONTROL_AF_MODE
+        )
     private val fakeImageCaptureExtenderImpl = FakeImageCaptureExtenderImpl(availableKeys)
     private val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
 
@@ -57,14 +59,18 @@ class AvailableKeysRetrieverTest {
         val retriever = AvailableKeysRetriever()
 
         // 2. Act
-        val resultKeys = retriever.getAvailableCaptureRequestKeys(
-            fakeImageCaptureExtenderImpl, "0", characteristics, context)
+        val resultKeys =
+            retriever.getAvailableCaptureRequestKeys(
+                fakeImageCaptureExtenderImpl,
+                "0",
+                characteristics,
+                context
+            )
 
         // 3. Assert
         assertThat(resultKeys).containsExactlyElementsIn(availableKeys)
-        assertThat(fakeImageCaptureExtenderImpl.invokeList).containsExactly(
-            "onInit", "getAvailableCaptureRequestKeys", "onDeInit"
-        )
+        assertThat(fakeImageCaptureExtenderImpl.invokeList)
+            .containsExactly("onInit", "getAvailableCaptureRequestKeys", "onDeInit")
     }
 
     @Test
@@ -74,32 +80,44 @@ class AvailableKeysRetrieverTest {
         val retriever = AvailableKeysRetriever()
 
         // 2. Act
-        val resultKeys = retriever.getAvailableCaptureRequestKeys(
-            fakeImageCaptureExtenderImpl, "0", characteristics, context)
+        val resultKeys =
+            retriever.getAvailableCaptureRequestKeys(
+                fakeImageCaptureExtenderImpl,
+                "0",
+                characteristics,
+                context
+            )
 
         // 3. Assert
         assertThat(resultKeys).containsExactlyElementsIn(availableKeys)
-        assertThat(fakeImageCaptureExtenderImpl.invokeList).containsExactly(
-            "getAvailableCaptureRequestKeys"
-        )
+        assertThat(fakeImageCaptureExtenderImpl.invokeList)
+            .containsExactly("getAvailableCaptureRequestKeys")
     }
 
     class FakeImageCaptureExtenderImpl(
         private var availableRequestKeys: List<CaptureRequest.Key<out Any>>
     ) : ImageCaptureExtenderImpl {
         val invokeList = mutableListOf<String>()
+
         override fun isExtensionAvailable(
             cameraId: String,
             cameraCharacteristics: CameraCharacteristics
         ): Boolean = true
+
         override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {
             invokeList.add("init")
         }
+
         override fun getCaptureProcessor() = null
+
         override fun getCaptureStages(): List<CaptureStageImpl> = emptyList()
+
         override fun getMaxCaptureStage() = 2
+
         override fun getSupportedResolutions() = null
+
         override fun getEstimatedCaptureLatencyRange(size: Size?) = null
+
         override fun getAvailableCaptureRequestKeys(): List<CaptureRequest.Key<out Any>> {
             invokeList.add("getAvailableCaptureRequestKeys")
 
@@ -117,7 +135,9 @@ class AvailableKeysRetrieverTest {
         override fun isCaptureProcessProgressAvailable() = false
 
         override fun getRealtimeCaptureLatency(): Pair<Long, Long>? = null
+
         override fun isPostviewAvailable() = false
+
         override fun onInit(
             cameraId: String,
             cameraCharacteristics: CameraCharacteristics,
@@ -129,9 +149,13 @@ class AvailableKeysRetrieverTest {
         override fun onDeInit() {
             invokeList.add("onDeInit")
         }
+
         override fun onPresetSession(): CaptureStageImpl? = null
+
         override fun onEnableSession(): CaptureStageImpl? = null
+
         override fun onDisableSession(): CaptureStageImpl? = null
+
         override fun onSessionType(): Int = SessionConfiguration.SESSION_REGULAR
     }
 }

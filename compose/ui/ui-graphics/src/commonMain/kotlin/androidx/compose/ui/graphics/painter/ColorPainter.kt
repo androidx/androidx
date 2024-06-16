@@ -21,9 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
-/**
- * [Painter] implementation used to fill the provided bounds with the specified color
- */
+/** [Painter] implementation used to fill the provided bounds with the specified color */
 class ColorPainter(val color: Color) : Painter() {
     private var alpha: Float = 1.0f
 
@@ -60,8 +58,6 @@ class ColorPainter(val color: Color) : Painter() {
         return "ColorPainter(color=$color)"
     }
 
-    /**
-     * Drawing a color does not have an intrinsic size, return [Size.Unspecified] here
-     */
+    /** Drawing a color does not have an intrinsic size, return [Size.Unspecified] here */
     override val intrinsicSize: Size = Size.Unspecified
 }

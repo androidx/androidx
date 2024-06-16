@@ -62,21 +62,20 @@ import java.util.List;
  * final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
  *          .addPathHandler("/assets/", new AssetsPathHandler(this))
  *          .build();
- *
+ * <p>
  * webView.setWebViewClient(new WebViewClientCompat() {
  *     {@literal @}Override
- *     {@literal @}RequiresApi(21)
  *     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
  *         return assetLoader.shouldInterceptRequest(request.getUrl());
  *     }
- *
+ * <p>
  *     {@literal @}Override
  *     {@literal @}SuppressWarnings("deprecation") // for API < 21
  *     public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
  *         return assetLoader.shouldInterceptRequest(Uri.parse(url));
  *     }
  * });
- *
+ * <p>
  * WebSettings webViewSettings = webView.getSettings();
  * // Setting this off for security. Off by default for SDK versions >= 16.
  * webViewSettings.setAllowFileAccessFromFileURLs(false);
@@ -86,7 +85,7 @@ import java.util.List;
  * // using file:// or content:// URLs.
  * webViewSettings.setAllowFileAccess(false);
  * webViewSettings.setAllowContentAccess(false);
- *
+ * <p>
  * // Assets are hosted under http(s)://appassets.androidplatform.net/assets/... .
  * // If the application's assets are in the "main/assets" folder this will read the file
  * // from "main/assets/www/index.html" and load it as if it were hosted on:
@@ -149,7 +148,7 @@ public final class WebViewAssetLoader {
      * Handler class to open a file from assets directory in the application APK.
      */
     public static final class AssetsPathHandler implements PathHandler {
-        private AssetHelper mAssetHelper;
+        private final AssetHelper mAssetHelper;
 
         /**
          * @param context {@link Context} used to resolve assets.
@@ -200,7 +199,7 @@ public final class WebViewAssetLoader {
      * Handler class to open a file from resources directory in the application APK.
      */
     public static final class ResourcesPathHandler implements PathHandler {
-        private AssetHelper mAssetHelper;
+        private final AssetHelper mAssetHelper;
 
         /**
          * @param context {@link Context} used to resolve resources.
@@ -427,7 +426,7 @@ public final class WebViewAssetLoader {
 
         /**
          * Match against registered scheme, authority and path prefix.
-         *
+         * <p>
          * Match happens when:
          * <ul>
          *      <li>Scheme is "https" <b>or</b> the scheme is "http" and http is enabled.</li>

@@ -21,36 +21,23 @@ import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information about an [androidx.room.Entity].
- *
- */
+/** Data class that holds the schema information about an [androidx.room.Entity]. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 open class EntityBundle(
-    @SerialName("tableName")
-    override val tableName: String,
-    @SerialName("createSql")
-    override val createSql: String,
-    @SerialName("fields")
-    override val fields: List<FieldBundle>,
-    @SerialName("primaryKey")
-    override val primaryKey: PrimaryKeyBundle,
-    @SerialName("indices")
-    override val indices: List<IndexBundle> = emptyList(),
-    @SerialName("foreignKeys")
-    override val foreignKeys: List<ForeignKeyBundle> = emptyList()
+    @SerialName("tableName") override val tableName: String,
+    @SerialName("createSql") override val createSql: String,
+    @SerialName("fields") override val fields: List<FieldBundle>,
+    @SerialName("primaryKey") override val primaryKey: PrimaryKeyBundle,
+    @SerialName("indices") override val indices: List<IndexBundle> = emptyList(),
+    @SerialName("foreignKeys") override val foreignKeys: List<ForeignKeyBundle> = emptyList()
 ) : BaseEntityBundle(), SchemaEquality<EntityBundle> {
 
-    /**
-     * Creates the list of SQL queries that are necessary to create this entity.
-     */
+    /** Creates the list of SQL queries that are necessary to create this entity. */
     override fun buildCreateQueries(): List<String> {
         return buildList {
             add(createTable())
-            this@EntityBundle.indices.forEach { indexBundle ->
-                add(indexBundle.create(tableName))
-            }
+            this@EntityBundle.indices.forEach { indexBundle -> add(indexBundle.create(tableName)) }
         }
     }
 

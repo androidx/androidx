@@ -23,10 +23,10 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  * [ThreePaneScaffold] should be adapted. It should be used as an input parameter of
  * [calculateThreePaneScaffoldValue] to decide the [ThreePaneScaffoldValue].
  *
- * @constructor create an instance of [ThreePaneScaffoldAdaptStrategies]
  * @param primaryPaneAdaptStrategy [AdaptStrategy] of the primary pane of [ThreePaneScaffold]
  * @param secondaryPaneAdaptStrategy [AdaptStrategy] of the secondary pane of [ThreePaneScaffold]
  * @param tertiaryPaneAdaptStrategy [AdaptStrategy] of the tertiary pane of [ThreePaneScaffold]
+ * @constructor create an instance of [ThreePaneScaffoldAdaptStrategies]
  */
 @ExperimentalMaterial3AdaptiveApi
 class ThreePaneScaffoldAdaptStrategies(

@@ -58,11 +58,8 @@ import org.junit.runner.RunWith
 class DrawReorderingTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
@@ -81,27 +78,17 @@ class DrawReorderingTest {
             activity.setContent {
                 Layout(
                     content = {
-                        FixedSize(
-                            10,
-                            Modifier.padding(10)
-                                .background(Color.White)
-                        )
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer()
-                                .background(Color.Red)
-                                .drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
                         )
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.forEach { child ->
-                            child.placeRelative(0, 0)
-                        }
+                        placeables.forEach { child -> child.placeRelative(0, 0) }
                     }
                 }
             }
@@ -121,27 +108,17 @@ class DrawReorderingTest {
             activity.setContent {
                 Layout(
                     content = {
-                        FixedSize(
-                            10,
-                            Modifier.padding(10)
-                                .background(Color.White)
-                        )
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer()
-                                .background(Color.Red)
-                                .drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
                         )
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.reversed().forEach { child ->
-                            child.placeRelative(0, 0)
-                        }
+                        placeables.reversed().forEach { child -> child.placeRelative(0, 0) }
                     }
                 }
             }
@@ -161,11 +138,7 @@ class DrawReorderingTest {
             activity.setContent {
                 Layout(
                     content = {
-                        FixedSize(
-                            10,
-                            Modifier.padding(10)
-                                .background(Color.White)
-                        )
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
                             Modifier.graphicsLayer()
@@ -176,13 +149,9 @@ class DrawReorderingTest {
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.reversed().forEach { child ->
-                            child.placeRelative(0, 0)
-                        }
+                        placeables.reversed().forEach { child -> child.placeRelative(0, 0) }
                     }
                 }
             }
@@ -202,11 +171,7 @@ class DrawReorderingTest {
             activity.setContent {
                 Layout(
                     content = {
-                        FixedSize(
-                            10,
-                            Modifier.padding(10)
-                                .background(Color.White)
-                        )
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
                             Modifier.graphicsLayer()
@@ -217,9 +182,7 @@ class DrawReorderingTest {
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables.reversed().forEach { child ->
                             child.place(0, 0, zIndex = placeables.indexOf(child).toFloat())
@@ -245,27 +208,17 @@ class DrawReorderingTest {
                     content = {
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer()
-                                .background(Color.Red)
-                                .drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
                         )
-                        FixedSize(
-                            10,
-                            Modifier.padding(10)
-                                .background(Color.White)
-                        )
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer()
-                                .background(Color.Blue)
-                                .drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Blue).drawLatchModifier()
                         )
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[2].place(0, 0)
                         placeables[0].place(0, 0)
@@ -288,11 +241,7 @@ class DrawReorderingTest {
         val latch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30)
-                    }
-                ) { measurables, constraints ->
+                Layout(content = { FixedSize(30) }) { measurables, constraints ->
                     val placeables = measurables.first().measure(constraints)
                     layout(30, 30) {
                         placeables.place(0, 0)
@@ -316,20 +265,11 @@ class DrawReorderingTest {
     fun testSiblingZOrder() {
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .zIndex(1f)
-                            .background(Color.White)
-                    )
+                FixedSize(size = 30) {
+                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
                     FixedSize(
                         30,
-                        Modifier.graphicsLayer()
-                            .background(Color.Red)
-                            .drawLatchModifier()
+                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
                     )
                 }
             }
@@ -347,20 +287,9 @@ class DrawReorderingTest {
     fun testUncleZOrder() {
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .zIndex(1f)
-                            .background(Color.White)
-                    )
-                    FixedSize(
-                        30,
-                        Modifier.background(Color.Red)
-                            .drawLatchModifier()
-                    )
+                FixedSize(size = 30) {
+                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
+                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                 }
             }
         }
@@ -377,23 +306,13 @@ class DrawReorderingTest {
     fun testCousinZOrder() {
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
+                FixedSize(size = 30) {
                     FixedSize(10, Modifier.padding(10)) {
-                        FixedSize(
-                            10,
-                            Modifier.zIndex(1f)
-                                .background(Color.Green)
-                        )
+                        FixedSize(10, Modifier.zIndex(1f).background(Color.Green))
                     }
                     FixedSize(30, Modifier.background(Color.Red))
                     FixedSize(10, Modifier.padding(10)) {
-                        FixedSize(
-                            10,
-                            Modifier.background(Color.White)
-                                .drawLatchModifier()
-                        )
+                        FixedSize(10, Modifier.background(Color.White).drawLatchModifier())
                     }
                 }
             }
@@ -411,21 +330,11 @@ class DrawReorderingTest {
     fun testCousinZOrder2() {
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
+                FixedSize(size = 30) {
                     FixedSize(10, Modifier.padding(10)) {
-                        FixedSize(
-                            10,
-                            Modifier.zIndex(1f)
-                                .background(Color.Green)
-                        )
+                        FixedSize(10, Modifier.zIndex(1f).background(Color.Green))
                     }
-                    FixedSize(
-                        30,
-                        Modifier.background(Color.Red)
-                            .drawLatchModifier()
-                    )
+                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                 }
             }
         }
@@ -444,24 +353,10 @@ class DrawReorderingTest {
         val view = View(activity)
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .zIndex(state.value)
-                            .background(Color.Black)
-                    )
-                    FixedSize(
-                        30,
-                        Modifier.background(Color.Red)
-                            .drawLatchModifier()
-                    )
-                    FixedSize(
-                        10,
-                        Modifier.padding(10).background(Color.White)
-                    )
+                FixedSize(size = 30) {
+                    FixedSize(10, Modifier.padding(10).zIndex(state.value).background(Color.Black))
+                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
                 }
             }
             activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
@@ -473,12 +368,12 @@ class DrawReorderingTest {
             drawLatch = drawLatch
         )
 
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
+        val onDrawListener =
+            object : ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    drawLatch.countDown()
+                }
             }
-        }
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
@@ -509,17 +404,15 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testChangingZOrderReusingModifiers() {
         val state = mutableStateOf(0f)
-        val zIndex = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                placeable.place(0, 0, zIndex = state.value)
+        val zIndex =
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0, zIndex = state.value)
+                }
             }
-        }
-        val modifier1 = Modifier.padding(10)
-            .then(zIndex)
-            .background(Color.White)
-        val modifier2 = Modifier.background(Color.Red)
-            .drawLatchModifier()
+        val modifier1 = Modifier.padding(10).then(zIndex).background(Color.White)
+        val modifier2 = Modifier.background(Color.Red).drawLatchModifier()
         val view = View(activity)
         rule.runOnUiThread {
             activity.setContent {
@@ -537,12 +430,12 @@ class DrawReorderingTest {
             drawLatch = drawLatch
         )
 
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
+        val onDrawListener =
+            object : ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    drawLatch.countDown()
+                }
             }
-        }
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
@@ -574,31 +467,16 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testChangingZOrderUncle() {
         val state = mutableStateOf(0f)
-        val elevation = Modifier.graphicsLayer {
-            shadowElevation = state.value
-        }
+        val elevation = Modifier.graphicsLayer { shadowElevation = state.value }
         val view = View(activity)
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
+                FixedSize(size = 30) {
                     FixedSize(30) {
-                        FixedSize(
-                            10,
-                            Modifier.padding(10).then(elevation).background(Color.Black)
-                        )
+                        FixedSize(10, Modifier.padding(10).then(elevation).background(Color.Black))
                     }
-                    FixedSize(
-                        30,
-                        Modifier.background(Color.Red)
-                            .drawLatchModifier()
-                    )
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .background(Color.White)
-                    )
+                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
                 }
             }
             activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
@@ -609,12 +487,12 @@ class DrawReorderingTest {
             size = 10,
             drawLatch = drawLatch
         )
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
+        val onDrawListener =
+            object : ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    drawLatch.countDown()
+                }
             }
-        }
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
@@ -636,21 +514,9 @@ class DrawReorderingTest {
         val view = View(activity)
         rule.runOnUiThread {
             activity.setContent {
-                AtLeastSize(
-                    size = 30,
-                    modifier = Modifier.background(Color.Red)
-                ) {
-                    FixedSize(
-                        size,
-                        Modifier.padding(10)
-                            .zIndex(1f)
-                            .background(Color.White)
-                    )
-                    FixedSize(
-                        30,
-                        Modifier.background(Color.Red)
-                            .drawLatchModifier()
-                    )
+                AtLeastSize(size = 30, modifier = Modifier.background(Color.Red)) {
+                    FixedSize(size, Modifier.padding(10).zIndex(1f).background(Color.White))
+                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                 }
             }
             activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
@@ -661,12 +527,12 @@ class DrawReorderingTest {
             size = 10,
             drawLatch = drawLatch
         )
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
+        val onDrawListener =
+            object : ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    drawLatch.countDown()
+                }
             }
-        }
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
@@ -689,17 +555,8 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(size = 30) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .zIndex(1f)
-                            .background(Color.White)
-                    )
-                    FixedSize(
-                        30,
-                        Modifier.background(color.value)
-                            .drawLatchModifier()
-                    )
+                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
+                    FixedSize(30, Modifier.background(color.value).drawLatchModifier())
                 }
             }
         }
@@ -710,9 +567,7 @@ class DrawReorderingTest {
             drawLatch = drawLatch
         )
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            color.value = Color.Blue
-        }
+        rule.runOnUiThread { color.value = Color.Blue }
         rule.validateSquareColors(
             outerColor = Color.Blue,
             innerColor = Color.White,
@@ -726,22 +581,14 @@ class DrawReorderingTest {
     fun sumOfAllZIndexesIsUsed() {
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
+                FixedSize(size = 30) {
                     FixedSize(
                         10,
-                        Modifier.padding(10)
-                            .zIndex(2f)
-                            .zIndex(2f)
-                            .background(Color.White)
+                        Modifier.padding(10).zIndex(2f).zIndex(2f).background(Color.White)
                     )
                     FixedSize(
                         30,
-                        Modifier.zIndex(4f)
-                            .zIndex(-1f)
-                            .background(Color.Red)
-                            .drawLatchModifier()
+                        Modifier.zIndex(4f).zIndex(-1f).background(Color.Red).drawLatchModifier()
                     )
                 }
             }
@@ -761,12 +608,7 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(size = 30) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .zIndex(1f)
-                            .background(Color.White)
-                    )
+                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
                     FixedSize(30, Modifier.background(color.value).drawLatchModifier())
                 }
             }
@@ -778,9 +620,7 @@ class DrawReorderingTest {
             drawLatch = drawLatch
         )
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            color.value = Color.Blue
-        }
+        rule.runOnUiThread { color.value = Color.Blue }
         rule.validateSquareColors(
             outerColor = Color.Blue,
             innerColor = Color.White,
@@ -794,9 +634,7 @@ class DrawReorderingTest {
     fun testShadowSizeIsNotCausingReorder() {
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(
-                    size = 30
-                ) {
+                FixedSize(size = 30) {
                     FixedSize(
                         10,
                         Modifier.padding(10)
@@ -805,9 +643,7 @@ class DrawReorderingTest {
                     )
                     FixedSize(
                         30,
-                        Modifier.graphicsLayer()
-                            .background(Color.Red)
-                            .drawLatchModifier()
+                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
                     )
                 }
             }
@@ -828,25 +664,15 @@ class DrawReorderingTest {
                 Layout(
                     content = {
                         FixedSize(30) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                            )
+                            FixedSize(10, Modifier.padding(10).background(Color.White))
                         }
                         FixedSize(30) {
-                            FixedSize(
-                                30,
-                                Modifier.background(Color.Red)
-                                    .drawLatchModifier()
-                            )
+                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                         }
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[0].place(0, 0, zIndex = 1f)
                         placeables[1].place(0, 0, zIndex = 1f)
@@ -870,25 +696,15 @@ class DrawReorderingTest {
                 Layout(
                     content = {
                         FixedSize(30) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                            )
+                            FixedSize(10, Modifier.padding(10).background(Color.White))
                         }
                         FixedSize(30) {
-                            FixedSize(
-                                30,
-                                Modifier.background(Color.Red)
-                                    .drawLatchModifier()
-                            )
+                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                         }
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[1].place(0, 0, zIndex = 1f)
                         placeables[0].place(0, 0, zIndex = 1f)
@@ -912,25 +728,15 @@ class DrawReorderingTest {
                 Layout(
                     content = {
                         FixedSize(30, Modifier.zIndex(2f)) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                            )
+                            FixedSize(10, Modifier.padding(10).background(Color.White))
                         }
                         FixedSize(30) {
-                            FixedSize(
-                                30,
-                                Modifier.background(Color.Red)
-                                    .drawLatchModifier()
-                            )
+                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                         }
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[0].place(0, 0, zIndex = 1f)
                         placeables[1].place(0, 0, zIndex = 2f)
@@ -954,25 +760,15 @@ class DrawReorderingTest {
                 Layout(
                     content = {
                         FixedSize(30) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                            )
+                            FixedSize(10, Modifier.padding(10).background(Color.White))
                         }
                         FixedSize(30) {
-                            FixedSize(
-                                30,
-                                Modifier.background(Color.Red)
-                                    .drawLatchModifier()
-                            )
+                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
                         }
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[0].placeRelative(0, 0, zIndex = 1f)
                         placeables[1].placeRelative(0, 0, zIndex = -1f)
@@ -999,25 +795,16 @@ class DrawReorderingTest {
                         FixedSize(30) {
                             FixedSize(
                                 10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                                    .drawLatchModifier()
+                                Modifier.padding(10).background(Color.White).drawLatchModifier()
                             )
                         }
                         if (needSecondChild) {
-                            FixedSize(30) {
-                                FixedSize(
-                                    30,
-                                    Modifier.background(Color.Red)
-                                )
-                            }
+                            FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
                         }
                     }
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[0].placeRelative(0, 0, zIndex = 1f)
                         placeables.getOrNull(1)?.placeRelative(0, 0)
@@ -1044,37 +831,29 @@ class DrawReorderingTest {
     fun changingPlaceOrderInLayout() {
         var reverseOrder by mutableStateOf(false)
         var childRelayoutCount = 0
-        val childRelayoutModifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                childRelayoutCount++
-                placeable.place(0, 0)
+        val childRelayoutModifier =
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    childRelayoutCount++
+                    placeable.place(0, 0)
+                }
             }
-        }
         rule.runOnUiThread {
             activity.setContent {
                 Layout(
                     content = {
                         FixedSize(30, childRelayoutModifier) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                            )
+                            FixedSize(10, Modifier.padding(10).background(Color.White))
                         }
                         FixedSize(30, childRelayoutModifier) {
-                            FixedSize(
-                                30,
-                                Modifier.background(Color.Red)
-                            )
+                            FixedSize(30, Modifier.background(Color.Red))
                         }
                     },
                     modifier = Modifier.drawLatchModifier()
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         if (!reverseOrder) {
                             placeables[0].place(0, 0)
@@ -1113,37 +892,29 @@ class DrawReorderingTest {
     fun changingZIndexInLayout() {
         var zIndex by mutableStateOf(1f)
         var childRelayoutCount = 0
-        val childRelayoutModifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) {
-                childRelayoutCount++
-                placeable.place(0, 0)
+        val childRelayoutModifier =
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    childRelayoutCount++
+                    placeable.place(0, 0)
+                }
             }
-        }
         rule.runOnUiThread {
             activity.setContent {
                 Layout(
                     content = {
                         FixedSize(30, childRelayoutModifier) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10)
-                                    .background(Color.White)
-                            )
+                            FixedSize(10, Modifier.padding(10).background(Color.White))
                         }
                         FixedSize(30, childRelayoutModifier) {
-                            FixedSize(
-                                30,
-                                Modifier.background(Color.Red)
-                            )
+                            FixedSize(30, Modifier.background(Color.Red))
                         }
                     },
                     modifier = Modifier.drawLatchModifier()
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m ->
-                        m.measure(newConstraints)
-                    }
+                    val placeables = measurables.map { m -> m.measure(newConstraints) }
                     layout(newConstraints.maxWidth, newConstraints.maxWidth) {
                         placeables[0].place(0, 0)
                         placeables[1].place(0, 0, zIndex)
@@ -1183,13 +954,7 @@ private fun FixedSize(
 ) {
     Layout(content = content, modifier = modifier) { measurables, _ ->
         val newConstraints = Constraints.fixed(size.value, size.value)
-        val placeables = measurables.map { m ->
-            m.measure(newConstraints)
-        }
-        layout(size.value, size.value) {
-            placeables.forEach { child ->
-                child.placeRelative(0, 0)
-            }
-        }
+        val placeables = measurables.map { m -> m.measure(newConstraints) }
+        layout(size.value, size.value) { placeables.forEach { child -> child.placeRelative(0, 0) } }
     }
 }

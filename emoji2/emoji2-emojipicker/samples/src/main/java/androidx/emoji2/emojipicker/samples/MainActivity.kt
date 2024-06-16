@@ -35,27 +35,24 @@ class MainActivity : Activity() {
         setContentView(R.layout.main)
 
         val view = findViewById<EmojiPickerView>(R.id.emoji_picker)
-        view.setOnEmojiPickedListener {
-            findViewById<EditText>(R.id.edit_text).append(it.emoji)
-        }
+        view.setOnEmojiPickedListener { findViewById<EditText>(R.id.edit_text).append(it.emoji) }
 
-        findViewById<ToggleButton>(R.id.toggle_button)
-            .setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    view.emojiGridColumns = 8
-                    view.emojiGridRows = 8.3f
-                } else {
-                    view.emojiGridColumns = 9
-                    view.emojiGridRows = 15f
-                }
+        findViewById<ToggleButton>(R.id.toggle_button).setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                view.emojiGridColumns = 8
+                view.emojiGridRows = 8.3f
+            } else {
+                view.emojiGridColumns = 9
+                view.emojiGridRows = 15f
             }
+        }
         findViewById<Button>(R.id.button).setOnClickListener {
             view.setRecentEmojiProvider(
                 RecentEmojiProviderAdapter(CustomRecentEmojiProvider(applicationContext))
             )
         }
-        findViewById<ToggleButton>(R.id.activity_button)
-            .setOnCheckedChangeListener { _, isChecked ->
+        findViewById<ToggleButton>(R.id.activity_button).setOnCheckedChangeListener { _, isChecked
+            ->
             if (isChecked) {
                 val intent = Intent(this, ComposeActivity::class.java)
                 startActivity(intent)
@@ -67,12 +64,8 @@ class MainActivity : Activity() {
     }
 }
 
-/**
- * Define a custom recent emoji provider which shows most frequently used emoji
- */
-internal class CustomRecentEmojiProvider(
-    context: Context
-) : RecentEmojiAsyncProvider {
+/** Define a custom recent emoji provider which shows most frequently used emoji */
+internal class CustomRecentEmojiProvider(context: Context) : RecentEmojiAsyncProvider {
 
     companion object {
         private const val PREF_KEY_CUSTOM_EMOJI_FREQ = "pref_key_custom_emoji_freq"
@@ -86,16 +79,22 @@ internal class CustomRecentEmojiProvider(
         context.getSharedPreferences(RECENT_EMOJI_LIST_FILE_NAME, Context.MODE_PRIVATE)
 
     private val emoji2Frequency: MutableMap<String, Int> by lazy {
-        sharedPreferences.getString(PREF_KEY_CUSTOM_EMOJI_FREQ, null)?.split(SPLIT_CHAR)
+        sharedPreferences
+            .getString(PREF_KEY_CUSTOM_EMOJI_FREQ, null)
+            ?.split(SPLIT_CHAR)
             ?.associate { entry ->
-                entry.split(KEY_VALUE_DELIMITER, limit = 2).takeIf { it.size == 2 }
+                entry
+                    .split(KEY_VALUE_DELIMITER, limit = 2)
+                    .takeIf { it.size == 2 }
                     ?.let { it[0] to it[1].toInt() } ?: ("" to 0)
-            }?.toMutableMap() ?: mutableMapOf()
+            }
+            ?.toMutableMap() ?: mutableMapOf()
     }
 
     override fun getRecentEmojiListAsync(): ListenableFuture<List<String>> =
-        Futures.immediateFuture(emoji2Frequency.toList().sortedByDescending { it.second }
-            .map { it.first })
+        Futures.immediateFuture(
+            emoji2Frequency.toList().sortedByDescending { it.second }.map { it.first }
+        )
 
     override fun recordSelection(emoji: String) {
         emoji2Frequency[emoji] = (emoji2Frequency[emoji] ?: 0) + 1

@@ -71,13 +71,9 @@ class SlidingPaneLayoutTest {
     fun testLayoutWidthSpecExact() {
         TestActivity.onActivityCreated = { activity ->
             val container = FrameLayout(activity)
-            val slidingPaneLayout = activity.layoutInflater.inflate(
-                R.layout.activity_test_fold_layout, null, false
-            )
-            container.addView(
-                slidingPaneLayout,
-                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            )
+            val slidingPaneLayout =
+                activity.layoutInflater.inflate(R.layout.activity_test_fold_layout, null, false)
+            container.addView(slidingPaneLayout, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
             activity.setContentView(container)
         }
 
@@ -93,13 +89,9 @@ class SlidingPaneLayoutTest {
     fun testLayoutWidthSpecAtMost() {
         TestActivity.onActivityCreated = { activity ->
             val container = FrameLayout(activity)
-            val slidingPaneLayout = activity.layoutInflater.inflate(
-                R.layout.activity_test_fold_layout, null, false
-            )
-            container.addView(
-                slidingPaneLayout,
-                ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
-            )
+            val slidingPaneLayout =
+                activity.layoutInflater.inflate(R.layout.activity_test_fold_layout, null, false)
+            container.addView(slidingPaneLayout, ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT))
             activity.setContentView(container)
         }
 
@@ -117,13 +109,9 @@ class SlidingPaneLayoutTest {
             val container = LinearLayout(activity)
             val sideButton = Button(activity).apply { text = "button" }
             container.addView(sideButton, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1F))
-            val slidingPaneLayout = activity.layoutInflater.inflate(
-                R.layout.activity_test_fold_layout, null, false
-            )
-            container.addView(
-                slidingPaneLayout,
-                LinearLayout.LayoutParams(0, MATCH_PARENT, 1F)
-            )
+            val slidingPaneLayout =
+                activity.layoutInflater.inflate(R.layout.activity_test_fold_layout, null, false)
+            container.addView(slidingPaneLayout, LinearLayout.LayoutParams(0, MATCH_PARENT, 1F))
             activity.setContentView(container)
         }
 
@@ -139,13 +127,9 @@ class SlidingPaneLayoutTest {
     fun testLayoutHeightSpecExact() {
         TestActivity.onActivityCreated = { activity ->
             val container = FrameLayout(activity)
-            val slidingPaneLayout = activity.layoutInflater.inflate(
-                R.layout.activity_test_layout, null, false
-            )
-            container.addView(
-                slidingPaneLayout,
-                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            )
+            val slidingPaneLayout =
+                activity.layoutInflater.inflate(R.layout.activity_test_layout, null, false)
+            container.addView(slidingPaneLayout, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
             activity.setContentView(container)
         }
 
@@ -161,13 +145,9 @@ class SlidingPaneLayoutTest {
     fun testLayoutHeightSpecAtMost() {
         TestActivity.onActivityCreated = { activity ->
             val container = FrameLayout(activity)
-            val slidingPaneLayout = activity.layoutInflater.inflate(
-                R.layout.activity_test_layout, null, false
-            )
-            container.addView(
-                slidingPaneLayout,
-                ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            )
+            val slidingPaneLayout =
+                activity.layoutInflater.inflate(R.layout.activity_test_layout, null, false)
+            container.addView(slidingPaneLayout, ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             activity.setContentView(container)
         }
 
@@ -183,13 +163,9 @@ class SlidingPaneLayoutTest {
     fun testLayoutHeightSpecUnspecific() {
         TestActivity.onActivityCreated = { activity ->
             val container = ScrollView(activity)
-            val slidingPaneLayout = activity.layoutInflater.inflate(
-                R.layout.activity_test_layout, null, false
-            )
-            container.addView(
-                slidingPaneLayout,
-                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            )
+            val slidingPaneLayout =
+                activity.layoutInflater.inflate(R.layout.activity_test_layout, null, false)
+            container.addView(slidingPaneLayout, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
             activity.setContentView(container)
         }
 
@@ -208,9 +184,7 @@ class SlidingPaneLayoutTest {
                 val slidingPaneLayout = findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout)
                 assertThat(slidingPaneLayout.childCount).isEqualTo(2)
                 val detailView = findViewById<View>(R.id.detail_pane)
-                runOnUiThread {
-                    slidingPaneLayout.removeView(detailView)
-                }
+                runOnUiThread { slidingPaneLayout.removeView(detailView) }
                 assertThat(slidingPaneLayout.childCount).isEqualTo(1)
             }
         }
@@ -220,9 +194,7 @@ class SlidingPaneLayoutTest {
     fun testSingleLayoutPassLpWidthAndWeight() {
         testSingleLayoutPass(
             SlidingPaneLayout.LayoutParams(100, MATCH_PARENT),
-            SlidingPaneLayout.LayoutParams(0, MATCH_PARENT).apply {
-                weight = 1f
-            }
+            SlidingPaneLayout.LayoutParams(0, MATCH_PARENT).apply { weight = 1f }
         )
     }
 
@@ -243,6 +215,7 @@ class SlidingPaneLayoutTest {
             minimumWidth = 100
         }
     }
+
     @Test
     fun testSingleLayoutPassMinWidthAndWeight() {
         testSingleLayoutPass(
@@ -257,33 +230,34 @@ class SlidingPaneLayoutTest {
     fun userResizingConfiguration() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val view = SlidingPaneLayout(context)
-        val drawable = object : Drawable() {
-            var stateChanged = false
-                private set
+        val drawable =
+            object : Drawable() {
+                var stateChanged = false
+                    private set
 
-            override fun draw(canvas: Canvas) {}
-            override fun setAlpha(alpha: Int) {}
-            override fun setColorFilter(colorFilter: ColorFilter?) {}
-            @Suppress("DeprecatedCallableAddReplaceWith")
-            @Deprecated("Deprecated in Java")
-            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+                override fun draw(canvas: Canvas) {}
 
-            override fun isStateful(): Boolean = true
-            override fun onStateChange(state: IntArray): Boolean {
-                stateChanged = true
-                return true
+                override fun setAlpha(alpha: Int) {}
+
+                override fun setColorFilter(colorFilter: ColorFilter?) {}
+
+                @Suppress("DeprecatedCallableAddReplaceWith")
+                @Deprecated("Deprecated in Java")
+                override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+
+                override fun isStateful(): Boolean = true
+
+                override fun onStateChange(state: IntArray): Boolean {
+                    stateChanged = true
+                    return true
+                }
             }
-        }
 
         // Precondition - this should be false for a detached view
-        assertWithMessage("isSlideable")
-            .that(view.isSlideable)
-            .isFalse()
+        assertWithMessage("isSlideable").that(view.isSlideable).isFalse()
 
         view.setUserResizingDividerDrawable(drawable)
-        assertWithMessage("drawable state changed")
-            .that(drawable.stateChanged)
-            .isTrue()
+        assertWithMessage("drawable state changed").that(drawable.stateChanged).isTrue()
 
         assertWithMessage("isUserResizable with drawable but not enabled")
             .that(view.isUserResizable)
@@ -307,19 +281,12 @@ class SlidingPaneLayoutTest {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.user_resize_config, null) as SlidingPaneLayout
-        assertWithMessage("isUserResizingEnabled")
-            .that(view.isUserResizingEnabled)
-            .isTrue()
-        assertWithMessage("isUserResizable")
-            .that(view.isUserResizable)
-            .isTrue()
+        assertWithMessage("isUserResizingEnabled").that(view.isUserResizingEnabled).isTrue()
+        assertWithMessage("isUserResizable").that(view.isUserResizable).isTrue()
     }
 }
 
-private fun View.measureAndLayout(
-    width: Int,
-    height: Int
-) {
+private fun View.measureAndLayout(width: Int, height: Int) {
     measure(
         MeasureSpec.makeMeasureSpec(width, EXACTLY),
         MeasureSpec.makeMeasureSpec(height, EXACTLY)
@@ -335,22 +302,19 @@ private fun testSingleLayoutPass(
     val context = InstrumentationRegistry.getInstrumentation().context
     val firstChild = MeasureCountingView(context).apply(configFirst)
     val secondChild = MeasureCountingView(context)
-    val spl = SlidingPaneLayout(context).apply {
-        isOverlappingEnabled = false
-        addView(firstChild, firstLayoutParams)
-        addView(secondChild, secondLayoutParams)
-    }
+    val spl =
+        SlidingPaneLayout(context).apply {
+            isOverlappingEnabled = false
+            addView(firstChild, firstLayoutParams)
+            addView(secondChild, secondLayoutParams)
+        }
 
     spl.measureAndLayout(300, 300)
 
     firstChild.assertReportingMeasureCallTraces {
-        assertWithMessage("first child measure count")
-            .that(measureCount)
-            .isEqualTo(1)
+        assertWithMessage("first child measure count").that(measureCount).isEqualTo(1)
     }
     secondChild.assertReportingMeasureCallTraces {
-        assertWithMessage("second child measure count")
-            .that(measureCount)
-            .isEqualTo(1)
+        assertWithMessage("second child measure count").that(measureCount).isEqualTo(1)
     }
 }

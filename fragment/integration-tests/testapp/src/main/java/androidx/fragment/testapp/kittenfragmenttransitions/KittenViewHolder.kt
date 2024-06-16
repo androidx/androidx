@@ -20,9 +20,7 @@ import android.widget.ImageView
 import androidx.fragment.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-/**
- * ViewHolder for kitten cells in our grid
- */
+/** ViewHolder for kitten cells in our grid */
 class KittenViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var image = itemView.findViewById<ImageView>(R.id.image)!!
 }

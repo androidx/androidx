@@ -20,9 +20,7 @@ import android.os.Build
 import android.text.format.DateFormat
 import androidx.compose.material3.CalendarLocale
 
-/**
- * Returns a [CalendarModel] to be used by the date picker.
- */
+/** Returns a [CalendarModel] to be used by the date picker. */
 internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         CalendarModelImpl(locale)
@@ -54,9 +52,12 @@ internal actual fun formatWithSkeleton(
     // Prepend the skeleton and language tag with a "S" to avoid cache collisions when the
     // called already cached a string as value when the pattern equals to the skeleton it
     // was created from.
-    val pattern = cache.getOrPut(key = "S:$skeleton${locale.toLanguageTag()}") {
-        DateFormat.getBestDateTimePattern(locale, skeleton)
-    }.toString()
+    val pattern =
+        cache
+            .getOrPut(key = "S:$skeleton${locale.toLanguageTag()}") {
+                DateFormat.getBestDateTimePattern(locale, skeleton)
+            }
+            .toString()
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         CalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale, cache)
     } else {

@@ -15,13 +15,18 @@
  */
 package androidx.camera.core;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.hardware.camera2.params.SessionConfiguration;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInternal;
@@ -30,6 +35,7 @@ import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,7 +46,6 @@ import java.util.List;
  * A set of requirements and priorities used to select a camera or return a filtered set of
  * cameras.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraSelector {
 
     /** A camera on the devices that its lens facing is resolved. */
@@ -341,6 +346,7 @@ public final class CameraSelector {
      * The direction the camera faces relative to device screen.
      *
      */
+    @Target({TYPE, TYPE_USE, FIELD, PARAMETER, LOCAL_VARIABLE})
     @OptIn(markerClass = ExperimentalLensFacing.class)
     @IntDef({LENS_FACING_UNKNOWN, LENS_FACING_FRONT, LENS_FACING_BACK, LENS_FACING_EXTERNAL})
     @Retention(RetentionPolicy.SOURCE)

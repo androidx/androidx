@@ -34,17 +34,12 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BenchmarkRuleTest {
-    @get:Rule
-    val benchmarkRule: BenchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule: BenchmarkRule = BenchmarkRule()
 
     @SuppressLint("BanThreadSleep") // doesn't affect runtime, since we have target time
     @Test
     fun runWithTimingDisabled() {
-        benchmarkRule.measureRepeated {
-            runWithTimingDisabled {
-                Thread.sleep(5)
-            }
-        }
+        benchmarkRule.measureRepeated { runWithTimingDisabled { Thread.sleep(5) } }
         val min = benchmarkRule.getState().getMinTimeNanos()
         Assert.assertTrue(
             "minimum $min should be less than 1ms",
@@ -69,8 +64,7 @@ class BenchmarkRuleTest {
         assertTrue(scheduledOnMain)
 
         // let a benchmark actually run, so "benchmark hasn't finished" isn't thrown
-        benchmarkRule.measureRepeatedOnMainThread {
-        }
+        benchmarkRule.measureRepeatedOnMainThread {}
     }
 
     @SmallTest
@@ -79,13 +73,16 @@ class BenchmarkRuleTest {
     fun measureRepeatedOnMainThread_throwOnMain() {
         assertEquals(Looper.myLooper(), Looper.getMainLooper())
         // validate rethrow behavior
-        val exception = assertFailsWith<IllegalStateException> {
-            benchmarkRule.measureRepeatedOnMainThread {
-                // Doesn't matter
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                benchmarkRule.measureRepeatedOnMainThread {
+                    // Doesn't matter
+                }
             }
-        }
-        assertTrue(exception.message!!.contains(
-            "Cannot invoke measureRepeatedOnMainThread from the main thread"
-        ))
+        assertTrue(
+            exception.message!!.contains(
+                "Cannot invoke measureRepeatedOnMainThread from the main thread"
+            )
+        )
     }
 }

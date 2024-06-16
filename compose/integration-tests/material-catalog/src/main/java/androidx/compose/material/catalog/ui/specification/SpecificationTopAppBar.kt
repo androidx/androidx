@@ -43,32 +43,31 @@ fun SpecificationTopAppBar(
     title: String,
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
-    val backgroundColor = lerp(
-        MaterialTheme.colorScheme.surface,
-        MaterialTheme.colorScheme.surfaceColorAtElevation(elevation = 3.dp),
-        FastOutLinearInEasing.transform(scrollBehavior?.state?.overlappedFraction ?: 0f)
-    )
+    val backgroundColor =
+        lerp(
+            MaterialTheme.colorScheme.surface,
+            MaterialTheme.colorScheme.surfaceColorAtElevation(elevation = 3.dp),
+            FastOutLinearInEasing.transform(scrollBehavior?.state?.overlappedFraction ?: 0f)
+        )
 
-    val foregroundColors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-        containerColor = Color.Transparent,
-        scrolledContainerColor = Color.Transparent
-    )
+    val foregroundColors =
+        TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
+        )
     // Wrapping in a Surface to handle window insets
     // https://issuetracker.google.com/issues/183161866
     Surface(color = backgroundColor) {
         CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
+            title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             scrollBehavior = scrollBehavior,
             colors = foregroundColors,
-            modifier = Modifier.windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
-            )
+            modifier =
+                Modifier.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                    )
+                )
         )
     }
 }

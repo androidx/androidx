@@ -27,38 +27,19 @@ import java.util.LinkedList
  * information. It is kept around for backwards compatibility.
  */
 class TypeConverterStoreImpl(
-    /**
-     * Available TypeConverters
-     */
+    /** Available TypeConverters */
     override val typeConverters: List<TypeConverter>,
-    /**
-     * List of types that can be saved into db/read from without a converter.
-     */
+    /** List of types that can be saved into db/read from without a converter. */
     private val knownColumnTypes: List<XType>
 ) : TypeConverterStore {
-    override fun findConverterIntoStatement(
-        input: XType,
-        columnTypes: List<XType>?
-    ) = findTypeConverter(
-        inputs = listOf(input),
-        outputs = columnTypes ?: knownColumnTypes
-    )
+    override fun findConverterIntoStatement(input: XType, columnTypes: List<XType>?) =
+        findTypeConverter(inputs = listOf(input), outputs = columnTypes ?: knownColumnTypes)
 
-    override fun findConverterFromCursor(
-        columnTypes: List<XType>?,
-        output: XType
-    ) = findTypeConverter(
-        inputs = columnTypes ?: knownColumnTypes,
-        outputs = listOf(output)
-    )
+    override fun findConverterFromCursor(columnTypes: List<XType>?, output: XType) =
+        findTypeConverter(inputs = columnTypes ?: knownColumnTypes, outputs = listOf(output))
 
-    override fun findTypeConverter(
-        input: XType,
-        output: XType
-    ) = findTypeConverter(
-        inputs = listOf(input),
-        outputs = listOf(output)
-    )
+    override fun findTypeConverter(input: XType, output: XType) =
+        findTypeConverter(inputs = listOf(input), outputs = listOf(output))
 
     /**
      * Finds a type converter that can convert one of the input values to one of the output values.
@@ -66,10 +47,7 @@ class TypeConverterStoreImpl(
      * When multiple conversion paths are possible, shortest path (least amount of conversion) is
      * preferred.
      */
-    private fun findTypeConverter(
-        inputs: List<XType>,
-        outputs: List<XType>
-    ): TypeConverter? {
+    private fun findTypeConverter(inputs: List<XType>, outputs: List<XType>): TypeConverter? {
         if (inputs.isEmpty()) {
             return null
         }
@@ -91,8 +69,8 @@ class TypeConverterStoreImpl(
                 outputs.forEach { output ->
                     if (output.isSameType(converter.to)) {
                         return converter
-                    } else if (assignableMatchFallback == null &&
-                        output.isAssignableFrom(converter.to)
+                    } else if (
+                        assignableMatchFallback == null && output.isAssignableFrom(converter.to)
                     ) {
                         // if we don't find exact match, we'll return this.
                         assignableMatchFallback = converter
@@ -130,23 +108,24 @@ class TypeConverterStoreImpl(
     }
 
     /**
-     * Returns all type converters that can receive input type and return into another type.
-     * The returned list is ordered by priority such that if we have an exact match, it is
-     * prioritized.
+     * Returns all type converters that can receive input type and return into another type. The
+     * returned list is ordered by priority such that if we have an exact match, it is prioritized.
      */
     private fun getAllTypeConverters(input: XType, excludes: List<XType>): List<TypeConverter> {
         // for input, check assignability because it defines whether we can use the method or not.
         // for excludes, use exact match
-        return typeConverters.filter { converter ->
-            converter.from.isAssignableFrom(input) &&
-                !excludes.any { it.isSameType(converter.to) }
-        }.sortedByDescending {
-            // if it is the same, prioritize
-            if (it.from.isSameType(input)) {
-                2
-            } else {
-                1
+        return typeConverters
+            .filter { converter ->
+                converter.from.isAssignableFrom(input) &&
+                    !excludes.any { it.isSameType(converter.to) }
             }
-        }
+            .sortedByDescending {
+                // if it is the same, prioritize
+                if (it.from.isSameType(input)) {
+                    2
+                } else {
+                    1
+                }
+            }
     }
 }

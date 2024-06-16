@@ -38,13 +38,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnimatedContentComposeAnimationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun parseAnimation() {
         assertTrue(AnimatedContentComposeAnimation.apiAvailable)
-        val search = AnimationSearch.AnimatedContentSearch { }
+        val search = AnimationSearch.AnimatedContentSearch {}
         rule.addAnimations(search) {
             AnimatedContent(targetState = 1.dp) { targetCount ->
                 Text(text = "Count: $targetCount")
@@ -65,7 +64,7 @@ class AnimatedContentComposeAnimationTest {
     @Test
     fun parseIfApiIsNotAvailable() {
         AnimatedContentComposeAnimation.testOverrideAvailability(false)
-        val search = AnimationSearch.AnimatedContentSearch { }
+        val search = AnimationSearch.AnimatedContentSearch {}
         rule.addAnimations(search) {
             AnimatedContent(targetState = 1.dp) { targetCount ->
                 Text(text = "Count: $targetCount")
@@ -78,7 +77,7 @@ class AnimatedContentComposeAnimationTest {
 
     @Test
     fun parseAnimationWithNullState() {
-        val search = AnimationSearch.AnimatedContentSearch { }
+        val search = AnimationSearch.AnimatedContentSearch {}
         rule.addAnimations(search) {
             AnimatedContent(targetState = null) { targetCount ->
                 Text(text = "Count: $targetCount")

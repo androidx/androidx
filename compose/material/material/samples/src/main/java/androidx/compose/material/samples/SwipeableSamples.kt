@@ -53,19 +53,18 @@ fun SwipeableSample() {
     val anchors = mapOf(0f to "A", sizePx / 2 to "B", sizePx to "C")
 
     Box(
-        modifier = Modifier
-            .width(width)
-            .swipeable(
-                state = swipeableState,
-                anchors = anchors,
-                thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
-            )
-            .background(Color.Black)
+        modifier =
+            Modifier.width(width)
+                .swipeable(
+                    state = swipeableState,
+                    anchors = anchors,
+                    thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                    orientation = Orientation.Horizontal
+                )
+                .background(Color.Black)
     ) {
         Box(
-            Modifier
-                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+            Modifier.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
                 .size(squareSize)
                 .background(Color.Red),
             contentAlignment = Alignment.Center

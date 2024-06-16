@@ -29,31 +29,23 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests if the current time of gestures is aligned with the main test clock
- */
+/** Tests if the current time of gestures is aligned with the main test clock */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SynchronizedWithMainClockTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = SinglePointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Test
     fun zeroTimeBetween_performTouchInput() {
-        testWithTwoGestures(
-            expectedDifference = 0,
-            betweenGesturesBlock = {}
-        )
+        testWithTwoGestures(expectedDifference = 0, betweenGesturesBlock = {})
     }
 
     @Test
@@ -66,10 +58,7 @@ class SynchronizedWithMainClockTest {
         )
     }
 
-    private fun testWithTwoGestures(
-        expectedDifference: Long,
-        betweenGesturesBlock: () -> Unit
-    ) {
+    private fun testWithTwoGestures(expectedDifference: Long, betweenGesturesBlock: () -> Unit) {
         rule.performTouchInput { click() }
         betweenGesturesBlock.invoke()
         rule.performTouchInput { click() }

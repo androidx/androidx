@@ -29,10 +29,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.withContext
 
-/**
- * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
- *
- */
+/** A wrapper around [DataSource] which adapts it to the [PagingSource] API. */
 @OptIn(DelicateCoroutinesApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LegacyPagingSource<Key : Any, Value : Any>(
@@ -51,8 +48,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
         }
     }
 
-    /**
-     */
+    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun setPageSize(pageSize: Int) {
         check(this.pageSize == PAGE_SIZE_NOT_SET || pageSize == this.pageSize) {
@@ -75,11 +71,12 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
     }
 
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
-        val type = when (params) {
-            is LoadParams.Refresh -> REFRESH
-            is LoadParams.Append -> APPEND
-            is LoadParams.Prepend -> PREPEND
-        }
+        val type =
+            when (params) {
+                is LoadParams.Refresh -> REFRESH
+                is LoadParams.Append -> APPEND
+                is LoadParams.Prepend -> PREPEND
+            }
         if (pageSize == PAGE_SIZE_NOT_SET) {
             // println because we don't have android logger here
             println(
@@ -94,17 +91,13 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
 
                 If you are seeing this message despite using a Pager, please file a bug:
                 $BUGANIZER_URL
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             pageSize = guessPageSize(params)
         }
-        val dataSourceParams = Params(
-            type,
-            params.key,
-            params.loadSize,
-            params.placeholdersEnabled,
-            pageSize
-        )
+        val dataSourceParams =
+            Params(type, params.key, params.loadSize, params.placeholdersEnabled, pageSize)
 
         return withContext(fetchContext) {
             dataSource.load(dataSourceParams).run {
@@ -124,12 +117,13 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
     @Suppress("UNCHECKED_CAST")
     override fun getRefreshKey(state: PagingState<Key, Value>): Key? {
         return when (dataSource.type) {
-            POSITIONAL -> state.anchorPosition?.let { anchorPosition ->
-                state.anchorPositionToPagedIndices(anchorPosition) { _, indexInPage ->
-                    val offset = state.closestPageToPosition(anchorPosition)?.prevKey ?: 0
-                    (offset as Int).plus(indexInPage) as Key?
+            POSITIONAL ->
+                state.anchorPosition?.let { anchorPosition ->
+                    state.anchorPositionToPagedIndices(anchorPosition) { _, indexInPage ->
+                        val offset = state.closestPageToPosition(anchorPosition)?.prevKey ?: 0
+                        (offset as Int).plus(indexInPage) as Key?
+                    }
                 }
-            }
             PAGE_KEYED -> null
             ITEM_KEYED ->
                 state.anchorPosition

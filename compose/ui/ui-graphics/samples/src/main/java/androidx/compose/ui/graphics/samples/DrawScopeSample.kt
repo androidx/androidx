@@ -36,8 +36,8 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
 
 /**
- * Sample showing how to use CanvasScope to issue drawing commands into
- * a given canvas as well as providing transformations to the drawing environment
+ * Sample showing how to use CanvasScope to issue drawing commands into a given canvas as well as
+ * providing transformations to the drawing environment
  */
 @Sampled
 @Composable
@@ -52,14 +52,9 @@ fun DrawScopeSample() {
             val quadrantSize = size / 2.0f
 
             // Draw a rectangle within the inset bounds
-            drawRect(
-                size = quadrantSize,
-                color = Color.Red
-            )
+            drawRect(size = quadrantSize, color = Color.Red)
 
-            rotate(45.0f) {
-                drawRect(size = quadrantSize, color = Color.Blue)
-            }
+            rotate(45.0f) { drawRect(size = quadrantSize, color = Color.Blue) }
         }
     }
 }
@@ -114,26 +109,29 @@ fun DrawScopeOvalColorSample() {
 @Sampled
 @Composable
 fun DrawScopeRetargetingSample() {
-    Box(modifier = Modifier.size(120.dp)
-        .drawWithCache {
-            // Example that shows how to redirect rendering to an Android Picture and then
-            // draw the picture into the original destination
-            // Note:
-            // Canvas#drawPicture is supported with hardware acceleration on Android API 23+
-            // Check https://developer.android.com/topic/performance/hardware-accel#drawing-support
-            // for details of which drawing operations are supported with hardware acceleration
-            val picture = android.graphics.Picture()
-            val width = this.size.width.toInt()
-            val height = this.size.height.toInt()
-            onDrawWithContent {
-                val pictureCanvas =
-                    androidx.compose.ui.graphics.Canvas(picture.beginRecording(width, height))
-                draw(this, this.layoutDirection, pictureCanvas, this.size) {
-                    this@onDrawWithContent.drawContent()
-                }
-                picture.endRecording()
+    Box(
+        modifier =
+            Modifier.size(120.dp).drawWithCache {
+                // Example that shows how to redirect rendering to an Android Picture and then
+                // draw the picture into the original destination
+                // Note:
+                // Canvas#drawPicture is supported with hardware acceleration on Android API 23+
+                // Check
+                // https://developer.android.com/topic/performance/hardware-accel#drawing-support
+                // for details of which drawing operations are supported with hardware acceleration
+                val picture = android.graphics.Picture()
+                val width = this.size.width.toInt()
+                val height = this.size.height.toInt()
+                onDrawWithContent {
+                    val pictureCanvas =
+                        androidx.compose.ui.graphics.Canvas(picture.beginRecording(width, height))
+                    draw(this, this.layoutDirection, pictureCanvas, this.size) {
+                        this@onDrawWithContent.drawContent()
+                    }
+                    picture.endRecording()
 
-                drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(picture) }
+                    drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(picture) }
+                }
             }
-        })
+    )
 }

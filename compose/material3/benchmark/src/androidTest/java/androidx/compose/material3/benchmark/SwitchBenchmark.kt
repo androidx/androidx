@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SwitchBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val SwitchTestCaseFactory = { SwitchTestCase() }
 
@@ -91,7 +90,7 @@ internal class SwitchTestCase : LayeredComposeTestCase(), ToggleableTestCase {
 
     @Composable
     override fun MeasuredContent() {
-        Switch(checked = state, onCheckedChange = { })
+        Switch(checked = state, onCheckedChange = {})
     }
 
     override fun toggleState() {
@@ -100,8 +99,6 @@ internal class SwitchTestCase : LayeredComposeTestCase(), ToggleableTestCase {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

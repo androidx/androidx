@@ -51,22 +51,19 @@ interface Autofill {
 }
 
 /**
- * Every autofillable composable will have an [AutofillNode]. (An autofill node will be created
- * for every semantics node that adds autofill properties). This node is used to request/cancel
+ * Every autofillable composable will have an [AutofillNode]. (An autofill node will be created for
+ * every semantics node that adds autofill properties). This node is used to request/cancel
  * autofill, and it holds the [onFill] lambda which is called by the autofill framework.
  *
  * @property autofillTypes A list of autofill types for this node. These types are conveyed to the
- * autofill framework and it is used to call [onFill] with the appropriate value. If you don't set
- * this property, the autofill framework will use heuristics to guess the type. This property is a
- * list because some fields can have multiple types. For instance, userid in a login form can
- * either be a username or an email address. TODO(b/138731416): Check with the autofill service
- * team if the order matters, and how duplicate types are handled.
- *
- * @property boundingBox The screen coordinates of the composable being autofilled.
- * This data is used by the autofill framework to decide where to show the autofill popup.
- *
+ *   autofill framework and it is used to call [onFill] with the appropriate value. If you don't set
+ *   this property, the autofill framework will use heuristics to guess the type. This property is a
+ *   list because some fields can have multiple types. For instance, userid in a login form can
+ *   either be a username or an email address. TODO(b/138731416): Check with the autofill service
+ *   team if the order matters, and how duplicate types are handled.
+ * @property boundingBox The screen coordinates of the composable being autofilled. This data is
+ *   used by the autofill framework to decide where to show the autofill popup.
  * @property onFill The callback that is called by the autofill framework to perform autofill.
- *
  * @property id A virtual id that is automatically generated for each node.
  */
 @ExperimentalComposeUiApi
@@ -80,8 +77,7 @@ class AutofillNode(
         private var previousId = 0
 
         private val lock = createSynchronizedObject()
-        private fun generateId() =
-            synchronized(lock) { ++previousId }
+        private fun generateId() = synchronized(lock) { ++previousId }
     }
 
     val id: Int = generateId()

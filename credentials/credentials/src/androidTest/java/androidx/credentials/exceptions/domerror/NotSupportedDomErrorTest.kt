@@ -33,9 +33,7 @@ class NotSupportedDomErrorTest {
     @Test
     fun getter_success() {
         val error = NotSupportedError()
-        val expectedType =
-            NotSupportedError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_SUPPORTED_ERROR
+        val expectedType = NotSupportedError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_SUPPORTED_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

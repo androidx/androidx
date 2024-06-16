@@ -22,59 +22,61 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
- * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
- * allow it to intercept hardware key events before they are sent to the software keyboard. This
- * can be used to intercept key input from a DPad, or physical keyboard connected to the device and
- * is not applicable to input that is sent to the soft keyboard via spell check or autocomplete.
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will allow
+ * it to intercept hardware key events before they are sent to the software keyboard. This can be
+ * used to intercept key input from a DPad, or physical keyboard connected to the device and is not
+ * applicable to input that is sent to the soft keyboard via spell check or autocomplete.
  *
- * @param onInterceptKeyBeforeSoftKeyboard This callback is invoked when the user interacts with
- * the hardware keyboard. While implementing this callback, return true to stop propagation of this
- * event. If you return false, the key event will be sent to this
- * [SoftKeyboardInterceptionModifierNode]'s parent, and ultimately to the software keyboard.
+ * @param onInterceptKeyBeforeSoftKeyboard This callback is invoked when the user interacts with the
+ *   hardware keyboard. While implementing this callback, return true to stop propagation of this
+ *   event. If you return false, the key event will be sent to this
+ *   [SoftKeyboardInterceptionModifierNode]'s parent, and ultimately to the software keyboard.
  *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
 @ExperimentalComposeUiApi
 fun Modifier.onInterceptKeyBeforeSoftKeyboard(
     onInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean
-): Modifier = this then SoftKeyboardInterceptionElement(
-    onKeyEvent = onInterceptKeyBeforeSoftKeyboard,
-    onPreKeyEvent = null
-)
+): Modifier =
+    this then
+        SoftKeyboardInterceptionElement(
+            onKeyEvent = onInterceptKeyBeforeSoftKeyboard,
+            onPreKeyEvent = null
+        )
 
 /**
- * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
- * allow it to intercept hardware key events before they are sent to the software keyboard. This
- * can be used to intercept key input from a DPad, or physical keyboard connected to the device and
- * is not applicable to input that is sent to the soft keyboard via spell check or autocomplete.
- * This modifier is similar to [onInterceptKeyBeforeSoftKeyboard], but allows a parent composable
- * to intercept the hardware key event before any child.
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will allow
+ * it to intercept hardware key events before they are sent to the software keyboard. This can be
+ * used to intercept key input from a DPad, or physical keyboard connected to the device and is not
+ * applicable to input that is sent to the soft keyboard via spell check or autocomplete. This
+ * modifier is similar to [onInterceptKeyBeforeSoftKeyboard], but allows a parent composable to
+ * intercept the hardware key event before any child.
  *
- * @param onPreInterceptKeyBeforeSoftKeyboard This callback is invoked when the user interacts
- * with the hardware keyboard. It gives ancestors of a focused component the chance to intercept a
- * [KeyEvent]. Return true to stop propagation of this event. If you return false, the key event
- * will be sent to this [SoftKeyboardInterceptionModifierNode]'s child. If none of the children
- * consume the event, it will be sent back up to the root [KeyInputModifierNode] using the
- * onKeyEvent callback, and ultimately to the software keyboard.
+ * @param onPreInterceptKeyBeforeSoftKeyboard This callback is invoked when the user interacts with
+ *   the hardware keyboard. It gives ancestors of a focused component the chance to intercept a
+ *   [KeyEvent]. Return true to stop propagation of this event. If you return false, the key event
+ *   will be sent to this [SoftKeyboardInterceptionModifierNode]'s child. If none of the children
+ *   consume the event, it will be sent back up to the root [KeyInputModifierNode] using the
+ *   onKeyEvent callback, and ultimately to the software keyboard.
  *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
 @ExperimentalComposeUiApi
 fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
     onPreInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean,
-): Modifier = this then SoftKeyboardInterceptionElement(
-    onKeyEvent = null,
-    onPreKeyEvent = onPreInterceptKeyBeforeSoftKeyboard
-)
+): Modifier =
+    this then
+        SoftKeyboardInterceptionElement(
+            onKeyEvent = null,
+            onPreKeyEvent = onPreInterceptKeyBeforeSoftKeyboard
+        )
 
 private data class SoftKeyboardInterceptionElement(
     val onKeyEvent: ((KeyEvent) -> Boolean)?,
     val onPreKeyEvent: ((KeyEvent) -> Boolean)?
 ) : ModifierNodeElement<InterceptedKeyInputNode>() {
-    override fun create() = InterceptedKeyInputNode(
-        onEvent = onKeyEvent,
-        onPreEvent = onPreKeyEvent
-    )
+    override fun create() =
+        InterceptedKeyInputNode(onEvent = onKeyEvent, onPreEvent = onPreKeyEvent)
 
     override fun update(node: InterceptedKeyInputNode) {
         node.onEvent = onKeyEvent
@@ -100,6 +102,7 @@ private class InterceptedKeyInputNode(
 ) : SoftKeyboardInterceptionModifierNode, Modifier.Node() {
     override fun onInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean =
         onEvent?.invoke(event) ?: false
+
     override fun onPreInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean =
         onPreEvent?.invoke(event) ?: false
 }

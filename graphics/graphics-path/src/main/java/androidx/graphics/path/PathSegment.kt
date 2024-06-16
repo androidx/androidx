@@ -15,44 +15,46 @@
  */
 
 @file:JvmName("PathSegmentUtilities")
+
 package androidx.graphics.path
 
 import android.graphics.PointF
 
 /**
- * A path segment represents a curve (line, cubic, quadratic or conic) or a command inside
- * a fully formed [path][android.graphics.Path] object.
+ * A path segment represents a curve (line, cubic, quadratic or conic) or a command inside a fully
+ * formed [path][android.graphics.Path] object.
  *
- * A segment is identified by a [type][PathSegment.Type] which in turns defines how many
- * [points] are available (from 0 to 3) and whether the [weight] is meaningful. Please refer
- * to the documentation of each [type][PathSegment.Type] for more information.
+ * A segment is identified by a [type][PathSegment.Type] which in turns defines how many [points]
+ * are available (from 0 to 3) and whether the [weight] is meaningful. Please refer to the
+ * documentation of each [type][PathSegment.Type] for more information.
  *
- * A segment with the [Move][Type.Move] or [Close][Type.Close] is usually represented by
- * the singletons [DoneSegment] and [CloseSegment] respectively.
+ * A segment with the [Move][Type.Move] or [Close][Type.Close] is usually represented by the
+ * singletons [DoneSegment] and [CloseSegment] respectively.
  *
  * @property type The type that identifies this segment and defines the number of points.
  * @property points An array of points describing this segment, whose size depends on [type].
  * @property weight Conic weight, only valid if [type] is [Type.Conic].
  */
-class PathSegment internal constructor(
+class PathSegment
+internal constructor(
     val type: Type,
     @get:Suppress("ArrayReturn") val points: Array<PointF>,
     val weight: Float
 ) {
     /**
-     * Type of a given segment in a [path][android.graphics.Path], either a command
-     * ([Type.Move], [Type.Close], [Type.Done]) or a curve ([Type.Line], [Type.Cubic],
-     * [Type.Quadratic], [Type.Conic]).
+     * Type of a given segment in a [path][android.graphics.Path], either a command ([Type.Move],
+     * [Type.Close], [Type.Done]) or a curve ([Type.Line], [Type.Cubic], [Type.Quadratic],
+     * [Type.Conic]).
      */
     enum class Type {
         /**
-         * Move command, the path segment contains 1 point indicating the move destination.
-         * The weight is set 0.0f and not meaningful.
+         * Move command, the path segment contains 1 point indicating the move destination. The
+         * weight is set 0.0f and not meaningful.
          */
         Move,
         /**
-         * Line curve, the path segment contains 2 points indicating the two extremities of
-         * the line. The weight is set 0.0f and not meaningful.
+         * Line curve, the path segment contains 2 points indicating the two extremities of the
+         * line. The weight is set 0.0f and not meaningful.
          */
         Line,
         /**
@@ -84,15 +86,14 @@ class PathSegment internal constructor(
          */
         Cubic,
         /**
-         * Close command, close the current contour by joining the last point added to the
-         * path with the first point of the current contour. The segment does not contain
-         * any point. The weight is set 0.0f and not meaningful.
+         * Close command, close the current contour by joining the last point added to the path with
+         * the first point of the current contour. The segment does not contain any point. The
+         * weight is set 0.0f and not meaningful.
          */
         Close,
         /**
-         * Done command, which indicates that no further segment will be
-         * found in the path. It typically indicates the end of an iteration over a path
-         * and can be ignored.
+         * Done command, which indicates that no further segment will be found in the path. It
+         * typically indicates the end of an iteration over a path and can be ignored.
          */
         Done
     }
@@ -123,15 +124,15 @@ class PathSegment internal constructor(
 }
 
 /**
- * A [PathSegment] containing the [Done][PathSegment.Type.Done] command.
- * This static object exists to avoid allocating a new segment when returning a
- * [Done][PathSegment.Type.Done] result from [PathIterator.next].
+ * A [PathSegment] containing the [Done][PathSegment.Type.Done] command. This static object exists
+ * to avoid allocating a new segment when returning a [Done][PathSegment.Type.Done] result from
+ * [PathIterator.next].
  */
 val DoneSegment = PathSegment(PathSegment.Type.Done, emptyArray(), 0.0f)
 
 /**
- * A [PathSegment] containing the [Close][PathSegment.Type.Close] command.
- * This static object exists to avoid allocating a new segment when returning a
- * [Close][PathSegment.Type.Close] result from [PathIterator.next].
+ * A [PathSegment] containing the [Close][PathSegment.Type.Close] command. This static object exists
+ * to avoid allocating a new segment when returning a [Close][PathSegment.Type.Close] result from
+ * [PathIterator.next].
  */
 val CloseSegment = PathSegment(PathSegment.Type.Close, emptyArray(), 0.0f)

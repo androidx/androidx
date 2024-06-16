@@ -22,9 +22,7 @@ import androidx.viewpager2.integration.testapp.cards.CardViewAdapter
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 
-/**
- * Shows examples of [ViewPager2.PageTransformer], e.g. [MarginPageTransformer].
- */
+/** Shows examples of [ViewPager2.PageTransformer], e.g. [MarginPageTransformer]. */
 class PageTransformerActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

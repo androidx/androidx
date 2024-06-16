@@ -26,9 +26,10 @@ import org.junit.Test
 class SwitchUsageCodeDetectorTest {
     @Test
     fun testExtendCoreSwitch() {
-        val customSwitchClass = LintDetectorTest.kotlin(
-            "com/example/CustomSwitch.kt",
-            """
+        val customSwitchClass =
+            LintDetectorTest.kotlin(
+                    "com/example/CustomSwitch.kt",
+                    """
             package com.example
 
             import android.content.Context
@@ -36,13 +37,15 @@ class SwitchUsageCodeDetectorTest {
 
             class CustomSwitch(context: Context): Switch(context)
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect the class extending the core Switch widget to be flagged
-        /* ktlint-disable max-line-length */
-        TestLintTask.lint().files(
-            customSwitchClass
-        ).issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
+
+        TestLintTask.lint()
+            .files(customSwitchClass)
+            .issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
             .run()
             .expect(
                 """
@@ -50,16 +53,17 @@ src/com/example/CustomSwitch.kt:6: Warning: Use SwitchCompat from AppCompat or M
 class CustomSwitch(context: Context): Switch(context)
                                       ~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testCreateCoreSwitch() {
-        val customSwitchClass = LintDetectorTest.kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customSwitchClass =
+            LintDetectorTest.kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
  
             import android.os.Bundle
@@ -73,14 +77,15 @@ class CustomSwitch(context: Context): Switch(context)
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect the class instantiating the core Switch widget to be flagged
-        /* ktlint-disable max-line-length */
-        TestLintTask.lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            customSwitchClass
-        ).issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
+
+        TestLintTask.lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, customSwitchClass)
+            .issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
             .run()
             .expect(
                 """
@@ -88,8 +93,8 @@ src/com/example/CustomActivity.kt:9: Warning: Use SwitchCompat from AppCompat or
         val mySwitch = Switch(this)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

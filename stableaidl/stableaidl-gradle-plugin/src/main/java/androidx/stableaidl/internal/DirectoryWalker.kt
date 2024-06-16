@@ -34,63 +34,47 @@ import java.util.function.Supplier
 /**
  * Utility class to ease directory walking and performing actions on files.
  *
- *
- * It's expected for you to use either the static initializer methods or the builder class to
- * create instances of this class.
- *
+ * It's expected for you to use either the static initializer methods or the builder class to create
+ * instances of this class.
  *
  * Examples:
  *
- * <pre class='code'>
- * Path root = FileSystems.getDefault().getPath("/");
+ * <pre class='code'> Path root = FileSystems.getDefault().getPath("/");
  *
- * // Print out all files under a given path.
- * DirectoryWalker.builder()
- * .start(root)
- * .action((root, path) -> System.out.println(path))
- * .build()
- * .walk();
+ * // Print out all files under a given path. DirectoryWalker.builder() .start(root) .action((root,
+ * path) -> System.out.println(path)) .build() .walk();
  *
- * // Print out all .java files under a given path.
- * DirectoryWalker.builder()
- * .start(root)
- * .extensions("java")
- * .action((root, path) -> System.out.println(path))
- * .build()
- * .walk();
+ * // Print out all .java files under a given path. DirectoryWalker.builder() .start(root)
+ * .extensions("java") .action((root, path) -> System.out.println(path)) .build() .walk();
  *
- * // Defer creation of your action class until it is needed. This is useful if the creation
- * // of your action is expensive (e.g. not a lambda like below, but a bona fide class with
- * // some non-trivial initialisation), and you expect that no files to be found on the
- * // directory walk (e.g. they're all filtered out because they don't match the extension
- * // filter).
- * DirectoryWalker.builder()
- * .start(root)
- * .action(() -> (root, path) -> System.out.println(path))
- * .build()
- * .walk();
- * </pre>
+ * // Defer creation of your action class until it is needed. This is useful if the creation // of
+ * your action is expensive (e.g. not a lambda like below, but a bona fide class with // some
+ * non-trivial initialisation), and you expect that no files to be found on the // directory walk
+ * (e.g. they're all filtered out because they don't match the extension // filter).
+ * DirectoryWalker.builder() .start(root) .action(() -> (root, path) -> System.out.println(path))
+ * .build() .walk(); </pre>
  *
  * Cloned from `com.android.builder.internal.compiler.DirectoryWalker`.
  */
-class DirectoryWalker internal constructor(
-    /** The callback to invoke on each file.  */
+class DirectoryWalker
+internal constructor(
+    /** The callback to invoke on each file. */
     private val action: FileAction,
-    /** The directory to start walking from.  */
+    /** The directory to start walking from. */
     private val root: Path,
     /**
      * A collection of predicates that, together, decide whether a file should be skipped or acted
      * upon.
      *
-     *
-     * If a predicate's `test()` method returns true, that file will be skipped and the
-     * given FileAction will not be run for it.
+     * If a predicate's `test()` method returns true, that file will be skipped and the given
+     * FileAction will not be run for it.
      */
     private val filters: Collection<Predicate<Path>>
 ) {
     /**
-     * A FileAction represents a unit of work to perform on a file in a directory tree. The `call()` method will be called for each file in the tree that do not get filtered out by the
-     * list of filters.
+     * A FileAction represents a unit of work to perform on a file in a directory tree. The `call()`
+     * method will be called for each file in the tree that do not get filtered out by the list of
+     * filters.
      */
     fun interface FileAction {
         /**
@@ -99,16 +83,14 @@ class DirectoryWalker internal constructor(
          * @param root the directory that this directory walk started at.
          * @param file the current file being acted upon.
          * @throws IOException if anything goes wrong. Implementors of this interface are expected
-         * to either re-wrap their exceptions as IOExceptions, or handle their exceptions
-         * appropriately.
+         *   to either re-wrap their exceptions as IOExceptions, or handle their exceptions
+         *   appropriately.
          */
-        @Throws(IOException::class)
-        fun call(root: Path, file: Path)
+        @Throws(IOException::class) fun call(root: Path, file: Path)
     }
 
     /**
      * A convenience class for creating filters that only allow certain extensions through.
-     *
      *
      * Instead of using this class directory, instead use the `extensions()` method on the
      * DirectoryWalker.Builder class.
@@ -139,8 +121,8 @@ class DirectoryWalker internal constructor(
         private var action: FileAction? = null
 
         /**
-         * Set the path to start traversal from. If left unset, the `build()` method will
-         * throw an exception.
+         * Set the path to start traversal from. If left unset, the `build()` method will throw an
+         * exception.
          *
          * @param root path to start traversal from.
          * @return itself.
@@ -172,7 +154,8 @@ class DirectoryWalker internal constructor(
          */
         private fun extensions(extensions: Set<String>): Builder {
             Preconditions.checkArgument(
-                extensions.isNotEmpty(), "cannot pass in an empty array of extensions"
+                extensions.isNotEmpty(),
+                "cannot pass in an empty array of extensions"
             )
             for (ext in extensions) {
                 Preconditions.checkArgument(ext.isNotEmpty(), "cannot pass in an empty extension")
@@ -181,10 +164,9 @@ class DirectoryWalker internal constructor(
         }
 
         /**
-         * Add an arbitrary filter of type `Predicate<Path>`. Filters are run for every single
-         * file that is found while doing a walk. If the `test()` method in the predicate
-         * returns `true`, that file will not be passed to the `FileAction`.
-         *
+         * Add an arbitrary filter of type `Predicate<Path>`. Filters are run for every single file
+         * that is found while doing a walk. If the `test()` method in the predicate returns `true`,
+         * that file will not be passed to the `FileAction`.
          *
          * A useful side effect of using filters is that if you filter out all of the encountered
          * files and you're using a supplied action (see `action(Supplier<FileAction>`), the
@@ -198,10 +180,9 @@ class DirectoryWalker internal constructor(
         }
 
         /**
-         * Adds an arbitrary selector of type `Predicate<Path>`. A selector is exactly the
-         * same as a filter, except that the condition is negated. So if a selector's `test()`
-         * method returns `false`, that file will not be passed to the `FileAction`.
-         *
+         * Adds an arbitrary selector of type `Predicate<Path>`. A selector is exactly the same as a
+         * filter, except that the condition is negated. So if a selector's `test()` method returns
+         * `false`, that file will not be passed to the `FileAction`.
          *
          * See `filter()` for more information.
          *
@@ -212,8 +193,8 @@ class DirectoryWalker internal constructor(
         }
 
         /**
-         * The action you wish to perform on each file. If left unset, the `build()` method
-         * will throw an exception.
+         * The action you wish to perform on each file. If left unset, the `build()` method will
+         * throw an exception.
          *
          * @param action the action you wish to perform.
          * @return itself.
@@ -225,29 +206,21 @@ class DirectoryWalker internal constructor(
 
         /**
          * Sometimes it could be quite expensive to initialise a FileAction, and you want to avoid
-         * doing it if there's no actual work to do. Passing a `Supplier<FileAction>` instead
-         * of a `FileAction` allows you to do this.
+         * doing it if there's no actual work to do. Passing a `Supplier<FileAction>` instead of a
+         * `FileAction` allows you to do this.
          *
-         *
-         * The `get()` method on the supplier is guaranteed to be called either 0 (if no
-         * work needs to be done) or 1 time. It cannot return null (doing so will result in a
+         * The `get()` method on the supplier is guaranteed to be called either 0 (if no work needs
+         * to be done) or 1 time. It cannot return null (doing so will result in a
          * NullPointerException being thrown).
          *
-         * <pre class='code'>
-         * DirectoryWalker.builder()
-         * .root(Paths.get("/"))
-         * .action(() -> new MyExpensiveFileAction())
-         * .build()
-         * .walk();
-        </pre> *
+         * <pre class='code'> DirectoryWalker.builder() .root(Paths.get("/")) .action(() -> new
+         * MyExpensiveFileAction()) .build() .walk(); </pre> *
          *
          * @return itself.
          */
         fun action(supplier: Supplier<out FileAction>): Builder {
             val action: Supplier<out FileAction> = Suppliers.memoize { supplier.get() }
-            this.action = FileAction { root: Path, path: Path ->
-                action.get().call(root, path)
-            }
+            this.action = FileAction { root: Path, path: Path -> action.get().call(root, path) }
             return this
         }
 
@@ -267,7 +240,6 @@ class DirectoryWalker internal constructor(
     /**
      * Triggers a directory walk.
      *
-     *
      * This can be called multiple times over the lifetime of the object, but note that each walk
      * will use the same action. If you're modifying state in your action, you need to take this in
      * to account.
@@ -282,13 +254,12 @@ class DirectoryWalker internal constructor(
         if (!java.nio.file.Files.exists(root)) {
             return this
         }
-        val options: Set<FileVisitOption> = Sets.newEnumSet(
-            listOf(FileVisitOption.FOLLOW_LINKS),
-            FileVisitOption::class.java
-        )
+        val options: Set<FileVisitOption> =
+            Sets.newEnumSet(listOf(FileVisitOption.FOLLOW_LINKS), FileVisitOption::class.java)
         java.nio.file.Files.walkFileTree(
             root,
-            options, Int.MAX_VALUE,
+            options,
+            Int.MAX_VALUE,
             object : SimpleFileVisitor<Path>() {
                 @Throws(IOException::class)
                 override fun visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult {
@@ -297,7 +268,8 @@ class DirectoryWalker internal constructor(
                     }
                     return FileVisitResult.CONTINUE
                 }
-            })
+            }
+        )
         return this
     }
 
@@ -307,11 +279,11 @@ class DirectoryWalker internal constructor(
 
     companion object {
         /**
-         * If none of the static initiators work for you (e.g. DirectoryWalker.walk), using the builder
-         * is the expected way to create custom DirectoryWalkers.
+         * If none of the static initiators work for you (e.g. DirectoryWalker.walk), using the
+         * builder is the expected way to create custom DirectoryWalkers.
          *
          * @return a new DirectoryWalker.Builder class that you can use to build an instance of
-         * DirectoryWalker.
+         *   DirectoryWalker.
          */
         fun builder(): Builder {
             return Builder()

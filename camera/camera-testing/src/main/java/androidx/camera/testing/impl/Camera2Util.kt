@@ -26,17 +26,11 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import kotlinx.coroutines.CompletableDeferred
 
-/**
- * Convenient suspend functions for invoking camera2 APIs.
- */
-@RequiresApi(21)
+/** Convenient suspend functions for invoking camera2 APIs. */
 object Camera2Util {
-    /**
-     * Open the camera device and return the [CameraDevice] instance.
-     */
+    /** Open the camera device and return the [CameraDevice] instance. */
     @DoNotInline
     suspend fun openCameraDevice(
         cameraManager: CameraManager,
@@ -60,15 +54,13 @@ object Camera2Util {
                         RuntimeException("Camera onError(error=$cameraDevice)")
                     )
                 }
-            }, handler
+            },
+            handler
         )
         return deferred.await()
     }
 
-    /**
-     * Creates and returns a configured [CameraCaptureSession].
-     */
-    @RequiresApi(21)
+    /** Creates and returns a configured [CameraCaptureSession]. */
     suspend fun openCaptureSession(
         cameraDevice: CameraDevice,
         surfaceList: List<Surface>,
@@ -108,23 +100,27 @@ object Camera2Util {
             builder.addTarget(surface)
         }
         val deferredCapture = CompletableDeferred<TotalCaptureResult>()
-        session.capture(builder.build(), object : CameraCaptureSession.CaptureCallback() {
-            override fun onCaptureCompleted(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                result: TotalCaptureResult
-            ) {
-                deferredCapture.complete(result)
-            }
+        session.capture(
+            builder.build(),
+            object : CameraCaptureSession.CaptureCallback() {
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    deferredCapture.complete(result)
+                }
 
-            override fun onCaptureFailed(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                failure: CaptureFailure
-            ) {
-                deferredCapture.completeExceptionally(RuntimeException("capture failed"))
-            }
-        }, handler)
+                override fun onCaptureFailed(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    failure: CaptureFailure
+                ) {
+                    deferredCapture.completeExceptionally(RuntimeException("capture failed"))
+                }
+            },
+            handler
+        )
         return deferredCapture.await()
     }
 

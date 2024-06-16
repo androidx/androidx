@@ -22,22 +22,36 @@ import org.junit.Test
 
 @Suppress("unused")
 open class A {
-    open fun aOpen(): String { return "aOpen" }
+    open fun aOpen(): String {
+        return "aOpen"
+    }
 
-    fun aFinal(): String { return "aFinal" }
+    fun aFinal(): String {
+        return "aFinal"
+    }
 
-    protected open fun aOpenProtected(): String { return "aOpenProtected" }
+    protected open fun aOpenProtected(): String {
+        return "aOpenProtected"
+    }
 
-    protected fun aFinalProtected(): String { return "aFinalProtected" }
+    protected fun aFinalProtected(): String {
+        return "aFinalProtected"
+    }
 
-    protected open fun aOpenProtected2(): String { return "aOpenProtected2" }
+    protected open fun aOpenProtected2(): String {
+        return "aOpenProtected2"
+    }
 }
 
 @Suppress("unused")
 class B : A() {
-    override fun aOpen(): String { return "bOpen" }
+    override fun aOpen(): String {
+        return "bOpen"
+    }
 
-    override fun aOpenProtected(): String { return "bOpenProtected" }
+    override fun aOpenProtected(): String {
+        return "bOpenProtected"
+    }
 }
 
 class FindMethodTest {
@@ -51,7 +65,7 @@ class FindMethodTest {
         try {
             A::class.java.findMethod("noSuchMethod")
             fail()
-        } catch (_: NoSuchMethodException) { }
+        } catch (_: NoSuchMethodException) {}
 
         val b = B()
         assertEquals("bOpen", B::class.java.findMethod("aOpen").invoke(b))

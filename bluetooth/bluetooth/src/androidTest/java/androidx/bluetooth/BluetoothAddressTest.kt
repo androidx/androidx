@@ -22,9 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [BluetoothAddress]
- */
+/** Test cases for [BluetoothAddress] */
 @RunWith(JUnit4::class)
 class BluetoothAddressTest {
 
@@ -85,18 +83,14 @@ class BluetoothAddressTest {
 
     @Test
     fun equality() {
-        val publicAddress = BluetoothAddress(TEST_ADDRESS_PUBLIC,
-            BluetoothAddress.ADDRESS_TYPE_PUBLIC)
-        val sameAddress = BluetoothAddress(TEST_ADDRESS_PUBLIC,
-            BluetoothAddress.ADDRESS_TYPE_PUBLIC)
-        val addressWithDifferentAddress = BluetoothAddress(
-            TEST_ADDRESS_RANDOM_STATIC,
-            BluetoothAddress.ADDRESS_TYPE_PUBLIC
-        )
-        val addressWithDifferentType = BluetoothAddress(
-            TEST_ADDRESS_PUBLIC,
-            BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC
-        )
+        val publicAddress =
+            BluetoothAddress(TEST_ADDRESS_PUBLIC, BluetoothAddress.ADDRESS_TYPE_PUBLIC)
+        val sameAddress =
+            BluetoothAddress(TEST_ADDRESS_PUBLIC, BluetoothAddress.ADDRESS_TYPE_PUBLIC)
+        val addressWithDifferentAddress =
+            BluetoothAddress(TEST_ADDRESS_RANDOM_STATIC, BluetoothAddress.ADDRESS_TYPE_PUBLIC)
+        val addressWithDifferentType =
+            BluetoothAddress(TEST_ADDRESS_PUBLIC, BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC)
 
         assertThat(sameAddress).isEqualTo(publicAddress)
         assertThat(sameAddress.hashCode()).isEqualTo(publicAddress.hashCode())

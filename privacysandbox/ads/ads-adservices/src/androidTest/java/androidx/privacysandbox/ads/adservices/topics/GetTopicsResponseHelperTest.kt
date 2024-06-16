@@ -78,10 +78,9 @@ class GetTopicsResponseHelperTest {
                 "encapsulatedKey".toByteArray(),
             )
 
-        var response = GetTopicsResponse.Builder(listOf(topic1, topic2),
-            listOf(encryptedTopic1)).build()
-        var convertedResponse =
-            GetTopicsResponseHelper.convertResponseWithEncryptedTopics(response)
+        var response =
+            GetTopicsResponse.Builder(listOf(topic1, topic2), listOf(encryptedTopic1)).build()
+        var convertedResponse = GetTopicsResponseHelper.convertResponseWithEncryptedTopics(response)
 
         assertEquals(2, convertedResponse.topics.size)
         assertEquals(1, convertedResponse.encryptedTopics.size)

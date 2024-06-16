@@ -23,22 +23,17 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.TargetAspectRa
 import androidx.camera.core.impl.Quirk
 
 /**
+ * QuirkSummary Bug Id: b/128924712 Description: Quirk that produces stretched use cases on all the
+ * legacy API 21 devices. If the device is LEGACY + Android 5.0, then return the same aspect ratio
+ * as maximum JPEG resolution. The Camera2 LEGACY mode API always sends the HAL a configure call
+ * with the same aspect ratio as the maximum JPEG resolution, and do the cropping/scaling before
+ * returning the output. There is a bug because of a flipped scaling factor in the intermediate
+ * texture transform matrix, and it was fixed in L MR1. Device(s): All the legacy API 21 devices
  *
- * QuirkSummary
- * Bug Id: b/128924712
- * Description: Quirk that produces stretched use cases on all the legacy API 21 devices. If
- * the device is LEGACY + Android 5.0, then return the same aspect ratio as maximum JPEG
- * resolution. The Camera2 LEGACY mode API always sends the HAL a configure call with the
- * same aspect ratio as the maximum JPEG resolution, and do the cropping/scaling before
- * returning the output. There is a bug because of a flipped scaling factor in the
- * intermediate texture transform matrix, and it was fixed in L MR1.
- * Device(s): All the legacy API 21 devices
  * @see androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio
  */
 class AspectRatioLegacyApi21Quirk : Quirk {
-    /**
-     * Get the corrected aspect ratio.
-     */
+    /** Get the corrected aspect ratio. */
     @TargetAspectRatio.Ratio
     fun getCorrectedAspectRatio(): Int {
         return TargetAspectRatio.RATIO_MAX_JPEG

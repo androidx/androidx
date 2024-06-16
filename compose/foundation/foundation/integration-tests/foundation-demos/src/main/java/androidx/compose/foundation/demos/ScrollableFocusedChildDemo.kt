@@ -78,26 +78,14 @@ fun ScrollableFocusedChildDemo() {
         )
 
         Row {
-            Button(
-                onClick = {
-                    resizableState.cutInHalf()
-                },
-                modifier = Modifier.weight(1f)
-            ) {
+            Button(onClick = { resizableState.cutInHalf() }, modifier = Modifier.weight(1f)) {
                 Text("½ size")
             }
-            Button(
-                onClick = {
-                    resizableState.resetToMaxSize()
-                },
-                modifier = Modifier.weight(1f)
-            ) {
+            Button(onClick = { resizableState.resetToMaxSize() }, modifier = Modifier.weight(1f)) {
                 Text("Max size")
             }
             Button(
-                onClick = {
-                    reverseScrolling = !reverseScrolling
-                },
+                onClick = { reverseScrolling = !reverseScrolling },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Scroll: ${if (reverseScrolling) "backward" else "forward"}")
@@ -109,14 +97,10 @@ fun ScrollableFocusedChildDemo() {
         var maxViewportSize by remember { mutableStateOf(IntSize.Zero) }
         Resizable(
             resizableState,
-            Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .onSizeChanged { maxViewportSize = it }
+            Modifier.weight(1f).fillMaxWidth().onSizeChanged { maxViewportSize = it }
         ) {
             Box(
-                Modifier
-                    .border(2.dp, Color.Black)
+                Modifier.border(2.dp, Color.Black)
                     .verticalScroll(rememberScrollState(), reverseScrolling = reverseScrolling)
                     .horizontalScroll(rememberScrollState(), reverseScrolling = reverseScrolling)
             ) {
@@ -142,14 +126,15 @@ fun FocusGrabber(modifier: Modifier = Modifier) {
     Text(
         text = if (hasFocus) "Focused" else "Click to focus",
         color = if (hasFocus) Color.White else Color.Black,
-        modifier = modifier
-            .clickable { focusRequester.requestFocus() }
-            .onFocusChanged { hasFocus = it.hasFocus }
-            .focusRequester(focusRequester)
-            .focusable()
-            .border(3.dp, Color.Blue)
-            .then(if (hasFocus) Modifier.background(Color.Blue) else Modifier)
-            .padding(8.dp)
+        modifier =
+            modifier
+                .clickable { focusRequester.requestFocus() }
+                .onFocusChanged { hasFocus = it.hasFocus }
+                .focusRequester(focusRequester)
+                .focusable()
+                .border(3.dp, Color.Blue)
+                .then(if (hasFocus) Modifier.background(Color.Blue) else Modifier)
+                .padding(8.dp)
     )
 }
 
@@ -195,39 +180,38 @@ private fun Resizable(
             val (horizontalHandleMeasurable, verticalHandleMeasurable, contentMeasurable) =
                 measurables
             val handleThickness = handleThickness.roundToPx()
-            widthOverride = if (widthOverride < 0) {
-                constraints.maxWidth
-            } else {
-                widthOverride.coerceIn(handleThickness, constraints.maxWidth)
-            }
-            heightOverride = if (heightOverride < 0) {
-                constraints.maxHeight
-            } else {
-                heightOverride.coerceIn(handleThickness, constraints.maxHeight)
-            }
-            val contentConstraints = Constraints.fixed(
-                width = widthOverride - handleThickness,
-                height = heightOverride - handleThickness
-            )
+            widthOverride =
+                if (widthOverride < 0) {
+                    constraints.maxWidth
+                } else {
+                    widthOverride.coerceIn(handleThickness, constraints.maxWidth)
+                }
+            heightOverride =
+                if (heightOverride < 0) {
+                    constraints.maxHeight
+                } else {
+                    heightOverride.coerceIn(handleThickness, constraints.maxHeight)
+                }
+            val contentConstraints =
+                Constraints.fixed(
+                    width = widthOverride - handleThickness,
+                    height = heightOverride - handleThickness
+                )
 
             val contentPlaceable = contentMeasurable.measure(contentConstraints)
-            val horizontalHandlePlaceable = horizontalHandleMeasurable.measure(
-                Constraints.fixed(width = widthOverride, height = handleThickness)
-            )
-            val verticalHandlePlaceable = verticalHandleMeasurable.measure(
-                Constraints.fixed(width = handleThickness, height = heightOverride)
-            )
+            val horizontalHandlePlaceable =
+                horizontalHandleMeasurable.measure(
+                    Constraints.fixed(width = widthOverride, height = handleThickness)
+                )
+            val verticalHandlePlaceable =
+                verticalHandleMeasurable.measure(
+                    Constraints.fixed(width = handleThickness, height = heightOverride)
+                )
 
             layout(constraints.maxWidth, constraints.maxHeight) {
                 contentPlaceable.place(IntOffset.Zero)
-                horizontalHandlePlaceable.place(
-                    x = 0,
-                    y = contentPlaceable.height
-                )
-                verticalHandlePlaceable.place(
-                    x = contentPlaceable.width,
-                    y = 0
-                )
+                horizontalHandlePlaceable.place(x = 0, y = contentPlaceable.height)
+                verticalHandlePlaceable.place(x = contentPlaceable.width, y = 0)
             }
         }
     }
@@ -242,8 +226,7 @@ private fun ResizeHandle(orientation: Orientation, onDrag: (Float) -> Unit) {
     val lineWeight = 1.dp
 
     Canvas(
-        Modifier
-            .fillMaxSize()
+        Modifier.fillMaxSize()
             .draggable(dragState, if (orientation == Horizontal) Vertical else Horizontal)
     ) {
         val lineWidth = lineWidth.toPx()
@@ -270,11 +253,8 @@ private fun ResizeHandle(orientation: Orientation, onDrag: (Float) -> Unit) {
 
 /** Measures the modified node to be the size returned from [size]. */
 private fun Modifier.size(size: () -> Size): Modifier = layout { measurable, _ ->
-    val constraints = size().let {
-        Constraints.fixed(it.width.roundToInt(), it.height.roundToInt())
-    }
+    val constraints =
+        size().let { Constraints.fixed(it.width.roundToInt(), it.height.roundToInt()) }
     val placeable = measurable.measure(constraints)
-    layout(placeable.width, placeable.height) {
-        placeable.place(IntOffset.Zero)
-    }
+    layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
 }

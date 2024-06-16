@@ -24,13 +24,12 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 
 /**
  * Internal implementation of {@link androidx.webkit.JavaScriptReplyProxy}.
  */
 public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
-    private JsReplyProxyBoundaryInterface mBoundaryInterface;
+    private final JsReplyProxyBoundaryInterface mBoundaryInterface;
 
     public JavaScriptReplyProxyImpl(@NonNull JsReplyProxyBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
@@ -46,12 +45,7 @@ public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                         JsReplyProxyBoundaryInterface.class, invocationHandler);
         return (JavaScriptReplyProxyImpl) boundaryInterface.getOrCreatePeer(
-                new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        return new JavaScriptReplyProxyImpl(boundaryInterface);
-                    }
-                });
+                () -> new JavaScriptReplyProxyImpl(boundaryInterface));
     }
 
     @Override

@@ -33,25 +33,27 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(TestLifecycleOwnerInCoroutineDetector.ISSUE)
 
-    private val lifecycleStub: TestFile = bytecode(
-        "libs/lifecycle.jar",
-        kotlin(
-        """
+    private val lifecycleStub: TestFile =
+        bytecode(
+            "libs/lifecycle.jar",
+            kotlin(
+                    """
         package androidx.lifecycle
 
         abstract class Lifecycle {
             enum class State { CREATED, STARTED, RESUMED }
         }
         """
-        ).indented(),
-        0xf3659215,
-        """
+                )
+                .indented(),
+            0xf3659215,
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJWKM3AJcrFnVqRmFuQk6qXlp8vxBaSWlzi
         XcKlySWenV+Sk5lXoZecX5RfWpKZl1qsVwKUFOIDKXEqzcxJSS0q9i5RYtBi
         AAAIhggPWgAAAA==
         """,
-        """
+            """
         androidx/lifecycle/Lifecycle＄State.class:
         H4sIAAAAAAAA/41T30/TUBT+btetXa0yJiIg/sJNuk0ZoII6RCYMnQxJKC4x
         eypbxULXJmtH9I0n/xD/AsFEjUaz+OgfZTz3DgkEozz03Hu++51zvnvu6c9f
@@ -73,7 +75,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         rx5BWazzeErrAzq/Q+ypGiJlTJdxlyzucXO/jAJmamABsWZriAXQAzwMoARI
         BzAC5H4DVwG07rEFAAA=
         """,
-        """
+            """
         androidx/lifecycle/Lifecycle.class:
         H4sIAAAAAAAA/31QTU8UQRB91TM7uw6jLCiwq8hXiAEPDhATEiVEJTHZZNRE
         yF721DvTYLOzPcl0L8Hb/hb+AScTD2bD0R9lqFnUI314Ve/1q+rq+v3n5y8A
@@ -86,12 +88,13 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         18bKtKqNVY77rM+wN+rB6+BhB48YMVtBs4M5zPdAFo/xpAffIrRYsAgsFm8B
         Whw3Ci0CAAA=
         """
-    )
+        )
 
-    private val testLifecycleOwnerStub: TestFile = bytecode(
-        "libs/testlifecycleowner.jar",
-        kotlin(
-            """
+    private val testLifecycleOwnerStub: TestFile =
+        bytecode(
+            "libs/testlifecycleowner.jar",
+            kotlin(
+                    """
         package androidx.lifecycle.testing
 
         import androidx.lifecycle.Lifecycle
@@ -100,15 +103,16 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
             var currentState: Lifecycle.State = Lifecycle.State.STARTED
         }
         """
-        ).indented(),
-        0x5140a562,
-        """
+                )
+                .indented(),
+            0x5140a562,
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJWKM3AJcrFnVqRmFuQk6qXlp8vxBaSWlzi
         XcKlySWenV+Sk5lXoZecX5RfWpKZl1qsVwKUFOIDKXEqzcxJSS0q9i5RYtBi
         AAAIhggPWgAAAA==
         """,
-        """
+            """
         androidx/lifecycle/testing/TestLifecycleOwner.class:
         H4sIAAAAAAAA/41TXU8TQRQ9s213S62l5ZviJyDQImxB3kpQREmaVDC0aUx4
         WrYjTNnuJrvTim88+UP8BWo0Gh9Mw6M/yninrFg+jLzcO/fec8+ZuTPz89f3
@@ -127,27 +131,29 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         yCku5FOr8a7GklJkIbWG5a59iEfkNyl7n7YwuYtICVMlTJPFA2VmSpjF3C5Y
         gBzyu+gLMBhgPoAe0D9CMsBQgOEAowHGfgPeFoO+3AQAAA==
         """
-    )
+        )
 
-    private val coroutineStub: TestFile = bytecode(
-        "libs/coroutinecontext.jar",
-        kotlin(
-            """
+    private val coroutineStub: TestFile =
+        bytecode(
+            "libs/coroutinecontext.jar",
+            kotlin(
+                    """
         package kotlinx.coroutines
 
         object EmptyCoroutineContext : CoroutineContext
 
         interface CoroutineContext
         """
-        ).indented(),
-        0x37041da2,
-        """
+                )
+                .indented(),
+            0x37041da2,
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJWKM3AJcrFnVqRmFuQk6qXlp8vxBaSWlzi
         XcKlySWenV+Sk5lXoZecX5RfWpKZl1qsVwKUFOIDKXEqzcxJSS0q9i5RYtBi
         AAAIhggPWgAAAA==
         """,
-        """
+            """
         kotlinx/coroutines/CoroutineContext.class:
         H4sIAAAAAAAA/41OPUsDQRB9s2c+PL8uRiHWYusmwc5KAsJBRFCwuWpzWWVz
         l13I7oUr87ssJLU/Spwz2Fg5A2/evGHezOfX+weAG5wRLgsXSmNrmbuVq4Kx
@@ -156,7 +162,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         fnbVKtf3ptSEi6fKBrPUL8abWanvrHVBBeOsb/M97GEXAqc/2EOf64i9W5zt
         DFGKToouI/YbiFMc4DADeRzhOIPwOPFIvgHKkw26UwEAAA==
         """,
-        """
+            """
         kotlinx/coroutines/EmptyCoroutineContext.class:
         H4sIAAAAAAAA/41STW/TQBB9uwmN6xqalo+mlO9SqfSA24obFVKJimQpGIlW
         kaqeNs6qbOLsInsdhVtO/BD+QcWhEkgoghs/CjFrAkg0B2ztzL63M88zs/7+
@@ -170,12 +176,13 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         rwAs0A6UePlP8gpFu2fhM/jxOa58xNJZSXCsl/YOHpa/K82HBK6doBLheoQb
         ZLHiTCOiGm+egOVYwy06zxHkuJ3D+wnnrXWf6wIAAA==
         """
-    )
+        )
 
-    private val runTestCoroutineStub: TestFile = bytecode(
-        "libs/testbuilders.jar",
-        kotlin(
-            """
+    private val runTestCoroutineStub: TestFile =
+        bytecode(
+            "libs/testbuilders.jar",
+            kotlin(
+                    """
         package kotlinx.coroutines.test
 
         import kotlinx.coroutines.*
@@ -186,15 +193,16 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
             testBody: () -> Unit
         ) { }
         """
-        ).indented(),
-        0xd166e09a,
-        """
+                )
+                .indented(),
+            0xd166e09a,
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJWKM3AJcrFnVqRmFuQk6qXlp8vxBaSWlzi
         XcKlySWenV+Sk5lXoZecX5RfWpKZl1qsVwKUFOIDKXEqzcxJSS0q9i5RYtBi
         AAAIhggPWgAAAA==
         """,
-        """
+            """
         kotlinx/coroutines/test/TestBuildersKt.class:
         H4sIAAAAAAAA/61TW08TURD+Tm+7ra2UcpG7KLeCyBbEW0pMoIFkBaqxSEzw
         5bBd6rbbXbJ7lsCL4W/4M/SJ+GB49kcZ52xbRW0iD7TJzHfm8s2cmT3ff3z9
@@ -214,13 +222,14 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         jBK2MxhmJeivUNEENaJSCwmKexpGF/CMdImqTFHk9AGiOmZ0zJLEnI485nUs
         4MEBmI9FPDyA6iPuY8lH0kefj/4Q9/rQfgIMLZFBnQUAAA==
         """
-    )
+        )
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package example.foo
 
                 import androidx.lifecycle.Lifecycle
@@ -237,14 +246,15 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
                     owner.currentState = Lifecycle.State.RESUMED
                 }
             """
-            ),
-            coroutineStub,
-            lifecycleStub,
-            runTestCoroutineStub,
-            testLifecycleOwnerStub
-        )
+                ),
+                coroutineStub,
+                lifecycleStub,
+                runTestCoroutineStub,
+                testLifecycleOwnerStub
+            )
             .run()
-            .expect("""
+            .expect(
+                """
 src/example/foo/test.kt:8: Error: Incorrect use of currentState property inside of Coroutine, please use the suspending setCurrentState() function. [TestLifecycleOwnerInCoroutine]
                 fun testSetCurrentStateInRunTest() = runTest {
                                                      ~~~~~~~
@@ -252,14 +262,17 @@ src/example/foo/test.kt:13: Error: Incorrect use of currentState property inside
                 fun testSetCurrentStateInRunTestWithTimeOut() = runTest(timeout = 5000) {
                                                                 ~~~~~~~
 2 errors, 0 warnings
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package example.foo
 
                 import androidx.lifecycle.Lifecycle
@@ -271,14 +284,13 @@ src/example/foo/test.kt:13: Error: Incorrect use of currentState property inside
                     owner.setCurrentState(Lifecycle.State.RESUMED)
                 }
             """
-            ),
-            coroutineStub,
-            lifecycleStub,
-            runTestCoroutineStub,
-            testLifecycleOwnerStub
-        )
+                ),
+                coroutineStub,
+                lifecycleStub,
+                runTestCoroutineStub,
+                testLifecycleOwnerStub
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

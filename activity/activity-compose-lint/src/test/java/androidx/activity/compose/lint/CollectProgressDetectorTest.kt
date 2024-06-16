@@ -33,9 +33,10 @@ class CollectProgressDetectorTest : LintDetectorTest() {
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -77,10 +78,10 @@ class CollectProgressDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            PREDICTIVE_BACK_HANDLER
-        )
+                ),
+                Stubs.Composable,
+                PREDICTIVE_BACK_HANDLER
+            )
             .run()
             .expect(
                 """
@@ -112,9 +113,10 @@ src/com/example/test.kt:39: Error: You must call collect() on Flow progress [NoC
 
     @Test
     fun errorWithNoCollect() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -127,10 +129,10 @@ src/com/example/test.kt:39: Error: You must call collect() on Flow progress [NoC
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            PREDICTIVE_BACK_HANDLER
-        )
+                ),
+                Stubs.Composable,
+                PREDICTIVE_BACK_HANDLER
+            )
             .run()
             .expect(
                 """
@@ -144,9 +146,10 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -202,19 +205,20 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            PREDICTIVE_BACK_HANDLER
-        )
+                ),
+                Stubs.Composable,
+                PREDICTIVE_BACK_HANDLER
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrorsCollectIndexed() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -270,19 +274,20 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            PREDICTIVE_BACK_HANDLER
-        )
+                ),
+                Stubs.Composable,
+                PREDICTIVE_BACK_HANDLER
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrorsCollectLatest() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -338,10 +343,10 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            PREDICTIVE_BACK_HANDLER
-        )
+                ),
+                Stubs.Composable,
+                PREDICTIVE_BACK_HANDLER
+            )
             .run()
             .expectClean()
     }

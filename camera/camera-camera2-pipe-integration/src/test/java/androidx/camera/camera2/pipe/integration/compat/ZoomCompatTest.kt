@@ -44,75 +44,85 @@ class ZoomCompatTest {
             .isInstanceOf(CropRegionZoomCompat::class.java)
     }
 
-    private val throwingCameraProperties = object : CameraProperties {
-        override val cameraId: CameraId
-            get() = TODO("Not yet implemented")
-        override val metadata: CameraMetadata
-            get() = throwingCameraMetadata
-    }
+    private val throwingCameraProperties =
+        object : CameraProperties {
+            override val cameraId: CameraId
+                get() = TODO("Not yet implemented")
 
-    private val throwingCameraMetadata = object : CameraMetadata {
-        override val camera: CameraId
-            get() = TODO("Not yet implemented")
-        override val isRedacted: Boolean
-            get() = TODO("Not yet implemented")
-        override val keys: Set<CameraCharacteristics.Key<*>>
-            get() = TODO("Not yet implemented")
-        override val physicalCameraIds: Set<CameraId>
-            get() = TODO("Not yet implemented")
-        override val physicalRequestKeys: Set<CaptureRequest.Key<*>>
-            get() = TODO("Not yet implemented")
-        override val supportedExtensions: Set<Int>
-            get() = TODO("Not yet implemented")
-
-        override val requestKeys: Set<CaptureRequest.Key<*>>
-            get() = TODO("Not yet implemented")
-        override val resultKeys: Set<CaptureResult.Key<*>>
-            get() = TODO("Not yet implemented")
-        override val sessionKeys: Set<CaptureRequest.Key<*>>
-            get() = TODO("Not yet implemented")
-
-        override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata {
-            TODO("Not yet implemented")
+            override val metadata: CameraMetadata
+                get() = throwingCameraMetadata
         }
 
-        override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
-            TODO("Not yet implemented")
-        }
+    private val throwingCameraMetadata =
+        object : CameraMetadata {
+            override val camera: CameraId
+                get() = TODO("Not yet implemented")
 
-        override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
-            TODO("Not yet implemented")
-        }
+            override val isRedacted: Boolean
+                get() = TODO("Not yet implemented")
 
-        override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
-            println("throwingCameraMetadata get: key = $key")
-            if (
-                Build.VERSION.SDK_INT >= 30 &&
-                key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
-            ) {
-                throw AssertionError()
+            override val keys: Set<CameraCharacteristics.Key<*>>
+                get() = TODO("Not yet implemented")
+
+            override val physicalCameraIds: Set<CameraId>
+                get() = TODO("Not yet implemented")
+
+            override val physicalRequestKeys: Set<CaptureRequest.Key<*>>
+                get() = TODO("Not yet implemented")
+
+            override val supportedExtensions: Set<Int>
+                get() = TODO("Not yet implemented")
+
+            override val requestKeys: Set<CaptureRequest.Key<*>>
+                get() = TODO("Not yet implemented")
+
+            override val resultKeys: Set<CaptureResult.Key<*>>
+                get() = TODO("Not yet implemented")
+
+            override val sessionKeys: Set<CaptureRequest.Key<*>>
+                get() = TODO("Not yet implemented")
+
+            override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata {
+                TODO("Not yet implemented")
             }
-            TODO("Not yet implemented")
-        }
 
-        override fun <T> get(key: Metadata.Key<T>): T? {
-            TODO("Not yet implemented")
-        }
+            override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
+                TODO("Not yet implemented")
+            }
 
-        override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
-            TODO("Not yet implemented")
-        }
+            override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
+                TODO("Not yet implemented")
+            }
 
-        override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T {
-            TODO("Not yet implemented")
-        }
+            override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+                println("throwingCameraMetadata get: key = $key")
+                if (
+                    Build.VERSION.SDK_INT >= 30 &&
+                        key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
+                ) {
+                    throw AssertionError()
+                }
+                TODO("Not yet implemented")
+            }
 
-        override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata {
-            TODO("Not yet implemented")
-        }
+            override fun <T> get(key: Metadata.Key<T>): T? {
+                TODO("Not yet implemented")
+            }
 
-        override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-            TODO("Not yet implemented")
+            override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
+                TODO("Not yet implemented")
+            }
+
+            override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata {
+                TODO("Not yet implemented")
+            }
+
+            override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+                TODO("Not yet implemented")
+            }
         }
-    }
 }

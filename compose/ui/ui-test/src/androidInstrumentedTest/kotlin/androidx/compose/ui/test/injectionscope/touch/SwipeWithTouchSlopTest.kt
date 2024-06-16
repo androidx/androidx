@@ -38,14 +38,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Test to see if we can achieve precise scroll motion when injecting touch events in the
- * presence of touch slop.
+ * Test to see if we can achieve precise scroll motion when injecting touch events in the presence
+ * of touch slop.
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SwipeWithTouchSlopTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun swipeScrollable_accountForTouchSlop() {
@@ -56,14 +55,11 @@ class SwipeWithTouchSlopTest {
                 with(LocalDensity.current) {
                     // Scrollable with a viewport the size of 10 boxes
                     Column(
-                        Modifier
-                            .testTag("scrollable")
+                        Modifier.testTag("scrollable")
                             .requiredSize(100.toDp(), 1000.toDp())
                             .verticalScroll(scrollState)
                     ) {
-                        repeat(100) {
-                            ClickableTestBox()
-                        }
+                        repeat(100) { ClickableTestBox() }
                     }
                 }
             }

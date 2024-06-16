@@ -25,11 +25,9 @@ import androidx.camera.camera2.pipe.media.ImageSource
 import javax.inject.Inject
 
 @CameraGraphScope
-internal class ImageSourceMap @Inject constructor(
-    graphConfig: CameraGraph.Config,
-    streamGraph: StreamGraph,
-    threads: Threads
-) {
+internal class ImageSourceMap
+@Inject
+constructor(graphConfig: CameraGraph.Config, streamGraph: StreamGraph, threads: Threads) {
     val imageSources: Map<StreamId, ImageSource>
 
     init {
@@ -38,14 +36,16 @@ internal class ImageSourceMap @Inject constructor(
                 val imageStream = config.imageSourceConfig ?: continue
                 val cameraStream = streamGraph[config]!!
 
-                val imageSource = ImageSource.create(
-                    cameraStream,
-                    imageStream.capacity,
-                    imageStream.usageFlags,
-                    imageStream.defaultDataSpace,
-                    imageStream.defaultHardwareBufferFormat,
-                    { threads.camera2Handler },
-                    { threads.lightweightExecutor })
+                val imageSource =
+                    ImageSource.create(
+                        cameraStream,
+                        imageStream.capacity,
+                        imageStream.usageFlags,
+                        imageStream.defaultDataSpace,
+                        imageStream.defaultHardwareBufferFormat,
+                        { threads.camera2Handler },
+                        { threads.lightweightExecutor }
+                    )
                 this[cameraStream.id] = imageSource
             }
         }

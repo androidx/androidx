@@ -27,8 +27,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Benchmark that runs [DeepRowColumnTestCase]. The purpose of this benchmark is to measure
- * compose, measure, and layout performance of Row and Column, which are extremely common layouts.
+ * Benchmark that runs [DeepRowColumnTestCase]. The purpose of this benchmark is to measure compose,
+ * measure, and layout performance of Row and Column, which are extremely common layouts.
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -42,17 +42,17 @@ class DeepRowColumnBenchmark(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "depth={0}_breadth={1}_weight={2}_align={3}")
-        fun initParameters(): Array<Any> = arrayOf(
-            arrayOf(1, 3, true, false),
-            arrayOf(1, 3, false, true),
-            arrayOf(1, 3, false, false),
-            arrayOf(1, 100, false, false),
-            arrayOf(100, 1, false, false),
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                arrayOf(1, 3, true, false),
+                arrayOf(1, 3, false, true),
+                arrayOf(1, 3, false, false),
+                arrayOf(1, 100, false, false),
+                arrayOf(100, 1, false, false),
+            )
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val caseFactory = { DeepRowColumnTestCase(weight, align, depth, breadth) }
 

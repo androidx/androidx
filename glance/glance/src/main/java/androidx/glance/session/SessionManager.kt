@@ -36,7 +36,6 @@ import kotlinx.coroutines.sync.withLock
 /**
  * [SessionManager] is the entrypoint for Glance surfaces to start a session worker that will handle
  * their composition.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SessionManager {
@@ -53,6 +52,7 @@ interface SessionManager {
     /**
      * The name of the session key parameter, which is used to set the session key in the Worker's
      * input data.
+     *
      * TODO: consider using a typealias instead
      */
     val keyParam: String
@@ -61,33 +61,24 @@ interface SessionManager {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SessionManagerScope {
-    /**
-     * Start a session for the Glance in [session].
-     */
+    /** Start a session for the Glance in [session]. */
     suspend fun startSession(context: Context, session: Session)
 
-    /**
-     * Closes the channel for the session corresponding to [key].
-     */
+    /** Closes the channel for the session corresponding to [key]. */
     suspend fun closeSession(key: String)
 
-    /**
-     * Returns true if a session is active with the given [key].
-     */
+    /** Returns true if a session is active with the given [key]. */
     suspend fun isSessionRunning(context: Context, key: String): Boolean
 
-    /**
-     * Gets the session corresponding to [key] if it exists
-     */
+    /** Gets the session corresponding to [key] if it exists */
     fun getSession(key: String): Session?
 }
 
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 val GlanceSessionManager: SessionManager = SessionManagerImpl(SessionWorker::class.java)
 
-internal class SessionManagerImpl(
-    private val workerClass: Class<out ListenableWorker>
-) : SessionManager {
+internal class SessionManagerImpl(private val workerClass: Class<out ListenableWorker>) :
+    SessionManager {
     private companion object {
         const val TAG = "GlanceSessionManager"
         const val DEBUG = false
@@ -99,69 +90,59 @@ internal class SessionManagerImpl(
 
     // All external access to this object is protected with a mutex, so there is no need for any
     // internal synchronization.
-    private val scope = object : SessionManagerScope {
-        private val sessions = mutableMapOf<String, Session>()
+    private val scope =
+        object : SessionManagerScope {
+            private val sessions = mutableMapOf<String, Session>()
 
-        override suspend fun startSession(context: Context, session: Session) {
-            if (DEBUG) Log.d(TAG, "startSession(${session.key})")
-            sessions.put(session.key, session)?.let { previousSession ->
-                previousSession.close()
-            }
-            val workRequest = OneTimeWorkRequest.Builder(workerClass)
-                .setInputData(
-                    workDataOf(
-                        keyParam to session.key
-                    )
-                )
-                .build()
-            WorkManager.getInstance(context)
-                .enqueueUniqueWork(session.key, ExistingWorkPolicy.REPLACE, workRequest)
-                .result.await()
-            enqueueDelayedWorker(context)
-        }
-
-        override fun getSession(key: String): Session? = sessions[key]
-
-        @SuppressLint("ListIterator")
-        override suspend fun isSessionRunning(
-            context: Context,
-            key: String
-        ): Boolean {
-            val workerIsRunningOrEnqueued = WorkManager.getInstance(context)
-                .getWorkInfosForUniqueWork(key)
-                .await()
-                .any { it.state in listOf(WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED) }
-            val hasOpenSession = sessions[key]?.isOpen ?: false
-            val isRunning = hasOpenSession && workerIsRunningOrEnqueued
-            if (DEBUG) Log.d(TAG, "isSessionRunning($key) == $isRunning")
-            return isRunning
-        }
-
-        override suspend fun closeSession(key: String) {
-            if (DEBUG) Log.d(TAG, "closeSession($key)")
-            sessions.remove(key)?.close()
-        }
-    }
-
-    override suspend fun <T> runWithLock(
-        block: suspend SessionManagerScope.() -> T
-    ): T = mutex.withLock { scope.block() }
-
-    /**
-     * Workaround worker to fix b/119920965
-     */
-    private fun enqueueDelayedWorker(context: Context) {
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            "sessionWorkerKeepEnabled",
-            ExistingWorkPolicy.KEEP,
-            OneTimeWorkRequest.Builder(workerClass)
-                .setInitialDelay(10 * 365, TimeUnit.DAYS)
-                .setConstraints(
-                    Constraints.Builder()
-                        .setRequiresCharging(true)
+            override suspend fun startSession(context: Context, session: Session) {
+                if (DEBUG) Log.d(TAG, "startSession(${session.key})")
+                sessions.put(session.key, session)?.let { previousSession ->
+                    previousSession.close()
+                }
+                val workRequest =
+                    OneTimeWorkRequest.Builder(workerClass)
+                        .setInputData(workDataOf(keyParam to session.key))
                         .build()
-                )
-                .build()
-        )
+                WorkManager.getInstance(context)
+                    .enqueueUniqueWork(session.key, ExistingWorkPolicy.REPLACE, workRequest)
+                    .result
+                    .await()
+                enqueueDelayedWorker(context)
+            }
+
+            override fun getSession(key: String): Session? = sessions[key]
+
+            @SuppressLint("ListIterator")
+            override suspend fun isSessionRunning(context: Context, key: String): Boolean {
+                val workerIsRunningOrEnqueued =
+                    WorkManager.getInstance(context).getWorkInfosForUniqueWork(key).await().any {
+                        it.state in listOf(WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED)
+                    }
+                val hasOpenSession = sessions[key]?.isOpen ?: false
+                val isRunning = hasOpenSession && workerIsRunningOrEnqueued
+                if (DEBUG) Log.d(TAG, "isSessionRunning($key) == $isRunning")
+                return isRunning
+            }
+
+            override suspend fun closeSession(key: String) {
+                if (DEBUG) Log.d(TAG, "closeSession($key)")
+                sessions.remove(key)?.close()
+            }
+        }
+
+    override suspend fun <T> runWithLock(block: suspend SessionManagerScope.() -> T): T =
+        mutex.withLock { scope.block() }
+
+    /** Workaround worker to fix b/119920965 */
+    private fun enqueueDelayedWorker(context: Context) {
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(
+                "sessionWorkerKeepEnabled",
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequest.Builder(workerClass)
+                    .setInitialDelay(10 * 365, TimeUnit.DAYS)
+                    .setConstraints(Constraints.Builder().setRequiresCharging(true).build())
+                    .build()
+            )
     }
 }

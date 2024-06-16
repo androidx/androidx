@@ -23,9 +23,7 @@ import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.KeyEventType.Companion.Unknown
 
-/**
- * The native Android [KeyEvent][NativeKeyEvent].
- */
+/** The native Android [KeyEvent][NativeKeyEvent]. */
 actual typealias NativeKeyEvent = android.view.KeyEvent
 
 /**
@@ -37,23 +35,23 @@ actual val KeyEvent.key: Key
     get() = Key(nativeKeyEvent.keyCode)
 
 /**
- * The UTF16 value corresponding to the key event that was pressed. The unicode character
- * takes into account any meta keys that are pressed (eg. Pressing shift results in capital
- * alphabets). The UTF16 value uses the
- * [U+n notation][http://www.unicode.org/reports/tr27/#notation] of the Unicode Standard.
+ * The UTF16 value corresponding to the key event that was pressed. The unicode character takes into
+ * account any meta keys that are pressed (eg. Pressing shift results in capital alphabets). The
+ * UTF16 value uses the [U+n notation][http://www.unicode.org/reports/tr27/#notation] of the Unicode
+ * Standard.
  *
- * An [Int] is used instead of a [Char] so that we can support supplementary characters. The
- * Unicode Standard allows for characters whose representation requires more than 16 bits.
- * The range of legal code points is U+0000 to U+10FFFF, known as Unicode scalar value.
+ * An [Int] is used instead of a [Char] so that we can support supplementary characters. The Unicode
+ * Standard allows for characters whose representation requires more than 16 bits. The range of
+ * legal code points is U+0000 to U+10FFFF, known as Unicode scalar value.
  *
- * The set of characters from U+0000 to U+FFFF is sometimes referred to as the Basic
- * Multilingual Plane (BMP). Characters whose code points are greater than U+FFFF are called
- * supplementary characters. In this representation, supplementary characters are represented
- * as a pair of char values, the first from the high-surrogates range, (\uD800-\uDBFF), the
- * second from the low-surrogates range (\uDC00-\uDFFF).
+ * The set of characters from U+0000 to U+FFFF is sometimes referred to as the Basic Multilingual
+ * Plane (BMP). Characters whose code points are greater than U+FFFF are called supplementary
+ * characters. In this representation, supplementary characters are represented as a pair of char
+ * values, the first from the high-surrogates range, (\uD800-\uDBFF), the second from the
+ * low-surrogates range (\uDC00-\uDFFF).
  *
- * If the return value has bit [KeyCharacterMap.COMBINING_ACCENT] set, the key is a "dead key"
- * that should be combined with another to actually produce a character -- see
+ * If the return value has bit [KeyCharacterMap.COMBINING_ACCENT] set, the key is a "dead key" that
+ * should be combined with another to actually produce a character -- see
  * [KeyCharacterMap.getDeadChar] -- after masking with [KeyCharacterMap.COMBINING_ACCENT_MASK].
  */
 actual val KeyEvent.utf16CodePoint: Int
@@ -65,11 +63,12 @@ actual val KeyEvent.utf16CodePoint: Int
  * @sample androidx.compose.ui.samples.KeyEventTypeSample
  */
 actual val KeyEvent.type: KeyEventType
-    get() = when (nativeKeyEvent.action) {
-        ACTION_DOWN -> KeyDown
-        ACTION_UP -> KeyUp
-        else -> Unknown
-    }
+    get() =
+        when (nativeKeyEvent.action) {
+            ACTION_DOWN -> KeyDown
+            ACTION_UP -> KeyUp
+            else -> Unknown
+        }
 
 /**
  * Indicates whether the Alt key is pressed.

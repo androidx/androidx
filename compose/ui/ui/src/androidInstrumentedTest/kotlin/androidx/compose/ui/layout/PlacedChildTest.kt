@@ -56,8 +56,7 @@ class PlacedChildTest {
 
     private val Tag = "tag"
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun remeasureNotPlacedChild() {
@@ -66,11 +65,7 @@ class PlacedChildTest {
             add(
                 node {
                     wrapChildren = true
-                    add(
-                        node {
-                            size = 10
-                        }
-                    )
+                    add(node { size = 10 })
                 }
             )
         }
@@ -92,32 +87,26 @@ class PlacedChildTest {
         var visible by mutableStateOf(false)
         rule.setContent {
             Box(
-                Modifier
-                    .then(
-                        if (visible) Modifier else Modifier.layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            layout(placeable.width, placeable.height) {
+                Modifier.then(
+                        if (visible) Modifier
+                        else
+                            Modifier.layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) {}
                             }
-                        }
                     )
                     .size(10.dp)
                     .testTag(Tag)
             )
         }
 
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
 
-        rule.onNodeWithTag(Tag)
-            .assertIsDisplayed()
+        rule.onNodeWithTag(Tag).assertIsDisplayed()
 
-        rule.runOnIdle {
-            visible = false
-        }
+        rule.runOnIdle { visible = false }
 
-        rule.onNodeWithTag(Tag)
-            .assertIsNotDisplayed()
+        rule.onNodeWithTag(Tag).assertIsNotDisplayed()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -131,20 +120,19 @@ class PlacedChildTest {
         rule.setContent {
             Box(Modifier.background(Color.Black).size(sizeDp).testTag(Tag)) {
                 Box(
-                    Modifier
-                        .then(
-                            if (visible) Modifier else Modifier.layout { measurable, constraints ->
-                                val placeable = measurable.measure(constraints)
-                                layout(placeable.width, placeable.height) {
+                    Modifier.then(
+                            if (visible) Modifier
+                            else
+                                Modifier.layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {}
                                 }
-                            }
                         )
                         .fillMaxSize()
                         .background(Color.Red)
                 )
                 Box(
-                    Modifier
-                        .offset(y = halfSizeDp)
+                    Modifier.offset(y = halfSizeDp)
                         .height(halfSizeDp)
                         .fillMaxWidth()
                         .background(Color.Green)
@@ -152,58 +140,51 @@ class PlacedChildTest {
             }
         }
 
-        rule.runOnIdle {
-            visible = true
+        rule.runOnIdle { visible = true }
+
+        rule.onNodeWithTag(Tag).captureToImage().assertPixels(expectedSize = IntSize(size, size)) {
+            offset ->
+            if (offset.y < halfSize) {
+                Color.Red
+            } else {
+                Color.Green
+            }
         }
 
-        rule.onNodeWithTag(Tag)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(size, size)) { offset ->
-                if (offset.y < halfSize) {
-                    Color.Red
-                } else {
-                    Color.Green
-                }
-            }
+        rule.runOnIdle { visible = false }
 
-        rule.runOnIdle {
-            visible = false
+        rule.onNodeWithTag(Tag).captureToImage().assertPixels(expectedSize = IntSize(size, size)) {
+            offset ->
+            if (offset.y < halfSize) {
+                Color.Black
+            } else {
+                Color.Green
+            }
         }
-
-        rule.onNodeWithTag(Tag)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(size, size)) { offset ->
-                if (offset.y < halfSize) {
-                    Color.Black
-                } else {
-                    Color.Green
-                }
-            }
     }
 
     @Test
     fun notPlacedChildIsNotCallingPlacingBlockOnItsModifier() {
         var modifier by mutableStateOf<Modifier>(Modifier)
         rule.setContent {
-            Layout(content = {
-                Box(modifier.size(10.dp))
-            }) { measurables, constraints ->
+            Layout(content = { Box(modifier.size(10.dp)) }) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
-                layout(placeable.width, placeable.height) { }
+                layout(placeable.width, placeable.height) {}
             }
         }
 
         var measureCount = 0
         var placementCount = 0
         rule.runOnIdle {
-            modifier = Modifier.layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                measureCount++
-                layout(placeable.width, placeable.height) {
-                    placementCount++
-                    placeable.place(0, 0)
+            modifier =
+                Modifier.layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    measureCount++
+                    layout(placeable.width, placeable.height) {
+                        placementCount++
+                        placeable.place(0, 0)
+                    }
                 }
-            }
         }
 
         rule.runOnIdle {
@@ -218,22 +199,22 @@ class PlacedChildTest {
         val shouldPlaceState = mutableStateOf(true)
         var placementCount = 0
         rule.setContent {
-            Layout(content = {
-                Layout(content = {
-                    Layout { _, _ ->
-                        counterState.value
-                        layout(50, 50) {
-                            placementCount++
+            Layout(
+                content = {
+                    Layout(
+                        content = {
+                            Layout { _, _ ->
+                                counterState.value
+                                layout(50, 50) { placementCount++ }
+                            }
                         }
-                    }
-                }) { measurables, constraints ->
-                    // this parent is always placing a child
-                    val placeable = measurables.first().measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
+                    ) { measurables, constraints ->
+                        // this parent is always placing a child
+                        val placeable = measurables.first().measure(constraints)
+                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                     }
                 }
-            }) { measurables, constraints ->
+            ) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
                 val shouldPlace = shouldPlaceState.value
                 layout(placeable.width, placeable.height) {
@@ -257,9 +238,7 @@ class PlacedChildTest {
             shouldPlaceState.value = false
         }
 
-        rule.runOnIdle {
-            assertThat(placementCount).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(placementCount).isEqualTo(0) }
     }
 
     @Test
@@ -269,22 +248,22 @@ class PlacedChildTest {
         var placementCount = 0
         rule.setContent {
             LookaheadScope {
-                Layout(content = {
-                    Layout(content = {
-                        Layout { _, _ ->
-                            counterState.value
-                            layout(50, 50) {
-                                placementCount++
+                Layout(
+                    content = {
+                        Layout(
+                            content = {
+                                Layout { _, _ ->
+                                    counterState.value
+                                    layout(50, 50) { placementCount++ }
+                                }
                             }
-                        }
-                    }) { measurables, constraints ->
-                        // this parent is always placing a child
-                        val placeable = measurables.first().measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
+                        ) { measurables, constraints ->
+                            // this parent is always placing a child
+                            val placeable = measurables.first().measure(constraints)
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                         }
                     }
-                }) { measurables, constraints ->
+                ) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
                     val shouldPlace = shouldPlaceState.value
                     layout(placeable.width, placeable.height) {
@@ -309,41 +288,27 @@ class PlacedChildTest {
             shouldPlaceState.value = false
         }
 
-        rule.runOnIdle {
-            assertThat(placementCount).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(placementCount).isEqualTo(0) }
     }
 
     @Test
     fun forceMeasureTheSubtreeSkipsNodesMeasuringInLayoutBlock() {
         val remeasurings = mutableListOf<Int>()
         val root = root {
-            runDuringMeasure(once = false) {
-                remeasurings.add(0)
-            }
+            runDuringMeasure(once = false) { remeasurings.add(0) }
             add(
                 node {
                     measureInLayoutBlock()
-                    runDuringMeasure(once = false) {
-                        remeasurings.add(1)
-                    }
+                    runDuringMeasure(once = false) { remeasurings.add(1) }
                     add(
                         node {
-                            runDuringMeasure(once = false) {
-                                remeasurings.add(2)
-                            }
+                            runDuringMeasure(once = false) { remeasurings.add(2) }
                             size = 10
                         }
                     )
                 }
             )
-            add(
-                node {
-                    runDuringMeasure(once = false) {
-                        remeasurings.add(3)
-                    }
-                }
-            )
+            add(node { runDuringMeasure(once = false) { remeasurings.add(3) } })
         }
 
         val delegate = createDelegate(root)
@@ -361,28 +326,16 @@ class PlacedChildTest {
     fun forceMeasureTheSubtreeDoesntRelayoutWhenParentsSizeChanges() {
         val order = mutableListOf<Int>()
         val root = root {
-            runDuringMeasure(once = false) {
-                order.add(0)
-            }
-            runDuringLayout(once = false) {
-                order.add(1)
-            }
+            runDuringMeasure(once = false) { order.add(0) }
+            runDuringLayout(once = false) { order.add(1) }
             add(
                 node {
-                    runDuringMeasure(once = false) {
-                        order.add(2)
-                    }
-                    runDuringLayout(once = false) {
-                        order.add(3)
-                    }
+                    runDuringMeasure(once = false) { order.add(2) }
+                    runDuringLayout(once = false) { order.add(3) }
                     add(
                         node {
-                            runDuringMeasure(once = false) {
-                                order.add(6)
-                            }
-                            runDuringLayout(once = false) {
-                                order.add(7)
-                            }
+                            runDuringMeasure(once = false) { order.add(6) }
+                            runDuringLayout(once = false) { order.add(7) }
                             size = 10
                         }
                     )
@@ -390,12 +343,8 @@ class PlacedChildTest {
             )
             add(
                 node {
-                    runDuringMeasure(once = false) {
-                        order.add(4)
-                    }
-                    runDuringLayout(once = false) {
-                        order.add(5)
-                    }
+                    runDuringMeasure(once = false) { order.add(4) }
+                    runDuringLayout(once = false) { order.add(5) }
                 }
             )
         }
@@ -409,16 +358,19 @@ class PlacedChildTest {
         root.second.requestRemeasure() // node with indexes 4 and 5
         delegate.measureAndLayout()
 
-        assertThat(order).isEqualTo(listOf(
-            0, // remeasure root
-            6, // force remeasure root.first.first, it will change the size
-            2, // remeasure root.first because the size changed
-            4, // remeasure root.second
-            1, // relayout root
-            3, // relayout root.first
-            7, // relayout root.first.first
-            5, // relayout root.second
-        ))
+        assertThat(order)
+            .isEqualTo(
+                listOf(
+                    0, // remeasure root
+                    6, // force remeasure root.first.first, it will change the size
+                    2, // remeasure root.first because the size changed
+                    4, // remeasure root.second
+                    1, // relayout root
+                    3, // relayout root.first
+                    7, // relayout root.first.first
+                    5, // relayout root.second
+                )
+            )
     }
 
     @Test
@@ -427,16 +379,20 @@ class PlacedChildTest {
         var placeCount = 0
         var childPlaceCount = 0
         rule.setContent {
-            Box(Modifier.layout { measurable, constraints ->
-                val p = measurable.measure(constraints)
-                layout(p.width, p.height) {
-                    placeCount++
-                    if (placeChild) {
-                        childPlaceCount++
-                        p.place(0, 0)
+            Box(
+                Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            placeCount++
+                            if (placeChild) {
+                                childPlaceCount++
+                                p.place(0, 0)
+                            }
+                        }
                     }
-                }
-            }.size(10.dp).background(Color.White)) {
+                    .size(10.dp)
+                    .background(Color.White)
+            ) {
                 Box(Modifier.size(5.dp).background(Color.Green))
             }
         }
@@ -453,14 +409,15 @@ class PlacedChildTest {
     }
 }
 
-private val UseChildSizeButNotPlace = object : LayoutNode.NoIntrinsicsMeasurePolicy("") {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeable = measurables.first().measure(constraints)
-        return layout(placeable.width, placeable.height) {
-            // do not place
+private val UseChildSizeButNotPlace =
+    object : LayoutNode.NoIntrinsicsMeasurePolicy("") {
+        override fun MeasureScope.measure(
+            measurables: List<Measurable>,
+            constraints: Constraints
+        ): MeasureResult {
+            val placeable = measurables.first().measure(constraints)
+            return layout(placeable.width, placeable.height) {
+                // do not place
+            }
         }
     }
-}

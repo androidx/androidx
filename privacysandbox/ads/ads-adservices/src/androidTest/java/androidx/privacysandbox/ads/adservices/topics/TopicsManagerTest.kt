@@ -69,10 +69,11 @@ class TopicsManagerTest {
         if (mValidAdExtServicesSdkExt9Version) {
             // setup a mockitoSession to return the mocked manager
             // when the static method .get() is called
-            mSession = ExtendedMockito.mockitoSession()
-                .mockStatic(android.adservices.topics.TopicsManager::class.java)
-                .strictness(Strictness.LENIENT)
-                .startMocking()
+            mSession =
+                ExtendedMockito.mockitoSession()
+                    .mockStatic(android.adservices.topics.TopicsManager::class.java)
+                    .strictness(Strictness.LENIENT)
+                    .startMocking()
         }
     }
 
@@ -91,7 +92,7 @@ class TopicsManagerTest {
 
     @Test
     fun testTopicsManagerNoClassDefFoundError() {
-        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExt9Version);
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExt9Version)
 
         `when`(TopicsManager.get(any())).thenThrow(NoClassDefFoundError())
         assertThat(obtain(mContext)).isNull()
@@ -110,17 +111,17 @@ class TopicsManagerTest {
 
         // Actually invoke the compat code.
         val result = runBlocking {
-            val request = GetTopicsRequest.Builder()
-                .setAdsSdkName(mSdkName)
-                .setShouldRecordObservation(true)
-                .build()
+            val request =
+                GetTopicsRequest.Builder()
+                    .setAdsSdkName(mSdkName)
+                    .setShouldRecordObservation(true)
+                    .build()
 
             managerCompat!!.getTopics(request)
         }
 
         // Verify that the compat code was invoked correctly.
-        val captor = ArgumentCaptor
-            .forClass(android.adservices.topics.GetTopicsRequest::class.java)
+        val captor = ArgumentCaptor.forClass(android.adservices.topics.GetTopicsRequest::class.java)
         verify(topicsManager).getTopics(captor.capture(), any(), any())
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -143,17 +144,17 @@ class TopicsManagerTest {
 
         // Actually invoke the compat code.
         val result = runBlocking {
-            val request = GetTopicsRequest.Builder()
-                .setAdsSdkName(mSdkName)
-                .setShouldRecordObservation(true)
-                .build()
+            val request =
+                GetTopicsRequest.Builder()
+                    .setAdsSdkName(mSdkName)
+                    .setShouldRecordObservation(true)
+                    .build()
 
             managerCompat!!.getTopics(request)
         }
 
         // Verify that the compat code was invoked correctly.
-        val captor = ArgumentCaptor
-            .forClass(android.adservices.topics.GetTopicsRequest::class.java)
+        val captor = ArgumentCaptor.forClass(android.adservices.topics.GetTopicsRequest::class.java)
         verify(topicsManager).getTopics(captor.capture(), any(), any())
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -186,8 +187,7 @@ class TopicsManagerTest {
         }
 
         // Verify that the compat code was invoked correctly.
-        val captor = ArgumentCaptor
-            .forClass(android.adservices.topics.GetTopicsRequest::class.java)
+        val captor = ArgumentCaptor.forClass(android.adservices.topics.GetTopicsRequest::class.java)
         verify(topicsManager).getTopics(captor.capture(), any(), any())
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -220,14 +220,16 @@ class TopicsManagerTest {
             val topics = listOf(topic1, topic2)
             val response = android.adservices.topics.GetTopicsResponse.Builder(topics).build()
             val answer = { args: InvocationOnMock ->
-                val receiver = args.getArgument<
-                    OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>>(2)
+                val receiver =
+                    args.getArgument<
+                        OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>
+                    >(
+                        2
+                    )
                 receiver.onResult(response)
                 null
             }
-            doAnswer(answer).`when`(topicsManager).getTopics(
-                any(), any(), any()
-            )
+            doAnswer(answer).`when`(topicsManager).getTopics(any(), any(), any())
         }
 
         @Suppress("deprecation")
@@ -235,38 +237,40 @@ class TopicsManagerTest {
             // Set up the response that TopicsManager will return when the compat code calls it.
             val topic1 = Topic(1, 1, 1)
             val topic2 = Topic(2, 2, 2)
-            var encryptedTopic1 = EncryptedTopic(
-                "encryptedTopic1".toByteArray(),
-                "publicKey1",
-                "encapsulatedKey1".toByteArray()
-            )
-            var encryptedTopic2 = EncryptedTopic(
-                "encryptedTopic2".toByteArray(),
-                "publicKey2",
-                "encapsulatedKey2".toByteArray()
-            )
+            var encryptedTopic1 =
+                EncryptedTopic(
+                    "encryptedTopic1".toByteArray(),
+                    "publicKey1",
+                    "encapsulatedKey1".toByteArray()
+                )
+            var encryptedTopic2 =
+                EncryptedTopic(
+                    "encryptedTopic2".toByteArray(),
+                    "publicKey2",
+                    "encapsulatedKey2".toByteArray()
+                )
 
             val topics = listOf(topic1, topic2)
             val encryptedTopics = listOf(encryptedTopic1, encryptedTopic2)
             val response =
                 android.adservices.topics.GetTopicsResponse.Builder(topics, encryptedTopics).build()
             val answer = { args: InvocationOnMock ->
-                val receiver = args.getArgument<
-                    OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>>(2)
+                val receiver =
+                    args.getArgument<
+                        OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>
+                    >(
+                        2
+                    )
                 receiver.onResult(response)
                 null
             }
-            doAnswer(answer).`when`(topicsManager).getTopics(
-                any(), any(), any()
-            )
+            doAnswer(answer).`when`(topicsManager).getTopics(any(), any(), any())
         }
 
         private fun verifyRequest(topicsRequest: android.adservices.topics.GetTopicsRequest) {
             // Set up the request that we expect the compat code to invoke.
             val expectedRequest =
-                android.adservices.topics.GetTopicsRequest.Builder()
-                    .setAdsSdkName(mSdkName)
-                    .build()
+                android.adservices.topics.GetTopicsRequest.Builder().setAdsSdkName(mSdkName).build()
 
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
         }
@@ -276,8 +280,10 @@ class TopicsManagerTest {
         ) {
             // Set up the request that we expect the compat code to invoke.
             val expectedRequest =
-                android.adservices.topics.GetTopicsRequest.Builder().setAdsSdkName(mSdkName)
-                    .setShouldRecordObservation(false).build()
+                android.adservices.topics.GetTopicsRequest.Builder()
+                    .setAdsSdkName(mSdkName)
+                    .setShouldRecordObservation(false)
+                    .build()
 
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
         }

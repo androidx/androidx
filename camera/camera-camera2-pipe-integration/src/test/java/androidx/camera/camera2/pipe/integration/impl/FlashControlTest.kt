@@ -68,8 +68,7 @@ class FlashControlTest {
     private val testScope = TestScope()
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
 
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule(testDispatcher)
+    @get:Rule val mainDispatcherRule = MainDispatcherRule(testDispatcher)
 
     private val fakeUseCaseThreads by lazy {
         val executor = MoreExecutors.directExecutor()
@@ -84,18 +83,19 @@ class FlashControlTest {
     }
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
     private val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-    private val aeFpsRange = AeFpsRange(
-        CameraQuirks(
-            FakeCameraMetadata(),
-            StreamConfigurationMapCompat(
-                StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(
-                    FakeCameraMetadata(),
-                    StreamConfigurationMapBuilder.newBuilder().build()
+    private val aeFpsRange =
+        AeFpsRange(
+            CameraQuirks(
+                FakeCameraMetadata(),
+                StreamConfigurationMapCompat(
+                    StreamConfigurationMapBuilder.newBuilder().build(),
+                    OutputSizesCorrector(
+                        FakeCameraMetadata(),
+                        StreamConfigurationMapBuilder.newBuilder().build()
+                    )
                 )
             )
         )
-    )
     private lateinit var state3AControl: State3AControl
     private lateinit var torchControl: TorchControl
     private lateinit var flashControl: FlashControl
@@ -111,51 +111,54 @@ class FlashControlTest {
         addExternalFlashAeMode: Boolean = false,
         useFlashModeTorch: Boolean = false,
     ) {
-        val aeAvailableModes = mutableListOf(
-            CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
-            CaptureRequest.CONTROL_AE_MODE_ON,
-            CaptureRequest.CONTROL_AE_MODE_OFF,
-            CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH,
-        ).apply {
-            if (addExternalFlashAeMode) {
-                add(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
-            }
-        }
+        val aeAvailableModes =
+            mutableListOf(
+                    CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                    CaptureRequest.CONTROL_AE_MODE_ON,
+                    CaptureRequest.CONTROL_AE_MODE_OFF,
+                    CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH,
+                )
+                .apply {
+                    if (addExternalFlashAeMode) {
+                        add(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
+                    }
+                }
 
-        val metadata = FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to aeAvailableModes.toIntArray()
+        val metadata =
+            FakeCameraMetadata(
+                mapOf(
+                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+                        aeAvailableModes.toIntArray()
+                )
             )
-        )
         val cameraProperties = FakeCameraProperties(metadata)
 
-        state3AControl = State3AControl(
-            cameraProperties,
-            NoOpAutoFlashAEModeDisabler,
-            aeFpsRange,
-        ).apply {
-            useCaseCamera = fakeUseCaseCamera
-        }
+        state3AControl =
+            State3AControl(
+                    cameraProperties,
+                    NoOpAutoFlashAEModeDisabler,
+                    aeFpsRange,
+                )
+                .apply { useCaseCamera = fakeUseCaseCamera }
 
-        torchControl = TorchControl(
-            cameraProperties,
-            state3AControl,
-            fakeUseCaseThreads
-        ).apply {
-            useCaseCamera = fakeUseCaseCamera
-        }
+        torchControl =
+            TorchControl(cameraProperties, state3AControl, fakeUseCaseThreads).apply {
+                useCaseCamera = fakeUseCaseCamera
+            }
 
-        flashControl = FlashControl(
-            cameraProperties = cameraProperties,
-            state3AControl = state3AControl,
-            threads = fakeUseCaseThreads,
-            torchControl = torchControl,
-            useFlashModeTorchFor3aUpdate = if (useFlashModeTorch) {
-                UseFlashModeTorchFor3aUpdateImpl
-            } else {
-                NotUseFlashModeTorchFor3aUpdate
-            },
-        )
+        flashControl =
+            FlashControl(
+                cameraProperties = cameraProperties,
+                state3AControl = state3AControl,
+                threads = fakeUseCaseThreads,
+                torchControl = torchControl,
+                useFlashModeTorchFor3aUpdate =
+                    if (useFlashModeTorch) {
+                        UseFlashModeTorchFor3aUpdateImpl
+                    } else {
+                        NotUseFlashModeTorchFor3aUpdate
+                    },
+            )
         flashControl.useCaseCamera = fakeUseCaseCamera
         flashControl.setScreenFlash(screenFlash)
     }
@@ -165,23 +168,19 @@ class FlashControlTest {
         val fakeUseCaseCamera = FakeUseCaseCamera()
         val fakeCameraProperties = FakeCameraProperties()
 
-        val flashControl = FlashControl(
-            fakeCameraProperties,
-            State3AControl(
+        val flashControl =
+            FlashControl(
                 fakeCameraProperties,
-                NoOpAutoFlashAEModeDisabler,
-                aeFpsRange,
-            ).apply {
-                useCaseCamera = fakeUseCaseCamera
-            },
-            fakeUseCaseThreads,
-            TorchControl(
-                fakeCameraProperties,
-                state3AControl,
-                fakeUseCaseThreads
-            ),
-            NotUseFlashModeTorchFor3aUpdate
-        )
+                State3AControl(
+                        fakeCameraProperties,
+                        NoOpAutoFlashAEModeDisabler,
+                        aeFpsRange,
+                    )
+                    .apply { useCaseCamera = fakeUseCaseCamera },
+                fakeUseCaseThreads,
+                TorchControl(fakeCameraProperties, state3AControl, fakeUseCaseThreads),
+                NotUseFlashModeTorchFor3aUpdate
+            )
 
         assertThrows<CameraControl.OperationCanceledException> {
             flashControl.setFlashAsync(ImageCapture.FLASH_MODE_ON).awaitWithTimeout()
@@ -198,9 +197,12 @@ class FlashControlTest {
 
         // Assert. AE mode should change accordingly.
         assertThat(fakeRequestControl.addParameterCalls).hasSize(1)
-        assertThat(fakeRequestControl.addParameterCalls[0]).containsAtLeastEntriesIn(
-            mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
-        )
+        assertThat(fakeRequestControl.addParameterCalls[0])
+            .containsAtLeastEntriesIn(
+                mapOf(
+                    CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                )
+            )
     }
 
     @Test
@@ -213,9 +215,12 @@ class FlashControlTest {
 
         // Assert. AE mode should change accordingly.
         assertThat(fakeRequestControl.addParameterCalls).hasSize(1)
-        assertThat(fakeRequestControl.addParameterCalls[0]).containsAtLeastEntriesIn(
-            mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
-        )
+        assertThat(fakeRequestControl.addParameterCalls[0])
+            .containsAtLeastEntriesIn(
+                mapOf(
+                    CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+                )
+            )
     }
 
     @Test
@@ -229,12 +234,16 @@ class FlashControlTest {
 
         // Assert. AE mode should change accordingly.
         assertThat(fakeRequestControl.addParameterCalls).hasSize(2)
-        assertThat(fakeRequestControl.addParameterCalls[0]).containsAtLeastEntriesIn(
-            mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
-        )
-        assertThat(fakeRequestControl.addParameterCalls[1]).containsAtLeastEntriesIn(
-            mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON)
-        )
+        assertThat(fakeRequestControl.addParameterCalls[0])
+            .containsAtLeastEntriesIn(
+                mapOf(
+                    CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                )
+            )
+        assertThat(fakeRequestControl.addParameterCalls[1])
+            .containsAtLeastEntriesIn(
+                mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON)
+            )
     }
 
     @Test
@@ -246,9 +255,7 @@ class FlashControlTest {
         val deferred = flashControl.setFlashAsync(ImageCapture.FLASH_MODE_ON)
         flashControl.setFlashAsync(ImageCapture.FLASH_MODE_ON)
 
-        assertThrows<CameraControl.OperationCanceledException> {
-            deferred.awaitWithTimeout()
-        }
+        assertThrows<CameraControl.OperationCanceledException> { deferred.awaitWithTimeout() }
     }
 
     @Test
@@ -262,9 +269,7 @@ class FlashControlTest {
         flashControl.reset()
         flashControl.useCaseCamera = null
 
-        assertThrows<CameraControl.OperationCanceledException> {
-            deferred.awaitWithTimeout()
-        }
+        assertThrows<CameraControl.OperationCanceledException> { deferred.awaitWithTimeout() }
     }
 
     @Test
@@ -273,9 +278,8 @@ class FlashControlTest {
         fakeRequestControl.addParameterResult = CompletableDeferred()
 
         val deferred = flashControl.setFlashAsync(ImageCapture.FLASH_MODE_ON)
-        val fakeRequestControl = FakeUseCaseCameraRequestControl().apply {
-            addParameterResult = CompletableDeferred()
-        }
+        val fakeRequestControl =
+            FakeUseCaseCameraRequestControl().apply { addParameterResult = CompletableDeferred() }
         val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
 
         // Act. Simulate the UseCaseCamera is recreated.
@@ -295,9 +299,8 @@ class FlashControlTest {
         fakeRequestControl.addParameterResult = CompletableDeferred()
 
         val deferred = flashControl.setFlashAsync(ImageCapture.FLASH_MODE_ON)
-        val fakeRequestControl = FakeUseCaseCameraRequestControl().apply {
-            addParameterResult = CompletableDeferred()
-        }
+        val fakeRequestControl =
+            FakeUseCaseCameraRequestControl().apply { addParameterResult = CompletableDeferred() }
         val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
 
         // Act. Simulate the UseCaseCamera is recreated.
@@ -309,18 +312,14 @@ class FlashControlTest {
         fakeRequestControl.addParameterResult.complete(Unit)
 
         // Assert. The previous set Flash mode task should be cancelled
-        assertThrows<CameraControl.OperationCanceledException> {
-            deferred.awaitWithTimeout()
-        }
+        assertThrows<CameraControl.OperationCanceledException> { deferred.awaitWithTimeout() }
         // Assert. The latest set Flash mode task should be completed.
         assertThat(deferred2.awaitWithTimeout()).isNotNull()
     }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(
         timeMillis: Long = TimeUnit.SECONDS.toMillis(5)
-    ) = withTimeout(timeMillis) {
-        await()
-    }
+    ) = withTimeout(timeMillis) { await() }
 
     @Test
     fun canSetScreenFlash() {
@@ -336,9 +335,8 @@ class FlashControlTest {
 
         flashControl.startScreenFlashCaptureTasks()
 
-        assertThat(screenFlash.lastApplyExpirationTimeMillis).isAtLeast(
-            initialTime + TimeUnit.SECONDS.toMillis(3)
-        )
+        assertThat(screenFlash.lastApplyExpirationTimeMillis)
+            .isAtLeast(initialTime + TimeUnit.SECONDS.toMillis(3))
     }
 
     @Test
@@ -347,9 +345,8 @@ class FlashControlTest {
 
         flashControl.startScreenFlashCaptureTasks()
 
-        assertThat(screenFlash.lastApplyExpirationTimeMillis).isLessThan(
-            initialTime + TimeUnit.SECONDS.toMillis(4)
-        )
+        assertThat(screenFlash.lastApplyExpirationTimeMillis)
+            .isLessThan(initialTime + TimeUnit.SECONDS.toMillis(4))
     }
 
     @Test

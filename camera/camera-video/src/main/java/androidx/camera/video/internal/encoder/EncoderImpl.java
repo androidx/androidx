@@ -90,7 +90,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>An encoder could be either a video encoder or an audio encoder.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncoderImpl implements Encoder {
 
     enum InternalState {
@@ -1051,7 +1050,6 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class MediaCodecCallback extends MediaCodec.Callback {
         @Nullable
         private final VideoTimebaseConverter mVideoTimestampConverter;
@@ -1512,7 +1510,6 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class SurfaceInput implements Encoder.SurfaceInput {
 
         private final Object mLock = new Object();

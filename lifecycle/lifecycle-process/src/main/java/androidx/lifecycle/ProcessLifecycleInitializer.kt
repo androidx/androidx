@@ -19,9 +19,7 @@ import android.content.Context
 import androidx.startup.AppInitializer
 import androidx.startup.Initializer
 
-/**
- * Initializes [ProcessLifecycleOwner] using `androidx.startup`.
- */
+/** Initializes [ProcessLifecycleOwner] using `androidx.startup`. */
 class ProcessLifecycleInitializer : Initializer<LifecycleOwner> {
     override fun create(context: Context): LifecycleOwner {
         val appInitializer = AppInitializer.getInstance(context)

@@ -47,26 +47,29 @@ class RippleTestActivity : ComponentActivity() {
                 val interactionSource = remember {
                     object : MutableInteractionSource {
                         override suspend fun emit(interaction: Interaction) {}
+
                         override fun tryEmit(interaction: Interaction) = true
+
                         override val interactions: Flow<Interaction>
                             get() = flowOf(PressInteraction.Press(Offset.Zero))
                     }
                 }
                 Text(
                     text = "Click me with indication",
-                    modifier = Modifier
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = ripple()
-                        ) { /* do something */ }
-                        .padding(10.dp)
+                    modifier =
+                        Modifier.clickable(
+                                interactionSource = interactionSource,
+                                indication = ripple()
+                            ) { /* do something */
+                            }
+                            .padding(10.dp)
                 )
                 Spacer(Modifier.requiredHeight(10.dp))
                 Text(
                     text = "I show indication with clicking on other Text composable",
-                    modifier = Modifier
-                        .indication(interactionSource, LocalIndication.current)
-                        .padding(10.dp)
+                    modifier =
+                        Modifier.indication(interactionSource, LocalIndication.current)
+                            .padding(10.dp)
                 )
             }
         }

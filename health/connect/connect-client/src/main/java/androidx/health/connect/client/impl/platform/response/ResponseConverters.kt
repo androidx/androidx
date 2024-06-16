@@ -118,7 +118,7 @@ internal fun getLongMetricValues(
         metricValueMap.forEach { (key, value) ->
             if (
                 key in DURATION_AGGREGATION_METRIC_TYPE_MAP ||
-                key in LONG_AGGREGATION_METRIC_TYPE_MAP
+                    key in LONG_AGGREGATION_METRIC_TYPE_MAP
             ) {
                 this[key.metricKey] = value as Long
             }
@@ -136,36 +136,28 @@ internal fun getDoubleMetricValues(
                 in DOUBLE_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = value as Double
                 }
-
                 in ENERGY_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] =
                         Energy.calories((value as PlatformEnergy).inCalories).inKilocalories
                 }
-
                 in GRAMS_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformMass).inGrams
                 }
-
                 in LENGTH_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformLength).inMeters
                 }
-
                 in KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = Mass.grams((value as PlatformMass).inGrams).inKilograms
                 }
-
                 in PRESSURE_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformPressure).inMillimetersOfMercury
                 }
-
                 in POWER_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformPower).inWatts
                 }
-
                 in VELOCITY_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformVelocity).inMetersPerSecond
                 }
-
                 in VOLUME_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformVolume).inLiters
                 }

@@ -46,24 +46,26 @@ class ProfileVerificationOnUnsupportedApiVersions {
     }
 
     @Test
-    fun unsupportedApiWithInitializer() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
-        install(apkName = APK_WITH_INITIALIZER_V1, withProfile = false)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
+    fun unsupportedApiWithInitializer() =
+        withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
+            install(apkName = APK_WITH_INITIALIZER_V1, withProfile = false)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
         }
-    }
 
     @Test
-    fun unsupportedApiWithoutInitializer() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
-        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
+    fun unsupportedApiWithoutInitializer() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
         }
-    }
 }

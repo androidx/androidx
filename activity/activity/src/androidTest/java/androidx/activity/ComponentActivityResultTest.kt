@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityResultTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun launchInOnCreate() {
@@ -74,7 +73,7 @@ class ComponentActivityResultTest {
                 launcher.launch(Intent(this, FinishActivity::class.java))
             }
 
-            scenario.withActivity { }
+            scenario.withActivity {}
 
             val latch = scenario.withActivity { launchCountDownLatch }
             val list = scenario.withActivity { launchedList }
@@ -110,10 +109,11 @@ class ComponentActivityResultTest {
                 }
             }
 
-            val launchCountDownLatch = scenario.withActivity {
-                assertThat(exceptionThrown).isTrue()
-                launchCount
-            }
+            val launchCountDownLatch =
+                scenario.withActivity {
+                    assertThat(exceptionThrown).isTrue()
+                    launchCount
+                }
 
             assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }
@@ -131,10 +131,11 @@ class ComponentActivityResultTest {
                 }
             }
 
-            val launchCountDownLatch = scenario.withActivity {
-                assertThat(exceptionThrown).isTrue()
-                launchCount
-            }
+            val launchCountDownLatch =
+                scenario.withActivity {
+                    assertThat(exceptionThrown).isTrue()
+                    launchCount
+                }
 
             assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }
@@ -142,11 +143,13 @@ class ComponentActivityResultTest {
 }
 
 class PassThroughActivity : ComponentActivity() {
-    private val launcher = registerForActivityResult(StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            finish()
+    private val launcher =
+        registerForActivityResult(StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                finish()
+            }
         }
-    }
+
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,19 +160,20 @@ class PassThroughActivity : ComponentActivity() {
 class ResultComponentActivity : ComponentActivity() {
     var registryLaunchCount = 0
 
-    val registry = object : ActivityResultRegistry() {
+    val registry =
+        object : ActivityResultRegistry() {
 
-        override fun <I : Any?, O : Any?> onLaunch(
-            requestCode: Int,
-            contract: ActivityResultContract<I, O>,
-            input: I,
-            options: ActivityOptionsCompat?
-        ) {
-            registryLaunchCount++
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                registryLaunchCount++
+            }
         }
-    }
 
-    val launcher = registerForActivityResult(StartActivityForResult(), registry) { }
+    val launcher = registerForActivityResult(StartActivityForResult(), registry) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -186,17 +190,18 @@ class RegisterBeforeOnCreateActivity : ComponentActivity() {
 
     init {
         addOnContextAvailableListener {
-            launcher = if (!recreated) {
-                registerForActivityResult(StartActivityForResult()) {
-                    launchedList.add("first")
-                    launchCountDownLatch.countDown()
+            launcher =
+                if (!recreated) {
+                    registerForActivityResult(StartActivityForResult()) {
+                        launchedList.add("first")
+                        launchCountDownLatch.countDown()
+                    }
+                } else {
+                    registerForActivityResult(StartActivityForResult()) {
+                        launchedList.add("second")
+                        launchCountDownLatch.countDown()
+                    }
                 }
-            } else {
-                registerForActivityResult(StartActivityForResult()) {
-                    launchedList.add("second")
-                    launchCountDownLatch.countDown()
-                }
-            }
         }
     }
 
@@ -214,12 +219,11 @@ class RegisterInInitActivity : ComponentActivity() {
     var launchCount = CountDownLatch(1)
 
     init {
-        launcher = registerForActivityResult(StartActivityForResult()) {
-            launchCount.countDown()
-        }
-        launcherNoLifecycle = activityResultRegistry.register("test", StartActivityForResult()) {
-            launchCount.countDown()
-        }
+        launcher = registerForActivityResult(StartActivityForResult()) { launchCount.countDown() }
+        launcherNoLifecycle =
+            activityResultRegistry.register("test", StartActivityForResult()) {
+                launchCount.countDown()
+            }
     }
 }
 

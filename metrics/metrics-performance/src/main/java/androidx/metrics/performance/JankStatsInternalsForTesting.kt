@@ -23,8 +23,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 
 /**
- * This class exists for calling into otherwise private/internal APIs in JankStats, to allow
- * for easier, more targeted testing of those internal pieces.
+ * This class exists for calling into otherwise private/internal APIs in JankStats, to allow for
+ * easier, more targeted testing of those internal pieces.
  */
 @VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

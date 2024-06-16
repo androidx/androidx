@@ -22,7 +22,7 @@ import java.lang.StringBuilder
  * Builds error message with reason appended.
  *
  * @param errorMessageOnFail message explaining which operation you were about to perform. This
- *                           makes it easier for developer to find where the failure happened.
+ *   makes it easier for developer to find where the failure happened.
  * @param reason the reason for failure
  */
 internal fun buildErrorMessageWithReason(errorMessageOnFail: String, reason: String): String {
@@ -31,8 +31,8 @@ internal fun buildErrorMessageWithReason(errorMessageOnFail: String, reason: Str
 
 /**
  * Builds error reason for case where amount of matching nodes are less than needed to query given
- * index and perform assertions on (e.g. if getting a node at index 2 but only 2 nodes exist in
- * the collection).
+ * index and perform assertions on (e.g. if getting a node at index 2 but only 2 nodes exist in the
+ * collection).
  */
 internal fun buildErrorReasonForIndexOutOfMatchedNodeBounds(
     matcherDescription: String,
@@ -43,9 +43,7 @@ internal fun buildErrorReasonForIndexOutOfMatchedNodeBounds(
         "to get node at index '$requestedIndex'. Found '$actualCount' matching node(s)"
 }
 
-/**
- * Builds error reason for case where expected amount of matching nodes does not match reality.
- */
+/** Builds error reason for case where expected amount of matching nodes does not match reality. */
 internal fun buildErrorReasonForCountMismatch(
     matcherDescription: String,
     expectedCount: Int,
@@ -57,7 +55,6 @@ internal fun buildErrorReasonForCountMismatch(
         0 -> {
             sb.append("Did not expect any node matching condition: $matcherDescription")
         }
-
         else -> {
             sb.append("Expected '$expectedCount' node(s) matching condition: $matcherDescription")
         }
@@ -72,9 +69,7 @@ internal fun buildErrorReasonForCountMismatch(
  * Builds error reason for assertions where at least one node was expected to be present to make
  * assertions on (e.g. assertAny).
  */
-internal fun buildErrorReasonForAtLeastOneNodeExpected(
-    matcherDescription: String
-): String {
+internal fun buildErrorReasonForAtLeastOneNodeExpected(matcherDescription: String): String {
     return "Expected to receive at least 1 node " +
         "but 0 nodes were found for condition: ($matcherDescription)"
 }
@@ -85,10 +80,7 @@ internal fun buildErrorReasonForAtLeastOneNodeExpected(
  * <p>Provide [errorMessage] to explain which operation you were about to perform. This makes it
  * easier for developer to find where the failure happened.
  */
-internal fun <R> buildGeneralErrorMessage(
-    errorMessage: String,
-    node: GlanceNode<R>
-): String {
+internal fun <R> buildGeneralErrorMessage(errorMessage: String, node: GlanceNode<R>): String {
     val sb = StringBuilder()
     sb.append(errorMessage)
 

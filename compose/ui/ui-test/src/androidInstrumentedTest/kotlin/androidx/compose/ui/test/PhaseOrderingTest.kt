@@ -33,8 +33,7 @@ import org.junit.Test
 @SmallTest
 class PhaseOrderingTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun singlePass() {
@@ -59,9 +58,7 @@ class PhaseOrderingTest {
 
             Layout(content = {}) { _, _ ->
                 counter.expect(3)
-                layout(1, 1) {
-                    counter.expect(4)
-                }
+                layout(1, 1) { counter.expect(4) }
             }
         }
     }
@@ -86,14 +83,10 @@ class PhaseOrderingTest {
             Layout(content = {}) { _, _ ->
                 counter.expect(if (firstPass) 2 else 5)
                 layoutCount++
-                layout(1, 1) {
-                    counter.expect(if (firstPass) 3 else 6)
-                }
+                layout(1, 1) { counter.expect(if (firstPass) 3 else 6) }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(layoutCount).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(layoutCount).isEqualTo(2) }
     }
 }

@@ -73,18 +73,13 @@ class AlphaTest {
             activity.setContent {
                 AtLeastSize(
                     size = 10,
-                    modifier = Modifier.background(Color.White)
-                        .alpha(1f)
-                        .background(color)
-                        .then(unlatch)
-                ) {
-                }
+                    modifier =
+                        Modifier.background(Color.White).alpha(1f).background(color).then(unlatch)
+                ) {}
             }
         }
 
-        takeScreenShot(10).apply {
-            assertRect(color)
-        }
+        takeScreenShot(10).apply { assertRect(color) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -95,18 +90,13 @@ class AlphaTest {
             activity.setContent {
                 AtLeastSize(
                     size = 10,
-                    modifier = Modifier.background(Color.White)
-                        .alpha(0f)
-                        .background(color)
-                        .then(unlatch)
-                ) {
-                }
+                    modifier =
+                        Modifier.background(Color.White).alpha(0f).background(color).then(unlatch)
+                ) {}
             }
         }
 
-        takeScreenShot(10).apply {
-            assertRect(Color.White)
-        }
+        takeScreenShot(10).apply { assertRect(Color.White) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -118,24 +108,21 @@ class AlphaTest {
                 Row(Modifier.background(Color.White)) {
                     AtLeastSize(
                         size = 10,
-                        modifier = Modifier.background(Color.White)
-                            .alpha(0.5f)
-                            .background(color)
-                            .then(unlatch)
-                    ) {
-                    }
+                        modifier =
+                            Modifier.background(Color.White)
+                                .alpha(0.5f)
+                                .background(color)
+                                .then(unlatch)
+                    ) {}
                     AtLeastSize(
                         size = 10,
                         modifier = Modifier.background(color.copy(alpha = 0.5f))
-                    ) {
-                    }
+                    ) {}
                 }
             }
         }
 
-        takeScreenShot(20, 10).apply {
-            assertColorsEqual(color(5, 5), color(15, 5))
-        }
+        takeScreenShot(20, 10).apply { assertColorsEqual(color(5, 5), color(15, 5)) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -148,23 +135,19 @@ class AlphaTest {
             activity.setContent {
                 AtLeastSize(
                     size = 10,
-                    modifier = Modifier.background(Color.White)
-                        .alpha(alpha.value)
-                        .then(unlatch)
-                        .background(color)
-                ) {
-                }
+                    modifier =
+                        Modifier.background(Color.White)
+                            .alpha(alpha.value)
+                            .then(unlatch)
+                            .background(color)
+                ) {}
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        rule.runOnUiThreadIR {
-            alpha.value = 1f
-        }
+        rule.runOnUiThreadIR { alpha.value = 1f }
 
-        takeScreenShot(10).apply {
-            assertRect(color)
-        }
+        takeScreenShot(10).apply { assertRect(color) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -177,24 +160,20 @@ class AlphaTest {
             activity.setContent {
                 AtLeastSize(
                     size = 10,
-                    modifier = Modifier.background(Color.White)
-                        .alpha(1f)
-                        .alpha(alpha)
-                        .then(unlatch)
-                        .background(color)
-                ) {
-                }
+                    modifier =
+                        Modifier.background(Color.White)
+                            .alpha(1f)
+                            .alpha(alpha)
+                            .then(unlatch)
+                            .background(color)
+                ) {}
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        rule.runOnUiThreadIR {
-            alpha = 1f
-        }
+        rule.runOnUiThreadIR { alpha = 1f }
 
-        takeScreenShot(10).apply {
-            assertRect(color)
-        }
+        takeScreenShot(10).apply { assertRect(color) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -206,25 +185,19 @@ class AlphaTest {
             activity.setContent {
                 AtLeastSize(
                     size = 10,
-                    modifier = Modifier.background(Color.White)
-                        .run {
-                            if (model.value) alpha(0f).background(Color.Green) else this
-                        }
-                        .then(unlatch)
-                ) {
-                }
+                    modifier =
+                        Modifier.background(Color.White)
+                            .run { if (model.value) alpha(0f).background(Color.Green) else this }
+                            .then(unlatch)
+                ) {}
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
-            model.value = true
-        }
+        rule.runOnUiThreadIR { model.value = true }
 
-        takeScreenShot(10).apply {
-            assertRect(Color.White)
-        }
+        takeScreenShot(10).apply { assertRect(Color.White) }
     }
 
     // waitAndScreenShot() requires API level 26

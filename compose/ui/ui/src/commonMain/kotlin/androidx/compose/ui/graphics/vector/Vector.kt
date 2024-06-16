@@ -69,21 +69,23 @@ val DefaultTintBlendMode = BlendMode.SrcIn
 val DefaultTintColor = Color.Transparent
 val DefaultFillType = PathFillType.NonZero
 
-inline fun PathData(block: PathBuilder.() -> Unit) = with(PathBuilder()) {
-    block()
-    nodes
-}
+inline fun PathData(block: PathBuilder.() -> Unit) =
+    with(PathBuilder()) {
+        block()
+        nodes
+    }
 
-fun addPathNodes(pathStr: String?) = if (pathStr == null) {
-    EmptyPath
-} else {
-    PathParser().parsePathString(pathStr).toNodes()
-}
+fun addPathNodes(pathStr: String?) =
+    if (pathStr == null) {
+        EmptyPath
+    } else {
+        PathParser().parsePathString(pathStr).toNodes()
+    }
 
 sealed class VNode {
     /**
-     * Callback invoked whenever the node in the vector tree is modified in a way that would
-     * change the output of the Vector
+     * Callback invoked whenever the node in the vector tree is modified in a way that would change
+     * the output of the Vector
      */
     internal open var invalidateListener: ((VNode) -> Unit)? = null
 
@@ -97,9 +99,7 @@ sealed class VNode {
 internal class VectorComponent(val root: GroupComponent) : VNode() {
 
     init {
-        root.invalidateListener = {
-            doInvalidate()
-        }
+        root.invalidateListener = { doInvalidate() }
     }
 
     var name: String = DefaultGroupName
@@ -131,34 +131,33 @@ internal class VectorComponent(val root: GroupComponent) : VNode() {
     private var rootScaleX = 1f
     private var rootScaleY = 1f
 
-    /**
-     * Cached lambda used to avoid allocating the lambda on each draw invocation
-     */
+    /** Cached lambda used to avoid allocating the lambda on each draw invocation */
     private val drawVectorBlock: DrawScope.() -> Unit = {
-        with(root) {
-            scale(rootScaleX, rootScaleY, pivot = Offset.Zero) {
-                draw()
-            }
-        }
+        with(root) { scale(rootScaleX, rootScaleY, pivot = Offset.Zero) { draw() } }
     }
 
     fun DrawScope.draw(alpha: Float, colorFilter: ColorFilter?) {
         // If the content of the vector has changed, or we are drawing a different size
         // update the cached image to ensure we are scaling the vector appropriately
         val isOneColor = root.isTintable && root.tintColor.isSpecified
-        val targetImageConfig = if (isOneColor && intrinsicColorFilter.tintableWithAlphaMask() &&
-            colorFilter.tintableWithAlphaMask()) {
-            ImageBitmapConfig.Alpha8
-        } else {
-            ImageBitmapConfig.Argb8888
-        }
+        val targetImageConfig =
+            if (
+                isOneColor &&
+                    intrinsicColorFilter.tintableWithAlphaMask() &&
+                    colorFilter.tintableWithAlphaMask()
+            ) {
+                ImageBitmapConfig.Alpha8
+            } else {
+                ImageBitmapConfig.Argb8888
+            }
 
         if (isDirty || previousDrawSize != size || targetImageConfig != cacheBitmapConfig) {
-            tintFilter = if (targetImageConfig == ImageBitmapConfig.Alpha8) {
-                ColorFilter.tint(root.tintColor)
-            } else {
-                null
-            }
+            tintFilter =
+                if (targetImageConfig == ImageBitmapConfig.Alpha8) {
+                    ColorFilter.tint(root.tintColor)
+                } else {
+                    null
+                }
             rootScaleX = size.width / viewportSize.width
             rootScaleY = size.height / viewportSize.height
             cacheDrawScope.drawCachedImage(
@@ -171,13 +170,14 @@ internal class VectorComponent(val root: GroupComponent) : VNode() {
             isDirty = false
             previousDrawSize = size
         }
-        val targetFilter = if (colorFilter != null) {
-            colorFilter
-        } else if (intrinsicColorFilter != null) {
-            intrinsicColorFilter
-        } else {
-            tintFilter
-        }
+        val targetFilter =
+            if (colorFilter != null) {
+                colorFilter
+            } else if (intrinsicColorFilter != null) {
+                intrinsicColorFilter
+            } else {
+                tintFilter
+            }
         cacheDrawScope.drawInto(this, alpha, targetFilter)
     }
 
@@ -363,9 +363,8 @@ internal class GroupComponent : VNode() {
     private val children = mutableListOf<VNode>()
 
     /**
-     * Flag to determine if the contents of this group can be rendered with a single color
-     * This is true if all the paths and groups within this group can be rendered with the
-     * same color
+     * Flag to determine if the contents of this group can be rendered with a single color This is
+     * true if all the paths and groups within this group can be rendered with the same color
      */
     var isTintable = true
         private set
@@ -378,9 +377,9 @@ internal class GroupComponent : VNode() {
         private set
 
     /**
-     * Helper method to inspect whether the provided brush matches the current color of paths
-     * within the group in order to help determine if only an alpha channel bitmap can be allocated
-     * and tinted in order to save on memory overhead.
+     * Helper method to inspect whether the provided brush matches the current color of paths within
+     * the group in order to help determine if only an alpha channel bitmap can be allocated and
+     * tinted in order to save on memory overhead.
      */
     private fun markTintForBrush(brush: Brush?) {
         if (!isTintable) {
@@ -398,9 +397,9 @@ internal class GroupComponent : VNode() {
     }
 
     /**
-     * Helper method to inspect whether the provided color matches the current color of paths
-     * within the group in order to help determine if only an alpha channel bitmap can be allocated
-     * and tinted in order to save on memory overhead.
+     * Helper method to inspect whether the provided color matches the current color of paths within
+     * the group in order to help determine if only an alpha channel bitmap can be allocated and
+     * tinted in order to save on memory overhead.
      */
     private fun markTintForColor(color: Color) {
         if (!isTintable) {
@@ -613,38 +612,30 @@ internal class GroupComponent : VNode() {
                 clipPath(targetClip)
             }
         }) {
-            children.fastForEach { node ->
-                with(node) {
-                    this@draw.draw()
-                }
-            }
+            children.fastForEach { node -> with(node) { this@draw.draw() } }
         }
     }
 
     override fun toString(): String {
         val sb = StringBuilder().append("VGroup: ").append(name)
-        children.fastForEach { node ->
-            sb.append("\t").append(node.toString()).append("\n")
-        }
+        children.fastForEach { node -> sb.append("\t").append(node.toString()).append("\n") }
         return sb.toString()
     }
 }
 
 /**
- * helper method to verify if the rgb channels are equal excluding comparison of the alpha
- * channel
+ * helper method to verify if the rgb channels are equal excluding comparison of the alpha channel
  */
 internal fun Color.rgbEqual(other: Color) =
-    this.red == other.red &&
-        this.green == other.green &&
-        this.blue == other.blue
+    this.red == other.red && this.green == other.green && this.blue == other.blue
 
 /**
- * Helper method to determine if a particular ColorFilter will generate the same output
- * if the bitmap has an Alpha8 or ARGB8888 configuration
+ * Helper method to determine if a particular ColorFilter will generate the same output if the
+ * bitmap has an Alpha8 or ARGB8888 configuration
  */
-internal fun ColorFilter?.tintableWithAlphaMask() = if (this is BlendModeColorFilter) {
-    this.blendMode == BlendMode.SrcIn || this.blendMode == BlendMode.SrcOver
-} else {
-    this == null
-}
+internal fun ColorFilter?.tintableWithAlphaMask() =
+    if (this is BlendModeColorFilter) {
+        this.blendMode == BlendMode.SrcIn || this.blendMode == BlendMode.SrcOver
+    } else {
+        this == null
+    }

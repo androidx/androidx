@@ -24,7 +24,6 @@ import androidx.benchmark.argumentSource
  * Hack to enable overriding benchmark arguments (since we can't easily do this in CI, per apk)
  *
  * The *correct* way to do this would be to put the following in benchmark/build.gradle:
- *
  * ```
  * android {
  *     defaultConfig {
@@ -38,8 +37,7 @@ class ArgumentInjectingApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        argumentSource = Bundle().apply {
-            putString("androidx.benchmark.startupMode.enable", "true")
-        }
+        argumentSource =
+            Bundle().apply { putString("androidx.benchmark.startupMode.enable", "true") }
     }
 }

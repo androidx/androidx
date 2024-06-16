@@ -57,7 +57,7 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
  * Gets the Android specific [AutofillHint][android.view.ViewStructure.setAutofillHints]
  * corresponding to the [ContentType].
  */
-internal actual class ContentType private constructor(private val contentHints: Set<String>) {
+internal actual class ContentType private constructor(internal val contentHints: Set<String>) {
     actual constructor(contentHint: String) : this(setOf(contentHint))
 
     internal actual companion object {
@@ -71,12 +71,10 @@ internal actual class ContentType private constructor(private val contentHints: 
         actual val PostalCode = ContentType(AUTOFILL_HINT_POSTAL_CODE)
         actual val CreditCardNumber = ContentType(AUTOFILL_HINT_CREDIT_CARD_NUMBER)
         actual val CreditCardSecurityCode = ContentType(AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE)
-        actual val CreditCardExpirationDate =
-            ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE)
+        actual val CreditCardExpirationDate = ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE)
         actual val CreditCardExpirationMonth =
             ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH)
-        actual val CreditCardExpirationYear =
-            ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR)
+        actual val CreditCardExpirationYear = ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR)
         actual val CreditCardExpirationDay = ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY)
         actual val AddressCountry = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY)
         actual val AddressRegion = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_REGION)

@@ -28,8 +28,5 @@ import androidx.compose.ui.unit.dp
 @Sampled
 @Composable
 fun ShadowSample() {
-    Box(
-        Modifier.shadow(12.dp, RectangleShape)
-            .size(100.dp, 100.dp)
-    )
+    Box(Modifier.shadow(12.dp, RectangleShape).size(100.dp, 100.dp))
 }

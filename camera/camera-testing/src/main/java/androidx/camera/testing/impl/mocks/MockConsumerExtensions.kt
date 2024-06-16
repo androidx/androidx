@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.testing.impl.mocks
 
-import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.mocks.MockConsumer.NO_TIMEOUT
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
@@ -35,7 +32,6 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimes
  * @param callTimes the condition for how many times [MockConsumer.accept] method should be called.
  * @param onCall the callback with a list of instances of [MockConsumer.accept] calls when the
  *   condition is met.
- *
  * @see [MockConsumer.verifyAcceptCall]
  */
 fun <T> MockConsumer<T>.verifyAcceptCallExt(
@@ -46,12 +42,6 @@ fun <T> MockConsumer<T>.verifyAcceptCallExt(
     onCall: ((List<T>) -> Unit)? = null,
 ) {
     val captor = onCall?.let { ArgumentCaptor<T>() }
-    verifyAcceptCall(
-        classType,
-        inOrder,
-        timeoutMs,
-        callTimes,
-        captor
-    )
+    verifyAcceptCall(classType, inOrder, timeoutMs, callTimes, captor)
     onCall?.invoke(captor!!.allValues as List<T>)
 }

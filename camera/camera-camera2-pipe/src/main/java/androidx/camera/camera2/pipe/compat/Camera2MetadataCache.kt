@@ -43,8 +43,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.withContext
 
 /**
- * Provides caching and querying of [CameraMetadata] and [CameraExtensionMetadata]
- * via Camera2.
+ * Provides caching and querying of [CameraMetadata] and [CameraExtensionMetadata] via Camera2.
  *
  * This class is thread safe and provides suspending functions for querying and accessing
  * [CameraMetadata] and [CameraExtensionMetadata].
@@ -60,8 +59,7 @@ constructor(
     private val timeSource: TimeSource
 ) : Camera2MetadataProvider {
 
-    @GuardedBy("cache")
-    private val cache = ArrayMap<String, CameraMetadata>()
+    @GuardedBy("cache") private val cache = ArrayMap<String, CameraMetadata>()
 
     @GuardedBy("extensionCache")
     private val extensionCache = ArrayMap<String, CameraExtensionMetadata>()
@@ -140,10 +138,7 @@ constructor(
         }
     }
 
-    private fun createCameraMetadata(
-        cameraId: CameraId,
-        redacted: Boolean
-    ): Camera2CameraMetadata {
+    private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {
         val start = Timestamps.now(timeSource)
 
         return Debug.trace("$cameraId#readCameraMetadata") {
@@ -245,8 +240,8 @@ constructor(
                 return@trace extensionMetadata
             } catch (throwable: Throwable) {
                 throw IllegalStateException(
-                    "Failed to load extension metadata " +
-                        "for $cameraId!", throwable
+                    "Failed to load extension metadata " + "for $cameraId!",
+                    throwable
                 )
             }
         }
@@ -266,8 +261,8 @@ constructor(
         val cameraManager =
             cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        val extensionCharacteristics = Api31Compat
-            .getCameraExtensionCharacteristics(cameraManager, cameraId.value)
+        val extensionCharacteristics =
+            Api31Compat.getCameraExtensionCharacteristics(cameraManager, cameraId.value)
 
         // This technically shouldn't be null per documentation, but we suspect it could be
         // under certain devices in certain situations.

@@ -52,9 +52,9 @@ private val defaultAnimation = spring<Float>()
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. [spring]
- *                      will be used by default.
+ *   will be used by default.
  * @param visibilityThreshold An optional threshold for deciding when the animation value is
- *                            considered close enough to the targetValue.
+ *   considered close enough to the targetValue.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -84,11 +84,11 @@ fun animateFloatAsState(
 }
 
 /**
- * Fire-and-forget animation function for [Dp]. This Composable function is overloaded for
- * different parameter types such as [Float], [Color][androidx.compose.ui.graphics.Color], [Offset],
- * etc. When the provided [targetValue] is changed, the animation will run automatically. If there
- * is already an animation in-flight when [targetValue] changes, the on-going animation will adjust
- * course to animate towards the new target value.
+ * Fire-and-forget animation function for [Dp]. This Composable function is overloaded for different
+ * parameter types such as [Float], [Color][androidx.compose.ui.graphics.Color], [Offset], etc. When
+ * the provided [targetValue] is changed, the animation will run automatically. If there is already
+ * an animation in-flight when [targetValue] changes, the on-going animation will adjust course to
+ * animate towards the new target value.
  *
  * [animateDpAsState] returns a [State] object. The value of the state object will continuously be
  * updated by the animation until the animation finishes.
@@ -100,7 +100,7 @@ fun animateFloatAsState(
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -141,7 +141,7 @@ private val dpDefaultSpring = spring<Dp>(visibilityThreshold = Dp.VisibilityThre
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -171,8 +171,8 @@ private val sizeDefaultSpring = spring(visibilityThreshold = Size.VisibilityThre
  * is already an animation in-flight when [targetValue] changes, the on-going animation will adjust
  * course to animate towards the new target value.
  *
- * [animateOffsetAsState] returns a [State] object. The value of the state object will
- * continuously be updated by the animation until the animation finishes.
+ * [animateOffsetAsState] returns a [State] object. The value of the state object will continuously
+ * be updated by the animation until the animation finishes.
  *
  * Note, [animateOffsetAsState] cannot be canceled/stopped without removing this composable function
  * from the tree. See [Animatable] for cancelable animations.
@@ -181,7 +181,7 @@ private val sizeDefaultSpring = spring(visibilityThreshold = Size.VisibilityThre
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -217,12 +217,12 @@ private val offsetDefaultSpring = spring(visibilityThreshold = Offset.Visibility
  * Note, [animateRectAsState] cannot be canceled/stopped without removing this composable function
  * from the tree. See [Animatable] for cancelable animations.
  *
- *    val bounds: Rect by animateRectAsState(
- *        if (enabled) Rect(0f, 0f, 100f, 100f) else Rect(8f, 8f, 80f, 80f))
+ * val bounds: Rect by animateRectAsState( if (enabled) Rect(0f, 0f, 100f, 100f) else Rect(8f, 8f,
+ * 80f, 80f))
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -260,7 +260,7 @@ private val rectDefaultSpring = spring(visibilityThreshold = Rect.VisibilityThre
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -300,7 +300,7 @@ private val intDefaultSpring = spring(visibilityThreshold = Int.VisibilityThresh
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -333,12 +333,12 @@ private val intOffsetDefaultSpring = spring(visibilityThreshold = IntOffset.Visi
  * [animateIntSizeAsState] returns a [State] object. The value of the state object will continuously
  * be updated by the animation until the animation finishes.
  *
- * Note, [animateIntSizeAsState] cannot be canceled/stopped without removing this composable function
- * from the tree. See [Animatable] for cancelable animations.
+ * Note, [animateIntSizeAsState] cannot be canceled/stopped without removing this composable
+ * function from the tree. See [Animatable] for cancelable animations.
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -368,8 +368,8 @@ private val intSizeDefaultSpring = spring(visibilityThreshold = IntSize.Visibili
  * is already an animation in-flight when [targetValue] changes, the on-going animation will adjust
  * course to animate towards the new target value.
  *
- * [animateValueAsState] returns a [State] object. The value of the state object will continuously be
- * updated by the animation until the animation finishes.
+ * [animateValueAsState] returns a [State] object. The value of the state object will continuously
+ * be updated by the animation until the animation finishes.
  *
  * Note, [animateValueAsState] cannot be canceled/stopped without removing this composable function
  * from the tree. See [Animatable] for cancelable animations.
@@ -380,9 +380,9 @@ private val intSizeDefaultSpring = spring(visibilityThreshold = IntSize.Visibili
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ *   animation will be used by default.
  * @param visibilityThreshold An optional threshold to define when the animation value can be
- *                            considered close enough to the targetValue to end the animation.
+ *   considered close enough to the targetValue to end the animation.
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param finishedListener An optional end listener to get notified when the animation is finished.
  * @return A [State] object, the value of which is updated by animation.
@@ -400,21 +400,22 @@ fun <T, V : AnimationVector> animateValueAsState(
     val toolingOverride = remember { mutableStateOf<State<T>?>(null) }
     val animatable = remember { Animatable(targetValue, typeConverter, visibilityThreshold, label) }
     val listener by rememberUpdatedState(finishedListener)
-    val animSpec: AnimationSpec<T> by rememberUpdatedState(
-        animationSpec.run {
-            if (visibilityThreshold != null && this is SpringSpec &&
-                this.visibilityThreshold != visibilityThreshold
-            ) {
-                spring(dampingRatio, stiffness, visibilityThreshold)
-            } else {
-                this
+    val animSpec: AnimationSpec<T> by
+        rememberUpdatedState(
+            animationSpec.run {
+                if (
+                    visibilityThreshold != null &&
+                        this is SpringSpec &&
+                        this.visibilityThreshold != visibilityThreshold
+                ) {
+                    spring(dampingRatio, stiffness, visibilityThreshold)
+                } else {
+                    this
+                }
             }
-        }
-    )
+        )
     val channel = remember { Channel<T>(Channel.CONFLATED) }
-    SideEffect {
-        channel.trySend(targetValue)
-    }
+    SideEffect { channel.trySend(targetValue) }
     LaunchedEffect(channel) {
         for (target in channel) {
             // This additional poll is needed because when the channel suspends on receive and
@@ -444,7 +445,8 @@ fun animateFloatAsState(
     animationSpec: AnimationSpec<Float> = defaultAnimation,
     visibilityThreshold: Float = 0.01f,
     finishedListener: ((Float) -> Unit)? = null
-): State<Float> = animateFloatAsState(
+): State<Float> =
+    animateFloatAsState(
         targetValue,
         animationSpec,
         visibilityThreshold,
@@ -498,7 +500,10 @@ fun animateOffsetAsState(
     finishedListener: ((Offset) -> Unit)? = null
 ): State<Offset> {
     return animateValueAsState(
-        targetValue, Offset.VectorConverter, animationSpec, finishedListener = finishedListener
+        targetValue,
+        Offset.VectorConverter,
+        animationSpec,
+        finishedListener = finishedListener
     )
 }
 
@@ -513,7 +518,10 @@ fun animateRectAsState(
     finishedListener: ((Rect) -> Unit)? = null
 ): State<Rect> {
     return animateValueAsState(
-        targetValue, Rect.VectorConverter, animationSpec, finishedListener = finishedListener
+        targetValue,
+        Rect.VectorConverter,
+        animationSpec,
+        finishedListener = finishedListener
     )
 }
 
@@ -528,7 +536,10 @@ fun animateIntAsState(
     finishedListener: ((Int) -> Unit)? = null
 ): State<Int> {
     return animateValueAsState(
-        targetValue, Int.VectorConverter, animationSpec, finishedListener = finishedListener
+        targetValue,
+        Int.VectorConverter,
+        animationSpec,
+        finishedListener = finishedListener
     )
 }
 
@@ -543,7 +554,10 @@ fun animateIntOffsetAsState(
     finishedListener: ((IntOffset) -> Unit)? = null
 ): State<IntOffset> {
     return animateValueAsState(
-        targetValue, IntOffset.VectorConverter, animationSpec, finishedListener = finishedListener
+        targetValue,
+        IntOffset.VectorConverter,
+        animationSpec,
+        finishedListener = finishedListener
     )
 }
 
@@ -558,7 +572,10 @@ fun animateIntSizeAsState(
     finishedListener: ((IntSize) -> Unit)? = null
 ): State<IntSize> {
     return animateValueAsState(
-        targetValue, IntSize.VectorConverter, animationSpec, finishedListener = finishedListener
+        targetValue,
+        IntSize.VectorConverter,
+        animationSpec,
+        finishedListener = finishedListener
     )
 }
 
@@ -573,11 +590,12 @@ fun <T, V : AnimationVector> animateValueAsState(
     animationSpec: AnimationSpec<T> = remember { spring() },
     visibilityThreshold: T? = null,
     finishedListener: ((T) -> Unit)? = null
-): State<T> = animateValueAsState(
-    targetValue = targetValue,
-    typeConverter = typeConverter,
-    animationSpec = animationSpec,
-    visibilityThreshold = visibilityThreshold,
-    label = "ValueAnimation",
-    finishedListener = finishedListener
-)
+): State<T> =
+    animateValueAsState(
+        targetValue = targetValue,
+        typeConverter = typeConverter,
+        animationSpec = animationSpec,
+        visibilityThreshold = visibilityThreshold,
+        label = "ValueAnimation",
+        finishedListener = finishedListener
+    )

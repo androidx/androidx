@@ -21,9 +21,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @JvmDefaultWithCompatibility
-/**
- * The Data Access Object for [WorkTag]s.
- */
+/** The Data Access Object for [WorkTag]s. */
 @Dao
 interface WorkTagDao {
     /**
@@ -31,16 +29,14 @@ interface WorkTagDao {
      *
      * @param workTag The [WorkTag] to insert
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(workTag: WorkTag)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insert(workTag: WorkTag)
 
     /**
      * Deletes [WorkSpec]s from the database.
      *
      * @param id The WorkSpec id to delete.
      */
-    @Query("DELETE FROM worktag WHERE work_spec_id=:id")
-    fun deleteByWorkSpecId(id: String)
+    @Query("DELETE FROM worktag WHERE work_spec_id=:id") fun deleteByWorkSpecId(id: String)
 
     /**
      * Retrieves all [WorkSpec] ids with the given tag.

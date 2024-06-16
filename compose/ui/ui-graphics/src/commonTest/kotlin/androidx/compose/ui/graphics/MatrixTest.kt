@@ -53,6 +53,46 @@ class MatrixTest {
     }
 
     @Test
+    fun resetToPivotedTransform() {
+        val matrix = Matrix()
+        matrix.translate(5f)
+        matrix.resetToPivotedTransform()
+        assertTrue(matrix.isIdentity())
+
+        matrix.values.fill(2f)
+        matrix.resetToPivotedTransform()
+        assertTrue(matrix.isIdentity())
+
+        val px = 64.0f
+        val py = 32.0f
+        val tx = 200.0f
+        val ty = 300.0f
+        val tz = 1.0f
+        val rx = 15.0f
+        val ry = 25.0f
+        val rz = 35.0f
+        val sx = 1.2f
+        val sy = 1.4f
+        val sz = 1.1f
+
+        matrix.resetToPivotedTransform(px, py, tx, ty, tz, rx, ry, rz, sx, sy, sz)
+
+        val matrix2 = Matrix()
+        matrix2.translate(-px, -py)
+        matrix2 *=
+            Matrix().apply {
+                translate(tx, ty, tz)
+                rotateX(rx)
+                rotateY(ry)
+                rotateZ(rz)
+                scale(sx, sy, sz)
+            }
+        matrix2 *= Matrix().apply { translate(px, py) }
+
+        assertMatricesNearlyEqual(matrix, matrix2)
+    }
+
+    @Test
     fun mapPoint() {
         val matrix = Matrix()
         matrix.rotateZ(45f)
@@ -272,6 +312,14 @@ class MatrixTest {
                 }
             }
             return true
+        }
+
+        private fun assertMatricesNearlyEqual(m1: Matrix, m2: Matrix, tolerance: Float = 1e-4f) {
+            val v1 = m1.values
+            val v2 = m2.values
+            for (i in 0..15) {
+                assertEquals(v2[i], v1[i], tolerance)
+            }
         }
     }
 }

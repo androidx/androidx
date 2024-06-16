@@ -38,24 +38,16 @@ import org.junit.runners.Parameterized
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class TextMultiStyleBenchmark(
-    private val textLength: Int,
-    private val styleCount: Int
-) {
+class TextMultiStyleBenchmark(private val textLength: Int, private val styleCount: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0} styleCount={1}")
-        fun initParameters() = cartesian(
-            arrayOf(32, 512),
-            arrayOf(0, 32)
-        ).filterForCi { last() }
+        fun initParameters() = cartesian(arrayOf(32, 512), arrayOf(0, 32)).filterForCi { last() }
     }
 
-    @get:Rule
-    val textBenchmarkRule = TextBenchmarkTestRule()
+    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule()
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
@@ -65,21 +57,18 @@ class TextMultiStyleBenchmark(
             /**
              * Text render has a word cache in the underlying system. To get a proper metric of its
              * performance, the cache needs to be disabled, which unfortunately is not doable via
-             * public API. Here is a workaround which generates a new string when a new test case
-             * is created.
+             * public API. Here is a workaround which generates a new string when a new test case is
+             * created.
              */
-            val texts = List(textBenchmarkRule.repeatTimes) {
-                textGenerator.nextAnnotatedString(
-                    length = textLength,
-                    styleCount = styleCount,
-                    hasMetricAffectingStyle = true
-                )
-            }
-            AnnotatedTextInColumnTestCase(
-                texts = texts,
-                width = width,
-                fontSize = fontSize
-            )
+            val texts =
+                List(textBenchmarkRule.repeatTimes) {
+                    textGenerator.nextAnnotatedString(
+                        length = textLength,
+                        styleCount = styleCount,
+                        hasMetricAffectingStyle = true
+                    )
+                }
+            AnnotatedTextInColumnTestCase(texts = texts, width = width, fontSize = fontSize)
         }
     }
 
@@ -110,19 +99,15 @@ class TextMultiStyleBenchmark(
         benchmarkRule.benchmarkFirstLayout(caseFactory)
     }
 
-    /**
-     * Measure the time taken by first time draw the Text composable with styled text
-     * as input.
-     */
+    /** Measure the time taken by first time draw the Text composable with styled text as input. */
     @Test
     fun first_draw() {
         benchmarkRule.benchmarkFirstDraw(caseFactory)
     }
 
     /**
-     * Measure the time taken by layout a Text composable with styled text input, when
-     * layout constrains changed.
-     * This is mainly the time used to re-measure and re-layout the composable.
+     * Measure the time taken by layout a Text composable with styled text input, when layout
+     * constrains changed. This is mainly the time used to re-measure and re-layout the composable.
      */
     @Test
     fun layout() {

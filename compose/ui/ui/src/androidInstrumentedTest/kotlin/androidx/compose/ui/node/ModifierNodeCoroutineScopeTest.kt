@@ -36,8 +36,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeCoroutineScopeTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun detach_doesNotCaptureStackTrace() {
@@ -56,25 +55,24 @@ class ModifierNodeCoroutineScopeTest {
             }
         }
 
-        val testElement = object : ModifierNodeElement<TestNode>() {
-            override fun create(): TestNode = TestNode()
-            override fun update(node: TestNode) {}
+        val testElement =
+            object : ModifierNodeElement<TestNode>() {
+                override fun create(): TestNode = TestNode()
 
-            override fun hashCode(): Int = 0
-            override fun equals(other: Any?): Boolean = other === this
-        }
+                override fun update(node: TestNode) {}
+
+                override fun hashCode(): Int = 0
+
+                override fun equals(other: Any?): Boolean = other === this
+            }
 
         rule.setContent {
             if (shouldAttachNode) {
                 Box(Modifier.then(testElement))
             }
         }
-        rule.runOnIdle {
-            shouldAttachNode = false
-        }
+        rule.runOnIdle { shouldAttachNode = false }
 
-        rule.runOnIdle {
-            assertThat(exception!!.stackTrace).isEmpty()
-        }
+        rule.runOnIdle { assertThat(exception!!.stackTrace).isEmpty() }
     }
 }

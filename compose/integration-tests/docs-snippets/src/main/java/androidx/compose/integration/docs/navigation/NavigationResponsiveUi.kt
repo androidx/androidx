@@ -36,76 +36,89 @@ import kotlinx.coroutines.flow.MutableStateFlow
  *
  * No action required if it's modified.
  */
-
 private object NavigationResponsiveUiSnippet1 {
 
-  enum class WindowSizeClass { Compact, Medium, Expanded }
-
-  @Composable
-  fun MyApp(windowSizeClass: WindowSizeClass) {
-    // Select a navigation element based on display size.
-    when (windowSizeClass) {
-      WindowSizeClass.Compact -> { /* Bottom bar */ }
-      WindowSizeClass.Medium -> { /* Rail */ }
-      WindowSizeClass.Expanded -> { /* Persistent drawer */ }
+    enum class WindowSizeClass {
+        Compact,
+        Medium,
+        Expanded
     }
-  }
+
+    @Composable
+    fun MyApp(windowSizeClass: WindowSizeClass) {
+        // Select a navigation element based on display size.
+        when (windowSizeClass) {
+            WindowSizeClass.Compact -> {
+                /* Bottom bar */
+            }
+            WindowSizeClass.Medium -> {
+                /* Rail */
+            }
+            WindowSizeClass.Expanded -> {
+                /* Persistent drawer */
+            }
+        }
+    }
 }
 
 private object NavigationResponsiveUiSnippet2 {
 
-  /* Displays a list of items. */
-  @Composable
-  fun ListOfItems(
-      onItemSelected: (String) -> Unit,
-  ) { /*...*/ }
-
-  /* Displays the detail for an item. */
-  @Composable
-  fun ItemDetail(
-      selectedItemId: String? = null,
-  ) { /*...*/ }
-
-  /* Displays a list and the detail for an item side by side. */
-  @Composable
-  fun ListAndDetail(
-      selectedItemId: String? = null,
-      onItemSelected: (String) -> Unit,
-  ) {
-    Row {
-      ListOfItems(onItemSelected = onItemSelected)
-      ItemDetail(selectedItemId = selectedItemId)
+    /* Displays a list of items. */
+    @Composable
+    fun ListOfItems(
+        onItemSelected: (String) -> Unit,
+    ) {
+        /*...*/
     }
-  }
+
+    /* Displays the detail for an item. */
+    @Composable
+    fun ItemDetail(
+        selectedItemId: String? = null,
+    ) {
+        /*...*/
+    }
+
+    /* Displays a list and the detail for an item side by side. */
+    @Composable
+    fun ListAndDetail(
+        selectedItemId: String? = null,
+        onItemSelected: (String) -> Unit,
+    ) {
+        Row {
+            ListOfItems(onItemSelected = onItemSelected)
+            ItemDetail(selectedItemId = selectedItemId)
+        }
+    }
 }
 
 private object NavigationResponsiveUiSnippet3 {
 
-  @Composable
-  fun ListDetailRoute(
-      // Indicates that the display size is represented by the expanded window size class.
-      isExpandedWindowSize: Boolean = false,
-      // Identifies the item selected from the list. If null, a item has not been selected.
-      selectedItemId: String?,
-  ) {
-    if (isExpandedWindowSize) {
-      ListAndDetail(
-        selectedItemId = selectedItemId,
-        /*...*/
-      )
-    } else {
-      // If the display size cannot accommodate both the list and the item detail,
-      // show one of them based on the user's focus.
-      if (selectedItemId != null) {
-        ItemDetail(
-          selectedItemId = selectedItemId,
-          /*...*/
-        )
-      } else {
-        ListOfItems(/*...*/)
-      }
+    @Composable
+    fun ListDetailRoute(
+        // Indicates that the display size is represented by the expanded window size class.
+        isExpandedWindowSize: Boolean = false,
+        // Identifies the item selected from the list. If null, a item has not been selected.
+        selectedItemId: String?,
+    ) {
+        if (isExpandedWindowSize) {
+            ListAndDetail(
+                selectedItemId = selectedItemId,
+                /*...*/
+            )
+        } else {
+            // If the display size cannot accommodate both the list and the item detail,
+            // show one of them based on the user's focus.
+            if (selectedItemId != null) {
+                ItemDetail(
+                    selectedItemId = selectedItemId,
+                    /*...*/
+                )
+            } else {
+                ListOfItems(/*...*/ )
+            }
+        }
     }
-  }
 }
 
 @Composable
@@ -115,116 +128,110 @@ private fun NavigationResponsiveUiSnippet4(
     selectedItemId: String?,
 ) {
     NavHost(navController = navController, startDestination = "listDetailRoute") {
-      composable("listDetailRoute") {
-        ListDetailRoute(isExpandedWindowSize = isExpandedWindowSize,
-                        selectedItemId = selectedItemId)
-      }
-      /*...*/
+        composable("listDetailRoute") {
+            ListDetailRoute(
+                isExpandedWindowSize = isExpandedWindowSize,
+                selectedItemId = selectedItemId
+            )
+        }
+        /*...*/
     }
 }
 
 private object NavigationResponsiveUiSnippet5 {
 
-  class ListDetailViewModel : ViewModel() {
+    class ListDetailViewModel : ViewModel() {
 
-    data class ListDetailUiState(
-        val selectedItemId: String? = null,
-    )
-
-    private val viewModelState = MutableStateFlow(ListDetailUiState())
-
-    fun onItemSelected(itemId: String) {
-      viewModelState.update {
-        it.copy(selectedItemId = itemId)
-      }
-    }
-  }
-
-  val listDetailViewModel = ListDetailViewModel()
-
-  @Composable
-  fun ListDetailRoute(
-      isExpandedWindowSize: Boolean = false,
-      selectedItemId: String?,
-      onItemSelected: (String) -> Unit = { listDetailViewModel.onItemSelected(it) },
-  ) {
-    if (isExpandedWindowSize) {
-      ListAndDetail(
-        selectedItemId = selectedItemId,
-        onItemSelected = onItemSelected,
-        /*...*/
-      )
-    } else {
-      if (selectedItemId != null) {
-        ItemDetail(
-          selectedItemId = selectedItemId,
-          /*...*/
+        data class ListDetailUiState(
+            val selectedItemId: String? = null,
         )
-      } else {
-        ListOfItems(
-          onItemSelected = onItemSelected,
-          /*...*/
-        )
-      }
+
+        private val viewModelState = MutableStateFlow(ListDetailUiState())
+
+        fun onItemSelected(itemId: String) {
+            viewModelState.update { it.copy(selectedItemId = itemId) }
+        }
     }
-  }
+
+    val listDetailViewModel = ListDetailViewModel()
+
+    @Composable
+    fun ListDetailRoute(
+        isExpandedWindowSize: Boolean = false,
+        selectedItemId: String?,
+        onItemSelected: (String) -> Unit = { listDetailViewModel.onItemSelected(it) },
+    ) {
+        if (isExpandedWindowSize) {
+            ListAndDetail(
+                selectedItemId = selectedItemId,
+                onItemSelected = onItemSelected,
+                /*...*/
+            )
+        } else {
+            if (selectedItemId != null) {
+                ItemDetail(
+                    selectedItemId = selectedItemId,
+                    /*...*/
+                )
+            } else {
+                ListOfItems(
+                    onItemSelected = onItemSelected,
+                    /*...*/
+                )
+            }
+        }
+    }
 }
 
 private object NavigationResponsiveUiSnippet6 {
 
-  class ListDetailViewModel : ViewModel() {
+    class ListDetailViewModel : ViewModel() {
 
-    data class ListDetailUiState(
-        val selectedItemId: String? = null,
-    )
-
-    private val viewModelState = MutableStateFlow(ListDetailUiState())
-
-    fun onItemSelected(itemId: String) {
-      viewModelState.update {
-        it.copy(selectedItemId = itemId)
-      }
-    }
-
-    fun onItemBackPress() {
-      viewModelState.update {
-        it.copy(selectedItemId = null)
-      }
-    }
-  }
-
-  val listDetailViewModel = ListDetailViewModel()
-
-  @Composable
-  fun ListDetailRoute(
-      isExpandedWindowSize: Boolean = false,
-      selectedItemId: String?,
-      onItemSelected: (String) -> Unit = { listDetailViewModel.onItemSelected(it) },
-      onItemBackPress: () -> Unit = { listDetailViewModel.onItemBackPress() },
-  ) {
-    if (isExpandedWindowSize) {
-      ListAndDetail(
-        selectedItemId = selectedItemId,
-        onItemSelected = onItemSelected,
-        /*...*/
-      )
-    } else {
-      if (selectedItemId != null) {
-        ItemDetail(
-          selectedItemId = selectedItemId,
-          /*...*/
+        data class ListDetailUiState(
+            val selectedItemId: String? = null,
         )
-        BackHandler {
-          onItemBackPress()
+
+        private val viewModelState = MutableStateFlow(ListDetailUiState())
+
+        fun onItemSelected(itemId: String) {
+            viewModelState.update { it.copy(selectedItemId = itemId) }
         }
-      } else {
-        ListOfItems(
-          onItemSelected = onItemSelected,
-          /*...*/
-        )
-      }
+
+        fun onItemBackPress() {
+            viewModelState.update { it.copy(selectedItemId = null) }
+        }
     }
-  }
+
+    val listDetailViewModel = ListDetailViewModel()
+
+    @Composable
+    fun ListDetailRoute(
+        isExpandedWindowSize: Boolean = false,
+        selectedItemId: String?,
+        onItemSelected: (String) -> Unit = { listDetailViewModel.onItemSelected(it) },
+        onItemBackPress: () -> Unit = { listDetailViewModel.onItemBackPress() },
+    ) {
+        if (isExpandedWindowSize) {
+            ListAndDetail(
+                selectedItemId = selectedItemId,
+                onItemSelected = onItemSelected,
+                /*...*/
+            )
+        } else {
+            if (selectedItemId != null) {
+                ItemDetail(
+                    selectedItemId = selectedItemId,
+                    /*...*/
+                )
+                BackHandler { onItemBackPress() }
+            } else {
+                ListOfItems(
+                    onItemSelected = onItemSelected,
+                    /*...*/
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -234,34 +241,37 @@ private fun NavigationResponsiveUiSnippet7(
     selectedItemId: String?,
 ) {
     NavHost(navController = navController, startDestination = "listDetailRoute") {
-      composable("listDetailRoute") {
-        ListDetailRoute(isExpandedWindowSize = isExpandedWindowSize,
-                        selectedItemId = selectedItemId)
-      }
-      navigation(startDestination = "itemSubdetail1", route = "itemSubDetail") {
-        composable("itemSubdetail1") { ItemSubdetail1(/*...*/) }
-        composable("itemSubdetail2") { ItemSubdetail2(/*...*/) }
-        composable("itemSubdetail3") { ItemSubdetail3(/*...*/) }
-      }
-      /*...*/
+        composable("listDetailRoute") {
+            ListDetailRoute(
+                isExpandedWindowSize = isExpandedWindowSize,
+                selectedItemId = selectedItemId
+            )
+        }
+        navigation(startDestination = "itemSubdetail1", route = "itemSubDetail") {
+            composable("itemSubdetail1") { ItemSubdetail1(/*...*/ ) }
+            composable("itemSubdetail2") { ItemSubdetail2(/*...*/ ) }
+            composable("itemSubdetail3") { ItemSubdetail3(/*...*/ ) }
+        }
+        /*...*/
     }
 }
 
 private object NavigationResponsiveUiSnippet8 {
 
-  @Composable
-  fun ListDetailRoute(
-      // Indicates that the display size is represented by the expanded window size class.
-      isExpandedWindowSize: Boolean = false,
-      // Identifies the item selected from the list. If null, a item has not been selected.
-      selectedItemId: String?,
-  ) { /*...*/ }
+    @Composable
+    fun ListDetailRoute(
+        // Indicates that the display size is represented by the expanded window size class.
+        isExpandedWindowSize: Boolean = false,
+        // Identifies the item selected from the list. If null, a item has not been selected.
+        selectedItemId: String?,
+    ) {
+        /*...*/
+    }
 }
 
 /* Fakes needed for snippets to build. */
 
-@Composable
-private fun ListOfItems() = Unit
+@Composable private fun ListOfItems() = Unit
 
 @Composable
 private fun ListOfItems(
@@ -290,13 +300,10 @@ private fun ListDetailRoute(
     selectedItemId: String?,
 ) = Unit
 
-@Composable
-private fun ItemSubdetail1() = Unit
+@Composable private fun ItemSubdetail1() = Unit
 
-@Composable
-private fun ItemSubdetail2() = Unit
+@Composable private fun ItemSubdetail2() = Unit
 
-@Composable
-private fun ItemSubdetail3() = Unit
+@Composable private fun ItemSubdetail3() = Unit
 
 private fun <T> MutableStateFlow<T>.update(function: (T) -> T) {}

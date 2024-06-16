@@ -19,9 +19,7 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
-/**
- * The enum class allows user to decide the selection mode.
- */
+/** The enum class allows user to decide the selection mode. */
 internal enum class SelectionMode {
     /**
      * When selection handles are dragged across composables, selection extends by row, for example,
@@ -46,9 +44,9 @@ internal enum class SelectionMode {
     },
 
     /**
-     * When selection handles are dragged across composables, selection extends by column, for example,
-     * when the end selection handle is dragged to the right, left columns will be selected first,
-     * and the right rows.
+     * When selection handles are dragged across composables, selection extends by column, for
+     * example, when the end selection handle is dragged to the right, left columns will be selected
+     * first, and the right rows.
      */
     Horizontal {
         override fun compare(position: Offset, bounds: Rect): Int {
@@ -68,32 +66,28 @@ internal enum class SelectionMode {
     };
 
     /**
-     * A compare a selection handle with a  [Selectable] boundary. This defines whether an out of
+     * A compare a selection handle with a [Selectable] boundary. This defines whether an out of
      * boundary selection handle is treated as the start or the end of the Selectable. If the
-     * [Selectable] is a text selectable, then the start is the index 0, and end corresponds to
-     * the text length.
+     * [Selectable] is a text selectable, then the start is the index 0, and end corresponds to the
+     * text length.
      *
      * @param position the position of the selection handle.
      * @param bounds the boundary of the [Selectable].
-     * @return 0 if the selection handle [position] is within the [bounds]; a negative value if
-     * the selection handle is considered as "start" of the [Selectable]; a positive value if the
-     * selection handle is considered as the "end" of the [Selectable].
+     * @return 0 if the selection handle [position] is within the [bounds]; a negative value if the
+     *   selection handle is considered as "start" of the [Selectable]; a positive value if the
+     *   selection handle is considered as the "end" of the [Selectable].
      */
     internal abstract fun compare(position: Offset, bounds: Rect): Int
 
     /**
-     * Decides if Composable which has [bounds], should be accepted by the selection and
-     * change its selected state for a selection that starts at [start] and ends at [end].
+     * Decides if Composable which has [bounds], should be accepted by the selection and change its
+     * selected state for a selection that starts at [start] and ends at [end].
      *
      * @param bounds Composable bounds of the widget to be checked.
      * @param start The start coordinates of the selection, in SelectionContainer range.
      * @param end The end coordinates of the selection, in SelectionContainer range.
      */
-    internal fun isSelected(
-        bounds: Rect,
-        start: Offset,
-        end: Offset
-    ): Boolean {
+    internal fun isSelected(bounds: Rect, start: Offset, end: Offset): Boolean {
         // If either of the start or end is contained by bounds, the composable is selected.
         if (bounds.containsInclusive(start) || bounds.containsInclusive(end)) {
             return true
@@ -106,10 +100,10 @@ internal enum class SelectionMode {
     }
 
     /**
-     * The regular contains function ([Rect.contains]) is only inclusive of left and top,
-     * but there are many times where we want to include when the offset is on the right/bottom
-     * bounds. This commonly happens when the selection handle is placed at the right of the bounds
-     * and then that offset is used in this function.
+     * The regular contains function ([Rect.contains]) is only inclusive of left and top, but there
+     * are many times where we want to include when the offset is on the right/bottom bounds. This
+     * commonly happens when the selection handle is placed at the right of the bounds and then that
+     * offset is used in this function.
      */
     private fun Rect.containsInclusive(offset: Offset): Boolean =
         offset.x in left..right && offset.y in top..bottom

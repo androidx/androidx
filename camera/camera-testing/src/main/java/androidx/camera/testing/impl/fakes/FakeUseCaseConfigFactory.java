@@ -26,7 +26,6 @@ import android.hardware.camera2.CameraDevice;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ImageCapture;
@@ -40,7 +39,6 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 /**
  * A fake implementation of {@link UseCaseConfigFactory}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
 

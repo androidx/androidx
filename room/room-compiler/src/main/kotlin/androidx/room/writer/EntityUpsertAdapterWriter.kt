@@ -22,16 +22,10 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
 
-class EntityUpsertAdapterWriter private constructor(
-    val tableName: String,
-    val pojo: Pojo
-) {
+class EntityUpsertAdapterWriter private constructor(val tableName: String, val pojo: Pojo) {
     companion object {
         fun create(entity: ShortcutEntity): EntityUpsertAdapterWriter {
-            return EntityUpsertAdapterWriter(
-                tableName = entity.tableName,
-                pojo = entity.pojo
-            )
+            return EntityUpsertAdapterWriter(tableName = entity.tableName, pojo = entity.pojo)
         }
     }
 
@@ -41,15 +35,19 @@ class EntityUpsertAdapterWriter private constructor(
         dbProperty: XPropertySpec,
         useDriverApi: Boolean
     ): XCodeBlock {
-        val upsertAdapter = if (useDriverApi) {
-            RoomTypeNames.UPSERT_ADAPTER
-        } else {
-            RoomTypeNames.UPSERT_ADAPTER_COMPAT
-        }.parametrizedBy(pojo.typeName)
-        val insertHelper = EntityInsertAdapterWriter.create(entity, "")
-            .createAnonymous(typeWriter, dbProperty, useDriverApi)
-        val updateHelper = EntityUpdateAdapterWriter.create(entity, "")
-            .createAnonymous(typeWriter, dbProperty.name, useDriverApi)
+        val upsertAdapter =
+            if (useDriverApi) {
+                    RoomTypeNames.UPSERT_ADAPTER
+                } else {
+                    RoomTypeNames.UPSERT_ADAPTER_COMPAT
+                }
+                .parametrizedBy(pojo.typeName)
+        val insertHelper =
+            EntityInsertAdapterWriter.create(entity, "")
+                .createAnonymous(typeWriter, dbProperty, useDriverApi)
+        val updateHelper =
+            EntityUpdateAdapterWriter.create(entity, "")
+                .createAnonymous(typeWriter, dbProperty.name, useDriverApi)
         return XCodeBlock.ofNewInstance(
             language = typeWriter.codeLanguage,
             typeName = upsertAdapter,

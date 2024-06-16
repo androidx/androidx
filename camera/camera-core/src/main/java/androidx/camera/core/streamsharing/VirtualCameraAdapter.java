@@ -36,7 +36,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
@@ -45,7 +44,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.DynamicRange;
@@ -77,7 +75,6 @@ import java.util.Set;
  * <p> This class manages children {@link UseCase} and connects/disconnects them to the
  * parent {@link StreamSharing}. It also forwards parent camera properties/events to the children.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     // Children UseCases associated with this virtual camera.

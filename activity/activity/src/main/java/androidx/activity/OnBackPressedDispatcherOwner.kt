@@ -21,14 +21,12 @@ import androidx.lifecycle.LifecycleOwner
  * A class that has an [OnBackPressedDispatcher] that allows you to register a
  * [OnBackPressedCallback] for handling the system back button.
  *
- * It is expected that classes that implement this interface route the system back button
- * to the dispatcher
+ * It is expected that classes that implement this interface route the system back button to the
+ * dispatcher
  *
  * @see OnBackPressedDispatcher
  */
 interface OnBackPressedDispatcherOwner : LifecycleOwner {
-    /**
-     * The [OnBackPressedDispatcher] that should handle the system back button.
-     */
+    /** The [OnBackPressedDispatcher] that should handle the system back button. */
     val onBackPressedDispatcher: OnBackPressedDispatcher
 }

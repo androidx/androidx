@@ -34,33 +34,23 @@ import org.junit.runner.RunWith
 class MainThreadBenchmark {
     @OptIn(ExperimentalBenchmarkConfigApi::class)
     @get:Rule
-    val benchmarkRule = BenchmarkRule(
-        MicrobenchmarkConfig(
-            traceAppTagEnabled = true
-        )
-    )
+    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
     @Suppress("SameParameterValue")
     private fun spinloop(durMs: Long) {
         val waitUntilNs = System.nanoTime() + durMs * 1_000_000
-        @Suppress("ControlFlowWithEmptyBody")
-        while (System.nanoTime() < waitUntilNs) {
-        }
+        @Suppress("ControlFlowWithEmptyBody") while (System.nanoTime() < waitUntilNs) {}
     }
 
     @Test
     fun measureRepeatedOnMainThread() {
-        benchmarkRule.measureRepeatedOnMainThread {
-            spinloop(100)
-        }
+        benchmarkRule.measureRepeatedOnMainThread { spinloop(100) }
     }
 
     @Test
     @Ignore // local testing only, can cause ANRs
     @UiThreadTest
     fun measureRepeatedAnnotation() {
-        benchmarkRule.measureRepeated {
-            spinloop(100)
-        }
+        benchmarkRule.measureRepeated { spinloop(100) }
     }
 }

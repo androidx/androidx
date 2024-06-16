@@ -60,22 +60,21 @@ private val Indigo = Color(0xff3F0FB7)
 private val Purple = Color(0xff7B4397)
 
 // red is used for the selection container color
-private val Rainbow = MutableColorList(initialCapacity = 6).apply {
-    add(Orange)
-    add(Yellow)
-    add(Green)
-    add(Blue)
-    add(Indigo)
-    add(Purple)
-}.asColorList()
+private val Rainbow =
+    MutableColorList(initialCapacity = 6)
+        .apply {
+            add(Orange)
+            add(Yellow)
+            add(Green)
+            add(Blue)
+            add(Indigo)
+            add(Purple)
+        }
+        .asColorList()
 
 @Composable
 fun MinTouchTargetTextSelection() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp, vertical = 8.dp)
-    ) {
+    Column(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 8.dp)) {
         Text(
             buildAnnotatedString {
                 append("The ")
@@ -98,14 +97,18 @@ fun MinTouchTargetTextSelection() {
                     """
                     |. We expect that touch selection gestures in the touch target space,
                     | but not directly on the
-                    | """.trimMargin().replace("\n", "")
+                    | """
+                        .trimMargin()
+                        .replace("\n", "")
                 )
                 appendCode("Text")
                 append(
                     """
                     |, will still start a selection and not crash. The below slider adjusts
                     | the minimum touch target size between 0 and 100 dp.
-                    |""".trimMargin().replace("\n", "")
+                    |"""
+                        .trimMargin()
+                        .replace("\n", "")
                 )
             },
         )
@@ -117,9 +120,7 @@ fun MinTouchTargetTextSelection() {
         )
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             val length = minTouchSideLength.dp
-            OverrideMinimumTouchTarget(DpSize(length, length)) {
-                MinTouchTargetInTextSelection()
-            }
+            OverrideMinimumTouchTarget(DpSize(length, length)) { MinTouchTargetInTextSelection() }
         }
     }
 }
@@ -135,47 +136,45 @@ private fun OverrideMinimumTouchTarget(size: DpSize, content: @Composable () -> 
 private fun MinTouchTargetInTextSelection() {
     val minimumTouchTarget = LocalViewConfiguration.current.minimumTouchTargetSize
     SelectionContainer(
-        Modifier
-            .border(1.dp, Red)
+        Modifier.border(1.dp, Red)
             .padding(1.dp)
             .drawMinTouchTargetBorderBehind(Red.copy(alpha), minimumTouchTarget)
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Rainbow.forEachIndexed { index, color ->
                 val fadedColor = color.copy(alpha)
                 Text(
                     text = "Text",
                     style = LocalTextStyle.current.merge(color = color),
-                    modifier = Modifier
-                        // offset the texts horizontally, else the borders will heavily overlap
-                        .padding(start = (index * 6).dp)
-                        .border(1.dp, color)
-                        // Padding between text and border so they aren't touching
-                        .padding(1.dp)
-                        .drawMinTouchTargetBorderBehind(fadedColor, minimumTouchTarget)
+                    modifier =
+                        Modifier
+                            // offset the texts horizontally, else the borders will heavily overlap
+                            .padding(start = (index * 6).dp)
+                            .border(1.dp, color)
+                            // Padding between text and border so they aren't touching
+                            .padding(1.dp)
+                            .drawMinTouchTargetBorderBehind(fadedColor, minimumTouchTarget)
                 )
             }
         }
     }
 }
 
-/**
- * Draw a 1 dp unfilled rect around the minimum touch target.
- */
+/** Draw a 1 dp unfilled rect around the minimum touch target. */
 private fun Modifier.drawMinTouchTargetBorderBehind(
     color: Color,
     minimumTouchTarget: DpSize
 ): Modifier = drawBehind {
-    val minTouchTargetCoercedSize = Size(
-        width = size.width.coerceAtLeast(minimumTouchTarget.width.toPx()),
-        height = size.height.coerceAtLeast(minimumTouchTarget.height.toPx())
-    )
-    val topLeft = Offset(
-        x = (size.width - minTouchTargetCoercedSize.width) / 2,
-        y = (size.height - minTouchTargetCoercedSize.height) / 2
-    )
+    val minTouchTargetCoercedSize =
+        Size(
+            width = size.width.coerceAtLeast(minimumTouchTarget.width.toPx()),
+            height = size.height.coerceAtLeast(minimumTouchTarget.height.toPx())
+        )
+    val topLeft =
+        Offset(
+            x = (size.width - minTouchTargetCoercedSize.width) / 2,
+            y = (size.height - minTouchTargetCoercedSize.height) / 2
+        )
     drawRect(color, topLeft, minTouchTargetCoercedSize, style = Stroke(1.dp.toPx()))
 }
 
@@ -183,9 +182,7 @@ private fun AnnotatedString.Builder.appendRainbowText(text: String, alpha: Float
     val size = Rainbow.size
     text.forEachIndexed { index, char ->
         val color = Rainbow[index % size].copy(alpha)
-        withStyle(SpanStyle(color = color)) {
-            append(char)
-        }
+        withStyle(SpanStyle(color = color)) { append(char) }
     }
 }
 

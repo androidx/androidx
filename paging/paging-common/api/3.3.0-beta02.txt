@@ -200,7 +200,7 @@ package androidx.paging {
     method @Deprecated public abstract void detach();
     method @Deprecated public T? get(int index);
     method @Deprecated public final androidx.paging.PagedList.Config getConfig();
-    method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
+    method @Deprecated public final androidx.paging.DataSource<? extends java.lang.Object!,T> getDataSource();
     method @Deprecated public abstract Object? getLastKey();
     method @Deprecated public final int getLoadedCount();
     method @Deprecated public final int getPositionOffset();
@@ -213,7 +213,7 @@ package androidx.paging {
     method @Deprecated public void retry();
     method @Deprecated public final java.util.List<T> snapshot();
     property @Deprecated public final androidx.paging.PagedList.Config config;
-    property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
+    property @Deprecated public final androidx.paging.DataSource<? extends java.lang.Object!,T> dataSource;
     property @Deprecated public abstract boolean isDetached;
     property @Deprecated public boolean isImmutable;
     property @Deprecated public abstract Object? lastKey;
@@ -402,18 +402,18 @@ package androidx.paging {
 
   public final class PagingDataTransforms {
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
-    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> predicate);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,? extends java.lang.Object?> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
-    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Iterable<? extends R>>,?> transform);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Iterable<? extends R>>,? extends java.lang.Object?> transform);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, T item);
     method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T?,? super T?,? extends R?> generator);
-    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, kotlin.jvm.functions.Function3<? super T?,? super T?,? super kotlin.coroutines.Continuation<? super R?>,?> generator);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, kotlin.jvm.functions.Function3<? super T?,? super T?,? super kotlin.coroutines.Continuation<? super R?>,? extends java.lang.Object?> generator);
     method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T?,? super T?,? extends R?> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
-    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> transform);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> transform);
   }
 
   public abstract class PagingSource<Key, Value> {

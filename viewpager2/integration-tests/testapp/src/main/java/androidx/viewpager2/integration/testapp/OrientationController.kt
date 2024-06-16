@@ -23,16 +23,18 @@ import android.widget.Spinner
 import androidx.viewpager2.widget.ViewPager2
 
 /**
- * It configures a spinner to show orientations and sets the orientation of a ViewPager2
- * when an orientation is selected.
+ * It configures a spinner to show orientations and sets the orientation of a ViewPager2 when an
+ * orientation is selected.
  */
 class OrientationController(private val viewPager: ViewPager2, private val spinner: Spinner) {
     fun setUp() {
         val orientation = viewPager.orientation
-        val adapter = ArrayAdapter(
-            spinner.context, android.R.layout.simple_spinner_item,
-            arrayOf(HORIZONTAL, VERTICAL)
-        )
+        val adapter =
+            ArrayAdapter(
+                spinner.context,
+                android.R.layout.simple_spinner_item,
+                arrayOf(HORIZONTAL, VERTICAL)
+            )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
@@ -41,18 +43,19 @@ class OrientationController(private val viewPager: ViewPager2, private val spinn
             spinner.setSelection(initialPosition)
         }
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                viewPager.orientation = stringToOrientation(parent.selectedItem.toString())
-            }
+        spinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    viewPager.orientation = stringToOrientation(parent.selectedItem.toString())
+                }
 
-            override fun onNothingSelected(adapterView: AdapterView<*>) {}
-        }
+                override fun onNothingSelected(adapterView: AdapterView<*>) {}
+            }
     }
 
     private fun orientationToString(orientation: Int): String {

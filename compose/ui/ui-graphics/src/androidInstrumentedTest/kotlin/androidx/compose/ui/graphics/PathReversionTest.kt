@@ -40,9 +40,7 @@ class PathReversionTest {
 
     @Test
     fun singleMove() {
-        val path = Path().apply {
-            moveTo(10.0f, 10.0f)
-        }.reverse()
+        val path = Path().apply { moveTo(10.0f, 10.0f) }.reverse()
 
         val iterator = path.iterator()
         assertTrue(iterator.hasNext())
@@ -54,10 +52,13 @@ class PathReversionTest {
 
     @Test
     fun lineTo() {
-        val path = Path().apply {
-            moveTo(10.0f, 10.0f)
-            lineTo(20.0f, 20.0f)
-        }.reverse()
+        val path =
+            Path()
+                .apply {
+                    moveTo(10.0f, 10.0f)
+                    lineTo(20.0f, 20.0f)
+                }
+                .reverse()
 
         val iterator = path.iterator()
         assertTrue(iterator.hasNext())
@@ -75,12 +76,15 @@ class PathReversionTest {
 
     @Test
     fun close() {
-        val path = Path().apply {
-            moveTo(10.0f, 10.0f)
-            lineTo(20.0f, 20.0f)
-            lineTo(10.0f, 30.0f)
-            close()
-        }.reverse()
+        val path =
+            Path()
+                .apply {
+                    moveTo(10.0f, 10.0f)
+                    lineTo(20.0f, 20.0f)
+                    lineTo(10.0f, 30.0f)
+                    close()
+                }
+                .reverse()
 
         val iterator = path.iterator()
         assertTrue(iterator.hasNext())
@@ -105,16 +109,19 @@ class PathReversionTest {
 
     @Test
     fun multipleContours() {
-        val path = Path().apply {
-            moveTo(10.0f, 10.0f)
-            lineTo(20.0f, 20.0f)
-            lineTo(10.0f, 30.0f)
-            close()
+        val path =
+            Path()
+                .apply {
+                    moveTo(10.0f, 10.0f)
+                    lineTo(20.0f, 20.0f)
+                    lineTo(10.0f, 30.0f)
+                    close()
 
-            moveTo(50.0f, 50.0f)
-            lineTo(70.0f, 70.0f)
-            lineTo(50.0f, 90.0f)
-        }.reverse()
+                    moveTo(50.0f, 50.0f)
+                    lineTo(70.0f, 70.0f)
+                    lineTo(50.0f, 90.0f)
+                }
+                .reverse()
 
         val iterator = path.iterator()
         assertTrue(iterator.hasNext())
@@ -164,26 +171,25 @@ class PathReversionTest {
         val reversed = path.reverse()
 
         assertTrue(
-            path.divide().zip(reversed.divide().reversed()) { a, b ->
-                a.computeDirection() != b.computeDirection()
-            }.all { it }
+            path
+                .divide()
+                .zip(reversed.divide().reversed()) { a, b ->
+                    a.computeDirection() != b.computeDirection()
+                }
+                .all { it }
         )
     }
 
     @Test
     fun pixelComparison() {
-        val paint = Paint().apply {
-            style = Paint.Style.FILL
-            color = Color.RED
-            isAntiAlias = false
-        }
+        val paint =
+            Paint().apply {
+                style = Paint.Style.FILL
+                color = Color.RED
+                isAntiAlias = false
+            }
 
-        for (svg in listOf(
-            SvgShape.Cubics,
-            SvgShape.Quads,
-            SvgShape.Heart,
-            SvgShape.Lines
-        )) {
+        for (svg in listOf(SvgShape.Cubics, SvgShape.Quads, SvgShape.Heart, SvgShape.Lines)) {
             val path = createSvgPath(svg)
             val reversed = path.reverse()
 
@@ -191,12 +197,14 @@ class PathReversionTest {
             val bounds2 = reversed.getBounds().roundToIntRect()
             assertEquals(bounds1, bounds2)
 
-            val reference = createBitmap(bounds1.width, bounds1.height).applyCanvas {
-                drawPath(path.asAndroidPath(), paint)
-            }
-            val result = createBitmap(bounds2.width, bounds2.height).applyCanvas {
-                drawPath(reversed.asAndroidPath(), paint)
-            }
+            val reference =
+                createBitmap(bounds1.width, bounds1.height).applyCanvas {
+                    drawPath(path.asAndroidPath(), paint)
+                }
+            val result =
+                createBitmap(bounds2.width, bounds2.height).applyCanvas {
+                    drawPath(reversed.asAndroidPath(), paint)
+                }
 
             compareBitmaps(reference, result, 0)
         }

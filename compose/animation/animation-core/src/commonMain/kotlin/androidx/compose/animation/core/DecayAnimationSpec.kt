@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.IntOffset
  * used once the data (of type [T]) has been converted to [AnimationVector].
  *
  * Any type [T] can be animated by the system as long as a [TwoWayConverter] is supplied to convert
- * the data type [T] from and to an [AnimationVector]. There are a number of converters
- * available out of the box. For example, to animate [androidx.compose.ui.unit.IntOffset] the system
- * uses [IntOffset.VectorConverter][IntOffset.Companion.VectorConverter] to convert the object to
+ * the data type [T] from and to an [AnimationVector]. There are a number of converters available
+ * out of the box. For example, to animate [androidx.compose.ui.unit.IntOffset] the system uses
+ * [IntOffset.VectorConverter][IntOffset.Companion.VectorConverter] to convert the object to
  * [AnimationVector2D], so that both x and y dimensions are animated independently with separate
  * velocity tracking. This enables multidimensional objects to be animated in a true
  * multi-dimensional way. It is particularly useful for smoothly handling animation interruptions
@@ -39,8 +39,8 @@ interface DecayAnimationSpec<T> {
      * Creates a [VectorizedDecayAnimationSpec] with the given [TwoWayConverter].
      *
      * The underlying animation system operates on [AnimationVector]s. [T] will be converted to
-     * [AnimationVector] to animate. [VectorizedDecayAnimationSpec] describes how the
-     * converted [AnimationVector] should be animated.
+     * [AnimationVector] to animate. [VectorizedDecayAnimationSpec] describes how the converted
+     * [AnimationVector] should be animated.
      *
      * @param typeConverter converts the type [T] from and to [AnimationVector] type
      */
@@ -61,10 +61,11 @@ fun <T, V : AnimationVector> DecayAnimationSpec<T>.calculateTargetValue(
     initialVelocity: T
 ): T {
     val vectorizedSpec = vectorize(typeConverter)
-    val targetVector = vectorizedSpec.getTargetValue(
-        typeConverter.convertToVector(initialValue),
-        typeConverter.convertToVector(initialVelocity)
-    )
+    val targetVector =
+        vectorizedSpec.getTargetValue(
+            typeConverter.convertToVector(initialValue),
+            typeConverter.convertToVector(initialVelocity)
+        )
     return typeConverter.convertFromVector(targetVector)
 }
 
@@ -79,10 +80,11 @@ fun DecayAnimationSpec<Float>.calculateTargetValue(
     initialVelocity: Float
 ): Float {
     val vectorizedSpec = vectorize(Float.VectorConverter)
-    val targetVector = vectorizedSpec.getTargetValue(
-        AnimationVector(initialValue),
-        AnimationVector(initialVelocity)
-    )
+    val targetVector =
+        vectorizedSpec.getTargetValue(
+            AnimationVector(initialValue),
+            AnimationVector(initialVelocity)
+        )
     return targetVector.value
 }
 
@@ -97,19 +99,11 @@ fun DecayAnimationSpec<Float>.calculateTargetValue(
  *
  * @param frictionMultiplier The decay friction multiplier. This must be greater than `0`.
  * @param absVelocityThreshold The minimum speed, below which the animation is considered finished.
- * Must be greater than `0`.
+ *   Must be greater than `0`.
  */
 fun <T> exponentialDecay(
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = false
-    )
-    frictionMultiplier: Float = 1f,
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = false
-    )
-    absVelocityThreshold: Float = 0.1f
+    @FloatRange(from = 0.0, fromInclusive = false) frictionMultiplier: Float = 1f,
+    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f
 ): DecayAnimationSpec<T> =
     FloatExponentialDecaySpec(frictionMultiplier, absVelocityThreshold).generateDecayAnimationSpec()
 
@@ -121,9 +115,8 @@ fun <T> FloatDecayAnimationSpec.generateDecayAnimationSpec(): DecayAnimationSpec
     return DecayAnimationSpecImpl(this)
 }
 
-private class DecayAnimationSpecImpl<T>(
-    private val floatDecaySpec: FloatDecayAnimationSpec
-) : DecayAnimationSpec<T> {
+private class DecayAnimationSpecImpl<T>(private val floatDecaySpec: FloatDecayAnimationSpec) :
+    DecayAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         typeConverter: TwoWayConverter<T, V>
     ): VectorizedDecayAnimationSpec<V> = VectorizedFloatDecaySpec(floatDecaySpec)
@@ -142,11 +135,8 @@ private class VectorizedFloatDecaySpec<V : AnimationVector>(
             valueVector = initialValue.newInstance()
         }
         for (i in 0 until valueVector.size) {
-            valueVector[i] = floatDecaySpec.getValueFromNanos(
-                playTimeNanos,
-                initialValue[i],
-                initialVelocity[i]
-            )
+            valueVector[i] =
+                floatDecaySpec.getValueFromNanos(playTimeNanos, initialValue[i], initialVelocity[i])
         }
         return valueVector
     }
@@ -157,10 +147,11 @@ private class VectorizedFloatDecaySpec<V : AnimationVector>(
             velocityVector = initialValue.newInstance()
         }
         for (i in 0 until velocityVector.size) {
-            maxDuration = maxOf(
-                maxDuration,
-                floatDecaySpec.getDurationNanos(initialValue[i], initialVelocity[i])
-            )
+            maxDuration =
+                maxOf(
+                    maxDuration,
+                    floatDecaySpec.getDurationNanos(initialValue[i], initialVelocity[i])
+                )
         }
         return maxDuration
     }
@@ -170,11 +161,12 @@ private class VectorizedFloatDecaySpec<V : AnimationVector>(
             velocityVector = initialValue.newInstance()
         }
         for (i in 0 until velocityVector.size) {
-            velocityVector[i] = floatDecaySpec.getVelocityFromNanos(
-                playTimeNanos,
-                initialValue[i],
-                initialVelocity[i]
-            )
+            velocityVector[i] =
+                floatDecaySpec.getVelocityFromNanos(
+                    playTimeNanos,
+                    initialValue[i],
+                    initialVelocity[i]
+                )
         }
         return velocityVector
     }
@@ -184,10 +176,7 @@ private class VectorizedFloatDecaySpec<V : AnimationVector>(
             targetVector = initialValue.newInstance()
         }
         for (i in 0 until targetVector.size) {
-            targetVector[i] = floatDecaySpec.getTargetValue(
-                initialValue[i],
-                initialVelocity[i]
-            )
+            targetVector[i] = floatDecaySpec.getTargetValue(initialValue[i], initialVelocity[i])
         }
         return targetVector
     }

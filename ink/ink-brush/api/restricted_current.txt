@@ -1,0 +1,13 @@
+// Signature format: 4.0
+package androidx.ink.brush {
+
+  public final class Brush {
+    ctor public Brush(long color, float size);
+    method public long getColor();
+    method public float getSize();
+    property public final long color;
+    property public final float size;
+  }
+
+}
+

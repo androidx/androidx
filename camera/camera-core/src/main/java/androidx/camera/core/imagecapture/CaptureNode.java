@@ -25,14 +25,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.ImageFormat;
 import android.media.ImageReader;
-import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCaptureException;
@@ -66,7 +64,6 @@ import com.google.auto.value.AutoValue;
  * <p>It's also responsible for managing the {@link ImageReaderProxy}. It makes sure that the
  * queue is not overflowed.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
 
     private static final String TAG = "CaptureNode";

@@ -41,21 +41,18 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class InvalidationTest {
-    @get:Rule
-    val testEnvironment = SqliteInspectorTestEnvironment()
+    @get:Rule val testEnvironment = SqliteInspectorTestEnvironment()
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
+    @get:Rule val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
     @Ignore // b/159202455
-    fun test_exec_hook_methods() = test_simple_hook_methods(
-        listOf(
-            "execute()V",
-            "executeInsert()J",
-            "executeUpdateDelete()I"
-        ).map { it to SQLiteStatement::class.java }
-    )
+    fun test_exec_hook_methods() =
+        test_simple_hook_methods(
+            listOf("execute()V", "executeInsert()J", "executeUpdateDelete()I").map {
+                it to SQLiteStatement::class.java
+            }
+        )
 
     @Test
     fun test_end_transaction_hook_method() =
@@ -69,19 +66,18 @@ class InvalidationTest {
             // Verification of hooks registration and triggering the DatabasePossiblyChangedEvent
             testEnvironment.consumeRegisteredHooks().let { hooks ->
                 expectedHooks.forEach { (method, clazz) ->
-                    val hook = hooks.filter { hook ->
-                        hook.originMethod == method &&
-                            hook.originClass == clazz
-                    }
+                    val hook =
+                        hooks.filter { hook ->
+                            hook.originMethod == method && hook.originClass == clazz
+                        }
                     assertThat(hook).hasSize(1)
 
                     testEnvironment.assertNoQueuedEvents()
                     hook.first().asExitHook.onExit(null)
                     testEnvironment.receiveEvent().let { event ->
                         assertThat(event.oneOfCase == DATABASE_POSSIBLY_CHANGED)
-                        assertThat(event.databasePossiblyChanged).isEqualTo(
-                            DatabasePossiblyChangedEvent.getDefaultInstance()
-                        )
+                        assertThat(event.databasePossiblyChanged)
+                            .isEqualTo(DatabasePossiblyChangedEvent.getDefaultInstance())
                     }
                     testEnvironment.assertNoQueuedEvents()
                 }
@@ -96,9 +92,11 @@ class InvalidationTest {
         testEnvironment.sendCommand(MessageFactory.createTrackDatabasesCommand())
 
         // Any hook that triggers invalidation
-        val hook = testEnvironment.consumeRegisteredHooks()
-            .first { it.originMethod == "executeInsert()J" }
-            .asExitHook
+        val hook =
+            testEnvironment
+                .consumeRegisteredHooks()
+                .first { it.originMethod == "executeInsert()J" }
+                .asExitHook
 
         testEnvironment.assertNoQueuedEvents()
 
@@ -125,22 +123,24 @@ class InvalidationTest {
         testEnvironment.sendCommand(MessageFactory.createTrackDatabasesCommand())
 
         // Hook method signatures
-        val rawQueryMethodSignature = "rawQueryWithFactory(" +
-            "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
-            "Ljava/lang/String;" +
-            "[Ljava/lang/String;" +
-            "Ljava/lang/String;" +
-            "Landroid/os/CancellationSignal;" +
-            ")Landroid/database/Cursor;"
+        val rawQueryMethodSignature =
+            "rawQueryWithFactory(" +
+                "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
+                "Ljava/lang/String;" +
+                "[Ljava/lang/String;" +
+                "Ljava/lang/String;" +
+                "Landroid/os/CancellationSignal;" +
+                ")Landroid/database/Cursor;"
         val closeMethodSignature = "close()V"
 
         val hooks: List<Hook> = testEnvironment.consumeRegisteredHooks()
 
         // Check for hooks being registered
         val hooksByClass = hooks.groupBy { it.originClass }
-        val rawQueryHooks = hooksByClass[SQLiteDatabase::class.java]!!.filter {
-            it.originMethod == rawQueryMethodSignature
-        }.map { it::class }
+        val rawQueryHooks =
+            hooksByClass[SQLiteDatabase::class.java]!!
+                .filter { it.originMethod == rawQueryMethodSignature }
+                .map { it::class }
 
         assertThat(rawQueryHooks).containsExactly(Hook.EntryHook::class, Hook.ExitHook::class)
         val hook = hooksByClass[SQLiteCursor::class.java]!!.single()
@@ -150,44 +150,54 @@ class InvalidationTest {
         fun wrap(cursor: Cursor): Cursor = object : CursorWrapper(cursor) {}
         fun noOp(c: Cursor): Cursor = c
         listOf(::wrap, ::noOp).forEach { wrap ->
-            listOf(
-                "insert into t1 values (1)" to true,
-                "select * from sqlite_master" to false
-            ).forEach { (query, shouldCauseInvalidation) ->
-                testEnvironment.assertNoQueuedEvents()
+            listOf("insert into t1 values (1)" to true, "select * from sqlite_master" to false)
+                .forEach { (query, shouldCauseInvalidation) ->
+                    testEnvironment.assertNoQueuedEvents()
 
-                val cursor = cursorForQuery(query)
-                hooks.entryHookFor(rawQueryMethodSignature).onEntry(null, listOf(null, query))
-                hooks.exitHookFor(rawQueryMethodSignature).onExit(wrap(wrap(cursor)))
-                hooks.entryHookFor(closeMethodSignature).onEntry(cursor, emptyList())
+                    val cursor = cursorForQuery(query)
+                    hooks.entryHookFor(rawQueryMethodSignature).onEntry(null, listOf(null, query))
+                    hooks.exitHookFor(rawQueryMethodSignature).onExit(wrap(wrap(cursor)))
+                    hooks.entryHookFor(closeMethodSignature).onEntry(cursor, emptyList())
 
-                if (shouldCauseInvalidation) {
-                    testEnvironment.receiveEvent()
+                    if (shouldCauseInvalidation) {
+                        testEnvironment.receiveEvent()
+                    }
+                    testEnvironment.assertNoQueuedEvents()
                 }
-                testEnvironment.assertNoQueuedEvents()
-            }
         }
 
         // no crash for unknown cursor class
         hooks.entryHookFor(rawQueryMethodSignature).onEntry(null, listOf(null, "select * from t1"))
-        hooks.exitHookFor(rawQueryMethodSignature).onExit(object : AbstractCursor() {
-            override fun getLong(column: Int): Long = 0
-            override fun getCount(): Int = 0
-            override fun getColumnNames(): Array<String> = emptyArray()
-            override fun getShort(column: Int): Short = 0
-            override fun getFloat(column: Int): Float = 0f
-            override fun getDouble(column: Int): Double = 0.0
-            override fun isNull(column: Int): Boolean = false
-            override fun getInt(column: Int): Int = 0
-            override fun getString(column: Int): String = ""
-        })
+        hooks
+            .exitHookFor(rawQueryMethodSignature)
+            .onExit(
+                object : AbstractCursor() {
+                    override fun getLong(column: Int): Long = 0
+
+                    override fun getCount(): Int = 0
+
+                    override fun getColumnNames(): Array<String> = emptyArray()
+
+                    override fun getShort(column: Int): Short = 0
+
+                    override fun getFloat(column: Int): Float = 0f
+
+                    override fun getDouble(column: Int): Double = 0.0
+
+                    override fun isNull(column: Int): Boolean = false
+
+                    override fun getInt(column: Int): Int = 0
+
+                    override fun getString(column: Int): String = ""
+                }
+            )
 
         Unit
     }
 
     private fun cursorForQuery(query: String): SQLiteCursor {
-        val db = Database("ignored", Table("t1", Column("c1", "int")))
-            .createInstance(temporaryFolder)
+        val db =
+            Database("ignored", Table("t1", Column("c1", "int"))).createInstance(temporaryFolder)
         val cursor = db.rawQuery(query, null)
         val context = ApplicationProvider.getApplicationContext() as android.content.Context
         context.deleteDatabase(db.path)
@@ -199,6 +209,6 @@ class InvalidationTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun List<Hook>.exitHookFor(m: String): ArtTooling.ExitHook<Any> =
-        this.first { it.originMethod == m && it is Hook.ExitHook }
-            .asExitHook as ArtTooling.ExitHook<Any>
+        this.first { it.originMethod == m && it is Hook.ExitHook }.asExitHook
+            as ArtTooling.ExitHook<Any>
 }

@@ -50,8 +50,11 @@ class CustomClockTest {
         mContext = ApplicationProvider.getApplicationContext()
         mHandler = Handler(Looper.getMainLooper())
         val configuration =
-            Configuration.Builder().setExecutor(androidx.work.testing.SynchronousExecutor())
-                .setClock(testClock).setMinimumLoggingLevel(Log.DEBUG).build()
+            Configuration.Builder()
+                .setExecutor(androidx.work.testing.SynchronousExecutor())
+                .setClock(testClock)
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build()
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration)
 
         mTestDriver = WorkManagerTestInitHelper.getTestDriver(mContext)!!
@@ -65,8 +68,7 @@ class CustomClockTest {
         val initialDelay = Duration.ofHours(1)
 
         val request: WorkRequest =
-            OneTimeWorkRequest.Builder(TestWorker::class.java)
-                .setInitialDelay(initialDelay).build()
+            OneTimeWorkRequest.Builder(TestWorker::class.java).setInitialDelay(initialDelay).build()
 
         val workManagerImpl = WorkManagerImpl.getInstance(mContext)
         workManagerImpl.enqueue(listOf(request)).result.get()

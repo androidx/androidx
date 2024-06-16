@@ -28,22 +28,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
-/**
- * Test for [RememberSaveableDetector].
- */
+/** Test for [RememberSaveableDetector]. */
 class RememberSaveableDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = RememberSaveableDetector()
 
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(RememberSaveableDetector.RememberSaveableSaverParameter)
 
-    private val rememberSaveableStub: TestFile = bytecodeStub(
-        filename = "RememberSaveable.kt",
-        filepath = "androidx/compose/runtime/saveable",
-        checksum = 0x7556f44f,
-        """
+    private val rememberSaveableStub: TestFile =
+        bytecodeStub(
+            filename = "RememberSaveable.kt",
+            filepath = "androidx/compose/runtime/saveable",
+            checksum = 0x7556f44f,
+            """
         package androidx.compose.runtime.saveable
 
         import androidx.compose.runtime.*
@@ -79,13 +77,13 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
         private fun <T> mutableStateSaver(inner: Saver<T, out Any>) =
             Any() as Saver<MutableState<T>, MutableState<Any?>>
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uaSSMxLKcrPTKnQS87PLcgvTtUr
         Ks0rycxNFeIPzkssKM7ILwkuSSxJ9S7hMudSxKVYrzixLDUxKSdVSCgoNTc1
         Nym1KBgqAtTIy8VSklpcIsTqlp/vXaLEoMUAALqJaBaNAAAA
         """,
-        """
+            """
         androidx/compose/runtime/saveable/RememberSaveableKt.class:
         H4sIAAAAAAAA/81X3VMbVRT/3WSTbD4Ky/JR2GJbgdiQ0C4gfhVEEYvEBlqb
         iK34tYQtLkl2md0N07441f/BcXztizM+9U3UmQ7jo/+Kf4EvjufubkJKgqR2
@@ -119,7 +117,7 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
         PtqE7GDCwXkHtxwUHcw5KDm45tB/DyQ9Tr+DCx4x6OBjB1EHUw6y/wIvfIxc
         Kg8AAA==
         """,
-        """
+            """
         androidx/compose/runtime/saveable/Saver.class:
         H4sIAAAAAAAA/41PTU/CQBB92yKUilrED/gFxh4sEhMTNSZeTGowJDTxwmmB
         lSzQrekuhGN/lwfTsz/KOBW5qAc3mZm3b95k3rx/vL4BuECL4YSrcZrI8SoY
@@ -130,13 +128,14 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
         xHdKJYYbmShdJlfYwvrZOKJsUT3+qodoUr2kfWXSVAawQzghqiFcbBNELcQO
         dgdgGnvwBihp1DX2NRoaB5+QkX6G8gEAAA==
         """
-    )
+        )
 
     @Test
     fun saverPassedToVarargs() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -160,12 +159,12 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
                     val mutableStateFoo4 = rememberSaveable(fooSaver4) { mutableStateOf(Foo()) }
                 }
             """
-            ),
-            rememberSaveableStub,
-            Stubs.Composable,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                rememberSaveableStub,
+                Stubs.Composable,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .run()
             .expect(
                 """
@@ -236,9 +235,10 @@ Fix for src/test/Foo.kt line 22: Change to `stateSaver = fooSaver4`:
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -275,14 +275,13 @@ Fix for src/test/Foo.kt line 22: Change to `stateSaver = fooSaver4`:
                     }
                 }
             """
-            ),
-            rememberSaveableStub,
-            Stubs.Composable,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                rememberSaveableStub,
+                Stubs.Composable,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

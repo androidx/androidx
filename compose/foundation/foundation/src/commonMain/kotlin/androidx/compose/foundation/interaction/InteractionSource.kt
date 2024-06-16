@@ -26,8 +26,8 @@ import kotlin.js.JsName
 
 /**
  * InteractionSource represents a stream of [Interaction]s corresponding to events emitted by a
- * component. These [Interaction]s can be used to change how components appear in different
- * states, such as when a component is pressed or dragged.
+ * component. These [Interaction]s can be used to change how components appear in different states,
+ * such as when a component is pressed or dragged.
  *
  * A common use case is [androidx.compose.foundation.indication], where
  * [androidx.compose.foundation.Indication] implementations can subscribe to an [InteractionSource]
@@ -35,24 +35,24 @@ import kotlin.js.JsName
  * [PressInteraction.Press] and a state overlay for [DragInteraction.Start].
  *
  * For simple cases where you are interested in the binary state of an [Interaction], such as
- * whether a component is pressed or not, you can use [InteractionSource.collectIsPressedAsState] and other
- * extension functions that subscribe and return a [Boolean] [State] representing whether the
- * component is in this state or not.
+ * whether a component is pressed or not, you can use [InteractionSource.collectIsPressedAsState]
+ * and other extension functions that subscribe and return a [Boolean] [State] representing whether
+ * the component is in this state or not.
  *
  * @sample androidx.compose.foundation.samples.SimpleInteractionSourceSample
  *
  * For more complex cases, such as when building an [androidx.compose.foundation.Indication], the
  * order of the events can change how a component / indication should be drawn. For example, if a
  * component is being dragged and then becomes focused, the most recent [Interaction] is
- * [FocusInteraction.Focus], so the component should appear in a focused state to signal this
- * event to the user.
+ * [FocusInteraction.Focus], so the component should appear in a focused state to signal this event
+ * to the user.
  *
- * InteractionSource exposes [interactions] to support these use cases - a
- * [Flow] representing the stream of all emitted [Interaction]s. This also provides more
- * information, such as the press position of [PressInteraction.Press], so you can show an effect
- * at the specific point the component was pressed, and whether the press was
- * [PressInteraction.Release] or [PressInteraction.Cancel], for cases when a component
- * should behave differently if the press was released normally or interrupted by another gesture.
+ * InteractionSource exposes [interactions] to support these use cases - a [Flow] representing the
+ * stream of all emitted [Interaction]s. This also provides more information, such as the press
+ * position of [PressInteraction.Press], so you can show an effect at the specific point the
+ * component was pressed, and whether the press was [PressInteraction.Release] or
+ * [PressInteraction.Cancel], for cases when a component should behave differently if the press was
+ * released normally or interrupted by another gesture.
  *
  * You can collect from [interactions] as you would with any other [Flow]:
  *
@@ -76,9 +76,9 @@ interface InteractionSource {
 }
 
 /**
- * MutableInteractionSource represents a stream of [Interaction]s corresponding to events emitted
- * by a component. These [Interaction]s can be used to change how components appear
- * in different states, such as when a component is pressed or dragged.
+ * MutableInteractionSource represents a stream of [Interaction]s corresponding to events emitted by
+ * a component. These [Interaction]s can be used to change how components appear in different
+ * states, such as when a component is pressed or dragged.
  *
  * Lower level interaction APIs such as [androidx.compose.foundation.clickable] and
  * [androidx.compose.foundation.gestures.draggable] have an [MutableInteractionSource] parameter,
@@ -86,12 +86,12 @@ interface InteractionSource {
  * one event stream.
  *
  * MutableInteractionSource exposes [emit] and [tryEmit] functions. These emit the provided
- * [Interaction] to the underlying [interactions] [Flow], allowing consumers to react to these
- * new [Interaction]s.
+ * [Interaction] to the underlying [interactions] [Flow], allowing consumers to react to these new
+ * [Interaction]s.
  *
- * An instance of MutableInteractionSource can be created by using the
- * [MutableInteractionSource] factory function. This instance should be [remember]ed before it is
- * passed to other components that consume it.
+ * An instance of MutableInteractionSource can be created by using the [MutableInteractionSource]
+ * factory function. This instance should be [remember]ed before it is passed to other components
+ * that consume it.
  *
  * @see InteractionSource
  * @see Interaction
@@ -99,8 +99,8 @@ interface InteractionSource {
 @Stable
 interface MutableInteractionSource : InteractionSource {
     /**
-     * Emits [interaction] into [interactions].
-     * This method is not thread-safe and should not be invoked concurrently.
+     * Emits [interaction] into [interactions]. This method is not thread-safe and should not be
+     * invoked concurrently.
      *
      * @see tryEmit
      */
@@ -116,8 +116,8 @@ interface MutableInteractionSource : InteractionSource {
 }
 
 /**
- * Return a new [MutableInteractionSource] that can be hoisted and provided to components,
- * allowing listening to [Interaction] changes inside those components.
+ * Return a new [MutableInteractionSource] that can be hoisted and provided to components, allowing
+ * listening to [Interaction] changes inside those components.
  *
  * This should be [remember]ed before it is provided to components, so it can maintain its state
  * across compositions.
@@ -131,10 +131,11 @@ fun MutableInteractionSource(): MutableInteractionSource = MutableInteractionSou
 @Stable
 private class MutableInteractionSourceImpl : MutableInteractionSource {
     // TODO: consider replay for new indication instances during events?
-    override val interactions = MutableSharedFlow<Interaction>(
-        extraBufferCapacity = 16,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    override val interactions =
+        MutableSharedFlow<Interaction>(
+            extraBufferCapacity = 16,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
 
     override suspend fun emit(interaction: Interaction) {
         interactions.emit(interaction)

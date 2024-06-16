@@ -48,7 +48,9 @@ abstract class BaseMethodDeprecationDetector(
             method: PsiMethod
         ): Boolean {
             return context.evaluator.extendsClass(
-                (node.receiverType as? PsiClassType)?.resolve(), superClass, false
+                (node.receiverType as? PsiClassType)?.resolve(),
+                superClass,
+                false
             )
         }
     }
@@ -119,13 +121,9 @@ abstract class BaseMethodDeprecationDetector(
         // Find the first condition that matches and report the issue.
         conditions.find { condition ->
             if (condition.matches(context, node, method)) {
-                val incident = Incident(context)
-                    .issue(issue)
-                    .at(node)
-                    .message(condition.message)
-                condition.constraint?.let { constraint ->
-                    context.report(incident, constraint)
-                } ?: context.report(incident)
+                val incident = Incident(context).issue(issue).at(node).message(condition.message)
+                condition.constraint?.let { constraint -> context.report(incident, constraint) }
+                    ?: context.report(incident)
 
                 // We matched and we're not waiting on any constraints.
                 if (condition.constraint == null) {

@@ -68,8 +68,7 @@ public class ScalingLazyColumnTest {
     private val scalingLazyColumnTag = "scalingLazyColumnTag"
     private val firstItemTag = "firstItemTag"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -125,9 +124,7 @@ public class ScalingLazyColumnTest {
                     state = rememberScalingLazyListState().also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
                 ) {
-                    items(itemCount) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(itemCount) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -149,9 +146,7 @@ public class ScalingLazyColumnTest {
                     // also for the gap between items to be needed.
                     verticalArrangement = Arrangement.spacedBy(itemSizeDp * 0.25f * 0.75f),
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -170,12 +165,8 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1f),
                 ) {
-                    item {
-                        Box(Modifier.requiredSize(itemSizeDp * 2))
-                    }
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    item { Box(Modifier.requiredSize(itemSizeDp * 2)) }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -195,15 +186,14 @@ public class ScalingLazyColumnTest {
                     anchorType = ScalingLazyListAnchorType.ItemCenter,
                     autoCentering = AutoCenteringParams(),
                     verticalArrangement = Arrangement.spacedBy(0.dp),
-                    scalingParams = ScalingLazyColumnDefaults.scalingParams(
-                        edgeScale = 0f,
-                        minTransitionArea = 0.5f,
-                        maxTransitionArea = 0.5f
-                    )
+                    scalingParams =
+                        ScalingLazyColumnDefaults.scalingParams(
+                            edgeScale = 0f,
+                            minTransitionArea = 0.5f,
+                            maxTransitionArea = 0.5f
+                        )
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -211,9 +201,7 @@ public class ScalingLazyColumnTest {
         rule.waitUntil { state.initialized.value }
         rule.waitForIdle()
 
-        val listSizePx = with(rule.density) {
-            listSize.roundToPx()
-        }
+        val listSizePx = with(rule.density) { listSize.roundToPx() }
         rule.runOnIdle {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
@@ -223,9 +211,7 @@ public class ScalingLazyColumnTest {
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
                 .isEqualTo((listSizePx / 2) - (itemSizePx + itemSizePx / 2))
         }
-        rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            swipeUp()
-        }
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
         rule.runOnIdle {
             // Check that the last item has been scrolled into view
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.last().index)
@@ -248,15 +234,14 @@ public class ScalingLazyColumnTest {
                     anchorType = ScalingLazyListAnchorType.ItemStart,
                     autoCentering = AutoCenteringParams(),
                     verticalArrangement = Arrangement.spacedBy(0.dp),
-                    scalingParams = ScalingLazyColumnDefaults.scalingParams(
-                        edgeScale = 0f,
-                        minTransitionArea = 0.5f,
-                        maxTransitionArea = 0.5f
-                    )
+                    scalingParams =
+                        ScalingLazyColumnDefaults.scalingParams(
+                            edgeScale = 0f,
+                            minTransitionArea = 0.5f,
+                            maxTransitionArea = 0.5f
+                        )
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -264,9 +249,7 @@ public class ScalingLazyColumnTest {
         rule.waitUntil { state.initialized.value }
         rule.waitForIdle()
 
-        val listSizePx = with(rule.density) {
-            listSize.roundToPx()
-        }
+        val listSizePx = with(rule.density) { listSize.roundToPx() }
 
         rule.runOnIdle {
             // Make sure that the edge items have been scaled
@@ -276,9 +259,7 @@ public class ScalingLazyColumnTest {
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
                 .isEqualTo((listSizePx / 2) - itemSizePx)
         }
-        rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            swipeUp(endY = top)
-        }
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp(endY = top) }
         rule.runOnIdle {
             // Check that the last item has been scrolled into view
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.last().index)
@@ -296,14 +277,12 @@ public class ScalingLazyColumnTest {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
                     state = rememberScalingLazyListState().also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = null
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -328,15 +307,13 @@ public class ScalingLazyColumnTest {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
                     state = rememberScalingLazyListState().also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = null,
                     userScrollEnabled = false
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -361,16 +338,16 @@ public class ScalingLazyColumnTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                        .also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    state =
+                        rememberScalingLazyListState(initialCenterItemIndex = 0).also {
+                            state = it
+                        },
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = AutoCenteringParams(itemIndex = 0)
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -394,17 +371,17 @@ public class ScalingLazyColumnTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                        .also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    state =
+                        rememberScalingLazyListState(initialCenterItemIndex = 0).also {
+                            state = it
+                        },
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = AutoCenteringParams(itemIndex = 0),
                     flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state)
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -440,20 +417,21 @@ public class ScalingLazyColumnTest {
                 snapOffsetPx = with(LocalDensity.current) { snapOffset.roundToPx() }
 
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                        .also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    state =
+                        rememberScalingLazyListState(initialCenterItemIndex = 0).also {
+                            state = it
+                        },
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = AutoCenteringParams(itemIndex = 0),
-                    flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(
-                        state = state,
-                        snapOffset = snapOffset
-                    )
+                    flingBehavior =
+                        ScalingLazyColumnDefaults.snapFlingBehavior(
+                            state = state,
+                            snapOffset = snapOffset
+                        )
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -485,15 +463,13 @@ public class ScalingLazyColumnTest {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
                     state = rememberScalingLazyListState().also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     reverseLayout = true,
                     autoCentering = null
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -516,17 +492,17 @@ public class ScalingLazyColumnTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                        .also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    state =
+                        rememberScalingLazyListState(initialCenterItemIndex = 0).also {
+                            state = it
+                        },
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
                     autoCentering = AutoCenteringParams(itemIndex = 0)
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it)) }
                 }
             }
         }
@@ -553,15 +529,13 @@ public class ScalingLazyColumnTest {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
                     state = rememberScalingLazyListState(8).also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 4f + defaultItemSpacingDp * 3f
-                    ),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 4f + defaultItemSpacingDp * 3f),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
                     reverseLayout = true
                 ) {
-                    items(15) {
-                        Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
-                    }
+                    items(15) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it)) }
                 }
             }
         }
@@ -598,14 +572,12 @@ public class ScalingLazyColumnTest {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
                     state = rememberScalingLazyListState().also { state = it },
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = null
                 ) {
-                    items(6) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(6) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
                 ObservingFun(state, currentInfo)
             }
@@ -669,9 +641,7 @@ public class ScalingLazyColumnTest {
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(100.dp)
-            .assertHeightIsEqualTo(50.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(100.dp).assertHeightIsEqualTo(50.dp)
     }
 
     @Test
@@ -693,9 +663,7 @@ public class ScalingLazyColumnTest {
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(50.dp)
-            .assertHeightIsEqualTo(150.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(50.dp).assertHeightIsEqualTo(150.dp)
     }
 
     @Test
@@ -708,17 +676,13 @@ public class ScalingLazyColumnTest {
                 contentPadding = PaddingValues(horizontal = 0.dp),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
             ) {
-                items(listOf(0)) {
-                    Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
-                }
+                items(listOf(0)) { Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag)) }
             }
         }
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(100.dp)
-            .assertHeightIsEqualTo(150.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(100.dp).assertHeightIsEqualTo(150.dp)
     }
 
     @Test
@@ -743,9 +707,7 @@ public class ScalingLazyColumnTest {
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(70.dp)
-            .assertHeightIsEqualTo(50.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(70.dp).assertHeightIsEqualTo(50.dp)
     }
 
     @Test
@@ -768,9 +730,7 @@ public class ScalingLazyColumnTest {
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(50.dp)
-            .assertHeightIsEqualTo(45.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(50.dp).assertHeightIsEqualTo(45.dp)
     }
 
     @Test
@@ -782,17 +742,13 @@ public class ScalingLazyColumnTest {
                 modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp)
             ) {
-                items(listOf(0)) {
-                    Spacer(Modifier.fillParentMaxSize(0.5f).testTag(firstItemTag))
-                }
+                items(listOf(0)) { Spacer(Modifier.fillParentMaxSize(0.5f).testTag(firstItemTag)) }
             }
         }
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(50.dp)
-            .assertHeightIsEqualTo(75.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(50.dp).assertHeightIsEqualTo(75.dp)
     }
 
     @Test
@@ -805,21 +761,15 @@ public class ScalingLazyColumnTest {
                 modifier = Modifier.requiredSize(parentSize),
                 contentPadding = PaddingValues(horizontal = 0.dp),
             ) {
-                items(listOf(0)) {
-                    Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
-                }
+                items(listOf(0)) { Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag)) }
             }
         }
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.runOnIdle {
-            parentSize = 150.dp
-        }
+        rule.runOnIdle { parentSize = 150.dp }
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertWidthIsEqualTo(150.dp)
-            .assertHeightIsEqualTo(150.dp)
+        rule.onNodeWithTag(firstItemTag).assertWidthIsEqualTo(150.dp).assertHeightIsEqualTo(150.dp)
     }
 
     @Test
@@ -832,31 +782,22 @@ public class ScalingLazyColumnTest {
                 modifier = Modifier.testTag(scalingLazyColumnTag),
                 contentPadding = PaddingValues(horizontal = 0.dp),
             ) {
-                items(listOf(0)) {
-                    Spacer(Modifier.size(itemSize).testTag(firstItemTag))
-                }
+                items(listOf(0)) { Spacer(Modifier.size(itemSize).testTag(firstItemTag)) }
             }
         }
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
 
-        rule.onNodeWithTag(scalingLazyColumnTag)
-            .assertWidthIsEqualTo(itemSize)
+        rule.onNodeWithTag(scalingLazyColumnTag).assertWidthIsEqualTo(itemSize)
 
-        rule.runOnIdle {
-            itemSize = 150.dp
-        }
+        rule.runOnIdle { itemSize = 150.dp }
 
-        rule.onNodeWithTag(scalingLazyColumnTag)
-            .assertWidthIsEqualTo(itemSize)
+        rule.onNodeWithTag(scalingLazyColumnTag).assertWidthIsEqualTo(itemSize)
 
-        rule.runOnIdle {
-            itemSize = 50.dp
-        }
+        rule.runOnIdle { itemSize = 50.dp }
 
-        rule.onNodeWithTag(scalingLazyColumnTag)
-            .assertWidthIsEqualTo(itemSize)
+        rule.onNodeWithTag(scalingLazyColumnTag).assertWidthIsEqualTo(itemSize)
     }
 
     @Test
@@ -893,19 +834,18 @@ public class ScalingLazyColumnTest {
             if (showList.value) {
                 ScalingLazyColumn(
                     state = state,
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = AutoCenteringParams()
                 ) {
-                    items(25) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(25) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             } else {
-                Box(modifier = Modifier.requiredSize(
-                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                ))
+                Box(
+                    modifier =
+                        Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                )
             }
         }
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
@@ -919,11 +859,7 @@ public class ScalingLazyColumnTest {
         rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollToItem(10)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
 
         rule.waitForIdle()
         showList.value = true
@@ -943,24 +879,18 @@ public class ScalingLazyColumnTest {
             state = rememberScalingLazyListState()
             ScalingLazyColumn(
                 state = state,
-                modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                ),
+                modifier =
+                    Modifier.testTag(TEST_TAG)
+                        .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 autoCentering = AutoCenteringParams()
             ) {
-                items(25) {
-                    Box(Modifier.requiredSize(itemSizeDp))
-                }
+                items(25) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
         }
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollToItem(50)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollToItem(50) } }
 
         state.layoutInfo.assertVisibleItems(count = 3, startIndex = 22)
         assertThat(state.centerItemIndex).isEqualTo(24)
@@ -981,14 +911,12 @@ public class ScalingLazyColumnTest {
 
                 ScalingLazyColumn(
                     state = state,
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-                    ),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = AutoCenteringParams(itemIndex = 0)
                 ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+                    items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
             }
         }
@@ -1010,9 +938,7 @@ public class ScalingLazyColumnTest {
             Box(
                 modifier = Modifier.horizontalScroll(horizontalScrollState),
             ) {
-                ScalingLazyColumn {
-                    item { Box(Modifier.size(10.dp)) }
-                }
+                ScalingLazyColumn { item { Box(Modifier.size(10.dp)) } }
             }
         }
     }
@@ -1023,7 +949,5 @@ internal const val TestTouchSlop = 18f
 internal fun ComposeContentTestRule.setContentWithTestViewConfiguration(
     composable: @Composable () -> Unit
 ) {
-    this.setContent {
-        WithTouchSlop(TestTouchSlop, composable)
-    }
+    this.setContent { WithTouchSlop(TestTouchSlop, composable) }
 }

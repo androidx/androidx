@@ -27,9 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Benchmark that runs [NestedBoxesTestCase].
- */
+/** Benchmark that runs [NestedBoxesTestCase]. */
 @LargeTest
 @RunWith(Parameterized::class)
 class NestedBoxesBenchmark(private val depth: Int, private val children: Int) {
@@ -40,8 +38,7 @@ class NestedBoxesBenchmark(private val depth: Int, private val children: Int) {
         fun initParameters(): Array<Any> = arrayOf(arrayOf(7, 2), arrayOf(4, 5), arrayOf(100, 1))
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val checkboxCaseFactory = { NestedBoxesTestCase(depth, children) }
 

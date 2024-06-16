@@ -25,11 +25,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class EffectsTests {
-    private val NeverEqualObject = object {
-        override fun equals(other: Any?): Boolean {
-            return false
+    private val NeverEqualObject =
+        object {
+            override fun equals(other: Any?): Boolean {
+                return false
+            }
         }
-    }
 
     @Test
     fun testMemoization1() = compositionTest {
@@ -37,9 +38,7 @@ class EffectsTests {
 
         compose {
             // User the remembered value to avoid a lint error.
-            val someInt = remember {
-                ++inc
-            }
+            val someInt = remember { ++inc }
             use(someInt)
         }
 
@@ -104,9 +103,7 @@ class EffectsTests {
         }
 
         fun validate() {
-            validate {
-                Text(local.value)
-            }
+            validate { Text(local.value) }
         }
         validate()
 
@@ -176,9 +173,7 @@ class EffectsTests {
             log("Unmountable:start")
             DisposableEffect(NeverEqualObject) {
                 log("onCommit")
-                onDispose {
-                    log("onDispose")
-                }
+                onDispose { log("onDispose") }
             }
             log("Unmountable:end")
         }
@@ -229,43 +224,30 @@ class EffectsTests {
         fun Unmountable() {
             DisposableEffect(NeverEqualObject) {
                 log("onCommit:a2")
-                onDispose {
-                    log("onDispose:a2")
-                }
+                onDispose { log("onDispose:a2") }
             }
             DisposableEffect(NeverEqualObject) {
                 log("onCommit:b2")
-                onDispose {
-                    log("onDispose:b2")
-                }
+                onDispose { log("onDispose:b2") }
             }
         }
 
         compose {
             DisposableEffect(NeverEqualObject) {
                 log("onCommit:a1")
-                onDispose {
-                    log("onDispose:a1")
-                }
+                onDispose { log("onDispose:a1") }
             }
             if (mount) {
                 Unmountable()
             }
             DisposableEffect(NeverEqualObject) {
                 log("onCommit:b1")
-                onDispose {
-                    log("onDispose:b1")
-                }
+                onDispose { log("onDispose:b1") }
             }
         }
 
         assertArrayEquals(
-            listOf(
-                "onCommit:a1",
-                "onCommit:a2",
-                "onCommit:b2",
-                "onCommit:b1"
-            ),
+            listOf("onCommit:a1", "onCommit:a2", "onCommit:b2", "onCommit:b1"),
             logHistory
         )
         mount = false
@@ -303,24 +285,14 @@ class EffectsTests {
             DisposableEffect(NeverEqualObject) {
                 val y = x++
                 log("onCommit:$y")
-                onDispose {
-                    log("dispose:$y")
-                }
+                onDispose { log("dispose:$y") }
             }
         }
 
         log("recompose")
         trigger.recompose()
         expectChanges()
-        assertArrayEquals(
-            listOf(
-                "onCommit:0",
-                "recompose",
-                "dispose:0",
-                "onCommit:1"
-            ),
-            logHistory
-        )
+        assertArrayEquals(listOf("onCommit:0", "recompose", "dispose:0", "onCommit:1"), logHistory)
     }
 
     @Test
@@ -337,16 +309,12 @@ class EffectsTests {
             DisposableEffect(NeverEqualObject) {
                 val y = a++
                 log("onCommit a:$y")
-                onDispose {
-                    log("dispose a:$y")
-                }
+                onDispose { log("dispose a:$y") }
             }
             DisposableEffect(NeverEqualObject) {
                 val y = b++
                 log("onCommit b:$y")
-                onDispose {
-                    log("dispose b:$y")
-                }
+                onDispose { log("dispose b:$y") }
             }
         }
 
@@ -381,9 +349,7 @@ class EffectsTests {
             DisposableEffect(key) {
                 val y = x++
                 log("onCommit:$y")
-                onDispose {
-                    log("dispose:$y")
-                }
+                onDispose { log("dispose:$y") }
             }
         }
 
@@ -391,26 +357,14 @@ class EffectsTests {
         trigger.recompose()
         expectNoChanges()
 
-        assertArrayEquals(
-            listOf(
-                "onCommit:0",
-                "recompose"
-            ),
-            logHistory
-        )
+        assertArrayEquals(listOf("onCommit:0", "recompose"), logHistory)
         log("recompose (key -> 345)")
         key = 345
         trigger.recompose()
         expectChanges()
 
         assertArrayEquals(
-            listOf(
-                "onCommit:0",
-                "recompose",
-                "recompose (key -> 345)",
-                "dispose:0",
-                "onCommit:1"
-            ),
+            listOf("onCommit:0", "recompose", "recompose (key -> 345)", "dispose:0", "onCommit:1"),
             logHistory
         )
     }
@@ -431,9 +385,7 @@ class EffectsTests {
             DisposableEffect(NeverEqualObject) {
                 val y = c++
                 log("onCommit c:$y")
-                onDispose {
-                    log("dispose c:$y")
-                }
+                onDispose { log("dispose c:$y") }
             }
         }
 
@@ -442,17 +394,13 @@ class EffectsTests {
             DisposableEffect(NeverEqualObject) {
                 val y = a++
                 log("onCommit a:$y")
-                onDispose {
-                    log("dispose a:$y")
-                }
+                onDispose { log("dispose a:$y") }
             }
 
             DisposableEffect(NeverEqualObject) {
                 val y = b++
                 log("onCommit b:$y")
-                onDispose {
-                    log("dispose b:$y")
-                }
+                onDispose { log("dispose b:$y") }
             }
 
             Sub()
@@ -486,14 +434,10 @@ class EffectsTests {
         fun UpdateStateInCommit() {
             var value by remember { mutableStateOf(1) }
             readValue = value
-            SideEffect {
-                value = 2
-            }
+            SideEffect { value = 2 }
         }
 
-        compose {
-            UpdateStateInCommit()
-        }
+        compose { UpdateStateInCommit() }
         expectChanges()
 
         assertEquals(2, readValue)
@@ -508,9 +452,7 @@ class EffectsTests {
 
         @Composable
         fun DisposeLogger(msg: String) {
-            DisposableEffect(Unit) {
-                onDispose { log(msg) }
-            }
+            DisposableEffect(Unit) { onDispose { log(msg) } }
         }
 
         compose {
@@ -520,17 +462,11 @@ class EffectsTests {
             }
         }
 
-        assertArrayEquals(
-            emptyList(),
-            logHistory
-        )
+        assertArrayEquals(emptyList(), logHistory)
         mount = false
         log("recompose")
         expectChanges()
-        assertArrayEquals(
-            listOf("recompose", "onDispose:2"),
-            logHistory
-        )
+        assertArrayEquals(listOf("recompose", "onDispose:2"), logHistory)
     }
 
     @Test
@@ -544,16 +480,10 @@ class EffectsTests {
             Text(foo)
         }
 
-        compose {
-            CompositionLocalProvider(Foo provides current) {
-                Bar()
-            }
-        }
+        compose { CompositionLocalProvider(Foo provides current) { Bar() } }
 
         fun validate() {
-            validate {
-                Text(current)
-            }
+            validate { Text(current) }
         }
         validate()
 
@@ -569,12 +499,14 @@ class EffectsTests {
         var scope: RecomposeScope? = null
         var compositionLocalValue = 1
 
-        @Composable fun SimpleComposable2() {
+        @Composable
+        fun SimpleComposable2() {
             val value = MyCompositionLocal.current
             Text("$value")
         }
 
-        @Composable fun SimpleComposable() {
+        @Composable
+        fun SimpleComposable() {
             scope = currentRecomposeScope
             CompositionLocalProvider(MyCompositionLocal provides compositionLocalValue++) {
                 SimpleComposable2()
@@ -582,13 +514,12 @@ class EffectsTests {
             }
         }
 
-        @Composable fun Root() {
+        @Composable
+        fun Root() {
             SimpleComposable()
         }
 
-        compose {
-            Root()
-        }
+        compose { Root() }
 
         fun validate() {
             validate {
@@ -609,12 +540,14 @@ class EffectsTests {
         var scope: RecomposeScope? = null
         var compositionLocalValue = 1
 
-        @Composable fun SimpleComposable2() {
+        @Composable
+        fun SimpleComposable2() {
             val value = MyCompositionLocal.current
             Text("$value")
         }
 
-        @Composable fun SimpleComposable() {
+        @Composable
+        fun SimpleComposable() {
             scope = currentRecomposeScope
             CompositionLocalProvider(MyCompositionLocal provides compositionLocalValue++) {
                 SimpleComposable2()
@@ -622,13 +555,12 @@ class EffectsTests {
             }
         }
 
-        @Composable fun Root() {
+        @Composable
+        fun Root() {
             SimpleComposable()
         }
 
-        compose {
-            Root()
-        }
+        compose { Root() }
 
         fun validate() {
             validate {
@@ -652,19 +584,15 @@ class EffectsTests {
             Text(local.value)
         }
 
-        validate {
-            Text("Hello world! 0")
-        }
+        validate { Text("Hello world! 0") }
         expectNoChanges()
-        validate {
-            Text("Hello world! 0")
-        }
+        validate { Text("Hello world! 0") }
     }
 
     @Test // regression test for 165416179
     fun recomposeNewModifiedState() = compositionTest {
         var enabler by mutableStateOf(false)
-        var advance = { }
+        var advance = {}
         compose {
             // "enabler" forces the test into the recompose code path
             // rather than initial composition
@@ -672,13 +600,11 @@ class EffectsTests {
                 var state by remember { mutableStateOf(0) }
                 DisposableEffect(Unit) {
                     state = 1
-                    onDispose { }
+                    onDispose {}
                 }
                 Text("$state")
                 Text("Some text")
-                advance = {
-                    state++
-                }
+                advance = { state++ }
             }
         }
 
@@ -719,8 +645,14 @@ fun <T> assertArrayEquals(
 
 class Trigger {
     val count = mutableStateOf(0)
-    fun subscribe() { count.value }
-    fun recompose() { count.value += 1 }
+
+    fun subscribe() {
+        count.value
+    }
+
+    fun recompose() {
+        count.value += 1
+    }
 }
 
-fun use(@Suppress("UNUSED_PARAMETER") value: Any) { }
+fun use(@Suppress("UNUSED_PARAMETER") value: Any) {}

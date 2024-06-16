@@ -18,12 +18,10 @@ package androidx.activity.result
 import android.app.Activity
 
 /**
- * A type-safe callback to be called when an [activity result][Activity.onActivityResult]
- * is available.
+ * A type-safe callback to be called when an [activity result][Activity.onActivityResult] is
+ * available.
  */
 fun interface ActivityResultCallback<O> {
-    /**
-     * Called when result is available
-     */
+    /** Called when result is available */
     fun onActivityResult(result: O)
 }

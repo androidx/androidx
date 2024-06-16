@@ -19,10 +19,9 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * Thread-safe class responsible for maintaining a list of objects as well as an index
- * that keeps track of the last consumed object within the queue.
- * This ensures that the collection as well as the current index parameter are updated atomically
- * within the same lock.
+ * Thread-safe class responsible for maintaining a list of objects as well as an index that keeps
+ * track of the last consumed object within the queue. This ensures that the collection as well as
+ * the current index parameter are updated atomically within the same lock.
  */
 internal class ParamQueue<T> {
 
@@ -30,9 +29,7 @@ internal class ParamQueue<T> {
     private var mParams = ArrayList<T>()
     private var mIndex = 0
 
-    /**
-     * Clears the parameter queue and resets the index position to 0
-     */
+    /** Clears the parameter queue and resets the index position to 0 */
     fun clear() {
         mLock.withLock {
             mIndex = 0
@@ -41,10 +38,10 @@ internal class ParamQueue<T> {
     }
 
     /**
-     * Returns the current queue and resets the index position to 0.
-     * This collection is no longer owned by [ParamQueue] and a new queue is maintained after
-     * this call is made. This allows callers to manipulate the returned collection as they
-     * see fit without impacting the integrity of the [ParamQueue] after this method is invoked.
+     * Returns the current queue and resets the index position to 0. This collection is no longer
+     * owned by [ParamQueue] and a new queue is maintained after this call is made. This allows
+     * callers to manipulate the returned collection as they see fit without impacting the integrity
+     * of the [ParamQueue] after this method is invoked.
      */
     fun release(): MutableCollection<T> {
         mLock.withLock {
@@ -56,11 +53,10 @@ internal class ParamQueue<T> {
     }
 
     /**
-     * Returns the next parameter at the index position and increments the index position.
-     * This parameter is provided as a callback. If the index position is out of range, this
-     * method acts as a no-op.
-     * This does not actually remove the parameter from the collection. Consumers must either
-     * call [clear], or clear the collection returned in [release] to ensure contents do not
+     * Returns the next parameter at the index position and increments the index position. This
+     * parameter is provided as a callback. If the index position is out of range, this method acts
+     * as a no-op. This does not actually remove the parameter from the collection. Consumers must
+     * either call [clear], or clear the collection returned in [release] to ensure contents do not
      * grow unbounded.
      */
     inline fun next(block: (T) -> Unit) {
@@ -73,11 +69,10 @@ internal class ParamQueue<T> {
     }
 
     /**
-     * Similar to [next], but iterates through each item from the current index to the end of
-     * the collection and invokes the given lambda on each parameter.
-     * This does not actually remove the parameter from the collection. Consumers must either
-     * call [clear], or clear the collection returned in [release] to ensure contents do not
-     * grow unbounded.
+     * Similar to [next], but iterates through each item from the current index to the end of the
+     * collection and invokes the given lambda on each parameter. This does not actually remove the
+     * parameter from the collection. Consumers must either call [clear], or clear the collection
+     * returned in [release] to ensure contents do not grow unbounded.
      */
     inline fun flush(block: (T) -> Unit) {
         mLock.withLock {
@@ -92,15 +87,11 @@ internal class ParamQueue<T> {
      * Adds a new entry into the parameter queue. This leaves the current index position unchanged.
      */
     fun add(param: T) {
-        mLock.withLock {
-            mParams.add(param)
-        }
+        mLock.withLock { mParams.add(param) }
     }
 
     fun addAll(params: Collection<T>) {
-        mLock.withLock {
-            mParams.addAll(params)
-        }
+        mLock.withLock { mParams.addAll(params) }
     }
 
     fun count(): Int = mLock.withLock { mParams.size }

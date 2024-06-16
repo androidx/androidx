@@ -30,19 +30,21 @@ class EmittableColumn : EmittableWithChildren() {
     var verticalAlignment: Alignment.Vertical = Alignment.Top
     var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
-    override fun copy(): Emittable = EmittableColumn().also {
-        it.modifier = modifier
-        it.verticalAlignment = verticalAlignment
-        it.horizontalAlignment = horizontalAlignment
-        it.children.addAll(children.map { it.copy() })
-    }
+    override fun copy(): Emittable =
+        EmittableColumn().also {
+            it.modifier = modifier
+            it.verticalAlignment = verticalAlignment
+            it.horizontalAlignment = horizontalAlignment
+            it.children.addAll(children.map { it.copy() })
+        }
 
-    override fun toString(): String = "EmittableColumn(" +
-        "modifier=$modifier, " +
-        "verticalAlignment=$verticalAlignment, " +
-        "horizontalAlignment=$horizontalAlignment, " +
-        "children=[\n${childrenToString()}\n]" +
-        ")"
+    override fun toString(): String =
+        "EmittableColumn(" +
+            "modifier=$modifier, " +
+            "verticalAlignment=$verticalAlignment, " +
+            "horizontalAlignment=$horizontalAlignment, " +
+            "children=[\n${childrenToString()}\n]" +
+            ")"
 }
 
 /** Scope defining modifiers only available on rows. */
@@ -76,7 +78,7 @@ private object ColumnScopeImplInstance : ColumnScope {
  *   consume the full height of the [Column] (i.e. whether to push the children towards the top,
  *   center or bottom of the [Column]).
  * @param horizontalAlignment The horizontal alignment to apply to children when they are smaller
- *  than the width of the [Column]
+ *   than the width of the [Column]
  * @param content The content inside the [Column]
  */
 @Composable

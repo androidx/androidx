@@ -31,10 +31,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
 /**
- * Tests [SpecificationComputer] to verify the following behaviors.
- * The key use-cases are when [SpecificationComputer.require] has failed and the expected behaviors
- * are as follows. For [STRICT] mode, [SpecificationComputer.compute] should throw an exception.
- * For [QUIET] mode, [SpecificationComputer.compute] should return a null value. For [LOG] mode,
+ * Tests [SpecificationComputer] to verify the following behaviors. The key use-cases are when
+ * [SpecificationComputer.require] has failed and the expected behaviors are as follows. For
+ * [STRICT] mode, [SpecificationComputer.compute] should throw an exception. For [QUIET] mode,
+ * [SpecificationComputer.compute] should return a null value. For [LOG] mode,
  * [SpecificationComputer.compute] should write a log and return a null value.
  */
 class SpecificationComputerTest {
@@ -48,27 +48,22 @@ class SpecificationComputerTest {
 
     @Test
     fun run_returnsNullIfRequiredCheckFails() {
-        val actual = DATA.startSpecification(TAG, QUIET)
-            .require(MESSAGE) { this.isEmpty() }
-            .compute()
+        val actual =
+            DATA.startSpecification(TAG, QUIET).require(MESSAGE) { this.isEmpty() }.compute()
 
         assertNull(actual)
     }
 
     @Test(expected = WindowStrictModeException::class)
     fun run_throwsIfStrictModeEnabled() {
-        DATA.startSpecification(TAG, STRICT)
-            .require(MESSAGE) { this.isEmpty() }
-            .compute()
+        DATA.startSpecification(TAG, STRICT).require(MESSAGE) { this.isEmpty() }.compute()
     }
 
     @Test
     fun run_exceptionStackAtRunCaller() {
         var actual: WindowStrictModeException? = null
         try {
-            DATA.startSpecification(TAG, STRICT)
-                .require(MESSAGE) { this.isEmpty() }
-                .compute()
+            DATA.startSpecification(TAG, STRICT).require(MESSAGE) { this.isEmpty() }.compute()
         } catch (e: WindowStrictModeException) {
             actual = e
         }
@@ -80,9 +75,7 @@ class SpecificationComputerTest {
     @Test
     fun run_logsIfLoggingModeEnabled() {
         val logger = mock<Logger>()
-        DATA.startSpecification(TAG, LOG, logger)
-            .require(MESSAGE) { this.isEmpty() }
-            .compute()
+        DATA.startSpecification(TAG, LOG, logger).require(MESSAGE) { this.isEmpty() }.compute()
 
         verify(logger).debug(eq(TAG), contains(MESSAGE))
     }
@@ -90,9 +83,7 @@ class SpecificationComputerTest {
     @Test
     fun check_logsIfLoggingModeEnabled() {
         val logger = mock<Logger>()
-        DATA.startSpecification(TAG, LOG, logger)
-            .require(MESSAGE) { this.isEmpty() }
-            .compute()
+        DATA.startSpecification(TAG, LOG, logger).require(MESSAGE) { this.isEmpty() }.compute()
 
         verify(logger).debug(eq(TAG), contains(MESSAGE))
     }

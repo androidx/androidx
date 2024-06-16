@@ -41,9 +41,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PathEasingSample() {
     // Creates a custom PathEasing curve and applies it to an animation
-    var toggled by remember {
-        mutableStateOf(true)
-    }
+    var toggled by remember { mutableStateOf(true) }
     val pathForAnimation = remember {
         Path().apply {
             moveTo(0f, 0f)
@@ -51,22 +49,13 @@ fun PathEasingSample() {
             cubicTo(0.208333f, 0.82f, 0.25f, 1f, 1f, 1f)
         }
     }
-    val offset by animateIntOffsetAsState(
-        targetValue =
-        if (toggled) IntOffset.Zero else IntOffset(300, 300),
-        label = "offset",
-        animationSpec = tween(durationMillis = 1000, easing = PathEasing(pathForAnimation))
-    )
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .clickable {
-            toggled = !toggled
-        }) {
-        Box(modifier = Modifier
-            .offset {
-                offset
-            }
-            .size(100.dp)
-            .background(Color.Blue))
+    val offset by
+        animateIntOffsetAsState(
+            targetValue = if (toggled) IntOffset.Zero else IntOffset(300, 300),
+            label = "offset",
+            animationSpec = tween(durationMillis = 1000, easing = PathEasing(pathForAnimation))
+        )
+    Box(modifier = Modifier.fillMaxSize().clickable { toggled = !toggled }) {
+        Box(modifier = Modifier.offset { offset }.size(100.dp).background(Color.Blue))
     }
 }

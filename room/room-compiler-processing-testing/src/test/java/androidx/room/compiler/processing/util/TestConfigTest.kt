@@ -30,35 +30,15 @@ class TestConfigTest {
 
     @Test
     fun compatibilities() {
-        assertThat(
-            Config(
-                kotlinVersion = "1.4.20",
-                kspVersion = "1.4.20-blah-blah"
-            ).canEnableKsp()
-        ).isTrue()
-        assertThat(
-            Config(
-                kotlinVersion = "1.4.30",
-                kspVersion = "1.4.20-blah-blah"
-            ).canEnableKsp()
-        ).isTrue()
-        assertThat(
-            Config(
-                kotlinVersion = "1.5.30",
-                kspVersion = "1.4.20-blah-blah"
-            ).canEnableKsp()
-        ).isFalse()
-        assertThat(
-            Config(
-                kotlinVersion = "1.5",
-                kspVersion = "1.4.20-blah-blah"
-            ).canEnableKsp()
-        ).isFalse()
-        assertThat(
-            Config(
-                kotlinVersion = "1.5",
-                kspVersion = "1.5.20-blah-blah"
-            ).canEnableKsp()
-        ).isTrue()
+        assertThat(Config(kotlinVersion = "1.4.20", kspVersion = "1.4.20-blah-blah").canEnableKsp())
+            .isTrue()
+        assertThat(Config(kotlinVersion = "1.4.30", kspVersion = "1.4.20-blah-blah").canEnableKsp())
+            .isTrue()
+        assertThat(Config(kotlinVersion = "1.5.30", kspVersion = "1.4.20-blah-blah").canEnableKsp())
+            .isFalse()
+        assertThat(Config(kotlinVersion = "1.5", kspVersion = "1.4.20-blah-blah").canEnableKsp())
+            .isFalse()
+        assertThat(Config(kotlinVersion = "1.5", kspVersion = "1.5.20-blah-blah").canEnableKsp())
+            .isTrue()
     }
 }

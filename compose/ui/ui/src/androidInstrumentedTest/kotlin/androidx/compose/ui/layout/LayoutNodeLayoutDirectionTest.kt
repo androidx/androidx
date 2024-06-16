@@ -49,8 +49,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayoutNodeLayoutDirectionTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun compositionLocalLayoutDirectionChangeTriggersRemeasure() {
@@ -72,9 +71,7 @@ class LayoutNodeLayoutDirectionTest {
             localLayoutDirection = LayoutDirection.Rtl
         }
 
-        rule.runOnIdle {
-            Assert.assertEquals(localLayoutDirection, measureScopeLayoutDirection)
-        }
+        rule.runOnIdle { Assert.assertEquals(localLayoutDirection, measureScopeLayoutDirection) }
     }
 
     @Test
@@ -82,9 +79,7 @@ class LayoutNodeLayoutDirectionTest {
         var localLayoutDirection by mutableStateOf(LayoutDirection.Ltr)
 
         var drawScopeLayoutDirection: LayoutDirection? = null
-        val drawBlock: DrawScope.() -> Unit = {
-            drawScopeLayoutDirection = layoutDirection
-        }
+        val drawBlock: DrawScope.() -> Unit = { drawScopeLayoutDirection = layoutDirection }
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides localLayoutDirection) {
                 Canvas(Modifier.fillMaxSize(), onDraw = drawBlock)
@@ -96,9 +91,7 @@ class LayoutNodeLayoutDirectionTest {
             localLayoutDirection = LayoutDirection.Rtl
         }
 
-        rule.runOnIdle {
-            Assert.assertEquals(localLayoutDirection, drawScopeLayoutDirection)
-        }
+        rule.runOnIdle { Assert.assertEquals(localLayoutDirection, drawScopeLayoutDirection) }
     }
 
     @Test
@@ -106,9 +99,7 @@ class LayoutNodeLayoutDirectionTest {
         var localLayoutDirection by mutableStateOf(LayoutDirection.Ltr)
 
         var drawScopeLayoutDirection: LayoutDirection? = null
-        val drawBlock: DrawScope.() -> Unit = {
-            drawScopeLayoutDirection = layoutDirection
-        }
+        val drawBlock: DrawScope.() -> Unit = { drawScopeLayoutDirection = layoutDirection }
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides localLayoutDirection) {
                 Spacer(Modifier.fillMaxSize().graphicsLayer().drawBehind(drawBlock))
@@ -120,9 +111,7 @@ class LayoutNodeLayoutDirectionTest {
             localLayoutDirection = LayoutDirection.Rtl
         }
 
-        rule.runOnIdle {
-            Assert.assertEquals(localLayoutDirection, drawScopeLayoutDirection)
-        }
+        rule.runOnIdle { Assert.assertEquals(localLayoutDirection, drawScopeLayoutDirection) }
     }
 
     @Test
@@ -130,9 +119,7 @@ class LayoutNodeLayoutDirectionTest {
         var localLayoutDirection by mutableStateOf(LayoutDirection.Ltr)
 
         var drawScopeLayoutDirection: LayoutDirection? = null
-        val drawBlock: DrawScope.() -> Unit = {
-            drawScopeLayoutDirection = layoutDirection
-        }
+        val drawBlock: DrawScope.() -> Unit = { drawScopeLayoutDirection = layoutDirection }
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides localLayoutDirection) {
                 Spacer(Modifier.fillMaxSize().drawBehind(drawBlock).graphicsLayer())
@@ -144,36 +131,30 @@ class LayoutNodeLayoutDirectionTest {
             localLayoutDirection = LayoutDirection.Rtl
         }
 
-        rule.runOnIdle {
-            Assert.assertEquals(localLayoutDirection, drawScopeLayoutDirection)
-        }
+        rule.runOnIdle { Assert.assertEquals(localLayoutDirection, drawScopeLayoutDirection) }
     }
 
     @Test
     fun layoutDirectionChangeRequestsLayerOutlineUpdate() {
         var layoutDirection by mutableStateOf(LayoutDirection.Ltr)
         var lastLayoutDirection: LayoutDirection? = null
-        val shape = object : Shape {
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ): Outline {
-                lastLayoutDirection = layoutDirection
-                return Outline.Rectangle(size.toRect())
+        val shape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density
+                ): Outline {
+                    lastLayoutDirection = layoutDirection
+                    return Outline.Rectangle(size.toRect())
+                }
             }
-        }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides layoutDirection
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 Box(
-                    Modifier
-                        .layout { measurable, _ ->
+                    Modifier.layout { measurable, _ ->
                             val placeable = measurable.measure(Constraints.fixed(100, 100))
-                            layout(placeable.width, placeable.height) {
-                                placeable.place(0, 0)
-                            }
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                         }
                         .graphicsLayer(shape = shape, clip = true)
                 )
@@ -185,8 +166,6 @@ class LayoutNodeLayoutDirectionTest {
             layoutDirection = LayoutDirection.Rtl
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(lastLayoutDirection).isEqualTo(layoutDirection)
-        }
+        rule.runOnIdle { Truth.assertThat(lastLayoutDirection).isEqualTo(layoutDirection) }
     }
 }

@@ -64,17 +64,13 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
         // Using preferenceStore:
         findViewById<Button>(R.id.counter_dec).setOnClickListener {
             lifecycleScope.launch {
-                prefsDs.edit { prefs ->
-                    prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) - 1
-                }
+                prefsDs.edit { prefs -> prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) - 1 }
             }
         }
 
         findViewById<Button>(R.id.counter_inc).setOnClickListener {
             lifecycleScope.launch {
-                prefsDs.edit { prefs ->
-                    prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) + 1
-                }
+                prefsDs.edit { prefs -> prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) + 1 }
             }
         }
 

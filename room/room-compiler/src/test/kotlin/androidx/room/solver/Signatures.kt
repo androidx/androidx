@@ -27,27 +27,24 @@ import androidx.room.solver.types.TypeConverter
 import androidx.room.solver.types.UpCastTypeConverter
 
 // Shared signatures for objects that make testing more readable
-private fun XNullability.toSignature() = when (this) {
-    XNullability.NONNULL -> "!"
-    XNullability.NULLABLE -> "?"
-    XNullability.UNKNOWN -> ""
-}
+private fun XNullability.toSignature() =
+    when (this) {
+        XNullability.NONNULL -> "!"
+        XNullability.NULLABLE -> "?"
+        XNullability.UNKNOWN -> ""
+    }
 
 fun XType.toSignature() =
-    (asTypeName().toString(CodeLanguage.JAVA) + nullability.toSignature())
-        .substringAfterLast(".")
+    (asTypeName().toString(CodeLanguage.JAVA) + nullability.toSignature()).substringAfterLast(".")
 
 fun TypeConverter.toSignature(): String {
     return when (this) {
         is CompositeTypeConverter -> "${conv1.toSignature()} / ${conv2.toSignature()}"
         is CustomTypeConverterWrapper -> this.custom.method.name
         is NullSafeTypeConverter ->
-            "(${this.from.toSignature()} == null " +
-                "? null : ${this.delegate.toSignature()})"
-        is RequireNotNullTypeConverter ->
-            "checkNotNull(${from.toSignature()})"
-        is UpCastTypeConverter ->
-            "(${from.toSignature()} as ${to.toSignature()})"
+            "(${this.from.toSignature()} == null " + "? null : ${this.delegate.toSignature()})"
+        is RequireNotNullTypeConverter -> "checkNotNull(${from.toSignature()})"
+        is UpCastTypeConverter -> "(${from.toSignature()} as ${to.toSignature()})"
         else -> "${from.toSignature()} -> ${to.toSignature()}"
     }
 }

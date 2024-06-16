@@ -23,32 +23,28 @@ import okio.BufferedSource
  * The OkioSerializer determines the on-disk format and API for accessing it.
  *
  * The type T MUST be immutable. Mutable types will result in broken DataStore functionality.
- *
  */
 public interface OkioSerializer<T> {
 
-    /**
-     * Value to return if there is no data on disk.
-     */
+    /** Value to return if there is no data on disk. */
     public val defaultValue: T
 
     /**
      * Unmarshal object from source.
      *
      * @param source the BufferedSource with the data to deserialize
-     *
      * @throws androidx.datastore.core.CorruptionException if the data from [input] is corrupted
-     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a
-     *   protobuf message and it is corrupted. Other unrecoverable [IOException] from the file
-     *   system should not be thrown as [CorruptionException].
+     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a protobuf
+     *   message and it is corrupted. Other unrecoverable [IOException] from the file system should
+     *   not be thrown as [CorruptionException].
      */
     public suspend fun readFrom(source: BufferedSource): T
 
     /**
-     *  Marshal object to a Sink.
+     * Marshal object to a Sink.
      *
-     *  @param t the data to write to output
-     *  @param sink the BufferedSink to serialize data to
+     * @param t the data to write to output
+     * @param sink the BufferedSink to serialize data to
      */
     public suspend fun writeTo(t: T, sink: BufferedSink)
 }

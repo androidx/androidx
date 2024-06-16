@@ -32,8 +32,7 @@ import androidx.compose.ui.unit.dp
 fun DeterminateProgressSemanticsSample() {
     val progress = 0.5f // emulate progress from some state
     Box(
-        Modifier
-            .progressSemantics(progress)
+        Modifier.progressSemantics(progress)
             .size((progress * 100).dp, 4.dp)
             .background(color = Color.Cyan)
     )

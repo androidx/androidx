@@ -29,22 +29,21 @@ import androidx.compose.ui.demos.CoreDemos
 import androidx.navigation.compose.demos.NavigationDemos
 import androidx.paging.compose.demos.PagingFoundationDemos
 
-/**
- * [DemoCategory] containing all the top level demo categories.
- */
-val AllDemosCategory = DemoCategory(
-    "Jetpack Compose Demos",
-    listOf(
-        AnimationDemos,
-        FoundationDemos,
-        CoreDemos,
-        LayoutDemos,
-        MaterialDemos,
-        Material3Demos,
-        NavigationDemos,
-        PagingFoundationDemos,
-        TextDemos,
-        AccessibilityDemos,
-        PerformanceDemos
+/** [DemoCategory] containing all the top level demo categories. */
+val AllDemosCategory =
+    DemoCategory(
+        "Jetpack Compose Demos",
+        listOf(
+            AnimationDemos,
+            FoundationDemos,
+            CoreDemos,
+            LayoutDemos,
+            MaterialDemos,
+            Material3Demos,
+            NavigationDemos,
+            PagingFoundationDemos,
+            TextDemos,
+            AccessibilityDemos,
+            PerformanceDemos
+        )
     )
-)

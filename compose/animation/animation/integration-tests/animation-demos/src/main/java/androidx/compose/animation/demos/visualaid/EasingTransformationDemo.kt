@@ -52,19 +52,23 @@ internal fun RotatingBoxDemo(animatedFloat: Float) {
 internal fun TranslationBoxDemo(animatedFloat: Float) {
     Box(modifier = Modifier.height(100.dp).width(50.dp)) {
         OutlinedSquare(modifier = Modifier.fillMaxSize())
-        Canvas(modifier = Modifier.fillMaxSize(), onDraw = {
-            val sizePx = 16.dp.toPx()
-            val strokeThickness = 1.dp.toPx()
-            val size = Size(sizePx, sizePx)
-            drawRect(
-                androidGreen,
-                topLeft = Offset(
-                    this.size.width / 2f - sizePx / 2f,
-                    animatedFloat * (this.size.height - sizePx - strokeThickness)
-                ),
-                size = size
-            )
-        })
+        Canvas(
+            modifier = Modifier.fillMaxSize(),
+            onDraw = {
+                val sizePx = 16.dp.toPx()
+                val strokeThickness = 1.dp.toPx()
+                val size = Size(sizePx, sizePx)
+                drawRect(
+                    androidGreen,
+                    topLeft =
+                        Offset(
+                            this.size.width / 2f - sizePx / 2f,
+                            animatedFloat * (this.size.height - sizePx - strokeThickness)
+                        ),
+                    size = size
+                )
+            }
+        )
     }
 }
 
@@ -74,32 +78,31 @@ internal fun ColorBoxDemo(animatedFloat: Float) {
 }
 
 @Composable
-internal fun Rect(
-    modifier: Modifier = Modifier,
-    color: Color = androidGreen
-) {
+internal fun Rect(modifier: Modifier = Modifier, color: Color = androidGreen) {
     Box {
         OutlinedSquare(boxSize)
-        Canvas(modifier = modifier.then(boxSize), onDraw = {
-            val sizePx = 16.dp.toPx()
-            val size = Size(sizePx, sizePx)
-            drawRect(
-                color,
-                topLeft = Offset(
-                    this.size.width / 2f - sizePx / 2f,
-                    this.size.height / 2f - sizePx / 2f
-                ),
-                size = size
-            )
-        })
+        Canvas(
+            modifier = modifier.then(boxSize),
+            onDraw = {
+                val sizePx = 16.dp.toPx()
+                val size = Size(sizePx, sizePx)
+                drawRect(
+                    color,
+                    topLeft =
+                        Offset(
+                            this.size.width / 2f - sizePx / 2f,
+                            this.size.height / 2f - sizePx / 2f
+                        ),
+                    size = size
+                )
+            }
+        )
     }
 }
 
 @Composable
 internal fun OutlinedSquare(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        drawRect(AndroidNavy, style = Stroke(1.dp.toPx()))
-    }
+    Canvas(modifier = modifier) { drawRect(AndroidNavy, style = Stroke(1.dp.toPx())) }
 }
 
 private val boxSize = Modifier.size(50.dp)

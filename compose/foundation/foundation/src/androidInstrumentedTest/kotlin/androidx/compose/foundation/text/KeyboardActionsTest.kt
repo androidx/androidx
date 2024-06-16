@@ -43,8 +43,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class KeyboardActionsTest(param: Param) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // We need to wrap the inline class parameter in another class because Java can't instantiate
     // the inline class.
@@ -57,10 +56,16 @@ class KeyboardActionsTest(param: Param) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "ImeAction = {0}")
-        fun initParameters() = listOf(
-            // OS never shows a Default or None ImeAction.
-            Param(Go), Param(Search), Param(Send), Param(Previous), Param(Next), Param(Done)
-        )
+        fun initParameters() =
+            listOf(
+                // OS never shows a Default or None ImeAction.
+                Param(Go),
+                Param(Search),
+                Param(Send),
+                Param(Previous),
+                Param(Next),
+                Param(Done)
+            )
     }
 
     @Test
@@ -77,14 +82,15 @@ class KeyboardActionsTest(param: Param) {
                 onValueChange = {},
                 modifier = Modifier.testTag(initialTextField),
                 imeOptions = ImeOptions(imeAction = imeAction),
-                keyboardActions = KeyboardActions(
-                    onDone = { actionTriggerLog[Done] = true },
-                    onGo = { actionTriggerLog[Go] = true },
-                    onNext = { actionTriggerLog[Next] = true },
-                    onPrevious = { actionTriggerLog[Previous] = true },
-                    onSearch = { actionTriggerLog[Search] = true },
-                    onSend = { actionTriggerLog[Send] = true }
-                )
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { actionTriggerLog[Done] = true },
+                        onGo = { actionTriggerLog[Go] = true },
+                        onNext = { actionTriggerLog[Next] = true },
+                        onPrevious = { actionTriggerLog[Previous] = true },
+                        onSearch = { actionTriggerLog[Search] = true },
+                        onSend = { actionTriggerLog[Send] = true }
+                    )
             )
         }
 
@@ -116,12 +122,12 @@ class KeyboardActionsTest(param: Param) {
             CoreTextField(
                 value = textFieldValue,
                 onValueChange = {},
-                modifier = Modifier
-                    .testTag(initialTextField),
+                modifier = Modifier.testTag(initialTextField),
                 imeOptions = ImeOptions(imeAction = Done),
-                keyboardActions = KeyboardActions(
-                    onDone = { wasCallbackTriggered = true },
-                )
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = { wasCallbackTriggered = true },
+                    )
             )
         }
 

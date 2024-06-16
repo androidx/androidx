@@ -24,11 +24,11 @@ import androidx.camera.core.impl.Quirk
  * [android.hardware.camera2.CameraCaptureSession.StateCallback.onClosed] callback.
  *
  * QuirkSummary
- * - Bug Id:      144817309
+ * - Bug Id: 144817309
  * - Description: On Android API 22s and lower,
- *                [android.hardware.camera2.CameraCaptureSession.StateCallback.onClosed] callback
- *                will not be triggered under some circumstances.
- * - Device(s):   Devices in Android API version <= 22
+ *   [android.hardware.camera2.CameraCaptureSession.StateCallback.onClosed] callback will not be
+ *   triggered under some circumstances.
+ * - Device(s): Devices in Android API version <= 22
  */
 @SuppressLint("CameraXQuirksClassDetector")
 class CaptureSessionOnClosedNotCalledQuirk : Quirk {

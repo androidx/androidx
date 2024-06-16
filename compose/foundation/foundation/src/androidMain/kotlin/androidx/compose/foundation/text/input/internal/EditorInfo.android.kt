@@ -37,82 +37,64 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.core.view.inputmethod.EditorInfoCompat
 
-/**
- * Fills necessary info of EditorInfo.
- */
+/** Fills necessary info of EditorInfo. */
 internal fun EditorInfo.update(
     text: CharSequence,
     selection: TextRange,
     imeOptions: ImeOptions,
     contentMimeTypes: Array<String>? = null
 ) {
-    this.imeOptions = when (imeOptions.imeAction) {
-        ImeAction.Default -> {
-            if (imeOptions.singleLine) {
-                // this is the last resort to enable single line
-                // Android IME still shows return key even if multi line is not send
-                // TextView.java#onCreateInputConnection
-                EditorInfo.IME_ACTION_DONE
-            } else {
-                EditorInfo.IME_ACTION_UNSPECIFIED
+    this.imeOptions =
+        when (imeOptions.imeAction) {
+            ImeAction.Default -> {
+                if (imeOptions.singleLine) {
+                    // this is the last resort to enable single line
+                    // Android IME still shows return key even if multi line is not send
+                    // TextView.java#onCreateInputConnection
+                    EditorInfo.IME_ACTION_DONE
+                } else {
+                    EditorInfo.IME_ACTION_UNSPECIFIED
+                }
             }
+            ImeAction.None -> EditorInfo.IME_ACTION_NONE
+            ImeAction.Go -> EditorInfo.IME_ACTION_GO
+            ImeAction.Next -> EditorInfo.IME_ACTION_NEXT
+            ImeAction.Previous -> EditorInfo.IME_ACTION_PREVIOUS
+            ImeAction.Search -> EditorInfo.IME_ACTION_SEARCH
+            ImeAction.Send -> EditorInfo.IME_ACTION_SEND
+            ImeAction.Done -> EditorInfo.IME_ACTION_DONE
+            else -> error("invalid ImeAction")
         }
 
-        ImeAction.None -> EditorInfo.IME_ACTION_NONE
-        ImeAction.Go -> EditorInfo.IME_ACTION_GO
-        ImeAction.Next -> EditorInfo.IME_ACTION_NEXT
-        ImeAction.Previous -> EditorInfo.IME_ACTION_PREVIOUS
-        ImeAction.Search -> EditorInfo.IME_ACTION_SEARCH
-        ImeAction.Send -> EditorInfo.IME_ACTION_SEND
-        ImeAction.Done -> EditorInfo.IME_ACTION_DONE
-        else -> error("invalid ImeAction")
-    }
-
-    imeOptions.platformImeOptions?.privateImeOptions?.let {
-        privateImeOptions = it
-    }
+    imeOptions.platformImeOptions?.privateImeOptions?.let { privateImeOptions = it }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         LocaleListHelper.setHintLocales(this, imeOptions.hintLocales)
     }
 
-    this.inputType = when (imeOptions.keyboardType) {
-        KeyboardType.Text -> InputType.TYPE_CLASS_TEXT
-        KeyboardType.Ascii -> {
-            this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_FORCE_ASCII
-            InputType.TYPE_CLASS_TEXT
+    this.inputType =
+        when (imeOptions.keyboardType) {
+            KeyboardType.Text -> InputType.TYPE_CLASS_TEXT
+            KeyboardType.Ascii -> {
+                this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_FORCE_ASCII
+                InputType.TYPE_CLASS_TEXT
+            }
+            KeyboardType.Number -> InputType.TYPE_CLASS_NUMBER
+            KeyboardType.Phone -> InputType.TYPE_CLASS_PHONE
+            KeyboardType.Uri -> InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI
+            KeyboardType.Email ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            KeyboardType.Password ->
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+            KeyboardType.NumberPassword ->
+                InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
+            KeyboardType.Decimal ->
+                InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
+            else -> error("Invalid Keyboard Type")
         }
 
-        KeyboardType.Number ->
-            InputType.TYPE_CLASS_NUMBER
-
-        KeyboardType.Phone ->
-            InputType.TYPE_CLASS_PHONE
-
-        KeyboardType.Uri ->
-            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI
-
-        KeyboardType.Email ->
-            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-
-        KeyboardType.Password ->
-            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
-
-        KeyboardType.NumberPassword ->
-            InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
-
-        KeyboardType.Decimal ->
-            InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
-
-        else -> error("Invalid Keyboard Type")
-    }
-
     if (!imeOptions.singleLine) {
-        if (hasFlag(
-                this.inputType,
-                InputType.TYPE_CLASS_TEXT
-            )
-        ) {
+        if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
             // TextView.java#setInputTypeSingleLine
             this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE
 
@@ -122,24 +104,17 @@ internal fun EditorInfo.update(
         }
     }
 
-    if (hasFlag(
-            this.inputType,
-            InputType.TYPE_CLASS_TEXT
-        )
-    ) {
+    if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
         when (imeOptions.capitalization) {
             KeyboardCapitalization.Characters -> {
                 this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
             }
-
             KeyboardCapitalization.Words -> {
                 this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
             }
-
             KeyboardCapitalization.Sentences -> {
                 this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             }
-
             else -> {
                 /* do nothing */
             }
@@ -161,9 +136,10 @@ internal fun EditorInfo.update(
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 
-    if (isStylusHandwritingSupported &&
-        imeOptions.keyboardType != KeyboardType.Password &&
-        imeOptions.keyboardType != KeyboardType.NumberPassword
+    if (
+        isStylusHandwritingSupported &&
+            imeOptions.keyboardType != KeyboardType.Password &&
+            imeOptions.keyboardType != KeyboardType.NumberPassword
     ) {
         EditorInfoCompat.setStylusHandwritingEnabled(this, true)
         EditorInfoApi34.setHandwritingGestures(this)
@@ -175,9 +151,9 @@ internal fun EditorInfo.update(
 private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(24)
 internal object LocaleListHelper {
@@ -189,9 +165,8 @@ internal object LocaleListHelper {
                 editorInfo.hintLocales = null
             }
             else -> {
-                editorInfo.hintLocales = android.os.LocaleList(
-                    *localeList.map { it.platformLocale }.toTypedArray()
-                )
+                editorInfo.hintLocales =
+                    android.os.LocaleList(*localeList.map { it.platformLocale }.toTypedArray())
             }
         }
     }
@@ -201,20 +176,22 @@ internal object LocaleListHelper {
 private object EditorInfoApi34 {
     @DoNotInline
     fun setHandwritingGestures(editorInfo: EditorInfo) {
-        editorInfo.supportedHandwritingGestures = listOf(
-            SelectGesture::class.java,
-            DeleteGesture::class.java,
-            SelectRangeGesture::class.java,
-            DeleteRangeGesture::class.java,
-            JoinOrSplitGesture::class.java,
-            InsertGesture::class.java,
-            RemoveSpaceGesture::class.java
-        )
-        editorInfo.supportedHandwritingGesturePreviews = setOf(
-            SelectGesture::class.java,
-            DeleteGesture::class.java,
-            SelectRangeGesture::class.java,
-            DeleteRangeGesture::class.java
-        )
+        editorInfo.supportedHandwritingGestures =
+            listOf(
+                SelectGesture::class.java,
+                DeleteGesture::class.java,
+                SelectRangeGesture::class.java,
+                DeleteRangeGesture::class.java,
+                JoinOrSplitGesture::class.java,
+                InsertGesture::class.java,
+                RemoveSpaceGesture::class.java
+            )
+        editorInfo.supportedHandwritingGesturePreviews =
+            setOf(
+                SelectGesture::class.java,
+                DeleteGesture::class.java,
+                SelectRangeGesture::class.java,
+                DeleteRangeGesture::class.java
+            )
     }
 }

@@ -27,20 +27,20 @@ object PowerRail {
     /**
      * Looking for something like this:
      *
-     * ChannelId: 10, ChannelName: S9S_VDD_AOC, ChannelSubsystem: AOC
-     * PowerStatsService dumpsys: available Channels
-     * ChannelId: 0, ChannelName: S10M_VDD_TPU, ChannelSubsystem: TPU
-     * ChannelId: 1, ChannelName: VSYS_PWR_MODEM, ChannelSubsystem: Modem
-     * ChannelId: 2, ChannelName: VSYS_PWR_RFFE, ChannelSubsystem: Cellular
-     * ChannelId: 3, ChannelName: S2M_VDD_CPUCL2, ChannelSubsystem: CPU(BIG)
-     * ChannelId: 4, ChannelName: S3M_VDD_CPUCL1, ChannelSubsystem: CPU(MID)
+     * ChannelId: 10, ChannelName: S9S_VDD_AOC, ChannelSubsystem: AOC PowerStatsService dumpsys:
+     * available Channels ChannelId: 0, ChannelName: S10M_VDD_TPU, ChannelSubsystem: TPU ChannelId:
+     * 1, ChannelName: VSYS_PWR_MODEM, ChannelSubsystem: Modem ChannelId: 2, ChannelName:
+     * VSYS_PWR_RFFE, ChannelSubsystem: Cellular ChannelId: 3, ChannelName: S2M_VDD_CPUCL2,
+     * ChannelSubsystem: CPU(BIG) ChannelId: 4, ChannelName: S3M_VDD_CPUCL1, ChannelSubsystem:
+     * CPU(MID)
      */
     private val CHANNEL_ID_REGEX = "ChannelId:(.*)".toRegex()
 
     /**
      * Checks if rail metrics are generated on specified device.
      *
-     * @Throws UnsupportedOperationException if `hasException == true` and no rail metrics are found.
+     * @Throws UnsupportedOperationException if `hasException == true` and no rail metrics are
+     *   found.
      */
     fun hasMetrics(throwOnMissingMetrics: Boolean = false): Boolean {
         // Note - we don't capture stderr, since if dumpsys fails due to missing
@@ -50,9 +50,7 @@ object PowerRail {
     }
 
     internal fun hasMetrics(output: String, throwOnMissingMetrics: Boolean = false): Boolean {
-        val line = output.splitToSequence("\r?\n".toRegex()).find {
-            it.contains(CHANNEL_ID_REGEX)
-        }
+        val line = output.splitToSequence("\r?\n".toRegex()).find { it.contains(CHANNEL_ID_REGEX) }
         if (!line.isNullOrBlank()) {
             return true
         }
@@ -67,7 +65,8 @@ object PowerRail {
 
                 To check at runtime for this, use PowerMetric.deviceSupportsPowerEnergy()
 
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
         }
         return false

@@ -532,21 +532,18 @@ class SpanStyleTest {
 
     @Test
     fun `plus operator merges`() {
-        val style = SpanStyle(
-            color = Color.Red,
-            fontWeight = FontWeight.Bold
-        ) + SpanStyle(
-            color = Color.Green,
-            fontFamily = FontFamily.Cursive
-        )
+        val style =
+            SpanStyle(color = Color.Red, fontWeight = FontWeight.Bold) +
+                SpanStyle(color = Color.Green, fontFamily = FontFamily.Cursive)
 
-        assertThat(style).isEqualTo(
-            SpanStyle(
-                color = Color.Green, // overridden by RHS
-                fontWeight = FontWeight.Bold, // from LHS,
-                fontFamily = FontFamily.Cursive // from RHS
+        assertThat(style)
+            .isEqualTo(
+                SpanStyle(
+                    color = Color.Green, // overridden by RHS
+                    fontWeight = FontWeight.Bold, // from LHS,
+                    fontFamily = FontFamily.Cursive // from RHS
+                )
             )
-        )
     }
 
     @Test
@@ -736,8 +733,7 @@ class SpanStyleTest {
 
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newSpanStyle.baselineShift)
-            .isEqualTo(lerp(baselineShift1, baselineShift2, t))
+        assertThat(newSpanStyle.baselineShift).isEqualTo(lerp(baselineShift1, baselineShift2, t))
     }
 
     @Test

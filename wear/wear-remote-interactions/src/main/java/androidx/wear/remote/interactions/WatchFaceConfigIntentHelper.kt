@@ -26,18 +26,16 @@ import androidx.annotation.Nullable
  * * ones creating Intents
  * * ones receiving and responding to those Intents.
  *
- *
- * To register a configuration activity for a watch face, add a `<meta-data>` entry to the
- * watch face component in its Android Manifest file with an intent action to be fired to start the
+ * To register a configuration activity for a watch face, add a `<meta-data>` entry to the watch
+ * face component in its Android Manifest file with an intent action to be fired to start the
  * activity. The following meta-data will register the
- * `androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR` action to be started when
- * configuring a watch face on the wearable device:
+ * `androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR` action to be started when configuring a
+ * watch face on the wearable device:
  * ```
  * <meta-data
  * android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
  * android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * ```
- *
  *
  * To register a configuration activity to be started on a companion phone, add the following
  * alternative meta-data entry to the watch face component:
@@ -47,9 +45,8 @@ import androidx.annotation.Nullable
  * android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * ```
  *
- *
- * The activity should have an intent filter which lists the action specified in the meta-data
- * block above, in addition to the two categories present in the following example:
+ * The activity should have an intent filter which lists the action specified in the meta-data block
+ * above, in addition to the two categories present in the following example:
  * ```
  * <activity android:name=".MyWatchFaceConfigActivity">
  * <intent-filter>
@@ -60,7 +57,6 @@ import androidx.annotation.Nullable
  * </intent-filter>
  * </activity>
  * ```
- *
  *
  * For phone side configuration activities, substitute the category
  * `com.google.android.wearable.watchface.category.COMPANION_CONFIGURATION` for
@@ -81,9 +77,9 @@ public class WatchFaceConfigIntentHelper private constructor() {
          * given [Intent]. [ComponentName] is being used to identify the APK and the class of the
          * watch face service.
          *
-         * @param watchFaceIntent  The intent holding config activity launch.
-         * @return the value of an item previously added with [putWatchFaceComponentExtra], or
-         * null if no value was found.
+         * @param watchFaceIntent The intent holding config activity launch.
+         * @return the value of an item previously added with [putWatchFaceComponentExtra], or null
+         *   if no value was found.
          */
         @Suppress("DEPRECATION")
         @JvmStatic
@@ -111,7 +107,7 @@ public class WatchFaceConfigIntentHelper private constructor() {
          *
          * @param watchFaceIntent The intent holding config activity launch.
          * @return the value of an item previously added with [putPeerIdExtra], or null if no value
-         *         was found.
+         *   was found.
          */
         @JvmStatic
         @Nullable

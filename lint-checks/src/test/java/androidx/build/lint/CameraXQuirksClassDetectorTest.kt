@@ -24,19 +24,18 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class CameraXQuirksClassDetectorTest : AbstractLintDetectorTest(
-    useDetector = CameraXQuirksClassDetector(),
-    useIssues = listOf(CameraXQuirksClassDetector.ISSUE)
-) {
+class CameraXQuirksClassDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = CameraXQuirksClassDetector(),
+        useIssues = listOf(CameraXQuirksClassDetector.ISSUE)
+    ) {
 
     @Test
     fun `Detection of CameraX Quirks in Java`() {
-        val input = arrayOf(
-            javaSample("androidx.CameraXMissingQuirkSummaryJava")
-        )
+        val input = arrayOf(javaSample("androidx.CameraXMissingQuirkSummaryJava"))
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/androidx/CameraXMissingQuirkSummaryJava.java:22: Error: CameraX quirks should include this template in the javadoc:
 
             * <p>QuirkSummary
@@ -47,16 +46,14 @@ class CameraXQuirksClassDetectorTest : AbstractLintDetectorTest(
             public class CameraXMissingQuirkSummaryJava implements Quirk {
                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .allowDuplicates()
             .skipTestModes(PARTIAL) // b/324629808
-            .run().expect(expected)
+            .run()
+            .expect(expected)
     }
 }

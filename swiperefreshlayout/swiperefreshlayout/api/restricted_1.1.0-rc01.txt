@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.swiperefreshlayout.widget {
 
   public class CircularProgressDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {
@@ -45,8 +45,8 @@ package androidx.swiperefreshlayout.widget {
     ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet?);
     method public boolean canChildScrollUp();
     method public boolean dispatchNestedPreScroll(int, int, int[]!, int[]!, int);
-    method public void dispatchNestedScroll(int, int, int, int, int[]?, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
     method public boolean dispatchNestedScroll(int, int, int, int, int[]!, int);
+    method public void dispatchNestedScroll(int, int, int, int, int[]?, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
     method public int getProgressCircleDiameter();
     method public int getProgressViewEndOffset();
     method public int getProgressViewStartOffset();
@@ -54,14 +54,14 @@ package androidx.swiperefreshlayout.widget {
     method public boolean isRefreshing();
     method public void onMeasure(int, int);
     method public void onNestedPreScroll(android.view.View!, int, int, int[]!, int);
-    method public void onNestedScroll(android.view.View, int, int, int, int, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
     method public void onNestedScroll(android.view.View!, int, int, int, int, int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
     method public void onNestedScrollAccepted(android.view.View!, android.view.View!, int, int);
     method public boolean onStartNestedScroll(android.view.View!, android.view.View!, int, int);
     method public void onStopNestedScroll(android.view.View!, int);
-    method @Deprecated public void setColorScheme(@ColorRes int...);
-    method public void setColorSchemeColors(@ColorInt int...);
-    method public void setColorSchemeResources(@ColorRes int...);
+    method @Deprecated public void setColorScheme(@ColorRes int...!);
+    method public void setColorSchemeColors(@ColorInt int...!);
+    method public void setColorSchemeResources(@ColorRes int...!);
     method public void setDistanceToTriggerSync(int);
     method @Deprecated public void setLegacyRequestDisallowInterceptTouchEventEnabled(boolean);
     method public void setOnChildScrollUpCallback(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback?);

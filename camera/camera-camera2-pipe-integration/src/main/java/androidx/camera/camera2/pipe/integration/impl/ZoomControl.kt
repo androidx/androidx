@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getLinearZoomF
 import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getZoomRatioFromLinearZoom
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.utils.Threads
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,15 +36,15 @@ import dagger.multibindings.IntoSet
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val DEFAULT_ZOOM_RATIO = 1.0f
 
 @CameraScope
-class ZoomControl @Inject constructor(
+class ZoomControl
+@Inject
+constructor(
     private val threads: UseCaseThreads,
     private val zoomCompat: ZoomCompat,
 ) : UseCaseCameraControl {
@@ -52,30 +53,28 @@ class ZoomControl @Inject constructor(
     val minZoomRatio: Float = zoomCompat.minZoomRatio
     val maxZoomRatio: Float = zoomCompat.maxZoomRatio
 
-    val defaultZoomState by lazy {
-        ZoomValue(DEFAULT_ZOOM_RATIO, minZoomRatio, maxZoomRatio)
-    }
+    val defaultZoomState by lazy { ZoomValue(DEFAULT_ZOOM_RATIO, minZoomRatio, maxZoomRatio) }
 
-    private val _zoomState by lazy {
-        MutableLiveData<ZoomState>(defaultZoomState)
-    }
+    private val _zoomState by lazy { MutableLiveData<ZoomState>(defaultZoomState) }
 
     val zoomStateLiveData: LiveData<ZoomState>
         get() = _zoomState
 
     /** Linear zoom is between 0.0f and 1.0f */
-    fun toLinearZoom(zoomRatio: Float) = getLinearZoomFromZoomRatio(
-        zoomRatio = zoomRatio,
-        minZoomRatio = minZoomRatio,
-        maxZoomRatio = maxZoomRatio
-    )
+    fun toLinearZoom(zoomRatio: Float) =
+        getLinearZoomFromZoomRatio(
+            zoomRatio = zoomRatio,
+            minZoomRatio = minZoomRatio,
+            maxZoomRatio = maxZoomRatio
+        )
 
     /** Zoom ratio is commonly used as the "1x, 2x, 5x" zoom ratio. Zoom ratio may be less than 1 */
-    private fun toZoomRatio(linearZoom: Float) = getZoomRatioFromLinearZoom(
-        linearZoom = linearZoom,
-        minZoomRatio = minZoomRatio,
-        maxZoomRatio = maxZoomRatio
-    )
+    private fun toZoomRatio(linearZoom: Float) =
+        getZoomRatioFromLinearZoom(
+            linearZoom = linearZoom,
+            minZoomRatio = minZoomRatio,
+            maxZoomRatio = maxZoomRatio
+        )
 
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
@@ -92,29 +91,26 @@ class ZoomControl @Inject constructor(
         applyZoomState(defaultZoomState)
     }
 
-    private suspend fun setZoomState(value: ZoomState) {
-        // TODO: camera-camera2 updates livedata with setValue if calling thread is main thread,
-        //  and updates with postValue otherwise. Need to consider if always using setValue
-        //  via main thread is alright in camera-pipe.
-        withContext(Dispatchers.Main) {
+    private fun setZoomState(value: ZoomState) {
+        if (Threads.isMainThread()) {
             _zoomState.value = value
+        } else {
+            _zoomState.postValue(value)
         }
     }
 
     fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
         if (linearZoom > 1.0f || linearZoom < 0f) {
-            val outOfRangeDesc =
-                "Requested linearZoom $linearZoom is not within valid range [0, 1]"
-            return Futures.immediateFailedFuture(
-                IllegalArgumentException(outOfRangeDesc)
-            )
+            val outOfRangeDesc = "Requested linearZoom $linearZoom is not within valid range [0, 1]"
+            return Futures.immediateFailedFuture(IllegalArgumentException(outOfRangeDesc))
         }
 
-        val zoomValue = ZoomValue(
-            ZoomValue.LinearZoom(linearZoom),
-            minZoomRatio,
-            maxZoomRatio,
-        )
+        val zoomValue =
+            ZoomValue(
+                ZoomValue.LinearZoom(linearZoom),
+                minZoomRatio,
+                maxZoomRatio,
+            )
         return applyZoomState(zoomValue)
     }
 
@@ -123,16 +119,15 @@ class ZoomControl @Inject constructor(
             val outOfRangeDesc =
                 "Requested zoomRatio $zoomRatio is not within valid range" +
                     " [$minZoomRatio, $maxZoomRatio]"
-            return Futures.immediateFailedFuture(
-                IllegalArgumentException(outOfRangeDesc)
-            )
+            return Futures.immediateFailedFuture(IllegalArgumentException(outOfRangeDesc))
         }
 
-        val zoomValue = ZoomValue(
-            zoomRatio,
-            minZoomRatio,
-            maxZoomRatio,
-        )
+        val zoomValue =
+            ZoomValue(
+                zoomRatio,
+                minZoomRatio,
+                maxZoomRatio,
+            )
         return applyZoomState(zoomValue)
     }
 
@@ -162,24 +157,23 @@ class ZoomControl @Inject constructor(
 
             useCaseCamera?.let {
                 zoomCompat.applyAsync(zoomState.zoomRatio, it).propagateTo(signal)
-            } ?: signal.completeExceptionally(
-                CameraControl.OperationCanceledException("Camera is not active.")
-            )
+            }
+                ?: signal.completeExceptionally(
+                    CameraControl.OperationCanceledException("Camera is not active.")
+                )
         }
 
         /**
-         * TODO: Use signal.asListenableFuture() directly.
-         * Deferred<T>.asListenableFuture() returns a ListenableFuture<T>, so this currently reports
-         * a type mismatch error (Required: Void!, Found: Unit).
-         * Currently, Job.asListenableFuture() is used as a workaround for this problem.
+         * TODO: Use signal.asListenableFuture() directly. Deferred<T>.asListenableFuture() returns
+         *   a ListenableFuture<T>, so this currently reports a type mismatch error (Required:
+         *   Void!, Found: Unit). Currently, Job.asListenableFuture() is used as a workaround for
+         *   this problem.
          */
         return Futures.nonCancellationPropagating((signal as Job).asListenableFuture())
     }
 
     @Module
     abstract class Bindings {
-        @Binds
-        @IntoSet
-        abstract fun provideControls(zoomControl: ZoomControl): UseCaseCameraControl
+        @Binds @IntoSet abstract fun provideControls(zoomControl: ZoomControl): UseCaseCameraControl
     }
 }

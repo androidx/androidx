@@ -25,9 +25,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 
-/**
- * Receiver scope being used by the item content parameter of [TvLazyVerticalGrid].
- */
+/** Receiver scope being used by the item content parameter of [TvLazyVerticalGrid]. */
 @Stable
 @TvLazyGridScopeMarker
 sealed interface TvLazyGridItemScope {
@@ -42,9 +40,10 @@ sealed interface TvLazyGridItemScope {
      */
     @ExperimentalFoundationApi
     fun Modifier.animateItemPlacement(
-        animationSpec: FiniteAnimationSpec<IntOffset> = spring(
-            stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
-        )
+        animationSpec: FiniteAnimationSpec<IntOffset> =
+            spring(
+                stiffness = Spring.StiffnessMediumLow,
+                visibilityThreshold = IntOffset.VisibilityThreshold
+            )
     ): Modifier
 }

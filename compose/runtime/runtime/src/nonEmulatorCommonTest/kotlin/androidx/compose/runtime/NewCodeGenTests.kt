@@ -29,16 +29,12 @@ class NewCodeGenTests {
     fun testStaticComposition() = compositionTest {
         compose {
             Text("Hello world!")
-            Linear {
-                Text("Yellow world")
-            }
+            Linear { Text("Yellow world") }
         }
 
         validate {
             Text("Hello world!")
-            Linear {
-                Text("Yellow world")
-            }
+            Linear { Text("Yellow world") }
         }
     }
 
@@ -49,17 +45,13 @@ class NewCodeGenTests {
 
         compose {
             Text(text1)
-            Linear {
-                Text(text2)
-            }
+            Linear { Text(text2) }
         }
 
         fun validate() {
             validate {
                 Text(text1)
-                Linear {
-                    Text(text2)
-                }
+                Linear { Text(text2) }
             }
         }
         validate()
@@ -75,14 +67,10 @@ class NewCodeGenTests {
     fun testSingleView() = compositionTest {
         var text by mutableStateOf("Hello world")
 
-        compose {
-            Text(text)
-        }
+        compose { Text(text) }
 
         fun validate() {
-            validate {
-                Text(text)
-            }
+            validate { Text(text) }
         }
         validate()
 
@@ -96,18 +84,10 @@ class NewCodeGenTests {
     fun testViewGroup() = compositionTest {
         var text by mutableStateOf("Hello world")
 
-        compose {
-            Linear {
-                Text(text)
-            }
-        }
+        compose { Linear { Text(text) } }
 
         fun validate() {
-            validate {
-                Linear {
-                    Text(text)
-                }
-            }
+            validate { Linear { Text(text) } }
         }
         validate()
 
@@ -164,9 +144,7 @@ class NewCodeGenTests {
         }
 
         fun validate() {
-            validate {
-                Text("$left + $right = ${left + right}")
-            }
+            validate { Text("$left + $right = ${left + right}") }
         }
         validate()
         assertEquals(1, addCalled.count)
@@ -198,9 +176,7 @@ class NewCodeGenTests {
         compose {
             Linear {
                 for (item in data) {
-                    key(item) {
-                        Text("$item View")
-                    }
+                    key(item) { Text("$item View") }
                 }
             }
         }
@@ -221,7 +197,6 @@ class NewCodeGenTests {
     }
 }
 
-@Stable
-class StableCounter(var count: Int = 0)
+@Stable class StableCounter(var count: Int = 0)
 
 data class Phone(val area: String, val prefix: String, val number: String)

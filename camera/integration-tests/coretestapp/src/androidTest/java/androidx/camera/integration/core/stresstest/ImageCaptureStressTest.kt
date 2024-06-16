@@ -68,14 +68,16 @@ class ImageCaptureStressTest(
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -83,19 +85,15 @@ class ImageCaptureStressTest(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
         )
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
-    @get:Rule
-    val repeatRule = RepeatRule()
+    @get:Rule val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
 
     companion object {
-        @ClassRule
-        @JvmField
-        val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
         @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
@@ -235,9 +233,7 @@ class ImageCaptureStressTest(
         with(activityScenario) {
             use {
                 // Checks whether multiple images can be captured successfully
-                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
-                    takePictureAndWaitForImageSavedIdle()
-                }
+                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) { takePictureAndWaitForImageSavedIdle() }
             }
         }
     }
@@ -263,9 +259,7 @@ class ImageCaptureStressTest(
         }
     }
 
-    /**
-     * Randomly delay for seconds between 1 and the specified number. Default is 3 seconds.
-     */
+    /** Randomly delay for seconds between 1 and the specified number. Default is 3 seconds. */
     private fun randomDelaySeconds(maxDelaySeconds: Int = 3) = runBlocking {
         require(maxDelaySeconds > 0) {
             "The specified max delay seconds value should be larger than 1."

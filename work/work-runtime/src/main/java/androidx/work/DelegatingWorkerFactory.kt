@@ -19,9 +19,9 @@ import android.content.Context
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * A [WorkerFactory] which delegates to other factories. Factories can register themselves
- * as delegates, and they will be invoked in order until a delegated factory returns a
- * non-null [ListenableWorker] instance.
+ * A [WorkerFactory] which delegates to other factories. Factories can register themselves as
+ * delegates, and they will be invoked in order until a delegated factory returns a non-null
+ * [ListenableWorker] instance.
  */
 open class DelegatingWorkerFactory : WorkerFactory() {
     // Use a CopyOnWriteArrayList here to allow modifying a list of factories during

@@ -17,7 +17,6 @@
 package androidx.camera.video.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import java.util.List;
 /**
  * Loads all video specific quirks required for the current device.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DeviceQuirksLoader {
 
     private DeviceQuirksLoader() {
@@ -77,17 +75,8 @@ public class DeviceQuirksLoader {
         if (NegativeLatLongSavesIncorrectlyQuirk.load()) {
             quirks.add(new NegativeLatLongSavesIncorrectlyQuirk());
         }
-        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.load()) {
-            quirks.add(new PreviewStretchWhenVideoCaptureIsBoundQuirk());
-        }
-        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.load()) {
-            quirks.add(new PreviewDelayWhenVideoCaptureIsBoundQuirk());
-        }
         if (AudioTimestampFramePositionIncorrectQuirk.load()) {
             quirks.add(new AudioTimestampFramePositionIncorrectQuirk());
-        }
-        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
-            quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
         }
         if (ExtraSupportedResolutionQuirk.load()) {
             quirks.add(new ExtraSupportedResolutionQuirk());
@@ -109,9 +98,6 @@ public class DeviceQuirksLoader {
         }
         if (SizeCannotEncodeVideoQuirk.load()) {
             quirks.add(new SizeCannotEncodeVideoQuirk());
-        }
-        if (TemporalNoiseQuirk.load()) {
-            quirks.add(new TemporalNoiseQuirk());
         }
 
         return quirks;

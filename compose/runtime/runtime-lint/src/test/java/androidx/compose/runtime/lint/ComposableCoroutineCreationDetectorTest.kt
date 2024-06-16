@@ -29,23 +29,21 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ComposableCoroutineCreationDetector].
- */
+/** Test for [ComposableCoroutineCreationDetector]. */
 class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposableCoroutineCreationDetector()
 
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition)
 
-    private val coroutineBuildersStub: TestFile = bytecodeStub(
-        filename = "Builders.common.kt",
-        filepath = "kotlinx/coroutines",
-        checksum = 0x8bc08fcf,
-        """
+    private val coroutineBuildersStub: TestFile =
+        bytecodeStub(
+            filename = "Builders.common.kt",
+            filepath = "kotlinx/coroutines",
+            checksum = 0x8bc08fcf,
+            """
         package kotlinx.coroutines
 
         object CoroutineScope
@@ -58,14 +56,14 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
             block: suspend CoroutineScope.() -> Unit
         ) {}
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2XMsQoCMRAE0BXh4LZzm2usLBQsgt+g5bX2Ipc9CCa7R7JB
         P98IWjkw3ZsBgDUArFp7+Ab3uL2Lzxr8y02aFi3schULid2sSt2Vi42GB6SH
         WgzyYVmrBeFCm3MN0XMut7ZNKg2ecPiHbo76JPzp0ai/aIw8tesdHOENLed0
         U5sAAAA=
         """,
-        """
+            """
         kotlinx/coroutines/Builders_commonKt.class:
         H4sIAAAAAAAA/61TXU8TQRQ9M/1guxQpKyBUxSpVvoQtxAeTEhIkkmxENIK8
         8GCm27Vsu501+0HgjX9i4i/QN+ODIT76o4x3tl0ENRGNL3fOvXPumTt37nz9
@@ -84,7 +82,7 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         UvHCSdcufxLHUmJnYdJqUXSCbjm5j4yFsoXrFm7gpoUp3LJQwe19sBB3ML0P
         PUQuRDXEaIiREHdD3EvcmRD5EOPfAUeuoPKFBQAA
         """,
-        """
+            """
         kotlinx/coroutines/CoroutineScope.class:
         H4sIAAAAAAAA/4WSTW/TQBCG390kjuMGGspHE8pXaQ/AoW4rblRIbQSSpRAk
         UkWqeto4q7KJvYvsddRjTvwQ/kHFoRJIKIIbPwoxawIcOOCVZuadnX3WM/b3
@@ -98,25 +96,26 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         P4fXqdo9K5/BTy7R/IjVizLB8bC0d7FV/lX0GQiwdopKhOsRbkS4iVsUYj1C
         G51TsBy3sUH7OYIcd3J4PwGm9PkckgIAAA==
         """
-    )
+        )
 
-    private val flowStub: TestFile = bytecodeStub(
-        filename = "Flow.kt",
-        filepath = "kotlinx/coroutines/flow",
-        checksum = 0x40e0a7,
-        """
+    private val flowStub: TestFile =
+        bytecodeStub(
+            filename = "Flow.kt",
+            filepath = "kotlinx/coroutines/flow",
+            checksum = 0x40e0a7,
+            """
         package kotlinx.coroutines.flow
 
         class Flow<out T>
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2XMsQoCMRAE0BXh4LZzm2usLBQsgt+g5bX2Ipc9CCa7R7JB
         P98IWjkw3ZsBgDUArFp7+Ab3uL2Lzxr8y02aFi3schULid2sSt2Vi42GB6SH
         WgzyYVmrBeFCm3MN0XMut7ZNKg2ecPiHbo76JPzp0ai/aIw8tesdHOENLed0
         U5sAAAA=
         """,
-        """
+            """
         kotlinx/coroutines/flow/Flow.class:
         H4sIAAAAAAAA/31QwW4TMRSc5012m22g21IghVJ6LDmwbYWEVKpKgFQpUgCJ
         Rrnk5CRLcbOxpbW39Ljfwh9wQuqhWnHko6o+h5xA4jJvZjx+fs+/b69vALzC
@@ -129,27 +128,28 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         a860OXNvhKCH+z2s9ZBgnSk2eniAzRHI4iEejdCwWLV4bNGxiO4ApHDXcycC
         AAA=
         """
-    )
+        )
 
-    private val flowBuildersStub: TestFile = bytecodeStub(
-        filename = "Builders.kt",
-        filepath = "kotlinx/coroutines/flow",
-        checksum = 0xa1c50396,
-        """
+    private val flowBuildersStub: TestFile =
+        bytecodeStub(
+            filename = "Builders.kt",
+            filepath = "kotlinx/coroutines/flow",
+            checksum = 0xa1c50396,
+            """
         package kotlinx.coroutines.flow
 
         fun <T> flowOf(
             value: T
         ): Flow<T> = Flow()
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2XMsQoCMRAE0BXh4LZzm2usLBQsgt+g5bX2Ipc9CCa7R7JB
         P98IWjkw3ZsBgDUArFp7+Ab3uL2Lzxr8y02aFi3schULid2sSt2Vi42GB6SH
         WgzyYVmrBeFCm3MN0XMut7ZNKg2ecPiHbo76JPzp0ai/aIw8tesdHOENLed0
         U5sAAAA=
         """,
-        """
+            """
         kotlinx/coroutines/flow/BuildersKt.class:
         H4sIAAAAAAAA/4VRXW8SQRQ9dxcW2KJs8aultVXqB31xW+JTS0jUpHEjtokl
         JIanAbZkYNlJdmexj/wWf4FvJpoY4qM/yniXYkwk2mT33HvPnHtn5syPn1++
@@ -164,13 +164,14 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         8YjZdd6l3IXp4ZaH2x7u4K6He9jweP9KFxRjC9tdZOP0ux9jJ0YphvULZwN9
         KR0DAAA=
         """
-    )
+        )
 
-    private val flowCollectStub: TestFile = bytecodeStub(
-        filename = "Collect.kt",
-        filepath = "kotlinx/coroutines/flow",
-        checksum = 0xf321f548,
-        """
+    private val flowCollectStub: TestFile =
+        bytecodeStub(
+            filename = "Collect.kt",
+            filepath = "kotlinx/coroutines/flow",
+            checksum = 0xf321f548,
+            """
         package kotlinx.coroutines.flow
 
         import kotlinx.coroutines.CoroutineScope
@@ -180,14 +181,14 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
             scope: CoroutineScope
         ) = scope.launch {}
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2XMsQoCMRAE0BXh4LZzm2usLBQsgt+g5bX2Ipc9CCa7R7JB
         P98IWjkw3ZsBgDUArFp7+Ab3uL2Lzxr8y02aFi3schULid2sSt2Vi42GB6SH
         WgzyYVmrBeFCm3MN0XMut7ZNKg2ecPiHbo76JPzp0ai/aIw8tesdHOENLed0
         U5sAAAA=
         """,
-        """
+            """
         kotlinx/coroutines/flow/CollectKt＄launchIn＄1.class:
         H4sIAAAAAAAA/61WbVMTVxR+7gYIxEQiVetbJWoqEDBBa6stKYoh1C0xWAJY
         S1t7s1zCwmY33Re03/jcn9JPttOqU2faTD/2R3V67maTIIkGp2Vm757ce+55
@@ -220,7 +221,7 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         4oRDG++uyxtyOS2XM3I561CNnHPwHtbI+IN1hFR8qeKhiq+wruJrfKOSkUfr
         9A8SvgNfR5+DsgPNwYaDpX8BZeuV7iUMAAA=
         """,
-        """
+            """
         kotlinx/coroutines/flow/CollectKt.class:
         H4sIAAAAAAAA/41UW08TURD+zrb0snJpKyAgVoEqV9lS7xSbKKZxY0ViGxLD
         g55ul7Lt9qzZS+Wxf8kniSamz/4o4+y2FUEEX2bmzJz55puZs/vj59fvAO4j
@@ -239,13 +240,14 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         kcQCxR8Gt6N4RHpEIkcsKOrLEB6TlOk0HqRM4UlwOYdN0k/JnyFqt/cRUnFH
         xaKKJSyrWMGqijXc3QdzsA5lHxGHPjtkqS0H8w6SDhZ+AcPOvm8nBQAA
         """
-    )
+        )
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -302,13 +304,13 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            coroutineBuildersStub,
-            flowStub,
-            flowBuildersStub,
-            flowCollectStub,
-        )
+                ),
+                Stubs.Composable,
+                coroutineBuildersStub,
+                flowStub,
+                flowBuildersStub,
+                flowCollectStub,
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -383,9 +385,10 @@ src/androidx/compose/runtime/foo/test.kt:54: Error: Calls to launchIn should hap
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -439,15 +442,14 @@ src/androidx/compose/runtime/foo/test.kt:54: Error: Calls to launchIn should hap
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            coroutineBuildersStub,
-            flowStub,
-            flowBuildersStub,
-            flowCollectStub,
-        )
+                ),
+                Stubs.Composable,
+                coroutineBuildersStub,
+                flowStub,
+                flowBuildersStub,
+                flowCollectStub,
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

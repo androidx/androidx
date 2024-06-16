@@ -25,25 +25,17 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 
 /**
- * The marker interface to be implemented by the root backing the composition.
- * To be used in tests.
+ * The marker interface to be implemented by the root backing the composition. To be used in tests.
  */
 interface RootForTest {
-    /**
-     * Current device density.
-     */
+    /** Current device density. */
     val density: Density
 
-    /**
-     * Semantics owner for this root. Manages all the semantics nodes.
-     */
+    /** Semantics owner for this root. Manages all the semantics nodes. */
     val semanticsOwner: SemanticsOwner
 
-    /**
-     * The service handling text input.
-     */
-    @Deprecated("Use PlatformTextInputModifierNode instead.")
-    val textInputService: TextInputService
+    /** The service handling text input. */
+    @Deprecated("Use PlatformTextInputModifierNode instead.") val textInputService: TextInputService
 
     /**
      * Send this [KeyEvent] to the focused component in this [Owner].
@@ -57,19 +49,17 @@ interface RootForTest {
      *
      * @param enable force enable accessibility if true.
      */
-    @ExperimentalComposeUiApi
-    fun forceAccessibilityForTesting(enable: Boolean) { }
+    @ExperimentalComposeUiApi fun forceAccessibilityForTesting(enable: Boolean) {}
 
     /**
      * Set the time interval between sending accessibility events in milliseconds.
      *
      * This is the delay before dispatching a recurring accessibility event in milliseconds. It
-     * delays the loop that sends events to the accessibility and content capture framework
-     * in batches. A recurring event will be sent at most once during the
-     * [intervalMillis] timeframe. The default time delay is 100 milliseconds.
+     * delays the loop that sends events to the accessibility and content capture framework in
+     * batches. A recurring event will be sent at most once during the [intervalMillis] timeframe.
+     * The default time delay is 100 milliseconds.
      */
-    @ExperimentalComposeUiApi
-    fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) { }
+    @ExperimentalComposeUiApi fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {}
 
     /**
      * Requests another layout (measure + placement) pass be performed for any nodes that need it.
@@ -81,6 +71,5 @@ interface RootForTest {
      * fast as possible (i.e. without waiting for the choreographer to schedule them) in order to
      * get to idle, e.g. during a `waitForIdle` call.
      */
-    @ExperimentalComposeUiApi
-    fun measureAndLayoutForTest() {}
+    @ExperimentalComposeUiApi fun measureAndLayoutForTest() {}
 }

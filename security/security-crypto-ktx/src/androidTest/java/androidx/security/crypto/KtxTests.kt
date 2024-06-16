@@ -41,26 +41,19 @@ class KtxTests {
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         // Delete all previous keys and shared preferences.
-        val parentDir = context.filesDir?.parent
-            ?: throw IllegalStateException("filesDir?.parent is null?")
-        var filePath = (
-            parentDir + "/shared_prefs/" +
-                "__androidx_security__crypto_encrypted_prefs__"
-            )
+        val parentDir =
+            context.filesDir?.parent ?: throw IllegalStateException("filesDir?.parent is null?")
+        var filePath =
+            (parentDir + "/shared_prefs/" + "__androidx_security__crypto_encrypted_prefs__")
         var deletePrefFile = File(filePath)
         deletePrefFile.delete()
-        val notEncryptedSharedPrefs = context.getSharedPreferences(
-            PREFS_FILE,
-            Context.MODE_PRIVATE
-        )
+        val notEncryptedSharedPrefs = context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
         notEncryptedSharedPrefs.edit().clear().commit()
         filePath = ("$parentDir/shared_prefs/$PREFS_FILE")
         deletePrefFile = File(filePath)
         deletePrefFile.delete()
-        val encryptedSharedPrefs = context.getSharedPreferences(
-            "TinkTestPrefs",
-            Context.MODE_PRIVATE
-        )
+        val encryptedSharedPrefs =
+            context.getSharedPreferences("TinkTestPrefs", Context.MODE_PRIVATE)
         encryptedSharedPrefs.edit().clear().commit()
         filePath = ("$parentDir/shared_prefs/TinkTestPrefs")
         deletePrefFile = File(filePath)
@@ -75,15 +68,17 @@ class KtxTests {
     fun testMasterKeyExtension() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val ktxMasterKey = MasterKey(
-            context = context,
-            authenticationRequired = false,
-            userAuthenticationValidityDurationSeconds = 123
-        )
-        val jMasterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setUserAuthenticationRequired(false, 123)
-            .build()
+        val ktxMasterKey =
+            MasterKey(
+                context = context,
+                authenticationRequired = false,
+                userAuthenticationValidityDurationSeconds = 123
+            )
+        val jMasterKey =
+            MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .setUserAuthenticationRequired(false, 123)
+                .build()
         Assert.assertEquals(ktxMasterKey.keyAlias, jMasterKey.keyAlias)
         Assert.assertEquals(
             ktxMasterKey.isUserAuthenticationRequired,
@@ -101,20 +96,22 @@ class KtxTests {
         val masterKey = MasterKey(context)
         val filename = "test"
 
-        val ktxSharedPreferences = EncryptedSharedPreferences(
-            context = context,
-            fileName = filename,
-            masterKey = masterKey
-        )
+        val ktxSharedPreferences =
+            EncryptedSharedPreferences(
+                context = context,
+                fileName = filename,
+                masterKey = masterKey
+            )
         ktxSharedPreferences.edit().putString("test_key", "KTX Write").commit()
 
-        val jSharedPreferences = EncryptedSharedPreferences.create(
-            context,
-            filename,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        val jSharedPreferences =
+            EncryptedSharedPreferences.create(
+                context,
+                filename,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
         val readValue = jSharedPreferences.getString("test_key", "error")
         Assert.assertEquals(readValue, "KTX Write")
     }
@@ -135,12 +132,14 @@ class KtxTests {
             it.write("This is a test".toByteArray(StandardCharsets.UTF_8))
         }
 
-        val jFile = EncryptedFile.Builder(
-            context,
-            file,
-            masterKey,
-            EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
-        ).build()
+        val jFile =
+            EncryptedFile.Builder(
+                    context,
+                    file,
+                    masterKey,
+                    EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+                )
+                .build()
 
         val buffer = ByteArray(1024)
         jFile.openFileInput().use {

@@ -27,6 +27,7 @@ import androidx.tv.material3.tokens.ShapeTokens
 
 /**
  * Defines the border for a TV component.
+ *
  * @param border configures the width and brush for the border
  * @param inset defines how far (in dp) should the border be from the component it's applied to
  * @param shape defines the [Shape] of the border
@@ -61,25 +62,23 @@ class Border(
         return "Border(border=$border, inset=$inset, shape=$shape)"
     }
 
-    fun copy(
-        border: BorderStroke? = null,
-        inset: Dp? = null,
-        shape: Shape? = null
-    ): Border = Border(
-        border = border ?: this.border,
-        inset = inset ?: this.inset,
-        shape = shape ?: this.shape
-    )
+    fun copy(border: BorderStroke? = null, inset: Dp? = null, shape: Shape? = null): Border =
+        Border(
+            border = border ?: this.border,
+            inset = inset ?: this.inset,
+            shape = shape ?: this.shape
+        )
 
     companion object {
         /**
          * Signifies the absence of a border. Use this if you do not want to display a border
          * indication in any of the TV Components.
          */
-        val None = Border(
-            border = BorderStroke(width = 0.dp, color = Color.Transparent),
-            inset = 0.dp,
-            shape = RectangleShape
-        )
+        val None =
+            Border(
+                border = BorderStroke(width = 0.dp, color = Color.Transparent),
+                inset = 0.dp,
+                shape = RectangleShape
+            )
     }
 }

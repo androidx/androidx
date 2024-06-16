@@ -21,16 +21,11 @@ import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 
-/**
- * Schema information about Room's master table.
- *
- */
+/** Schema information about Room's master table. */
 @Suppress("WeakerAccess")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object RoomMasterTable {
-    /**
-     * The master table where room keeps its metadata information.
-     */
+    /** The master table where room keeps its metadata information. */
     public const val TABLE_NAME: String = "room_master_table"
 
     // must match the runtime property Room#MASTER_TABLE_NAME
@@ -39,18 +34,40 @@ public object RoomMasterTable {
     private const val COLUMN_IDENTITY_HASH: String = "identity_hash"
     public const val DEFAULT_ID: String = "42"
 
-    public const val CREATE_QUERY: String = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +
-        " (" + COLUMN_ID + " INTEGER PRIMARY KEY," + COLUMN_IDENTITY_HASH + " TEXT)"
+    public const val CREATE_QUERY: String =
+        "CREATE TABLE IF NOT EXISTS " +
+            TABLE_NAME +
+            " (" +
+            COLUMN_ID +
+            " INTEGER PRIMARY KEY," +
+            COLUMN_IDENTITY_HASH +
+            " TEXT)"
 
-    public const val READ_QUERY: String = "SELECT " + COLUMN_IDENTITY_HASH + " FROM " +
-        TABLE_NAME + " WHERE " + COLUMN_ID + " = " + DEFAULT_ID + " LIMIT 1"
+    public const val READ_QUERY: String =
+        "SELECT " +
+            COLUMN_IDENTITY_HASH +
+            " FROM " +
+            TABLE_NAME +
+            " WHERE " +
+            COLUMN_ID +
+            " = " +
+            DEFAULT_ID +
+            " LIMIT 1"
 
-    /**
-     * We don't escape here since we know what we are passing.
-     */
+    /** We don't escape here since we know what we are passing. */
     @JvmStatic
     public fun createInsertQuery(hash: String): String {
-        return "INSERT OR REPLACE INTO " + TABLE_NAME + " (" + COLUMN_ID + "," +
-            COLUMN_IDENTITY_HASH + ")" + " VALUES(" + DEFAULT_ID + ", '" + hash + "')"
+        return "INSERT OR REPLACE INTO " +
+            TABLE_NAME +
+            " (" +
+            COLUMN_ID +
+            "," +
+            COLUMN_IDENTITY_HASH +
+            ")" +
+            " VALUES(" +
+            DEFAULT_ID +
+            ", '" +
+            hash +
+            "')"
     }
 }

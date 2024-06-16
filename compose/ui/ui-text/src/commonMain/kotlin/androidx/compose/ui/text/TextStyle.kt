@@ -48,11 +48,6 @@ import kotlin.jvm.JvmName
  * @sample androidx.compose.ui.text.samples.TextStyleSample
  *
  * @param platformStyle Platform specific [TextStyle] parameters.
- * @param linkStyles Sets styles for the links in different states if present in
- * [AnnotatedString] that this TextStyle is applied to. This object passes the styles directly to
- * the [LinkAnnotation]s and therefore overwrites any other styling configuration set on the whole
- * text level
- *
  * @see AnnotatedString
  * @see SpanStyle
  * @see ParagraphStyle
@@ -60,24 +55,20 @@ import kotlin.jvm.JvmName
 // Maintainer note: When adding a new constructor or copy parameter, make sure to add a test case to
 // TextStyleInvalidationTest to ensure the correct phase(s) get invalidated.
 @Immutable
-class TextStyle internal constructor(
+class TextStyle
+internal constructor(
     internal val spanStyle: SpanStyle,
     internal val paragraphStyle: ParagraphStyle,
     val platformStyle: PlatformTextStyle? = null,
-    val linkStyles: TextLinkStyles? = null,
 ) {
     internal constructor(
         spanStyle: SpanStyle,
         paragraphStyle: ParagraphStyle,
-        linkStyles: TextLinkStyles?,
     ) : this(
         spanStyle = spanStyle,
         paragraphStyle = paragraphStyle,
-        platformStyle = createPlatformTextStyleInternal(
-            spanStyle.platformStyle,
-            paragraphStyle.platformStyle
-        ),
-        linkStyles = linkStyles,
+        platformStyle =
+            createPlatformTextStyleInternal(spanStyle.platformStyle, paragraphStyle.platformStyle)
     )
 
     @Deprecated(
@@ -204,16 +195,16 @@ class TextStyle internal constructor(
      * @sample androidx.compose.ui.text.samples.TextStyleSample
      *
      * @param color The text color.
-     * @param fontSize The size of glyphs to use when painting the text. This
-     * may be [TextUnit.Unspecified] for inheriting from another [TextStyle].
+     * @param fontSize The size of glyphs to use when painting the text. This may be
+     *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
      * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
      * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
      * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     * or style cannot be found in the provided font family.
+     *   or style cannot be found in the provided font family.
      * @param fontFamily The font family to be used when rendering the text.
      * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     * the same as the CSS font-feature-settings attribute:
-     * https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+     *   the same as the CSS font-feature-settings attribute:
+     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
      * @param letterSpacing The amount of space to add between each letter.
      * @param baselineShift The amount by which the text is shifted up from the current baseline.
      * @param textGeometricTransform The geometric transformation applied the text.
@@ -223,15 +214,15 @@ class TextStyle internal constructor(
      * @param shadow The shadow effect applied on the text.
      * @param textAlign The alignment of the text within the lines of the paragraph.
      * @param textDirection The algorithm to be used to resolve the final text and paragraph
-     * direction: Left To Right or Right To Left. If no value is provided the system will use the
-     * [LayoutDirection] as the primary signal.
+     *   direction: Left To Right or Right To Left. If no value is provided the system will use the
+     *   [LayoutDirection] as the primary signal.
      * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
      * @param textIndent The indentation of the paragraph.
      * @param platformStyle Platform specific [TextStyle] parameters.
      * @param lineHeightStyle the configuration for line height such as vertical alignment of the
-     * line, whether to apply additional space as a result of line height to top of first line top
-     * and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
-     * When null, [LineHeightStyle.Default] is used.
+     *   line, whether to apply additional space as a result of line height to top of first line top
+     *   and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
+     *   When null, [LineHeightStyle.Default] is used.
      * @param lineBreak The line breaking configuration for the text.
      * @param hyphens The configuration of hyphenation.
      */
@@ -295,11 +286,13 @@ class TextStyle internal constructor(
         platformStyle = platformStyle
     )
 
-    @Deprecated("TextStyle constructors that take nullable TextAlign, " +
-        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
-        "where these parameters are non-nullable. Null value has been replaced by a special " +
-        "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "TextStyle constructors that take nullable TextAlign, " +
+            "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+            "where these parameters are non-nullable. Null value has been replaced by a special " +
+            "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -358,7 +351,46 @@ class TextStyle internal constructor(
         platformStyle = platformStyle
     )
 
-    @Deprecated("Kept for binary compatibiltiy", level = DeprecationLevel.HIDDEN)
+    /**
+     * Styling configuration for a `Text`.
+     *
+     * @sample androidx.compose.ui.text.samples.TextStyleSample
+     *
+     * @param color The text color.
+     * @param fontSize The size of glyphs to use when painting the text. This may be
+     *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
+     * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
+     * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
+     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
+     *   or style cannot be found in the provided font family.
+     * @param fontFamily The font family to be used when rendering the text.
+     * @param fontFeatureSettings The advanced typography settings provided by font. The format is
+     *   the same as the CSS font-feature-settings attribute:
+     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+     * @param letterSpacing The amount of space to add between each letter.
+     * @param baselineShift The amount by which the text is shifted up from the current baseline.
+     * @param textGeometricTransform The geometric transformation applied the text.
+     * @param localeList The locale list used to select region-specific glyphs.
+     * @param background The background color for the text.
+     * @param textDecoration The decorations to paint on the text (e.g., an underline).
+     * @param shadow The shadow effect applied on the text.
+     * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
+     *   around the edges.
+     * @param textAlign The alignment of the text within the lines of the paragraph.
+     * @param textDirection The algorithm to be used to resolve the final text and paragraph
+     *   direction: Left To Right or Right To Left. If no value is provided the system will use the
+     *   [LayoutDirection] as the primary signal.
+     * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
+     * @param textIndent The indentation of the paragraph.
+     * @param platformStyle Platform specific [TextStyle] parameters.
+     * @param lineHeightStyle the configuration for line height such as vertical alignment of the
+     *   line, whether to apply additional space as a result of line height to top of first line top
+     *   and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
+     *   When null, [LineHeightStyle.Default] is used.
+     * @param lineBreak The line breaking configuration for the text.
+     * @param hyphens The configuration of hyphenation.
+     * @param textMotion Text character placement, whether to optimize for animated or static text.
+     */
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -420,127 +452,23 @@ class TextStyle internal constructor(
     /**
      * Styling configuration for a `Text`.
      *
-     * @sample androidx.compose.ui.text.samples.TextStyleSample
-     *
-     * @param color The text color.
-     * @param fontSize The size of glyphs to use when painting the text. This
-     * may be [TextUnit.Unspecified] for inheriting from another [TextStyle].
-     * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
-     * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
-     * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     * or style cannot be found in the provided font family.
-     * @param fontFamily The font family to be used when rendering the text.
-     * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     * the same as the CSS font-feature-settings attribute:
-     * https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @param letterSpacing The amount of space to add between each letter.
-     * @param baselineShift The amount by which the text is shifted up from the current baseline.
-     * @param textGeometricTransform The geometric transformation applied the text.
-     * @param localeList The locale list used to select region-specific glyphs.
-     * @param background The background color for the text.
-     * @param textDecoration The decorations to paint on the text (e.g., an underline).
-     * @param shadow The shadow effect applied on the text.
-     * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
-     * around the edges.
-     * @param textAlign The alignment of the text within the lines of the paragraph.
-     * @param textDirection The algorithm to be used to resolve the final text and paragraph
-     * direction: Left To Right or Right To Left. If no value is provided the system will use the
-     * [LayoutDirection] as the primary signal.
-     * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
-     * @param textIndent The indentation of the paragraph.
-     * @param platformStyle Platform specific [TextStyle] parameters.
-     * @param lineHeightStyle the configuration for line height such as vertical alignment of the
-     * line, whether to apply additional space as a result of line height to top of first line top
-     * and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
-     * When null, [LineHeightStyle.Default] is used.
-     * @param lineBreak The line breaking configuration for the text.
-     * @param hyphens The configuration of hyphenation.
-     * @param textMotion Text character placement, whether to optimize for animated or static text.
-     * @param linkStyles Sets styles for the links in different states if present in
-     * [AnnotatedString] that this TextStyle is applied to. This object passes the styles directly
-     * to the [LinkAnnotation]s and therefore overwrites any other styling configuration set on
-     * the whole text level
-     */
-    constructor(
-        color: Color = Color.Unspecified,
-        fontSize: TextUnit = TextUnit.Unspecified,
-        fontWeight: FontWeight? = null,
-        fontStyle: FontStyle? = null,
-        fontSynthesis: FontSynthesis? = null,
-        fontFamily: FontFamily? = null,
-        fontFeatureSettings: String? = null,
-        letterSpacing: TextUnit = TextUnit.Unspecified,
-        baselineShift: BaselineShift? = null,
-        textGeometricTransform: TextGeometricTransform? = null,
-        localeList: LocaleList? = null,
-        background: Color = Color.Unspecified,
-        textDecoration: TextDecoration? = null,
-        shadow: Shadow? = null,
-        drawStyle: DrawStyle? = null,
-        textAlign: TextAlign = TextAlign.Unspecified,
-        textDirection: TextDirection = TextDirection.Unspecified,
-        lineHeight: TextUnit = TextUnit.Unspecified,
-        textIndent: TextIndent? = null,
-        platformStyle: PlatformTextStyle? = null,
-        lineHeightStyle: LineHeightStyle? = null,
-        lineBreak: LineBreak = LineBreak.Unspecified,
-        hyphens: Hyphens = Hyphens.Unspecified,
-        textMotion: TextMotion? = null,
-        linkStyles: TextLinkStyles? = null,
-    ) : this(
-        SpanStyle(
-            color = color,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = textDecoration,
-            shadow = shadow,
-            platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
-        ),
-        ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
-            platformStyle = platformStyle?.paragraphStyle,
-            lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak,
-            hyphens = hyphens,
-            textMotion = textMotion
-        ),
-        platformStyle = platformStyle,
-        linkStyles = linkStyles,
-    )
-
-    /**
-     * Styling configuration for a `Text`.
-     *
      * @sample androidx.compose.ui.text.samples.TextStyleBrushSample
      *
      * @param brush The brush to use when painting the text. If brush is given as null, it will be
-     * treated as unspecified. It is equivalent to calling the alternative color constructor with
-     * [Color.Unspecified]
+     *   treated as unspecified. It is equivalent to calling the alternative color constructor with
+     *   [Color.Unspecified]
      * @param alpha Opacity to be applied to [brush] from 0.0f to 1.0f representing fully
-     * transparent to fully opaque respectively.
-     * @param fontSize The size of glyphs to use when painting the text. This
-     * may be [TextUnit.Unspecified] for inheriting from another [TextStyle].
+     *   transparent to fully opaque respectively.
+     * @param fontSize The size of glyphs to use when painting the text. This may be
+     *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
      * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
      * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
      * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
-     * or style cannot be found in the provided font family.
+     *   or style cannot be found in the provided font family.
      * @param fontFamily The font family to be used when rendering the text.
      * @param fontFeatureSettings The advanced typography settings provided by font. The format is
-     * the same as the CSS font-feature-settings attribute:
-     * https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+     *   the same as the CSS font-feature-settings attribute:
+     *   https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
      * @param letterSpacing The amount of space to add between each letter.
      * @param baselineShift The amount by which the text is shifted up from the current baseline.
      * @param textGeometricTransform The geometric transformation applied the text.
@@ -549,24 +477,20 @@ class TextStyle internal constructor(
      * @param textDecoration The decorations to paint on the text (e.g., an underline).
      * @param shadow The shadow effect applied on the text.
      * @param drawStyle Drawing style of text, whether fill in the text while drawing or stroke
-     * around the edges.
+     *   around the edges.
      * @param textAlign The alignment of the text within the lines of the paragraph.
      * @param textDirection The algorithm to be used to resolve the final text and paragraph
-     * direction: Left To Right or Right To Left. If no value is provided the system will use the
-     * [LayoutDirection] as the primary signal.
+     *   direction: Left To Right or Right To Left. If no value is provided the system will use the
+     *   [LayoutDirection] as the primary signal.
      * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
      * @param textIndent The indentation of the paragraph.
      * @param platformStyle Platform specific [TextStyle] parameters.
      * @param lineHeightStyle the configuration for line height such as vertical alignment of the
-     * line, whether to apply additional space as a result of line height to top of first line top
-     * and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
+     *   line, whether to apply additional space as a result of line height to top of first line top
+     *   and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
      * @param lineBreak The line breaking configuration for the text.
      * @param hyphens The configuration of hyphenation.
      * @param textMotion Text character placement, whether to optimize for animated or static text.
-     * @param linkStyles Sets styles for the links in different states if present in
-     * [AnnotatedString] that this TextStyle is applied to. This object passes the styles directly
-     * to the [LinkAnnotation]s and therefore overwrites any other styling configuration set on
-     * the whole text level.
      */
     constructor(
         brush: Brush?,
@@ -593,8 +517,7 @@ class TextStyle internal constructor(
         lineHeightStyle: LineHeightStyle? = null,
         lineBreak: LineBreak = LineBreak.Unspecified,
         hyphens: Hyphens = Hyphens.Unspecified,
-        textMotion: TextMotion? = null,
-        linkStyles: TextLinkStyles? = null,
+        textMotion: TextMotion? = null
     ) : this(
         SpanStyle(
             brush = brush,
@@ -626,76 +549,16 @@ class TextStyle internal constructor(
             hyphens = hyphens,
             textMotion = textMotion
         ),
-        platformStyle = platformStyle,
-        linkStyles = linkStyles,
+        platformStyle = platformStyle
     )
 
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
-        brush: Brush?,
-        alpha: Float = Float.NaN,
-        fontSize: TextUnit = TextUnit.Unspecified,
-        fontWeight: FontWeight? = null,
-        fontStyle: FontStyle? = null,
-        fontSynthesis: FontSynthesis? = null,
-        fontFamily: FontFamily? = null,
-        fontFeatureSettings: String? = null,
-        letterSpacing: TextUnit = TextUnit.Unspecified,
-        baselineShift: BaselineShift? = null,
-        textGeometricTransform: TextGeometricTransform? = null,
-        localeList: LocaleList? = null,
-        background: Color = Color.Unspecified,
-        textDecoration: TextDecoration? = null,
-        shadow: Shadow? = null,
-        drawStyle: DrawStyle? = null,
-        textAlign: TextAlign = TextAlign.Unspecified,
-        textDirection: TextDirection = TextDirection.Unspecified,
-        lineHeight: TextUnit = TextUnit.Unspecified,
-        textIndent: TextIndent? = null,
-        platformStyle: PlatformTextStyle? = null,
-        lineHeightStyle: LineHeightStyle? = null,
-        lineBreak: LineBreak = LineBreak.Unspecified,
-        hyphens: Hyphens = Hyphens.Unspecified,
-        textMotion: TextMotion? = null,
-    ) : this(
-        SpanStyle(
-            brush = brush,
-            alpha = alpha,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = textDecoration,
-            shadow = shadow,
-            platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
-        ),
-        ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
-            platformStyle = platformStyle?.paragraphStyle,
-            lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak,
-            hyphens = hyphens,
-            textMotion = textMotion
-        ),
-        platformStyle = platformStyle,
+    @Deprecated(
+        "TextStyle constructors that take nullable TextAlign, " +
+            "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+            "where these parameters are non-nullable. Null value has been replaced by a special " +
+            "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN
     )
-
-    @Deprecated("TextStyle constructors that take nullable TextAlign, " +
-        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
-        "where these parameters are non-nullable. Null value has been replaced by a special " +
-        "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN)
     constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
@@ -756,11 +619,9 @@ class TextStyle internal constructor(
         platformStyle = platformStyle
     )
 
-    @Stable
-    fun toSpanStyle(): SpanStyle = spanStyle
+    @Stable fun toSpanStyle(): SpanStyle = spanStyle
 
-    @Stable
-    fun toParagraphStyle(): ParagraphStyle = paragraphStyle
+    @Stable fun toParagraphStyle(): ParagraphStyle = paragraphStyle
 
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
@@ -776,8 +637,7 @@ class TextStyle internal constructor(
         if (other == null || other == Default) return this
         return TextStyle(
             spanStyle = toSpanStyle().merge(other.toSpanStyle()),
-            paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle()),
-            linkStyles = linkStyles.mergeOrUse(other.linkStyles)
+            paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle())
         )
     }
 
@@ -812,8 +672,7 @@ class TextStyle internal constructor(
      * system and applying styling information to a specific usage.
      *
      * @return this or a new TextLayoutResult with all parameters chosen to the non-default option
-     * provided.
-     *
+     *   provided.
      * @see merge
      */
     @Stable
@@ -841,115 +700,52 @@ class TextStyle internal constructor(
         lineBreak: LineBreak = LineBreak.Unspecified,
         hyphens: Hyphens = Hyphens.Unspecified,
         platformStyle: PlatformTextStyle? = null,
-        textMotion: TextMotion? = null,
-        linkStyles: TextLinkStyles? = null,
-    ): TextStyle {
-        val mergedSpanStyle: SpanStyle = spanStyle.fastMerge(
-            color = color,
-            brush = null,
-            alpha = Float.NaN,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = textDecoration,
-            shadow = shadow,
-            platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
-        )
-        val mergedParagraphStyle: ParagraphStyle = paragraphStyle.fastMerge(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
-            platformStyle = platformStyle?.paragraphStyle,
-            lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak,
-            hyphens = hyphens,
-            textMotion = textMotion
-        )
-        val mergedLinkStyles = this.linkStyles?.mergeOrUse(linkStyles)
-        if (spanStyle === mergedSpanStyle &&
-            paragraphStyle === mergedParagraphStyle &&
-            this.linkStyles === mergedLinkStyles) return this
-        return TextStyle(mergedSpanStyle, mergedParagraphStyle, linkStyles = mergedLinkStyles)
-    }
-
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @Stable
-    fun merge(
-        color: Color = Color.Unspecified,
-        fontSize: TextUnit = TextUnit.Unspecified,
-        fontWeight: FontWeight? = null,
-        fontStyle: FontStyle? = null,
-        fontSynthesis: FontSynthesis? = null,
-        fontFamily: FontFamily? = null,
-        fontFeatureSettings: String? = null,
-        letterSpacing: TextUnit = TextUnit.Unspecified,
-        baselineShift: BaselineShift? = null,
-        textGeometricTransform: TextGeometricTransform? = null,
-        localeList: LocaleList? = null,
-        background: Color = Color.Unspecified,
-        textDecoration: TextDecoration? = null,
-        shadow: Shadow? = null,
-        drawStyle: DrawStyle? = null,
-        textAlign: TextAlign = TextAlign.Unspecified,
-        textDirection: TextDirection = TextDirection.Unspecified,
-        lineHeight: TextUnit = TextUnit.Unspecified,
-        textIndent: TextIndent? = null,
-        lineHeightStyle: LineHeightStyle? = null,
-        lineBreak: LineBreak = LineBreak.Unspecified,
-        hyphens: Hyphens = Hyphens.Unspecified,
-        platformStyle: PlatformTextStyle? = null,
         textMotion: TextMotion? = null
     ): TextStyle {
-        val mergedSpanStyle: SpanStyle = spanStyle.fastMerge(
-            color = color,
-            brush = null,
-            alpha = Float.NaN,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = textDecoration,
-            shadow = shadow,
-            platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
-        )
-        val mergedParagraphStyle: ParagraphStyle = paragraphStyle.fastMerge(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
-            platformStyle = platformStyle?.paragraphStyle,
-            lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak,
-            hyphens = hyphens,
-            textMotion = textMotion
-        )
+        val mergedSpanStyle: SpanStyle =
+            spanStyle.fastMerge(
+                color = color,
+                brush = null,
+                alpha = Float.NaN,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
+                fontFamily = fontFamily,
+                fontFeatureSettings = fontFeatureSettings,
+                letterSpacing = letterSpacing,
+                baselineShift = baselineShift,
+                textGeometricTransform = textGeometricTransform,
+                localeList = localeList,
+                background = background,
+                textDecoration = textDecoration,
+                shadow = shadow,
+                platformStyle = platformStyle?.spanStyle,
+                drawStyle = drawStyle
+            )
+        val mergedParagraphStyle: ParagraphStyle =
+            paragraphStyle.fastMerge(
+                textAlign = textAlign,
+                textDirection = textDirection,
+                lineHeight = lineHeight,
+                textIndent = textIndent,
+                platformStyle = platformStyle?.paragraphStyle,
+                lineHeightStyle = lineHeightStyle,
+                lineBreak = lineBreak,
+                hyphens = hyphens,
+                textMotion = textMotion
+            )
         if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
         return TextStyle(mergedSpanStyle, mergedParagraphStyle)
     }
 
-    @Deprecated("merge that takes nullable TextAlign, " +
-        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
-        "where these parameters are non-nullable. Null value has been replaced by a special " +
-        "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "merge that takes nullable TextAlign, " +
+            "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+            "where these parameters are non-nullable. Null value has been replaced by a special " +
+            "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN
+    )
     @Stable
     fun merge(
         color: Color = Color.Unspecified,
@@ -977,37 +773,39 @@ class TextStyle internal constructor(
         platformStyle: PlatformTextStyle? = null,
         textMotion: TextMotion? = null
     ): TextStyle {
-        val mergedSpanStyle: SpanStyle = spanStyle.fastMerge(
-            color = color,
-            brush = null,
-            alpha = Float.NaN,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = textDecoration,
-            shadow = shadow,
-            platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
-        )
-        val mergedParagraphStyle: ParagraphStyle = paragraphStyle.fastMerge(
-            textAlign = textAlign ?: TextAlign.Unspecified,
-            textDirection = textDirection ?: TextDirection.Unspecified,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
-            platformStyle = platformStyle?.paragraphStyle,
-            lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak ?: LineBreak.Unspecified,
-            hyphens = hyphens ?: Hyphens.Unspecified,
-            textMotion = textMotion
-        )
+        val mergedSpanStyle: SpanStyle =
+            spanStyle.fastMerge(
+                color = color,
+                brush = null,
+                alpha = Float.NaN,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
+                fontFamily = fontFamily,
+                fontFeatureSettings = fontFeatureSettings,
+                letterSpacing = letterSpacing,
+                baselineShift = baselineShift,
+                textGeometricTransform = textGeometricTransform,
+                localeList = localeList,
+                background = background,
+                textDecoration = textDecoration,
+                shadow = shadow,
+                platformStyle = platformStyle?.spanStyle,
+                drawStyle = drawStyle
+            )
+        val mergedParagraphStyle: ParagraphStyle =
+            paragraphStyle.fastMerge(
+                textAlign = textAlign ?: TextAlign.Unspecified,
+                textDirection = textDirection ?: TextDirection.Unspecified,
+                lineHeight = lineHeight,
+                textIndent = textIndent,
+                platformStyle = platformStyle?.paragraphStyle,
+                lineHeightStyle = lineHeightStyle,
+                lineBreak = lineBreak ?: LineBreak.Unspecified,
+                hyphens = hyphens ?: Hyphens.Unspecified,
+                textMotion = textMotion
+            )
         if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
         return TextStyle(mergedSpanStyle, mergedParagraphStyle)
     }
@@ -1021,8 +819,7 @@ class TextStyle internal constructor(
     fun merge(other: SpanStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle().merge(other),
-            paragraphStyle = toParagraphStyle(),
-            linkStyles = linkStyles
+            paragraphStyle = toParagraphStyle()
         )
     }
 
@@ -1035,28 +832,18 @@ class TextStyle internal constructor(
     fun merge(other: ParagraphStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle(),
-            paragraphStyle = toParagraphStyle().merge(other),
-            linkStyles = linkStyles
+            paragraphStyle = toParagraphStyle().merge(other)
         )
     }
 
-    /**
-     * Plus operator overload that applies a [merge].
-     */
-    @Stable
-    operator fun plus(other: TextStyle): TextStyle = this.merge(other)
+    /** Plus operator overload that applies a [merge]. */
+    @Stable operator fun plus(other: TextStyle): TextStyle = this.merge(other)
 
-    /**
-     * Plus operator overload that applies a [merge].
-     */
-    @Stable
-    operator fun plus(other: ParagraphStyle): TextStyle = this.merge(other)
+    /** Plus operator overload that applies a [merge]. */
+    @Stable operator fun plus(other: ParagraphStyle): TextStyle = this.merge(other)
 
-    /**
-     * Plus operator overload that applies a [merge].
-     */
-    @Stable
-    operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
+    /** Plus operator overload that applies a [merge]. */
+    @Stable operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
 
     @Deprecated(
         "TextStyle copy constructors that do not take new stable parameters " +
@@ -1085,39 +872,42 @@ class TextStyle internal constructor(
         textIndent: TextIndent? = this.paragraphStyle.textIndent
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                textForegroundStyle = if (color == this.spanStyle.color) {
-                    spanStyle.textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = this.spanStyle.platformStyle,
-                drawStyle = this.spanStyle.drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign ?: TextAlign.Unspecified,
-                textDirection = textDirection ?: TextDirection.Unspecified,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = this.paragraphStyle.platformStyle,
-                lineHeightStyle = this.lineHeightStyle,
-                lineBreak = this.lineBreak,
-                hyphens = this.hyphens,
-                textMotion = this.textMotion
-            ),
+            spanStyle =
+                SpanStyle(
+                    textForegroundStyle =
+                        if (color == this.spanStyle.color) {
+                            spanStyle.textForegroundStyle
+                        } else {
+                            TextForegroundStyle.from(color)
+                        },
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = this.spanStyle.platformStyle,
+                    drawStyle = this.spanStyle.drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign ?: TextAlign.Unspecified,
+                    textDirection = textDirection ?: TextDirection.Unspecified,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = this.paragraphStyle.platformStyle,
+                    lineHeightStyle = this.lineHeightStyle,
+                    lineBreak = this.lineBreak,
+                    hyphens = this.hyphens,
+                    textMotion = this.textMotion
+                ),
             platformStyle = this.platformStyle
         )
     }
@@ -1151,39 +941,42 @@ class TextStyle internal constructor(
         lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                textForegroundStyle = if (color == this.spanStyle.color) {
-                    spanStyle.textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = this.spanStyle.drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign ?: TextAlign.Unspecified,
-                textDirection = textDirection ?: TextDirection.Unspecified,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = this.lineBreak,
-                hyphens = this.hyphens,
-                textMotion = this.textMotion
-            ),
+            spanStyle =
+                SpanStyle(
+                    textForegroundStyle =
+                        if (color == this.spanStyle.color) {
+                            spanStyle.textForegroundStyle
+                        } else {
+                            TextForegroundStyle.from(color)
+                        },
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = platformStyle?.spanStyle,
+                    drawStyle = this.spanStyle.drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign ?: TextAlign.Unspecified,
+                    textDirection = textDirection ?: TextDirection.Unspecified,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = platformStyle?.paragraphStyle,
+                    lineHeightStyle = lineHeightStyle,
+                    lineBreak = this.lineBreak,
+                    hyphens = this.hyphens,
+                    textMotion = this.textMotion
+                ),
             platformStyle = platformStyle
         )
     }
@@ -1219,48 +1012,53 @@ class TextStyle internal constructor(
         hyphens: Hyphens? = this.paragraphStyle.hyphens
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                textForegroundStyle = if (color == this.spanStyle.color) {
-                    spanStyle.textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = this.drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign ?: TextAlign.Unspecified,
-                textDirection = textDirection ?: TextDirection.Unspecified,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak ?: LineBreak.Unspecified,
-                hyphens = hyphens ?: Hyphens.Unspecified,
-                textMotion = this.textMotion
-            ),
+            spanStyle =
+                SpanStyle(
+                    textForegroundStyle =
+                        if (color == this.spanStyle.color) {
+                            spanStyle.textForegroundStyle
+                        } else {
+                            TextForegroundStyle.from(color)
+                        },
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = platformStyle?.spanStyle,
+                    drawStyle = this.drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign ?: TextAlign.Unspecified,
+                    textDirection = textDirection ?: TextDirection.Unspecified,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = platformStyle?.paragraphStyle,
+                    lineHeightStyle = lineHeightStyle,
+                    lineBreak = lineBreak ?: LineBreak.Unspecified,
+                    hyphens = hyphens ?: Hyphens.Unspecified,
+                    textMotion = this.textMotion
+                ),
             platformStyle = platformStyle
         )
     }
 
-    @Deprecated("copy constructors that take nullable TextAlign, " +
-        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
-        "where these parameters are non-nullable. Null value has been replaced by a special " +
-        "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "copy constructors that take nullable TextAlign, " +
+            "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+            "where these parameters are non-nullable. Null value has been replaced by a special " +
+            "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -1288,104 +1086,42 @@ class TextStyle internal constructor(
         textMotion: TextMotion? = this.paragraphStyle.textMotion,
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                textForegroundStyle = if (color == this.spanStyle.color) {
-                    spanStyle.textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign ?: TextAlign.Unspecified,
-                textDirection = textDirection ?: TextDirection.Unspecified,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak ?: LineBreak.Unspecified,
-                hyphens = hyphens ?: Hyphens.Unspecified,
-                textMotion = textMotion
-            ),
-            platformStyle = platformStyle
-        )
-    }
-
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    fun copy(
-        color: Color = this.spanStyle.color,
-        fontSize: TextUnit = this.spanStyle.fontSize,
-        fontWeight: FontWeight? = this.spanStyle.fontWeight,
-        fontStyle: FontStyle? = this.spanStyle.fontStyle,
-        fontSynthesis: FontSynthesis? = this.spanStyle.fontSynthesis,
-        fontFamily: FontFamily? = this.spanStyle.fontFamily,
-        fontFeatureSettings: String? = this.spanStyle.fontFeatureSettings,
-        letterSpacing: TextUnit = this.spanStyle.letterSpacing,
-        baselineShift: BaselineShift? = this.spanStyle.baselineShift,
-        textGeometricTransform: TextGeometricTransform? = this.spanStyle.textGeometricTransform,
-        localeList: LocaleList? = this.spanStyle.localeList,
-        background: Color = this.spanStyle.background,
-        textDecoration: TextDecoration? = this.spanStyle.textDecoration,
-        shadow: Shadow? = this.spanStyle.shadow,
-        drawStyle: DrawStyle? = this.spanStyle.drawStyle,
-        textAlign: TextAlign = this.paragraphStyle.textAlign,
-        textDirection: TextDirection = this.paragraphStyle.textDirection,
-        lineHeight: TextUnit = this.paragraphStyle.lineHeight,
-        textIndent: TextIndent? = this.paragraphStyle.textIndent,
-        platformStyle: PlatformTextStyle? = this.platformStyle,
-        lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
-        lineBreak: LineBreak = this.paragraphStyle.lineBreak,
-        hyphens: Hyphens = this.paragraphStyle.hyphens,
-        textMotion: TextMotion? = this.paragraphStyle.textMotion,
-    ): TextStyle {
-        return TextStyle(
-            spanStyle = SpanStyle(
-                textForegroundStyle = if (color == this.spanStyle.color) {
-                    spanStyle.textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak,
-                hyphens = hyphens,
-                textMotion = textMotion
-            ),
+            spanStyle =
+                SpanStyle(
+                    textForegroundStyle =
+                        if (color == this.spanStyle.color) {
+                            spanStyle.textForegroundStyle
+                        } else {
+                            TextForegroundStyle.from(color)
+                        },
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = platformStyle?.spanStyle,
+                    drawStyle = drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign ?: TextAlign.Unspecified,
+                    textDirection = textDirection ?: TextDirection.Unspecified,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = platformStyle?.paragraphStyle,
+                    lineHeightStyle = lineHeightStyle,
+                    lineBreak = lineBreak ?: LineBreak.Unspecified,
+                    hyphens = hyphens ?: Hyphens.Unspecified,
+                    textMotion = textMotion
+                ),
             platformStyle = platformStyle
         )
     }
@@ -1415,52 +1151,55 @@ class TextStyle internal constructor(
         lineBreak: LineBreak = this.paragraphStyle.lineBreak,
         hyphens: Hyphens = this.paragraphStyle.hyphens,
         textMotion: TextMotion? = this.paragraphStyle.textMotion,
-        linkStyles: TextLinkStyles? = this.linkStyles,
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                textForegroundStyle = if (color == this.spanStyle.color) {
-                    spanStyle.textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak,
-                hyphens = hyphens,
-                textMotion = textMotion
-            ),
-            platformStyle = platformStyle,
-            linkStyles = linkStyles
+            spanStyle =
+                SpanStyle(
+                    textForegroundStyle =
+                        if (color == this.spanStyle.color) {
+                            spanStyle.textForegroundStyle
+                        } else {
+                            TextForegroundStyle.from(color)
+                        },
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = platformStyle?.spanStyle,
+                    drawStyle = drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign,
+                    textDirection = textDirection,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = platformStyle?.paragraphStyle,
+                    lineHeightStyle = lineHeightStyle,
+                    lineBreak = lineBreak,
+                    hyphens = hyphens,
+                    textMotion = textMotion
+                ),
+            platformStyle = platformStyle
         )
     }
 
-    @Deprecated("copy constructors that take nullable TextAlign, " +
-        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
-        "where these parameters are non-nullable. Null value has been replaced by a special " +
-        "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "copy constructors that take nullable TextAlign, " +
+            "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+            "where these parameters are non-nullable. Null value has been replaced by a special " +
+            "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         brush: Brush?,
         alpha: Float = this.spanStyle.alpha,
@@ -1489,99 +1228,38 @@ class TextStyle internal constructor(
         textMotion: TextMotion? = this.paragraphStyle.textMotion,
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                brush = brush,
-                alpha = alpha,
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign ?: TextAlign.Unspecified,
-                textDirection = textDirection ?: TextDirection.Unspecified,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak ?: LineBreak.Unspecified,
-                hyphens = hyphens ?: Hyphens.Unspecified,
-                textMotion = textMotion
-            ),
-            platformStyle = platformStyle
-        )
-    }
-
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    fun copy(
-        brush: Brush?,
-        alpha: Float = this.spanStyle.alpha,
-        fontSize: TextUnit = this.spanStyle.fontSize,
-        fontWeight: FontWeight? = this.spanStyle.fontWeight,
-        fontStyle: FontStyle? = this.spanStyle.fontStyle,
-        fontSynthesis: FontSynthesis? = this.spanStyle.fontSynthesis,
-        fontFamily: FontFamily? = this.spanStyle.fontFamily,
-        fontFeatureSettings: String? = this.spanStyle.fontFeatureSettings,
-        letterSpacing: TextUnit = this.spanStyle.letterSpacing,
-        baselineShift: BaselineShift? = this.spanStyle.baselineShift,
-        textGeometricTransform: TextGeometricTransform? = this.spanStyle.textGeometricTransform,
-        localeList: LocaleList? = this.spanStyle.localeList,
-        background: Color = this.spanStyle.background,
-        textDecoration: TextDecoration? = this.spanStyle.textDecoration,
-        shadow: Shadow? = this.spanStyle.shadow,
-        drawStyle: DrawStyle? = this.spanStyle.drawStyle,
-        textAlign: TextAlign = this.paragraphStyle.textAlign,
-        textDirection: TextDirection = this.paragraphStyle.textDirection,
-        lineHeight: TextUnit = this.paragraphStyle.lineHeight,
-        textIndent: TextIndent? = this.paragraphStyle.textIndent,
-        platformStyle: PlatformTextStyle? = this.platformStyle,
-        lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
-        lineBreak: LineBreak = this.paragraphStyle.lineBreak,
-        hyphens: Hyphens = this.paragraphStyle.hyphens,
-        textMotion: TextMotion? = this.paragraphStyle.textMotion,
-    ): TextStyle {
-        return TextStyle(
-            spanStyle = SpanStyle(
-                brush = brush,
-                alpha = alpha,
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak,
-                hyphens = hyphens,
-                textMotion = textMotion
-            ),
+            spanStyle =
+                SpanStyle(
+                    brush = brush,
+                    alpha = alpha,
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = platformStyle?.spanStyle,
+                    drawStyle = drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign ?: TextAlign.Unspecified,
+                    textDirection = textDirection ?: TextDirection.Unspecified,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = platformStyle?.paragraphStyle,
+                    lineHeightStyle = lineHeightStyle,
+                    lineBreak = lineBreak ?: LineBreak.Unspecified,
+                    hyphens = hyphens ?: Hyphens.Unspecified,
+                    textMotion = textMotion
+                ),
             platformStyle = platformStyle
         )
     }
@@ -1612,166 +1290,156 @@ class TextStyle internal constructor(
         lineBreak: LineBreak = this.paragraphStyle.lineBreak,
         hyphens: Hyphens = this.paragraphStyle.hyphens,
         textMotion: TextMotion? = this.paragraphStyle.textMotion,
-        linkStyles: TextLinkStyles? = this.linkStyles,
     ): TextStyle {
         return TextStyle(
-            spanStyle = SpanStyle(
-                brush = brush,
-                alpha = alpha,
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                fontFamily = fontFamily,
-                fontFeatureSettings = fontFeatureSettings,
-                letterSpacing = letterSpacing,
-                baselineShift = baselineShift,
-                textGeometricTransform = textGeometricTransform,
-                localeList = localeList,
-                background = background,
-                textDecoration = textDecoration,
-                shadow = shadow,
-                platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
-            ),
-            paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
-                lineHeight = lineHeight,
-                textIndent = textIndent,
-                platformStyle = platformStyle?.paragraphStyle,
-                lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak,
-                hyphens = hyphens,
-                textMotion = textMotion
-            ),
-            platformStyle = platformStyle,
-            linkStyles = linkStyles
+            spanStyle =
+                SpanStyle(
+                    brush = brush,
+                    alpha = alpha,
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = textDecoration,
+                    shadow = shadow,
+                    platformStyle = platformStyle?.spanStyle,
+                    drawStyle = drawStyle
+                ),
+            paragraphStyle =
+                ParagraphStyle(
+                    textAlign = textAlign,
+                    textDirection = textDirection,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    platformStyle = platformStyle?.paragraphStyle,
+                    lineHeightStyle = lineHeightStyle,
+                    lineBreak = lineBreak,
+                    hyphens = hyphens,
+                    textMotion = textMotion
+                ),
+            platformStyle = platformStyle
         )
     }
 
-    /**
-     * The brush to use when drawing text. If not null, overrides [color].
-     */
-    val brush: Brush? get() = this.spanStyle.brush
+    /** The brush to use when drawing text. If not null, overrides [color]. */
+    val brush: Brush?
+        get() = this.spanStyle.brush
 
-    /**
-     * The text color.
-     */
-    val color: Color get() = this.spanStyle.color
+    /** The text color. */
+    val color: Color
+        get() = this.spanStyle.color
 
     /**
      * Opacity of text. This value is either provided along side Brush, or via alpha channel in
      * color.
      */
-    val alpha: Float get() = this.spanStyle.alpha
+    val alpha: Float
+        get() = this.spanStyle.alpha
 
     /**
-     * The size of glyphs to use when painting the text. This
-     * may be [TextUnit.Unspecified] for inheriting from another [TextStyle].
+     * The size of glyphs to use when painting the text. This may be [TextUnit.Unspecified] for
+     * inheriting from another [TextStyle].
      */
-    val fontSize: TextUnit get() = this.spanStyle.fontSize
+    val fontSize: TextUnit
+        get() = this.spanStyle.fontSize
+
+    /** The typeface thickness to use when painting the text (e.g., bold). */
+    val fontWeight: FontWeight?
+        get() = this.spanStyle.fontWeight
+
+    /** The typeface variant to use when drawing the letters (e.g., italic). */
+    val fontStyle: FontStyle?
+        get() = this.spanStyle.fontStyle
 
     /**
-     * The typeface thickness to use when painting the text (e.g., bold).
+     * Whether to synthesize font weight and/or style when the requested weight or style cannot be
+     * found in the provided font family.
      */
-    val fontWeight: FontWeight? get() = this.spanStyle.fontWeight
+    val fontSynthesis: FontSynthesis?
+        get() = this.spanStyle.fontSynthesis
+
+    /** The font family to be used when rendering the text. */
+    val fontFamily: FontFamily?
+        get() = this.spanStyle.fontFamily
 
     /**
-     * The typeface variant to use when drawing the letters (e.g., italic).
+     * The advanced typography settings provided by font. The format is the same as the CSS
+     * font-feature-settings attribute:
+     * https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
      */
-    val fontStyle: FontStyle? get() = this.spanStyle.fontStyle
+    val fontFeatureSettings: String?
+        get() = this.spanStyle.fontFeatureSettings
 
-    /**
-     * Whether to synthesize font weight and/or style when the requested weight or
-     *  style cannot be found in the provided font family.
-     */
-    val fontSynthesis: FontSynthesis? get() = this.spanStyle.fontSynthesis
+    /** The amount of space to add between each letter. */
+    val letterSpacing: TextUnit
+        get() = this.spanStyle.letterSpacing
 
-    /**
-     * The font family to be used when rendering the text.
-     */
-    val fontFamily: FontFamily? get() = this.spanStyle.fontFamily
+    /** The amount by which the text is shifted up from the current baseline. */
+    val baselineShift: BaselineShift?
+        get() = this.spanStyle.baselineShift
 
-    /**
-     * The advanced typography settings provided by font. The format is the
-     *  same as the CSS font-feature-settings attribute:
-     *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     */
-    val fontFeatureSettings: String? get() = this.spanStyle.fontFeatureSettings
+    /** The geometric transformation applied the text. */
+    val textGeometricTransform: TextGeometricTransform?
+        get() = this.spanStyle.textGeometricTransform
 
-    /**
-     * The amount of space to add between each letter.
-     */
-    val letterSpacing: TextUnit get() = this.spanStyle.letterSpacing
+    /** The locale list used to select region-specific glyphs. */
+    val localeList: LocaleList?
+        get() = this.spanStyle.localeList
 
-    /**
-     * The amount by which the text is shifted up from the current baseline.
-     */
-    val baselineShift: BaselineShift? get() = this.spanStyle.baselineShift
+    /** The background color for the text. */
+    val background: Color
+        get() = this.spanStyle.background
 
-    /**
-     * The geometric transformation applied the text.
-     */
-    val textGeometricTransform: TextGeometricTransform? get() =
-        this.spanStyle.textGeometricTransform
+    /** The decorations to paint on the text (e.g., an underline). */
+    val textDecoration: TextDecoration?
+        get() = this.spanStyle.textDecoration
 
-    /**
-     * The locale list used to select region-specific glyphs.
-     */
-    val localeList: LocaleList? get() = this.spanStyle.localeList
+    /** The shadow effect applied on the text. */
+    val shadow: Shadow?
+        get() = this.spanStyle.shadow
 
-    /**
-     * The background color for the text.
-     */
-    val background: Color get() = this.spanStyle.background
+    /** Drawing style of text, whether fill in the text while drawing or stroke around the edges. */
+    val drawStyle: DrawStyle?
+        get() = this.spanStyle.drawStyle
 
-    /**
-     * The decorations to paint on the text (e.g., an underline).
-     */
-    val textDecoration: TextDecoration? get() = this.spanStyle.textDecoration
-
-    /**
-     * The shadow effect applied on the text.
-     */
-    val shadow: Shadow? get() = this.spanStyle.shadow
-
-    /**
-     * Drawing style of text, whether fill in the text while drawing or stroke around the edges.
-     */
-    val drawStyle: DrawStyle? get() = this.spanStyle.drawStyle
-
-    /**
-     * The alignment of the text within the lines of the paragraph.
-     */
-    val textAlign: TextAlign get() = this.paragraphStyle.textAlign
+    /** The alignment of the text within the lines of the paragraph. */
+    val textAlign: TextAlign
+        get() = this.paragraphStyle.textAlign
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getTextAlign-buA522U") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_textAlign: TextAlign? get() = this.textAlign
+    val deprecated_boxing_textAlign: TextAlign?
+        get() = this.textAlign
 
     /**
-     * The algorithm to be used to resolve the final text and paragraph
-     * direction: Left To Right or Right To Left. If no value is provided the system will use the
-     * [LayoutDirection] as the primary signal.
+     * The algorithm to be used to resolve the final text and paragraph direction: Left To Right or
+     * Right To Left. If no value is provided the system will use the [LayoutDirection] as the
+     * primary signal.
      */
-    val textDirection: TextDirection get() = this.paragraphStyle.textDirection
+    val textDirection: TextDirection
+        get() = this.paragraphStyle.textDirection
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getTextDirection-mmuk1to") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_textDirection: TextDirection? get() = this.textDirection
+    val deprecated_boxing_textDirection: TextDirection?
+        get() = this.textDirection
 
-    /**
-     * Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
-     */
-    val lineHeight: TextUnit get() = this.paragraphStyle.lineHeight
+    /** Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. */
+    val lineHeight: TextUnit
+        get() = this.paragraphStyle.lineHeight
 
-    /**
-     * The indentation of the paragraph.
-     */
-    val textIndent: TextIndent? get() = this.paragraphStyle.textIndent
+    /** The indentation of the paragraph. */
+    val textIndent: TextIndent?
+        get() = this.paragraphStyle.textIndent
 
     /**
      * The configuration for line height such as vertical alignment of the line, whether to apply
@@ -1781,32 +1449,32 @@ class TextStyle internal constructor(
      *
      * When null, [LineHeightStyle.Default] is used.
      */
-    val lineHeightStyle: LineHeightStyle? get() = this.paragraphStyle.lineHeightStyle
+    val lineHeightStyle: LineHeightStyle?
+        get() = this.paragraphStyle.lineHeightStyle
 
-    /**
-     * The hyphens configuration of the paragraph.
-     */
-    val hyphens: Hyphens get() = this.paragraphStyle.hyphens
+    /** The hyphens configuration of the paragraph. */
+    val hyphens: Hyphens
+        get() = this.paragraphStyle.hyphens
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getHyphens-EaSxIns") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_hyphens: Hyphens? get() = this.hyphens
+    val deprecated_boxing_hyphens: Hyphens?
+        get() = this.hyphens
 
-    /**
-     * The line breaking configuration of the paragraph.
-     */
-    val lineBreak: LineBreak get() = this.paragraphStyle.lineBreak
+    /** The line breaking configuration of the paragraph. */
+    val lineBreak: LineBreak
+        get() = this.paragraphStyle.lineBreak
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getLineBreak-LgCVezo") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_lineBreak: LineBreak? get() = this.lineBreak
+    val deprecated_boxing_lineBreak: LineBreak?
+        get() = this.lineBreak
 
-    /**
-     * Text character placement configuration, whether to optimize for animated or static text.
-     */
-    val textMotion: TextMotion? get() = this.paragraphStyle.textMotion
+    /** Text character placement configuration, whether to optimize for animated or static text. */
+    val textMotion: TextMotion?
+        get() = this.paragraphStyle.textMotion
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -1815,7 +1483,6 @@ class TextStyle internal constructor(
         if (spanStyle != other.spanStyle) return false
         if (paragraphStyle != other.paragraphStyle) return false
         if (platformStyle != other.platformStyle) return false
-        if (linkStyles != other.linkStyles) return false
 
         return true
     }
@@ -1834,21 +1501,19 @@ class TextStyle internal constructor(
      * @param other The TextStyle to compare to.
      */
     fun hasSameLayoutAffectingAttributes(other: TextStyle): Boolean {
-        return (this === other) || (paragraphStyle == other.paragraphStyle &&
-            spanStyle.hasSameLayoutAffectingAttributes(other.spanStyle) &&
-            linkStyles.hasSameLayoutAffectingAttributes(other.linkStyles))
+        return (this === other) ||
+            (paragraphStyle == other.paragraphStyle &&
+                spanStyle.hasSameLayoutAffectingAttributes(other.spanStyle))
     }
 
     fun hasSameDrawAffectingAttributes(other: TextStyle): Boolean {
-        return (this === other) || (spanStyle.hasSameNonLayoutAttributes(other.spanStyle) &&
-            linkStyles.hasSameNonLayoutAttributes(other.linkStyles))
+        return (this === other) || (spanStyle.hasSameNonLayoutAttributes(other.spanStyle))
     }
 
     override fun hashCode(): Int {
         var result = spanStyle.hashCode()
         result = 31 * result + paragraphStyle.hashCode()
         result = 31 * result + (platformStyle?.hashCode() ?: 0)
-        result = 31 * result + (linkStyles?.hashCode() ?: 0)
         return result
     }
 
@@ -1856,7 +1521,6 @@ class TextStyle internal constructor(
         var result = spanStyle.hashCodeLayoutAffectingAttributes()
         result = 31 * result + paragraphStyle.hashCode()
         result = 31 * result + (platformStyle?.hashCode() ?: 0)
-        result = 31 * result + (linkStyles?.hashCode() ?: 0)
         return result
     }
 
@@ -1889,17 +1553,13 @@ class TextStyle internal constructor(
             append("lineBreak=$lineBreak, ")
             append("hyphens=$hyphens, ")
             append("textMotion=$textMotion")
-            append("linkStyles=$linkStyles")
             append(")")
         }
     }
 
     companion object {
-        /**
-         * Constant for default text style.
-         */
-        @Stable
-        val Default = TextStyle()
+        /** Constant for default text style. */
+        @Stable val Default = TextStyle()
     }
 }
 
@@ -1908,19 +1568,17 @@ class TextStyle internal constructor(
  *
  * This will not work well if the styles don't set the same fields.
  *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning that the
+ * interpolation has not started, returning [start] (or something equivalent to [start]), 1.0
+ * meaning that the interpolation has finished, returning [stop] (or something equivalent to
+ * [stop]), and values in between meaning that the interpolation is at the relevant point on the
+ * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
+ * negative values and values greater than 1.0 are valid.
  */
 fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
     return TextStyle(
         spanStyle = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction),
-        paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction),
-        linkStyles = lerp(start.linkStyles, stop.linkStyles, fraction)
+        paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction)
     )
 }
 
@@ -1928,33 +1586,34 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
  * Fills missing values in TextStyle with default values and resolve [TextDirection].
  *
  * This function will fill all null or [TextUnit.Unspecified] field with actual values.
+ *
  * @param style a text style to be resolved
  * @param direction a layout direction to be used for resolving text layout direction algorithm
  * @return resolved text style.
  */
-fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
-    spanStyle = resolveSpanStyleDefaults(style.spanStyle),
-    paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),
-    platformStyle = style.platformStyle,
-    linkStyles = style.linkStyles
-)
+fun resolveDefaults(style: TextStyle, direction: LayoutDirection) =
+    TextStyle(
+        spanStyle = resolveSpanStyleDefaults(style.spanStyle),
+        paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),
+        platformStyle = style.platformStyle
+    )
 
-/**
- * If [textDirection] is null returns a [TextDirection] based on [layoutDirection].
- */
+/** If [textDirection] is null returns a [TextDirection] based on [layoutDirection]. */
 internal fun resolveTextDirection(
     layoutDirection: LayoutDirection,
     textDirection: TextDirection
 ): TextDirection {
     return when (textDirection) {
-        TextDirection.Content -> when (layoutDirection) {
-            LayoutDirection.Ltr -> TextDirection.ContentOrLtr
-            LayoutDirection.Rtl -> TextDirection.ContentOrRtl
-        }
-        TextDirection.Unspecified -> when (layoutDirection) {
-            LayoutDirection.Ltr -> TextDirection.Ltr
-            LayoutDirection.Rtl -> TextDirection.Rtl
-        }
+        TextDirection.Content ->
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> TextDirection.ContentOrLtr
+                LayoutDirection.Rtl -> TextDirection.ContentOrRtl
+            }
+        TextDirection.Unspecified ->
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> TextDirection.Ltr
+                LayoutDirection.Rtl -> TextDirection.Rtl
+            }
         else -> textDirection
     }
 }

@@ -62,48 +62,58 @@ internal fun LazyStaggeredGrid(
     val itemProviderLambda = rememberStaggeredGridItemProviderLambda(state, content)
     val coroutineScope = rememberCoroutineScope()
     val graphicsContext = LocalGraphicsContext.current
-    val measurePolicy = rememberStaggeredGridMeasurePolicy(
-        state,
-        itemProviderLambda,
-        contentPadding,
-        reverseLayout,
-        orientation,
-        mainAxisSpacing,
-        crossAxisSpacing,
-        coroutineScope,
-        slots,
-        graphicsContext
-    )
+    val measurePolicy =
+        rememberStaggeredGridMeasurePolicy(
+            state,
+            itemProviderLambda,
+            contentPadding,
+            reverseLayout,
+            orientation,
+            mainAxisSpacing,
+            crossAxisSpacing,
+            coroutineScope,
+            slots,
+            graphicsContext
+        )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
+    val reverseDirection =
+        ScrollableDefaults.reverseDirection(
+            LocalLayoutDirection.current,
+            orientation,
+            reverseLayout
+        )
+
     LazyLayout(
-        modifier = modifier
-            .then(state.remeasurementModifier)
-            .then(state.awaitLayoutModifier)
-            .lazyLayoutSemantics(
-                itemProviderLambda = itemProviderLambda,
-                state = semanticState,
-                orientation = orientation,
-                userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout,
-            )
-            .lazyLayoutBeyondBoundsModifier(
-                state = rememberLazyStaggeredGridBeyondBoundsState(state = state),
-                beyondBoundsInfo = state.beyondBoundsInfo,
-                reverseLayout = reverseLayout,
-                layoutDirection = LocalLayoutDirection.current,
-                orientation = orientation,
-                enabled = userScrollEnabled
-            )
-            .then(state.itemAnimator.modifier)
-            .scrollingContainer(
-                state = state,
-                orientation = orientation,
-                enabled = userScrollEnabled,
-                reverseScrolling = reverseLayout,
-                flingBehavior = flingBehavior,
-                interactionSource = state.mutableInteractionSource
-            ),
+        modifier =
+            modifier
+                .then(state.remeasurementModifier)
+                .then(state.awaitLayoutModifier)
+                .lazyLayoutSemantics(
+                    itemProviderLambda = itemProviderLambda,
+                    state = semanticState,
+                    orientation = orientation,
+                    userScrollEnabled = userScrollEnabled,
+                    reverseScrolling = reverseLayout,
+                )
+                .lazyLayoutBeyondBoundsModifier(
+                    state = rememberLazyStaggeredGridBeyondBoundsState(state = state),
+                    beyondBoundsInfo = state.beyondBoundsInfo,
+                    reverseLayout = reverseLayout,
+                    layoutDirection = LocalLayoutDirection.current,
+                    orientation = orientation,
+                    enabled = userScrollEnabled
+                )
+                .then(state.itemAnimator.modifier)
+                .scrollingContainer(
+                    state = state,
+                    orientation = orientation,
+                    enabled = userScrollEnabled,
+                    reverseDirection = reverseDirection,
+                    flingBehavior = flingBehavior,
+                    interactionSource = state.mutableInteractionSource,
+                    overscrollEffect = ScrollableDefaults.overscrollEffect()
+                ),
         prefetchState = state.prefetchState,
         itemProvider = itemProviderLambda,
         measurePolicy = measurePolicy
@@ -111,7 +121,4 @@ internal fun LazyStaggeredGrid(
 }
 
 /** Slot configuration of staggered grid */
-internal class LazyStaggeredGridSlots(
-    val positions: IntArray,
-    val sizes: IntArray
-)
+internal class LazyStaggeredGridSlots(val positions: IntArray, val sizes: IntArray)

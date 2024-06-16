@@ -24,10 +24,10 @@ interface FocusManager {
      * Call this function to clear focus from the currently focused component, and set the focus to
      * the root focus modifier.
      *
-     *  @param force: Whether we should forcefully clear focus regardless of whether we have
-     *  any components that have Captured focus.
+     * @param force: Whether we should forcefully clear focus regardless of whether we have any
+     *   components that have Captured focus.
      *
-     *  @sample androidx.compose.ui.samples.ClearFocusSample
+     * @sample androidx.compose.ui.samples.ClearFocusSample
      */
     fun clearFocus(force: Boolean = false)
 

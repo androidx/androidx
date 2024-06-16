@@ -22,7 +22,8 @@ import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import kotlinx.coroutines.Deferred
 
-class FakeEvCompCompat constructor(
+class FakeEvCompCompat
+constructor(
     override val supported: Boolean = false,
     override val range: Range<Int> = Range(0, 0),
     override val step: Rational = Rational.ZERO,

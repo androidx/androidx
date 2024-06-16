@@ -16,15 +16,30 @@
 
 package androidx.camera.core.impl;
 
+import static android.media.CamcorderProfile.QUALITY_1080P;
+import static android.media.CamcorderProfile.QUALITY_2160P;
+import static android.media.CamcorderProfile.QUALITY_480P;
+import static android.media.CamcorderProfile.QUALITY_4KDCI;
+import static android.media.CamcorderProfile.QUALITY_720P;
+import static android.media.CamcorderProfile.QUALITY_8KUHD;
+import static android.media.CamcorderProfile.QUALITY_CIF;
+import static android.media.CamcorderProfile.QUALITY_QCIF;
+import static android.media.CamcorderProfile.QUALITY_QHD;
+import static android.media.CamcorderProfile.QUALITY_QVGA;
+import static android.media.CamcorderProfile.QUALITY_VGA;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+
 import android.media.CamcorderProfile;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+
+import java.util.List;
 
 /**
  * EncoderProfilesProvider is used to obtain the {@link EncoderProfilesProxy}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderProfilesProvider {
 
     /**
@@ -57,4 +72,18 @@ public interface EncoderProfilesProvider {
             return null;
         }
     };
+
+    List<Integer> QUALITY_HIGH_TO_LOW = unmodifiableList(asList(
+            QUALITY_8KUHD, // 7680x4320
+            QUALITY_4KDCI, // 4096x2160
+            QUALITY_2160P, // 3840x2160
+            QUALITY_QHD, // 2560x1440
+            QUALITY_1080P, // 1920x1080
+            QUALITY_720P, // 1280x720
+            QUALITY_480P, // 720x480
+            QUALITY_VGA, // 640x480
+            QUALITY_CIF, // 352x288
+            QUALITY_QVGA, // 320x240
+            QUALITY_QCIF // 176x144
+    ));
 }

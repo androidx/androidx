@@ -45,6 +45,7 @@ androidx {
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

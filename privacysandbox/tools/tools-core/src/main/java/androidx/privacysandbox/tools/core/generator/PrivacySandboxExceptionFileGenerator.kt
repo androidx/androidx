@@ -28,27 +28,29 @@ class PrivacySandboxExceptionFileGenerator(private val basePackageName: String) 
     }
 
     fun generate(): FileSpec {
-        val classSpec = TypeSpec.classBuilder(privacySandboxExceptionName).build {
-            superclass(RuntimeException::class)
-            addModifiers(KModifier.PUBLIC)
-            primaryConstructor(
-                listOf(
-                    PropertySpec.builder(
-                        "message",
-                        String::class.asTypeName().copy(nullable = true),
-                    ).addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE).build(),
-                    PropertySpec.builder(
-                        "cause",
-                        Throwable::class.asTypeName().copy(nullable = true),
-                    ).addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE).build()
+        val classSpec =
+            TypeSpec.classBuilder(privacySandboxExceptionName).build {
+                superclass(RuntimeException::class)
+                addModifiers(KModifier.PUBLIC)
+                primaryConstructor(
+                    listOf(
+                        PropertySpec.builder(
+                                "message",
+                                String::class.asTypeName().copy(nullable = true),
+                            )
+                            .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                            .build(),
+                        PropertySpec.builder(
+                                "cause",
+                                Throwable::class.asTypeName().copy(nullable = true),
+                            )
+                            .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                            .build()
+                    )
                 )
-            )
-        }
+            }
 
-        return FileSpec.builder(
-            basePackageName,
-            privacySandboxExceptionName
-        ).build {
+        return FileSpec.builder(basePackageName, privacySandboxExceptionName).build {
             addCommonSettings()
             addType(classSpec)
         }

@@ -26,8 +26,8 @@ import android.util.Log
 import android.widget.FrameLayout
 
 /**
- * Overlay View for drawing alignment result and target grid line to {@link Canvas} in
- * diagnosis mode.
+ * Overlay View for drawing alignment result and target grid line to {@link Canvas} in diagnosis
+ * mode.
  */
 class OverlayView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
 
@@ -68,32 +68,16 @@ class OverlayView(context: Context, attrs: AttributeSet) : FrameLayout(context, 
 
         result?.let {
             val paintColor = getGridLinePaint(result!!.isAligned)
-            result!!.topGrid?.let {
-                drawGridLines(canvas, it, paintColor)
-            }
-            result!!.bottomGrid?.let {
-                drawGridLines(canvas, it, paintColor)
-            }
-            result!!.rightGrid?.let {
-                drawGridLines(canvas, it, paintColor)
-            }
-            result!!.leftGrid?.let {
-                drawGridLines(canvas, it, paintColor)
-            }
+            result!!.topGrid?.let { drawGridLines(canvas, it, paintColor) }
+            result!!.bottomGrid?.let { drawGridLines(canvas, it, paintColor) }
+            result!!.rightGrid?.let { drawGridLines(canvas, it, paintColor) }
+            result!!.leftGrid?.let { drawGridLines(canvas, it, paintColor) }
 
             // drawing threshold box
-            result!!.thresholdTopLeft?.let {
-                canvas.drawRect(it, thresholdPaint)
-            }
-            result!!.thresholdTopRight?.let {
-                canvas.drawRect(it, thresholdPaint)
-            }
-            result!!.thresholdBottomLeft?.let {
-                canvas.drawRect(it, thresholdPaint)
-            }
-            result!!.thresholdBottomRight?.let {
-                canvas.drawRect(it, thresholdPaint)
-            }
+            result!!.thresholdTopLeft?.let { canvas.drawRect(it, thresholdPaint) }
+            result!!.thresholdTopRight?.let { canvas.drawRect(it, thresholdPaint) }
+            result!!.thresholdBottomLeft?.let { canvas.drawRect(it, thresholdPaint) }
+            result!!.thresholdBottomRight?.let { canvas.drawRect(it, thresholdPaint) }
         }
         Log.d(TAG, "finished drawing")
     }

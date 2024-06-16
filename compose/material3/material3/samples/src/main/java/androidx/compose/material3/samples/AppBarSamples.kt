@@ -65,11 +65,7 @@ fun SimpleTopAppBar() {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "Simple TopAppBar",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Text("Simple TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
@@ -99,9 +95,7 @@ fun SimpleTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -123,11 +117,7 @@ fun SimpleCenterAlignedTopAppBar() {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        "Centered TopAppBar",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Text("Centered TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
@@ -157,9 +147,7 @@ fun SimpleCenterAlignedTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -183,13 +171,7 @@ fun PinnedTopAppBar() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "TopAppBar",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -226,9 +208,7 @@ fun PinnedTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -237,8 +217,8 @@ fun PinnedTopAppBar() {
 }
 
 /**
- * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and
- * appears when the content scrolled down.
+ * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
+ * the content scrolled down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -250,13 +230,7 @@ fun EnterAlwaysTopAppBar() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "TopAppBar",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -286,9 +260,7 @@ fun EnterAlwaysTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -297,8 +269,8 @@ fun EnterAlwaysTopAppBar() {
 }
 
 /**
- * A sample for a [MediumTopAppBar] that collapses when the content is scrolled up, and
- * appears when the content is completely scrolled back down.
+ * A sample for a [MediumTopAppBar] that collapses when the content is scrolled up, and appears when
+ * the content is completely scrolled back down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -311,11 +283,7 @@ fun ExitUntilCollapsedMediumTopAppBar() {
         topBar = {
             MediumTopAppBar(
                 title = {
-                    Text(
-                        "Medium TopAppBar",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Text("Medium TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
@@ -346,9 +314,7 @@ fun ExitUntilCollapsedMediumTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -357,8 +323,8 @@ fun ExitUntilCollapsedMediumTopAppBar() {
 }
 
 /**
- * A sample for a [LargeTopAppBar] that collapses when the content is scrolled up, and
- * appears when the content is completely scrolled back down.
+ * A sample for a [LargeTopAppBar] that collapses when the content is scrolled up, and appears when
+ * the content is completely scrolled back down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -370,13 +336,7 @@ fun ExitUntilCollapsedLargeTopAppBar() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = {
-                    Text(
-                        "Large TopAppBar",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = { Text("Large TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -406,9 +366,7 @@ fun ExitUntilCollapsedLargeTopAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -458,8 +416,8 @@ fun BottomAppBarWithFAB() {
 }
 
 /**
- * A sample for a [BottomAppBar] that collapses when the content is scrolled up, and
- * appears when the content scrolled down.
+ * A sample for a [BottomAppBar] that collapses when the content is scrolled up, and appears when
+ * the content scrolled down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -503,9 +461,7 @@ fun ExitAlwaysBottomAppBar() {
                     Text(
                         text = list[it],
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }

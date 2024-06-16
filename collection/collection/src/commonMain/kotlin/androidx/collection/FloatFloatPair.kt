@@ -24,14 +24,15 @@ import kotlin.jvm.JvmInline
 /**
  * Container to ease passing around a tuple of two [Float] values.
  *
- * *Note*: This class is optimized by using a value class, a Kotlin language featured
- * not available from Java code. Java developers can get the same functionality by
- * using [Pair] or by constructing a custom implementation using Float parameters
- * directly (see [LongLongPair] for an example).
+ * *Note*: This class is optimized by using a value class, a Kotlin language featured not available
+ * from Java code. Java developers can get the same functionality by using [Pair] or by constructing
+ * a custom implementation using Float parameters directly (see [LongLongPair] for an example).
  */
 @JvmInline
-public value class FloatFloatPair internal constructor(
-    @PublishedApi @JvmField internal val packedValue: Long
+public value class FloatFloatPair
+internal constructor(
+    /** The internal representation of the [FloatFloatPair]. */
+    @JvmField public val packedValue: Long
 ) {
     /**
      * Constructs a [FloatFloatPair] with two [Float] values.
@@ -41,24 +42,19 @@ public value class FloatFloatPair internal constructor(
      */
     public constructor(first: Float, second: Float) : this(packFloats(first, second))
 
-    /**
-     * The first value in the pair.
-     */
+    /** The first value in the pair. */
     public inline val first: Float
         get() = floatFromBits((packedValue shr 32).toInt())
 
-    /**
-     * The second value in the pair.
-     */
+    /** The second value in the pair. */
     public inline val second: Float
         get() = floatFromBits((packedValue and 0xFFFFFFFF).toInt())
 
     /**
-     * Returns the [first] component of the pair. For instance, the first component
-     * of `PairFloatFloat(3f, 4f)` is `3f`.
+     * Returns the [first] component of the pair. For instance, the first component of
+     * `PairFloatFloat(3f, 4f)` is `3f`.
      *
-     * This method allows to use destructuring declarations when working with pairs,
-     * for example:
+     * This method allows to use destructuring declarations when working with pairs, for example:
      * ```
      * val (first, second) = myPair
      * ```
@@ -67,11 +63,10 @@ public value class FloatFloatPair internal constructor(
     public inline operator fun component1(): Float = floatFromBits((packedValue shr 32).toInt())
 
     /**
-     * Returns the [second] component of the pair. For instance, the second component
-     * of `PairFloatFloat(3f, 4f)` is `4f`.
+     * Returns the [second] component of the pair. For instance, the second component of
+     * `PairFloatFloat(3f, 4f)` is `4f`.
      *
-     * This method allows to use destructuring declarations when working with pairs,
-     * for example:
+     * This method allows to use destructuring declarations when working with pairs, for example:
      * ```
      * val (first, second) = myPair
      * ```

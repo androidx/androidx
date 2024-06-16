@@ -23,16 +23,16 @@ import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class V3Adapter : PagingDataAdapter<Item, RecyclerView.ViewHolder>(
-    diffCallback = Item.DIFF_CALLBACK
-) {
+class V3Adapter :
+    PagingDataAdapter<Item, RecyclerView.ViewHolder>(diffCallback = Item.DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder = object : RecyclerView.ViewHolder(TextView(parent.context)) {}
         holder.itemView.minimumHeight = 150
-        holder.itemView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        holder.itemView.layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         return holder
     }
 

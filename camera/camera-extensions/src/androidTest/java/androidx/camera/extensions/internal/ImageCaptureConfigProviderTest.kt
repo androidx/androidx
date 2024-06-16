@@ -57,16 +57,16 @@ import org.mockito.Mockito.mock
 @SdkSuppress(minSdkVersion = 23) // BasicVendorExtender requires API level 23
 class ImageCaptureConfigProviderTest {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     // Tests in this class majorly use mock objects to run the test. No matter which extension
     // mode is use, it should not affect the test results.
-    @ExtensionMode.Mode
-    private val extensionMode = ExtensionMode.NONE
+    @ExtensionMode.Mode private val extensionMode = ExtensionMode.NONE
     private var cameraSelector = CameraSelector.Builder().build()
     private val fakeLifecycleOwner = FakeLifecycleOwner()
 
@@ -103,9 +103,8 @@ class ImageCaptureConfigProviderTest {
             .thenReturn(true)
 
         val targetFormatResolutionsPairList = generateImageCaptureSupportedResolutions()
-        Mockito.`when`(mockImageCaptureExtenderImpl.supportedResolutions).thenReturn(
-            targetFormatResolutionsPairList
-        )
+        Mockito.`when`(mockImageCaptureExtenderImpl.supportedResolutions)
+            .thenReturn(targetFormatResolutionsPairList)
 
         val vendorExtender = BasicVendorExtender(mockImageCaptureExtenderImpl, null)
         val preview = createImageCaptureWithExtenderImpl(vendorExtender)
@@ -114,16 +113,16 @@ class ImageCaptureConfigProviderTest {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
         }
 
-        val resultFormatResolutionsPairList = (preview.currentConfig as ImageOutputConfig)
-            .supportedResolutions
+        val resultFormatResolutionsPairList =
+            (preview.currentConfig as ImageOutputConfig).supportedResolutions
 
         // Checks the result and target pair lists are the same
         for (resultPair in resultFormatResolutionsPairList) {
-            val firstTargetSizes = targetFormatResolutionsPairList.filter {
-                it.first == resultPair.first
-            }.map {
-                it.second
-            }.first()
+            val firstTargetSizes =
+                targetFormatResolutionsPairList
+                    .filter { it.first == resultPair.first }
+                    .map { it.second }
+                    .first()
 
             Truth.assertThat(mutableListOf(resultPair.second)).containsExactly(firstTargetSizes)
         }
@@ -136,11 +135,13 @@ class ImageCaptureConfigProviderTest {
             val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
             basicVendorExtender.init(camera.cameraInfo)
         }
-        return ImageCapture.Builder().also {
-            ImageCaptureConfigProvider(basicVendorExtender).apply {
-                updateBuilderConfig(it, basicVendorExtender)
+        return ImageCapture.Builder()
+            .also {
+                ImageCaptureConfigProvider(basicVendorExtender).apply {
+                    updateBuilderConfig(it, basicVendorExtender)
+                }
             }
-        }.build()
+            .build()
     }
 
     private fun generateImageCaptureSupportedResolutions(): List<Pair<Int, Array<Size>>> {

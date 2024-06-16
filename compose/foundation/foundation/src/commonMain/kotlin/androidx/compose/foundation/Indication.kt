@@ -44,9 +44,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 /**
- * Indication represents visual effects that occur when certain interactions happens. For
- * example: showing a ripple effect when a component is pressed, or a highlight when a component
- * is focused.
+ * Indication represents visual effects that occur when certain interactions happens. For example:
+ * showing a ripple effect when a component is pressed, or a highlight when a component is focused.
  *
  * To implement your own Indication, see [IndicationNodeFactory] - an optimized [Indication] that
  * allows for more efficient implementations than the deprecated [rememberUpdatedInstance].
@@ -59,19 +58,19 @@ import kotlinx.coroutines.launch
 interface Indication {
 
     /**
-     * [remember]s a new [IndicationInstance], and updates its state based on [Interaction]s
-     * emitted via [interactionSource] . Typically this will be called by [indication],
-     * so one [IndicationInstance] will be used for one component that draws [Indication], such
-     * as a button.
+     * [remember]s a new [IndicationInstance], and updates its state based on [Interaction]s emitted
+     * via [interactionSource] . Typically this will be called by [indication], so one
+     * [IndicationInstance] will be used for one component that draws [Indication], such as a
+     * button.
      *
      * Implementations of this function should observe [Interaction]s using [interactionSource],
-     * using them to launch animations / state changes inside [IndicationInstance] that will
-     * then be reflected inside [IndicationInstance.drawIndication].
+     * using them to launch animations / state changes inside [IndicationInstance] that will then be
+     * reflected inside [IndicationInstance.drawIndication].
      *
-     * @param interactionSource the [InteractionSource] representing the stream of
-     * [Interaction]s the returned [IndicationInstance] should represent
+     * @param interactionSource the [InteractionSource] representing the stream of [Interaction]s
+     *   the returned [IndicationInstance] should represent
      * @return an [IndicationInstance] that represents the stream of [Interaction]s emitted by
-     * [interactionSource]
+     *   [interactionSource]
      */
     @Suppress("DEPRECATION_ERROR")
     @Deprecated(RememberUpdatedInstanceDeprecationMessage, level = DeprecationLevel.ERROR)
@@ -82,8 +81,8 @@ interface Indication {
 
 /**
  * IndicationNodeFactory is an Indication that creates [Modifier.Node] instances to render visual
- * effects that occur when certain interactions happens. For example: showing a ripple effect
- * when a component is pressed, or a highlight when a component is focused.
+ * effects that occur when certain interactions happens. For example: showing a ripple effect when a
+ * component is pressed, or a highlight when a component is focused.
  *
  * An instance of IndicationNodeFactory is responsible for creating individual nodes on demand for
  * each component that needs to render indication. IndicationNodeFactory instances should be very
@@ -106,18 +105,18 @@ interface IndicationNodeFactory : Indication {
      * IndicationNodeFactory over time, allowing a new node to be created using the new properties
      * in this IndicationNodeFactory. If you instead want to gracefully update the existing node
      * over time, consider replacing those properties with [androidx.compose.runtime.State]
-     * properties, so when the value of the State changes, [equals] and [hashCode] remain the
-     * same, and the same node instance can just query the updated state value.
+     * properties, so when the value of the State changes, [equals] and [hashCode] remain the same,
+     * and the same node instance can just query the updated state value.
      *
      * The returned [DelegatableNode] should implement [DrawModifierNode], or delegate to a node
      * that implements [DrawModifierNode], so that it can draw visual effects. Inside
      * [DrawModifierNode.draw], make sure to call [ContentDrawScope.drawContent] to render the
      * component in addition to any visual effects.
      *
-     * @param interactionSource the [InteractionSource] representing the stream of
-     * [Interaction]s the returned node should render visual effects for
+     * @param interactionSource the [InteractionSource] representing the stream of [Interaction]s
+     *   the returned node should render visual effects for
      * @return a [DelegatableNode] that renders visual effects for the provided [interactionSource]
-     * by also implementing / delegating to a [DrawModifierNode]
+     *   by also implementing / delegating to a [DrawModifierNode]
      */
     fun create(interactionSource: InteractionSource): DelegatableNode
 
@@ -136,8 +135,8 @@ interface IndicationNodeFactory : Indication {
 }
 
 /**
- * IndicationInstance is a specific instance of an [Indication] that draws visual effects on
- * certain interactions, such as press or focus.
+ * IndicationInstance is a specific instance of an [Indication] that draws visual effects on certain
+ * interactions, such as press or focus.
  *
  * IndicationInstances can be stateful or stateless, and are created by
  * [Indication.rememberUpdatedInstance] - they should be used in-place and not re-used between
@@ -150,8 +149,8 @@ interface IndicationInstance {
      * Draws visual effects for the current interactions present on this component.
      *
      * Typically this function will read state within this instance that is mutated by
-     * [Indication.rememberUpdatedInstance]. This allows [IndicationInstance] to just read state
-     * and draw visual effects, and not actually change any state itself.
+     * [Indication.rememberUpdatedInstance]. This allows [IndicationInstance] to just read state and
+     * draw visual effects, and not actually change any state itself.
      *
      * This method MUST call [ContentDrawScope.drawContent] at some point in order to draw the
      * component itself underneath any indication. Typically this is called at the beginning, so
@@ -165,16 +164,12 @@ interface IndicationInstance {
  *
  * @sample androidx.compose.foundation.samples.IndicationSample
  *
- * @param interactionSource [InteractionSource] that will be used by [indication] to draw
- * visual effects - this [InteractionSource] represents the stream of [Interaction]s for this
- * component.
- * @param indication [Indication] used to draw visual effects. If `null`, no visual effects will
- * be shown for this component.
+ * @param interactionSource [InteractionSource] that will be used by [indication] to draw visual
+ *   effects - this [InteractionSource] represents the stream of [Interaction]s for this component.
+ * @param indication [Indication] used to draw visual effects. If `null`, no visual effects will be
+ *   shown for this component.
  */
-fun Modifier.indication(
-    interactionSource: InteractionSource,
-    indication: Indication?
-): Modifier {
+fun Modifier.indication(interactionSource: InteractionSource, indication: Indication?): Modifier {
     if (indication == null) return this
     // Fast path - ideally we should never break into the composed path below.
     if (indication is IndicationNodeFactory) {
@@ -196,32 +191,27 @@ fun Modifier.indication(
 
             @Suppress("DEPRECATION_ERROR")
             val instance = indication.rememberUpdatedInstance(filteredInteractionSource)
-            remember(instance) {
-                IndicationModifier(instance)
-            }
+            remember(instance) { IndicationModifier(instance) }
         },
-        inspectorInfo = debugInspectorInfo {
-            name = "indication"
-            properties["interactionSource"] = interactionSource
-            properties["indication"] = indication
-        }
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "indication"
+                properties["interactionSource"] = interactionSource
+                properties["indication"] = indication
+            }
     )
 }
 
 /**
- * CompositionLocal that provides an [Indication] through the hierarchy. This [Indication] will
- * be used by default to draw visual effects for interactions such as press and drag in components
- * such as [clickable].
+ * CompositionLocal that provides an [Indication] through the hierarchy. This [Indication] will be
+ * used by default to draw visual effects for interactions such as press and drag in components such
+ * as [clickable].
  *
  * By default this will provide a debug indication, this should always be replaced.
  */
-val LocalIndication = staticCompositionLocalOf<Indication> {
-    DefaultDebugIndication
-}
+val LocalIndication = staticCompositionLocalOf<Indication> { DefaultDebugIndication }
 
-/**
- * Empty [IndicationInstance] for backwards compatibility - this is not expected to be used.
- */
+/** Empty [IndicationInstance] for backwards compatibility - this is not expected to be used. */
 @Suppress("DEPRECATION_ERROR")
 private object NoIndicationInstance : IndicationInstance {
     override fun ContentDrawScope.drawIndication() {
@@ -229,9 +219,7 @@ private object NoIndicationInstance : IndicationInstance {
     }
 }
 
-/**
- * Simple default [Indication] that draws a rectangular overlay when pressed.
- */
+/** Simple default [Indication] that draws a rectangular overlay when pressed. */
 private object DefaultDebugIndication : IndicationNodeFactory {
 
     override fun create(interactionSource: InteractionSource): DelegatableNode =
@@ -246,6 +234,7 @@ private object DefaultDebugIndication : IndicationNodeFactory {
         private var isPressed = false
         private var isHovered = false
         private var isFocused = false
+
         override fun onAttach() {
             coroutineScope.launch {
                 var pressCount = 0
@@ -351,27 +340,25 @@ private class IndicationModifierNode(private var indicationNode: DelegatableNode
 }
 
 @Suppress("DEPRECATION_ERROR")
-private class IndicationModifier(
-    val indicationInstance: IndicationInstance
-) : DrawModifier {
+private class IndicationModifier(val indicationInstance: IndicationInstance) : DrawModifier {
 
     override fun ContentDrawScope.draw() {
-        with(indicationInstance) {
-            drawIndication()
-        }
+        with(indicationInstance) { drawIndication() }
     }
 }
 
-private const val RememberUpdatedInstanceDeprecationMessage = "rememberUpdatedInstance has been " +
-    "deprecated - implementers should instead implement IndicationNodeFactory#create for " +
-    "improved performance and efficiency. Callers should check if the Indication is an " +
-    "IndicationNodeFactory, and call that API instead. For a migration guide and background " +
-    "information, please visit developer.android.com"
+private const val RememberUpdatedInstanceDeprecationMessage =
+    "rememberUpdatedInstance has been " +
+        "deprecated - implementers should instead implement IndicationNodeFactory#create for " +
+        "improved performance and efficiency. Callers should check if the Indication is an " +
+        "IndicationNodeFactory, and call that API instead. For a migration guide and background " +
+        "information, please visit developer.android.com"
 
-private const val IndicationInstanceDeprecationMessage = "IndicationInstance has been deprecated " +
-    "along with the rememberUpdatedInstance that returns it. Indication implementations should " +
-    "instead use Modifier.Node APIs, and should be returned from " +
-    "IndicationNodeFactory#create. For a migration guide and background information, " +
-    "please visit developer.android.com"
+private const val IndicationInstanceDeprecationMessage =
+    "IndicationInstance has been deprecated " +
+        "along with the rememberUpdatedInstance that returns it. Indication implementations should " +
+        "instead use Modifier.Node APIs, and should be returned from " +
+        "IndicationNodeFactory#create. For a migration guide and background information, " +
+        "please visit developer.android.com"
 
 private class TempInteractionSource(override val interactions: Flow<Interaction>):InteractionSource

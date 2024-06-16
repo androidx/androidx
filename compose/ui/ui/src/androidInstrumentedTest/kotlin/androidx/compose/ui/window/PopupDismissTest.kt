@@ -59,8 +59,7 @@ class PopupDismissTest(private val focusable: Boolean) {
         fun initParameters(): Array<Any> = arrayOf(true, false)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun clickOutsideToDismiss() {
@@ -79,19 +78,22 @@ class PopupDismissTest(private val focusable: Boolean) {
             Box(Modifier.fillMaxSize()) {
                 BasicText(
                     text = AnnotatedString("Button"),
-                    modifier = Modifier
-                        .clickable { btnClicksCounter++ }
-                        .onGloballyPositioned {
-                            // UiDevice needs screen relative coordinates
-                            @Suppress("DEPRECATION")
-                            btnPos = it.localToRoot(Offset.Zero)
-                        }
+                    modifier =
+                        Modifier.clickable { btnClicksCounter++ }
+                            .onGloballyPositioned {
+                                // UiDevice needs screen relative coordinates
+                                @Suppress("DEPRECATION")
+                                btnPos = it.localToRoot(Offset.Zero)
+                            }
                 )
 
                 Popup(
                     alignment = Alignment.Center,
                     properties = PopupProperties(focusable = focusable),
-                    onDismissRequest = { dismissCounter++; latch.countDown() }
+                    onDismissRequest = {
+                        dismissCounter++
+                        latch.countDown()
+                    }
                 ) {
                     Box(Modifier.size(100.dp, 100.dp)) {
                         BasicText(text = "Popup", style = TextStyle(textAlign = TextAlign.Center))

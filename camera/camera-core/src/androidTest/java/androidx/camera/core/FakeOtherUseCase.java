@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.StreamSpec;
@@ -32,7 +31,6 @@ import androidx.camera.testing.impl.fakes.FakeUseCase;
  * <p>This is used to complement the {@link FakeUseCase} for testing instances where a use case of
  * different type is created.
  */
-@RequiresApi(21)
 public class FakeOtherUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
 

@@ -49,8 +49,7 @@ private const val TAG = "AndroidTestUtils"
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
 
-inline fun <reified T : View> View.findChildByType() =
-    findChild({ true }, T::class.java)
+inline fun <reified T : View> View.findChildByType() = findChild({ true }, T::class.java)
 
 internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
 
@@ -71,10 +70,11 @@ fun <T : View> View.findChild(predicate: (T) -> Boolean, klass: Class<T>): T? {
 
 fun optionsBundleOf(sizes: List<DpSize>): Bundle {
     require(sizes.isNotEmpty()) { "There must be at least one size" }
-    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
-        DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
-            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
-    }
+    val (minSize, maxSize) =
+        sizes.fold(sizes[0] to sizes[0]) { acc, s ->
+            DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
+                DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
+        }
     return Bundle().apply {
         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minSize.height.value.toInt())
@@ -137,17 +137,16 @@ inline fun <reified T : View> View.getParentView(): T {
 // the right view to click on.
 fun View.performCompoundButtonClick() {
     if (tag == "glanceCompoundButton") {
-        this
-    } else {
-        assertIs<View>(this.parent).also {
-            assertThat(it.tag).isEqualTo("glanceCompoundButton")
+            this
+        } else {
+            assertIs<View>(this.parent).also {
+                assertThat(it.tag).isEqualTo("glanceCompoundButton")
+            }
         }
-    }.performClick()
+        .performClick()
 }
 
-/**
- * Returns true if view / subviews are still showing loading views.
- */
+/** Returns true if view / subviews are still showing loading views. */
 fun View.isLoading(): Boolean {
     // If this method was called on a top-level view, then it can match initial loading view set in
     // app provider info and even if the loading layout structure changes to coincidentally match
@@ -166,23 +165,22 @@ fun View.isLoading(): Boolean {
 fun ListView.isItemLoaded(text: String): Boolean {
     if (childCount > 0 && adapter != null) {
         return children.any {
-             val matches = arrayListOf<View>()
-             it.findViewsWithText(matches, text, View.FIND_VIEWS_WITH_TEXT)
-             matches.isNotEmpty()
-         }
+            val matches = arrayListOf<View>()
+            it.findViewsWithText(matches, text, View.FIND_VIEWS_WITH_TEXT)
+            matches.isNotEmpty()
+        }
     }
     return false
 }
 
-/**
- * Returns true if list items are fully loaded (i.e. not in loading... state).
- */
+/** Returns true if list items are fully loaded (i.e. not in loading... state). */
 fun ListView.areItemsFullyLoaded(): Boolean {
-    val loadingViewId = context.resources.getIdentifier(
-        DefaultLoadingViewConstants.id,
-        "id",
-        DefaultLoadingViewConstants.resource_package
-    )
+    val loadingViewId =
+        context.resources.getIdentifier(
+            DefaultLoadingViewConstants.id,
+            "id",
+            DefaultLoadingViewConstants.resource_package
+        )
     if (childCount > 0 && adapter != null) {
         // Searching directly on listView doesn't seem to return matching items, so we search each
         // item.
@@ -194,11 +192,7 @@ fun ListView.areItemsFullyLoaded(): Boolean {
 // Update the value of the AtomicReference using the given updater function. Will throw an error
 // if unable to successfully set the value.
 fun <T> AtomicReference<T>.update(updater: (T) -> T) {
-    repeat(100) {
-        get().let {
-            if (compareAndSet(it, updater(it))) return
-        }
-    }
+    repeat(100) { get().let { if (compareAndSet(it, updater(it))) return } }
     error("Could not update the AtomicReference")
 }
 
@@ -224,13 +218,14 @@ fun logViewHierarchy(tag: String, parent: ViewGroup, indent: String) {
 
 fun waitForBroadcastIdle(timeoutSeconds: Int = 5) {
     // Default timeout set per observation with FTL devices in b/283484546
-    val cmd: String = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
-        // wait for pending broadcasts until this point to be completed for UDC+
-        "am wait-for-broadcast-barrier"
-    } else {
-        // wait for broadcast queues to be idle. This is less preferred approach as it can
-        // technically take forever.
-        "am wait-for-broadcast-idle"
-    }
+    val cmd: String =
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+            // wait for pending broadcasts until this point to be completed for UDC+
+            "am wait-for-broadcast-barrier"
+        } else {
+            // wait for broadcast queues to be idle. This is less preferred approach as it can
+            // technically take forever.
+            "am wait-for-broadcast-idle"
+        }
     Log.i(TAG, runShellCommand("timeout $timeoutSeconds $cmd"))
 }

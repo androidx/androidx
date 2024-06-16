@@ -77,15 +77,16 @@ class PixelMapTest {
         val subsectionWidth = 3
         val subsectionHeight = 2
         val bufferOffset = 3
-        val pixelmap = asset.toPixelMap(
-            startX = 48,
-            startY = 49,
-            stride = 3,
-            width = 3,
-            height = 2,
-            buffer = IntArray(subsectionWidth * subsectionHeight + bufferOffset),
-            bufferOffset = bufferOffset
-        )
+        val pixelmap =
+            asset.toPixelMap(
+                startX = 48,
+                startY = 49,
+                stride = 3,
+                width = 3,
+                height = 2,
+                buffer = IntArray(subsectionWidth * subsectionHeight + bufferOffset),
+                bufferOffset = bufferOffset
+            )
 
         Assert.assertEquals(Color.Red, pixelmap[1, 0])
         Assert.assertEquals(Color.Blue, pixelmap[2, 0])

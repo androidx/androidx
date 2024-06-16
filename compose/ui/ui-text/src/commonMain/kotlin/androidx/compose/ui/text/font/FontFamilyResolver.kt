@@ -36,23 +36,22 @@ internal class FontFamilyResolverImpl(
         resolve(it.copy(fontFamily = null)).value
     }
 
-    override suspend fun preload(
-        fontFamily: FontFamily
-    ) {
+    override suspend fun preload(fontFamily: FontFamily) {
         // all other types of FontFamily are already preloaded.
         if (fontFamily !is FontListFontFamily) return
 
         fontListFontFamilyTypefaceAdapter.preload(fontFamily, platformFontLoader)
 
-        val typeRequests = fontFamily.fonts.fastMap {
-            TypefaceRequest(
-                platformResolveInterceptor.interceptFontFamily(fontFamily),
-                platformResolveInterceptor.interceptFontWeight(it.weight),
-                platformResolveInterceptor.interceptFontStyle(it.style),
-                FontSynthesis.All,
-                platformFontLoader.cacheKey
-            )
-        }
+        val typeRequests =
+            fontFamily.fonts.fastMap {
+                TypefaceRequest(
+                    platformResolveInterceptor.interceptFontFamily(fontFamily),
+                    platformResolveInterceptor.interceptFontWeight(it.weight),
+                    platformResolveInterceptor.interceptFontStyle(it.style),
+                    FontSynthesis.All,
+                    platformFontLoader.cacheKey
+                )
+            }
 
         typefaceRequestCache.preWarmCache(typeRequests) { typeRequest ->
             @Suppress("MoveLambdaOutsideParentheses")
@@ -61,12 +60,14 @@ internal class FontFamilyResolverImpl(
                 platformFontLoader = platformFontLoader,
                 onAsyncCompletion = { /* nothing */ },
                 createDefaultTypeface = createDefaultTypeface
-            ) ?: platformFamilyTypefaceAdapter.resolve(
-                typefaceRequest = typeRequest,
-                platformFontLoader = platformFontLoader,
-                onAsyncCompletion = { /* nothing */ },
-                createDefaultTypeface = createDefaultTypeface
-            ) ?: throw FontLoadFailedException(typeRequest.fontFamily)
+            )
+                ?: platformFamilyTypefaceAdapter.resolve(
+                    typefaceRequest = typeRequest,
+                    platformFontLoader = platformFontLoader,
+                    onAsyncCompletion = { /* nothing */ },
+                    createDefaultTypeface = createDefaultTypeface
+                )
+                ?: throw FontLoadFailedException(typeRequest.fontFamily)
         }
     }
 
@@ -76,40 +77,43 @@ internal class FontFamilyResolverImpl(
         fontStyle: FontStyle,
         fontSynthesis: FontSynthesis,
     ): State<Any> {
-        return resolve(TypefaceRequest(
-            platformResolveInterceptor.interceptFontFamily(fontFamily),
-            platformResolveInterceptor.interceptFontWeight(fontWeight),
-            platformResolveInterceptor.interceptFontStyle(fontStyle),
-            platformResolveInterceptor.interceptFontSynthesis(fontSynthesis),
-            platformFontLoader.cacheKey
-        ))
+        return resolve(
+            TypefaceRequest(
+                platformResolveInterceptor.interceptFontFamily(fontFamily),
+                platformResolveInterceptor.interceptFontWeight(fontWeight),
+                platformResolveInterceptor.interceptFontStyle(fontStyle),
+                platformResolveInterceptor.interceptFontSynthesis(fontSynthesis),
+                platformFontLoader.cacheKey
+            )
+        )
     }
 
-    /**
-     * Resolves the final [typefaceRequest] without interceptors.
-     */
+    /** Resolves the final [typefaceRequest] without interceptors. */
     private fun resolve(typefaceRequest: TypefaceRequest): State<Any> {
-        val result = typefaceRequestCache.runCached(typefaceRequest) { onAsyncCompletion ->
-            fontListFontFamilyTypefaceAdapter.resolve(
-                typefaceRequest,
-                platformFontLoader,
-                onAsyncCompletion,
-                createDefaultTypeface
-            ) ?: platformFamilyTypefaceAdapter.resolve(
-                typefaceRequest,
-                platformFontLoader,
-                onAsyncCompletion,
-                createDefaultTypeface
-            ) ?: throw FontLoadFailedException(typefaceRequest.fontFamily)
+        val result =
+            typefaceRequestCache.runCached(typefaceRequest) { onAsyncCompletion ->
+                fontListFontFamilyTypefaceAdapter.resolve(
+                    typefaceRequest,
+                    platformFontLoader,
+                    onAsyncCompletion,
+                    createDefaultTypeface
+                )
+                    ?: platformFamilyTypefaceAdapter.resolve(
+                        typefaceRequest,
+                        platformFontLoader,
+                        onAsyncCompletion,
+                        createDefaultTypeface
+                    )
+                    ?: throw FontLoadFailedException(typefaceRequest.fontFamily)
         }
         return result
     }
 }
 
 /**
- * Platform level [FontFamily.Resolver] argument interceptor. This interface is
- * intended to bridge accessibility constraints on any platform with
- * Compose through the use of [FontFamilyResolverImpl.resolve].
+ * Platform level [FontFamily.Resolver] argument interceptor. This interface is intended to bridge
+ * accessibility constraints on any platform with Compose through the use of
+ * [FontFamilyResolverImpl.resolve].
  */
 internal interface PlatformResolveInterceptor {
 
@@ -129,6 +133,7 @@ internal interface PlatformResolveInterceptor {
 
 internal val GlobalTypefaceRequestCache = TypefaceRequestCache()
 internal val GlobalAsyncTypefaceCache = AsyncTypefaceCache()
+
 internal expect class PlatformFontFamilyTypefaceAdapter() : FontFamilyTypefaceAdapter {
     override fun resolve(
         typefaceRequest: TypefaceRequest,
@@ -148,11 +153,10 @@ internal data class TypefaceRequest(
 
 internal sealed interface TypefaceResult : State<Any> {
     val cacheable: Boolean
+
     // Immutable results present as State, but don't trigger a read observer
-    class Immutable(
-        override val value: Any,
-        override val cacheable: Boolean = true
-    ) : TypefaceResult
+    class Immutable(override val value: Any, override val cacheable: Boolean = true) :
+        TypefaceResult
 
     class Async(internal val current: AsyncFontListLoader) : TypefaceResult, State<Any> by current {
         override val cacheable: Boolean
@@ -188,20 +192,22 @@ internal class TypefaceRequestCache {
         // multiple entries.
         //
         // Necessary font load de-duping is the responsibility of actual font resolution mechanisms.
-        val currentTypefaceResult = try {
-            resolveTypeface { finalResult ->
-                // may this after runCached returns, or immediately if the typeface is immediately
-                // available without dispatch
+        val currentTypefaceResult =
+            try {
+                resolveTypeface { finalResult ->
+                    // may this after runCached returns, or immediately if the typeface is
+                    // immediately
+                    // available without dispatch
 
-                // this converts an async (state) result to an immutable (val) result to optimize
-                // future lookups
-                synchronized(lock) {
-                    if (finalResult.cacheable) {
-                        resultCache.put(typefaceRequest, finalResult)
-                    } else {
-                        resultCache.remove(typefaceRequest)
+                    // this converts an async (state) result to an immutable (val) result to optimize
+                    // future lookups
+                    synchronized(lock) {
+                        if (finalResult.cacheable) {
+                            resultCache.put(typefaceRequest, finalResult)
+                        } else {
+                            resultCache.remove(typefaceRequest)
+                        }
                     }
-                }
             }
         } catch (cause: Exception) {
             throw FontLoadFailedException(typefaceRequest.fontFamily, cause)
@@ -226,32 +232,28 @@ internal class TypefaceRequestCache {
             val prior = synchronized(lock) { resultCache.get(typeRequest) }
             if (prior != null) continue
 
-            val next = try {
-                resolveTypeface(typeRequest)
-            } catch (cause: Exception) {
-                throw FontLoadFailedException(typeRequest.fontFamily, cause)
-            }
+            val next =
+                try {
+                    resolveTypeface(typeRequest)
+                } catch (cause: Exception) {
+                    throw FontLoadFailedException(typeRequest.fontFamily, cause)
+                }
 
             // only cache immutable, should not reach as FontListFontFamilyTypefaceAdapter already
             // has async fonts in permanent cache
             if (next is TypefaceResult.Async) continue
 
-            synchronized(lock) {
-                resultCache.put(typeRequest, next)
-            }
+            synchronized(lock) { resultCache.put(typeRequest, next) }
         }
     }
 
     // @VisibleForTesting
-    internal fun get(typefaceRequest: TypefaceRequest) = synchronized(lock) {
-        resultCache.get(typefaceRequest)
-    }
+    internal fun get(typefaceRequest: TypefaceRequest) =
+        synchronized(lock) { resultCache.get(typefaceRequest) }
 
     // @VisibleForTesting
     internal val size: Int
-        get() = synchronized(lock) {
-            resultCache.size
-        }
+        get() = synchronized(lock) { resultCache.size }
 }
 
 internal class FontLoadFailedException(

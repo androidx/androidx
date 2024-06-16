@@ -24,11 +24,11 @@ import androidx.sqlite.SQLiteConnection
  * The invalidation tracker keeps track of tables modified by queries and notifies its subscribed
  * [Observer]s about such modifications.
  *
- * [Observer]s contain one or more tables and are added to the tracker via [subscribe]. Once
- * an observer is subscribed, if a database operation changes one of the tables the observer is
- * subscribed to, then such table is considered 'invalidated' and [Observer.onInvalidated] will
- * be invoked on the observer. If an observer is no longer interested in tracking modifications
- * it can be removed via [unsubscribe].
+ * [Observer]s contain one or more tables and are added to the tracker via [subscribe]. Once an
+ * observer is subscribed, if a database operation changes one of the tables the observer is
+ * subscribed to, then such table is considered 'invalidated' and [Observer.onInvalidated] will be
+ * invoked on the observer. If an observer is no longer interested in tracking modifications it can
+ * be removed via [unsubscribe].
  */
 actual class InvalidationTracker
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -41,16 +41,14 @@ actual constructor(
     private val implementation =
         TriggerBasedInvalidationTracker(database, shadowTablesMap, viewTables, tableNames)
 
-    /**
-     * Internal method to initialize table tracking. Invoked by generated code.
-     */
+    /** Internal method to initialize table tracking. Invoked by generated code. */
     internal actual fun internalInit(connection: SQLiteConnection) {
         implementation.configureConnection(connection)
     }
 
     /**
-     * Subscribes the given [observer] with the tracker such that it is notified if any table it
-     * is interested on changes.
+     * Subscribes the given [observer] with the tracker such that it is notified if any table it is
+     * interested on changes.
      *
      * If the observer is already subscribed, then this function does nothing.
      *
@@ -79,8 +77,8 @@ actual constructor(
     /**
      * Synchronize subscribed observers with their tables.
      *
-     * This function should be called before any write operation is performed on the database
-     * so that a tracking link is created between observers and its interest tables.
+     * This function should be called before any write operation is performed on the database so
+     * that a tracking link is created between observers and its interest tables.
      *
      * @see refreshAsync
      */
@@ -92,33 +90,30 @@ actual constructor(
      * Refresh subscribed observers asynchronously, invoking [Observer.onInvalidated] on those whose
      * tables have been invalidated.
      *
-     * This function should be called after any write operation is performed on the database,
-     * such that tracked tables and its associated observers are notified if invalidated.
+     * This function should be called after any write operation is performed on the database, such
+     * that tracked tables and its associated observers are notified if invalidated.
      */
     actual fun refreshAsync() {
         implementation.refreshInvalidationAsync()
     }
 
-    /**
-     * Stops invalidation tracker operations.
-     */
+    /** Stops invalidation tracker operations. */
     actual fun stop() {}
 
     /**
      * An observer that can listen for changes in the database by subscribing to an
      * [InvalidationTracker].
      *
-     * @param tables The names of the tables this observer is interested in getting notified if
-     * they are modified.
+     * @param tables The names of the tables this observer is interested in getting notified if they
+     *   are modified.
      */
-    actual abstract class Observer actual constructor(
-        internal actual val tables: Array<out String>
-    ) {
+    actual abstract class Observer
+    actual constructor(internal actual val tables: Array<out String>) {
         /**
          * Creates an observer for the given tables and views.
          *
          * @param firstTable The name of the table or view.
-         * @param rest       More names of tables or views.
+         * @param rest More names of tables or views.
          */
         protected actual constructor(
             firstTable: String,
@@ -129,9 +124,9 @@ actual constructor(
          * Invoked when one of the observed tables is invalidated (changed).
          *
          * @param tables A set of invalidated tables. When the observer is interested in multiple
-         * tables, this set can be used to distinguish which of the observed tables were
-         * invalidated. When observing a database view the names of underlying tables will be in
-         * the set instead of the view name.
+         *   tables, this set can be used to distinguish which of the observed tables were
+         *   invalidated. When observing a database view the names of underlying tables will be in
+         *   the set instead of the view name.
          */
         actual abstract fun onInvalidated(tables: Set<String>)
     }

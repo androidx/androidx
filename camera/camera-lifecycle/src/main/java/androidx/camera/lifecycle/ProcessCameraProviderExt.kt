@@ -17,8 +17,6 @@
 package androidx.camera.lifecycle
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.InitializationException
 import androidx.concurrent.futures.await
 
@@ -31,9 +29,8 @@ import androidx.concurrent.futures.await
  * @param context The application context.
  * @return A fully initialized ProcessCameraProvider for the current process.
  * @throws InitializationException If failed to retrieve the ProcessCameraProvider, use
- * [InitializationException.cause] to get the error cause.
+ *   [InitializationException.cause] to get the error cause.
  * @see ProcessCameraProvider.getInstance
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 suspend fun ProcessCameraProvider.Companion.awaitInstance(context: Context) =
     getInstance(context).await()

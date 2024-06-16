@@ -28,14 +28,14 @@ import org.junit.rules.TestName
 
 class InstantiateImplKotlinCodeGenTest {
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun instantiateImpl_simple() {
-        val src = Source.kotlin(
-            "MyDatabase.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDatabase.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
@@ -54,12 +54,10 @@ class InstantiateImplKotlinCodeGenTest {
                 @PrimaryKey
                 var pk: Int
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     private fun getTestGoldenPath(testName: String): String {
@@ -69,25 +67,21 @@ class InstantiateImplKotlinCodeGenTest {
     private fun runTest(
         sources: List<Source>,
         expectedFilePath: String,
-        handler: (XTestInvocation) -> Unit = { }
+        handler: (XTestInvocation) -> Unit = {}
     ) {
         runKspTest(
             sources = sources,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
         ) {
             val databaseFqn = "androidx.room.Database"
-            DatabaseProcessingStep().process(
-                it.processingEnv,
-                mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
-                it.roundEnv.isProcessingOver
-            )
-            it.assertCompilationResult {
-                this.generatedSource(
-                    loadTestSource(
-                        expectedFilePath,
-                        "MyDatabase_InstantiateImpl"
-                    )
+            DatabaseProcessingStep()
+                .process(
+                    it.processingEnv,
+                    mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
+                    it.roundEnv.isProcessingOver
                 )
+            it.assertCompilationResult {
+                this.generatedSource(loadTestSource(expectedFilePath, "MyDatabase_InstantiateImpl"))
                 this.hasNoWarnings()
             }
             handler.invoke(it)

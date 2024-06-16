@@ -34,8 +34,8 @@ import org.junit.runner.RunWith
 
 /**
  * This is one approach to customizing Activity configuration that's used in google3.
- * <p>
  *
+ * <p>
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -43,11 +43,12 @@ class NightModeRtlTestUtilsRegressionTestCase {
     private var restoreConfig: (() -> Unit)? = null
 
     @get:Rule
-    val activityRule = NightModeActivityTestRule(
-        NightModeCustomAttachBaseContextActivity::class.java,
-        initialTouchMode = false,
-        launchActivity = false
-    )
+    val activityRule =
+        NightModeActivityTestRule(
+            NightModeCustomAttachBaseContextActivity::class.java,
+            initialTouchMode = false,
+            launchActivity = false
+        )
 
     @Suppress("DEPRECATION")
     @Before

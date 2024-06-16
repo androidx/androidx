@@ -27,12 +27,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ScaffoldPaddingDetector].
- */
+/** Test for [ScaffoldPaddingDetector]. */
 class ScaffoldPaddingDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ScaffoldPaddingDetector()
 
@@ -40,11 +37,12 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
         mutableListOf(ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter)
 
     // Simplified Scaffold.kt stubs
-    private val ScaffoldStub = bytecodeStub(
-        filename = "Scaffold.kt",
-        filepath = "androidx/compose/material3",
-        checksum = 0xc74cb7f7,
-        """
+    private val ScaffoldStub =
+        bytecodeStub(
+            filename = "Scaffold.kt",
+            filepath = "androidx/compose/material3",
+            checksum = 0xc74cb7f7,
+            """
             package androidx.compose.material3
 
             import androidx.compose.foundation.layout.PaddingValues
@@ -60,13 +58,13 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
             ) {}
 
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uCSSsxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzDEW4gpOTkxLy89J8S7h4uViTsvPF2ILSS0u8S5RYtBiAABi9Cyd
         UQAAAA==
         """,
-        """
+            """
         androidx/compose/material3/ScaffoldKt＄Scaffold＄1.class:
         H4sIAAAAAAAA/6VU604TQRT+Zlt62RZbEOUi3kFbULYt3ktICIG4oWBisYnh
         17S7haG7s6a7bfAfD+ET+ASiiSSaGOJPH8p4ZmkNhogaN9mzJ+d835lzm/32
@@ -85,7 +83,7 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
         Y3gQ1nmX6n8YHhLBo/BbxOPw70QXn1hXtxAxcc3EdRM3cNOkZkybuIXbW2A+
         csiT38eMj1kfmR/t8cYr2gQAAA==
         """,
-        """
+            """
         androidx/compose/material3/ScaffoldKt＄Scaffold＄2.class:
         H4sIAAAAAAAA/6VUbU/TUBR+bjf2xnADUV7Ed9ANlI7h+wgJIRAbBiYOlxg+
         3bUdXNbemrVd8Bs/wl/gLxBNNNHEED/6o4znlk0xRNTYpKcn5zzPueft9uu3
@@ -104,7 +102,7 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
         uBfVeZvqvx8dEsOD6DuHh9HfiS4+sS5vIWbgioGrBq7hukHNmDJwAze3wHwU
         UCS/j2kfMz5y3wHSFKv42gQAAA==
         """,
-        """
+            """
         androidx/compose/material3/ScaffoldKt.class:
         H4sIAAAAAAAA/8VUy3IbVRA9V695WEoU2XJsJTghlhPHj4ykhKdMwBExGSwp
         KZR449XVaCTGHt1xzcMVNpQpfoENW/4AVikWlIolf8GPUOkZScaxUnYgVLGY
@@ -130,13 +128,14 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
         PR3v6XgfH+j4EB/p+BjVXTAPG/hkF1Mekh7ue1A9zHnIefjUg+xhxsOsh888
         bL4EoWeehRwJAAA=
         """
-    )
+        )
 
     @Test
     fun unreferencedParameters() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.material3.*
@@ -153,12 +152,12 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
                     Scaffold(Modifier, topBar = {}, bottomBar = {}) { innerPadding -> /**/ }
                 }
             """
-            ),
-            ScaffoldStub,
-            Stubs.Modifier,
-            Stubs.PaddingValues,
-            Stubs.Composable
-        )
+                ),
+                ScaffoldStub,
+                Stubs.Modifier,
+                Stubs.PaddingValues,
+                Stubs.Composable
+            )
             .run()
             .expect(
                 """
@@ -187,9 +186,10 @@ src/foo/test.kt:15: Error: Content padding parameter innerPadding is not used [U
 
     @Test
     fun unreferencedParameter_shadowedNames() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.material3.*
@@ -220,12 +220,12 @@ src/foo/test.kt:15: Error: Content padding parameter innerPadding is not used [U
                     }
                 }
             """
-            ),
-            ScaffoldStub,
-            Stubs.Modifier,
-            Stubs.PaddingValues,
-            Stubs.Composable
-        )
+                ),
+                ScaffoldStub,
+                Stubs.Modifier,
+                Stubs.PaddingValues,
+                Stubs.Composable
+            )
             .run()
             .expect(
                 """
@@ -242,9 +242,10 @@ src/foo/test.kt:21: Error: Content padding parameter innerPadding is not used [U
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.material3.*
@@ -261,14 +262,13 @@ src/foo/test.kt:21: Error: Content padding parameter innerPadding is not used [U
                     }
                 }
         """
-            ),
-            ScaffoldStub,
-            Stubs.Modifier,
-            Stubs.PaddingValues,
-            Stubs.Composable
-        )
+                ),
+                ScaffoldStub,
+                Stubs.Modifier,
+                Stubs.PaddingValues,
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

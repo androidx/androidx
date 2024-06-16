@@ -122,11 +122,7 @@ fun DrawTextDemo() {
 @Composable
 fun DrawTextString() {
     val textMeasurer = rememberTextMeasurer()
-    Canvas(
-        Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-    ) {
+    Canvas(Modifier.fillMaxWidth().height(100.dp)) {
         drawRect(brush = Brush.linearGradient(RainbowColors))
         val padding = 16.dp.toPx()
 
@@ -142,11 +138,7 @@ fun DrawTextString() {
 @Composable
 fun DrawTextLongString() {
     val textMeasurer = rememberTextMeasurer()
-    Canvas(
-        Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-    ) {
+    Canvas(Modifier.fillMaxWidth().height(100.dp)) {
         drawRect(color = Color.Gray)
         val padding = 16.dp.toPx()
 
@@ -156,10 +148,7 @@ fun DrawTextLongString() {
             topLeft = Offset(padding, padding),
             style = TextStyle(fontSize = fontSize6),
             overflow = TextOverflow.Visible,
-            size = Size(
-                width = size.width - 2 * padding,
-                height = size.height - 2 * padding
-            )
+            size = Size(width = size.width - 2 * padding, height = size.height - 2 * padding)
         )
     }
 }
@@ -181,26 +170,24 @@ fun DrawTextCenter() {
         Text(text = "Draw alignment lines")
     }
 
-    Canvas(
-        Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-    ) {
+    Canvas(Modifier.fillMaxWidth().height(200.dp)) {
         drawRect(color = Color.Gray)
         val radius = 80.dp
 
         drawCircle(Color.Red, radius = radius.toPx())
 
-        val textLayoutResult = textMeasurer.measure(
-            AnnotatedString("Hello, World!"),
-            style = TextStyle(
-                color = Color.White,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center,
-                platformStyle = PlatformTextStyle(includeFontPadding = includeFontPadding)
-            ),
-            constraints = Constraints.fixedWidth((radius * 2).roundToPx())
-        )
+        val textLayoutResult =
+            textMeasurer.measure(
+                AnnotatedString("Hello, World!"),
+                style =
+                    TextStyle(
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(includeFontPadding = includeFontPadding)
+                    ),
+                constraints = Constraints.fixedWidth((radius * 2).roundToPx())
+            )
 
         drawText(
             textLayoutResult,
@@ -238,19 +225,13 @@ fun DrawTextAnnotatedString() {
     val text = remember {
         buildAnnotatedString {
             append("Hello World\n")
-            withStyle(
-                SpanStyle(brush = Brush.linearGradient(colors = RainbowColors))
-            ) {
+            withStyle(SpanStyle(brush = Brush.linearGradient(colors = RainbowColors))) {
                 append("Hello World")
             }
             append("\nHello World")
         }
     }
-    Canvas(
-        Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-    ) {
+    Canvas(Modifier.fillMaxWidth().height(100.dp)) {
         drawRect(brush = Brush.linearGradient(RainbowColors))
         val padding = 16.dp.toPx()
 
@@ -266,19 +247,16 @@ fun DrawTextMeasure() {
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     Canvas(
-        Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                textLayoutResult = textMeasurer.measure(
+        Modifier.fillMaxWidth().height(100.dp).layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            textLayoutResult =
+                textMeasurer.measure(
                     AnnotatedString("Hello, World!"),
                     style = TextStyle(fontSize = fontSize8)
                 )
-                layout(placeable.width, placeable.height) {
-                    placeable.placeRelative(0, 0)
-                }
-            }) {
+            layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+        }
+    ) {
         drawRect(brush = Brush.linearGradient(RainbowColors))
         val padding = 16.dp.toPx()
 
@@ -286,61 +264,56 @@ fun DrawTextMeasure() {
     }
 }
 
-private val blendModes = listOf(
-    BlendMode.Clear,
-    BlendMode.Src,
-    BlendMode.Dst,
-    BlendMode.SrcOver,
-    BlendMode.DstOver,
-    BlendMode.SrcIn,
-    BlendMode.DstIn,
-    BlendMode.SrcOut,
-    BlendMode.DstOut,
-    BlendMode.SrcAtop,
-    BlendMode.DstAtop,
-    BlendMode.Xor,
-    BlendMode.Plus,
-    BlendMode.Modulate,
-    BlendMode.Screen,
-    BlendMode.Overlay,
-    BlendMode.Darken,
-    BlendMode.Lighten,
-    BlendMode.ColorDodge,
-    BlendMode.ColorBurn,
-    BlendMode.Hardlight,
-    BlendMode.Softlight,
-    BlendMode.Difference,
-    BlendMode.Exclusion,
-    BlendMode.Multiply,
-    BlendMode.Hue,
-    BlendMode.Saturation,
-    BlendMode.Color,
-    BlendMode.Luminosity,
-)
+private val blendModes =
+    listOf(
+        BlendMode.Clear,
+        BlendMode.Src,
+        BlendMode.Dst,
+        BlendMode.SrcOver,
+        BlendMode.DstOver,
+        BlendMode.SrcIn,
+        BlendMode.DstIn,
+        BlendMode.SrcOut,
+        BlendMode.DstOut,
+        BlendMode.SrcAtop,
+        BlendMode.DstAtop,
+        BlendMode.Xor,
+        BlendMode.Plus,
+        BlendMode.Modulate,
+        BlendMode.Screen,
+        BlendMode.Overlay,
+        BlendMode.Darken,
+        BlendMode.Lighten,
+        BlendMode.ColorDodge,
+        BlendMode.ColorBurn,
+        BlendMode.Hardlight,
+        BlendMode.Softlight,
+        BlendMode.Difference,
+        BlendMode.Exclusion,
+        BlendMode.Multiply,
+        BlendMode.Hue,
+        BlendMode.Saturation,
+        BlendMode.Color,
+        BlendMode.Luminosity,
+    )
 
 @Composable
 fun DrawTextBlendMode() {
     val textMeasurer = rememberTextMeasurer()
     var isExpanded by remember { mutableStateOf(false) }
     var blendModeState by remember { mutableStateOf(BlendMode.SrcOver) }
-    Button(onClick = { isExpanded = true }) {
-        Text("BlendMode: $blendModeState")
-    }
+    Button(onClick = { isExpanded = true }) { Text("BlendMode: $blendModeState") }
     DropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
         blendModes.forEach { blendMode ->
             DropdownMenuItem(onClick = { blendModeState = blendMode }) {
                 val weight = if (blendModeState == blendMode) FontWeight.Bold else FontWeight.Normal
-                Text(
-                    text = blendMode.toString(),
-                    fontWeight = weight
-                )
+                Text(text = blendMode.toString(), fontWeight = weight)
             }
         }
     }
     Box(
-        modifier = Modifier
-            .size(400.dp)
-            .drawBehind {
+        modifier =
+            Modifier.size(400.dp).drawBehind {
                 drawRect(color = Color.Red, size = Size(size.width / 2, size.height))
                 drawRect(
                     color = Color.Green,
@@ -354,20 +327,23 @@ fun DrawTextBlendMode() {
                     blendMode = BlendMode.Clear
                 )
 
-                val textLayout = textMeasurer.measure(
-                    text = AnnotatedString("12 34"),
-                    style = TextStyle(
-                        brush = Brush.horizontalGradient(RainbowColors),
-                        fontSize = 220.sp,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 180.sp,
-                        lineHeightStyle = LineHeightStyle(
-                            trim = LineHeightStyle.Trim.Both,
-                            alignment = LineHeightStyle.Alignment.Center
-                        )
-                    ),
-                    constraints = Constraints(maxWidth = size.width.roundToInt())
-                )
+                val textLayout =
+                    textMeasurer.measure(
+                        text = AnnotatedString("12 34"),
+                        style =
+                            TextStyle(
+                                brush = Brush.horizontalGradient(RainbowColors),
+                                fontSize = 220.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 180.sp,
+                                lineHeightStyle =
+                                    LineHeightStyle(
+                                        trim = LineHeightStyle.Trim.Both,
+                                        alignment = LineHeightStyle.Alignment.Center
+                                    )
+                            ),
+                        constraints = Constraints(maxWidth = size.width.roundToInt())
+                    )
                 drawText(textLayout, blendMode = blendModeState, topLeft = Offset(0f, -50f))
 
                 drawCircle(color = Color.White, radius = size.width / 6f, blendMode = BlendMode.Xor)
@@ -380,11 +356,12 @@ fun DrawTextBlendMode() {
 @Composable
 fun DrawTextAndAnimateColor() {
     val infiniteTransition = rememberInfiniteTransition()
-    val color by infiniteTransition.animateColor(
-        initialValue = Color.Red,
-        targetValue = Color.Blue,
-        animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse)
-    )
+    val color by
+        infiniteTransition.animateColor(
+            initialValue = Color.Red,
+            targetValue = Color.Blue,
+            animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse)
+        )
 
     var skipCache by remember { mutableStateOf(false) }
     val textMeasurer = rememberTextMeasurer(cacheSize = if (skipCache) 0 else 16)
@@ -398,11 +375,7 @@ fun DrawTextAndAnimateColor() {
             Checkbox(checked = skipCache, onCheckedChange = { skipCache = it })
             Text(text = "Skip Cache")
         }
-        Canvas(
-            Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-        ) {
+        Canvas(Modifier.fillMaxWidth().height(100.dp)) {
             drawRect(brush = Brush.linearGradient(RainbowColors))
             val padding = 16.dp.toPx()
 
@@ -424,11 +397,12 @@ fun DrawTextMeasureAndAnimateColor() {
     val textMeasurer = rememberTextMeasurer()
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     val infiniteTransition = rememberInfiniteTransition()
-    val color by infiniteTransition.animateColor(
-        initialValue = Color.Red,
-        targetValue = Color.Blue,
-        animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse)
-    )
+    val color by
+        infiniteTransition.animateColor(
+            initialValue = Color.Red,
+            targetValue = Color.Blue,
+            animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse)
+        )
 
     var skipCache by remember { mutableStateOf(false) }
     val layoutMeasurer = remember(skipCache) { AverageDurationMeasurer() }
@@ -446,23 +420,20 @@ fun DrawTextMeasureAndAnimateColor() {
             Text(text = "Skip Cache")
         }
         Canvas(
-            Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    val duration = measureNanoTime {
-                        textLayoutResult = textMeasurer.measure(
+            Modifier.fillMaxWidth().height(100.dp).layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                val duration = measureNanoTime {
+                    textLayoutResult =
+                        textMeasurer.measure(
                             AnnotatedString("Hello, World!"),
                             style = TextStyle(fontSize = fontSize8),
                             skipCache = skipCache
                         )
-                    }
-                    layoutMeasurer.addMeasure(duration)
-                    layout(placeable.width, placeable.height) {
-                        placeable.placeRelative(0, 0)
-                    }
-                }) {
+                }
+                layoutMeasurer.addMeasure(duration)
+                layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+            }
+        ) {
             drawRect(brush = Brush.linearGradient(RainbowColors))
             val padding = 16.dp.toPx()
 
@@ -486,11 +457,11 @@ class AverageDurationMeasurer(private val capacity: Int = 600 /*60 fps * 10 seco
         }
     }
 
-    val current = derivedStateOf {
-        if (values.isEmpty()) 0L else values.average().roundToLong()
-    }
+    val current = derivedStateOf { if (values.isEmpty()) 0L else values.average().roundToLong() }
 
-    val averageDurationFlow = snapshotFlow { current.value }.withIndex().map { (index, value) ->
-        if (index % 60 == 0) value else null
-    }.filterNotNull()
+    val averageDurationFlow =
+        snapshotFlow { current.value }
+            .withIndex()
+            .map { (index, value) -> if (index % 60 == 0) value else null }
+            .filterNotNull()
 }

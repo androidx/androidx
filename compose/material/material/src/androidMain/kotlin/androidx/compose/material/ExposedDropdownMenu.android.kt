@@ -47,7 +47,8 @@ import androidx.compose.ui.unit.DpOffset
 import kotlin.math.max
 
 /**
- * [Material Design Exposed Dropdown Menu](https://material.io/components/menus#exposed-dropdown-menu).
+ * [Material Design Exposed Dropdown
+ * Menu](https://material.io/components/menus#exposed-dropdown-menu).
  *
  * Box for Exposed Dropdown Menu. Expected to contain [TextField] and
  * [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as a content.
@@ -80,62 +81,57 @@ actual fun ExposedDropdownMenuBox(
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
-    val scope = remember(density, menuHeight, width) {
-        object : ExposedDropdownMenuBoxScope() {
-            override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
-                return with(density) {
-                    heightIn(max = menuHeight.toDp()).let {
-                        if (matchTextFieldWidth) {
-                            it.width(width.toDp())
-                        } else it
+    val scope =
+        remember(density, menuHeight, width) {
+            object : ExposedDropdownMenuBoxScope() {
+                override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
+                    return with(density) {
+                        heightIn(max = menuHeight.toDp()).let {
+                            if (matchTextFieldWidth) {
+                                it.width(width.toDp())
+                            } else it
+                        }
                     }
                 }
             }
         }
-    }
     val focusRequester = remember { FocusRequester() }
 
     Box(
-        modifier.onGloballyPositioned {
-            width = it.size.width
-            coordinates.value = it
-            updateHeight(
-                view.rootView,
-                coordinates.value,
-                verticalMarginInPx
-            ) { newHeight ->
-                menuHeight = newHeight
+        modifier
+            .onGloballyPositioned {
+                width = it.size.width
+                coordinates.value = it
+                updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
+                    menuHeight = newHeight
+                }
             }
-        }.expandable(
-            onExpandedChange = { onExpandedChange(!expanded) },
-            menuLabel = getString(Strings.ExposedDropdownMenu)
-        ).focusRequester(focusRequester)
+            .expandable(
+                onExpandedChange = { onExpandedChange(!expanded) },
+                menuLabel = getString(Strings.ExposedDropdownMenu)
+            )
+            .focusRequester(focusRequester)
     ) {
         scope.content()
     }
 
-    SideEffect {
-        if (expanded) focusRequester.requestFocus()
-    }
+    SideEffect { if (expanded) focusRequester.requestFocus() }
 
     DisposableEffect(view) {
-        val listener = OnGlobalLayoutListener(view) {
-            // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
-            updateHeight(
-                view.rootView,
-                coordinates.value,
-                verticalMarginInPx
-            ) { newHeight ->
-                menuHeight = newHeight
+        val listener =
+            OnGlobalLayoutListener(view) {
+                // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
+                updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
+                    menuHeight = newHeight
+                }
             }
-        }
         onDispose { listener.dispose() }
     }
 }
 
 /**
- * Subscribes to onGlobalLayout and correctly removes the callback when the View is detached.
- * Logic copied from AndroidPopup.android.kt.
+ * Subscribes to onGlobalLayout and correctly removes the callback when the View is detached. Logic
+ * copied from AndroidPopup.android.kt.
  */
 private class OnGlobalLayoutListener(
     private val view: View,
@@ -223,10 +219,11 @@ private fun updateHeight(
     onHeightUpdate: (Int) -> Unit
 ) {
     coordinates ?: return
-    val visibleWindowBounds = Rect().let {
-        view.getWindowVisibleDisplayFrame(it)
-        it
-    }
+    val visibleWindowBounds =
+        Rect().let {
+            view.getWindowVisibleDisplayFrame(it)
+            it
+        }
     val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
     val heightBelow =
         visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom

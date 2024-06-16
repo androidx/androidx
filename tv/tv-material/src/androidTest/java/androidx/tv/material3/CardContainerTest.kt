@@ -54,35 +54,35 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class CardContainerTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun standardCardContainer_semantics() {
         val count = mutableStateOf(0)
         rule.setContent {
             StandardCardContainer(
-                modifier = Modifier
-                    .semantics(mergeDescendants = true) {}
-                    .testTag(StandardCardContainerTag),
+                modifier =
+                    Modifier.semantics(mergeDescendants = true) {}
+                        .testTag(StandardCardContainerTag),
                 imageCard = { interactionSource ->
-                    Card(
-                        onClick = { count.value += 1 },
-                        interactionSource = interactionSource
-                    ) { SampleImage() }
+                    Card(onClick = { count.value += 1 }, interactionSource = interactionSource) {
+                        SampleImage()
+                    }
                 },
                 title = { Text("${count.value}") }
             )
         }
 
-        rule.onNodeWithTag(StandardCardContainerTag)
+        rule
+            .onNodeWithTag(StandardCardContainerTag)
             .onChild()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .requestFocus()
             .assertIsEnabled()
 
-        rule.onNodeWithTag(StandardCardContainerTag)
+        rule
+            .onNodeWithTag(StandardCardContainerTag)
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .assertTextEquals("1")
@@ -93,26 +93,25 @@ class CardContainerTest {
         val count = mutableStateOf(0f)
         rule.setContent {
             StandardCardContainer(
-                modifier = Modifier
-                    .semantics(mergeDescendants = true) {}
-                    .testTag(StandardCardContainerTag),
+                modifier =
+                    Modifier.semantics(mergeDescendants = true) {}
+                        .testTag(StandardCardContainerTag),
                 imageCard = { interactionSource ->
-                    Card(
-                        onClick = { count.value += 1 },
-                        interactionSource = interactionSource
-                    ) { SampleImage() }
+                    Card(onClick = { count.value += 1 }, interactionSource = interactionSource) {
+                        SampleImage()
+                    }
                 },
                 title = { Text("${count.value}") }
             )
         }
 
-        rule.onNodeWithTag(StandardCardContainerTag)
-            .onChild()
-            .requestFocus()
-            .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.onNodeWithTag(StandardCardContainerTag).onChild().requestFocus().performKeyInput {
+            pressKey(Key.DirectionCenter)
+        }
         Truth.assertThat(count.value).isEqualTo(1)
 
-        rule.onNodeWithTag(StandardCardContainerTag)
+        rule
+            .onNodeWithTag(StandardCardContainerTag)
             .onChild()
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -125,27 +124,27 @@ class CardContainerTest {
         val count = mutableStateOf(0)
         rule.setContent {
             WideCardContainer(
-                modifier = Modifier
-                    .semantics(mergeDescendants = true) {}
-                    .testTag(WideCardContainerTag),
+                modifier =
+                    Modifier.semantics(mergeDescendants = true) {}.testTag(WideCardContainerTag),
                 imageCard = { interactionSource ->
-                    Card(
-                        onClick = { count.value += 1 },
-                        interactionSource = interactionSource
-                    ) { SampleImage() }
+                    Card(onClick = { count.value += 1 }, interactionSource = interactionSource) {
+                        SampleImage()
+                    }
                 },
                 title = { Text("${count.value}") }
             )
         }
 
-        rule.onNodeWithTag(WideCardContainerTag)
+        rule
+            .onNodeWithTag(WideCardContainerTag)
             .onChild()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .requestFocus()
             .assertIsEnabled()
 
-        rule.onNodeWithTag(WideCardContainerTag)
+        rule
+            .onNodeWithTag(WideCardContainerTag)
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .assertTextEquals("1")
@@ -156,26 +155,24 @@ class CardContainerTest {
         val count = mutableStateOf(0f)
         rule.setContent {
             WideCardContainer(
-                modifier = Modifier
-                    .semantics(mergeDescendants = true) {}
-                    .testTag(WideCardContainerTag),
+                modifier =
+                    Modifier.semantics(mergeDescendants = true) {}.testTag(WideCardContainerTag),
                 imageCard = { interactionSource ->
-                    Card(
-                        onClick = { count.value += 1 },
-                        interactionSource = interactionSource
-                    ) { SampleImage() }
+                    Card(onClick = { count.value += 1 }, interactionSource = interactionSource) {
+                        SampleImage()
+                    }
                 },
                 title = { Text("${count.value}") }
             )
         }
 
-        rule.onNodeWithTag(WideCardContainerTag)
-            .onChild()
-            .requestFocus()
-            .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.onNodeWithTag(WideCardContainerTag).onChild().requestFocus().performKeyInput {
+            pressKey(Key.DirectionCenter)
+        }
         Truth.assertThat(count.value).isEqualTo(1)
 
-        rule.onNodeWithTag(WideCardContainerTag)
+        rule
+            .onNodeWithTag(WideCardContainerTag)
             .onChild()
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -185,11 +182,7 @@ class CardContainerTest {
 
     @Composable
     fun SampleImage() {
-        Box(
-            Modifier
-                .size(180.dp, 150.dp)
-                .testTag(SampleImageTag)
-        )
+        Box(Modifier.size(180.dp, 150.dp).testTag(SampleImageTag))
     }
 }
 

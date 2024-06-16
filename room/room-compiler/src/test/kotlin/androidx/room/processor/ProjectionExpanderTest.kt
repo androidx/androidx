@@ -36,17 +36,20 @@ import org.junit.runners.JUnit4
 class ProjectionExpanderTest {
 
     companion object {
-        const val DATABASE_PREFIX = """
+        const val DATABASE_PREFIX =
+            """
             package foo.bar;
             import androidx.room.*;
             import androidx.annotation.NonNull;
             import java.util.*;
         """
 
-        val ENTITIES = listOf(
-            Source.java(
-                "foo.bar.User",
-                DATABASE_PREFIX + """
+        val ENTITIES =
+            listOf(
+                Source.java(
+                    "foo.bar.User",
+                    DATABASE_PREFIX +
+                        """
                     @Entity
                     public class User {
                         @PrimaryKey
@@ -56,10 +59,11 @@ class ProjectionExpanderTest {
                         public int teamId;
                     }
                 """
-            ),
-            Source.java(
-                "foo.bar.Pet",
-                DATABASE_PREFIX + """
+                ),
+                Source.java(
+                    "foo.bar.Pet",
+                    DATABASE_PREFIX +
+                        """
                     @Entity
                     public class Pet {
                         @PrimaryKey
@@ -67,10 +71,11 @@ class ProjectionExpanderTest {
                         public int ownerId;
                     }
                 """
-            ),
-            Source.java(
-                "foo.bar.Team",
-                DATABASE_PREFIX + """
+                ),
+                Source.java(
+                    "foo.bar.Team",
+                    DATABASE_PREFIX +
+                        """
                     @Entity
                     public class Team {
                         @PrimaryKey
@@ -78,10 +83,11 @@ class ProjectionExpanderTest {
                         public String name;
                     }
                 """
-            ),
-            Source.java(
-                "foo.bar.Employee",
-                DATABASE_PREFIX + """
+                ),
+                Source.java(
+                    "foo.bar.Employee",
+                    DATABASE_PREFIX +
+                        """
                     @Entity
                     public class Employee {
                         @PrimaryKey
@@ -90,17 +96,18 @@ class ProjectionExpanderTest {
                         public Integer managerId;
                     }
                 """
-            ),
-            Source.java(
-                "foo.bar.EmployeeSummary",
-                DATABASE_PREFIX + """
+                ),
+                Source.java(
+                    "foo.bar.EmployeeSummary",
+                    DATABASE_PREFIX +
+                        """
                     public class EmployeeSummary {
                         public int id;
                         public String name;
                     }
                 """
+                )
             )
-        )
     }
 
     @Test
@@ -133,7 +140,6 @@ class ProjectionExpanderTest {
                 SELECT `User`.`id` AS `id`, `User`.`firstName` AS `firstName`,
                 `User`.`lastName` AS `lastName`, `User`.`teamId` AS `teamId` FROM User
             """
-
         )
     }
 
@@ -487,9 +493,10 @@ class ProjectionExpanderTest {
             name = "foo.bar.User",
             input = null,
             original = "SELECT * FROM user as u INNER JOIN Employee AS e ON(u.id = e.id)",
-            expected = "SELECT `u`.`id` AS `id`, `u`.`firstName` AS `firstName`, `u`" +
-                ".`lastName` AS `lastName`, `u`.`teamId` AS `teamId` FROM user as u INNER " +
-                "JOIN Employee AS e ON(u.id = e.id)"
+            expected =
+                "SELECT `u`.`id` AS `id`, `u`.`firstName` AS `firstName`, `u`" +
+                    ".`lastName` AS `lastName`, `u`.`teamId` AS `teamId` FROM user as u INNER " +
+                    "JOIN Employee AS e ON(u.id = e.id)"
         )
     }
 
@@ -514,39 +521,36 @@ class ProjectionExpanderTest {
 
     @Test
     fun joinAndAbandonEntity() {
-        runProcessorTest(
-            sources = ENTITIES
-        ) { invocation ->
-            val entities = invocation.roundEnv
-                .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map { element ->
-                    TableEntityProcessor(
-                        invocation.context,
-                        element
-                    ).process()
-                }
-            val entityElement = invocation.processingEnv
-                .requireTypeElement("foo.bar.User")
+        runProcessorTest(sources = ENTITIES) { invocation ->
+            val entities =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map { element -> TableEntityProcessor(invocation.context, element).process() }
+            val entityElement = invocation.processingEnv.requireTypeElement("foo.bar.User")
             check(entityElement.isTypeElement())
-            val entity = PojoProcessor.createFor(
-                invocation.context,
-                entityElement,
-                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                parent = null
-            ).process()
+            val entity =
+                PojoProcessor.createFor(
+                        invocation.context,
+                        entityElement,
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
+                    )
+                    .process()
             val query = SqlParser.parse("SELECT * FROM User JOIN Team ON User.id = Team.id")
             val verifier = createVerifierFromEntitiesAndViews(invocation)
             query.resultInfo = verifier.analyze(query.original)
-            val interpreter = ProjectionExpander(
-                entities
-            )
+            val interpreter = ProjectionExpander(entities)
             val expanded = interpreter.interpret(query, entity)
-            val expected = """
+            val expected =
+                """
                 SELECT `User`.`id` AS `id`, `User`.`firstName` AS `firstName`,
                 `User`.`lastName` AS `lastName`, `User`.`teamId` AS `teamId`
                 FROM User JOIN Team ON User.id = Team.id
-            """.trimIndent().lines().joinToString(" ")
+            """
+                    .trimIndent()
+                    .lines()
+                    .joinToString(" ")
             assertThat(expanded, `is`(equalTo(expected)))
         }
     }
@@ -594,12 +598,7 @@ class ProjectionExpanderTest {
         }
     }
 
-    private fun testInterpret(
-        name: String,
-        input: String?,
-        original: String,
-        expected: String
-    ) {
+    private fun testInterpret(name: String, input: String?, original: String, expected: String) {
         queryWithPojo(name, input, original) { actual, _ ->
             assertThat(actual, `is`(equalTo(expected.trimIndent().lines().joinToString(" "))))
         }
@@ -611,30 +610,25 @@ class ProjectionExpanderTest {
         original: String,
         handler: (expanded: String, invocation: XTestInvocation) -> Unit
     ) {
-        val extraSource = input?.let {
-            listOf(Source.java(name, DATABASE_PREFIX + input))
-        } ?: emptyList()
+        val extraSource =
+            input?.let { listOf(Source.java(name, DATABASE_PREFIX + input)) } ?: emptyList()
         val all = ENTITIES + extraSource
-        return runProcessorTest(
-            sources = all
-        ) { invocation ->
-            val entities = invocation.roundEnv
-                .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map { element ->
-                    TableEntityProcessor(
-                        invocation.context,
-                        element
-                    ).process()
-                }
+        return runProcessorTest(sources = all) { invocation ->
+            val entities =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map { element -> TableEntityProcessor(invocation.context, element).process() }
             val pojoElement = invocation.processingEnv.requireTypeElement(name)
             check(pojoElement.isTypeElement())
-            val pojo = PojoProcessor.createFor(
-                invocation.context,
-                pojoElement,
-                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                parent = null
-            ).process()
+            val pojo =
+                PojoProcessor.createFor(
+                        invocation.context,
+                        pojoElement,
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
+                    )
+                    .process()
             val query = SqlParser.parse(original)
             val verifier = createVerifierFromEntitiesAndViews(invocation)
             query.resultInfo = verifier.analyze(query.original)

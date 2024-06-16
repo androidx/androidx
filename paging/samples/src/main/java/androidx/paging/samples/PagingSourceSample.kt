@@ -26,11 +26,7 @@ import java.io.IOException
 import retrofit2.HttpException
 
 internal class MyBackendService {
-    data class RemoteResult(
-        val items: List<Item>,
-        val prev: String?,
-        val next: String?
-    )
+    data class RemoteResult(val items: List<Item>, val prev: String?, val next: String?)
 
     @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
     suspend fun searchItems(pageKey: String?): RemoteResult {
@@ -55,9 +51,7 @@ fun itemKeyedPagingSourceSample() {
      *
      * Loads Items from network requests via Retrofit to a backend service.
      */
-    class MyPagingSource(
-        val myBackend: MyBackendService
-    ) : PagingSource<String, Item>() {
+    class MyPagingSource(val myBackend: MyBackendService) : PagingSource<String, Item>() {
         override suspend fun load(params: LoadParams<String>): LoadResult<String, Item> {
             // Retrofit calls that return the body type throw either IOException for network
             // failures, or HttpException for any non-2xx HTTP status codes. This code reports all
@@ -94,9 +88,7 @@ fun pageKeyedPagingSourceSample() {
      *
      * Note that the key type is Int, since we're using page number to load a page.
      */
-    class MyPagingSource(
-        val myBackend: MyBackendService
-    ) : PagingSource<Int, Item>() {
+    class MyPagingSource(val myBackend: MyBackendService) : PagingSource<Int, Item>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
 
             // Retrofit calls that return the body type throw either IOException for network
@@ -119,11 +111,7 @@ fun pageKeyedPagingSourceSample() {
                 // This API defines that it's out of data when a page returns empty. When out of
                 // data, we return `null` to signify no more pages should be loaded
                 val nextKey = if (response.items.isNotEmpty()) pageNumber + 1 else null
-                LoadResult.Page(
-                    data = response.items,
-                    prevKey = prevKey,
-                    nextKey = nextKey
-                )
+                LoadResult.Page(data = response.items, prevKey = prevKey, nextKey = nextKey)
             } catch (e: IOException) {
                 LoadResult.Error(e)
             } catch (e: HttpException) {
@@ -152,20 +140,19 @@ fun pageKeyedPage() {
 
     // The following shows how you use convert such a response loaded in PagingSource.load() to
     // a Page, which can be returned from that method
-    fun NetworkResponseObject.toPage() = LoadResult.Page(
-        data = items,
-        prevKey = null, // this implementation can only append, can't load a prepend
-        nextKey = next, // next token will be the params.key of a subsequent append load
-        itemsAfter = approximateItemsRemaining
-    )
+    fun NetworkResponseObject.toPage() =
+        LoadResult.Page(
+            data = items,
+            prevKey = null, // this implementation can only append, can't load a prepend
+            nextKey = next, // next token will be the params.key of a subsequent append load
+            itemsAfter = approximateItemsRemaining
+        )
 }
 
 @Sampled
 fun pageIndexedPage() {
     // If you load by page number, the response may not define how to load the next page.
-    data class NetworkResponseObject(
-        val items: List<Item>
-    )
+    data class NetworkResponseObject(val items: List<Item>)
 
     // The following shows how you use the current page number (e.g., the current key in
     // PagingSource.load() to convert a response into a Page, which can be returned from that method

@@ -24,20 +24,15 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
- * This provides a curve fit system that stitches the x,y path together with
- * quarter ellipses.
+ * This provides a curve fit system that stitches the x,y path together with quarter ellipses.
  *
  * @param arcModes Array of arc mode values. Expected to be of size n - 1.
  * @param timePoints Array of timestamps. Expected to be of size n. Seconds preferred.
  * @param y Array of values (of size n), where each value is spread on a [FloatArray] for each of
- * its dimensions, expected to be of even size since two values are needed to interpolate arcs.
+ *   its dimensions, expected to be of even size since two values are needed to interpolate arcs.
  */
 @ExperimentalAnimationSpecApi
-internal class ArcSpline(
-    arcModes: IntArray,
-    timePoints: FloatArray,
-    y: Array<FloatArray>
-) {
+internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<FloatArray>) {
     private val arcs: Array<Array<Arc>>
     private val isExtrapolate = true
 
@@ -45,46 +40,42 @@ internal class ArcSpline(
         var mode = StartVertical
         var last = StartVertical
 
-        arcs = Array(timePoints.size - 1) { i ->
-            when (arcModes[i]) {
-                ArcStartVertical -> {
-                    mode = StartVertical
-                    last = mode
+        arcs =
+            Array(timePoints.size - 1) { i ->
+                when (arcModes[i]) {
+                    ArcStartVertical -> {
+                        mode = StartVertical
+                        last = mode
+                    }
+                    ArcStartHorizontal -> {
+                        mode = StartHorizontal
+                        last = mode
+                    }
+                    ArcStartFlip -> {
+                        mode = if (last == StartVertical) StartHorizontal else StartVertical
+                        last = mode
+                    }
+                    ArcStartLinear -> mode = StartLinear
+                    ArcAbove -> mode = UpArc
+                    ArcBelow -> mode = DownArc
                 }
-
-                ArcStartHorizontal -> {
-                    mode = StartHorizontal
-                    last = mode
+                val dim = y[i].size / 2 + y[i].size % 2
+                Array(dim) { j ->
+                    val k = j * 2
+                    Arc(
+                        mode = mode,
+                        time1 = timePoints[i],
+                        time2 = timePoints[i + 1],
+                        x1 = y[i][k],
+                        y1 = y[i][k + 1],
+                        x2 = y[i + 1][k],
+                        y2 = y[i + 1][k + 1]
+                    )
                 }
-
-                ArcStartFlip -> {
-                    mode = if (last == StartVertical) StartHorizontal else StartVertical
-                    last = mode
-                }
-
-                ArcStartLinear -> mode = StartLinear
-                ArcAbove -> mode = UpArc
-                ArcBelow -> mode = DownArc
             }
-            val dim = y[i].size / 2 + y[i].size % 2
-            Array(dim) { j ->
-                val k = j * 2
-                Arc(
-                    mode = mode,
-                    time1 = timePoints[i],
-                    time2 = timePoints[i + 1],
-                    x1 = y[i][k],
-                    y1 = y[i][k + 1],
-                    x2 = y[i + 1][k],
-                    y2 = y[i + 1][k + 1]
-                )
-            }
-        }
     }
 
-    /**
-     * get the values of the at t point in time.
-     */
+    /** get the values of the at t point in time. */
     fun getPos(time: Float, v: FloatArray) {
         var t = time
         if (isExtrapolate) {
@@ -152,9 +143,7 @@ internal class ArcSpline(
         }
     }
 
-    /**
-     * Get the differential which of the curves at point t
-     */
+    /** Get the differential which of the curves at point t */
     fun getSlope(time: Float, v: FloatArray) {
         var t = time
         if (t < arcs[0][0].time1) {
@@ -189,7 +178,8 @@ internal class ArcSpline(
         }
     }
 
-    class Arc internal constructor(
+    class Arc
+    internal constructor(
         mode: Int,
         val time1: Float,
         val time2: Float,
@@ -216,12 +206,13 @@ internal class ArcSpline(
         init {
             val dx = x2 - x1
             val dy = y2 - y1
-            isVertical = when (mode) {
-                StartVertical -> true
-                UpArc -> dy < 0
-                DownArc -> dy > 0
-                else -> false
-            }
+            isVertical =
+                when (mode) {
+                    StartVertical -> true
+                    UpArc -> dy < 0
+                    DownArc -> dy > 0
+                    else -> false
+                }
             oneOverDeltaTime = 1 / (this.time2 - this.time1)
 
             var isLinear = false
@@ -364,6 +355,7 @@ internal class ArcSpline(
                     _ourPercent = FloatArray(91)
                     return _ourPercent!!
                 }
+
             private const val Epsilon = 0.001f
         }
     }

@@ -23,9 +23,9 @@ import kotlin.annotation.Target
  * Denotes that the annotated element is a marker of an opt-in API.
  *
  * Any declaration annotated with this marker is considered part of an unstable or otherwise
- * non-standard API surface and its call sites should accept the opt-in aspect of it either
- * by using [OptIn] or by being annotated with that marker themselves, effectively causing
- * further propagation of that opt-in aspect.
+ * non-standard API surface and its call sites should accept the opt-in aspect of it either by using
+ * [OptIn] or by being annotated with that marker themselves, effectively causing further
+ * propagation of that opt-in aspect.
  *
  * ```
  * // Marker definition
@@ -60,7 +60,6 @@ import kotlin.annotation.Target
  *
  * To configure project-wide opt-in, specify the `opt-in` option value in `lint.xml` as a
  * comma-delimited list of opted-in annotations:
- *
  * ```
  * <lint>
  *   <issue id="$issueId">
@@ -72,29 +71,30 @@ import kotlin.annotation.Target
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 public annotation class RequiresOptIn(
+    /** Defines the reporting level for incorrect usages of this opt-in API. */
+    val level: Level = Level.ERROR,
     /**
-     * Defines the reporting level for incorrect usages of this opt-in API.
+     * Message to be reported on usages of API without an explicit opt-in, or empty string for the
+     * default message. The default message is: "This declaration is experimental and its usage
+     * should be marked with 'Marker' or '@OptIn(Marker::class)'", where Marker is the opt-in
+     * requirement marker.
      */
-    val level: Level = Level.ERROR
+    val message: String = ""
 ) {
     /**
-     * Severity of the diagnostic that should be reported on usages of opt-in API which did
-     * not explicitly accept the opt-in aspect of that API either by:
+     * Severity of the diagnostic that should be reported on usages of opt-in API which did not
+     * explicitly accept the opt-in aspect of that API either by:
      * <ul>
-     *     <li>Propagating the opt-in aspect by annotating the usage with the marker annotation,
-     *     thus becoming part of the marked opt-in API surface <i>or</i>
-     *     <li>Suppressing propagation of the opt-in aspect by annotating the usage with [OptIn]
-     *     and specifying the marker annotation
+     * <li>Propagating the opt-in aspect by annotating the usage with the marker annotation, thus
+     *   becoming part of the marked opt-in API surface <i>or</i>
+     * <li>Suppressing propagation of the opt-in aspect by annotating the usage with [OptIn] and
+     *   specifying the marker annotation
      */
     public enum class Level {
-        /**
-         * Specifies that a warning should be reported on incorrect usages of this opt-in API.
-         */
+        /** Specifies that a warning should be reported on incorrect usages of this opt-in API. */
         WARNING,
 
-        /**
-         * Specifies that an error should be reported on incorrect usages of this opt-in API.
-         */
+        /** Specifies that an error should be reported on incorrect usages of this opt-in API. */
         ERROR
     }
 }

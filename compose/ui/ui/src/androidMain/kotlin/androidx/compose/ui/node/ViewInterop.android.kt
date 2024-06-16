@@ -22,17 +22,22 @@ import androidx.annotation.RestrictTo
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
-// TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is needed
+// TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is
+// needed
 //  for convenient LayoutParams usage in compose with views.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface ViewAdapter {
     val id: Int
+
     fun willInsert(view: View, parent: ViewGroup)
+
     fun didInsert(view: View, parent: ViewGroup)
+
     fun didUpdate(view: View, parent: ViewGroup)
 }
 
-// TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is needed
+// TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is
+// needed
 //  for convenient LayoutParams usage in compose with views.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T : ViewAdapter> View.getOrAddAdapter(id: Int, factory: () -> T): T {
@@ -44,8 +49,7 @@ internal class MergedViewAdapter : ViewAdapter {
     val adapters = mutableListOf<ViewAdapter>()
 
     inline fun <T : ViewAdapter> get(id: Int, factory: () -> T): T {
-        @Suppress("UNCHECKED_CAST")
-        val existing = adapters.fastFirstOrNull { it.id == id } as? T
+        @Suppress("UNCHECKED_CAST") val existing = adapters.fastFirstOrNull { it.id == id } as? T
         if (existing != null) return existing
         val next = factory()
         adapters.add(next)

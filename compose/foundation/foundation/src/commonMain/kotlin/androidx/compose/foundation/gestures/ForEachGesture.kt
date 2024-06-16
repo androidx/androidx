@@ -24,15 +24,15 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 
 /**
- * A gesture was canceled and cannot continue, likely because another gesture has taken
- * over the pointer input stream.
+ * A gesture was canceled and cannot continue, likely because another gesture has taken over the
+ * pointer input stream.
  */
 class GestureCancellationException(message: String? = null) : CancellationException(message)
 
 /**
- * Repeatedly calls [block] to handle gestures. If there is a [CancellationException],
- * it will wait until all pointers are raised before another gesture is detected, or it
- * exits if [isActive] is `false`.
+ * Repeatedly calls [block] to handle gestures. If there is a [CancellationException], it will wait
+ * until all pointers are raised before another gesture is detected, or it exits if [isActive] is
+ * `false`.
  *
  * [awaitEachGesture] does the same thing without the possibility of missing events between
  * gestures, but also lacks the ability to call arbitrary suspending functions within [block].
@@ -64,22 +64,18 @@ suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.()
 }
 
 /**
- * Returns `true` if the current state of the pointer events has all pointers up and `false`
- * if any of the pointers are down.
+ * Returns `true` if the current state of the pointer events has all pointers up and `false` if any
+ * of the pointers are down.
  */
 internal fun AwaitPointerEventScope.allPointersUp(): Boolean =
     !currentEvent.changes.fastAny { it.pressed }
 
-/**
- * Waits for all pointers to be up before returning.
- */
+/** Waits for all pointers to be up before returning. */
 internal suspend fun PointerInputScope.awaitAllPointersUp() {
     awaitPointerEventScope { awaitAllPointersUp() }
 }
 
-/**
- * Waits for all pointers to be up before returning.
- */
+/** Waits for all pointers to be up before returning. */
 internal suspend fun AwaitPointerEventScope.awaitAllPointersUp(
     pass: PointerEventPass = PointerEventPass.Final
 ) {
@@ -91,12 +87,12 @@ internal suspend fun AwaitPointerEventScope.awaitAllPointersUp(
 }
 
 /**
- * Repeatedly calls [block] to handle gestures. If there is a [CancellationException],
- * it will wait until all pointers are raised before another gesture is detected, or it
- * exits if [isActive] is `false`.
+ * Repeatedly calls [block] to handle gestures. If there is a [CancellationException], it will wait
+ * until all pointers are raised before another gesture is detected, or it exits if [isActive] is
+ * `false`.
  *
- * [block] is run within [PointerInputScope.awaitPointerEventScope] and will loop entirely
- * within the [AwaitPointerEventScope] so events will not be lost between gestures.
+ * [block] is run within [PointerInputScope.awaitPointerEventScope] and will loop entirely within
+ * the [AwaitPointerEventScope] so events will not be lost between gestures.
  */
 suspend fun PointerInputScope.awaitEachGesture(block: suspend AwaitPointerEventScope.() -> Unit) {
     val currentContext = currentCoroutineContext()

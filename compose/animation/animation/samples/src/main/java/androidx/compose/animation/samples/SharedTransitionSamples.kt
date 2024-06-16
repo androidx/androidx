@@ -71,12 +71,7 @@ fun NestedSharedBoundsSample() {
     val selectionColor = Color(0xff3367ba)
     var expanded by remember { mutableStateOf(true) }
     SharedTransitionLayout(
-        Modifier
-            .fillMaxSize()
-            .clickable {
-                expanded = !expanded
-            }
-            .background(Color(0x88000000))
+        Modifier.fillMaxSize().clickable { expanded = !expanded }.background(Color(0x88000000))
     ) {
         AnimatedVisibility(
             visible = expanded,
@@ -85,8 +80,7 @@ fun NestedSharedBoundsSample() {
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Surface(
-                    Modifier
-                        .align(Alignment.BottomCenter)
+                    Modifier.align(Alignment.BottomCenter)
                         .padding(20.dp)
                         .sharedBounds(
                             rememberSharedContentState(key = "container"),
@@ -96,8 +90,7 @@ fun NestedSharedBoundsSample() {
                     shape = RoundedCornerShape(50),
                 ) {
                     Row(
-                        Modifier
-                            .padding(10.dp)
+                        Modifier.padding(10.dp)
                             // By using Modifier.skipToLookaheadSize(), we are telling the layout
                             // system to layout the children of this node as if the animations had
                             // all finished. This avoid re-laying out the Row with animated width,
@@ -108,43 +101,45 @@ fun NestedSharedBoundsSample() {
                         Icon(
                             Icons.Outlined.Share,
                             contentDescription = "Share",
-                            modifier = Modifier.padding(
-                                top = 10.dp,
-                                bottom = 10.dp,
-                                start = 10.dp,
-                                end = 20.dp
-                            )
+                            modifier =
+                                Modifier.padding(
+                                    top = 10.dp,
+                                    bottom = 10.dp,
+                                    start = 10.dp,
+                                    end = 20.dp
+                                )
                         )
                         Icon(
                             Icons.Outlined.Favorite,
                             contentDescription = "Favorite",
-                            modifier = Modifier.padding(
-                                top = 10.dp,
-                                bottom = 10.dp,
-                                start = 10.dp,
-                                end = 20.dp
-                            )
+                            modifier =
+                                Modifier.padding(
+                                    top = 10.dp,
+                                    bottom = 10.dp,
+                                    start = 10.dp,
+                                    end = 20.dp
+                                )
                         )
                         Icon(
                             Icons.Outlined.Create,
                             contentDescription = "Create",
                             tint = Color.White,
-                            modifier = Modifier
-                                .sharedBounds(
-                                    rememberSharedContentState(key = "icon_background"),
-                                    this@AnimatedVisibility
-                                )
-                                .background(selectionColor, RoundedCornerShape(50))
-                                .padding(
-                                    top = 10.dp,
-                                    bottom = 10.dp,
-                                    start = 20.dp,
-                                    end = 20.dp
-                                )
-                                .sharedElement(
-                                    rememberSharedContentState(key = "icon"),
-                                    this@AnimatedVisibility
-                                )
+                            modifier =
+                                Modifier.sharedBounds(
+                                        rememberSharedContentState(key = "icon_background"),
+                                        this@AnimatedVisibility
+                                    )
+                                    .background(selectionColor, RoundedCornerShape(50))
+                                    .padding(
+                                        top = 10.dp,
+                                        bottom = 10.dp,
+                                        start = 20.dp,
+                                        end = 20.dp
+                                    )
+                                    .sharedElement(
+                                        rememberSharedContentState(key = "icon"),
+                                        this@AnimatedVisibility
+                                    )
                         )
                     }
                 }
@@ -157,8 +152,7 @@ fun NestedSharedBoundsSample() {
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Surface(
-                    Modifier
-                        .align(Alignment.BottomEnd)
+                    Modifier.align(Alignment.BottomEnd)
                         .padding(30.dp)
                         .sharedBounds(
                             rememberSharedContentState(key = "container"),
@@ -178,13 +172,13 @@ fun NestedSharedBoundsSample() {
                         Icons.Outlined.Create,
                         contentDescription = "Create",
                         tint = Color.White,
-                        modifier = Modifier
-                            .padding(30.dp)
-                            .size(40.dp)
-                            .sharedElement(
-                                rememberSharedContentState(key = "icon"),
-                                this@AnimatedVisibility
-                            )
+                        modifier =
+                            Modifier.padding(30.dp)
+                                .size(40.dp)
+                                .sharedElement(
+                                    rememberSharedContentState(key = "icon"),
+                                    this@AnimatedVisibility
+                                )
                     )
                 }
             }
@@ -196,9 +190,7 @@ fun NestedSharedBoundsSample() {
 @Sampled
 @Composable
 fun SharedElementWithMovableContentSample() {
-    var showThumbnail by remember {
-        mutableStateOf(true)
-    }
+    var showThumbnail by remember { mutableStateOf(true) }
     val movableContent = remember {
         movableContentOf {
             val cornerRadius = animateDpAsState(targetValue = if (!showThumbnail) 20.dp else 5.dp)
@@ -211,18 +203,15 @@ fun SharedElementWithMovableContentSample() {
         }
     }
     SharedTransitionLayout(
-        Modifier
-            .clickable { showThumbnail = !showThumbnail }
-            .fillMaxSize()
-            .padding(10.dp)) {
+        Modifier.clickable { showThumbnail = !showThumbnail }.fillMaxSize().padding(10.dp)
+    ) {
         Column {
             Box(
                 // When using Modifier.sharedElementWithCallerManagedVisibility(), even when
                 // visible == false, the layout will continue to occupy space in its parent layout.
                 // The content will continue to be composed, unless the content is [MovableContent]
                 // like in this example below.
-                Modifier
-                    .sharedElementWithCallerManagedVisibility(
+                Modifier.sharedElementWithCallerManagedVisibility(
                         rememberSharedContentState(key = "YT"),
                         showThumbnail,
                     )
@@ -233,21 +222,18 @@ fun SharedElementWithMovableContentSample() {
                 }
             }
             Box(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(100.dp)
                     .background(Color(0xffffcc5c), RoundedCornerShape(5.dp))
             )
             Box(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(100.dp)
                     .background(Color(0xff2a9d84), RoundedCornerShape(5.dp))
             )
         }
         Box(
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .aspectRatio(1f)
                 .sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(key = "YT"),
@@ -272,26 +258,20 @@ fun SharedElementWithFABInOverlaySample() {
             painterResource(id = R.drawable.yt_profile),
             contentDescription = "cute cat",
             contentScale = ContentScale.FillHeight,
-            modifier = modifier
-                .clip(shape = RoundedCornerShape(10))
+            modifier = modifier.clip(shape = RoundedCornerShape(10))
         )
     }
 
-    var showThumbnail by remember {
-        mutableStateOf(true)
-    }
+    var showThumbnail by remember { mutableStateOf(true) }
     SharedTransitionLayout(
-        Modifier
-            .clickable { showThumbnail = !showThumbnail }
-            .fillMaxSize()
-            .padding(10.dp)) {
+        Modifier.clickable { showThumbnail = !showThumbnail }.fillMaxSize().padding(10.dp)
+    ) {
         Column(Modifier.padding(10.dp)) {
             // Create an AnimatedVisibility for the shared element, so that the layout siblings
             // (i.e. the two boxes below) will move in to fill the space during the exit transition.
             AnimatedVisibility(visible = showThumbnail) {
                 Cat(
-                    Modifier
-                        .size(100.dp)
+                    Modifier.size(100.dp)
                         // Create a shared element, using string as the key
                         .sharedElement(
                             rememberSharedContentState(key = "YT"),
@@ -300,14 +280,12 @@ fun SharedElementWithFABInOverlaySample() {
                 )
             }
             Box(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(100.dp)
                     .background(Color(0xffffcc5c), RoundedCornerShape(5.dp))
             )
             Box(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(100.dp)
                     .background(Color(0xff2a9d84), RoundedCornerShape(5.dp))
             )
@@ -315,8 +293,7 @@ fun SharedElementWithFABInOverlaySample() {
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedVisibility(!showThumbnail) {
                 Cat(
-                    Modifier
-                        .fillMaxSize()
+                    Modifier.fillMaxSize()
                         // Create another shared element, and make sure the string key matches
                         // the other shared element.
                         .sharedElement(
@@ -326,25 +303,26 @@ fun SharedElementWithFABInOverlaySample() {
                 )
             }
             FloatingActionButton(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .align(Alignment.BottomEnd)
-                    // During shared element transition, shared elements will be rendered in
-                    // overlay to escape any clipping or layer transform from parents. It also
-                    // means they will render over on top of UI elements such as Floating Action
-                    // Button. Once the transition is finished, they will be dropped from the
-                    // overlay to their own DrawScopes. To help support keeping specific UI
-                    // elements always on top, Modifier.renderInSharedTransitionScopeOverlay
-                    // will temporarily elevate them into the overlay as well. By default,
-                    // this modifier keeps content in overlay during the time when the
-                    // shared transition is active (i.e. SharedTransitionScope#isTransitionActive).
-                    // The duration can be customize via `renderInOverlay` parameter.
-                    .renderInSharedTransitionScopeOverlay(
-                        // zIndexInOverlay by default is 0f for this modifier and for shared
-                        // elements. By overwriting zIndexInOverlay to 1f, we can ensure this
-                        // FAB is rendered on top of the shared elements.
-                        zIndexInOverlay = 1f
-                    ),
+                modifier =
+                    Modifier.padding(20.dp)
+                        .align(Alignment.BottomEnd)
+                        // During shared element transition, shared elements will be rendered in
+                        // overlay to escape any clipping or layer transform from parents. It also
+                        // means they will render over on top of UI elements such as Floating Action
+                        // Button. Once the transition is finished, they will be dropped from the
+                        // overlay to their own DrawScopes. To help support keeping specific UI
+                        // elements always on top, Modifier.renderInSharedTransitionScopeOverlay
+                        // will temporarily elevate them into the overlay as well. By default,
+                        // this modifier keeps content in overlay during the time when the
+                        // shared transition is active (i.e.
+                        // SharedTransitionScope#isTransitionActive).
+                        // The duration can be customize via `renderInOverlay` parameter.
+                        .renderInSharedTransitionScopeOverlay(
+                            // zIndexInOverlay by default is 0f for this modifier and for shared
+                            // elements. By overwriting zIndexInOverlay to 1f, we can ensure this
+                            // FAB is rendered on top of the shared elements.
+                            zIndexInOverlay = 1f
+                        ),
                 onClick = {}
             ) {
                 Icon(Icons.Default.Favorite, contentDescription = "favorite")
@@ -368,8 +346,7 @@ fun SharedElementInAnimatedContentSample() {
             painterResource(id = R.drawable.yt_profile),
             contentDescription = "cute cat",
             contentScale = ContentScale.FillHeight,
-            modifier = modifier
-                .clip(shape = RoundedCornerShape(10))
+            modifier = modifier.clip(shape = RoundedCornerShape(10))
         )
     }
 
@@ -377,26 +354,21 @@ fun SharedElementInAnimatedContentSample() {
     // requirement for the key is that it should be the same for shared elements that you intend
     // to match. Here we use the image resource id as the key.
     val sharedElementKey = R.drawable.yt_profile
-    var showLargeImage by remember {
-        mutableStateOf(true)
-    }
+    var showLargeImage by remember { mutableStateOf(true) }
 
     // First, we need to create a SharedTransitionLayout, this Layout will provide the coordinator
     // space for shared element position animation, as well as an overlay for shared elements to
     // render in. Children content in this Layout will be able to create shared element transition
     // using the receiver scope: SharedTransitionScope
     SharedTransitionLayout(
-        Modifier
-            .clickable { showLargeImage = !showLargeImage }
-            .fillMaxSize()
-            .padding(10.dp)) {
+        Modifier.clickable { showLargeImage = !showLargeImage }.fillMaxSize().padding(10.dp)
+    ) {
         // In the SharedTransitionLayout, we will be able to access the receiver scope (i.e.
         // SharedTransitionScope) in order to create shared element transition.
         AnimatedContent(targetState = showLargeImage) { showLargeImageMode ->
             if (showLargeImageMode) {
                 Cat(
-                    Modifier
-                        .fillMaxSize()
+                    Modifier.fillMaxSize()
                         .aspectRatio(1f)
                         // Creating a shared element. Note that this modifier is *after*
                         // the size modifier and aspectRatio modifier, because those size specs
@@ -415,23 +387,23 @@ fun SharedElementInAnimatedContentSample() {
                     // Prefer Modifier.sharedBounds for text, unless the texts in both initial
                     // content and target content are exactly the same (i.e. same
                     // size/font/color)
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        // IMPORTANT: Prefer using wrapContentWidth/wrapContentSize over textAlign
-                        // for shared text transition. This allows the layout system sees actual
-                        // position and size of the text to facilitate bounds animation.
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                        .sharedBounds(
-                            rememberSharedContentState(key = "text"),
-                            this@AnimatedContent
-                        )
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            // IMPORTANT: Prefer using wrapContentWidth/wrapContentSize over
+                            // textAlign
+                            // for shared text transition. This allows the layout system sees actual
+                            // position and size of the text to facilitate bounds animation.
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                            .sharedBounds(
+                                rememberSharedContentState(key = "text"),
+                                this@AnimatedContent
+                            )
                 )
             } else {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Cat(
-                            Modifier
-                                .size(100.dp)
+                            Modifier.size(100.dp)
                                 // Creating another shared element with the same key.
                                 // Note that this modifier is *after* the size modifier,
                                 // The size changes between these two shared elements, i.e. the size
@@ -449,27 +421,28 @@ fun SharedElementInAnimatedContentSample() {
                             // Prefer Modifier.sharedBounds for text, unless the texts in both
                             // initial content and target content are exactly the same (i.e. same
                             // size/font/color)
-                            modifier = Modifier
-                                // The modifier that is not a part of the shared content, but rather
-                                // for positioning and sizes should be on the *left* side of
-                                // sharedBounds/sharedElement.
-                                .padding(start = 20.dp)
-                                .sharedBounds(
-                                // Here we use a string-based key, in contrast to the key above.
-                                rememberSharedContentState(key = "text"),
-                                this@AnimatedContent
-                            )
+                            modifier =
+                                Modifier
+                                    // The modifier that is not a part of the shared content, but
+                                    // rather
+                                    // for positioning and sizes should be on the *left* side of
+                                    // sharedBounds/sharedElement.
+                                    .padding(start = 20.dp)
+                                    .sharedBounds(
+                                        // Here we use a string-based key, in contrast to the key
+                                        // above.
+                                        rememberSharedContentState(key = "text"),
+                                        this@AnimatedContent
+                                    )
                         )
                     }
                     Box(
-                        Modifier
-                            .fillMaxWidth()
+                        Modifier.fillMaxWidth()
                             .height(100.dp)
                             .background(Color(0xffffcc5c), RoundedCornerShape(5.dp))
                     )
                     Box(
-                        Modifier
-                            .fillMaxWidth()
+                        Modifier.fillMaxWidth()
                             .height(100.dp)
                             .background(Color(0xff2a9d84), RoundedCornerShape(5.dp))
                     )

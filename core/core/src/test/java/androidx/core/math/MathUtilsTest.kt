@@ -60,69 +60,29 @@ class MathUtilsTest {
         Assert.assertEquals(-1L, MathUtils.addExact(0L, -1L))
         Assert.assertEquals(-1, MathUtils.addExact(-1, 0).toLong())
         Assert.assertEquals(-1L, MathUtils.addExact(-1L, 0L))
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Int.MAX_VALUE,
-                1
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Int.MAX_VALUE, 1)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Long.MAX_VALUE,
-                1L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Long.MAX_VALUE, 1L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Int.MIN_VALUE,
-                -1
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Int.MIN_VALUE, -1)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Long.MIN_VALUE,
-                -1L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Long.MIN_VALUE, -1L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Integer.MIN_VALUE,
-                Integer.MIN_VALUE
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Integer.MIN_VALUE, Integer.MIN_VALUE)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Long.MIN_VALUE,
-                Long.MIN_VALUE
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Long.MIN_VALUE, Long.MIN_VALUE)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Integer.MAX_VALUE,
-                Integer.MAX_VALUE
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Integer.MAX_VALUE, Integer.MAX_VALUE)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.addExact(
-                Long.MAX_VALUE,
-                Long.MAX_VALUE
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.addExact(Long.MAX_VALUE, Long.MAX_VALUE)
         }
     }
 
@@ -160,53 +120,23 @@ class MathUtilsTest {
         Assert.assertEquals(1L, MathUtils.subtractExact(0L, -1L))
         Assert.assertEquals(-1, MathUtils.subtractExact(-1, 0).toLong())
         Assert.assertEquals(-1L, MathUtils.subtractExact(-1L, 0))
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.subtractExact(
-                Int.MAX_VALUE,
-                -1
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.subtractExact(Int.MAX_VALUE, -1)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.subtractExact(
-                Long.MAX_VALUE,
-                -1L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.subtractExact(Long.MAX_VALUE, -1L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.subtractExact(
-                Int.MIN_VALUE,
-                1
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.subtractExact(Int.MIN_VALUE, 1)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.subtractExact(
-                Long.MIN_VALUE,
-                1L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.subtractExact(Long.MIN_VALUE, 1L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.subtractExact(
-                0,
-                Int.MIN_VALUE
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.subtractExact(0, Int.MIN_VALUE)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.subtractExact(
-                0,
-                Long.MIN_VALUE
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.subtractExact(0, Long.MIN_VALUE)
         }
     }
 
@@ -220,85 +150,35 @@ class MathUtilsTest {
         Assert.assertEquals(0L, MathUtils.multiplyExact(2L, 0L))
         Assert.assertEquals(-4, MathUtils.multiplyExact(2, -2).toLong())
         Assert.assertEquals(-4L, MathUtils.multiplyExact(2L, -2L))
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Int.MAX_VALUE,
-                2
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Int.MAX_VALUE, 2)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Long.MAX_VALUE,
-                2L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Long.MAX_VALUE, 2L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Int.MIN_VALUE,
-                2
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Int.MIN_VALUE, 2)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Long.MIN_VALUE,
-                2L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Long.MIN_VALUE, 2L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Int.MAX_VALUE / 2 + 1,
-                2
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Int.MAX_VALUE / 2 + 1, 2)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Long.MAX_VALUE / 2L + 1L,
-                2L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Long.MAX_VALUE / 2L + 1L, 2L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Int.MIN_VALUE / 2 - 1,
-                2
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Int.MIN_VALUE / 2 - 1, 2)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Long.MIN_VALUE / 2L - 1L,
-                2L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Long.MIN_VALUE / 2L - 1L, 2L)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Int.MIN_VALUE,
-                -1
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Int.MIN_VALUE, -1)
         }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) {
-            MathUtils.multiplyExact(
-                Long.MIN_VALUE,
-                -1L
-            )
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.multiplyExact(Long.MIN_VALUE, -1L)
         }
     }
 
@@ -306,24 +186,24 @@ class MathUtilsTest {
     fun testIncrementExact() {
         Assert.assertEquals(1, MathUtils.incrementExact(0).toLong())
         Assert.assertEquals(1L, MathUtils.incrementExact(0L))
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.incrementExact(Int.MAX_VALUE) }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.incrementExact(Long.MAX_VALUE) }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.incrementExact(Int.MAX_VALUE)
+        }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.incrementExact(Long.MAX_VALUE)
+        }
     }
 
     @Test
     fun testDecrementExact() {
         Assert.assertEquals(-1, MathUtils.decrementExact(0).toLong())
         Assert.assertEquals(-1L, MathUtils.decrementExact(0L))
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.decrementExact(Int.MIN_VALUE) }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.decrementExact(Long.MIN_VALUE) }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.decrementExact(Int.MIN_VALUE)
+        }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.decrementExact(Long.MIN_VALUE)
+        }
     }
 
     @Test
@@ -333,22 +213,22 @@ class MathUtilsTest {
             MathUtils.negateExact(Int.MAX_VALUE).toLong()
         )
         Assert.assertEquals(Long.MIN_VALUE + 1, MathUtils.negateExact(Long.MAX_VALUE))
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.negateExact(Int.MIN_VALUE) }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.negateExact(Long.MIN_VALUE) }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.negateExact(Int.MIN_VALUE)
+        }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.negateExact(Long.MIN_VALUE)
+        }
     }
 
     @Test
     fun testToIntExact() {
         Assert.assertEquals(1, MathUtils.toIntExact(1L).toLong())
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.toIntExact(Long.MAX_VALUE) }
-        Assert.assertThrows(
-            ArithmeticException::class.java
-        ) { MathUtils.toIntExact(Long.MIN_VALUE) }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.toIntExact(Long.MAX_VALUE)
+        }
+        Assert.assertThrows(ArithmeticException::class.java) {
+            MathUtils.toIntExact(Long.MIN_VALUE)
+        }
     }
 }

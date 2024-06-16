@@ -23,12 +23,11 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 
-/**
- * Binder provider class that has common functionality for observables.
- */
+/** Binder provider class that has common functionality for observables. */
 abstract class ObservableQueryResultBinderProvider(val context: Context) :
     QueryResultBinderProvider {
     protected abstract fun extractTypeArg(declared: XType): XType
+
     protected abstract fun create(
         typeArg: XType,
         resultAdapter: QueryResultAdapter?,
@@ -40,24 +39,15 @@ abstract class ObservableQueryResultBinderProvider(val context: Context) :
         query: ParsedQuery,
         extras: TypeAdapterExtras
     ): QueryResultBinder {
-        extras.putData(
-            OriginalTypeArg::class,
-            OriginalTypeArg(declared)
-        )
+        extras.putData(OriginalTypeArg::class, OriginalTypeArg(declared))
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
-        val tableNames = (
-            (adapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }
-            ).toSet()
+        val tableNames =
+            ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()
         if (tableNames.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
-        return create(
-            typeArg = typeArg,
-            resultAdapter = adapter,
-            tableNames = tableNames
-        )
+        return create(typeArg = typeArg, resultAdapter = adapter, tableNames = tableNames)
     }
 
     data class OriginalTypeArg(val original: XType)

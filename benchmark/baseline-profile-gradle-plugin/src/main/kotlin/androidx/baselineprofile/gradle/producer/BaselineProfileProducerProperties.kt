@@ -47,11 +47,11 @@ internal const val PROP_FORCE_ONLY_CONNECTED_DEVICES =
  * This property determines whether the testInstrumentationRunnerArguments
  * `androidx.benchmark.enabledRules` is set depending on which variants the tests are invoked on.
  * When this flag IS NOT SPECIFIED, the plugin injects the `enabledRules` argument in order to
- * enable tests with a specific rule, depending on the variant. For example, when running tests on
- * a `nonMinified` build type such as `connectedNonMinifiedReleaseAndroidTest`, the plugin injects
+ * enable tests with a specific rule, depending on the variant. For example, when running tests on a
+ * `nonMinified` build type such as `connectedNonMinifiedReleaseAndroidTest`, the plugin injects
  * `android.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=baselineprofile`.
- * When this flag IS SPECIFIED, the plugin will not inject any `enabledRules` argument and all
- * the tests, independent from the rule applied, will be run.
+ * When this flag IS SPECIFIED, the plugin will not inject any `enabledRules` argument and all the
+ * tests, independent from the rule applied, will be run.
  */
 internal const val PROP_DONT_DISABLE_RULES = "androidx.baselineprofile.dontdisablerules"
 

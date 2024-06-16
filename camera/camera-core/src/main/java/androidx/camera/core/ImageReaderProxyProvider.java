@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageReaderProxy;
 
@@ -25,7 +24,6 @@ import androidx.camera.core.impl.ImageReaderProxy;
  * Provider that provides a {@link androidx.camera.core.impl.ImageReaderProxy} instance.
  *
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ImageReaderProxyProvider {
 

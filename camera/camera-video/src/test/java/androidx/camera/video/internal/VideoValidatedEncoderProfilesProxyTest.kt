@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.video.internal
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.testing.impl.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
@@ -46,6 +43,7 @@ private val DEFAULT_VIDEO_PROFILE by lazy {
         EncoderProfilesUtil.DEFAULT_VIDEO_HDR_FORMAT
     )
 }
+
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -110,12 +108,13 @@ class VideoValidatedEncoderProfilesProxyTest {
 
     @Test
     fun create_withEmptyAudioProfiles() {
-        val validatedProfiles = VideoValidatedEncoderProfilesProxy.create(
-            EncoderProfilesUtil.DEFAULT_DURATION,
-            EncoderProfilesUtil.DEFAULT_OUTPUT_FORMAT,
-            emptyList(),
-            listOf(DEFAULT_VIDEO_PROFILE)
-        )
+        val validatedProfiles =
+            VideoValidatedEncoderProfilesProxy.create(
+                EncoderProfilesUtil.DEFAULT_DURATION,
+                EncoderProfilesUtil.DEFAULT_OUTPUT_FORMAT,
+                emptyList(),
+                listOf(DEFAULT_VIDEO_PROFILE)
+            )
         assertThat(validatedProfiles.defaultAudioProfile).isNull()
     }
 }

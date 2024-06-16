@@ -44,24 +44,17 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<() -> Stream> = arrayOf(
-            ObservableStream(),
-            FlowableStream(),
-            SingleStream(),
-            MaybeStream()
-        )
+        fun initParameters(): Array<() -> Stream> =
+            arrayOf(ObservableStream(), FlowableStream(), SingleStream(), MaybeStream())
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun whenValueIsNotSetWeGotNull() {
         val stream = factory()
         var realValue: String? = "to-be-updated"
-        rule.setContent {
-            realValue = stream.subscribeAsState(null).value
-        }
+        rule.setContent { realValue = stream.subscribeAsState(null).value }
 
         assertThat(realValue).isNull()
     }
@@ -71,9 +64,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         val stream = factory()
         stream.onNext("value")
         var realValue: String? = null
-        rule.setContent {
-            realValue = stream.subscribeAsState(null).value
-        }
+        rule.setContent { realValue = stream.subscribeAsState(null).value }
 
         assertThat(realValue).isEqualTo("value")
     }
@@ -83,17 +74,11 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         val stream = factory()
 
         var realValue: String? = null
-        rule.setContent {
-            realValue = stream.subscribeAsState(null).value
-        }
+        rule.setContent { realValue = stream.subscribeAsState(null).value }
 
-        rule.runOnIdle {
-            stream.onNext("value")
-        }
+        rule.runOnIdle { stream.onNext("value") }
 
-        rule.runOnIdle {
-            assertThat(realValue).isEqualTo("value")
-        }
+        rule.runOnIdle { assertThat(realValue).isEqualTo("value") }
     }
 
     @Test
@@ -103,17 +88,11 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
 
         stream.onNext("value")
         var realValue: String? = null
-        rule.setContent {
-            realValue = stream.subscribeAsState(null).value
-        }
+        rule.setContent { realValue = stream.subscribeAsState(null).value }
 
-        rule.runOnIdle {
-            stream.onNext("value2")
-        }
+        rule.runOnIdle { stream.onNext("value2") }
 
-        rule.runOnIdle {
-            assertThat(realValue).isEqualTo("value2")
-        }
+        rule.runOnIdle { assertThat(realValue).isEqualTo("value2") }
     }
 
     @Test
@@ -129,22 +108,16 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
 
         rule.runOnIdle { emit = false }
 
-        rule.runOnIdle {
-            stream.onNext("value")
-        }
+        rule.runOnIdle { stream.onNext("value") }
 
-        rule.runOnIdle {
-            assertThat(realValue).isNull()
-        }
+        rule.runOnIdle { assertThat(realValue).isNull() }
     }
 
     @Test
     fun testObservableWithInitialValue() {
         val stream = factory()
         var realValue: String? = "to-be-updated"
-        rule.setContent {
-            realValue = stream.subscribeAsState("value").value
-        }
+        rule.setContent { realValue = stream.subscribeAsState("value").value }
 
         assertThat(realValue).isEqualTo("value")
     }
@@ -154,15 +127,9 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
         val stream = factory()
 
         var realValue: String? = null
-        rule.setContent {
-            realValue = stream.subscribeAsState(null).value
-        }
+        rule.setContent { realValue = stream.subscribeAsState(null).value }
 
-        Thread(
-            Runnable {
-                stream.onNext("value")
-            }
-        ).start()
+        Thread(Runnable { stream.onNext("value") }).start()
 
         rule.waitUntil(5_000) { realValue == "value" }
     }
@@ -171,8 +138,7 @@ class RxJava2AdapterTest(private val factory: () -> Stream) {
 interface Stream {
     fun onNext(value: String)
 
-    @Composable
-    fun subscribeAsState(initial: String?): State<String?>
+    @Composable fun subscribeAsState(initial: String?): State<String?>
 
     fun supportMultipleValues(): Boolean
 }

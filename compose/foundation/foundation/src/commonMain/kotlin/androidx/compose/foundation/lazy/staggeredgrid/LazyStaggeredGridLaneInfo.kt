@@ -17,10 +17,10 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 /**
- * Utility class to remember grid lane assignments in a sliding window relative to requested
- * item position (usually reflected by scroll position).
- * Remembers the maximum range of remembered items is reflected by [MaxCapacity], if index is beyond
- * the bounds, [anchor] moves to reflect new position.
+ * Utility class to remember grid lane assignments in a sliding window relative to requested item
+ * position (usually reflected by scroll position). Remembers the maximum range of remembered items
+ * is reflected by [MaxCapacity], if index is beyond the bounds, [anchor] moves to reflect new
+ * position.
  */
 internal class LazyStaggeredGridLaneInfo {
     private var anchor = 0
@@ -29,9 +29,7 @@ internal class LazyStaggeredGridLaneInfo {
 
     private class SpannedItem(val index: Int, var gaps: IntArray)
 
-    /**
-     * Sets given lane for given item index.
-     */
+    /** Sets given lane for given item index. */
     fun setLane(itemIndex: Int, lane: Int) {
         require(itemIndex >= 0) { "Negative lanes are not supported" }
         ensureValidIndex(itemIndex)
@@ -40,6 +38,7 @@ internal class LazyStaggeredGridLaneInfo {
 
     /**
      * Get lane for given item index.
+     *
      * @return lane previously recorded for given item or [Unset] if it doesn't exist.
      */
     fun getLane(itemIndex: Int): Int {
@@ -51,6 +50,7 @@ internal class LazyStaggeredGridLaneInfo {
 
     /**
      * Checks whether item can be in the target lane
+     *
      * @param itemIndex item to check lane for
      * @param targetLane lane it should belong to
      */
@@ -59,21 +59,15 @@ internal class LazyStaggeredGridLaneInfo {
         return lane == targetLane || lane == Unset || lane == FullSpan
     }
 
-    /**
-     * @return upper bound of currently valid item range
-     */
+    /** @return upper bound of currently valid item range */
     /* @VisibleForTests */
     fun upperBound(): Int = anchor + lanes.size
 
-    /**
-     * @return lower bound of currently valid item range
-     */
+    /** @return lower bound of currently valid item range */
     /* @VisibleForTests */
     fun lowerBound(): Int = anchor
 
-    /**
-     * Delete remembered lane assignments.
-     */
+    /** Delete remembered lane assignments. */
     fun reset() {
         lanes.fill(0)
         spannedItems.clear()
@@ -81,6 +75,7 @@ internal class LazyStaggeredGridLaneInfo {
 
     /**
      * Find the previous item relative to [itemIndex] set to target lane
+     *
      * @return found item index or -1 if it doesn't exist.
      */
     fun findPreviousItemIndex(itemIndex: Int, targetLane: Int): Int {
@@ -94,6 +89,7 @@ internal class LazyStaggeredGridLaneInfo {
 
     /**
      * Find the next item relative to [itemIndex] set to target lane
+     *
      * @return found item index or [upperBound] if it doesn't exist.
      */
     fun findNextItemIndex(itemIndex: Int, targetLane: Int): Int {

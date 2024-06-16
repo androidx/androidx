@@ -21,16 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 
-/**
- * Clip the content to the bounds of a layer defined at this modifier.
- */
-@Stable
-fun Modifier.clipToBounds() = graphicsLayer(clip = true)
+/** Clip the content to the bounds of a layer defined at this modifier. */
+@Stable fun Modifier.clipToBounds() = graphicsLayer(clip = true)
 
 /**
  * Clip the content to [shape].
  *
  * @param shape the content will be clipped to this [Shape].
  */
-@Stable
-fun Modifier.clip(shape: Shape) = graphicsLayer(shape = shape, clip = true)
+@Stable fun Modifier.clip(shape: Shape) = graphicsLayer(shape = shape, clip = true)

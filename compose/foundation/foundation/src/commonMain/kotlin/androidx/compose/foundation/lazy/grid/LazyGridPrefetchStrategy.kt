@@ -51,8 +51,8 @@ interface LazyGridPrefetchStrategy {
      * If the visible items have also changed, then this will be invoked in the same frame *after*
      * [onVisibleItemsUpdated].
      *
-     * @param delta the change in scroll direction. Delta < 0 indicates scrolling down while
-     * delta > 0 indicates scrolling up.
+     * @param delta the change in scroll direction. Delta < 0 indicates scrolling down while delta >
+     *   0 indicates scrolling up.
      * @param layoutInfo the current [LazyGridLayoutInfo]
      */
     fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo)
@@ -61,7 +61,7 @@ interface LazyGridPrefetchStrategy {
      * onVisibleItemsUpdated is invoked when the LazyGrid scrolls if the visible items have changed.
      *
      * @param layoutInfo the current [LazyGridLayoutInfo]. Info about the updated visible items can
-     * be found in [LazyGridLayoutInfo.visibleItemsInfo].
+     *   be found in [LazyGridLayoutInfo.visibleItemsInfo].
      */
     fun LazyGridPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyGridLayoutInfo)
 
@@ -70,24 +70,22 @@ interface LazyGridPrefetchStrategy {
      * this LazyGrid. It gives this LazyGrid a chance to request prefetch for some of its own
      * children before coming onto screen.
      *
-     * Implementations can use [NestedPrefetchScope.schedulePrefetch] to schedule child
-     * prefetches. For example, this is useful if this LazyGrid is a LazyRow that is a child of a
-     * LazyColumn: in that case, [onNestedPrefetch] can schedule the children it expects to be
-     * visible when it comes onto screen, giving the LazyLayout infra a chance to compose these
-     * children ahead of time and reduce jank.
+     * Implementations can use [NestedPrefetchScope.schedulePrefetch] to schedule child prefetches.
+     * For example, this is useful if this LazyGrid is a LazyRow that is a child of a LazyColumn: in
+     * that case, [onNestedPrefetch] can schedule the children it expects to be visible when it
+     * comes onto screen, giving the LazyLayout infra a chance to compose these children ahead of
+     * time and reduce jank.
      *
      * Generally speaking, [onNestedPrefetch] should only request prefetch for children that it
      * expects to actually be visible when this grid is scrolled into view.
      *
      * @param firstVisibleItemIndex the index of the first visible item. It should be used to start
-     * prefetching from the correct index in case the grid has been created at a non-zero offset.
+     *   prefetching from the correct index in case the grid has been created at a non-zero offset.
      */
     fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int)
 }
 
-/**
- * Scope for callbacks in [LazyGridPrefetchStrategy] which allows prefetches to be requested.
- */
+/** Scope for callbacks in [LazyGridPrefetchStrategy] which allows prefetches to be requested. */
 @ExperimentalFoundationApi
 interface LazyGridPrefetchScope {
 
@@ -109,14 +107,13 @@ interface LazyGridPrefetchScope {
  * nested prefetch count.
  *
  * @param nestedPrefetchItemCount specifies how many inner items should be prefetched when this
- * LazyGrid is nested inside another LazyLayout. For example, if this is the state for a horizontal
- * LazyGrid nested in a vertical LazyGrid, you might want to set this to the number of items that
- * will be visible when this grid is scrolled into view.
+ *   LazyGrid is nested inside another LazyLayout. For example, if this is the state for a
+ *   horizontal LazyGrid nested in a vertical LazyGrid, you might want to set this to the number of
+ *   items that will be visible when this grid is scrolled into view.
  */
 @ExperimentalFoundationApi
-fun LazyGridPrefetchStrategy(
-    nestedPrefetchItemCount: Int = 2
-): LazyGridPrefetchStrategy = DefaultLazyGridPrefetchStrategy(nestedPrefetchItemCount)
+fun LazyGridPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyGridPrefetchStrategy =
+    DefaultLazyGridPrefetchStrategy(nestedPrefetchItemCount)
 
 /**
  * The default prefetching strategy for LazyGrids - this will be used automatically if no other
@@ -132,15 +129,13 @@ private class DefaultLazyGridPrefetchStrategy(private val nestedPrefetchItemCoun
      */
     private var lineToPrefetch = -1
 
-    /**
-     * The list of handles associated with the items from the [lineToPrefetch] line.
-     */
+    /** The list of handles associated with the items from the [lineToPrefetch] line. */
     private val currentLinePrefetchHandles =
         mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
 
     /**
-     * Keeps the scrolling direction during the previous calculation in order to be able to
-     * detect the scrolling direction change.
+     * Keeps the scrolling direction during the previous calculation in order to be able to detect
+     * the scrolling direction change.
      */
     private var wasScrollingForward = false
 
@@ -150,14 +145,20 @@ private class DefaultLazyGridPrefetchStrategy(private val nestedPrefetchItemCoun
             val lineToPrefetch: Int
             val closestNextItemToPrefetch: Int
             if (scrollingForward) {
-                lineToPrefetch = 1 + layoutInfo.visibleItemsInfo.last().let {
-                    if (layoutInfo.orientation == Orientation.Vertical) it.row else it.column
-                }
+                lineToPrefetch =
+                    1 +
+                        layoutInfo.visibleItemsInfo.last().let {
+                            if (layoutInfo.orientation == Orientation.Vertical) it.row
+                            else it.column
+                        }
                 closestNextItemToPrefetch = layoutInfo.visibleItemsInfo.last().index + 1
             } else {
-                lineToPrefetch = -1 + layoutInfo.visibleItemsInfo.first().let {
-                    if (layoutInfo.orientation == Orientation.Vertical) it.row else it.column
-                }
+                lineToPrefetch =
+                    -1 +
+                        layoutInfo.visibleItemsInfo.first().let {
+                            if (layoutInfo.orientation == Orientation.Vertical) it.row
+                            else it.column
+                        }
                 closestNextItemToPrefetch = layoutInfo.visibleItemsInfo.first().index - 1
             }
             if (closestNextItemToPrefetch in 0 until layoutInfo.totalItemsCount) {
@@ -178,16 +179,18 @@ private class DefaultLazyGridPrefetchStrategy(private val nestedPrefetchItemCoun
                     val lastItem = layoutInfo.visibleItemsInfo.last()
                     val itemSize = lastItem.sizeOnMainAxis(layoutInfo.orientation)
                     val itemSpacing = layoutInfo.mainAxisItemSpacing
-                    val distanceToPrefetchItem = lastItem.offsetOnMainAxis(layoutInfo.orientation) +
-                        itemSize + itemSpacing - layoutInfo.viewportEndOffset
+                    val distanceToPrefetchItem =
+                        lastItem.offsetOnMainAxis(layoutInfo.orientation) + itemSize + itemSpacing -
+                            layoutInfo.viewportEndOffset
                     // if in the next frame we will get the same delta will we reach the item?
                     if (distanceToPrefetchItem < -delta) {
                         currentLinePrefetchHandles.forEach { it.markAsUrgent() }
                     }
                 } else {
                     val firstItem = layoutInfo.visibleItemsInfo.first()
-                    val distanceToPrefetchItem = layoutInfo.viewportStartOffset -
-                        firstItem.offsetOnMainAxis(layoutInfo.orientation)
+                    val distanceToPrefetchItem =
+                        layoutInfo.viewportStartOffset -
+                            firstItem.offsetOnMainAxis(layoutInfo.orientation)
                     // if in the next frame we will get the same delta will we reach the item?
                     if (distanceToPrefetchItem < delta) {
                         currentLinePrefetchHandles.forEach { it.markAsUrgent() }
@@ -199,15 +202,16 @@ private class DefaultLazyGridPrefetchStrategy(private val nestedPrefetchItemCoun
 
     override fun LazyGridPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyGridLayoutInfo) {
         if (lineToPrefetch != -1 && layoutInfo.visibleItemsInfo.isNotEmpty()) {
-            val expectedLineToPrefetch = if (wasScrollingForward) {
-                layoutInfo.visibleItemsInfo.last().let {
-                    if (layoutInfo.orientation == Orientation.Vertical) it.row else it.column
-                } + 1
-            } else {
-                layoutInfo.visibleItemsInfo.first().let {
-                    if (layoutInfo.orientation == Orientation.Vertical) it.row else it.column
-                } - 1
-            }
+            val expectedLineToPrefetch =
+                if (wasScrollingForward) {
+                    layoutInfo.visibleItemsInfo.last().let {
+                        if (layoutInfo.orientation == Orientation.Vertical) it.row else it.column
+                    } + 1
+                } else {
+                    layoutInfo.visibleItemsInfo.first().let {
+                        if (layoutInfo.orientation == Orientation.Vertical) it.row else it.column
+                    } - 1
+                }
             if (lineToPrefetch != expectedLineToPrefetch) {
                 lineToPrefetch = -1
                 currentLinePrefetchHandles.forEach { it.cancel() }
@@ -217,8 +221,6 @@ private class DefaultLazyGridPrefetchStrategy(private val nestedPrefetchItemCoun
     }
 
     override fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int) {
-        repeat(nestedPrefetchItemCount) { i ->
-            schedulePrefetch(firstVisibleItemIndex + i)
-        }
+        repeat(nestedPrefetchItemCount) { i -> schedulePrefetch(firstVisibleItemIndex + i) }
     }
 }

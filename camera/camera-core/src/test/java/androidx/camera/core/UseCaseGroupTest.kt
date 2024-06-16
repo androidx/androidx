@@ -32,9 +32,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [UseCaseGroup].
- */
+/** Unit tests for [UseCaseGroup]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -55,20 +53,16 @@ class UseCaseGroupTest {
     @Test
     fun setMutuallyExclusiveEffectsTargets_effectsSet() {
         // Arrange.
-        val previewEffect = FakeSurfaceEffect(
-            PREVIEW,
-            processor
-        )
-        val videoEffect = FakeSurfaceEffect(
-            VIDEO_CAPTURE,
-            processor
-        )
+        val previewEffect = FakeSurfaceEffect(PREVIEW, processor)
+        val videoEffect = FakeSurfaceEffect(VIDEO_CAPTURE, processor)
 
         // Act.
-        val useCaseGroup = UseCaseGroup.Builder().addUseCase(FakeUseCase())
-            .addEffect(previewEffect)
-            .addEffect(videoEffect)
-            .build()
+        val useCaseGroup =
+            UseCaseGroup.Builder()
+                .addUseCase(FakeUseCase())
+                .addEffect(previewEffect)
+                .addEffect(videoEffect)
+                .build()
 
         // Assert.
         assertThat(useCaseGroup.effects).containsExactly(previewEffect, videoEffect)
@@ -77,20 +71,16 @@ class UseCaseGroupTest {
     @Test
     fun setConflictingEffectTargets_throwsException() {
         // Arrange.
-        val previewEffect = FakeSurfaceEffect(
-            PREVIEW,
-            processor
-        )
-        val previewVideoEffect = FakeSurfaceEffect(
-            PREVIEW or VIDEO_CAPTURE,
-            processor
-        )
+        val previewEffect = FakeSurfaceEffect(PREVIEW, processor)
+        val previewVideoEffect = FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, processor)
         // Act.
-        val errorMessage = buildAndGetErrorMessage(
-            UseCaseGroup.Builder().addUseCase(FakeUseCase())
-                .addEffect(previewEffect)
-                .addEffect(previewVideoEffect)
-        )
+        val errorMessage =
+            buildAndGetErrorMessage(
+                UseCaseGroup.Builder()
+                    .addUseCase(FakeUseCase())
+                    .addEffect(previewEffect)
+                    .addEffect(previewVideoEffect)
+            )
 
         // Assert.
         assertThat(errorMessage).isEqualTo("More than one effects has targets PREVIEW.")

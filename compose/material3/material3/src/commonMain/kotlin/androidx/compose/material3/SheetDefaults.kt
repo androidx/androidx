@@ -62,16 +62,16 @@ import kotlinx.coroutines.CancellationException
  *
  * Contains states relating to its swipe position as well as animations between state values.
  *
- * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
- * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
- * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
- * interaction.
+ * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large enough,
+ *   should be skipped. If true, the sheet will always expand to the [Expanded] state and move to
+ *   the [Hidden] state if available when hiding the sheet, either programmatically or by user
+ *   interaction.
  * @param initialValue The initial value of the state.
  * @param density The density that this state can use to convert values to and from dp.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
- * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
- * programmatically or by user interaction.
+ *   expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
+ *   programmatically or by user interaction.
  */
 @Stable
 @ExperimentalMaterial3Api
@@ -103,21 +103,20 @@ class SheetState(
      * currently in. If a swipe or an animation is in progress, this corresponds the state the sheet
      * was in before the swipe or animation started.
      */
-
-    val currentValue: SheetValue get() = anchoredDraggableState.currentValue
+    val currentValue: SheetValue
+        get() = anchoredDraggableState.currentValue
 
     /**
      * The target value of the bottom sheet state.
      *
-     * If a swipe is in progress, this is the value that the sheet would animate to if the
-     * swipe finishes. If an animation is running, this is the target value of that animation.
-     * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
+     * If a swipe is in progress, this is the value that the sheet would animate to if the swipe
+     * finishes. If an animation is running, this is the target value of that animation. Finally, if
+     * no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SheetValue get() = anchoredDraggableState.targetValue
+    val targetValue: SheetValue
+        get() = anchoredDraggableState.targetValue
 
-    /**
-     * Whether the modal bottom sheet is visible.
-     */
+    /** Whether the modal bottom sheet is visible. */
     val isVisible: Boolean
         get() = anchoredDraggableState.currentValue != Hidden
 
@@ -127,8 +126,8 @@ class SheetState(
      * The offset will be initialized during the first measurement phase of the provided sheet
      * content.
      *
-     * These are the phases:
-     * Composition { -> Effects } -> Layout { Measurement -> Placement } -> Drawing
+     * These are the phases: Composition { -> Effects } -> Layout { Measurement -> Placement } ->
+     * Drawing
      *
      * During the first composition, an [IllegalStateException] is thrown. In subsequent
      * compositions, the offset will be derived from the anchors of the previous pass. Always prefer
@@ -139,16 +138,11 @@ class SheetState(
      */
     fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
-    /**
-     * Whether the sheet has an expanded state defined.
-     */
-
+    /** Whether the sheet has an expanded state defined. */
     val hasExpandedState: Boolean
         get() = anchoredDraggableState.anchors.hasAnchorFor(Expanded)
 
-    /**
-     * Whether the modal bottom sheet has a partially expanded state defined.
-     */
+    /** Whether the modal bottom sheet has a partially expanded state defined. */
     val hasPartiallyExpandedState: Boolean
         get() = anchoredDraggableState.anchors.hasAnchorFor(PartiallyExpanded)
 
@@ -156,6 +150,7 @@ class SheetState(
      * Fully expand the bottom sheet with animation and suspend until it is fully expanded or
      * animation has been cancelled.
      * *
+     *
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun expand() {
@@ -165,6 +160,7 @@ class SheetState(
     /**
      * Animate the bottom sheet and suspend until it is partially expanded or animation has been
      * cancelled.
+     *
      * @throws [CancellationException] if the animation is interrupted
      * @throws [IllegalStateException] if [skipPartiallyExpanded] is set to true
      */
@@ -179,19 +175,22 @@ class SheetState(
     /**
      * Expand the bottom sheet with animation and suspend until it is [PartiallyExpanded] if defined
      * else [Expanded].
+     *
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun show() {
-        val targetValue = when {
-            hasPartiallyExpandedState -> PartiallyExpanded
-            else -> Expanded
-        }
+        val targetValue =
+            when {
+                hasPartiallyExpandedState -> PartiallyExpanded
+                else -> Expanded
+            }
         animateTo(targetValue)
     }
 
     /**
      * Hide the bottom sheet with animation and suspend until it is fully hidden or animation has
      * been cancelled.
+     *
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun hide() {
@@ -203,14 +202,13 @@ class SheetState(
     }
 
     /**
-     * Animate to a [targetValue].
-     * If the [targetValue] is not in the set of anchors, the [currentValue] will be updated to the
-     * [targetValue] without updating the offset.
-     *
-     * @throws CancellationException if the interaction interrupted by another interaction like a
-     * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
+     * Animate to a [targetValue]. If the [targetValue] is not in the set of anchors, the
+     * [currentValue] will be updated to the [targetValue] without updating the offset.
      *
      * @param targetValue The target value of the animation
+     * @throws CancellationException if the interaction interrupted by another interaction like a
+     *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo]
+     *   call.
      */
     internal suspend fun animateTo(
         targetValue: SheetValue,
@@ -222,10 +220,10 @@ class SheetState(
     /**
      * Snap to a [targetValue] without any animation.
      *
-     * @throws CancellationException if the interaction interrupted by another interaction like a
-     * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
-     *
      * @param targetValue The target value of the animation
+     * @throws CancellationException if the interaction interrupted by another interaction like a
+     *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo]
+     *   call.
      */
     internal suspend fun snapTo(targetValue: SheetValue) {
         anchoredDraggableState.snapTo(targetValue)
@@ -238,110 +236,88 @@ class SheetState(
         anchoredDraggableState.settle(velocity)
     }
 
-    internal var anchoredDraggableState = AnchoredDraggableState(
-        initialValue = initialValue,
-        animationSpec = BottomSheetAnimationSpec,
-        confirmValueChange = confirmValueChange,
-        positionalThreshold = { with(density) { 56.dp.toPx() } },
-        velocityThreshold = { with(density) { 125.dp.toPx() } },
-    )
+    internal var anchoredDraggableState =
+        AnchoredDraggableState(
+            initialValue = initialValue,
+            animationSpec = BottomSheetAnimationSpec,
+            confirmValueChange = confirmValueChange,
+            positionalThreshold = { with(density) { 56.dp.toPx() } },
+            velocityThreshold = { with(density) { 125.dp.toPx() } },
+        )
 
-    internal val offset: Float? get() = anchoredDraggableState.offset
+    internal val offset: Float?
+        get() = anchoredDraggableState.offset
 
     companion object {
-        /**
-         * The default [Saver] implementation for [SheetState].
-         */
+        /** The default [Saver] implementation for [SheetState]. */
         fun Saver(
             skipPartiallyExpanded: Boolean,
             confirmValueChange: (SheetValue) -> Boolean,
             density: Density,
             skipHiddenState: Boolean,
-        ) = Saver<SheetState, SheetValue>(
-            save = { it.currentValue },
-            restore = { savedValue ->
-                SheetState(
-                    skipPartiallyExpanded,
-                    density,
-                    savedValue,
-                    confirmValueChange,
-                    skipHiddenState,
-                )
-            }
-        )
+        ) =
+            Saver<SheetState, SheetValue>(
+                save = { it.currentValue },
+                restore = { savedValue ->
+                    SheetState(
+                        skipPartiallyExpanded,
+                        density,
+                        savedValue,
+                        confirmValueChange,
+                        skipHiddenState,
+                    )
+                }
+            )
     }
 }
 
-/**
- * Possible values of [SheetState].
- */
+/** Possible values of [SheetState]. */
 @ExperimentalMaterial3Api
 enum class SheetValue {
-    /**
-     * The sheet is not visible.
-     */
+    /** The sheet is not visible. */
     Hidden,
 
-    /**
-     * The sheet is visible at full height.
-     */
+    /** The sheet is visible at full height. */
     Expanded,
 
-    /**
-     * The sheet is partially visible.
-     */
+    /** The sheet is partially visible. */
     PartiallyExpanded,
 }
 
-/**
- * Contains the default values used by [ModalBottomSheet] and [BottomSheetScaffold].
- */
+/** Contains the default values used by [ModalBottomSheet] and [BottomSheetScaffold]. */
 @Stable
 @ExperimentalMaterial3Api
 object BottomSheetDefaults {
     /** The default shape for bottom sheets in a [Hidden] state. */
     val HiddenShape: Shape
-        @Composable get() =
-            SheetBottomTokens.DockedMinimizedContainerShape.value
+        @Composable get() = SheetBottomTokens.DockedMinimizedContainerShape.value
 
     /** The default shape for a bottom sheets in [PartiallyExpanded] and [Expanded] states. */
     val ExpandedShape: Shape
-        @Composable get() =
-            SheetBottomTokens.DockedContainerShape.value
+        @Composable get() = SheetBottomTokens.DockedContainerShape.value
 
     /** The default container color for a bottom sheet. */
     val ContainerColor: Color
-        @Composable get() =
-            SheetBottomTokens.DockedContainerColor.value
+        @Composable get() = SheetBottomTokens.DockedContainerColor.value
 
     /** The default elevation for a bottom sheet. */
     val Elevation = SheetBottomTokens.DockedModalContainerElevation
 
     /** The default color of the scrim overlay for background content. */
     val ScrimColor: Color
-        @Composable get() =
-            ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
+        @Composable get() = ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
-    /**
-     * The default peek height used by [BottomSheetScaffold].
-     */
+    /** The default peek height used by [BottomSheetScaffold]. */
     val SheetPeekHeight = 56.dp
 
-    /**
-     * The default max width used by [ModalBottomSheet] and [BottomSheetScaffold]
-     */
+    /** The default max width used by [ModalBottomSheet] and [BottomSheetScaffold] */
     val SheetMaxWidth = 640.dp
 
-    /**
-     * Default insets to be used and consumed by the [ModalBottomSheet]'s content.
-     */
+    /** Default insets to be used and consumed by the [ModalBottomSheet]'s content. */
     val windowInsets: WindowInsets
-        @Composable
-        get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+        @Composable get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
 
-    /**
-     * The optional visual marker placed on top of a bottom sheet to indicate it may be dragged.
-     */
+    /** The optional visual marker placed on top of a bottom sheet to indicate it may be dragged. */
     @Composable
     fun DragHandle(
         modifier: Modifier = Modifier,
@@ -352,19 +328,14 @@ object BottomSheetDefaults {
     ) {
         val dragHandleDescription = getString(Strings.BottomSheetDragHandleDescription)
         Surface(
-            modifier = modifier
-                .padding(vertical = DragHandleVerticalPadding)
-                .semantics { contentDescription = dragHandleDescription },
+            modifier =
+                modifier.padding(vertical = DragHandleVerticalPadding).semantics {
+                    contentDescription = dragHandleDescription
+                },
             color = color,
             shape = shape
         ) {
-            Box(
-                Modifier
-                    .size(
-                        width = width,
-                        height = height
-                    )
-            )
+            Box(Modifier.size(width = width, height = height))
         }
     }
 }
@@ -374,57 +345,59 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     sheetState: SheetState,
     orientation: Orientation,
     onFling: (velocity: Float) -> Unit
-): NestedScrollConnection = object : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        val delta = available.toFloat()
-        return if (delta < 0 && source == NestedScrollSource.UserInput) {
-            sheetState.anchoredDraggableState.dispatchRawDelta(delta).toOffset()
-        } else {
-            Offset.Zero
+): NestedScrollConnection =
+    object : NestedScrollConnection {
+        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            val delta = available.toFloat()
+            return if (delta < 0 && source == NestedScrollSource.UserInput) {
+                sheetState.anchoredDraggableState.dispatchRawDelta(delta).toOffset()
+            } else {
+                Offset.Zero
+            }
         }
-    }
 
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource
-    ): Offset {
-        return if (source == NestedScrollSource.UserInput) {
-            sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
-        } else {
-            Offset.Zero
+        override fun onPostScroll(
+            consumed: Offset,
+            available: Offset,
+            source: NestedScrollSource
+        ): Offset {
+            return if (source == NestedScrollSource.UserInput) {
+                sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
+            } else {
+                Offset.Zero
+            }
         }
-    }
 
-    override suspend fun onPreFling(available: Velocity): Velocity {
-        val toFling = available.toFloat()
-        val currentOffset = sheetState.requireOffset()
-        val minAnchor = sheetState.anchoredDraggableState.anchors.minAnchor()
-        return if (toFling < 0 && currentOffset > minAnchor) {
-            onFling(toFling)
-            // since we go to the anchor with tween settling, consume all for the best UX
-            available
-        } else {
-            Velocity.Zero
+        override suspend fun onPreFling(available: Velocity): Velocity {
+            val toFling = available.toFloat()
+            val currentOffset = sheetState.requireOffset()
+            val minAnchor = sheetState.anchoredDraggableState.anchors.minAnchor()
+            return if (toFling < 0 && currentOffset > minAnchor) {
+                onFling(toFling)
+                // since we go to the anchor with tween settling, consume all for the best UX
+                available
+            } else {
+                Velocity.Zero
+            }
         }
+
+        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+            onFling(available.toFloat())
+            return available
+        }
+
+        private fun Float.toOffset(): Offset =
+            Offset(
+                x = if (orientation == Orientation.Horizontal) this else 0f,
+                y = if (orientation == Orientation.Vertical) this else 0f
+            )
+
+        @JvmName("velocityToFloat")
+        private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
+
+        @JvmName("offsetToFloat")
+        private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
-
-    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        onFling(available.toFloat())
-        return available
-    }
-
-    private fun Float.toOffset(): Offset = Offset(
-        x = if (orientation == Orientation.Horizontal) this else 0f,
-        y = if (orientation == Orientation.Vertical) this else 0f
-    )
-
-    @JvmName("velocityToFloat")
-    private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
-
-    @JvmName("offsetToFloat")
-    private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
-}
 
 @Composable
 @ExperimentalMaterial3Api
@@ -436,13 +409,16 @@ internal fun rememberSheetState(
 ): SheetState {
     val density = LocalDensity.current
     return rememberSaveable(
-        skipPartiallyExpanded, confirmValueChange, skipHiddenState,
-        saver = SheetState.Saver(
-            skipPartiallyExpanded = skipPartiallyExpanded,
-            confirmValueChange = confirmValueChange,
-            density = density,
-            skipHiddenState = skipHiddenState,
-        )
+        skipPartiallyExpanded,
+        confirmValueChange,
+        skipHiddenState,
+        saver =
+            SheetState.Saver(
+                skipPartiallyExpanded = skipPartiallyExpanded,
+                confirmValueChange = confirmValueChange,
+                density = density,
+                skipHiddenState = skipHiddenState,
+            )
     ) {
         SheetState(
             skipPartiallyExpanded,
@@ -455,10 +431,6 @@ internal fun rememberSheetState(
 }
 
 private val DragHandleVerticalPadding = 22.dp
-/**
- * The default animation spec used by [SheetState].
- */
-private val BottomSheetAnimationSpec: AnimationSpec<Float> = tween(
-    durationMillis = 300,
-    easing = FastOutSlowInEasing
-)
+/** The default animation spec used by [SheetState]. */
+private val BottomSheetAnimationSpec: AnimationSpec<Float> =
+    tween(durationMillis = 300, easing = FastOutSlowInEasing)

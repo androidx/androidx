@@ -33,35 +33,29 @@ class Rectangle {
     private var mColor = floatArrayOf(1f, 0f, 0f, 1f)
     private var mSquareCoords = FloatArray(12)
 
-    /**
-     * Sets up the drawing object data for use in an OpenGL ES context.
-     */
+    /** Sets up the drawing object data for use in an OpenGL ES context. */
     init {
         // initialize vertex byte buffer for shape coordinates
-        val bb = ByteBuffer.allocateDirect( // (# of coordinate values * 4 bytes per float)
-            mSquareCoords.size * 4
-        )
+        val bb =
+            ByteBuffer.allocateDirect( // (# of coordinate values * 4 bytes per float)
+                mSquareCoords.size * 4
+            )
         bb.order(ByteOrder.nativeOrder())
         mVertexBuffer = bb.asFloatBuffer()
         mVertexBuffer.put(mSquareCoords)
         mVertexBuffer.position(0)
         // initialize byte buffer for the draw list
-        val dlb = ByteBuffer.allocateDirect( // (# of coordinate values * 2 bytes per short)
-            DRAW_ORDER.size * 2
-        )
+        val dlb =
+            ByteBuffer.allocateDirect( // (# of coordinate values * 2 bytes per short)
+                DRAW_ORDER.size * 2
+            )
         dlb.order(ByteOrder.nativeOrder())
         mDrawListBuffer = dlb.asShortBuffer()
         mDrawListBuffer.put(DRAW_ORDER)
         mDrawListBuffer.position(0)
         // prepare shaders and OpenGL program
-        val vertexShader = loadShader(
-            GLES20.GL_VERTEX_SHADER,
-            vertexShaderCode
-        )
-        val fragmentShader = loadShader(
-            GLES20.GL_FRAGMENT_SHADER,
-            fragmentShaderCode
-        )
+        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
         mProgram = GLES20.glCreateProgram() // create empty OpenGL Program
         GLES20.glAttachShader(mProgram, vertexShader) // add the vertex shader to program
         GLES20.glAttachShader(mProgram, fragmentShader) // add the fragment shader to program
@@ -112,9 +106,12 @@ class Rectangle {
         // 4 bytes per vertex
         val vertexStride = COORDS_PER_VERTEX * 4
         GLES20.glVertexAttribPointer(
-            mPositionHandle, COORDS_PER_VERTEX,
-            GLES20.GL_FLOAT, false,
-            vertexStride, mVertexBuffer
+            mPositionHandle,
+            COORDS_PER_VERTEX,
+            GLES20.GL_FLOAT,
+            false,
+            vertexStride,
+            mVertexBuffer
         )
         // get handle to fragment shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor")
@@ -126,8 +123,10 @@ class Rectangle {
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0)
         // Draw the square
         GLES20.glDrawElements(
-            GLES20.GL_TRIANGLES, DRAW_ORDER.size,
-            GLES20.GL_UNSIGNED_SHORT, mDrawListBuffer
+            GLES20.GL_TRIANGLES,
+            DRAW_ORDER.size,
+            GLES20.GL_UNSIGNED_SHORT,
+            mDrawListBuffer
         )
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle)

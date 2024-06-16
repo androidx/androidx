@@ -52,7 +52,7 @@ class ExerciseRoute constructor(val route: List<Location>) {
      * @param time The point in time when the location was recorded; Required field.
      * @param latitude Latitude of the location point; Required field; Valid range [-90; 90]
      * @param longitude Longitude of the location point; Required field; Valid range [-180; 180]
-     * @param altitude in [Length] unit. Optional field. Valid range: non-negative numbers.
+     * @param altitude in [Length] unit. Optional field.
      * @param horizontalAccuracy in [Length] unit. Optional field. Valid range: non-negative
      *   numbers.
      * @param verticalAccuracy in [Length] unit. Optional field. Valid range: non-negative numbers.

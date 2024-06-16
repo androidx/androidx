@@ -41,20 +41,14 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterialApi::class)
 class ChipScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     @Test
     fun actionChip() {
         rule.setMaterialContent {
-            Chip(
-                onClick = {},
-                enabled = true,
-                modifier = Modifier.testTag(TestTag)
-            ) {
+            Chip(onClick = {}, enabled = true, modifier = Modifier.testTag(TestTag)) {
                 Text("Action Chip")
             }
         }
@@ -64,11 +58,7 @@ class ChipScreenshotTest {
     @Test
     fun actionChip_disabled() {
         rule.setMaterialContent {
-            Chip(
-                onClick = {},
-                enabled = false,
-                modifier = Modifier.testTag(TestTag)
-            ) {
+            Chip(onClick = {}, enabled = false, modifier = Modifier.testTag(TestTag)) {
                 Text("Action Chip")
             }
         }
@@ -136,10 +126,7 @@ class ChipScreenshotTest {
                 onClick = {},
                 modifier = Modifier.testTag(TestTag),
                 leadingIcon = {
-                    Icon(
-                        Icons.Filled.Home,
-                        contentDescription = "Localized Description"
-                    )
+                    Icon(Icons.Filled.Home, contentDescription = "Localized Description")
                 },
                 selectedIcon = {
                     Icon(
@@ -197,10 +184,7 @@ class ChipScreenshotTest {
                 enabled = false,
                 modifier = Modifier.testTag(TestTag),
                 leadingIcon = {
-                    Icon(
-                        Icons.Filled.Home,
-                        contentDescription = "Localized Description"
-                    )
+                    Icon(Icons.Filled.Home, contentDescription = "Localized Description")
                 },
                 selectedIcon = {
                     Icon(
@@ -232,7 +216,8 @@ class ChipScreenshotTest {
     }
 
     private fun assertChipAgainstGolden(goldenIdentifier: String) {
-        rule.onNodeWithTag(TestTag)
+        rule
+            .onNodeWithTag(TestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

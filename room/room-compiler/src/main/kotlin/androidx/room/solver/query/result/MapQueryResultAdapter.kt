@@ -16,7 +16,6 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
@@ -33,20 +32,19 @@ class MapQueryResultAdapter(
             addLocalVariable(
                 name = outVarName,
                 typeName = mapValueResultAdapter.getDeclarationTypeName(),
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    mapValueResultAdapter.getInstantiationTypeName(language)
-                )
+                assignExpr = mapValueResultAdapter.getInstantiationCodeBlock(language)
             )
             val stepName = if (scope.useDriverApi) "step" else "moveToNext"
-            beginControlFlow("while (%L.$stepName())", cursorVarName).apply {
-                mapValueResultAdapter.convert(
-                    scope,
-                    outVarName,
-                    cursorVarName,
-                    dupeColumnsIndexAdapter,
-                )
-            }.endControlFlow()
+            beginControlFlow("while (%L.$stepName())", cursorVarName)
+                .apply {
+                    mapValueResultAdapter.convert(
+                        scope,
+                        outVarName,
+                        cursorVarName,
+                        dupeColumnsIndexAdapter,
+                    )
+                }
+                .endControlFlow()
         }
     }
 
@@ -66,10 +64,9 @@ class MapQueryResultAdapter(
                 )
             }
         } else {
-            rowAdapters.forEach {
-                it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            }
+            rowAdapters.forEach { it.onCursorReady(cursorVarName = cursorVarName, scope = scope) }
         }
     }
+
     override fun isMigratedToDriver(): Boolean = mapValueResultAdapter.isMigratedToDriver()
 }

@@ -47,25 +47,25 @@ internal constructor(
     private val context: Context,
     client: DevicePerformanceClient,
     private val performanceStore: DataStore<Preferences>
-) :
-    DevicePerformance {
+) : DevicePerformance {
     private val tag = "PlayServicesDevicePerformance"
 
     private val defaultMpc = DefaultDevicePerformance()
     private val mpcKey = intPreferencesKey(MPC_PREFERENCE_KEY)
 
-    override val mediaPerformanceClass get() = lazyMpc.value
-    private val lazyMpc =
-        lazy {
-            runBlocking {
-                val storedMpc = getPerformanceClass().first()
-                Log.v(tag, "Stored mpc is $storedMpc")
-                Log.v(tag, "Default mpc is ${defaultMpc.mediaPerformanceClass}")
-                val returnedMpc = max(storedMpc ?: 0, defaultMpc.mediaPerformanceClass)
-                Log.v(tag, "Mpc value used $returnedMpc")
-                return@runBlocking returnedMpc
-            }
+    override val mediaPerformanceClass
+        get() = lazyMpc.value
+
+    private val lazyMpc = lazy {
+        runBlocking {
+            val storedMpc = getPerformanceClass().first()
+            Log.v(tag, "Stored mpc is $storedMpc")
+            Log.v(tag, "Default mpc is ${defaultMpc.mediaPerformanceClass}")
+            val returnedMpc = max(storedMpc ?: 0, defaultMpc.mediaPerformanceClass)
+            Log.v(tag, "Mpc value used $returnedMpc")
+            return@runBlocking returnedMpc
         }
+    }
 
     init {
         Log.v(
@@ -81,11 +81,14 @@ internal constructor(
      *
      * @param context The application context value to use.
      */
-    constructor(context: Context) : this(
+    constructor(
+        context: Context
+    ) : this(
         context,
         com.google.android.gms.deviceperformance.DevicePerformance.getClient(context),
         PreferenceDataStoreFactory.create(
-            produceFile = { context.preferencesDataStoreFile("media_performance_class") })
+            produceFile = { context.preferencesDataStoreFile("media_performance_class") }
+        )
     )
 
     private fun getPerformanceClass(): Flow<Int?> {
@@ -96,27 +99,28 @@ internal constructor(
     }
 
     private suspend fun savePerformanceClass(value: Int) {
-        performanceStore.edit { values ->
-            values[mpcKey] = value
-        }
+        performanceStore.edit { values -> values[mpcKey] = value }
     }
 
     private fun updatePerformanceStore(client: DevicePerformanceClient) {
-        client.mediaPerformanceClass().addOnSuccessListener { result ->
-            runBlocking {
-                Log.v(tag, "Got mediaPerformanceClass $result")
-                val storedVal = max(result, defaultMpc.mediaPerformanceClass)
-                launch {
-                    savePerformanceClass(storedVal)
-                    Log.v(tag, "Saved mediaPerformanceClass $storedVal")
+        client
+            .mediaPerformanceClass()
+            .addOnSuccessListener { result ->
+                runBlocking {
+                    Log.v(tag, "Got mediaPerformanceClass $result")
+                    val storedVal = max(result, defaultMpc.mediaPerformanceClass)
+                    launch {
+                        savePerformanceClass(storedVal)
+                        Log.v(tag, "Saved mediaPerformanceClass $storedVal")
+                    }
                 }
             }
-        }.addOnFailureListener { e: Exception ->
-            if (e is ApiException) {
-                Log.e(tag, "Error saving mediaPerformanceClass", e)
-            } else if (e is IllegalStateException) {
-                Log.e(tag, "Error saving mediaPerformanceClass", e)
+            .addOnFailureListener { e: Exception ->
+                if (e is ApiException) {
+                    Log.e(tag, "Error saving mediaPerformanceClass", e)
+                } else if (e is IllegalStateException) {
+                    Log.e(tag, "Error saving mediaPerformanceClass", e)
+                }
             }
-        }
     }
 }

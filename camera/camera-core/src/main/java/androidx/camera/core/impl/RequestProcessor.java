@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -30,7 +29,6 @@ import java.util.List;
  *
  * <p>The images to be fetched is managed inside {@link SessionProcessor}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface RequestProcessor {
     /**
      * Submit a request.

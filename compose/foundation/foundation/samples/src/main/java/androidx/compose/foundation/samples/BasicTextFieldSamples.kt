@@ -87,9 +87,8 @@ import kotlinx.coroutines.flow.debounce
 @Sampled
 @Composable
 fun BasicTextFieldSample() {
-    var value by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
-    }
+    var value by
+        rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     BasicTextField(
         value = value,
         onValueChange = {
@@ -119,10 +118,7 @@ fun BasicTextFieldWithStringSample() {
 fun PlaceholderBasicTextFieldSample() {
     var value by rememberSaveable { mutableStateOf("initial value") }
     Box {
-        BasicTextField(
-            value = value,
-            onValueChange = { value = it }
-        )
+        BasicTextField(value = value, onValueChange = { value = it })
         if (value.isEmpty()) {
             Text(text = "Placeholder")
         }
@@ -142,8 +138,7 @@ fun TextFieldWithIconSample() {
             // Modifier.clickable to the Row anymore to bring the text field into focus when user
             // taps on a larger text field area which includes paddings and the icon areas.
             Row(
-                Modifier
-                    .background(Color.LightGray, RoundedCornerShape(percent = 30))
+                Modifier.background(Color.LightGray, RoundedCornerShape(percent = 30))
                     .padding(16.dp)
             ) {
                 Icon(Icons.Default.MailOutline, contentDescription = null)
@@ -158,31 +153,32 @@ fun TextFieldWithIconSample() {
 @Composable
 fun CreditCardSample() {
     /** The offset translator used for credit card input field */
-    val creditCardOffsetTranslator = object : OffsetMapping {
-        override fun originalToTransformed(offset: Int): Int {
-            return when {
-                offset < 4 -> offset
-                offset < 8 -> offset + 1
-                offset < 12 -> offset + 2
-                offset <= 16 -> offset + 3
-                else -> 19
+    val creditCardOffsetTranslator =
+        object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                return when {
+                    offset < 4 -> offset
+                    offset < 8 -> offset + 1
+                    offset < 12 -> offset + 2
+                    offset <= 16 -> offset + 3
+                    else -> 19
+                }
             }
-        }
 
-        override fun transformedToOriginal(offset: Int): Int {
-            return when {
-                offset <= 4 -> offset
-                offset <= 9 -> offset - 1
-                offset <= 14 -> offset - 2
-                offset <= 19 -> offset - 3
-                else -> 16
+            override fun transformedToOriginal(offset: Int): Int {
+                return when {
+                    offset <= 4 -> offset
+                    offset <= 9 -> offset - 1
+                    offset <= 14 -> offset - 2
+                    offset <= 19 -> offset - 3
+                    else -> 16
+                }
             }
         }
-    }
 
     /**
-     * Converts up to 16 digits to hyphen connected 4 digits string. For example,
-     * "1234567890123456" will be shown as "1234-5678-9012-3456"
+     * Converts up to 16 digits to hyphen connected 4 digits string. For example, "1234567890123456"
+     * will be shown as "1234-5678-9012-3456"
      */
     val creditCardTransformation = VisualTransformation { text ->
         val trimmedText = if (text.text.length > 16) text.text.substring(0..15) else text.text
@@ -211,9 +207,7 @@ fun CreditCardSample() {
 
 @Sampled
 fun BasicTextFieldStateCompleteSample() {
-    class SearchViewModel(
-        val searchFieldState: TextFieldState = TextFieldState()
-    ) {
+    class SearchViewModel(val searchFieldState: TextFieldState = TextFieldState()) {
         private val queryValidationRegex = """\w+""".toRegex()
 
         // Use derived state to avoid recomposing every time the text changes, and only recompose
@@ -228,14 +222,16 @@ fun BasicTextFieldStateCompleteSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            snapshotFlow { searchFieldState.text }.collectLatest { queryText ->
-                // Start a new search every time the user types something valid. If the previous
-                // search is still being processed when the text is changed, it will be cancelled
-                // and this code will run again with the latest query text.
-                if (isQueryValid) {
-                    searchResults = performSearch(query = queryText)
+            snapshotFlow { searchFieldState.text }
+                .collectLatest { queryText ->
+                    // Start a new search every time the user types something valid. If the previous
+                    // search is still being processed when the text is changed, it will be
+                    // cancelled
+                    // and this code will run again with the latest query text.
+                    if (isQueryValid) {
+                        searchResults = performSearch(query = queryText)
+                    }
                 }
-            }
         }
 
         fun clearQuery() {
@@ -259,11 +255,7 @@ fun BasicTextFieldStateCompleteSample() {
             if (!viewModel.isQueryValid) {
                 Text("Invalid query", style = TextStyle(color = Color.Red))
             }
-            LazyColumn {
-                items(viewModel.searchResults) {
-                    TODO()
-                }
-            }
+            LazyColumn { items(viewModel.searchResults) { TODO() } }
         }
     }
 }
@@ -320,57 +312,56 @@ fun BasicTextFieldStateEditSample() {
 fun BasicTextFieldCustomInputTransformationSample() {
     // Demonstrates how to create a custom and relatively complex InputTransformation.
     val state = remember { TextFieldState() }
-    BasicTextField(state, inputTransformation = {
-        // A filter that always places newly-input text at the start of the string, after a
-        // prompt character, like a shell.
-        val promptChar = '>'
+    BasicTextField(
+        state,
+        inputTransformation = {
+            // A filter that always places newly-input text at the start of the string, after a
+            // prompt character, like a shell.
+            val promptChar = '>'
 
-        fun CharSequence.countPrefix(char: Char): Int {
-            var i = 0
-            while (i < length && get(i) == char) i++
-            return i
-        }
-
-        // Step one: Figure out the insertion point.
-        val newPromptChars = asCharSequence().countPrefix(promptChar)
-        val insertionPoint = if (newPromptChars == 0) 0 else 1
-
-        // Step two: Ensure text is placed at the insertion point.
-        if (changes.changeCount == 1) {
-            val insertedRange = changes.getRange(0)
-            val replacedRange = changes.getOriginalRange(0)
-            if (!replacedRange.collapsed && insertedRange.collapsed) {
-                // Text was deleted, delete forwards from insertion point.
-                delete(insertionPoint, insertionPoint + replacedRange.length)
+            fun CharSequence.countPrefix(char: Char): Int {
+                var i = 0
+                while (i < length && get(i) == char) i++
+                return i
             }
-        }
-        // Else text was replaced or there were multiple changes - don't handle.
 
-        // Step three: Ensure the prompt character is there.
-        if (newPromptChars == 0) {
-            insert(0, ">")
-        }
+            // Step one: Figure out the insertion point.
+            val newPromptChars = asCharSequence().countPrefix(promptChar)
+            val insertionPoint = if (newPromptChars == 0) 0 else 1
 
-        // Step four: Ensure the cursor is ready for the next input.
-        placeCursorAfterCharAt(0)
-    })
+            // Step two: Ensure text is placed at the insertion point.
+            if (changes.changeCount == 1) {
+                val insertedRange = changes.getRange(0)
+                val replacedRange = changes.getOriginalRange(0)
+                if (!replacedRange.collapsed && insertedRange.collapsed) {
+                    // Text was deleted, delete forwards from insertion point.
+                    delete(insertionPoint, insertionPoint + replacedRange.length)
+                }
+            }
+            // Else text was replaced or there were multiple changes - don't handle.
+
+            // Step three: Ensure the prompt character is there.
+            if (newPromptChars == 0) {
+                insert(0, ">")
+            }
+
+            // Step four: Ensure the cursor is ready for the next input.
+            placeCursorAfterCharAt(0)
+        }
+    )
 }
 
 @Sampled
 @Composable
 fun BasicTextFieldOutputTransformationSample() {
     @Stable
-    data class PhoneNumberOutputTransformation(
-        private val pad: Boolean
-    ) : OutputTransformation {
+    data class PhoneNumberOutputTransformation(private val pad: Boolean) : OutputTransformation {
         override fun TextFieldBuffer.transformOutput() {
             if (pad) {
                 // Pad the text with placeholder chars if too short.
                 // (___) ___-____
                 val padCount = 10 - length
-                repeat(padCount) {
-                    append('_')
-                }
+                repeat(padCount) { append('_') }
             }
 
             // (123) 456-7890
@@ -383,9 +374,8 @@ fun BasicTextFieldOutputTransformationSample() {
     val state = rememberTextFieldState()
     BasicTextField(
         state,
-        inputTransformation = InputTransformation
-            .maxLength(10)
-            .then {
+        inputTransformation =
+            InputTransformation.maxLength(10).then {
                 if (!TextUtils.isDigitsOnly(asCharSequence())) {
                     revertAllChanges()
                 }
@@ -401,9 +391,10 @@ fun BasicTextFieldInputTransformationByValueReplaceSample() {
     BasicTextField(
         state,
         // Convert tabs to spaces.
-        inputTransformation = InputTransformation.byValue { _, proposed ->
-            proposed.replace("""\t""".toRegex(), "  ")
-        }
+        inputTransformation =
+            InputTransformation.byValue { _, proposed ->
+                proposed.replace("""\t""".toRegex(), "  ")
+            }
     )
 }
 
@@ -414,9 +405,10 @@ fun BasicTextFieldInputTransformationByValueChooseSample() {
     BasicTextField(
         state,
         // Reject whitespace.
-        inputTransformation = InputTransformation.byValue { current, proposed ->
-            if ("""\s""".toRegex() in proposed) current else proposed
-        }
+        inputTransformation =
+            InputTransformation.byValue { current, proposed ->
+                if ("""\s""".toRegex() in proposed) current else proposed
+            }
     )
 }
 
@@ -443,12 +435,15 @@ fun BasicTextFieldInputTransformationChainingSample() {
 @Composable
 fun BasicTextFieldChangeIterationSample() {
     // Print a log message every time the text is changed.
-    BasicTextField(state = rememberTextFieldState(), inputTransformation = {
-        changes.forEachChange { sourceRange, replacedLength ->
-            val newString = asCharSequence().substring(sourceRange)
-            println("""$replacedLength characters were replaced with "$newString"""")
+    BasicTextField(
+        state = rememberTextFieldState(),
+        inputTransformation = {
+            changes.forEachChange { sourceRange, replacedLength ->
+                val newString = asCharSequence().substring(sourceRange)
+                println("""$replacedLength characters were replaced with "$newString"""")
+            }
         }
-    })
+    )
 }
 
 @Sampled
@@ -456,17 +451,20 @@ fun BasicTextFieldChangeIterationSample() {
 fun BasicTextFieldChangeReverseIterationSample() {
     // Make a text field behave in "insert mode" – inserted text overwrites the text ahead of it
     // instead of being inserted.
-    BasicTextField(state = rememberTextFieldState(), inputTransformation = {
-        changes.forEachChangeReversed { range, originalRange ->
-            if (!range.collapsed && originalRange.collapsed) {
-                // New text was inserted, delete the text ahead of it.
-                delete(
-                    range.end.coerceAtMost(length),
-                    (range.end + range.length).coerceAtMost(length)
-                )
+    BasicTextField(
+        state = rememberTextFieldState(),
+        inputTransformation = {
+            changes.forEachChangeReversed { range, originalRange ->
+                if (!range.collapsed && originalRange.collapsed) {
+                    // New text was inserted, delete the text ahead of it.
+                    delete(
+                        range.end.coerceAtMost(length),
+                        (range.end + range.length).coerceAtMost(length)
+                    )
+                }
             }
         }
-    })
+    )
 }
 
 @OptIn(FlowPreview::class)
@@ -485,9 +483,7 @@ fun BasicTextFieldTextValuesSample() {
                 .debounce(500)
                 // collectLatest cancels the previous search if it's still running when there's a
                 // new change.
-                .collectLatest { queryText ->
-                    searchResults = performSearch(query = queryText)
-                }
+                .collectLatest { queryText -> searchResults = performSearch(query = queryText) }
         }
 
         private suspend fun performSearch(query: CharSequence): List<String> {
@@ -499,11 +495,7 @@ fun BasicTextFieldTextValuesSample() {
     fun SearchScreen(viewModel: SearchViewModel) {
         Column {
             BasicTextField(viewModel.searchFieldState)
-            LazyColumn {
-                items(viewModel.searchResults) {
-                    TODO()
-                }
-            }
+            LazyColumn { items(viewModel.searchResults) { TODO() } }
         }
     }
 }
@@ -539,10 +531,10 @@ fun BasicTextFieldUndoSample() {
 
         BasicTextField(
             state = state,
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
-                .padding(8.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                    .padding(8.dp),
             textStyle = TextStyle(fontSize = 16.sp)
         )
     }
@@ -561,8 +553,7 @@ fun BasicTextFieldDecoratorSample() {
             // `Modifier.clickable` to the Row anymore to bring the text field into focus when user
             // taps on a larger text field area which includes paddings and the icon areas.
             Row(
-                Modifier
-                    .background(Color.LightGray, RoundedCornerShape(percent = 30))
+                Modifier.background(Color.LightGray, RoundedCornerShape(percent = 30))
                     .padding(16.dp)
             ) {
                 Icon(Icons.Default.MailOutline, contentDescription = "Mail Icon")

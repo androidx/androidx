@@ -35,6 +35,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class DependencyDaoTest : TestDatabaseTest() {
     lateinit var dao: DependencyDao
+
     @Before
     fun init() {
         dao = database.dependencyDao()
@@ -63,33 +64,16 @@ class DependencyDaoTest : TestDatabaseTest() {
     @Test
     fun insertAndGetByQuery_pojo() {
         val data = insertSample(3)
-        assertThat(
-            dao.findPojo(3),
-            `is`(
-                PojoFromDependency(
-                    id = data.id,
-                    name = data.name
-                )
-            )
-        )
+        assertThat(dao.findPojo(3), `is`(PojoFromDependency(id = data.id, name = data.name)))
         assertThat(dao.findPojo(5), `is`(nullValue()))
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     fun getRelation() {
-        val foo1 = DataClassFromDependency(
-            id = 3,
-            name = "foo"
-        )
-        val foo2 = DataClassFromDependency(
-            id = 4,
-            name = "foo"
-        )
-        val bar = DataClassFromDependency(
-            id = 5,
-            name = "bar"
-        )
+        val foo1 = DataClassFromDependency(id = 3, name = "foo")
+        val foo2 = DataClassFromDependency(id = 4, name = "foo")
+        val bar = DataClassFromDependency(id = 5, name = "bar")
         dao.insert(foo1, foo2, bar)
         val fooList = dao.relation("foo")
         assertThat(fooList, `is`(notNullValue()))
@@ -108,10 +92,7 @@ class DependencyDaoTest : TestDatabaseTest() {
     }
 
     private fun insertSample(id: Int): DataClassFromDependency {
-        val data = DataClassFromDependency(
-            id = id,
-            name = "foo"
-        )
+        val data = DataClassFromDependency(id = id, name = "foo")
         dao.insert(data)
         return data
     }

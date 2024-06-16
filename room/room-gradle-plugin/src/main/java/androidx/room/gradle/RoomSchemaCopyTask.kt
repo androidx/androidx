@@ -41,8 +41,7 @@ abstract class RoomSchemaCopyTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val variantSchemaOutputDirectories: ConfigurableFileCollection
 
-    @get:Internal
-    abstract val schemaDirectory: DirectoryProperty
+    @get:Internal abstract val schemaDirectory: DirectoryProperty
 
     @TaskAction
     fun copySchemas() {
@@ -51,40 +50,47 @@ abstract class RoomSchemaCopyTask : DefaultTask() {
         variantSchemaOutputDirectories.files
             .filter { it.exists() }
             .forEach { outputDir ->
-                outputDir.walkTopDown().filter { it.isFile }.forEach { schemaFile ->
-                    val schemaPath = schemaFile.toPath()
-                    val basePath = outputDir.toPath().relativize(schemaPath)
-                    val target = schemaDirectory.get().asFile.toPath().resolve(basePath)
-                        .apply { parent?.createDirectories() }
-                    schemaPath.copyTo(target = target, overwrite = true)
-                    copiedHashes.getOrPut(basePath.toString()) { mutableMapOf() }
-                        .put(schemaFile.sha256(), schemaPath.toString())
-                }
+                outputDir
+                    .walkTopDown()
+                    .filter { it.isFile }
+                    .forEach { schemaFile ->
+                        val schemaPath = schemaFile.toPath()
+                        val basePath = outputDir.toPath().relativize(schemaPath)
+                        val target =
+                            schemaDirectory.get().asFile.toPath().resolve(basePath).apply {
+                                parent?.createDirectories()
+                            }
+                        schemaPath.copyTo(target = target, overwrite = true)
+                        copiedHashes
+                            .getOrPut(basePath.toString()) { mutableMapOf() }
+                            .put(schemaFile.sha256(), schemaPath.toString())
+                    }
             }
         // Validate that if multiple schema files for the same database and version are copied
         // to the same schema directory that they are the same in content (via checksum), as
         // otherwise it would indicate per-variant schemas and thus requiring per-variant
         // schema directories.
-        copiedHashes.filterValues { it.size > 1 }.forEach { (_, hashes) ->
-            val errorMsg = buildString {
-                appendLine(
-                    "Inconsistency detected exporting Room schema files (checksum - source):"
-                )
-                hashes.entries.forEach {
-                    appendLine("  ${it.key} - ${it.value}")
+        copiedHashes
+            .filterValues { it.size > 1 }
+            .forEach { (_, hashes) ->
+                val errorMsg = buildString {
+                    appendLine(
+                        "Inconsistency detected exporting Room schema files (checksum - source):"
+                    )
+                    hashes.entries.forEach { appendLine("  ${it.key} - ${it.value}") }
+                    appendLine(
+                        "The listed files differ in content but were copied into the same " +
+                            "schema directory '${schemaDirectory.get()}'. A possible indicator that " +
+                            "per-variant / per-target schema locations must be provided."
+                    )
                 }
-                appendLine(
-                    "The listed files differ in content but were copied into the same " +
-                        "schema directory '${schemaDirectory.get()}'. A possible indicator that " +
-                        "per-variant / per-target schema locations must be provided."
-                )
+                throw GradleException(errorMsg)
             }
-            throw GradleException(errorMsg)
-        }
     }
 
     private fun File.sha256(): String {
-        return MessageDigest.getInstance("SHA-256").digest(this.readBytes())
-            .joinToString("") { "%02x".format(it) }
+        return MessageDigest.getInstance("SHA-256").digest(this.readBytes()).joinToString("") {
+            "%02x".format(it)
+        }
     }
 }

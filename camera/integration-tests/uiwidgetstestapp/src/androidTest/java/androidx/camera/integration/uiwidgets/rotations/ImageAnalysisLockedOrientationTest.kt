@@ -33,20 +33,20 @@ class ImageAnalysisLockedOrientationTest(
 ) : ImageAnalysisBaseTest<LockedOrientationActivity>(cameraXConfig) {
 
     companion object {
-        @JvmStatic
-        private val rotationDegrees = arrayOf(0, 90, 180, 270)
+        @JvmStatic private val rotationDegrees = arrayOf(0, 90, 180, 270)
 
         @JvmStatic
         @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}, cameraXConfig={2}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacingList.forEach { lens ->
-                rotationDegrees.forEach { rotation ->
-                    cameraXConfigList.forEach { cameraXConfig ->
-                        add(arrayOf(lens, rotation, cameraXConfig))
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                lensFacingList.forEach { lens ->
+                    rotationDegrees.forEach { rotation ->
+                        cameraXConfigList.forEach { cameraXConfig ->
+                            add(arrayOf(lens, rotation, cameraXConfig))
+                        }
                     }
                 }
             }
-        }
     }
 
     @Before

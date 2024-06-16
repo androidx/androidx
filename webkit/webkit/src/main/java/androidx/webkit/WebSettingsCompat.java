@@ -22,6 +22,7 @@ import android.webkit.WebView;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.ApiHelperForM;
@@ -678,7 +679,7 @@ public class WebSettingsCompat {
      * discontinued.
      * <p>
      * Apps can use this method to restore the legacy behavior for servers that still rely on
-     * the deprecated header, but it should not be used to identify the webview to first-party
+     * the deprecated header, but it should not be used to identify the WebView to first-party
      * servers under the control of the app developer.
      * <p>
      * The format of the strings in the allow-list follows the origin rules of
@@ -993,6 +994,155 @@ public class WebSettingsCompat {
                 WebViewFeatureInternal.WEB_AUTHENTICATION;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getWebAuthenticationSupport();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @IntDef({SPECULATIVE_LOADING_DISABLED,
+            SPECULATIVE_LOADING_PRERENDER_ENABLED})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Retention(RetentionPolicy.SOURCE)
+    @ExperimentalSpeculativeLoading
+    @interface SpeculativeLoadingStatus {
+    }
+
+    /**
+     * Disables all speculative loading tech. See <a href="https://developer.mozilla.org/en-US/docs/Web/Performance/Speculative_loading">this</a> to learn more.
+     * <p>
+     * This is the default behavior.
+     */
+    @ExperimentalSpeculativeLoading
+    public static final int SPECULATIVE_LOADING_DISABLED =
+            WebSettingsBoundaryInterface.SpeculativeLoadingStatus.DISABLED;
+
+    /**
+     * Enabled Prerender for this WebSettings, See
+     * <a href="https://developer.chrome.com/docs/web-platform/prerender-pages">Prerender</a> to learn more.
+     */
+    @ExperimentalSpeculativeLoading
+    public static final int SPECULATIVE_LOADING_PRERENDER_ENABLED =
+            WebSettingsBoundaryInterface.SpeculativeLoadingStatus.PRERENDER_ENABLED;
+
+    /**
+     * Denotes that the SpeculativeLoading API surface is experimental.
+     * It may change without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    public @interface ExperimentalSpeculativeLoading {}
+
+
+    /**
+     * Sets whether speculative loading status for this {@link WebSettings}.
+     * This API is experimental, it may change in the future without notice. Please use accordingly.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#SPECULATIVE_LOADING}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @param speculativeLoadingStatus  The new status for the speculative loading.
+     *                                  It will to be one of {@link SpeculativeLoadingStatus}
+     */
+    @RequiresFeature(name = WebViewFeature.SPECULATIVE_LOADING,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalSpeculativeLoading
+    public static void setSpeculativeLoadingStatus(
+            @NonNull WebSettings settings, @SpeculativeLoadingStatus int speculativeLoadingStatus) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.SPECULATIVE_LOADING;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setSpeculativeLoadingStatus(speculativeLoadingStatus);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets speculative loading status for this {@link WebSettings}.
+     * This API is experimental, it may change in the future without notice. Please use accordingly.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#SPECULATIVE_LOADING}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @return The current status for the speculative loading.
+     * It will to be one of {@link SpeculativeLoadingStatus}.
+     */
+    @RequiresFeature(name = WebViewFeature.SPECULATIVE_LOADING,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalSpeculativeLoading
+    public static @SpeculativeLoadingStatus int getSpeculativeLoadingStatus(
+            @NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.SPECULATIVE_LOADING;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getSpeculativeLoadingStatus();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Denotes that the BackForwardCache API surface is experimental.
+     * It may change without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    public @interface ExperimentalBackForwardCache {}
+
+    /**
+     * Enables <a href="https://developer.chrome.com/blog/back-forward-cache">BackForwardCache</a>
+     * for the given {@link WebSettings}.
+     * This API is experimental, it may change in the future without notice. Please use accordingly.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#BACK_FORWARD_CACHE}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @param backForwardCacheEnabled  whether BackForwardCache should be enabled for this
+     *                                  {@link WebSettings}
+     */
+    @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalBackForwardCache
+    public static void setBackForwardCacheEnabled(@NonNull WebSettings settings,
+            boolean backForwardCacheEnabled) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.BACK_FORWARD_CACHE;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setBackForwardCacheEnabled(backForwardCacheEnabled);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Get the current status of BackForwardCache for this {@link WebSettings}.
+     * This API is experimental, it may change in the future without notice. Please use accordingly.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#BACK_FORWARD_CACHE}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @return Whether BackForwardCache is enabled or not.
+     */
+    @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalBackForwardCache
+    public static boolean getBackForwardCacheEnabled(@NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.BACK_FORWARD_CACHE;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getBackForwardCacheEnabled();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

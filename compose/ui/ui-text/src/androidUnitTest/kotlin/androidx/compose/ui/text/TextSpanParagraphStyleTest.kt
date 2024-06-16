@@ -33,9 +33,10 @@ class TextSpanParagraphStyleTest {
 
     @Test
     fun spanStyle_constructor_is_covered_by_TextStyle() {
-        val spanStyleParameters = constructorParams(SpanStyle::class).toMutableSet().filter {
-            it.name != "platformStyle" && it.name != "textForegroundStyle"
-        }
+        val spanStyleParameters =
+            constructorParams(SpanStyle::class).toMutableSet().filter {
+                it.name != "platformStyle" && it.name != "textForegroundStyle"
+            }
         val textStyleParameters = mutableSetOf<Parameter>()
 
         // In case of multiple constructors, all constructors together should cover
@@ -44,9 +45,8 @@ class TextSpanParagraphStyleTest {
             // for every SpanStyle parameter, expecting that parameter to be in TextStyle
             // this guards that if a parameter is added to SpanStyle, it should be added
             // to TextStyle
-            textStyleParameters += constructorParams(constructor).toSet().filter {
-                it.name != "platformStyle"
-            }
+            textStyleParameters +=
+                constructorParams(constructor).toSet().filter { it.name != "platformStyle" }
         }
 
         assertThat(textStyleParameters).containsAtLeastElementsIn(spanStyleParameters)
@@ -54,97 +54,80 @@ class TextSpanParagraphStyleTest {
 
     @Test
     fun spanStyle_properties_is_covered_by_TextStyle() {
-        val spanStyleProperties = memberProperties(SpanStyle::class).filter {
-            it.name != "platformStyle" && it.name != "textForegroundStyle"
-        }
-        val textStyleProperties = memberProperties(TextStyle::class).filter {
-            it.name != "platformStyle"
-        }
+        val spanStyleProperties =
+            memberProperties(SpanStyle::class).filter {
+                it.name != "platformStyle" && it.name != "textForegroundStyle"
+            }
+        val textStyleProperties =
+            memberProperties(TextStyle::class).filter { it.name != "platformStyle" }
         assertThat(textStyleProperties).containsAtLeastElementsIn(spanStyleProperties)
     }
 
     @Test
     fun paragraphStyle_is_covered_by_TextStyle() {
-        val paragraphStyleProperties = memberProperties(ParagraphStyle::class).filter {
-            !it.isKnownUnmatchedProperty()
-        }
-        val textStyleProperties = memberProperties(TextStyle::class).filter {
-            !it.isKnownUnmatchedProperty()
-        }
+        val paragraphStyleProperties =
+            memberProperties(ParagraphStyle::class).filter { !it.isKnownUnmatchedProperty() }
+        val textStyleProperties =
+            memberProperties(TextStyle::class).filter { !it.isKnownUnmatchedProperty() }
         assertThat(textStyleProperties).containsAtLeastElementsIn(paragraphStyleProperties)
     }
 
     @Test
     fun paragraphStyle_properties_is_covered_by_TextStyle() {
-        val paragraphStyleProperties = memberProperties(ParagraphStyle::class).filter {
-            !it.isKnownUnmatchedProperty()
-        }
-        val textStyleProperties = memberProperties(TextStyle::class).filter {
-            !it.isKnownUnmatchedProperty()
-        }
+        val paragraphStyleProperties =
+            memberProperties(ParagraphStyle::class).filter { !it.isKnownUnmatchedProperty() }
+        val textStyleProperties =
+            memberProperties(TextStyle::class).filter { !it.isKnownUnmatchedProperty() }
         assertThat(textStyleProperties).containsAtLeastElementsIn(paragraphStyleProperties)
     }
 
-    /**
-     * These properties are known to not have an exact mach
-     */
+    /** These properties are known to not have an exact mach */
     private fun Property.isKnownUnmatchedProperty(): Boolean {
-        return name in listOf(
-            "platformStyle",
-            // these are for boxing optimizations
-            "hyphensOrDefault",
-            "lineBreakOrDefault",
-            "textAlignOrDefault"
-        )
+        return name in
+            listOf(
+                "platformStyle",
+                // these are for boxing optimizations
+                "hyphensOrDefault",
+                "lineBreakOrDefault",
+                "textAlignOrDefault"
+            )
     }
 
     @Test
-    fun textStyle_covered_by_ParagraphStyle_and_SpanStyle_and_TextLinkStyles() {
-        val spanStyleParameters = allConstructorParams(SpanStyle::class).filter {
-            it.name != "platformStyle" && it.name != "textForegroundStyle"
-        }
-        val paragraphStyleParameters = allConstructorParams(ParagraphStyle::class).filter {
-            it.name != "platformStyle"
-        }
-        val linkStylesParameters = allConstructorParams(TextLinkStyles::class).filter {
-            it.name != "textLinkStyles"
-        }
-        val allParameters = (
-            spanStyleParameters + paragraphStyleParameters + linkStylesParameters
-            ).toMutableSet()
+    fun textStyle_covered_by_ParagraphStyle_and_SpanStyle() {
+        val spanStyleParameters =
+            allConstructorParams(SpanStyle::class).filter {
+                it.name != "platformStyle" && it.name != "textForegroundStyle"
+            }
+        val paragraphStyleParameters =
+            allConstructorParams(ParagraphStyle::class).filter { it.name != "platformStyle" }
+        val allParameters = (spanStyleParameters + paragraphStyleParameters).toMutableSet()
 
-        val textStyleParameters = allConstructorParams(TextStyle::class).filter {
-            it.name != "platformStyle" &&
-                it.name != "spanStyle" &&
-                it.name != "paragraphStyle" &&
-                it.name != "linkStyles"
-        }
+        val textStyleParameters =
+            allConstructorParams(TextStyle::class).filter {
+                it.name != "platformStyle" && it.name != "spanStyle" && it.name != "paragraphStyle"
+            }
 
         // for every TextStyle parameter, expecting that parameter to be in either ParagraphStyle
-        // or SpanStyle or TextLinkStyles
+        // or SpanStyle
         // this guards that if a parameter is added to TextStyle, it should be added
         // to one of SpanStyle or ParagraphStyle
         assertThat(allParameters).containsAtLeastElementsIn(textStyleParameters)
     }
 
     @Test
-    fun textStyle_properties_is_covered_by_ParagraphStyle_and_SpanStyle() {
-        val spanStyleProperties = memberProperties(SpanStyle::class).filter {
-            it.name != "platformStyle" && it.name != "textForegroundStyle"
-        }
-        val paragraphStyleProperties = memberProperties(ParagraphStyle::class).filter {
-            it.name != "platformStyle"
-        }
-        val linkStylesProperties = allConstructorParams(TextLinkStyles::class).filter {
-            it.name != "textLinkStyles"
-        }
-        val allProperties = spanStyleProperties + paragraphStyleProperties + linkStylesProperties
-        val textStyleProperties = memberProperties(TextStyle::class).filter {
-            it.name != "spanStyle" &&
-                it.name != "paragraphStyle" &&
-                it.name != "platformStyle" &&
-                it.name != "linkStyles"
-        }
+    fun testStyle_properties_is_covered_by_ParagraphStyle_and_SpanStyle() {
+        val spanStyleProperties =
+            memberProperties(SpanStyle::class).filter {
+                it.name != "platformStyle" && it.name != "textForegroundStyle"
+            }
+        val paragraphStyleProperties =
+            memberProperties(ParagraphStyle::class).filter { it.name != "platformStyle" }
+        val allProperties = spanStyleProperties + paragraphStyleProperties
+        val textStyleProperties =
+            memberProperties(TextStyle::class).filter {
+                it.name != "spanStyle" && it.name != "paragraphStyle" && it.name != "platformStyle"
+            }
         assertThat(allProperties).containsAtLeastElementsIn(textStyleProperties)
     }
 
@@ -171,7 +154,9 @@ class TextSpanParagraphStyleTest {
         val isVarArg: Boolean,
         val kind: KParameter.Kind
     ) {
-        constructor(parameter: KParameter) : this(
+        constructor(
+            parameter: KParameter
+        ) : this(
             parameter.name,
             parameter.type,
             parameter.isOptional,
@@ -180,10 +165,7 @@ class TextSpanParagraphStyleTest {
         )
     }
 
-    private data class Property(
-        val name: String?,
-        val type: KType
-    ) {
+    private data class Property(val name: String?, val type: KType) {
         constructor(parameter: KProperty1<*, *>) : this(parameter.name, parameter.returnType)
     }
 }

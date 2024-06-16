@@ -34,11 +34,14 @@ class DelayedAnimationTest {
         val targetValue = AnimationVector1D(1000f)
         val initialVelocity = AnimationVector1D(30f)
 
-        assertThat(vectorizedSpec.getDurationNanos(
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )).isEqualTo(1500L * MillisToNanos)
+        assertThat(
+                vectorizedSpec.getDurationNanos(
+                    initialValue = initialValue,
+                    targetValue = targetValue,
+                    initialVelocity = initialVelocity
+                )
+            )
+            .isEqualTo(1500L * MillisToNanos)
     }
 
     @Test
@@ -53,33 +56,49 @@ class DelayedAnimationTest {
         val targetValue = AnimationVector1D(1000f)
         val initialVelocity = AnimationVector1D(30f)
 
-        assertThat(vectorizedSpec.getValueFromNanos(
-            playTimeNanos = 0L,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(0f)
+        assertThat(
+                vectorizedSpec
+                    .getValueFromNanos(
+                        playTimeNanos = 0L,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(0f)
 
-        assertThat(vectorizedSpec.getValueFromNanos(
-            playTimeNanos = delayNanos,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(0f)
+        assertThat(
+                vectorizedSpec
+                    .getValueFromNanos(
+                        playTimeNanos = delayNanos,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(0f)
 
-        assertThat(vectorizedSpec.getValueFromNanos(
-            playTimeNanos = 1000L * MillisToNanos,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(500f)
+        assertThat(
+                vectorizedSpec
+                    .getValueFromNanos(
+                        playTimeNanos = 1000L * MillisToNanos,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(500f)
 
-        assertThat(vectorizedSpec.getValueFromNanos(
-            playTimeNanos = 1500L * MillisToNanos,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(1000f)
+        assertThat(
+                vectorizedSpec
+                    .getValueFromNanos(
+                        playTimeNanos = 1500L * MillisToNanos,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(1000f)
     }
 
     @Test
@@ -94,69 +113,93 @@ class DelayedAnimationTest {
         val targetValue = AnimationVector1D(1000f)
         val initialVelocity = AnimationVector1D(30f)
 
-        assertThat(vectorizedSpec.getVelocityFromNanos(
-            playTimeNanos = 0L,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(30f)
+        assertThat(
+                vectorizedSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = 0L,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(30f)
 
-        assertThat(vectorizedSpec.getVelocityFromNanos(
-            playTimeNanos = delayNanos,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(30f)
+        assertThat(
+                vectorizedSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = delayNanos,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(30f)
 
         val vectorizedSpringSpec = springSpec.vectorize(Float.VectorConverter)
 
-        val springDuration = vectorizedSpringSpec.getDurationNanos(
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )
-
-        assertThat(vectorizedSpec.getVelocityFromNanos(
-            playTimeNanos = (delayNanos) + (springDuration / 5),
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(
-            vectorizedSpringSpec.getVelocityFromNanos(
-                playTimeNanos = springDuration / 5,
+        val springDuration =
+            vectorizedSpringSpec.getDurationNanos(
                 initialValue = initialValue,
                 targetValue = targetValue,
                 initialVelocity = initialVelocity
-            )[0]
-        )
+            )
 
-        assertThat(vectorizedSpec.getVelocityFromNanos(
-            playTimeNanos = (delayNanos) + (springDuration / 2),
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(
-            vectorizedSpringSpec.getVelocityFromNanos(
-                playTimeNanos = springDuration / 2,
-                initialValue = initialValue,
-                targetValue = targetValue,
-                initialVelocity = initialVelocity
-            )[0]
-        )
+        assertThat(
+                vectorizedSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = (delayNanos) + (springDuration / 5),
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(
+                vectorizedSpringSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = springDuration / 5,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
 
-        assertThat(vectorizedSpec.getVelocityFromNanos(
-            playTimeNanos = (delayNanos) + springDuration,
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )[0]).isEqualTo(
-            vectorizedSpringSpec.getVelocityFromNanos(
-                playTimeNanos = springDuration,
-                initialValue = initialValue,
-                targetValue = targetValue,
-                initialVelocity = initialVelocity
-            )[0]
-        )
+        assertThat(
+                vectorizedSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = (delayNanos) + (springDuration / 2),
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(
+                vectorizedSpringSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = springDuration / 2,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+
+        assertThat(
+                vectorizedSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = (delayNanos) + springDuration,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
+            .isEqualTo(
+                vectorizedSpringSpec
+                    .getVelocityFromNanos(
+                        playTimeNanos = springDuration,
+                        initialValue = initialValue,
+                        targetValue = targetValue,
+                        initialVelocity = initialVelocity
+                    )[0]
+            )
     }
 
     @Test
@@ -170,11 +213,14 @@ class DelayedAnimationTest {
         val targetValue = AnimationVector1D(1f)
         val initialVelocity = AnimationVector1D(0f)
 
-        assertThat(vectorizedSpec.getDurationNanos(
-            initialValue = initialValue,
-            targetValue = targetValue,
-            initialVelocity = initialVelocity
-        )).isEqualTo(0L)
+        assertThat(
+                vectorizedSpec.getDurationNanos(
+                    initialValue = initialValue,
+                    targetValue = targetValue,
+                    initialVelocity = initialVelocity
+                )
+            )
+            .isEqualTo(0L)
     }
 
     @Test

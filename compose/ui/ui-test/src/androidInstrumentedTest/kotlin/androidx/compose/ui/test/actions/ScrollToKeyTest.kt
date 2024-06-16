@@ -47,10 +47,10 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ScrollToKeyTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private fun key(index: Int): String = "key_$index"
+
     private fun tag(index: Int): String = "tag_$index"
 
     @Test
@@ -84,8 +84,8 @@ class ScrollToKeyTest {
 
         // ScrollToKey "hello"
         expectError<IllegalArgumentException>(
-            expectedMessage = "Failed to scroll to the item identified by \"hello\", " +
-                "couldn't find the key."
+            expectedMessage =
+                "Failed to scroll to the item identified by \"hello\", " + "couldn't find the key."
         ) {
             rule.onNode(hasScrollToKeyAction()).performScrollToKey("hello")
         }
@@ -94,15 +94,14 @@ class ScrollToKeyTest {
     @Test
     fun missingSemantics_ScrollToIndex() {
         // Setup a node without ScrollToIndex, but with IndexForKey
-        rule.setContent {
-            Spacer(Modifier.testTag("tag").semantics { indexForKey { 0 } })
-        }
+        rule.setContent { Spacer(Modifier.testTag("tag").semantics { indexForKey { 0 } }) }
 
         // Verify that it doesn't support performScrollToKey
         rule.onNode(hasScrollToKeyAction()).assertDoesNotExist()
         expectError<AssertionError>(
-            expectedMessage = "Failed to scroll to the item identified by \"1\", " +
-                "the node is missing \\[ScrollToIndex\\].*"
+            expectedMessage =
+                "Failed to scroll to the item identified by \"1\", " +
+                    "the node is missing \\[ScrollToIndex\\].*"
         ) {
             rule.onNodeWithTag("tag").performScrollToKey(1)
         }
@@ -111,15 +110,14 @@ class ScrollToKeyTest {
     @Test
     fun missingSemantics_IndexForKey() {
         // Setup a node without IndexForKey, but with ScrollToIndex
-        rule.setContent {
-            Spacer(Modifier.testTag("tag").semantics { scrollToIndex { true } })
-        }
+        rule.setContent { Spacer(Modifier.testTag("tag").semantics { scrollToIndex { true } }) }
 
         // Verify that it doesn't support performScrollToKey
         rule.onNode(hasScrollToKeyAction()).assertDoesNotExist()
         expectError<AssertionError>(
-            expectedMessage = "Failed to scroll to the item identified by \"1\", " +
-                "the node is missing \\[IndexForKey\\].*"
+            expectedMessage =
+                "Failed to scroll to the item identified by \"1\", " +
+                    "the node is missing \\[IndexForKey\\].*"
         ) {
             rule.onNodeWithTag("tag").performScrollToKey(1)
         }
@@ -142,10 +140,7 @@ class ScrollToKeyTest {
     @Composable
     fun LazyColumnContent() {
         LazyColumn(Modifier.requiredSize(100.dp)) {
-            items(
-                items = List(20) { it },
-                key = { key(it) }
-            ) {
+            items(items = List(20) { it }, key = { key(it) }) {
                 Spacer(Modifier.requiredHeight(30.dp).fillMaxWidth().testTag(tag(it)))
             }
         }

@@ -26,26 +26,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
-/**
- * Test for [ColorDetector].
- */
+/** Test for [ColorDetector]. */
 @RunWith(JUnit4::class)
 class ColorDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ColorDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(
-            ColorDetector.MissingColorAlphaChannel,
-            ColorDetector.InvalidColorHexValue
-        )
+        mutableListOf(ColorDetector.MissingColorAlphaChannel, ColorDetector.InvalidColorHexValue)
 
     @Test
     fun MissingColorAlphaChannel() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.graphics.*
@@ -60,9 +54,9 @@ class ColorDetectorTest : LintDetectorTest() {
                 // separators and L suffix
                 val color4 = Color(0x00_00_00L)
             """
-            ),
-            Stubs.Color
-        )
+                ),
+                Stubs.Color
+            )
             .run()
             .expect(
                 """
@@ -112,9 +106,10 @@ Fix for src/test/test.kt line 14: Add `FF` alpha channel:
 
     @Test
     fun incorrectChannels() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.graphics.*
@@ -123,9 +118,9 @@ Fix for src/test/test.kt line 14: Add `FF` alpha channel:
                 val color2 = Color(0xEEEEE)
                 val color3 = Color(0x00_0_0_0L)
             """
-            ),
-            Stubs.Color
-        )
+                ),
+                Stubs.Color
+            )
             .run()
             .expect(
                 """
@@ -147,9 +142,10 @@ src/test/test.kt:8: Warning: Invalid Color hex value [InvalidColorHexValue]
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import kotlin.random.Random
@@ -175,11 +171,10 @@ src/test/test.kt:8: Warning: Invalid Color hex value [InvalidColorHexValue]
                 val color13 = Color(0xFFEEEEEE.toLong())
                 val color14 = Color(Random.nextLong())
             """
-            ),
-            Stubs.Color
-        )
+                ),
+                Stubs.Color
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

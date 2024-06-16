@@ -44,8 +44,8 @@ import org.junit.runner.RunWith
 class JobSchedulerNamespaceTest {
     private val env = TestEnv(Configuration.Builder().build())
     private val systemJobScheduler = with(env) { SystemJobScheduler(context, db, configuration) }
-    private val globalJobScheduler = env.context
-        .getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+    private val globalJobScheduler =
+        env.context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
 
     @Before
     fun setup() {
@@ -58,9 +58,10 @@ class JobSchedulerNamespaceTest {
     @MediumTest
     @Test
     fun checkNamespaces() {
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(365, TimeUnit.DAYS)
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialDelay(365, TimeUnit.DAYS)
+                .build()
         env.db.workSpecDao().insertWorkSpec(request.workSpec)
         systemJobScheduler.schedule(request.workSpec)
         val pendingJobs = globalJobScheduler.pendingJobsInAllNamespaces
@@ -75,15 +76,17 @@ class JobSchedulerNamespaceTest {
     @Test
     fun cancelAllInAllNamespaces() {
         val componentName = ComponentName(env.context, WhateverJobService::class.java)
-        val jobInfo = JobInfo.Builder(10, componentName)
-            .setMinimumLatency(TimeUnit.DAYS.toMillis(365))
-            .build()
+        val jobInfo =
+            JobInfo.Builder(10, componentName)
+                .setMinimumLatency(TimeUnit.DAYS.toMillis(365))
+                .build()
         assertThat(globalJobScheduler.schedule(jobInfo)).isEqualTo(RESULT_SUCCESS)
 
         val workManagerComponent = ComponentName(env.context, SystemJobService::class.java)
-        val oldWorkManagerInfo = JobInfo.Builder(12, workManagerComponent)
-            .setMinimumLatency(TimeUnit.DAYS.toMillis(365))
-            .build()
+        val oldWorkManagerInfo =
+            JobInfo.Builder(12, workManagerComponent)
+                .setMinimumLatency(TimeUnit.DAYS.toMillis(365))
+                .build()
         assertThat(globalJobScheduler.schedule(oldWorkManagerInfo)).isEqualTo(RESULT_SUCCESS)
 
         val request = prepareWorkSpec()
@@ -104,9 +107,10 @@ class JobSchedulerNamespaceTest {
         val request = prepareWorkSpec()
         systemJobScheduler.schedule(request.workSpec)
         val workManagerComponent = ComponentName(env.context, SystemJobService::class.java)
-        val unknownWorkInfo = JobInfo.Builder(4000, workManagerComponent)
-            .setMinimumLatency(TimeUnit.DAYS.toMillis(365))
-            .build()
+        val unknownWorkInfo =
+            JobInfo.Builder(4000, workManagerComponent)
+                .setMinimumLatency(TimeUnit.DAYS.toMillis(365))
+                .build()
         env.context.wmJobScheduler.schedule(unknownWorkInfo)
         globalJobScheduler.schedule(unknownWorkInfo)
         val preReconcile = globalJobScheduler.pendingJobsInAllNamespaces
@@ -125,9 +129,10 @@ class JobSchedulerNamespaceTest {
     }
 
     private fun prepareWorkSpec(): OneTimeWorkRequest {
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(365, TimeUnit.DAYS)
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialDelay(365, TimeUnit.DAYS)
+                .build()
         env.db.workSpecDao().insertWorkSpec(request.workSpec)
         return request
     }

@@ -59,21 +59,19 @@ class CountTileService : GlanceTileService() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
-            GlanceModifier.semantics({ contentDescription = "demo of actionRunCallback" })
+                GlanceModifier.semantics({ contentDescription = "demo of actionRunCallback" })
         ) {
-
             Text(
                 text = currentCount.toString(),
-                style = TextStyle(
-                    color = ColorProvider(Color.Gray),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
+                style =
+                    TextStyle(
+                        color = ColorProvider(Color.Gray),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
             )
             Spacer(GlanceModifier.height(20.dp))
-            Row(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Row(horizontalAlignment = Alignment.CenterHorizontally) {
                 Button(
                     text = "+2",
                     modifier = GlanceModifier.padding(5.dp).background(Color.Cyan),
@@ -101,10 +99,7 @@ class CountTileService : GlanceTileService() {
 }
 
 class ClickAddAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId
-    ) {
+    override suspend fun onAction(context: Context, glanceId: GlanceId) {
         updateWearTileState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
             prefs.toMutablePreferences().apply {
                 set(prefsCountKey, (this[prefsCountKey] ?: 0) + 2)
@@ -114,10 +109,7 @@ class ClickAddAction : ActionCallback {
 }
 
 class ClickMultiplyAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId
-    ) {
+    override suspend fun onAction(context: Context, glanceId: GlanceId) {
         updateWearTileState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
             prefs.toMutablePreferences().apply {
                 set(prefsCountKey, (this[prefsCountKey] ?: 0) * 2)
@@ -127,10 +119,7 @@ class ClickMultiplyAction : ActionCallback {
 }
 
 class ClickDivideAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId
-    ) {
+    override suspend fun onAction(context: Context, glanceId: GlanceId) {
         updateWearTileState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
             prefs.toMutablePreferences().apply {
                 set(prefsCountKey, ((this[prefsCountKey] ?: 0) / 2f).toInt())

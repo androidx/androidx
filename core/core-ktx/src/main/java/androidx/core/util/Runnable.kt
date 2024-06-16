@@ -21,12 +21,11 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
 /**
- * Returns a [Runnable] that will resume this [Continuation] when an operation completes and
- * the returned [Runnable]'s [Runnable.run] method is called.
+ * Returns a [Runnable] that will resume this [Continuation] when an operation completes and the
+ * returned [Runnable]'s [Runnable.run] method is called.
  *
- * Useful for writing `suspend` bindings to async Jetpack library methods that accept [Runnable]
- * as a completion callback for a one-time operation:
- *
+ * Useful for writing `suspend` bindings to async Jetpack library methods that accept [Runnable] as
+ * a completion callback for a one-time operation:
  * ```
  * public suspend fun FancinessManager.setFanciness(
  *     fanciness: Float
@@ -51,9 +50,8 @@ import kotlin.coroutines.resume
  */
 public fun Continuation<Unit>.asRunnable(): Runnable = ContinuationRunnable(this)
 
-private class ContinuationRunnable(
-    private val continuation: Continuation<Unit>
-) : Runnable, AtomicBoolean(false) {
+private class ContinuationRunnable(private val continuation: Continuation<Unit>) :
+    Runnable, AtomicBoolean(false) {
     override fun run() {
         // Do not attempt to resume more than once, even if the caller of the returned
         // Runnable is buggy and tries anyway.

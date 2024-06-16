@@ -20,28 +20,18 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds [androidx.room.FtsOptions] information.
- */
+/** Data class that holds [androidx.room.FtsOptions] information. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FtsOptionsBundle(
-    @SerialName("tokenizer")
-    private val tokenizer: String,
-    @SerialName("tokenizerArgs")
-    val tokenizerArgs: List<String>,
-    @SerialName("contentTable")
-    val contentTable: String,
-    @SerialName("languageIdColumnName")
-    val languageIdColumnName: String,
-    @SerialName("matchInfo")
-    val matchInfo: String,
-    @SerialName("notIndexedColumns")
-    val notIndexedColumns: List<String>,
-    @SerialName("prefixSizes")
-    val prefixSizes: List<Int>,
-    @SerialName("preferredOrder")
-    val preferredOrder: String
+    @SerialName("tokenizer") private val tokenizer: String,
+    @SerialName("tokenizerArgs") val tokenizerArgs: List<String>,
+    @SerialName("contentTable") val contentTable: String,
+    @SerialName("languageIdColumnName") val languageIdColumnName: String,
+    @SerialName("matchInfo") val matchInfo: String,
+    @SerialName("notIndexedColumns") val notIndexedColumns: List<String>,
+    @SerialName("prefixSizes") val prefixSizes: List<Int>,
+    @SerialName("preferredOrder") val preferredOrder: String
 ) : SchemaEquality<FtsOptionsBundle> {
 
     override fun isSchemaEqual(other: FtsOptionsBundle): Boolean {

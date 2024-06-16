@@ -29,14 +29,14 @@ class MultiParagraphTest {
         val paragraphNumber = 5
         val paragraphLength = 10
         var start = 0
-        val paragraphInfoList = List(paragraphNumber) {
-            val end = start + paragraphLength
-            ParagraphInfo(mock(), start, end).also { start = end }
-        }
+        val paragraphInfoList =
+            List(paragraphNumber) {
+                val end = start + paragraphLength
+                ParagraphInfo(mock(), start, end).also { start = end }
+            }
 
         for (i in 0 until paragraphNumber * paragraphLength) {
-            assertThat(findParagraphByIndex(paragraphInfoList, i))
-                .isEqualTo(i / paragraphLength)
+            assertThat(findParagraphByIndex(paragraphInfoList, i)).isEqualTo(i / paragraphLength)
         }
     }
 
@@ -45,12 +45,12 @@ class MultiParagraphTest {
         val paragraphNumber = 5
         val paragraphLineCount = 10
         var startLine = 0
-        val paragraphInfoList = List(paragraphNumber) {
-            val endLine = startLine + paragraphLineCount
-            // StartIndex and endIndex doesn't matter in this test
-            ParagraphInfo(mock(), 0, 0, startLine, endLine)
-                .also { startLine = endLine }
-        }
+        val paragraphInfoList =
+            List(paragraphNumber) {
+                val endLine = startLine + paragraphLineCount
+                // StartIndex and endIndex doesn't matter in this test
+                ParagraphInfo(mock(), 0, 0, startLine, endLine).also { startLine = endLine }
+            }
 
         for (i in 0 until paragraphNumber * paragraphLineCount) {
             assertThat(findParagraphByLineIndex(paragraphInfoList, i))
@@ -63,12 +63,12 @@ class MultiParagraphTest {
         val paragraphNumber = 5
         val paragraphHeight = 10
         var top = 0.0f
-        val paragraphInfoList = List(paragraphNumber) {
-            val bottom = top + paragraphHeight
-            // StartIndex and endIndex doesn't matter in this test
-            ParagraphInfo(mock(), 0, 0, top = top, bottom = bottom)
-                .also { top = bottom }
-        }
+        val paragraphInfoList =
+            List(paragraphNumber) {
+                val bottom = top + paragraphHeight
+                // StartIndex and endIndex doesn't matter in this test
+                ParagraphInfo(mock(), 0, 0, top = top, bottom = bottom).also { top = bottom }
+            }
 
         for (i in 0 until paragraphNumber * paragraphHeight) {
             assertThat(findParagraphByY(paragraphInfoList, i.toFloat()))

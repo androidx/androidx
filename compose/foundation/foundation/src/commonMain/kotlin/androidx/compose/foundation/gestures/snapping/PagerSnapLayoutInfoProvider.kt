@@ -48,11 +48,7 @@ internal fun SnapLayoutInfoProvider(
                 searchForSnappingBounds(snapPosition, velocity)
 
             val finalDistance =
-                calculateFinalSnappingBound(
-                    velocity,
-                    lowerBoundOffset,
-                    upperBoundOffset
-                )
+                calculateFinalSnappingBound(velocity, lowerBoundOffset, upperBoundOffset)
 
             check(
                 finalDistance == lowerBoundOffset ||
@@ -71,21 +67,19 @@ internal fun SnapLayoutInfoProvider(
             }
         }
 
-        override fun calculateApproachOffset(
-            velocity: Float,
-            decayOffset: Float
-        ): Float {
+        override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
             debugLog { "Approach Velocity=$velocity" }
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
 
             // given this velocity, where can I go with a decay animation.
             val animationOffsetPx = decayOffset
 
-            val startPage = if (velocity < 0) {
-                pagerState.firstVisiblePage + 1
-            } else {
-                pagerState.firstVisiblePage
-            }
+            val startPage =
+                if (velocity < 0) {
+                    pagerState.firstVisiblePage + 1
+                } else {
+                    pagerState.firstVisiblePage
+                }
 
             debugLog {
                 "\nAnimation Offset=$animationOffsetPx " +
@@ -105,13 +99,16 @@ internal fun SnapLayoutInfoProvider(
             debugLog { "Fling Target Page=$targetPage" }
 
             // Apply the snap distance suggestion.
-            val correctedTargetPage = pagerSnapDistance.calculateTargetPage(
-                startPage,
-                targetPage,
-                velocity,
-                pagerState.pageSize,
-                pagerState.pageSpacing
-            ).coerceIn(0, pagerState.pageCount)
+            val correctedTargetPage =
+                pagerSnapDistance
+                    .calculateTargetPage(
+                        startPage,
+                        targetPage,
+                        velocity,
+                        pagerState.pageSize,
+                        pagerState.pageSpacing
+                    )
+                    .coerceIn(0, pagerState.pageCount)
 
             debugLog { "Fling Corrected Target Page=$correctedTargetPage" }
 
@@ -123,17 +120,16 @@ internal fun SnapLayoutInfoProvider(
 
             // We'd like the approach animation to finish right before the last page so we can
             // use a snapping animation for the rest.
-            val flingApproachOffsetPx = (abs(proposedFlingOffset) - effectivePageSizePx)
-                .coerceAtLeast(0)
+            val flingApproachOffsetPx =
+                (abs(proposedFlingOffset) - effectivePageSizePx).coerceAtLeast(0)
 
             // Apply the correct sign.
             return if (flingApproachOffsetPx == 0) {
-                flingApproachOffsetPx.toFloat()
-            } else {
-                flingApproachOffsetPx * velocity.sign
-            }.also {
-                debugLog { "Fling Approach Offset=$it" }
-            }
+                    flingApproachOffsetPx.toFloat()
+                } else {
+                    flingApproachOffsetPx * velocity.sign
+                }
+                .also { debugLog { "Fling Approach Offset=$it" } }
         }
 
         private fun searchForSnappingBounds(
@@ -145,16 +141,17 @@ internal fun SnapLayoutInfoProvider(
             var upperBoundOffset = Float.POSITIVE_INFINITY
 
             layoutInfo.visiblePagesInfo.fastForEach { page ->
-                val offset = calculateDistanceToDesiredSnapPosition(
-                    mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
-                    beforeContentPadding = layoutInfo.beforeContentPadding,
-                    afterContentPadding = layoutInfo.afterContentPadding,
-                    itemSize = layoutInfo.pageSize,
-                    itemOffset = page.offset,
-                    itemIndex = page.index,
-                    snapPosition = snapPosition,
-                    itemCount = pagerState.pageCount
-                )
+                val offset =
+                    calculateDistanceToDesiredSnapPosition(
+                        mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
+                        beforeContentPadding = layoutInfo.beforeContentPadding,
+                        afterContentPadding = layoutInfo.afterContentPadding,
+                        itemSize = layoutInfo.pageSize,
+                        itemOffset = page.offset,
+                        itemIndex = page.index,
+                        snapPosition = snapPosition,
+                        itemCount = pagerState.pageCount
+                    )
 
                 // Find page that is closest to the snap position, but before it
                 if (offset <= 0 && offset > lowerBoundOffset) {
@@ -200,6 +197,8 @@ internal fun SnapLayoutInfoProvider(
     }
 }
 
+private fun PagerState.isLtrDragging() = dragGestureDelta() > 0
+
 private fun PagerState.isScrollingForward(velocity: Float): Boolean {
     val reverseScrollDirection = layoutInfo.reverseLayout
     val isForward = if (isNotGestureAction()) {
@@ -211,11 +210,12 @@ private fun PagerState.isScrollingForward(velocity: Float): Boolean {
         !isForward && !reverseScrollDirection)
 }
 
-private fun PagerState.dragGestureDelta() = if (layoutInfo.orientation == Orientation.Horizontal) {
-    upDownDifference.x
-} else {
-    upDownDifference.y
-}
+private fun PagerState.dragGestureDelta() =
+    if (layoutInfo.orientation == Orientation.Horizontal) {
+        upDownDifference.x
+    } else {
+        upDownDifference.y
+    }
 
 private inline fun debugLog(generateMsg: () -> String) {
     if (PagerDebugConfig.PagerSnapLayoutInfoProvider) {
@@ -238,15 +238,16 @@ internal fun calculateFinalSnappingBound(
 ): Float {
 
     val isScrollingForward = pagerState.isScrollingForward(flingVelocity)
-    val isForward = if (pagerState.layoutInfo.orientation == Orientation.Vertical) {
-        isScrollingForward
-    } else {
-        if (layoutDirection == LayoutDirection.Ltr) {
+    val isForward =
+        if (pagerState.layoutInfo.orientation == Orientation.Vertical) {
             isScrollingForward
         } else {
-            !isScrollingForward
+            if (layoutDirection == LayoutDirection.Ltr) {
+                isScrollingForward
+            } else {
+                !isScrollingForward
+            }
         }
-    }
     debugLog {
         "isScrollingForward=${isScrollingForward} " +
             "isForward=$isForward " +
@@ -262,8 +263,7 @@ internal fun calculateFinalSnappingBound(
 
     // If the velocity is not high, use the positional threshold to decide where to go.
     // This is applicable mainly when the user scrolls and lets go without flinging.
-    val finalSnappingItem =
-        with(pagerState.density) { calculateFinalSnappingItem(flingVelocity) }
+    val finalSnappingItem = with(pagerState.density) { calculateFinalSnappingItem(flingVelocity) }
 
     debugLog {
         "\nfinalSnappingItem=$finalSnappingItem" +
@@ -280,9 +280,7 @@ internal fun calculateFinalSnappingBound(
             } else {
                 // if we haven't crossed the threshold. but scrolled minimally, we should
                 // bound to the previous bound
-                if (abs(offsetFromSnappedPosition) >=
-                    abs(pagerState.positionThresholdFraction)
-                ) {
+                if (abs(offsetFromSnappedPosition) >= abs(pagerState.positionThresholdFraction)) {
                     debugLog { "Crossed Positional Threshold Fraction" }
                     if (isForward) lowerBoundOffset else upperBoundOffset
                 } else {
@@ -296,7 +294,6 @@ internal fun calculateFinalSnappingBound(
                 }
             }
         }
-
         FinalSnappingItem.NextItem -> upperBoundOffset
         FinalSnappingItem.PreviousItem -> lowerBoundOffset
         else -> 0f

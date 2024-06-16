@@ -55,18 +55,18 @@ internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteract
         name = "minimumInteractiveComponentSize"
         // TODO: b/214589635 - surface this information through the layout inspector in a better way
         //  - for now just add some information to help developers debug what this size represents.
-        properties["README"] = "Reserves at least 48.dp in size to disambiguate touch " +
-            "interactions if the element would measure smaller"
+        properties["README"] =
+            "Reserves at least 48.dp in size to disambiguate touch " +
+                "interactions if the element would measure smaller"
     }
 
     override fun hashCode(): Int = System.identityHashCode(this)
+
     override fun equals(other: Any?): Boolean = (other === this)
 }
 
 internal class MinimumInteractiveModifierNode :
-    Modifier.Node(),
-    CompositionLocalConsumerModifierNode,
-    LayoutModifierNode {
+    Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
 
     @OptIn(ExperimentalWearMaterial3Api::class)
     override fun MeasureScope.measure(
@@ -78,16 +78,18 @@ internal class MinimumInteractiveModifierNode :
         val placeable = measurable.measure(constraints)
 
         // Be at least as big as the minimum dimension in both dimensions
-        val width = if (enforcement) {
-            maxOf(placeable.width, size.width.roundToPx())
-        } else {
-            placeable.width
-        }
-        val height = if (enforcement) {
-            maxOf(placeable.height, size.height.roundToPx())
-        } else {
-            placeable.height
-        }
+        val width =
+            if (enforcement) {
+                maxOf(placeable.width, size.width.roundToPx())
+            } else {
+                placeable.width
+            }
+        val height =
+            if (enforcement) {
+                maxOf(placeable.height, size.height.roundToPx())
+            } else {
+                placeable.height
+            }
 
         return layout(width, height) {
             val centerX = ((width - placeable.width) / 2f).roundToInt()
@@ -99,16 +101,18 @@ internal class MinimumInteractiveModifierNode :
 
 /**
  * CompositionLocal that configures whether Wear Material components that have a visual size that is
- * lower than the minimum touch target size for accessibility (such as Button) will include
- * extra space outside the component to ensure that they are accessible. If set to false there
- * will be no extra space, and so it is possible that if the component is placed near the edge of
- * a layout / near to another component without any padding, there will not be enough space for
- * an accessible touch target.
+ * lower than the minimum touch target size for accessibility (such as Button) will include extra
+ * space outside the component to ensure that they are accessible. If set to false there will be no
+ * extra space, and so it is possible that if the component is placed near the edge of a layout /
+ * near to another component without any padding, there will not be enough space for an accessible
+ * touch target.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalWearMaterial3Api
 @ExperimentalWearMaterial3Api
 val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
-    staticCompositionLocalOf { true }
+    staticCompositionLocalOf {
+        true
+    }
 
 private val minimumInteractiveComponentSize: DpSize = DpSize(48.dp, 48.dp)

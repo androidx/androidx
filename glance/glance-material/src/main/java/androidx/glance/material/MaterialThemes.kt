@@ -25,13 +25,8 @@ import androidx.glance.color.ColorProviders
 import androidx.glance.color.colorProviders
 import androidx.glance.unit.ColorProvider
 
-/**
- * Given  Material [Colors], creates a [ColorProviders] that can be passed to [GlanceTheme]
- */
-fun ColorProviders(
-    light: Colors,
-    dark: Colors
-): ColorProviders {
+/** Given Material [Colors], creates a [ColorProviders] that can be passed to [GlanceTheme] */
+fun ColorProviders(light: Colors, dark: Colors): ColorProviders {
 
     val background = ColorProvider(light.background, dark.background)
     val onBackground = ColorProvider(light.onBackground, dark.onBackground)
@@ -75,12 +70,8 @@ fun ColorProviders(
     )
 }
 
-/**
- * Given  Material [Colors], creates a [ColorProviders] that can be passed to [GlanceTheme]
- */
-fun ColorProviders(
-    colors: Colors
-): ColorProviders {
+/** Given Material [Colors], creates a [ColorProviders] that can be passed to [GlanceTheme] */
+fun ColorProviders(colors: Colors): ColorProviders {
 
     val background = ColorProvider(colors.background)
     val onBackground = ColorProvider(colors.onBackground)

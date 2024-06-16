@@ -34,36 +34,23 @@ import androidx.compose.ui.unit.sp
 fun measureTextStringWithConstraints(textMeasurer: TextMeasurer) {
     textMeasurer.measure(
         text = "Hello, World",
-        style = TextStyle(
-            color = Color.Red,
-            fontSize = 16.sp,
-            fontFamily = FontFamily.Cursive
-        ),
-        constraints = Constraints(
-            minWidth = 400,
-            maxWidth = 400,
-            minHeight = 200,
-            maxHeight = 400
-        )
+        style = TextStyle(color = Color.Red, fontSize = 16.sp, fontFamily = FontFamily.Cursive),
+        constraints = Constraints(minWidth = 400, maxWidth = 400, minHeight = 200, maxHeight = 400)
     )
 }
 
 /**
- * Sample showing how to use TextMeasurer in a non-composable function with an AnnotatedString
- * for text.
+ * Sample showing how to use TextMeasurer in a non-composable function with an AnnotatedString for
+ * text.
  */
 @Sampled
 fun measureTextAnnotatedString(textMeasurer: TextMeasurer) {
     textMeasurer.measure(
-        text = buildAnnotatedString {
-            append("Hello, ")
-            withStyle(SpanStyle(color = Color.Blue)) {
-                append("World!")
-            }
-        },
-        style = TextStyle(
-            fontSize = 16.sp,
-            fontFamily = FontFamily.Monospace
-        )
+        text =
+            buildAnnotatedString {
+                append("Hello, ")
+                withStyle(SpanStyle(color = Color.Blue)) { append("World!") }
+            },
+        style = TextStyle(fontSize = 16.sp, fontFamily = FontFamily.Monospace)
     )
 }

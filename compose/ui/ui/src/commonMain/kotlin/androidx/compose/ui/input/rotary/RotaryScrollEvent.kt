@@ -16,19 +16,17 @@
 
 package androidx.compose.ui.input.rotary
 
-/**
- * This event represents a rotary input event.
- */
+/** This event represents a rotary input event. */
 expect class RotaryScrollEvent {
     /**
-     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that
-     * can scroll vertically.
+     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that can
+     * scroll vertically.
      */
     val verticalScrollPixels: Float
 
     /**
-     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that
-     * can scroll horizontally.
+     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that can
+     * scroll horizontally.
      */
     val horizontalScrollPixels: Float
 

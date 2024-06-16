@@ -29,21 +29,18 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 /**
  * Implementation of platform [SandboxedSdkProvider] that delegate to [SandboxedSdkProviderCompat]
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
- *
  */
 @RequiresApi(34)
-class SandboxedSdkProviderAdapter internal constructor(
-    private val classNameProvider: CompatClassNameProvider
-) : SandboxedSdkProvider() {
+class SandboxedSdkProviderAdapter
+internal constructor(private val classNameProvider: CompatClassNameProvider) :
+    SandboxedSdkProvider() {
 
-    /**
-     * Provides classname of [SandboxedSdkProviderCompat] implementation.
-     */
+    /** Provides classname of [SandboxedSdkProviderCompat] implementation. */
     internal interface CompatClassNameProvider {
         fun getCompatProviderClassName(context: Context): String
     }
 
-    constructor () : this(DefaultClassNameProvider())
+    constructor() : this(DefaultClassNameProvider())
 
     internal val delegate: SandboxedSdkProviderCompat by lazy {
         val currentContext = context!!
@@ -68,22 +65,16 @@ class SandboxedSdkProviderAdapter internal constructor(
         delegate.beforeUnloadSdk()
     }
 
-    override fun getView(
-        windowContext: Context,
-        params: Bundle,
-        width: Int,
-        height: Int
-    ): View {
+    override fun getView(windowContext: Context, params: Bundle, width: Int, height: Int): View {
         return delegate.getView(windowContext, params, width, height)
     }
 
     private class DefaultClassNameProvider : CompatClassNameProvider {
         override fun getCompatProviderClassName(context: Context): String {
             // TODO(b/257966930) Read classname from SDK manifest property
-            return context.assets.open(COMPAT_SDK_PROVIDER_CLASS_ASSET_NAME)
-                .use { inputStream ->
-                    inputStream.bufferedReader().readLine()
-                }
+            return context.assets.open(COMPAT_SDK_PROVIDER_CLASS_ASSET_NAME).use { inputStream ->
+                inputStream.bufferedReader().readLine()
+            }
         }
     }
 

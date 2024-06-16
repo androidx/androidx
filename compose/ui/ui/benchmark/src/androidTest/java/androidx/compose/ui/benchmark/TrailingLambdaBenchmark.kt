@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TrailingLambdaBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun withTrailingLambdas_compose() {
@@ -72,33 +71,22 @@ private sealed class TrailingLambdaTestCase : LayeredComposeTestCase(), Toggleab
         val number = remember { mutableStateOf(5) }
         numberState = number
 
-        val content = @Composable {
-            Box(Modifier.width(10.dp))
-        }
+        val content = @Composable { Box(Modifier.width(10.dp)) }
 
-        Column {
-            repeat(10) {
-                Content(number = number.value, content = content)
-            }
-        }
+        Column { repeat(10) { Content(number = number.value, content = content) } }
     }
 
     override fun toggleState() {
-        with(numberState!!) {
-            value = if (value == 5) 10 else 5
-        }
+        with(numberState!!) { value = if (value == 5) 10 else 5 }
     }
 
-    @Composable
-    abstract fun Content(number: Int, content: @Composable () -> Unit)
+    @Composable abstract fun Content(number: Int, content: @Composable () -> Unit)
 }
 
 private class WithTrailingLambdas : TrailingLambdaTestCase() {
     @Composable
     override fun Content(number: Int, content: @Composable () -> Unit) {
-        EmptyComposable(number = number) {
-            content()
-        }
+        EmptyComposable(number = number) { content() }
     }
 }
 
@@ -111,5 +99,4 @@ private class WithoutTrailingLambdas : TrailingLambdaTestCase() {
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-private fun EmptyComposable(number: Int, content: @Composable () -> Unit) {
-}
+private fun EmptyComposable(number: Int, content: @Composable () -> Unit) {}

@@ -74,12 +74,11 @@ fun AnimatedVisibilityContentSizeChange() {
 
         AnimatedVisibility(visible = isOpen.value) {
             Column(
-                Modifier.background(pastelColors[2]).fillMaxWidth()
+                Modifier.background(pastelColors[2])
+                    .fillMaxWidth()
                     .then(if (checked) Modifier.animateContentSize() else Modifier)
             ) {
-                itemList.map {
-                    Text("Item #$it", Modifier.align(Alignment.CenterHorizontally))
-                }
+                itemList.map { Text("Item #$it", Modifier.align(Alignment.CenterHorizontally)) }
             }
         }
     }

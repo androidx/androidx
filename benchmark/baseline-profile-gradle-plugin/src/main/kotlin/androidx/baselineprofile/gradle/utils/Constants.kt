@@ -20,7 +20,7 @@ import com.android.build.api.AndroidPluginVersion
 
 // Minimum AGP version required
 internal val MIN_AGP_VERSION_REQUIRED_INCLUSIVE = AndroidPluginVersion(8, 0, 0)
-internal val MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE = AndroidPluginVersion(8, 6, 0).alpha(1)
+internal val MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE = AndroidPluginVersion(9, 0, 0).alpha(1)
 
 // Prefix for the build type baseline profile
 internal const val BUILD_TYPE_BASELINE_PROFILE_PREFIX = "nonMinified"
@@ -57,5 +57,4 @@ internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE = "baselin
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK = "macrobenchmark"
 
 // This should be aligned with `androidx.benchmark.Arguments#targetPackageName`
-internal const val INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME =
-    "androidx.benchmark.targetPackageName"
+internal const val INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME = "androidx.benchmark.targetPackageName"

@@ -26,13 +26,11 @@ import java.lang.ref.WeakReference
 import java.lang.reflect.Field
 
 /**
- * Subclass of JankStatsBaseImpl records frame timing data for API 16 and later,
- * using Choreographer (which was introduced in API 16).
+ * Subclass of JankStatsBaseImpl records frame timing data for API 16 and later, using Choreographer
+ * (which was introduced in API 16).
  */
-internal open class JankStatsApi16Impl(
-    jankStats: JankStats,
-    view: View
-) : JankStatsBaseImpl(jankStats) {
+internal open class JankStatsApi16Impl(jankStats: JankStats, view: View) :
+    JankStatsBaseImpl(jankStats) {
 
     // TODO: decorView may change in Window, think about how to handle that
     // e.g., should we cache Window instead?
@@ -56,18 +54,23 @@ internal open class JankStatsApi16Impl(
     private val frameData = FrameData(0, 0, false, stateInfo)
 
     /**
-     * Each JankStats instance has its own listener for per-frame metric data.
-     * But we use a single listener (using OnPreDraw events prior to API 24) to gather
-     * the frame data, and then delegate that information to all instances.
-     * OnFrameListenerDelegate is the object that the per-frame data is delegated to,
-     * which forwards it to the JankStats instances.
+     * Each JankStats instance has its own listener for per-frame metric data. But we use a single
+     * listener (using OnPreDraw events prior to API 24) to gather the frame data, and then delegate
+     * that information to all instances. OnFrameListenerDelegate is the object that the per-frame
+     * data is delegated to, which forwards it to the JankStats instances.
      */
-    private val onFrameListenerDelegate = object : OnFrameListenerDelegate() {
-        override fun onFrame(startTime: Long, uiDuration: Long, expectedDuration: Long) {
-            jankStats.logFrameData(getFrameData(startTime, uiDuration,
-                (expectedDuration * jankStats.jankHeuristicMultiplier).toLong()))
+    private val onFrameListenerDelegate =
+        object : OnFrameListenerDelegate() {
+            override fun onFrame(startTime: Long, uiDuration: Long, expectedDuration: Long) {
+                jankStats.logFrameData(
+                    getFrameData(
+                        startTime,
+                        uiDuration,
+                        (expectedDuration * jankStats.jankHeuristicMultiplier).toLong()
+                    )
+                )
+            }
         }
-    }
 
     override fun setupFrameTimer(enable: Boolean) {
         val decorView = decorViewRef.get()
@@ -86,8 +89,7 @@ internal open class JankStatsApi16Impl(
         uiDuration: Long,
         expectedDuration: Long
     ): FrameData {
-        metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration,
-            stateInfo)
+        metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration, stateInfo)
         val isJank = uiDuration > expectedDuration
         frameData.update(startTime, uiDuration, isJank)
         return frameData
@@ -99,9 +101,8 @@ internal open class JankStatsApi16Impl(
     }
 
     /**
-     * This function returns the current list of OnPreDrawListener delegates.
-     * If no such list exists, it will create it and add a root listener that
-     * delegates to that list.
+     * This function returns the current list of OnPreDrawListener delegates. If no such list
+     * exists, it will create it and add a root listener that delegates to that list.
      */
     private fun View.getOrCreateOnPreDrawListenerDelegator(): DelegatingOnPreDrawListener {
         var delegator = getTag(R.id.metricsDelegator) as DelegatingOnPreDrawListener?
@@ -125,17 +126,17 @@ internal open class JankStatsApi16Impl(
 }
 
 /**
- * This class is used by DelegatingOnDrawListener, which calculates the frame timing values
- * and calls all delegate listeners with that data.
+ * This class is used by DelegatingOnDrawListener, which calculates the frame timing values and
+ * calls all delegate listeners with that data.
  */
 internal abstract class OnFrameListenerDelegate {
     abstract fun onFrame(startTime: Long, uiDuration: Long, expectedDuration: Long)
 }
 
 /**
- * There is only a single listener for OnPreDraw events, which are used to calculate frame
- * timing details. This listener delegates to a list of OnFrameListenerDelegate objects,
- * which do the work of sending that data to JankStats instance clients.
+ * There is only a single listener for OnPreDraw events, which are used to calculate frame timing
+ * details. This listener delegates to a list of OnFrameListenerDelegate objects, which do the work
+ * of sending that data to JankStats instance clients.
  */
 internal open class DelegatingOnPreDrawListener(
     decorView: View,
@@ -155,61 +156,61 @@ internal open class DelegatingOnPreDrawListener(
 
     /**
      * It is possible for the delegates list to be modified concurrently (adding/removing items
-     * while also iterating through the list). To prevent this, we synchronize on this instance.
-     * It is also possible for the same thread to do both operations, causing reentrance into
-     * that synchronization block. However, the only way that should happen is if the list is
-     * being iterated on (which is called from the UI thread) and, in any of those delegate
-     * listeners, the delegates list is modified
-     * (by calling JankStats.isTrackingEnabled()). In this case, we cache the request in one of the
-     * toBeAdded/Removed lists and return. When iteration is complete, we handle those requests.
-     * This would not be sufficient if those operations could happen randomly on the same thread,
-     * but the order should also be as described above (with add/remove nested inside iteration).
+     * while also iterating through the list). To prevent this, we synchronize on this instance. It
+     * is also possible for the same thread to do both operations, causing reentrance into that
+     * synchronization block. However, the only way that should happen is if the list is being
+     * iterated on (which is called from the UI thread) and, in any of those delegate listeners, the
+     * delegates list is modified (by calling JankStats.isTrackingEnabled()). In this case, we cache
+     * the request in one of the toBeAdded/Removed lists and return. When iteration is complete, we
+     * handle those requests. This would not be sufficient if those operations could happen randomly
+     * on the same thread, but the order should also be as described above (with add/remove nested
+     * inside iteration).
      *
      * Iteration and add/remove could also happen randomly and concurrently on different threads,
      * but in that case the synchronization block around both accesses should suffice.
      */
-
     override fun onPreDraw(): Boolean {
         val decorView = decorViewRef.get()
         decorView?.let {
             val frameStart = getFrameStartTime()
             with(decorView) {
-                handler.sendMessageAtFrontOfQueue(Message.obtain(handler) {
-                    val now = System.nanoTime()
-                    val expectedDuration = getExpectedFrameDuration(decorView)
-                    // prevent concurrent modification of delegates list by synchronizing on
-                    // this delegator object while iterating and modifying
-                    synchronized(this@DelegatingOnPreDrawListener) {
-                        iterating = true
-                        for (delegate in delegates) {
-                            delegate.onFrame(frameStart, now - frameStart, expectedDuration)
-                        }
-                        if (toBeAdded.isNotEmpty()) {
-                            for (delegate in toBeAdded) {
-                                delegates.add(delegate)
+                handler.sendMessageAtFrontOfQueue(
+                    Message.obtain(handler) {
+                            val now = System.nanoTime()
+                            val expectedDuration = getExpectedFrameDuration(decorView)
+                            // prevent concurrent modification of delegates list by synchronizing on
+                            // this delegator object while iterating and modifying
+                            synchronized(this@DelegatingOnPreDrawListener) {
+                                iterating = true
+                                for (delegate in delegates) {
+                                    delegate.onFrame(frameStart, now - frameStart, expectedDuration)
+                                }
+                                if (toBeAdded.isNotEmpty()) {
+                                    for (delegate in toBeAdded) {
+                                        delegates.add(delegate)
+                                    }
+                                    toBeAdded.clear()
+                                }
+                                if (toBeRemoved.isNotEmpty()) {
+                                    val delegatesNonEmpty = delegates.isNotEmpty()
+                                    for (delegate in toBeRemoved) {
+                                        delegates.remove(delegate)
+                                    }
+                                    toBeRemoved.clear()
+                                    // Only remove delegator if we emptied the list here
+                                    if (delegatesNonEmpty && delegates.isEmpty()) {
+                                        viewTreeObserver.removeOnPreDrawListener(
+                                            this@DelegatingOnPreDrawListener
+                                        )
+                                        setTag(R.id.metricsDelegator, null)
+                                    }
+                                }
+                                iterating = false
                             }
-                            toBeAdded.clear()
+                            metricsStateHolder.state?.cleanupSingleFrameStates()
                         }
-                        if (toBeRemoved.isNotEmpty()) {
-                            val delegatesNonEmpty = delegates.isNotEmpty()
-                            for (delegate in toBeRemoved) {
-                                delegates.remove(delegate)
-                            }
-                            toBeRemoved.clear()
-                            // Only remove delegator if we emptied the list here
-                            if (delegatesNonEmpty && delegates.isEmpty()) {
-                                viewTreeObserver.removeOnPreDrawListener(
-                                    this@DelegatingOnPreDrawListener
-                                )
-                                setTag(R.id.metricsDelegator, null)
-                            }
-                        }
-                        iterating = false
-                    }
-                    metricsStateHolder.state?.cleanupSingleFrameStates()
-                }.apply {
-                    MessageCompat.setAsynchronous(this, true)
-                })
+                        .apply { MessageCompat.setAsynchronous(this, true) }
+                )
             }
         }
         return true
@@ -247,6 +248,7 @@ internal open class DelegatingOnPreDrawListener(
             }
         }
     }
+
     private fun getFrameStartTime(): Long {
         return choreographerLastFrameTimeField.get(choreographer) as Long
     }
@@ -263,8 +265,8 @@ internal open class DelegatingOnPreDrawListener(
         fun getExpectedFrameDuration(view: View?): Long {
             if (JankStatsBaseImpl.frameDuration < 0) {
                 var refreshRate = 60f
-                val window = if (view?.context is Activity)
-                    (view.context as Activity).window else null
+                val window =
+                    if (view?.context is Activity) (view.context as Activity).window else null
                 if (window != null) {
                     val display = window.windowManager.defaultDisplay
                     refreshRate = display.refreshRate

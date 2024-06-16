@@ -19,8 +19,8 @@ package androidx.room.vo
 import androidx.room.compiler.processing.XMethodElement
 
 /**
- * Represents a DAO method that delegates to a concrete implementation, specifically to override
- * a Kotlin interface whose implementation is in the DefaultImpl generated class.
+ * Represents a DAO method that delegates to a concrete implementation, specifically to override a
+ * Kotlin interface whose implementation is in the DefaultImpl generated class.
  */
 data class KotlinDefaultMethodDelegate(
     // the original element, not the stub that is generated for DefaultImpls

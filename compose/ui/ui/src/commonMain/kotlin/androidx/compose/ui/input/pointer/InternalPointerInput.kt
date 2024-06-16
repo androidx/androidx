@@ -57,9 +57,9 @@ internal data class PointerInputEventData(
 /**
  * Represents a pointer input event internally.
  *
- * [PointerInputChange]s are stored in a map so that as this internal event traverses the tree,
- * it is efficient to split the changes between those that are relevant to the sub tree and those
- * that are not.
+ * [PointerInputChange]s are stored in a map so that as this internal event traverses the tree, it
+ * is efficient to split the changes between those that are relevant to the sub tree and those that
+ * are not.
  */
 @OptIn(InternalCoreApi::class)
 internal expect class InternalPointerEvent(
@@ -69,9 +69,10 @@ internal expect class InternalPointerEvent(
     val changes: LongSparseArray<PointerInputChange>
 
     /**
-     * Embedded Android Views may consume an event and [ProcessResult] should not
-     * return that the position change was consumed because of this.
+     * Embedded Android Views may consume an event and [ProcessResult] should not return that the
+     * position change was consumed because of this.
      */
     var suppressMovementConsumption: Boolean
+
     fun activeHoverEvent(pointerId: PointerId): Boolean
 }

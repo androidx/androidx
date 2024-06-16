@@ -45,7 +45,9 @@ import javax.lang.model.element.Modifier
  *   ViewModelAssistedFactory<? extends Worker> bind($_AssistedFactory factory)
  * }
  * ```
+ *
  * and
+ *
  * ```
  * @AssistedFactory
  * public interface $_AssistedFactory extends WorkerAssistedFactory<$> {
@@ -58,56 +60,58 @@ internal class WorkerGenerator(
     private val injectedWorker: WorkerElement
 ) {
     fun generate() {
-        val assistedFactoryTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.factoryClassName)
-            .addOriginatingElement(injectedWorker.typeElement)
-            .addGeneratedAnnotation(processingEnv)
-            .addAnnotation(ClassNames.ASSISTED_FACTORY)
-            .addModifiers(Modifier.PUBLIC)
-            .addSuperinterface(injectedWorker.factorySuperTypeName)
-            .build()
+        val assistedFactoryTypeSpec =
+            TypeSpec.interfaceBuilder(injectedWorker.factoryClassName)
+                .addOriginatingElement(injectedWorker.typeElement)
+                .addGeneratedAnnotation(processingEnv)
+                .addAnnotation(ClassNames.ASSISTED_FACTORY)
+                .addModifiers(Modifier.PUBLIC)
+                .addSuperinterface(injectedWorker.factorySuperTypeName)
+                .build()
         JavaFile.builder(injectedWorker.factoryClassName.packageName(), assistedFactoryTypeSpec)
             .build()
             .writeTo(processingEnv.filer)
 
-        val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.moduleClassName)
-            .addOriginatingElement(injectedWorker.typeElement)
-            .addGeneratedAnnotation(processingEnv)
-            .addAnnotation(ClassNames.MODULE)
-            .addAnnotation(
-                AnnotationSpec.builder(ClassNames.INSTALL_IN)
-                    .addMember("value", "$T.class", ClassNames.SINGLETON_COMPONENT)
-                    .build()
-            )
-            .addAnnotation(
-                AnnotationSpec.builder(ClassNames.ORIGINATING_ELEMENT)
-                    .addMember(
-                        "topLevelClass",
-                        "$T.class",
-                        injectedWorker.className.topLevelClassName()
-                    )
-                    .build()
-            )
-            .addModifiers(Modifier.PUBLIC)
-            .addMethod(
-                MethodSpec.methodBuilder("bind")
-                    .addAnnotation(ClassNames.BINDS)
-                    .addAnnotation(ClassNames.INTO_MAP)
-                    .addAnnotation(
-                        AnnotationSpec.builder(ClassNames.STRING_KEY)
-                            .addMember("value", S, injectedWorker.className.reflectionName())
-                            .build()
-                    )
-                    .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-                    .returns(
-                        ParameterizedTypeName.get(
-                            ClassNames.WORKER_ASSISTED_FACTORY,
-                            WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)
+        val hiltModuleTypeSpec =
+            TypeSpec.interfaceBuilder(injectedWorker.moduleClassName)
+                .addOriginatingElement(injectedWorker.typeElement)
+                .addGeneratedAnnotation(processingEnv)
+                .addAnnotation(ClassNames.MODULE)
+                .addAnnotation(
+                    AnnotationSpec.builder(ClassNames.INSTALL_IN)
+                        .addMember("value", "$T.class", ClassNames.SINGLETON_COMPONENT)
+                        .build()
+                )
+                .addAnnotation(
+                    AnnotationSpec.builder(ClassNames.ORIGINATING_ELEMENT)
+                        .addMember(
+                            "topLevelClass",
+                            "$T.class",
+                            injectedWorker.className.topLevelClassName()
                         )
-                    )
-                    .addParameter(injectedWorker.factoryClassName, "factory")
-                    .build()
-            )
-            .build()
+                        .build()
+                )
+                .addModifiers(Modifier.PUBLIC)
+                .addMethod(
+                    MethodSpec.methodBuilder("bind")
+                        .addAnnotation(ClassNames.BINDS)
+                        .addAnnotation(ClassNames.INTO_MAP)
+                        .addAnnotation(
+                            AnnotationSpec.builder(ClassNames.STRING_KEY)
+                                .addMember("value", S, injectedWorker.className.reflectionName())
+                                .build()
+                        )
+                        .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+                        .returns(
+                            ParameterizedTypeName.get(
+                                ClassNames.WORKER_ASSISTED_FACTORY,
+                                WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)
+                            )
+                        )
+                        .addParameter(injectedWorker.factoryClassName, "factory")
+                        .build()
+                )
+                .build()
         JavaFile.builder(injectedWorker.moduleClassName.packageName(), hiltModuleTypeSpec)
             .build()
             .writeTo(processingEnv.filer)

@@ -32,20 +32,16 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HasAnyAncestorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun findByAncestor_oneAncestor_oneMatch() {
         rule.setContent {
             BoundaryNode(testTag = "Node")
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
+            BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") }
         }
 
-        rule.onNode(hasAnyAncestor(hasTestTag("Parent")))
-            .assert(hasTestTag("Child"))
+        rule.onNode(hasAnyAncestor(hasTestTag("Parent"))).assert(hasTestTag("Child"))
     }
 
     @Test
@@ -60,8 +56,7 @@ class HasAnyAncestorTest {
             }
         }
 
-        rule.onAllNodes(hasAnyAncestor(hasTestTag("Parent")))
-            .assertCountEquals(2)
+        rule.onAllNodes(hasAnyAncestor(hasTestTag("Parent"))).assertCountEquals(2)
     }
 
     @Test
@@ -69,16 +64,12 @@ class HasAnyAncestorTest {
         rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Grandparent") {
-                BoundaryNode(testTag = "Parent") {
-                    BoundaryNode(testTag = "Child")
-                }
+                BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") }
             }
         }
 
-        rule.onNode(
-            hasAnyAncestor(hasTestTag("Grandparent"))
-                and !hasTestTag("Parent")
-        )
+        rule
+            .onNode(hasAnyAncestor(hasTestTag("Grandparent")) and !hasTestTag("Parent"))
             .assert(hasTestTag("Child"))
     }
 
@@ -87,35 +78,26 @@ class HasAnyAncestorTest {
         rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Grandparent") {
-                BoundaryNode(testTag = "Parent") {
-                    BoundaryNode(testTag = "Child")
-                }
+                BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") }
             }
         }
 
-        rule.onAllNodes(hasAnyAncestor(hasTestTag("Parent") or hasTestTag("Grandparent")))
+        rule
+            .onAllNodes(hasAnyAncestor(hasTestTag("Parent") or hasTestTag("Grandparent")))
             .assertCountEquals(2)
     }
 
     @Test
     fun findByAncestor_justSelf_noMatch() {
-        rule.setContent {
-            BoundaryNode(testTag = "Node")
-        }
+        rule.setContent { BoundaryNode(testTag = "Node") }
 
-        rule.onNode(hasAnyAncestor(hasTestTag("Node")))
-            .assertDoesNotExist()
+        rule.onNode(hasAnyAncestor(hasTestTag("Node"))).assertDoesNotExist()
     }
 
     @Test
     fun findByAncestor_oneAncestor_noMatch() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") } }
 
-        rule.onNode(hasAnyAncestor(hasTestTag("Child")))
-            .assertDoesNotExist()
+        rule.onNode(hasAnyAncestor(hasTestTag("Child"))).assertDoesNotExist()
     }
 }

@@ -50,19 +50,19 @@ import androidx.wear.compose.material3.ProgressIndicatorDefaults.FullScreenPaddi
 fun FullScreenProgressIndicatorSample() {
     Box(
         modifier =
-        Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(FullScreenPadding)
-            .fillMaxSize()
+            Modifier.background(MaterialTheme.colorScheme.background)
+                .padding(FullScreenPadding)
+                .fillMaxSize()
     ) {
         CircularProgressIndicator(
             progress = { 0.25f },
             startAngle = 120f,
             endAngle = 60f,
-            colors = ProgressIndicatorDefaults.colors(
-                indicatorColor = Color.Green,
-                trackColor = Color.Green.copy(alpha = 0.5f)
-            ),
+            colors =
+                ProgressIndicatorDefaults.colors(
+                    indicatorColor = Color.Green,
+                    trackColor = Color.Green.copy(alpha = 0.5f)
+                ),
         )
     }
 }
@@ -70,29 +70,22 @@ fun FullScreenProgressIndicatorSample() {
 @Sampled
 @Composable
 fun MediaButtonProgressIndicatorSample() {
-    var isPlaying by remember {
-        mutableStateOf(false)
-    }
+    var isPlaying by remember { mutableStateOf(false) }
     val progressPadding = 4.dp
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(IconButtonDefaults.DefaultButtonSize + progressPadding)
+            modifier =
+                Modifier.align(Alignment.Center)
+                    .size(IconButtonDefaults.DefaultButtonSize + progressPadding)
         ) {
             CircularProgressIndicator(progress = { 0.75f }, strokeWidth = progressPadding)
             IconButton(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(progressPadding)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow),
+                modifier =
+                    Modifier.align(Alignment.Center)
+                        .padding(progressPadding)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerLow),
                 onClick = { isPlaying = !isPlaying }
             ) {
                 Icon(
@@ -109,10 +102,9 @@ fun MediaButtonProgressIndicatorSample() {
 fun OverflowProgressIndicatorSample() {
     Box(
         modifier =
-        Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(FullScreenPadding)
-            .fillMaxSize()
+            Modifier.background(MaterialTheme.colorScheme.background)
+                .padding(FullScreenPadding)
+                .fillMaxSize()
     ) {
         CircularProgressIndicator(
             // The progress is limited by 100%, 120% ends up being 20% with the track brush
@@ -120,14 +112,16 @@ fun OverflowProgressIndicatorSample() {
             progress = { 0.2f },
             startAngle = 120f,
             endAngle = 60f,
-            colors = ProgressIndicatorDefaults.colors(
-                trackBrush = Brush.linearGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.surfaceContainer
-                    )
+            colors =
+                ProgressIndicatorDefaults.colors(
+                    trackBrush =
+                        Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        )
                 )
-            )
         )
     }
 }

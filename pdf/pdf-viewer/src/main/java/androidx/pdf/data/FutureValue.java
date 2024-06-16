@@ -16,6 +16,8 @@
 
 package androidx.pdf.data;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -34,7 +36,7 @@ import androidx.annotation.RestrictTo;
 public interface FutureValue<T> {
 
     /** Get the value when it is available. Could supply the value immediately. */
-    void get(Callback<T> callback);
+    void get(@Nullable Callback<T> callback);
 
     /**
      * A callback to receive the result when available.
@@ -47,7 +49,7 @@ public interface FutureValue<T> {
         void available(T value);
 
         /** Gives the exception thrown while attempting to get the value. */
-        void failed(Throwable thrown);
+        void failed(@NonNull Throwable thrown);
 
         /** Reports the ratio of completed to total work from 0 to 1. */
         void progress(float progress);

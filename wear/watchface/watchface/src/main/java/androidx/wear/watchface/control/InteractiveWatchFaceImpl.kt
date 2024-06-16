@@ -146,8 +146,7 @@ internal class InteractiveWatchFaceImpl(
                 "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
             ) { watchFaceImpl ->
                 watchFaceImpl.previewReferenceInstant.toEpochMilli()
-            }
-                ?: 0
+            } ?: 0
         }
 
     override fun setWatchUiState(watchUiState: WatchUiState): Unit =
@@ -181,7 +180,10 @@ internal class InteractiveWatchFaceImpl(
                 runBlocking {
                     try {
                         withContext(uiThreadCoroutineScope.coroutineContext) {
-                            engine?.let { it.deferredWatchFaceImpl.await() }
+                            engine?.let {
+                                it.deferredWatchFaceImpl.await()
+                                it.unpauseAnimation()
+                            }
                             InteractiveInstanceManager.releaseInstance(instanceId)
                         }
                     } catch (e: Exception) {
@@ -298,8 +300,7 @@ internal class InteractiveWatchFaceImpl(
                 "InteractiveWatchFaceImpl.getComplicationIdAt"
             ) {
                 it.complicationSlotsManager.getComplicationSlotAt(xPos, yPos)?.id?.toLong()
-            }
-                ?: Long.MIN_VALUE
+            } ?: Long.MIN_VALUE
         }
 
     override fun getUserStyleFlavors() =
@@ -315,19 +316,24 @@ internal class InteractiveWatchFaceImpl(
 
     override fun overrideComplicationData(
         complicationDatumWireFormats: List<IdAndComplicationDataWireFormat>
-    ): Unit = aidlMethod(TAG, "overrideComplicationData") {
-        engine?.overrideComplicationsForEditing(
-            complicationDatumWireFormats.associateBy(
-                { it.id },
-                { it.complicationData.toApiComplicationData() }
+    ): Unit =
+        aidlMethod(TAG, "overrideComplicationData") {
+            engine?.overrideComplicationsForEditing(
+                complicationDatumWireFormats.associateBy(
+                    { it.id },
+                    { it.complicationData.toApiComplicationData() }
+                )
             )
-        )
-    }
+        }
 
     override fun clearComplicationDataOverride(): Unit =
-        aidlMethod(TAG, "overrideComplicationData") {
-            engine?.onEditSessionFinished()
-        }
+        aidlMethod(TAG, "overrideComplicationData") { engine?.onEditSessionFinished() }
+
+    override fun pauseAnimation(binder: IBinder): Unit =
+        aidlMethod(TAG, "pauseAnimation") { engine?.pauseAnimation(binder) }
+
+    override fun unpauseAnimation(): Unit =
+        aidlMethod(TAG, "unpauseAnimation") { engine?.unpauseAnimation() }
 
     fun onDestroy() {
         // Note this is almost certainly called on the ui thread, from release() above.

@@ -36,9 +36,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
-/**
- * Holds tests that use Robolectric for providing application resources and context.
- */
+/** Holds tests that use Robolectric for providing application resources and context. */
 class GlanceAppWidgetUnitTestEnvironmentRobolectricTest {
     private lateinit var context: Context
 
@@ -51,12 +49,9 @@ class GlanceAppWidgetUnitTestEnvironmentRobolectricTest {
     fun runTest_localContextRead() = runGlanceAppWidgetUnitTest {
         setContext(context)
 
-        provideComposable {
-            ComposableReadingLocalContext()
-        }
+        provideComposable { ComposableReadingLocalContext() }
 
-        onNode(hasTestTag("test-tag"))
-            .assert(hasText("Test string: MyTest"))
+        onNode(hasTestTag("test-tag")).assert(hasText("Test string: MyTest"))
     }
 
     @Composable

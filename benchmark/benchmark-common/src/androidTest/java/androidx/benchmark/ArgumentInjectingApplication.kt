@@ -24,7 +24,6 @@ import androidx.test.platform.app.InstrumentationRegistry
  * Hack to enable overriding benchmark arguments (since we can't easily do this in CI, per apk)
  *
  * The *correct* way to do this would be to put the following in benchmark/build.gradle:
- *
  * ```
  * android {
  *     defaultConfig {
@@ -38,30 +37,29 @@ class ArgumentInjectingApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        argumentSource = Bundle().apply {
-            // allow cli args to pass through
-            putAll(InstrumentationRegistry.getArguments())
+        argumentSource =
+            Bundle().apply {
+                // allow cli args to pass through
+                putAll(InstrumentationRegistry.getArguments())
 
-            // Since these benchmark correctness tests run as part of the regular
-            // (non-performance-test) suite, they will have debuggable=true, won't be clock-locked,
-            // can run with low-battery or on an emulator, and code coverage enabled.
-            // We also don't have the activity up for these correctness tests, instead
-            // leaving testing that behavior to the junit4 module.
-            putString(
-                "androidx.benchmark.suppressErrors",
-                "ACTIVITY-MISSING,CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED," +
-                    "UNSUSTAINED-ACTIVITY-MISSING,ENG-BUILD"
-            )
-            putString(
-                "androidx.benchmark.thermalThrottle.sleepDurationSeconds",
-                "0"
-            )
-            // TODO: consider moving default directory to files dir.
-            putString(
-                "additionalTestOutputDir",
-                InstrumentationRegistry.getInstrumentation().targetContext.filesDir.absolutePath
-            )
-        }
+                // Since these benchmark correctness tests run as part of the regular
+                // (non-performance-test) suite, they will have debuggable=true, won't be
+                // clock-locked,
+                // can run with low-battery or on an emulator, and code coverage enabled.
+                // We also don't have the activity up for these correctness tests, instead
+                // leaving testing that behavior to the junit4 module.
+                putString(
+                    "androidx.benchmark.suppressErrors",
+                    "ACTIVITY-MISSING,CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED," +
+                        "UNSUSTAINED-ACTIVITY-MISSING,ENG-BUILD"
+                )
+                putString("androidx.benchmark.thermalThrottle.sleepDurationSeconds", "0")
+                // TODO: consider moving default directory to files dir.
+                putString(
+                    "additionalTestOutputDir",
+                    InstrumentationRegistry.getInstrumentation().targetContext.filesDir.absolutePath
+                )
+            }
         // Since we don't care about measurement accuracy in these correctness test, enable method
         // tracing to occur multiple times without killing the process.
         BenchmarkState.enableMethodTracingAffectsMeasurementError = false

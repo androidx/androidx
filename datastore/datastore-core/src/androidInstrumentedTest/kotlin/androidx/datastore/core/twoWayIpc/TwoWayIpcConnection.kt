@@ -31,19 +31,15 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withTimeout
 
-/**
- * A [ServiceConnection] implementation that talks to an instance of
- * [TwoWayIpcService].
- */
+/** A [ServiceConnection] implementation that talks to an instance of [TwoWayIpcService]. */
 class TwoWayIpcConnection(
     private val context: Context,
     private val klass: Class<out TwoWayIpcService>,
 ) : ServiceConnection {
     private val connectionEstablished = CompletableDeferred<Messenger>()
+
     private suspend fun <T> withConnectionTimeout(block: suspend () -> T): T {
-        return withTimeout(TIMEOUT) {
-            block()
-        }
+        return withTimeout(TIMEOUT) { block() }
     }
 
     suspend fun connect() {
@@ -69,29 +65,29 @@ class TwoWayIpcConnection(
     }
 
     suspend fun disconnect() {
-        sendMessage(Message.obtain().also {
-            it.what = TwoWayIpcService.MSG_DESTROY_SUBJECTS
-        })
+        sendMessage(Message.obtain().also { it.what = TwoWayIpcService.MSG_DESTROY_SUBJECTS })
         context.unbindService(this)
     }
 
     private suspend fun sendMessage(message: Message): Message = withConnectionTimeout {
         val response = CompletableDeferred<Message>()
-        message.replyTo = Messenger(object : Handler(Looper.getMainLooper()) {
-            override fun handleMessage(msg: Message) {
-                if (msg.what == TwoWayIpcService.MSG_CREATE_SUBJECT) {
-                    val stacktrace = msg.data.getString("ipc_stacktrace") ?: "missing stacktrace"
-                    response.completeExceptionally(
-                        AssertionError("Exception in remote process: $stacktrace")
-                    )
-                } else {
-                    response.complete(Message.obtain().also { it.copyFrom(msg) })
+        message.replyTo =
+            Messenger(
+                object : Handler(Looper.getMainLooper()) {
+                    override fun handleMessage(msg: Message) {
+                        if (msg.what == TwoWayIpcService.MSG_CREATE_SUBJECT) {
+                            val stacktrace =
+                                msg.data.getString("ipc_stacktrace") ?: "missing stacktrace"
+                            response.completeExceptionally(
+                                AssertionError("Exception in remote process: $stacktrace")
+                            )
+                        } else {
+                            response.complete(Message.obtain().also { it.copyFrom(msg) })
+                        }
+                    }
                 }
-            }
-        })
-        connectionEstablished.await().send(
-            message
-        )
+            )
+        connectionEstablished.await().send(message)
         response.await()
     }
 
@@ -106,19 +102,15 @@ class TwoWayIpcConnection(
     internal suspend fun createSubject(
         hostExecutionScope: CoroutineScope,
     ): TwoWayIpcSubject {
-        val hostSubject = TwoWayIpcSubject(
-            datastoreScope = hostExecutionScope
-        )
+        val hostSubject = TwoWayIpcSubject(datastoreScope = hostExecutionScope)
         val message = Message.obtain()
         message.what = TwoWayIpcService.MSG_CREATE_SUBJECT
         message.data.putParcelable("messenger", hostSubject.bus.incomingMessenger)
         val response = sendMessage(message)
 
-        @Suppress("DEPRECATION") val outgoingMessenger =
-            response.data.getParcelable<Messenger>("messenger")
-        checkNotNull(outgoingMessenger) {
-            "didn't receive an outgoing messenger"
-        }
+        @Suppress("DEPRECATION")
+        val outgoingMessenger = response.data.getParcelable<Messenger>("messenger")
+        checkNotNull(outgoingMessenger) { "didn't receive an outgoing messenger" }
         hostSubject.bus.setOutgoingMessenger(outgoingMessenger)
         return hostSubject
     }

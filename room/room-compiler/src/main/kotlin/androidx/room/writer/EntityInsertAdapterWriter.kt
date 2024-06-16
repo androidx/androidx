@@ -33,7 +33,8 @@ import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.columnNames
 
-class EntityInsertAdapterWriter private constructor(
+class EntityInsertAdapterWriter
+private constructor(
     val tableName: String,
     val pojo: Pojo,
     val primitiveAutoGenerateColumn: String?,
@@ -43,19 +44,20 @@ class EntityInsertAdapterWriter private constructor(
         fun create(entity: ShortcutEntity, onConflict: String): EntityInsertAdapterWriter {
             // If there is an auto-increment primary key with primitive type, we consider 0 as
             // not set. For such fields, we must generate a slightly different insertion SQL.
-            val primitiveAutoGenerateField = if (entity.primaryKey.autoGenerateId) {
-                entity.primaryKey.fields.firstOrNull()?.let { field ->
-                    field.statementBinder?.typeMirror()?.let { binderType ->
-                        if (binderType.nullability == XNullability.NONNULL) {
-                            field
-                        } else {
-                            null
+            val primitiveAutoGenerateField =
+                if (entity.primaryKey.autoGenerateId) {
+                    entity.primaryKey.fields.firstOrNull()?.let { field ->
+                        field.statementBinder?.typeMirror()?.let { binderType ->
+                            if (binderType.nullability == XNullability.NONNULL) {
+                                field
+                            } else {
+                                null
+                            }
                         }
                     }
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
             return EntityInsertAdapterWriter(
                 tableName = entity.tableName,
                 pojo = entity.pojo,
@@ -71,84 +73,85 @@ class EntityInsertAdapterWriter private constructor(
         useDriverApi: Boolean
     ): XTypeSpec {
         return if (useDriverApi) {
-            XTypeSpec.anonymousClassBuilder(
-                typeWriter.codeLanguage
-            )
-        } else {
-            XTypeSpec.anonymousClassBuilder(
-                typeWriter.codeLanguage, "%N", dbProperty
-            )
-        }.apply {
-            superclass(
-                if (useDriverApi) {
-                    RoomTypeNames.INSERT_ADAPTER
-                } else {
-                    RoomTypeNames.INSERT_ADAPTER_COMPAT
-                }.parametrizedBy(pojo.typeName)
-            )
-            addFunction(
-                XFunSpec.builder(
-                    language = language,
-                    name = "createQuery",
-                    visibility = VisibilityModifier.PROTECTED,
-                    isOverride = true
-                ).apply {
-                    returns(CommonTypeNames.STRING)
-                    val query = buildString {
-                        if (onConflict.isNotEmpty()) {
-                            append("INSERT OR $onConflict INTO `$tableName`")
+                XTypeSpec.anonymousClassBuilder(typeWriter.codeLanguage)
+            } else {
+                XTypeSpec.anonymousClassBuilder(typeWriter.codeLanguage, "%N", dbProperty)
+            }
+            .apply {
+                superclass(
+                    if (useDriverApi) {
+                            RoomTypeNames.INSERT_ADAPTER
                         } else {
-                            append("INSERT INTO `$tableName`")
+                            RoomTypeNames.INSERT_ADAPTER_COMPAT
                         }
-                        append(" (${pojo.columnNames.joinToString(",") { "`$it`" }})")
-                        append(" VALUES (")
-                        append(
-                            pojo.fields.joinToString(",") {
-                                if (it.columnName == primitiveAutoGenerateColumn) {
-                                    "nullif(?, 0)"
-                                } else {
-                                    "?"
-                                }
-                            }
+                        .parametrizedBy(pojo.typeName)
+                )
+                addFunction(
+                    XFunSpec.builder(
+                            language = language,
+                            name = "createQuery",
+                            visibility = VisibilityModifier.PROTECTED,
+                            isOverride = true
                         )
-                        append(")")
-                    }
-                    addStatement("return %S", query)
-                }.build()
-            )
-            addFunction(
-                XFunSpec.builder(
-                    language = language,
-                    name = "bind",
-                    visibility = VisibilityModifier.PROTECTED,
-                    isOverride = true
-                ).apply {
-                    returns(XTypeName.UNIT_VOID)
-                    val stmtParam = "statement"
-                    addParameter(
-                        if (useDriverApi) {
-                            SQLiteDriverTypeNames.STATEMENT
-                        } else {
-                            SupportDbTypeNames.SQLITE_STMT
-                        },
-                        stmtParam
-                    )
-                    val entityParam = "entity"
-                    addParameter(pojo.typeName, entityParam)
-                    val mapped = FieldWithIndex.byOrder(pojo.fields)
-                    val bindScope = CodeGenScope(
-                        writer = typeWriter,
-                        useDriverApi = useDriverApi
-                    )
-                    FieldReadWriteWriter.bindToStatement(
-                        ownerVar = entityParam,
-                        stmtParamVar = stmtParam,
-                        fieldsWithIndices = mapped,
-                        scope = bindScope
-                    )
-                    addCode(bindScope.generate())
-                }.build()
-            )
-        }.build()
+                        .apply {
+                            returns(CommonTypeNames.STRING)
+                            val query = buildString {
+                                if (onConflict.isNotEmpty()) {
+                                    append("INSERT OR $onConflict INTO `$tableName`")
+                                } else {
+                                    append("INSERT INTO `$tableName`")
+                                }
+                                append(" (${pojo.columnNames.joinToString(",") { "`$it`" }})")
+                                append(" VALUES (")
+                                append(
+                                    pojo.fields.joinToString(",") {
+                                        if (it.columnName == primitiveAutoGenerateColumn) {
+                                            "nullif(?, 0)"
+                                        } else {
+                                            "?"
+                                        }
+                                    }
+                                )
+                                append(")")
+                            }
+                            addStatement("return %S", query)
+                        }
+                        .build()
+                )
+                addFunction(
+                    XFunSpec.builder(
+                            language = language,
+                            name = "bind",
+                            visibility = VisibilityModifier.PROTECTED,
+                            isOverride = true
+                        )
+                        .apply {
+                            returns(XTypeName.UNIT_VOID)
+                            val stmtParam = "statement"
+                            addParameter(
+                                if (useDriverApi) {
+                                    SQLiteDriverTypeNames.STATEMENT
+                                } else {
+                                    SupportDbTypeNames.SQLITE_STMT
+                                },
+                                stmtParam
+                            )
+                            val entityParam = "entity"
+                            addParameter(pojo.typeName, entityParam)
+                            val mapped = FieldWithIndex.byOrder(pojo.fields)
+                            val bindScope =
+                                CodeGenScope(writer = typeWriter, useDriverApi = useDriverApi)
+                            FieldReadWriteWriter.bindToStatement(
+                                ownerVar = entityParam,
+                                stmtParamVar = stmtParam,
+                                fieldsWithIndices = mapped,
+                                scope = bindScope
+                            )
+                            addCode(bindScope.generate())
+                        }
+                        .build()
+                )
+            }
+            .build()
     }
 }

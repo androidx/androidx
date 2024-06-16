@@ -16,8 +16,8 @@
 package androidx.work
 
 /**
- * An enumeration of the conflict resolution policies available to unique
- * [OneTimeWorkRequest]s in case of a collision.
+ * An enumeration of the conflict resolution policies available to unique [OneTimeWorkRequest]s in
+ * case of a collision.
  */
 enum class ExistingWorkPolicy {
     /**
@@ -34,11 +34,11 @@ enum class ExistingWorkPolicy {
 
     /**
      * If there is existing pending (uncompleted) work with the same unique name, append the
-     * newly-specified work as a child of all the leaves of that work sequence.  Otherwise, insert
+     * newly-specified work as a child of all the leaves of that work sequence. Otherwise, insert
      * the newly-specified work as the start of a new sequence.
      *
-     * **Note:** When using APPEND with failed or cancelled prerequisites, newly enqueued work
-     * will also be marked as failed or cancelled respectively. Use
+     * **Note:** When using APPEND with failed or cancelled prerequisites, newly enqueued work will
+     * also be marked as failed or cancelled respectively. Use
      * [ExistingWorkPolicy.APPEND_OR_REPLACE] to create a new chain of work.
      */
     APPEND,
@@ -48,8 +48,8 @@ enum class ExistingWorkPolicy {
      * newly-specified work as the child of all the leaves of that work sequence. Otherwise, insert
      * the newly-specified work as the start of a new sequence.
      *
-     * **Note:** If there are failed or cancelled prerequisites, these prerequisites are
-     * *dropped* and the newly-specified work is the start of a new sequence.
+     * **Note:** If there are failed or cancelled prerequisites, these prerequisites are *dropped*
+     * and the newly-specified work is the start of a new sequence.
      */
     APPEND_OR_REPLACE
 }

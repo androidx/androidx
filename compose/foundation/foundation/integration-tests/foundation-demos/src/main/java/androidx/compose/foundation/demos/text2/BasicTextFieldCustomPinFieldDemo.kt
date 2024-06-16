@@ -83,9 +83,7 @@ fun BasicTextFieldCustomPinFieldDemo() {
 private fun VerifyPinScreen(viewModel: VerifyPinViewModel) {
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(viewModel) {
-        viewModel.run()
-    }
+    LaunchedEffect(viewModel) { viewModel.run() }
 
     if (!viewModel.isLoading) {
         DisposableEffect(Unit) {
@@ -98,16 +96,13 @@ private fun VerifyPinScreen(viewModel: VerifyPinViewModel) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentHeight()
+        modifier = Modifier.fillMaxSize().wrapContentHeight()
     ) {
         PinField(
             viewModel.pinState,
             enabled = !viewModel.isLoading,
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .graphicsLayer {
+            modifier =
+                Modifier.focusRequester(focusRequester).graphicsLayer {
                     if (blurRadius != 0.dp) {
                         val blurRadiusPx = blurRadius.toPx()
                         renderEffect =
@@ -130,9 +125,7 @@ private class VerifyPinViewModel {
     suspend fun run() {
         snapshotFlow { pinState.digits }
             .filter { it.length == 6 }
-            .collectLatest { digits ->
-                validatePin(digits)
-            }
+            .collectLatest { digits -> validatePin(digits) }
     }
 
     private suspend fun validatePin(digits: String): Boolean {
@@ -152,13 +145,11 @@ private class VerifyPinViewModel {
 
 @Stable
 private class PinState(val maxDigits: Int) {
-    val digits: String by derivedStateOf {
-        textState.text.toString()
-    }
+    val digits: String by derivedStateOf { textState.text.toString() }
 
     /*internal*/ val textState = TextFieldState()
-    /*internal*/ val filter: InputTransformation = OnlyDigitsTransformation
-        .then(InputTransformation.maxLength(maxDigits))
+    /*internal*/ val filter: InputTransformation =
+        OnlyDigitsTransformation.then(InputTransformation.maxLength(maxDigits))
 
     fun clear() {
         textState.clearText()
@@ -176,20 +167,14 @@ private class PinState(val maxDigits: Int) {
 }
 
 @Composable
-private fun PinField(
-    state: PinState,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true
-) {
+private fun PinField(state: PinState, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val contentAlpha = if (enabled) 1f else 0.3f
     val contentColor = LocalContentColor.current.copy(alpha = contentAlpha)
 
     BasicTextField(
         state = state.textState,
         inputTransformation = state.filter,
-        modifier = modifier
-            .border(1.dp, contentColor, RoundedCornerShape(8.dp))
-            .padding(8.dp),
+        modifier = modifier.border(1.dp, contentColor, RoundedCornerShape(8.dp)).padding(8.dp),
         enabled = enabled,
         decorator = {
             CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {

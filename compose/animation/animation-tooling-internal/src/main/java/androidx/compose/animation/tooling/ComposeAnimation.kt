@@ -20,18 +20,20 @@ import kotlin.jvm.JvmDefaultWithCompatibility
 
 /**
  * Type of the animation. Different types might have different properties, for example a
- * `TransitionAnimation` (represented by [TRANSITION_ANIMATION]) has a set of states associated
- * with it.
+ * `TransitionAnimation` (represented by [TRANSITION_ANIMATION]) has a set of states associated with
+ * it.
  */
 public enum class ComposeAnimationType {
-    TRANSITION_ANIMATION, ANIMATED_VALUE, ANIMATED_VISIBILITY,
+    TRANSITION_ANIMATION,
+    ANIMATED_VALUE,
+    ANIMATED_VISIBILITY,
     /** `Animatable` compose animation. */
     ANIMATABLE,
     /** `animateContentSize` compose animation. */
     ANIMATE_CONTENT_SIZE,
     /**
-     * `animateXAsState` animations, for example `animateDpAsState`, `animateIntAsState`.
-     * Includes `animateValueAsState`.
+     * `animateXAsState` animations, for example `animateDpAsState`, `animateIntAsState`. Includes
+     * `animateValueAsState`.
      */
     ANIMATE_X_AS_STATE,
     /** `AnimatedContent` animation. */
@@ -58,14 +60,12 @@ public enum class ComposeAnimationType {
 public interface ComposeAnimation {
 
     /**
-     * The animation type. Ideally, the type should be checked before accessing properties
-     * specific to a certain type, e.g. [states].
+     * The animation type. Ideally, the type should be checked before accessing properties specific
+     * to a certain type, e.g. [states].
      */
     public val type: ComposeAnimationType
 
-    /**
-     * The actual animation object.
-     */
+    /** The actual animation object. */
     public val animationObject: Any
 
     /**
@@ -81,8 +81,8 @@ public interface ComposeAnimation {
             )
 
     /**
-     * A label which can be used to represent the animation as text in Android Studio.
-     * Null if the label is not set or if it can't be inferred from the animation states.
+     * A label which can be used to represent the animation as text in Android Studio. Null if the
+     * label is not set or if it can't be inferred from the animation states.
      */
     public val label: String?
         get() = null

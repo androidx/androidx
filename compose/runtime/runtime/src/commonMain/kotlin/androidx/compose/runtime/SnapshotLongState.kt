@@ -16,6 +16,7 @@
 
 @file:JvmName("SnapshotLongStateKt")
 @file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
@@ -41,7 +42,6 @@ import kotlin.reflect.KProperty
  * when using `MutableState<Long>`.
  *
  * @param value the initial value for the [MutableLongState]
- *
  * @see LongState
  * @see MutableLongState
  * @see mutableStateOf
@@ -50,9 +50,7 @@ import kotlin.reflect.KProperty
  * @see mutableDoubleStateOf
  */
 @StateFactoryMarker
-fun mutableLongStateOf(
-    value: Long
-): MutableLongState = createSnapshotMutableLongState(value)
+fun mutableLongStateOf(value: Long): MutableLongState = createSnapshotMutableLongState(value)
 
 /**
  * A value holder where reads to the [longValue] property during the execution of a [Composable]
@@ -71,18 +69,16 @@ interface LongState : State<Long> {
     val longValue: Long
 }
 
-/**
- * Permits property delegation of `val`s using `by` for [LongState].
- */
+/** Permits property delegation of `val`s using `by` for [LongState]. */
 @Suppress("NOTHING_TO_INLINE")
 inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): Long = longValue
 
 /**
  * A value holder where reads to the [longValue] property during the execution of a [Composable]
  * function cause the current [RecomposeScope] to subscribe to changes of that value. When the
- * [longValue] property is written to and changed, a recomposition of any subscribed [RecomposeScope]s
- * will be scheduled. If [longValue] is written to with the same value, no recompositions will be
- * scheduled.
+ * [longValue] property is written to and changed, a recomposition of any subscribed
+ * [RecomposeScope]s will be scheduled. If [longValue] is written to with the same value, no
+ * recompositions will be scheduled.
  *
  * @see [LongState]
  * @see [mutableDoubleStateOf]
@@ -94,26 +90,20 @@ interface MutableLongState : LongState, MutableState<Long> {
     @set:AutoboxingStateValueProperty("longValue")
     override var value: Long
         @Suppress("AutoBoxing") get() = longValue
-        set(value) { longValue = value }
+        set(value) {
+            longValue = value
+        }
 
     override var longValue: Long
 }
 
-/**
- * Permits property delegation of `var`s using `by` for [MutableLongState].
- */
+/** Permits property delegation of `var`s using `by` for [MutableLongState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun MutableLongState.setValue(
-    thisObj: Any?,
-    property: KProperty<*>,
-    value: Long
-) {
+inline operator fun MutableLongState.setValue(thisObj: Any?, property: KProperty<*>, value: Long) {
     longValue = value
 }
 
-internal expect fun createSnapshotMutableLongState(
-    value: Long
-): MutableLongState
+internal expect fun createSnapshotMutableLongState(value: Long): MutableLongState
 
 /**
  * A single value holder whose reads and writes are observed by Compose.
@@ -121,31 +111,32 @@ internal expect fun createSnapshotMutableLongState(
  * Additionally, writes to it are transacted as part of the [Snapshot] system.
  *
  * @param value the wrapped value
- *
  * @see [mutableDoubleStateOf]
  */
-internal open class SnapshotMutableLongStateImpl(
-    value: Long
-) : StateObjectImpl(), MutableLongState, SnapshotMutableState<Long> {
+internal open class SnapshotMutableLongStateImpl(value: Long) :
+    StateObjectImpl(), MutableLongState, SnapshotMutableState<Long> {
 
-    private var next = LongStateStateRecord(value).also {
-        if (Snapshot.isInSnapshot) {
-            it.next = LongStateStateRecord(value).also { next ->
-                next.snapshotId = Snapshot.PreexistingSnapshotId
+    private var next =
+        LongStateStateRecord(value).also {
+            if (Snapshot.isInSnapshot) {
+                it.next =
+                    LongStateStateRecord(value).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
             }
         }
-    }
 
     override val firstStateRecord: StateRecord
         get() = next
 
     override var longValue: Long
         get() = next.readable(this).value
-        set(value) = next.withCurrent {
-            if (it.value != value) {
-                next.overwritable(this, it) { this.value = value }
+        set(value) =
+            next.withCurrent {
+                if (it.value != value) {
+                    next.overwritable(this, it) { this.value = value }
+                }
             }
-        }
 
     // Arbitrary policies are not allowed. The underlying `==` implementation
     // for primitive types corresponds to structural equality
@@ -174,13 +165,10 @@ internal open class SnapshotMutableLongStateImpl(
         }
     }
 
-    override fun toString(): String = next.withCurrent {
-        "MutableLongState(value=${it.value})@${hashCode()}"
-    }
+    override fun toString(): String =
+        next.withCurrent { "MutableLongState(value=${it.value})@${hashCode()}" }
 
-    private class LongStateStateRecord(
-        var value: Long
-    ) : StateRecord() {
+    private class LongStateStateRecord(var value: Long) : StateRecord() {
         override fun assign(value: StateRecord) {
             this.value = (value as LongStateStateRecord).value
         }

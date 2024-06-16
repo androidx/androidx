@@ -18,8 +18,8 @@ package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.TestOnly
-import androidx.compose.runtime.WeakReference
-import androidx.compose.runtime.identityHashCode
+import androidx.compose.runtime.internal.WeakReference
+import androidx.compose.runtime.internal.identityHashCode
 
 private const val INITIAL_CAPACITY = 16
 
@@ -78,20 +78,14 @@ internal class SnapshotWeakSet<T : Any> {
                 startIndex = insertIndex,
                 endIndex = size
             )
-            values.copyInto(
-                destination = newValues,
-                endIndex = insertIndex
-            )
+            values.copyInto(destination = newValues, endIndex = insertIndex)
             hashes.copyInto(
                 destination = newHashes,
                 destinationOffset = insertIndex + 1,
                 startIndex = insertIndex,
                 endIndex = size
             )
-            hashes.copyInto(
-                destination = newHashes,
-                endIndex = insertIndex
-            )
+            hashes.copyInto(destination = newHashes, endIndex = insertIndex)
             values = newValues
             hashes = newHashes
         } else {
@@ -123,7 +117,7 @@ internal class SnapshotWeakSet<T : Any> {
      *
      * This call is inline to avoid allocations while enumerating the set.
      */
-     inline fun removeIf(block: (T) -> Boolean) {
+    inline fun removeIf(block: (T) -> Boolean) {
         val size = size
         var currentUsed = 0
         // Call `block` on all entries that still have a valid reference
@@ -154,8 +148,8 @@ internal class SnapshotWeakSet<T : Any> {
     }
 
     /**
-     * Returns the index of [value] in the set or the negative index - 1 of the location where
-     * it would have been if it had been in the set.
+     * Returns the index of [value] in the set or the negative index - 1 of the location where it
+     * would have been if it had been in the set.
      */
     private fun find(value: T, hash: Int): Int {
         var low = 0
@@ -178,11 +172,11 @@ internal class SnapshotWeakSet<T : Any> {
     }
 
     /**
-     * When multiple items share the same [identityHashCode], then we must find the specific
-     * index of the target item. This method assumes that [midIndex] has already been checked
-     * for an exact match for [value], but will look at nearby values to find the exact item index.
-     * If no match is found, the negative index - 1 of the position in which it would be will
-     * be returned, which is always after the last item with the same [identityHashCode].
+     * When multiple items share the same [identityHashCode], then we must find the specific index
+     * of the target item. This method assumes that [midIndex] has already been checked for an exact
+     * match for [value], but will look at nearby values to find the exact item index. If no match
+     * is found, the negative index - 1 of the position in which it would be will be returned, which
+     * is always after the last item with the same [identityHashCode].
      */
     private fun findExactIndex(midIndex: Int, value: T, valueHash: Int): Int {
         // hunt down first

@@ -39,21 +39,20 @@ class ComposeRootRegistryTest {
     private val composeRootRegistry = ComposeRootRegistry()
 
     @get:Rule
-    val testRule: RuleChain = RuleChain
-        .outerRule { base, _ ->
-            object : Statement() {
-                override fun evaluate() {
-                    composeRootRegistry.withRegistry {
-                        base.evaluate()
+    val testRule: RuleChain =
+        RuleChain.outerRule { base, _ ->
+                object : Statement() {
+                    override fun evaluate() {
+                        composeRootRegistry.withRegistry { base.evaluate() }
                     }
                 }
             }
-        }
-        .around(activityRule)
+            .around(activityRule)
 
     private val onRegistrationChangedListener =
         object : ComposeRootRegistry.OnRegistrationChangedListener {
             val recordedChanges = mutableListOf<Pair<ViewRootForTest, Boolean>>()
+
             override fun onRegistrationChanged(composeRoot: ViewRootForTest, registered: Boolean) {
                 recordedChanges.add(Pair(composeRoot, registered))
             }
@@ -75,18 +74,16 @@ class ComposeRootRegistryTest {
     fun registerComposeRoot() {
         activityRule.scenario.onActivity { activity ->
             // set the composable content and find a compose root
-            activity.setContent { }
+            activity.setContent {}
             val composeRoot = activity.findRootForTest()
 
             // Then it is registered
-            assertThat(composeRootRegistry.getCreatedComposeRoots())
-                .isEqualTo(setOf(composeRoot))
+            assertThat(composeRootRegistry.getCreatedComposeRoots()).isEqualTo(setOf(composeRoot))
             assertThat(composeRootRegistry.getRegisteredComposeRoots())
                 .isEqualTo(setOf(composeRoot))
             // And our listener was notified
-            assertThat(onRegistrationChangedListener.recordedChanges).isEqualTo(
-                listOf(Pair(composeRoot, true))
-            )
+            assertThat(onRegistrationChangedListener.recordedChanges)
+                .isEqualTo(listOf(Pair(composeRoot, true)))
         }
     }
 
@@ -94,7 +91,7 @@ class ComposeRootRegistryTest {
     fun unregisterViewRoot() {
         activityRule.scenario.onActivity { activity ->
             // set the composable content and find a compose root
-            activity.setContent { }
+            activity.setContent {}
             val composeRoot = activity.findRootForTest()
 
             // And remove it from the hierarchy
@@ -103,12 +100,8 @@ class ComposeRootRegistryTest {
             // Then it is not registered now
             assertThat(composeRootRegistry.getRegisteredComposeRoots()).isEmpty()
             // But our listener was notified of addition and removal
-            assertThat(onRegistrationChangedListener.recordedChanges).isEqualTo(
-                listOf(
-                    Pair(composeRoot, true),
-                    Pair(composeRoot, false)
-                )
-            )
+            assertThat(onRegistrationChangedListener.recordedChanges)
+                .isEqualTo(listOf(Pair(composeRoot, true), Pair(composeRoot, false)))
         }
     }
 
@@ -116,7 +109,7 @@ class ComposeRootRegistryTest {
     fun tearDownRegistry() {
         activityRule.scenario.onActivity { activity ->
             // set the composable content and find a compose root
-            activity.setContent { }
+            activity.setContent {}
             val composeRoot = activity.findRootForTest()
 
             // When we tear down the registry
@@ -126,12 +119,8 @@ class ComposeRootRegistryTest {
             assertThat(composeRootRegistry.getCreatedComposeRoots()).isEmpty()
             assertThat(composeRootRegistry.getRegisteredComposeRoots()).isEmpty()
             // And our listener was notified of addition and removal
-            assertThat(onRegistrationChangedListener.recordedChanges).isEqualTo(
-                listOf(
-                    Pair(composeRoot, true),
-                    Pair(composeRoot, false)
-                )
-            )
+            assertThat(onRegistrationChangedListener.recordedChanges)
+                .isEqualTo(listOf(Pair(composeRoot, true), Pair(composeRoot, false)))
         }
     }
 }

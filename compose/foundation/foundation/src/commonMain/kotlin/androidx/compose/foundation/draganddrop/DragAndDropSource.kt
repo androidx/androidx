@@ -44,18 +44,18 @@ interface DragAndDropSourceScope : PointerInputScope {
 }
 
 /**
- * A Modifier that allows an element it is applied to to be treated like a source for
- * drag and drop operations.
+ * A Modifier that allows an element it is applied to to be treated like a source for drag and drop
+ * operations.
  *
  * Learn how to use [Modifier.dragAndDropSource] while providing a custom drag shadow:
+ *
  * @sample androidx.compose.foundation.samples.DragAndDropSourceWithColoredDragShadowSample
  *
- * @param drawDragDecoration provides the visual representation of the item dragged during the
- * drag and drop gesture.
- * @param block A lambda with a [DragAndDropSourceScope] as a receiver
- * which provides a [PointerInputScope] to detect the drag gesture, after which a drag and drop
- * gesture can be started with [DragAndDropSourceScope.startTransfer].
- *
+ * @param drawDragDecoration provides the visual representation of the item dragged during the drag
+ *   and drop gesture.
+ * @param block A lambda with a [DragAndDropSourceScope] as a receiver which provides a
+ *   [PointerInputScope] to detect the drag gesture, after which a drag and drop gesture can be
+ *   started with [DragAndDropSourceScope.startTransfer].
  */
 @ExperimentalFoundationApi
 fun Modifier.dragAndDropSource(
@@ -65,32 +65,32 @@ fun Modifier.dragAndDropSource(
     // TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
     println("Compose Multiplatform doesn't support Modifier.dragAndDropSource yet. " +
         "Follow https://github.com/JetBrains/compose-multiplatform/issues/4235")
-    return this then DragAndDropSourceElement(
-        drawDragDecoration = drawDragDecoration,
-        dragAndDropSourceHandler = block,
-    )
+
+    return this then
+        DragAndDropSourceElement(
+            drawDragDecoration = drawDragDecoration,
+            dragAndDropSourceHandler = block,
+        )
 }
 
 @ExperimentalFoundationApi
 private data class DragAndDropSourceElement(
-    /**
-     * @see Modifier.dragAndDropSource
-     */
+    /** @see Modifier.dragAndDropSource */
     val drawDragDecoration: DrawScope.() -> Unit,
-    /**
-     * @see Modifier.dragAndDropSource
-     */
+    /** @see Modifier.dragAndDropSource */
     val dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
 ) : ModifierNodeElement<DragAndDropSourceNode>() {
-    override fun create() = DragAndDropSourceNode(
-        drawDragDecoration = drawDragDecoration,
-        dragAndDropSourceHandler = dragAndDropSourceHandler,
-    )
+    override fun create() =
+        DragAndDropSourceNode(
+            drawDragDecoration = drawDragDecoration,
+            dragAndDropSourceHandler = dragAndDropSourceHandler,
+        )
 
-    override fun update(node: DragAndDropSourceNode) = with(node) {
-        drawDragDecoration = this@DragAndDropSourceElement.drawDragDecoration
-        dragAndDropSourceHandler = this@DragAndDropSourceElement.dragAndDropSourceHandler
-    }
+    override fun update(node: DragAndDropSourceNode) =
+        with(node) {
+            drawDragDecoration = this@DragAndDropSourceElement.drawDragDecoration
+            dragAndDropSourceHandler = this@DragAndDropSourceElement.dragAndDropSourceHandler
+        }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "dragSource"
@@ -103,15 +103,12 @@ private data class DragAndDropSourceElement(
 internal class DragAndDropSourceNode(
     var drawDragDecoration: DrawScope.() -> Unit,
     var dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
-) : DelegatingNode(),
-    LayoutAwareModifierNode {
+) : DelegatingNode(), LayoutAwareModifierNode {
 
     private var size: IntSize = IntSize.Zero
 
     init {
-        val dragAndDropModifierNode = delegate(
-            DragAndDropModifierNode()
-        )
+        val dragAndDropModifierNode = delegate(DragAndDropModifierNode())
 
         delegate(
             SuspendingPointerInputModifierNode {

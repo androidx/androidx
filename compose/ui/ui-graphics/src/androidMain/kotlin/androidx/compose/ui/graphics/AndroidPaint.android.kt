@@ -24,22 +24,18 @@ actual typealias NativePaint = android.graphics.Paint
 
 actual fun Paint(): Paint = AndroidPaint()
 
-/**
- * Convert an [android.graphics.Paint] instance into a Compose-compatible Paint
- */
+/** Convert an [android.graphics.Paint] instance into a Compose-compatible Paint */
 fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
 
 /**
- * Create a Compose [Paint] instance backed by an [android.graphics.Paint] object to be
- * consumed by Compose applications running on the Android platform
+ * Create a Compose [Paint] instance backed by an [android.graphics.Paint] object to be consumed by
+ * Compose applications running on the Android platform
  *
  * @param internalPaint [android.graphics.Paint] to be wrapped by the [AndroidPaint] instance
  */
 class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
 
-    /**
-     * Create a new [AndroidPaint] instance backed by a newly created [android.graphics.Paint]
-     */
+    /** Create a new [AndroidPaint] instance backed by a newly created [android.graphics.Paint] */
     constructor() : this(makeNativePaint())
 
     private var _blendMode = BlendMode.SrcOver
@@ -174,38 +170,41 @@ internal fun NativePaint.setNativeColor(value: Color) {
 
 internal fun NativePaint.setNativeStyle(value: PaintingStyle) {
     // TODO(njawad): Platform also supports Paint.Style.FILL_AND_STROKE)
-    this.style = when (value) {
-        PaintingStyle.Stroke -> android.graphics.Paint.Style.STROKE
-        else -> android.graphics.Paint.Style.FILL
+    this.style =
+        when (value) {
+            PaintingStyle.Stroke -> android.graphics.Paint.Style.STROKE
+            else -> android.graphics.Paint.Style.FILL
+        }
+}
+
+internal fun NativePaint.getNativeStyle() =
+    when (this.style) {
+        android.graphics.Paint.Style.STROKE -> PaintingStyle.Stroke
+        else -> PaintingStyle.Fill
     }
-}
 
-internal fun NativePaint.getNativeStyle() = when (this.style) {
-    android.graphics.Paint.Style.STROKE -> PaintingStyle.Stroke
-    else -> PaintingStyle.Fill
-}
-
-internal fun NativePaint.getNativeStrokeWidth(): Float =
-    this.strokeWidth
+internal fun NativePaint.getNativeStrokeWidth(): Float = this.strokeWidth
 
 internal fun NativePaint.setNativeStrokeWidth(value: Float) {
     this.strokeWidth = value
 }
 
-internal fun NativePaint.getNativeStrokeCap(): StrokeCap = when (this.strokeCap) {
-    android.graphics.Paint.Cap.BUTT -> StrokeCap.Butt
-    android.graphics.Paint.Cap.ROUND -> StrokeCap.Round
-    android.graphics.Paint.Cap.SQUARE -> StrokeCap.Square
-    else -> StrokeCap.Butt
-}
+internal fun NativePaint.getNativeStrokeCap(): StrokeCap =
+    when (this.strokeCap) {
+        android.graphics.Paint.Cap.BUTT -> StrokeCap.Butt
+        android.graphics.Paint.Cap.ROUND -> StrokeCap.Round
+        android.graphics.Paint.Cap.SQUARE -> StrokeCap.Square
+        else -> StrokeCap.Butt
+    }
 
 internal fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
-    this.strokeCap = when (value) {
-        StrokeCap.Square -> android.graphics.Paint.Cap.SQUARE
-        StrokeCap.Round -> android.graphics.Paint.Cap.ROUND
-        StrokeCap.Butt -> android.graphics.Paint.Cap.BUTT
-        else -> android.graphics.Paint.Cap.BUTT
-    }
+    this.strokeCap =
+        when (value) {
+            StrokeCap.Square -> android.graphics.Paint.Cap.SQUARE
+            StrokeCap.Round -> android.graphics.Paint.Cap.ROUND
+            StrokeCap.Butt -> android.graphics.Paint.Cap.BUTT
+            else -> android.graphics.Paint.Cap.BUTT
+        }
 }
 
 internal fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
@@ -217,16 +216,16 @@ internal fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
     }
 
 internal fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
-    this.strokeJoin = when (value) {
-        StrokeJoin.Miter -> android.graphics.Paint.Join.MITER
-        StrokeJoin.Bevel -> android.graphics.Paint.Join.BEVEL
-        StrokeJoin.Round -> android.graphics.Paint.Join.ROUND
-        else -> android.graphics.Paint.Join.MITER
-    }
+    this.strokeJoin =
+        when (value) {
+            StrokeJoin.Miter -> android.graphics.Paint.Join.MITER
+            StrokeJoin.Bevel -> android.graphics.Paint.Join.BEVEL
+            StrokeJoin.Round -> android.graphics.Paint.Join.ROUND
+            else -> android.graphics.Paint.Join.MITER
+        }
 }
 
-internal fun NativePaint.getNativeStrokeMiterLimit(): Float =
-    this.strokeMiter
+internal fun NativePaint.getNativeStrokeMiterLimit(): Float = this.strokeMiter
 
 internal fun NativePaint.setNativeStrokeMiterLimit(value: Float) {
     this.strokeMiter = value
@@ -257,9 +256,9 @@ internal fun NativePaint.setNativePathEffect(value: PathEffect?) {
 }
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object WrapperVerificationHelperMethods {

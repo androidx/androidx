@@ -34,36 +34,26 @@ import org.junit.Test
 
 class TextStringContentCaptureTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     private val context = InstrumentationRegistry.getInstrumentation().context
+
     private fun createSubject(text: String): TextStringSimpleElement {
-        return TextStringSimpleElement(
-            text,
-            TextStyle.Default,
-            createFontFamilyResolver(context)
-        )
+        return TextStringSimpleElement(text, TextStyle.Default, createFontFamilyResolver(context))
     }
 
     @Test
     fun whenChangingText_invalidateTranslation() {
         val original = "Ok"
         val current = mutableStateOf(createSubject(original))
-        rule.setContent {
-            Box(current.value)
-        }
+        rule.setContent { Box(current.value) }
 
         val semantics = rule.onNodeWithText(original).fetchSemanticsNode()
-        rule.runOnIdle {
-            semantics.translateTo("Foo")
-        }
+        rule.runOnIdle { semantics.translateTo("Foo") }
         val after = "After"
         current.value = createSubject(after)
 
         val newSemantics = rule.onNodeWithText(after).fetchSemanticsNode()
-        rule.runOnIdle {
-            Truth.assertThat(newSemantics.fetchTranslation()).isNull()
-        }
+        rule.runOnIdle { Truth.assertThat(newSemantics.fetchTranslation()).isNull() }
     }
 }
 

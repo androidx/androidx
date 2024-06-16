@@ -25,7 +25,8 @@ import java.lang.reflect.Method
  * Creates reflection wrapper for implementation of [SdkSandboxActivityHandlerCompat] interface
  * loaded by SDK classloader.
  */
-internal class SdkActivityHandlerWrapper private constructor(
+internal class SdkActivityHandlerWrapper
+private constructor(
     private val activityHolderProxyFactory: ActivityHolderProxyFactory,
     private val handlerOnActivityCreatedMethod: Method,
 ) {
@@ -48,16 +49,14 @@ internal class SdkActivityHandlerWrapper private constructor(
 
     companion object {
         fun createFor(classLoader: ClassLoader): SdkActivityHandlerWrapper {
-            val sdkSandboxActivityHandlerCompatClass = Class.forName(
-                SdkSandboxActivityHandlerCompat::class.java.name,
-                /* initialize = */ false,
-                classLoader
-            )
-            val activityHolderClass = Class.forName(
-                ActivityHolder::class.java.name,
-                /* initialize = */ false,
-                classLoader
-            )
+            val sdkSandboxActivityHandlerCompatClass =
+                Class.forName(
+                    SdkSandboxActivityHandlerCompat::class.java.name,
+                    /* initialize = */ false,
+                    classLoader
+                )
+            val activityHolderClass =
+                Class.forName(ActivityHolder::class.java.name, /* initialize= */ false, classLoader)
             val handlerOnActivityCreatedMethod =
                 sdkSandboxActivityHandlerCompatClass.getMethod(
                     "onActivityCreated",

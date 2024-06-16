@@ -52,27 +52,21 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     @Test
     fun benchmark_01_Compose_OneRect() = runBlockingTestWithFrameClock {
         val model = ColorModel()
-        measureCompose {
-            OneRect(model)
-        }
+        measureCompose { OneRect(model) }
     }
 
     @UiThreadTest
     @Test
     fun benchmark_02_Compose_TenRects() = runBlockingTestWithFrameClock {
         val model = ColorModel()
-        measureCompose {
-            TenRects(model)
-        }
+        measureCompose { TenRects(model) }
     }
 
     @UiThreadTest
     @Test
     fun benchmark_03_Compose_100Rects() = runBlockingTestWithFrameClock {
         val model = ColorModel()
-        measureCompose {
-            HundredRects(model = model)
-        }
+        measureCompose { HundredRects(model = model) }
     }
 
     @UiThreadTest
@@ -80,12 +74,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_04_Recompose_OneRect() = runBlockingTestWithFrameClock {
         val model = ColorModel()
         measureRecomposeSuspending {
-            compose {
-                OneRect(model)
-            }
-            update {
-                model.toggle()
-            }
+            compose { OneRect(model) }
+            update { model.toggle() }
         }
     }
 
@@ -94,12 +84,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_04_Recompose_OneRect_WithRecomposer() = runBlockingTestWithFrameClock {
         val model = ColorModel()
         measureRecomposeSuspending {
-            compose {
-                OneRect(model)
-            }
-            update {
-                model.toggle()
-            }
+            compose { OneRect(model) }
+            update { model.toggle() }
         }
     }
 
@@ -108,12 +94,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_05_Recompose_TenRect_Wide() = runBlockingTestWithFrameClock {
         val model = ColorModel()
         measureRecomposeSuspending {
-            compose {
-                TenRects(model, narrow = false)
-            }
-            update {
-                model.toggle()
-            }
+            compose { TenRects(model, narrow = false) }
+            update { model.toggle() }
         }
     }
 
@@ -122,12 +104,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_06_Recompose_TenRect_Narrow() = runBlockingTestWithFrameClock {
         val model = ColorModel()
         measureRecomposeSuspending {
-            compose {
-                TenRects(model, narrow = true)
-            }
-            update {
-                model.toggle()
-            }
+            compose { TenRects(model, narrow = true) }
+            update { model.toggle() }
         }
     }
 
@@ -136,12 +114,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_07_Recompose_100Rect_Wide() = runBlockingTestWithFrameClock {
         val model = ColorModel()
         measureRecomposeSuspending {
-            compose {
-                HundredRects(model, narrow = false)
-            }
-            update {
-                model.toggle()
-            }
+            compose { HundredRects(model, narrow = false) }
+            update { model.toggle() }
         }
     }
 
@@ -150,12 +124,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_08_Recompose_100Rect_Narrow() = runBlockingTestWithFrameClock {
         val model = ColorModel()
         measureRecomposeSuspending {
-            compose {
-                HundredRects(model, narrow = true)
-            }
-            update {
-                model.toggle()
-            }
+            compose { HundredRects(model, narrow = true) }
+            update { model.toggle() }
         }
     }
 
@@ -163,23 +133,11 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     @Test
     fun benchmark_10_NestedRowColumnsWithModifier() = runBlockingTestWithFrameClock {
         var pad by mutableStateOf(0)
-        val modifier = Modifier.composed {
-            Modifier.padding(pad.dp)
-        }
+        val modifier = Modifier.composed { Modifier.padding(pad.dp) }
         measureRecomposeSuspending {
-            compose {
-                Column(modifier = modifier) {
-                    repeat(100) {
-                        Text("Some text")
-                    }
-                }
-            }
-            update {
-                pad = 10
-            }
-            reset {
-                pad = 0
-            }
+            compose { Column(modifier = modifier) { repeat(100) { Text("Some text") } } }
+            update { pad = 10 }
+            reset { pad = 0 }
         }
     }
 
@@ -189,9 +147,7 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
         val state1 by mutableStateOf(1)
         val state2 by mutableStateOf(3)
         val state3 by mutableStateOf(6)
-        val list by derivedStateOf {
-            List(state1 + state2 + state3) { "$it" }
-        }
+        val list by derivedStateOf { List(state1 + state2 + state3) { "$it" } }
 
         measureCompose {
             Column {
@@ -208,9 +164,7 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
         var state1 by mutableStateOf(1)
         var state2 by mutableStateOf(3)
         val state3 by mutableStateOf(6)
-        val list by derivedStateOf {
-            List(state1 + state2 + state3) { "$it" }
-        }
+        val list by derivedStateOf { List(state1 + state2 + state3) { "$it" } }
 
         measureRecomposeSuspending {
             compose {
@@ -220,68 +174,73 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
                     }
                 }
             }
-            update {
-                state1 += 1
-            }
-            reset {
-                state1 = 1
-            }
+            update { state1 += 1 }
+            reset { state1 = 1 }
         }
     }
 
     @UiThreadTest
     @Test
     fun benchmark_reverse_list() = runBlockingTestWithFrameClock {
-        val state = mutableStateListOf(
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
-        )
+        val state =
+            mutableStateListOf(
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+            )
 
         measureRecomposeSuspending {
             compose {
                 Column {
                     for (value in state) {
-                        key(value) {
-                            Text(value.toString())
-                        }
+                        key(value) { Text(value.toString()) }
                     }
                 }
             }
-            update {
-                state.reverse()
-            }
-            reset {
-                state.reverse()
-            }
+            update { state.reverse() }
+            reset { state.reverse() }
         }
     }
 
     @UiThreadTest
     @Test
     fun benchmark_f_compose_Rect_1() = runBlockingTestWithFrameClock {
-        measureComposeFocused {
-            Rect()
-        }
+        measureComposeFocused { Rect() }
     }
 
     @UiThreadTest
     @Test
     fun benchmark_f_compose_Rect_10() = runBlockingTestWithFrameClock {
-        measureComposeFocused {
-            repeat(10) { Rect() }
-        }
+        measureComposeFocused { repeat(10) { Rect() } }
     }
 
     @UiThreadTest
     @Test
     fun benchmark_f_compose_Rect_100() = runBlockingTestWithFrameClock {
-        measureComposeFocused {
-            repeat(100) { Rect() }
-        }
+        measureComposeFocused { repeat(100) { Rect() } }
     }
 }
 
 class ColorModel(color: Color = Color.Black) {
     var color: Color by mutableStateOf(color)
+
     fun toggle() {
         color = if (color == Color.Black) Color.Red else Color.Black
     }
@@ -291,15 +250,13 @@ private val defaultModifier = Modifier.background(Color.Yellow)
 
 @Composable
 private fun Rect() {
-    Column(defaultModifier) { }
+    Column(defaultModifier) {}
 }
 
 @Composable
 private fun Rect(color: Color) {
-    val modifier = remember(color) {
-        Modifier.background(color)
-    }
-    Column(modifier) { }
+    val modifier = remember(color) { Modifier.background(color) }
+    Column(modifier) {}
 }
 
 @Composable
@@ -312,15 +269,11 @@ fun OneRect(model: ColorModel) {
 @Composable
 fun TenRects(model: ColorModel, narrow: Boolean = false) {
     if (narrow) {
-        Observe {
-            Rect(model.color)
-        }
+        Observe { Rect(model.color) }
     } else {
         Rect(model.color)
     }
-    repeat(9) {
-        Rect()
-    }
+    repeat(9) { Rect() }
 }
 
 @Composable
@@ -328,12 +281,10 @@ fun HundredRects(model: ColorModel, narrow: Boolean = false) {
     repeat(100) {
         if (it % 10 == 0)
             if (narrow) {
-                Observe {
-                    Rect(model.color)
-                }
+                Observe { Rect(model.color) }
             } else {
                 Rect(model.color)
-            } else
-            Rect()
+            }
+        else Rect()
     }
 }

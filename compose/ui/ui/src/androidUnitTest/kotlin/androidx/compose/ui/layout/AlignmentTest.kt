@@ -143,115 +143,61 @@ class AlignmentTest {
 
     @Test
     fun testAlign_top() {
-        assertEquals(
-            0,
-            Alignment.Top.align(0, space1D)
-        )
+        assertEquals(0, Alignment.Top.align(0, space1D))
     }
 
     @Test
     fun testAlign_centerVertically() {
-        assertEquals(
-            50,
-            Alignment.CenterVertically.align(0, space1D)
-        )
+        assertEquals(50, Alignment.CenterVertically.align(0, space1D))
     }
 
     @Test
     fun testAlign_bottom() {
-        assertEquals(
-            100,
-            Alignment.Bottom.align(0, space1D)
-        )
+        assertEquals(100, Alignment.Bottom.align(0, space1D))
     }
 
     @Test
     fun testAlign_start() {
-        assertEquals(
-            0,
-            Alignment.Start.align(0, space1D, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            100,
-            Alignment.Start.align(0, space1D, LayoutDirection.Rtl)
-        )
+        assertEquals(0, Alignment.Start.align(0, space1D, LayoutDirection.Ltr))
+        assertEquals(100, Alignment.Start.align(0, space1D, LayoutDirection.Rtl))
     }
 
     @Test
     fun testAlign_centerHorizontally() {
-        assertEquals(
-            50,
-            Alignment.CenterHorizontally.align(0, space1D, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            50,
-            Alignment.CenterHorizontally.align(0, space1D, LayoutDirection.Rtl)
-        )
+        assertEquals(50, Alignment.CenterHorizontally.align(0, space1D, LayoutDirection.Ltr))
+        assertEquals(50, Alignment.CenterHorizontally.align(0, space1D, LayoutDirection.Rtl))
     }
 
     @Test
     fun testAlign_end() {
-        assertEquals(
-            100,
-            Alignment.End.align(0, space1D, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            0,
-            Alignment.End.align(0, space1D, LayoutDirection.Rtl)
-        )
+        assertEquals(100, Alignment.End.align(0, space1D, LayoutDirection.Ltr))
+        assertEquals(0, Alignment.End.align(0, space1D, LayoutDirection.Rtl))
     }
 
     @Test
     fun testAlign_custom2D() {
         val alignment = BiasAlignment(-0.5f, 0.5f)
-        assertEquals(
-            IntOffset(25, 75),
-            alignment.align(IntSize.Zero, space, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            IntOffset(75, 75),
-            alignment.align(IntSize.Zero, space, LayoutDirection.Rtl)
-        )
+        assertEquals(IntOffset(25, 75), alignment.align(IntSize.Zero, space, LayoutDirection.Ltr))
+        assertEquals(IntOffset(75, 75), alignment.align(IntSize.Zero, space, LayoutDirection.Rtl))
     }
 
     @Test
     fun testAlign_custom1D() {
-        assertEquals(
-            75,
-            BiasAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            25,
-            BiasAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Rtl)
-        )
-        assertEquals(
-            25,
-            BiasAlignment.Vertical(-0.5f).align(0, space1D)
-        )
+        assertEquals(75, BiasAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Ltr))
+        assertEquals(25, BiasAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Rtl))
+        assertEquals(25, BiasAlignment.Vertical(-0.5f).align(0, space1D))
     }
 
     @Test
     fun testAbsoluteAlign_left() {
-        assertEquals(
-            0,
-            AbsoluteAlignment.Left.align(0, space1D, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            0,
-            AbsoluteAlignment.Left.align(0, space1D, LayoutDirection.Rtl)
-        )
+        assertEquals(0, AbsoluteAlignment.Left.align(0, space1D, LayoutDirection.Ltr))
+        assertEquals(0, AbsoluteAlignment.Left.align(0, space1D, LayoutDirection.Rtl))
     }
 
     @Test
     fun testAbsoluteAlign_right() {
-        assertEquals(
-            100,
-            AbsoluteAlignment.Right.align(0, space1D, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            100,
-            AbsoluteAlignment.Right.align(0, space1D, LayoutDirection.Rtl)
-        )
+        assertEquals(100, AbsoluteAlignment.Right.align(0, space1D, LayoutDirection.Ltr))
+        assertEquals(100, AbsoluteAlignment.Right.align(0, space1D, LayoutDirection.Rtl))
     }
 
     @Test
@@ -329,14 +275,8 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_custom2D() {
         val alignment = BiasAbsoluteAlignment(-0.5f, 0.5f)
-        assertEquals(
-            IntOffset(25, 75),
-            alignment.align(IntSize.Zero, space, LayoutDirection.Ltr)
-        )
-        assertEquals(
-            IntOffset(25, 75),
-            alignment.align(IntSize.Zero, space, LayoutDirection.Rtl)
-        )
+        assertEquals(IntOffset(25, 75), alignment.align(IntSize.Zero, space, LayoutDirection.Ltr))
+        assertEquals(IntOffset(25, 75), alignment.align(IntSize.Zero, space, LayoutDirection.Rtl))
     }
 
     @Test

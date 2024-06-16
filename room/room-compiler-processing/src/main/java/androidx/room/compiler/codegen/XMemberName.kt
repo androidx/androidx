@@ -21,10 +21,11 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 /**
  * Represents the name of a member (such as a function or a property).
  *
- * @property enclosingClassName The enclosing class name or null if this is a package member,
- * such as a top-level function.
+ * @property enclosingClassName The enclosing class name or null if this is a package member, such
+ *   as a top-level function.
  */
-class XMemberName internal constructor(
+class XMemberName
+internal constructor(
     val enclosingClassName: XClassName?,
     internal val java: JCodeBlock,
     internal val kotlin: KMemberName
@@ -36,8 +37,8 @@ class XMemberName internal constructor(
          * Creates a [XMemberName] that is contained by the receiving class's companion object.
          *
          * @param isJvmStatic if the companion object member is annotated with [JvmStatic] or not.
-         * This will cause generated code to be slightly different in Java since the member can be
-         * referenced without the companion object's `INSTANCE`.
+         *   This will cause generated code to be slightly different in Java since the member can be
+         *   referenced without the companion object's `INSTANCE`.
          */
         fun XClassName.companionMember(
             simpleName: String,
@@ -45,18 +46,23 @@ class XMemberName internal constructor(
         ): XMemberName {
             return XMemberName(
                 enclosingClassName = this,
-                java = if (isJvmStatic) {
-                    JCodeBlock.of("$T.$L", this.java, simpleName)
-                } else {
-                    JCodeBlock.of("$T.INSTANCE.$L", this.java.nestedClass("Companion"), simpleName)
-                },
+                java =
+                    if (isJvmStatic) {
+                        JCodeBlock.of("$T.$L", this.java, simpleName)
+                    } else {
+                        JCodeBlock.of(
+                            "$T.INSTANCE.$L",
+                            this.java.nestedClass("Companion"),
+                            simpleName
+                        )
+                    },
                 kotlin = this.kotlin.nestedClass("Companion").member(simpleName)
             )
         }
 
         /**
-         * Creates a [XMemberName] is that is contained by the receiving class's package, i.e.
-         * a top-level function or property.
+         * Creates a [XMemberName] is that is contained by the receiving class's package, i.e. a
+         * top-level function or property.
          *
          * @see [androidx.room.compiler.processing.XMemberContainer.asClassName]
          */

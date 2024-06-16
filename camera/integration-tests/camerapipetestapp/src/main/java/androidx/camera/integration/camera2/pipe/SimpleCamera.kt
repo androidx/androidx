@@ -99,69 +99,66 @@ class SimpleCamera(
 
             var yuvSizes =
                 cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-                    .getOutputSizes(ImageFormat.YUV_420_888).toList()
+                    .getOutputSizes(ImageFormat.YUV_420_888)
+                    .toList()
 
-            val closestAspectRatioSize = yuvSizes.minByOrNull {
-                (it.aspectRatio() - defaultAspectRatio).absoluteValue
-            }!!
+            val closestAspectRatioSize =
+                yuvSizes.minByOrNull { (it.aspectRatio() - defaultAspectRatio).absoluteValue }!!
             val closestAspectRatio = closestAspectRatioSize.aspectRatio()
-            yuvSizes = yuvSizes.filterIf {
-                (it.aspectRatio() - closestAspectRatio).absoluteValue < 0.01
-            }
+            yuvSizes =
+                yuvSizes.filterIf { (it.aspectRatio() - closestAspectRatio).absoluteValue < 0.01 }
 
             // Find the size that is the least different
-            val yuvSize = yuvSizes.minByOrNull {
-                (it.area() - defaultArea).absoluteValue
-            }!!
+            val yuvSize = yuvSizes.minByOrNull { (it.area() - defaultArea).absoluteValue }!!
 
             Log.i("CXCP-App", "Selected $yuvSize as the YUV output size")
 
             var privateOutputSizes =
                 cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-                    .getOutputSizes(ImageFormat.PRIVATE).toList()
+                    .getOutputSizes(ImageFormat.PRIVATE)
+                    .toList()
 
-            val closestHighSpeedAspectRatioSize = privateOutputSizes.minByOrNull {
-                (it.aspectRatio() - highSpeedAspectRatio).absoluteValue
-            }!!
+            val closestHighSpeedAspectRatioSize =
+                privateOutputSizes.minByOrNull {
+                    (it.aspectRatio() - highSpeedAspectRatio).absoluteValue
+                }!!
             val closestHighSpeedAspectRatio = closestHighSpeedAspectRatioSize.aspectRatio()
-            privateOutputSizes = privateOutputSizes.filterIf {
-                (it.aspectRatio() - closestHighSpeedAspectRatio).absoluteValue < 0.01
-            }
+            privateOutputSizes =
+                privateOutputSizes.filterIf {
+                    (it.aspectRatio() - closestHighSpeedAspectRatio).absoluteValue < 0.01
+                }
 
             // Find the size that is the least different
-            val privateOutputSize = privateOutputSizes.minByOrNull {
-                (it.area() - highSpeedArea).absoluteValue
-            }!!
+            val privateOutputSize =
+                privateOutputSizes.minByOrNull { (it.area() - highSpeedArea).absoluteValue }!!
 
             Log.i("CXCP-App", "Selected $privateOutputSize as the PRIVATE output size")
 
-            val viewfinderStreamConfig = Config.create(
-                yuvSize,
-                StreamFormat.UNKNOWN,
-                outputType = OutputStream.OutputType.SURFACE_VIEW
-            )
-
-            val privateStreamConfig = Config.create(
-                privateOutputSize,
-                StreamFormat.PRIVATE,
-                outputType = OutputStream.OutputType.SURFACE_VIEW,
-                streamUseCase = OutputStream.StreamUseCase.PREVIEW
-            )
-
-            val config = CameraGraph.Config(
-                camera = cameraId,
-                streams = listOf(
-                    viewfinderStreamConfig,
-                    privateStreamConfig
-                ),
-                defaultListeners = listeners,
-                defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionMode = CameraGraph.OperatingMode.HIGH_SPEED,
-                defaultParameters = mapOf(
-                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
-                        to Range(120, 120)
+            val viewfinderStreamConfig =
+                Config.create(
+                    yuvSize,
+                    StreamFormat.UNKNOWN,
+                    outputType = OutputStream.OutputType.SURFACE_VIEW
                 )
-            )
+
+            val privateStreamConfig =
+                Config.create(
+                    privateOutputSize,
+                    StreamFormat.PRIVATE,
+                    outputType = OutputStream.OutputType.SURFACE_VIEW,
+                    streamUseCase = OutputStream.StreamUseCase.PREVIEW
+                )
+
+            val config =
+                CameraGraph.Config(
+                    camera = cameraId,
+                    streams = listOf(viewfinderStreamConfig, privateStreamConfig),
+                    defaultListeners = listeners,
+                    defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+                    sessionMode = CameraGraph.OperatingMode.HIGH_SPEED,
+                    defaultParameters =
+                        mapOf(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(120, 120))
+                )
 
             val cameraGraph = cameraPipe.create(config)
 
@@ -180,38 +177,30 @@ class SimpleCamera(
             val privateStream = cameraGraph.streams[privateStreamConfig]!!
             val privateOutput = privateStream.outputs.single()
 
-            val imageReader = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Api29CompatImpl.newImageReaderInstance(
-                    privateOutput.size.width,
-                    privateOutput.size.height,
-                    privateOutput.format.value,
-                    10,
-                    HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
-                )
-            } else {
-                ImageReader.newInstance(
-                    privateOutput.size.width,
-                    privateOutput.size.height,
-                    privateOutput.format.value,
-                    10
-                )
-            }
+            val imageReader =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Api29CompatImpl.newImageReaderInstance(
+                        privateOutput.size.width,
+                        privateOutput.size.height,
+                        privateOutput.format.value,
+                        10,
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                    )
+                } else {
+                    ImageReader.newInstance(
+                        privateOutput.size.width,
+                        privateOutput.size.height,
+                        privateOutput.format.value,
+                        10
+                    )
+                }
             cameraGraph.setSurface(privateStream.id, imageReader.surface)
 
             cameraGraph.acquireSessionOrNull()!!.use {
-                it.startRepeating(
-                    Request(
-                        streams = listOf(viewfinderStream.id, privateStream.id)
-                    )
-                )
+                it.startRepeating(Request(streams = listOf(viewfinderStream.id, privateStream.id)))
             }
 
-            return SimpleCamera(
-                config,
-                cameraGraph,
-                cameraMetadata,
-                imageReader
-            )
+            return SimpleCamera(config, cameraGraph, cameraMetadata, imageReader)
         }
 
         private fun createNormalCamera(
@@ -230,43 +219,36 @@ class SimpleCamera(
 
             var yuvSizes =
                 cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-                    .getOutputSizes(ImageFormat.YUV_420_888).toList()
+                    .getOutputSizes(ImageFormat.YUV_420_888)
+                    .toList()
 
-            val closestAspectRatioSize = yuvSizes.minByOrNull {
-                (it.aspectRatio() - defaultAspectRatio).absoluteValue
-            }!!
+            val closestAspectRatioSize =
+                yuvSizes.minByOrNull { (it.aspectRatio() - defaultAspectRatio).absoluteValue }!!
             val closestAspectRatio = closestAspectRatioSize.aspectRatio()
-            yuvSizes = yuvSizes.filterIf {
-                (it.aspectRatio() - closestAspectRatio).absoluteValue < 0.01
-            }
+            yuvSizes =
+                yuvSizes.filterIf { (it.aspectRatio() - closestAspectRatio).absoluteValue < 0.01 }
 
             // Find the size that is the least different
-            val yuvSize = yuvSizes.minByOrNull {
-                (it.area() - defaultArea).absoluteValue
-            }!!
+            val yuvSize = yuvSizes.minByOrNull { (it.area() - defaultArea).absoluteValue }!!
 
             Log.i("CXCP-App", "Selected $yuvSize as the YUV output size")
 
-            val viewfinderStreamConfig = Config.create(
-                yuvSize,
-                StreamFormat.UNKNOWN,
-                outputType = OutputStream.OutputType.SURFACE_VIEW
-            )
+            val viewfinderStreamConfig =
+                Config.create(
+                    yuvSize,
+                    StreamFormat.UNKNOWN,
+                    outputType = OutputStream.OutputType.SURFACE_VIEW
+                )
 
-            val yuvStreamConfig = Config.create(
-                yuvSize,
-                StreamFormat.YUV_420_888
-            )
+            val yuvStreamConfig = Config.create(yuvSize, StreamFormat.YUV_420_888)
 
-            val config = CameraGraph.Config(
-                camera = cameraId,
-                streams = listOf(
-                    viewfinderStreamConfig,
-                    yuvStreamConfig
-                ),
-                defaultListeners = listeners,
-                defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW)
-            )
+            val config =
+                CameraGraph.Config(
+                    camera = cameraId,
+                    streams = listOf(viewfinderStreamConfig, yuvStreamConfig),
+                    defaultListeners = listeners,
+                    defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW)
+                )
 
             val cameraGraph = cameraPipe.create(config)
 
@@ -285,28 +267,20 @@ class SimpleCamera(
             val yuvStream = cameraGraph.streams[yuvStreamConfig]!!
             val yuvOutput = yuvStream.outputs.single()
 
-            val imageReader = ImageReader.newInstance(
-                yuvOutput.size.width,
-                yuvOutput.size.height,
-                yuvOutput.format.value,
-                10
-            )
+            val imageReader =
+                ImageReader.newInstance(
+                    yuvOutput.size.width,
+                    yuvOutput.size.height,
+                    yuvOutput.format.value,
+                    10
+                )
             cameraGraph.setSurface(yuvStream.id, imageReader.surface)
 
             cameraGraph.acquireSessionOrNull()!!.use {
-                it.startRepeating(
-                    Request(
-                        streams = listOf(viewfinderStream.id, yuvStream.id)
-                    )
-                )
+                it.startRepeating(Request(streams = listOf(viewfinderStream.id, yuvStream.id)))
             }
 
-            return SimpleCamera(
-                config,
-                cameraGraph,
-                cameraMetadata,
-                imageReader
-            )
+            return SimpleCamera(config, cameraGraph, cameraMetadata, imageReader)
         }
 
         private fun createConcurrentCameras(
@@ -320,19 +294,21 @@ class SimpleCamera(
             check(cameraIds.size == sizes.size)
 
             Log.i("CXCP-App", "Selected $cameraIds to open.")
-            val cameraMetadatas = cameraIds.map { cameraId ->
-                val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)
-                checkNotNull(cameraMetadata) { "Failed to load CameraMetadata for $cameraId" }
-                cameraMetadata
-            }
+            val cameraMetadatas =
+                cameraIds.map { cameraId ->
+                    val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)
+                    checkNotNull(cameraMetadata) { "Failed to load CameraMetadata for $cameraId" }
+                    cameraMetadata
+                }
 
-            val viewfinderSteamConfigs = sizes.map { size ->
-                Config.create(
-                    size,
-                    StreamFormat.PRIVATE,
-                    outputType = OutputStream.OutputType.SURFACE_VIEW,
-                )
-            }
+            val viewfinderSteamConfigs =
+                sizes.map { size ->
+                    Config.create(
+                        size,
+                        StreamFormat.PRIVATE,
+                        outputType = OutputStream.OutputType.SURFACE_VIEW,
+                    )
+                }
 
             val configs =
                 cameraIds.zip(viewfinderSteamConfigs).map { (cameraId, viewfinderStreamConfig) ->
@@ -346,8 +322,9 @@ class SimpleCamera(
 
             val cameraGraphs = cameraPipe.createCameraGraphs(configs)
 
-            val viewfinderStreams = cameraGraphs.zip(viewfinderSteamConfigs)
-                .map { (cameraGraph, viewfinderStreamConfig) ->
+            val viewfinderStreams =
+                cameraGraphs.zip(viewfinderSteamConfigs).map { (cameraGraph, viewfinderStreamConfig)
+                    ->
                     cameraGraph.streams[viewfinderStreamConfig]!!
                 }
             val viewfinderOutputs = viewfinderStreams.map { it.outputs.single() }
@@ -366,11 +343,7 @@ class SimpleCamera(
 
             cameraGraphs.zip(viewfinderStreams).map { (cameraGraph, viewfinderStream) ->
                 cameraGraph.acquireSessionOrNull()!!.use {
-                    it.startRepeating(
-                        Request(
-                            streams = listOf(viewfinderStream.id)
-                        )
-                    )
+                    it.startRepeating(Request(streams = listOf(viewfinderStream.id)))
                 }
             }
 

@@ -47,17 +47,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-/**
- * Multi process implementation of DataStore. It is multi-process safe.
- */
+/** Multi process implementation of DataStore. It is multi-process safe. */
 internal class DataStoreImpl<T>(
     private val storage: Storage<T>,
     /**
-     * The list of initialization tasks to perform. These tasks will be completed before any data
-     * is published to the data and before any read-modify-writes execute in updateData.  If
-     * any of the tasks fail, the tasks will be run again the next time data is collected or
-     * updateData is called. Init tasks should not wait on results from data - this will
-     * result in deadlock.
+     * The list of initialization tasks to perform. These tasks will be completed before any data is
+     * published to the data and before any read-modify-writes execute in updateData. If any of the
+     * tasks fail, the tasks will be run again the next time data is collected or updateData is
+     * called. Init tasks should not wait on results from data - this will result in deadlock.
      */
     initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),
     /**
@@ -70,29 +67,33 @@ internal class DataStoreImpl<T>(
 ) : DataStore<T> {
 
     /**
-     * Shared flow responsible for observing [InterProcessCoordinator] for file changes.
-     * Each downstream [data] flow collects on this [kotlinx.coroutines.flow.SharedFlow] to ensure
-     * we observe the [InterProcessCoordinator] when there is an active collection on the [data].
+     * Shared flow responsible for observing [InterProcessCoordinator] for file changes. Each
+     * downstream [data] flow collects on this [kotlinx.coroutines.flow.SharedFlow] to ensure we
+     * observe the [InterProcessCoordinator] when there is an active collection on the [data].
      */
-    private val updateCollection = flow<Unit> {
-        // deferring 1 flow so we can create coordinator lazily just to match existing behavior.
-        // also wait for initialization to complete before watching update events.
-        readAndInit.awaitComplete()
-        coordinator.updateNotifications.conflate().collect {
-            val currentState = inMemoryCache.currentState
-            if (currentState !is Final) {
-                // update triggered reads should always wait for lock
-                readDataAndUpdateCache(requireLock = true)
+    private val updateCollection =
+        flow<Unit> {
+                // deferring 1 flow so we can create coordinator lazily just to match existing
+                // behavior.
+                // also wait for initialization to complete before watching update events.
+                readAndInit.awaitComplete()
+                coordinator.updateNotifications.conflate().collect {
+                    val currentState = inMemoryCache.currentState
+                    if (currentState !is Final) {
+                        // update triggered reads should always wait for lock
+                        readDataAndUpdateCache(requireLock = true)
+                    }
+                }
             }
-        }
-    }.shareIn(
-        scope = scope,
-        started = SharingStarted.WhileSubscribed(
-            stopTimeout = Duration.ZERO,
-            replayExpiration = Duration.ZERO
-        ),
-        replay = 0
-    )
+            .shareIn(
+                scope = scope,
+                started =
+                    SharingStarted.WhileSubscribed(
+                        stopTimeout = Duration.ZERO,
+                        replayExpiration = Duration.ZERO
+                    ),
+                replay = 0
+            )
 
     /**
      * The actual values of DataStore. This is exposed in the API via [data] to be able to combine
@@ -111,12 +112,12 @@ internal class DataStoreImpl<T>(
          * version is not stale compared to the version read from the shared counter when we enter
          * the flow.
          *
-         * If Downstream flow is Final, the scope has been cancelled so the data store is no
-         * longer usable. We should just propagate this exception.
+         * If Downstream flow is Final, the scope has been cancelled so the data store is no longer
+         * usable. We should just propagate this exception.
          *
-         * State always starts at null. null can transition to ReadException, Data or
-         * Final. ReadException can transition to another ReadException, Data or Final.
-         * Data can transition to another Data or Final. Final will not change.
+         * State always starts at null. null can transition to ReadException, Data or Final.
+         * ReadException can transition to another ReadException, Data or Final. Data can transition
+         * to another Data or Final. Final will not change.
          */
         // the first read should not be blocked by ongoing writes, so it can be dirty read. If it is
         // a unlocked read, the same value might be emitted to the flow again
@@ -130,44 +131,41 @@ internal class DataStoreImpl<T>(
         }
 
         emitAll(
-            inMemoryCache.flow.takeWhile {
-                // end the flow if we reach the final value
-                it !is Final
-            }.dropWhile {
-                it is Data && it.version <= startState.version
-            }.map {
-                when (it) {
-                    is ReadException<T> -> throw it.readException
-                    is Data<T> -> it.value
-                    is Final<T>, is UnInitialized -> error(
-                        BUG_MESSAGE
-                    )
+            inMemoryCache.flow
+                .takeWhile {
+                    // end the flow if we reach the final value
+                    it !is Final
                 }
-            }
+                .dropWhile { it is Data && it.version <= startState.version }
+                .map {
+                    when (it) {
+                        is ReadException<T> -> throw it.readException
+                        is Data<T> -> it.value
+                        is Final<T>,
+                        is UnInitialized -> error(BUG_MESSAGE)
+                    }
+                }
         )
     }
 
     override val data: Flow<T> = channelFlow {
-        val updateCollector = launch(start = CoroutineStart.LAZY) {
-            updateCollection.collect {
-                // collect it infinitely so it keeps running as long as the data flow is active.
+        val updateCollector =
+            launch(start = CoroutineStart.LAZY) {
+                updateCollection.collect {
+                    // collect it infinitely so it keeps running as long as the data flow is active.
+                }
             }
-        }
         internalDataFlow
             .onStart { updateCollector.start() }
             .onCompletion { updateCollector.cancel() }
-            .collect {
-                send(it)
-            }
+            .collect { send(it) }
     }
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
         val parentContextElement = coroutineContext[UpdatingDataContextElement.Companion.Key]
         parentContextElement?.checkNotUpdating(this)
-        val childContextElement = UpdatingDataContextElement(
-            parent = parentContextElement,
-            instance = this
-        )
+        val childContextElement =
+            UpdatingDataContextElement(parent = parentContextElement, instance = this)
         return withContext(childContextElement) {
             val ack = CompletableDeferred<T>()
             val currentDownStreamFlowState = inMemoryCache.currentState
@@ -185,35 +183,33 @@ internal class DataStoreImpl<T>(
 
     // TODO(b/269772127): make this private after we allow multiple instances of DataStore on the
     //  same file
-    private val storageConnectionDelegate = lazy {
-        storage.createConnection()
-    }
+    private val storageConnectionDelegate = lazy { storage.createConnection() }
     internal val storageConnection by storageConnectionDelegate
     private val coordinator: InterProcessCoordinator by lazy { storageConnection.coordinator }
 
-    private val writeActor = SimpleActor<Message.Update<T>>(
-        scope = scope,
-        onComplete = {
-            // We expect it to always be non-null but we will leave the alternative as a no-op
-            // just in case.
-            it?.let {
-                inMemoryCache.tryUpdate(Final(it))
-            }
-            // don't try to close storage connection if it was not created in the first place.
-            if (storageConnectionDelegate.isInitialized()) {
-                storageConnection.close()
-            }
-        },
-        onUndeliveredElement = { msg, ex ->
-            msg.ack.completeExceptionally(
-                ex ?: CancellationException(
-                    "DataStore scope was cancelled before updateData could complete"
+    private val writeActor =
+        SimpleActor<Message.Update<T>>(
+            scope = scope,
+            onComplete = {
+                // We expect it to always be non-null but we will leave the alternative as a no-op
+                // just in case.
+                it?.let { inMemoryCache.tryUpdate(Final(it)) }
+                // don't try to close storage connection if it was not created in the first place.
+                if (storageConnectionDelegate.isInitialized()) {
+                    storageConnection.close()
+                }
+            },
+            onUndeliveredElement = { msg, ex ->
+                msg.ack.completeExceptionally(
+                    ex
+                        ?: CancellationException(
+                            "DataStore scope was cancelled before updateData could complete"
+                        )
                 )
-            )
+            }
+        ) { msg ->
+            handleUpdate(msg)
         }
-    ) { msg ->
-        handleUpdate(msg)
-    }
 
     private suspend fun readState(requireLock: Boolean): State<T> =
         withContext(scope.coroutineContext) {
@@ -244,8 +240,8 @@ internal class DataStoreImpl<T>(
                         // We are already initialized, we just need to perform the update
                         result = transformAndWrite(update.transform, update.callerContext)
                     }
-
-                    is ReadException, is UnInitialized -> {
+                    is ReadException,
+                    is UnInitialized -> {
                         if (currentState === update.lastState) {
                             // we need to try to read again
                             readAndInitOrPropagateAndThrowFailure()
@@ -260,7 +256,6 @@ internal class DataStoreImpl<T>(
                             throw (currentState as ReadException).readException
                         }
                     }
-
                     is Final -> throw currentState.finalException // won't happen
                 }
                 result
@@ -289,9 +284,7 @@ internal class DataStoreImpl<T>(
         // Check if the cached version matches with shared memory counter
         val currentState = inMemoryCache.currentState
         // should not call this without initialization first running
-        check(currentState !is UnInitialized) {
-            BUG_MESSAGE
-        }
+        check(currentState !is UnInitialized) { BUG_MESSAGE }
         val latestVersion = coordinator.getVersion()
         val cachedVersion = if (currentState is Data) currentState.version else -1
 
@@ -314,7 +307,8 @@ internal class DataStoreImpl<T>(
                         readDataOrHandleCorruption(locked)
                     } catch (ex: Throwable) {
                         ReadException<T>(
-                            ex, if (locked) coordinator.getVersion() else cachedVersion
+                            ex,
+                            if (locked) coordinator.getVersion() else cachedVersion
                         )
                     } to locked
                 }
@@ -334,18 +328,19 @@ internal class DataStoreImpl<T>(
     private suspend fun transformAndWrite(
         transform: suspend (t: T) -> T,
         callerContext: CoroutineContext
-    ): T = coordinator.lock {
-        val curData = readDataOrHandleCorruption(hasWriteFileLock = true)
-        val newData = withContext(callerContext) { transform(curData.value) }
+    ): T =
+        coordinator.lock {
+            val curData = readDataOrHandleCorruption(hasWriteFileLock = true)
+            val newData = withContext(callerContext) { transform(curData.value) }
 
-        // Check that curData has not changed...
-        curData.checkHashCode()
+            // Check that curData has not changed...
+            curData.checkHashCode()
 
-        if (curData.value != newData) {
-            writeData(newData, updateCache = true)
+            if (curData.value != newData) {
+                writeData(newData, updateCache = true)
+            }
+            newData
         }
-        newData
-    }
 
     // Write data to disk and return the corresponding version if succeed.
     internal suspend fun writeData(newData: T, updateCache: Boolean): Int {
@@ -377,11 +372,7 @@ internal class DataStoreImpl<T>(
                 coordinator.tryLock { locked ->
                     val data = readDataFromFileOrDefault()
                     val version = if (locked) coordinator.getVersion() else preLockVersion
-                    Data(
-                        data,
-                        data.hashCode(),
-                        version
-                    )
+                    Data(data, data.hashCode(), version)
                 }
             }
         } catch (ex: CorruptionException) {
@@ -415,9 +406,7 @@ internal class DataStoreImpl<T>(
         hasWriteFileLock: Boolean,
         block: suspend () -> R
     ): R {
-        contract {
-            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-        }
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         return if (hasWriteFileLock) {
             block()
         } else {
@@ -433,67 +422,69 @@ internal class DataStoreImpl<T>(
             initTasksList.toList()
 
         override suspend fun doRun() {
-            val initData = if ((initTasks == null) || initTasks!!.isEmpty()) {
-                // if there are no init tasks, we can directly read
-                readDataOrHandleCorruption(hasWriteFileLock = false)
-            } else {
-                // if there are init tasks, we need to obtain a lock to ensure migrations
-                // run as 1 chunk
-                coordinator.lock {
-                    val updateLock = Mutex()
-                    var initializationComplete = false
-                    var currentData = readDataOrHandleCorruption(hasWriteFileLock = true).value
+            val initData =
+                if ((initTasks == null) || initTasks!!.isEmpty()) {
+                    // if there are no init tasks, we can directly read
+                    readDataOrHandleCorruption(hasWriteFileLock = false)
+                } else {
+                    // if there are init tasks, we need to obtain a lock to ensure migrations
+                    // run as 1 chunk
+                    coordinator.lock {
+                        val updateLock = Mutex()
+                        var initializationComplete = false
+                        var currentData = readDataOrHandleCorruption(hasWriteFileLock = true).value
 
-                    val api = object : InitializerApi<T> {
-                        override suspend fun updateData(transform: suspend (t: T) -> T): T {
-                            return updateLock.withLock {
-                                check(!initializationComplete) {
-                                    "InitializerApi.updateData should not be called after " +
-                                        "initialization is complete."
+                        val api =
+                            object : InitializerApi<T> {
+                                override suspend fun updateData(transform: suspend (t: T) -> T): T {
+                                    return updateLock.withLock {
+                                        check(!initializationComplete) {
+                                            "InitializerApi.updateData should not be called after " +
+                                                "initialization is complete."
+                                        }
+
+                                        val newData = transform(currentData)
+                                        if (newData != currentData) {
+                                            writeData(newData, updateCache = false)
+                                            currentData = newData
+                                        }
+
+                                        currentData
+                                    }
                                 }
-
-                                val newData = transform(currentData)
-                                if (newData != currentData) {
-                                    writeData(newData, updateCache = false)
-                                    currentData = newData
-                                }
-
-                                currentData
                             }
-                        }
-                    }
 
-                    initTasks?.forEach { it(api) }
-                    // Init tasks have run successfully, we don't need them anymore.
-                    initTasks = null
-                    updateLock.withLock {
-                        initializationComplete = true
+                        initTasks?.forEach { it(api) }
+                        // Init tasks have run successfully, we don't need them anymore.
+                        initTasks = null
+                        updateLock.withLock { initializationComplete = true }
+                        // only to make compiler happy
+                        Data(
+                            value = currentData,
+                            hashCode = currentData.hashCode(),
+                            version = coordinator.getVersion()
+                        )
                     }
-                    // only to make compiler happy
-                    Data(
-                        value = currentData,
-                        hashCode = currentData.hashCode(),
-                        version = coordinator.getVersion()
-                    )
                 }
-            }
             inMemoryCache.tryUpdate(initData)
         }
     }
 
     companion object {
-        private const val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
-            "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
+        private const val BUG_MESSAGE =
+            "This is a bug in DataStore. Please file a bug at: " +
+                "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
     }
 }
 
 /**
- * Helper class that executes [doRun] up to 1 time to completion. If it fails, it will be retried
- * in the next [runIfNeeded] call.
+ * Helper class that executes [doRun] up to 1 time to completion. If it fails, it will be retried in
+ * the next [runIfNeeded] call.
  */
 internal abstract class RunOnce {
     private val runMutex = Mutex()
     private val didRun = CompletableDeferred<Unit>()
+
     protected abstract suspend fun doRun()
 
     suspend fun awaitComplete() = didRun.await()
@@ -513,8 +504,8 @@ internal abstract class RunOnce {
  * called to detect nested calls. b/241760537 (see: [DataStoreImpl.updateData])
  *
  * It is OK for different DataStore instances to nest updateData calls, they just cannot be on the
- * same DataStore. To track these instances, each [UpdatingDataContextElement] holds a reference
- * to a parent.
+ * same DataStore. To track these instances, each [UpdatingDataContextElement] holds a reference to
+ * a parent.
  */
 internal class UpdatingDataContextElement(
     private val parent: UpdatingDataContextElement?,
@@ -522,16 +513,18 @@ internal class UpdatingDataContextElement(
 ) : CoroutineContext.Element {
 
     companion object {
-        internal val NESTED_UPDATE_ERROR_MESSAGE = """
+        internal val NESTED_UPDATE_ERROR_MESSAGE =
+            """
                 Calling updateData inside updateData on the same DataStore instance is not supported
                 since updates made in the parent updateData call will not be visible to the nested
                 updateData call. See https://issuetracker.google.com/issues/241760537 for details.
-            """.trimIndent()
+            """
+                .trimIndent()
+
         internal object Key : CoroutineContext.Key<UpdatingDataContextElement>
     }
-    /**
-     * Checks the given [candidate] is not currently in a [DataStore.updateData] block.
-     */
+
+    /** Checks the given [candidate] is not currently in a [DataStore.updateData] block. */
     fun checkNotUpdating(candidate: DataStore<*>) {
         if (instance === candidate) {
             error(NESTED_UPDATE_ERROR_MESSAGE)

@@ -63,19 +63,16 @@ object DragAndDropTestUtils {
     ): DragEvent {
         return makeDragEvent(
             action = action,
-            clipData = createClipData {
-                // We're not actually resolving Uris in these tests, so this can be anything:
-                addUri(item, mimeType = "image/png")
-            },
+            clipData =
+                createClipData {
+                    // We're not actually resolving Uris in these tests, so this can be anything:
+                    addUri(item, mimeType = "image/png")
+                },
             offset = offset
         )
     }
 
-    fun makeDragEvent(
-        action: Int,
-        clipData: ClipData,
-        offset: Offset = Offset.Zero
-    ): DragEvent {
+    fun makeDragEvent(action: Int, clipData: ClipData, offset: Offset = Offset.Zero): DragEvent {
         val parcel = Parcel.obtain()
 
         parcel.writeInt(action)
@@ -85,6 +82,10 @@ object DragAndDropTestUtils {
             // mOffset was made part of DragEvent in API 31.
             parcel.writeFloat(0f)
             parcel.writeFloat(0f)
+        }
+        if (Build.VERSION.SDK_INT >= 35) {
+            // mFlags was added
+            parcel.writeInt(0)
         }
         parcel.writeInt(0) // Result
         parcel.writeInt(1)

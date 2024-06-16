@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.camera2.internal.compat.workaround
 
 import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig
 import com.google.common.truth.Truth
@@ -40,24 +37,25 @@ private val SELECT_RESOLUTION_JPEG = Size(1003, 1000)
 
 private val SUPPORTED_RESOLUTIONS = listOf(RESOLUTION_1, RESOLUTION_2)
 
-/**
- * Unit test for [ResolutionCorrector].
- */
+/** Unit test for [ResolutionCorrector]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ResolutionCorrectorTest {
 
-    private val mResolutionCorrector = ResolutionCorrector(object : ExtraCroppingQuirk() {
-        override fun getVerifiedResolution(configType: SurfaceConfig.ConfigType): Size? {
-            return when (configType) {
-                SurfaceConfig.ConfigType.YUV -> SELECT_RESOLUTION_YUV
-                SurfaceConfig.ConfigType.PRIV -> SELECT_RESOLUTION_PRIV
-                SurfaceConfig.ConfigType.JPEG -> SELECT_RESOLUTION_JPEG
-                else -> null
+    private val mResolutionCorrector =
+        ResolutionCorrector(
+            object : ExtraCroppingQuirk() {
+                override fun getVerifiedResolution(configType: SurfaceConfig.ConfigType): Size? {
+                    return when (configType) {
+                        SurfaceConfig.ConfigType.YUV -> SELECT_RESOLUTION_YUV
+                        SurfaceConfig.ConfigType.PRIV -> SELECT_RESOLUTION_PRIV
+                        SurfaceConfig.ConfigType.JPEG -> SELECT_RESOLUTION_JPEG
+                        else -> null
+                    }
+                }
             }
-        }
-    })
+        )
 
     @Test
     fun hasPrivResolution_prioritized() {
@@ -74,14 +72,12 @@ class ResolutionCorrectorTest {
         hasResolution_prioritized(SurfaceConfig.ConfigType.JPEG, SELECT_RESOLUTION_JPEG)
     }
 
-    private fun hasResolution_prioritized(
-        configType: SurfaceConfig.ConfigType,
-        resolution: Size
-    ) {
+    private fun hasResolution_prioritized(configType: SurfaceConfig.ConfigType, resolution: Size) {
         val resolutions: MutableList<Size> = ArrayList<Size>(SUPPORTED_RESOLUTIONS)
         resolutions.add(resolution)
         Truth.assertThat(mResolutionCorrector.insertOrPrioritize(configType, resolutions))
-            .containsExactly(resolution, RESOLUTION_1, RESOLUTION_2).inOrder()
+            .containsExactly(resolution, RESOLUTION_1, RESOLUTION_2)
+            .inOrder()
     }
 
     @Test
@@ -99,12 +95,10 @@ class ResolutionCorrectorTest {
         noResolution_inserted(SurfaceConfig.ConfigType.JPEG, SELECT_RESOLUTION_JPEG)
     }
 
-    private fun noResolution_inserted(
-        configType: SurfaceConfig.ConfigType,
-        resolution: Size
-    ) {
+    private fun noResolution_inserted(configType: SurfaceConfig.ConfigType, resolution: Size) {
         Truth.assertThat(mResolutionCorrector.insertOrPrioritize(configType, SUPPORTED_RESOLUTIONS))
-            .containsExactly(resolution, RESOLUTION_1, RESOLUTION_2).inOrder()
+            .containsExactly(resolution, RESOLUTION_1, RESOLUTION_2)
+            .inOrder()
     }
 
     @Test
@@ -117,14 +111,13 @@ class ResolutionCorrectorTest {
         noQuirk_returnsOriginalSupportedResolutions(getEmptyQuirk())
     }
 
-    private fun noQuirk_returnsOriginalSupportedResolutions(
-        quirk: ExtraCroppingQuirk?
-    ) {
+    private fun noQuirk_returnsOriginalSupportedResolutions(quirk: ExtraCroppingQuirk?) {
         val resolutionCorrector = ResolutionCorrector(quirk)
-        val result = resolutionCorrector.insertOrPrioritize(
-            SurfaceConfig.ConfigType.PRIV,
-            SUPPORTED_RESOLUTIONS
-        )
+        val result =
+            resolutionCorrector.insertOrPrioritize(
+                SurfaceConfig.ConfigType.PRIV,
+                SUPPORTED_RESOLUTIONS
+            )
         Truth.assertThat(result).containsExactlyElementsIn(SUPPORTED_RESOLUTIONS)
     }
 

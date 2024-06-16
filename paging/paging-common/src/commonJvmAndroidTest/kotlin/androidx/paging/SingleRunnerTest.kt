@@ -45,105 +45,102 @@ class SingleRunnerTest {
     private val testScope = TestScope()
 
     @Test
-    fun cancelsPreviousRun() = testScope.runTest {
-        val runner = SingleRunner()
-        val job = launch(Dispatchers.Unconfined) {
+    fun cancelsPreviousRun() =
+        testScope.runTest {
+            val runner = SingleRunner()
+            val job =
+                launch(Dispatchers.Unconfined) { runner.runInIsolation { delay(Long.MAX_VALUE) } }
+
             runner.runInIsolation {
-                delay(Long.MAX_VALUE)
+                // Immediately return.
             }
-        }
 
-        runner.runInIsolation {
-            // Immediately return.
+            assertFalse { job.isCancelled }
+            assertTrue { job.isCompleted }
         }
-
-        assertFalse { job.isCancelled }
-        assertTrue { job.isCompleted }
-    }
 
     @Test
-    fun previousRunCanCancelItself() = testScope.runTest {
-        val runner = SingleRunner()
-        val job = launch(Dispatchers.Unconfined) {
-            runner.runInIsolation {
-                throw CancellationException()
-            }
-        }
-        assertTrue { job.isCancelled }
-        assertTrue { job.isCompleted }
-    }
-
-    @Test
-    fun preventsCompletionUntilBlockCompletes() = testScope.runTest {
-        val runner = SingleRunner()
-        val job = testScope.launch {
-            runner.runInIsolation {
-                delay(1000)
-            }
-        }
-
-        advanceTimeBy(500)
-        runCurrent()
-        assertFalse { job.isCompleted }
-
-        advanceTimeBy(500)
-        runCurrent()
-        assertTrue { job.isCompleted }
-    }
-
-    @Test
-    fun orderedExecution() = testScope.runTest {
-        val jobStartList = mutableListOf<Int>()
-
-        val runner = SingleRunner()
-        for (index in 0..9) {
-            launch {
-                runner.runInIsolation {
-                    jobStartList.add(index)
-                    delay(Long.MAX_VALUE)
+    fun previousRunCanCancelItself() =
+        testScope.runTest {
+            val runner = SingleRunner()
+            val job =
+                launch(Dispatchers.Unconfined) {
+                    runner.runInIsolation { throw CancellationException() }
                 }
-            }
+            assertTrue { job.isCancelled }
+            assertTrue { job.isCompleted }
         }
-        runCurrent()
-
-        // Cancel previous job.
-        runner.runInIsolation {
-            // Immediately return.
-        }
-
-        assertEquals(List(10) { it }, jobStartList)
-    }
 
     @Test
-    fun racingCoroutines() = testScope.runTest {
-        val runner = SingleRunner()
-        val output = mutableListOf<Char>()
-        withContext(coroutineContext) {
-            launch {
-                ('0' until '4').forEach {
+    fun preventsCompletionUntilBlockCompletes() =
+        testScope.runTest {
+            val runner = SingleRunner()
+            val job = testScope.launch { runner.runInIsolation { delay(1000) } }
+
+            advanceTimeBy(500)
+            runCurrent()
+            assertFalse { job.isCompleted }
+
+            advanceTimeBy(500)
+            runCurrent()
+            assertTrue { job.isCompleted }
+        }
+
+    @Test
+    fun orderedExecution() =
+        testScope.runTest {
+            val jobStartList = mutableListOf<Int>()
+
+            val runner = SingleRunner()
+            for (index in 0..9) {
+                launch {
                     runner.runInIsolation {
-                        output.add(it)
-                        delay(100)
+                        jobStartList.add(index)
+                        delay(Long.MAX_VALUE)
                     }
                 }
             }
+            runCurrent()
 
-            launch {
-                ('a' until 'e').forEach {
-                    runner.runInIsolation {
-                        output.add(it)
-                        delay(40)
+            // Cancel previous job.
+            runner.runInIsolation {
+                // Immediately return.
+            }
+
+            assertEquals(List(10) { it }, jobStartList)
+        }
+
+    @Test
+    fun racingCoroutines() =
+        testScope.runTest {
+            val runner = SingleRunner()
+            val output = mutableListOf<Char>()
+            withContext(coroutineContext) {
+                launch {
+                    ('0' until '4').forEach {
+                        runner.runInIsolation {
+                            output.add(it)
+                            delay(100)
+                        }
                     }
                 }
+
+                launch {
+                    ('a' until 'e').forEach {
+                        runner.runInIsolation {
+                            output.add(it)
+                            delay(40)
+                        }
+                    }
+                }
+                // don't let delays finish to ensure they are really cancelled
+                advanceTimeBy(1)
             }
-            // don't let delays finish to ensure they are really cancelled
-            advanceTimeBy(1)
+            // Despite launching separately, with different delays, we should see these always
+            // interleave in the same order, since the delays aren't allowed to run in parallel and
+            // each launch will cancel the other one's delay.
+            assertThat(output.joinToString("")).isEqualTo("0a1b2c3d")
         }
-        // Despite launching separately, with different delays, we should see these always
-        // interleave in the same order, since the delays aren't allowed to run in parallel and
-        // each launch will cancel the other one's delay.
-        assertThat(output.joinToString("")).isEqualTo("0a1b2c3d")
-    }
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -159,70 +156,48 @@ class SingleRunnerTest {
                 // a code path which ignores coroutine cancellation
                 firstStarted.countDown()
                 repeat(10) {
-                    @Suppress("BlockingMethodInNonBlockingContext")
-                    Thread.sleep(100)
+                    @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(100)
                     output.add(it)
                 }
             }
         }
 
-        val job2 = GlobalScope.launch {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            firstStarted.await()
-            singleRunner.runInIsolation {
-                repeat(10) {
-                    output.add(it + 10)
-                }
+        val job2 =
+            GlobalScope.launch {
+                @Suppress("BlockingMethodInNonBlockingContext") firstStarted.await()
+                singleRunner.runInIsolation { repeat(10) { output.add(it + 10) } }
             }
-        }
-        runBlocking {
-            withTimeout(10.seconds) {
-                job2.join()
-            }
-        }
-        assertThat(output).isEqualTo(
-            // if cancellation is ignored, make sure we wait for it to finish.
-            (0 until 20).toList()
-        )
+        runBlocking { withTimeout(10.seconds) { job2.join() } }
+        assertThat(output)
+            .isEqualTo(
+                // if cancellation is ignored, make sure we wait for it to finish.
+                (0 until 20).toList()
+            )
     }
 
     @Test
-    fun priority() = testScope.runTest {
-        val runner = SingleRunner()
-        val output = mutableListOf<String>()
-        launch {
-            runner.runInIsolation(
-                priority = 2
-            ) {
-                output.add("a")
-                delay(10)
-                output.add("b")
-                delay(100)
-                output.add("unexpected")
+    fun priority() =
+        testScope.runTest {
+            val runner = SingleRunner()
+            val output = mutableListOf<String>()
+            launch {
+                runner.runInIsolation(priority = 2) {
+                    output.add("a")
+                    delay(10)
+                    output.add("b")
+                    delay(100)
+                    output.add("unexpected")
+                }
             }
-        }
-        runCurrent()
+            runCurrent()
 
-        // should not run
-        runner.runInIsolation(
-            priority = 1
-        ) {
-            output.add("unexpected - 2")
+            // should not run
+            runner.runInIsolation(priority = 1) { output.add("unexpected - 2") }
+            advanceTimeBy(20)
+            runner.runInIsolation(priority = 3) { output.add("c") }
+            advanceUntilIdle()
+            // now lower priority can run since higher priority is complete
+            runner.runInIsolation(priority = 1) { output.add("d") }
+            assertThat(output).containsExactly("a", "b", "c", "d")
         }
-        advanceTimeBy(20)
-        runner.runInIsolation(
-            priority = 3
-        ) {
-            output.add("c")
-        }
-        advanceUntilIdle()
-        // now lower priority can run since higher priority is complete
-        runner.runInIsolation(
-            priority = 1
-        ) {
-            output.add("d")
-        }
-        assertThat(output)
-            .containsExactly("a", "b", "c", "d")
-    }
 }

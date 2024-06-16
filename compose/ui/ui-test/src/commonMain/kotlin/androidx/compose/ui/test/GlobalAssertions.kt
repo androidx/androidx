@@ -22,14 +22,13 @@ import kotlin.jvm.JvmName
 /**
  * Adds a named assertion to the collection of assertions to be executed before test actions.
  *
- * This API is intended to be invoked by assertion frameworks to register assertions
- * that must hold on the entire application whenever it's fully loaded and ready to
- * interact with. They will be invoked upon common actions such as `performClick`, and
- * they always verify every element on the screen, not just the element the action is
- * performed on.
+ * This API is intended to be invoked by assertion frameworks to register assertions that must hold
+ * on the entire application whenever it's fully loaded and ready to interact with. They will be
+ * invoked upon common actions such as `performClick`, and they always verify every element on the
+ * screen, not just the element the action is performed on.
  *
- * This is particularly useful to automatically catch accessibility problems such
- * as contrast ratio, minimum touch-target size, etc.
+ * This is particularly useful to automatically catch accessibility problems such as contrast ratio,
+ * minimum touch-target size, etc.
  *
  * @param name An identifier for the assertion. It can subsequently be used to deactivate the
  *   assertion with [removeGlobalAssertion].

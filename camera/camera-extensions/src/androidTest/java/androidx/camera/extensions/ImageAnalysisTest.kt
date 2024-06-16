@@ -80,14 +80,14 @@ class ImageAnalysisTest(
     }
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraXConfig)
+        )
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
@@ -99,28 +99,25 @@ class ImageAnalysisTest(
     @Before
     fun setUp(): Unit = runBlocking {
         Assume.assumeTrue(
-            ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
-                lensFacing,
-                extensionMode
-            )
+            ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing, extensionMode)
         )
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
+        extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
+                    10000, TimeUnit.MILLISECONDS]
 
         Assume.assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
-            camera = withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(fakeLifecycleOwner, baseCameraSelector)
-            }
+            camera =
+                withContext(Dispatchers.Main) {
+                    cameraProvider.bindToLifecycle(fakeLifecycleOwner, baseCameraSelector)
+                }
         }
     }
 
@@ -138,10 +135,8 @@ class ImageAnalysisTest(
     @Test
     fun canBindImageAnalysis_ifIsImageAnalysisSupportedReturnsTrue(): Unit = runBlocking {
         // 1. Arrange
-        extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            baseCameraSelector,
-            extensionMode
-        )
+        extensionsCameraSelector =
+            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
         Assume.assumeTrue(
             extensionsManager.isImageAnalysisSupported(extensionsCameraSelector, extensionMode)
         )
@@ -152,9 +147,7 @@ class ImageAnalysisTest(
             val imageCapture = ImageCapture.Builder().build()
             val imageAnalysis = ImageAnalysis.Builder().build()
 
-            preview.setSurfaceProvider(
-                SurfaceTextureProvider.createSurfaceTextureProvider()
-            )
+            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
 
             imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor()) {
                 analysisLatch.countDown()
@@ -165,7 +158,9 @@ class ImageAnalysisTest(
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
-                preview, imageCapture, imageAnalysis
+                preview,
+                imageCapture,
+                imageAnalysis
             )
         }
 
@@ -176,16 +171,15 @@ class ImageAnalysisTest(
     private fun getOutputSizes(imageFormat: Int): Array<Size> {
         val cameraCharacteristics =
             (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
-        val map =
-            cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+        val map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
         return map.getOutputSizes(imageFormat)
     }
 
     @Test
     fun imageAnalysisResolutionIsFromVendorExtender(): Unit = runBlocking {
         // 1. Arrange
-        val injectAnalysisSize = getOutputSizes(ImageFormat.YUV_420_888)
-            .minBy { it.width * it.height }
+        val injectAnalysisSize =
+            getOutputSizes(ImageFormat.YUV_420_888).minBy { it.width * it.height }
         // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
         extensionsManager.setVendorExtenderFactory {
             object : VendorExtender {
@@ -210,24 +204,15 @@ class ImageAnalysisTest(
                 }
 
                 override fun getSupportedCaptureOutputResolutions(): List<Pair<Int, Array<Size>>> {
-                    return listOf(
-                        Pair(
-                            ImageFormat.JPEG,
-                            getOutputSizes(ImageFormat.JPEG)
-                        )
-                    )
+                    return listOf(Pair(ImageFormat.JPEG, getOutputSizes(ImageFormat.JPEG)))
                 }
             }
         }
 
-        extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            baseCameraSelector,
-            extensionMode
-        )
-        assertThat(
-            extensionsManager
-                .isImageAnalysisSupported(baseCameraSelector, extensionMode)
-        ).isTrue()
+        extensionsCameraSelector =
+            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
+        assertThat(extensionsManager.isImageAnalysisSupported(baseCameraSelector, extensionMode))
+            .isTrue()
         withContext(Dispatchers.Main) {
             val preview = Preview.Builder().build()
             val imageCapture = ImageCapture.Builder().build()
@@ -237,7 +222,9 @@ class ImageAnalysisTest(
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
-                preview, imageCapture, imageAnalysis
+                preview,
+                imageCapture,
+                imageAnalysis
             )
 
             // 3. Assert
@@ -246,64 +233,64 @@ class ImageAnalysisTest(
     }
 
     @Test
-    fun bindImageAnalysisThrowException_ifIsImageAnalysisSupportedReturnsFalse():
-        Unit = runBlocking {
-        // 1. Arrange
-        // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
-        extensionsManager.setVendorExtenderFactory {
-            object : VendorExtender {
-                override fun isExtensionAvailable(
-                    cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>
-                ) = true
+    fun bindImageAnalysisThrowException_ifIsImageAnalysisSupportedReturnsFalse(): Unit =
+        runBlocking {
+            // 1. Arrange
+            // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
+            extensionsManager.setVendorExtenderFactory {
+                object : VendorExtender {
+                    override fun isExtensionAvailable(
+                        cameraId: String,
+                        characteristicsMap: MutableMap<String, CameraCharacteristics>
+                    ) = true
 
-                override fun getSupportedYuvAnalysisResolutions(): Array<Size> {
-                    return emptyArray()
-                }
+                    override fun getSupportedYuvAnalysisResolutions(): Array<Size> {
+                        return emptyArray()
+                    }
 
-                override fun getSupportedPreviewOutputResolutions(): List<Pair<Int, Array<Size>>> {
-                    return listOf(
-                        Pair(
-                            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-                            getOutputSizes(
-                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                    override fun getSupportedPreviewOutputResolutions():
+                        List<Pair<Int, Array<Size>>> {
+                        return listOf(
+                            Pair(
+                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                getOutputSizes(
+                                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                                )
                             )
                         )
-                    )
-                }
+                    }
 
-                override fun getSupportedCaptureOutputResolutions(): List<Pair<Int, Array<Size>>> {
-                    return listOf(
-                        Pair(
-                            ImageFormat.JPEG,
-                            getOutputSizes(ImageFormat.JPEG)
-                        )
-                    )
+                    override fun getSupportedCaptureOutputResolutions():
+                        List<Pair<Int, Array<Size>>> {
+                        return listOf(Pair(ImageFormat.JPEG, getOutputSizes(ImageFormat.JPEG)))
+                    }
                 }
             }
-        }
 
-        extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            baseCameraSelector,
-            extensionMode
-        )
-        assertThat(
-            extensionsManager
-                .isImageAnalysisSupported(baseCameraSelector, extensionMode)
-        ).isFalse()
-        withContext(Dispatchers.Main) {
-            val preview = Preview.Builder().build()
-            val imageCapture = ImageCapture.Builder().build()
-            val imageAnalysis = ImageAnalysis.Builder().build()
-
-            // 3. Act && Assert
-            assertThrows<IllegalArgumentException> {
-                cameraProvider.bindToLifecycle(
-                    fakeLifecycleOwner,
-                    extensionsCameraSelector,
-                    preview, imageCapture, imageAnalysis
+            extensionsCameraSelector =
+                extensionsManager.getExtensionEnabledCameraSelector(
+                    baseCameraSelector,
+                    extensionMode
                 )
+            assertThat(
+                    extensionsManager.isImageAnalysisSupported(baseCameraSelector, extensionMode)
+                )
+                .isFalse()
+            withContext(Dispatchers.Main) {
+                val preview = Preview.Builder().build()
+                val imageCapture = ImageCapture.Builder().build()
+                val imageAnalysis = ImageAnalysis.Builder().build()
+
+                // 3. Act && Assert
+                assertThrows<IllegalArgumentException> {
+                    cameraProvider.bindToLifecycle(
+                        fakeLifecycleOwner,
+                        extensionsCameraSelector,
+                        preview,
+                        imageCapture,
+                        imageAnalysis
+                    )
+                }
             }
         }
-    }
 }

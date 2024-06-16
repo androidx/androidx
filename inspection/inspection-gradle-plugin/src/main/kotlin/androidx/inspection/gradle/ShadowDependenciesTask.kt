@@ -38,10 +38,7 @@ fun Project.registerShadowDependenciesTask(
     zipTask: TaskProvider<Copy>
 ): TaskProvider<ShadowJar> {
     val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
-    return tasks.register(
-        variant.taskName("inspectionShadowDependencies"),
-        ShadowJar::class.java
-    ) {
+    return tasks.register(variant.taskName("inspectionShadowDependencies"), ShadowJar::class.java) {
         it.dependsOn(versionTask)
         val fileTree = project.fileTree(zipTask.get().destinationDir)
         fileTree.include("**/*.jar", "**/*.so")
@@ -61,12 +58,16 @@ fun Project.registerShadowDependenciesTask(
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
         @Suppress("UnstableApiUsage")
-        val runtimeDeps = variant.runtimeConfiguration.incoming.artifactView {
-            it.attributes.attribute(
-                Attribute.of("artifactType", String::class.java),
-                ArtifactTypeDefinition.JAR_TYPE
-            )
-        }.files.filter { it.name.endsWith("jar") }
+        val runtimeDeps =
+            variant.runtimeConfiguration.incoming
+                .artifactView {
+                    it.attributes.attribute(
+                        Attribute.of("artifactType", String::class.java),
+                        ArtifactTypeDefinition.JAR_TYPE
+                    )
+                }
+                .files
+                .filter { it.name.endsWith("jar") }
         it.exclude("**/module-info.class")
         it.exclude("google/**/*.proto")
         it.exclude("META-INF/versions/9/**/*.class")
@@ -74,25 +75,27 @@ fun Project.registerShadowDependenciesTask(
         it.doFirst {
             val task = it as ShadowJar
             @Suppress("UnstableApiUsage")
-            runtimeDeps.files.flatMap { it.extractPackageNames() }.toSet().forEach { packageName ->
-                task.relocate(packageName, "$prefix.$packageName")
-            }
+            runtimeDeps.files
+                .flatMap { it.extractPackageNames() }
+                .toSet()
+                .forEach { packageName -> task.relocate(packageName, "$prefix.$packageName") }
         }
     }
 }
 
-private fun File.extractPackageNames(): Set<String> = JarFile(this)
-    .use { it.entries().toList() }
-    .filter { jarEntry -> jarEntry.name.endsWith(".class") }
-    .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }
-    .toSet()
+private fun File.extractPackageNames(): Set<String> =
+    JarFile(this)
+        .use { it.entries().toList() }
+        .filter { jarEntry -> jarEntry.name.endsWith(".class") }
+        .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }
+        .toSet()
 
 /**
  * Transformer that renames services included in META-INF.
  *
  * kotlin-reflect has two META-INF/services in it. Interfaces of these services and theirs
- * implementations live in the kotlin-reflect itself. This transformer renames files that
- * live in meta-inf directory and their contents respecting the rules supplied into shadowJar.
+ * implementations live in the kotlin-reflect itself. This transformer renames files that live in
+ * meta-inf directory and their contents respecting the rules supplied into shadowJar.
  */
 class RenameServicesTransformer : Transformer {
     private val renamed = mutableMapOf<String, String>()
@@ -109,8 +112,11 @@ class RenameServicesTransformer : Transformer {
         if (context == null) return
         val path = context.path.removePrefix("META-INF/services/")
 
-        renamed[context.relocateOrSelf(path)] = context.`is`.bufferedReader().use { it.readLines() }
-            .joinToString("\n") { line -> context.relocateOrSelf(line) }
+        renamed[context.relocateOrSelf(path)] =
+            context.`is`
+                .bufferedReader()
+                .use { it.readLines() }
+                .joinToString("\n") { line -> context.relocateOrSelf(line) }
     }
 
     override fun hasTransformedResource(): Boolean {
@@ -130,8 +136,6 @@ class RenameServicesTransformer : Transformer {
 
 private fun TransformerContext.relocateOrSelf(className: String): String {
     val relocateContext = RelocateClassContext(className, stats)
-    val relocator = relocators.find {
-        it.canRelocateClass(className)
-    }
+    val relocator = relocators.find { it.canRelocateClass(className) }
     return relocator?.relocateClass(relocateContext) ?: className
 }

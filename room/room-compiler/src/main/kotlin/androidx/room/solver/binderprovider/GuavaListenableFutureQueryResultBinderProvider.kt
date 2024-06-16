@@ -31,17 +31,15 @@ import androidx.room.solver.query.result.QueryResultBinder
 
 @Suppress("FunctionName")
 fun GuavaListenableFutureQueryResultBinderProvider(context: Context): QueryResultBinderProvider =
-    GuavaListenableFutureQueryResultBinderProviderImpl(
-        context = context
-    ).requireArtifact(
-        context = context,
-        requiredType = RoomGuavaTypeNames.GUAVA_ROOM,
-        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT
-    )
+    GuavaListenableFutureQueryResultBinderProviderImpl(context = context)
+        .requireArtifact(
+            context = context,
+            requiredType = RoomGuavaTypeNames.GUAVA_ROOM,
+            missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT
+        )
 
-class GuavaListenableFutureQueryResultBinderProviderImpl(
-    val context: Context
-) : QueryResultBinderProvider {
+class GuavaListenableFutureQueryResultBinderProviderImpl(val context: Context) :
+    QueryResultBinderProvider {
     /**
      * Returns the {@link GuavaListenableFutureQueryResultBinder} instance for the input type, if
      * possible.
@@ -55,9 +53,12 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
     ): QueryResultBinder {
         // Use the type T inside ListenableFuture<T> as the type to adapt and to pass into
         // the binder.
-        val adapter = context.typeAdapterStore.findQueryResultAdapter(
-            declared.typeArguments.first(), query, extras
-        )
+        val adapter =
+            context.typeAdapterStore.findQueryResultAdapter(
+                declared.typeArguments.first(),
+                query,
+                extras
+            )
         val typeArg = declared.typeArguments.first()
         if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
             context.logger.e(ProcessorErrors.NONNULL_VOID)
@@ -65,9 +66,7 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
         return GuavaListenableFutureQueryResultBinder(typeArg, adapter)
     }
 
-    /**
-     * Returns true iff the input {@code declared} type is ListenableFuture<T>.
-     */
+    /** Returns true iff the input {@code declared} type is ListenableFuture<T>. */
     override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
             declared.rawType.asTypeName() == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE

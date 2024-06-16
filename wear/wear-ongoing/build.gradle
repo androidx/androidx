@@ -45,4 +45,5 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Ongoing Activities"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

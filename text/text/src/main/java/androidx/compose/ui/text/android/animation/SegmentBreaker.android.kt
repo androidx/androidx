@@ -38,7 +38,6 @@ import kotlin.math.min
  * @param top a graphical top position from the layout origin.
  * @param right a graphical right position from the layout origin.
  * @param bottom a graphical bottom position from the layout origin.
- *
  */
 internal data class Segment(
     val startOffset: Int,
@@ -49,17 +48,13 @@ internal data class Segment(
     val bottom: Int
 )
 
-/**
- * Provide a segmentation breaker for the text animation.
- */
+/** Provide a segmentation breaker for the text animation. */
 internal object SegmentBreaker {
     private fun breakInWords(layoutHelper: LayoutHelper): List<Int> {
         val text = layoutHelper.layout.text
         val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))
 
-        val set = TreeSet<Int>().apply {
-            words.fastForEach { add(it) }
-        }
+        val set = TreeSet<Int>().apply { words.fastForEach { add(it) } }
 
         for (paraIndex in 0 until layoutHelper.paragraphCount) {
             val bidi = layoutHelper.analyzeBidi(paraIndex) ?: continue
@@ -110,10 +105,11 @@ internal object SegmentBreaker {
                 }
             }
             SegmentType.Word -> breakInWords(layoutHelper)
-            SegmentType.Character -> breakWithBreakIterator(
-                text,
-                BreakIterator.getCharacterInstance(Locale.getDefault())
-            )
+            SegmentType.Character ->
+                breakWithBreakIterator(
+                    text,
+                    BreakIterator.getCharacterInstance(Locale.getDefault())
+                )
         }
     }
 
@@ -126,9 +122,8 @@ internal object SegmentBreaker {
      *
      * The dropSpaces argument is ignored if segmentType is Document or Paragraph.
      *
-     * If segmentType is Line and dropSpaces is true, this removes trailing spaces. If
-     * segmentType is Line and dropSpace is false, this use layout width as the right position of
-     * the line.
+     * If segmentType is Line and dropSpaces is true, this removes trailing spaces. If segmentType
+     * is Line and dropSpace is false, this use layout width as the right position of the line.
      *
      * If segmentType is Word and dropSpaces is true, this removes trailing spaces if there. If
      * segmentType is Word and dropSpace is false, this includes the trailing whitespace into
@@ -222,20 +217,24 @@ internal object SegmentBreaker {
             val lineNo = layout.getLineForOffset(start, false /* downstream */)
             val paraRTL = layout.getParagraphDirection(lineNo) == Layout.DIR_RIGHT_TO_LEFT
             val runRtl = layout.isRtlCharAt(start) // no bidi transition inside segment
-            val startPos = ceil(
-                layoutHelper.getHorizontalPosition(
-                    offset = start,
-                    usePrimaryDirection = runRtl == paraRTL,
-                    upstream = false
-                )
-            ).toInt()
-            val endPos = ceil(
-                layoutHelper.getHorizontalPosition(
-                    offset = end,
-                    usePrimaryDirection = runRtl == paraRTL,
-                    upstream = true
-                )
-            ).toInt()
+            val startPos =
+                ceil(
+                        layoutHelper.getHorizontalPosition(
+                            offset = start,
+                            usePrimaryDirection = runRtl == paraRTL,
+                            upstream = false
+                        )
+                    )
+                    .toInt()
+            val endPos =
+                ceil(
+                        layoutHelper.getHorizontalPosition(
+                            offset = end,
+                            usePrimaryDirection = runRtl == paraRTL,
+                            upstream = true
+                        )
+                    )
+                    .toInt()
 
             // Drop trailing space is the line does not end with this word.
             var left = min(startPos, endPos)
@@ -270,27 +269,29 @@ internal object SegmentBreaker {
         breakOffsets(layoutHelper, SegmentType.Character).fastZipWithNext lambda@{ start, end ->
             val layout = layoutHelper.layout
 
-            if (dropSpaces && end == start + 1 &&
-                layoutHelper.isLineEndSpace(layout.text[start])
-            )
+            if (dropSpaces && end == start + 1 && layoutHelper.isLineEndSpace(layout.text[start]))
                 return@lambda
             val lineNo = layout.getLineForOffset(start, false /* downstream */)
             val paraRTL = layout.getParagraphDirection(lineNo) == Layout.DIR_RIGHT_TO_LEFT
             val runRtl = layout.isRtlCharAt(start) // no bidi transition inside segment
-            val startPos = ceil(
-                layoutHelper.getHorizontalPosition(
-                    offset = start,
-                    usePrimaryDirection = runRtl == paraRTL,
-                    upstream = false
-                )
-            ).toInt()
-            val endPos = ceil(
-                layoutHelper.getHorizontalPosition(
-                    offset = end,
-                    usePrimaryDirection = runRtl == paraRTL,
-                    upstream = true
-                )
-            ).toInt()
+            val startPos =
+                ceil(
+                        layoutHelper.getHorizontalPosition(
+                            offset = start,
+                            usePrimaryDirection = runRtl == paraRTL,
+                            upstream = false
+                        )
+                    )
+                    .toInt()
+            val endPos =
+                ceil(
+                        layoutHelper.getHorizontalPosition(
+                            offset = end,
+                            usePrimaryDirection = runRtl == paraRTL,
+                            upstream = true
+                        )
+                    )
+                    .toInt()
             res.add(
                 Segment(
                     startOffset = start,

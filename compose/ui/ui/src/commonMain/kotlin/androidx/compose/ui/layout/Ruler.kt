@@ -38,10 +38,10 @@ sealed class Ruler {
 }
 
 /**
- * A vertical [Ruler]. Defines a line that can be used by parent layouts
- * to align or position their children horizontally. The position of the ruler
- * can be retrieved with [Placeable.PlacementScope.current] and can be set with
- * [MeasureScope.layout] using [RulerScope.provides] or [RulerScope.providesRelative].
+ * A vertical [Ruler]. Defines a line that can be used by parent layouts to align or position their
+ * children horizontally. The position of the ruler can be retrieved with
+ * [Placeable.PlacementScope.current] and can be set with [MeasureScope.layout] using
+ * [RulerScope.provides] or [RulerScope.providesRelative].
  */
 class VerticalRuler() : Ruler() {
     override fun calculateCoordinate(
@@ -55,10 +55,10 @@ class VerticalRuler() : Ruler() {
 }
 
 /**
- * A horizontal [Ruler]. Defines a line that can be used by parent layouts
- * to align or position their children vertically. The position of the ruler
- * can be retrieved with [Placeable.PlacementScope.current] and can be set with
- * [MeasureScope.layout] using [RulerScope.provides].
+ * A horizontal [Ruler]. Defines a line that can be used by parent layouts to align or position
+ * their children vertically. The position of the ruler can be retrieved with
+ * [Placeable.PlacementScope.current] and can be set with [MeasureScope.layout] using
+ * [RulerScope.provides].
  */
 class HorizontalRuler : Ruler() {
     override fun calculateCoordinate(

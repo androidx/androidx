@@ -68,11 +68,12 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class QualityExploredEncoderProfilesProviderTest {
 
     private val allQualities = Quality.getSortedQualities()
-    private val providerSupportOnlySdrFhd = FakeEncoderProfilesProvider.Builder()
-        .add(QUALITY_HIGH, PROFILES_1080P)
-        .add(QUALITY_1080P, PROFILES_1080P)
-        .add(QUALITY_LOW, PROFILES_1080P)
-        .build()
+    private val providerSupportOnlySdrFhd =
+        FakeEncoderProfilesProvider.Builder()
+            .add(QUALITY_HIGH, PROFILES_1080P)
+            .add(QUALITY_1080P, PROFILES_1080P)
+            .add(QUALITY_LOW, PROFILES_1080P)
+            .build()
     private val defaultCameraResolutions =
         mutableSetOf(RESOLUTION_2160P, RESOLUTION_1080P, RESOLUTION_720P, RESOLUTION_480P)
     private val unlimitedVideoEncoderInfo = FakeVideoEncoderInfo()
@@ -83,12 +84,15 @@ class QualityExploredEncoderProfilesProviderTest {
         val targetQualities = setOf(UHD, FHD, HD)
 
         // Act.
-        val provider = QualityExploredEncoderProfilesProvider(
-            providerSupportOnlySdrFhd,
-            targetQualities,
-            setOf(SDR),
-            defaultCameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                targetQualities,
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert.
         verifyQualitiesAreSupported(provider, SDR, QUALITY_2160P, QUALITY_1080P, QUALITY_720P)
@@ -101,12 +105,15 @@ class QualityExploredEncoderProfilesProviderTest {
         val targetQualities = setOf(UHD, FHD, HD)
 
         // Act: EncoderFinder always return null
-        val provider = QualityExploredEncoderProfilesProvider(
-            providerSupportOnlySdrFhd,
-            targetQualities,
-            setOf(SDR),
-            defaultCameraResolutions,
-        ) { null }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                targetQualities,
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                null
+            }
 
         // Assert.
         verifyQualitiesAreNotSupported(provider, SDR, QUALITY_2160P, QUALITY_720P)
@@ -118,12 +125,15 @@ class QualityExploredEncoderProfilesProviderTest {
         val emptyProvider = FakeEncoderProfilesProvider.Builder().build()
 
         // Act.
-        val provider = QualityExploredEncoderProfilesProvider(
-            emptyProvider,
-            allQualities,
-            setOf(SDR),
-            defaultCameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                emptyProvider,
+                allQualities,
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert.
         verifyAllQualitiesAreNotSupported(provider, SDR)
@@ -135,12 +145,15 @@ class QualityExploredEncoderProfilesProviderTest {
         val cameraResolutions = defaultCameraResolutions.apply { remove(RESOLUTION_720P) }
 
         // Act.
-        val provider = QualityExploredEncoderProfilesProvider(
-            providerSupportOnlySdrFhd,
-            allQualities,
-            setOf(SDR),
-            cameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                allQualities,
+                setOf(SDR),
+                cameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert.
         verifyQualitiesAreSupported(provider, SDR, QUALITY_2160P, QUALITY_1080P, QUALITY_480P)
@@ -150,18 +163,22 @@ class QualityExploredEncoderProfilesProviderTest {
     @Test
     fun canNotExploreQuality_whenCodecNotSupport() {
         // Arrange: codec does not support UHD(2160P).
-        val videoEncoderInfo = FakeVideoEncoderInfo(
-            supportedWidths = Range.create(0, RESOLUTION_1080P.width),
-            supportedHeights = Range.create(0, RESOLUTION_1080P.height)
-        )
+        val videoEncoderInfo =
+            FakeVideoEncoderInfo(
+                supportedWidths = Range.create(0, RESOLUTION_1080P.width),
+                supportedHeights = Range.create(0, RESOLUTION_1080P.height)
+            )
 
         // Act.
-        val provider = QualityExploredEncoderProfilesProvider(
-            providerSupportOnlySdrFhd,
-            allQualities,
-            setOf(SDR),
-            defaultCameraResolutions,
-        ) { videoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                allQualities,
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                videoEncoderInfo
+            }
 
         // Assert.
         verifyQualitiesAreSupported(provider, SDR, QUALITY_1080P, QUALITY_720P, QUALITY_480P)
@@ -174,12 +191,15 @@ class QualityExploredEncoderProfilesProviderTest {
         val targetDynamicRange = HLG_10_BIT
 
         // Act.
-        val provider = QualityExploredEncoderProfilesProvider(
-            providerSupportOnlySdrFhd,
-            allQualities,
-            setOf(targetDynamicRange),
-            defaultCameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                allQualities,
+                setOf(targetDynamicRange),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert.
         verifyAllQualitiesAreNotSupported(provider, targetDynamicRange)
@@ -191,64 +211,73 @@ class QualityExploredEncoderProfilesProviderTest {
         val videoProfileFhdSdr =
             createFakeVideoProfileProxy(RESOLUTION_1080P.width, RESOLUTION_1080P.height)
         // Arrange: create HD HDR10 VideoProfile.
-        val videoProfileHdHdr10 = createFakeVideoProfileProxy(
-            RESOLUTION_720P.width,
-            RESOLUTION_720P.height,
-            videoCodec = H263,
-            videoBitDepth = BIT_DEPTH_10,
-            videoHdrFormat = HDR_HDR10
-        )
+        val videoProfileHdHdr10 =
+            createFakeVideoProfileProxy(
+                RESOLUTION_720P.width,
+                RESOLUTION_720P.height,
+                videoCodec = H263,
+                videoBitDepth = BIT_DEPTH_10,
+                videoHdrFormat = HDR_HDR10
+            )
         // Arrange: create SD HLG10 VideoProfile.
-        val videoProfileSdHlg10 = createFakeVideoProfileProxy(
-            RESOLUTION_480P.width,
-            RESOLUTION_480P.height,
-            videoCodec = MPEG_4_SP,
-            videoBitDepth = BIT_DEPTH_10,
-            videoHdrFormat = HDR_HLG
-        )
+        val videoProfileSdHlg10 =
+            createFakeVideoProfileProxy(
+                RESOLUTION_480P.width,
+                RESOLUTION_480P.height,
+                videoCodec = MPEG_4_SP,
+                videoBitDepth = BIT_DEPTH_10,
+                videoHdrFormat = HDR_HLG
+            )
         // Arrange: create FHD AudioProfile
         val audioProfileFhd = createFakeAudioProfileProxy()
         // Arrange: create FHD EncoderProfiles.
-        val profilesFhd = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            30,
-            THREE_GPP,
-            listOf(audioProfileFhd),
-            listOf(videoProfileFhdSdr)
-        )
+        val profilesFhd =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                30,
+                THREE_GPP,
+                listOf(audioProfileFhd),
+                listOf(videoProfileFhdSdr)
+            )
         // Arrange: create HD AudioProfile
         val audioProfileHd = createFakeAudioProfileProxy()
         // Arrange: create HD EncoderProfiles.
-        val profilesHd = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            20,
-            WEBM,
-            listOf(audioProfileHd),
-            listOf(videoProfileHdHdr10)
-        )
+        val profilesHd =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                20,
+                WEBM,
+                listOf(audioProfileHd),
+                listOf(videoProfileHdHdr10)
+            )
         // Arrange: create SD AudioProfile
         val audioProfileSd = createFakeAudioProfileProxy()
         // Arrange: create SD EncoderProfiles.
-        val profilesSd = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            10,
-            MPEG_4,
-            listOf(audioProfileSd),
-            listOf(videoProfileSdHlg10)
-        )
+        val profilesSd =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                10,
+                MPEG_4,
+                listOf(audioProfileSd),
+                listOf(videoProfileSdHlg10)
+            )
         // Arrange: create EncoderProfileProvider with above EncoderProfiles.
-        val baseProvider = FakeEncoderProfilesProvider.Builder()
-            .add(QUALITY_HIGH, profilesFhd)
-            .add(QUALITY_1080P, profilesFhd)
-            .add(QUALITY_720P, profilesHd)
-            .add(QUALITY_480P, profilesSd)
-            .add(QUALITY_LOW, profilesSd)
-            .build()
+        val baseProvider =
+            FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_HIGH, profilesFhd)
+                .add(QUALITY_1080P, profilesFhd)
+                .add(QUALITY_720P, profilesHd)
+                .add(QUALITY_480P, profilesSd)
+                .add(QUALITY_LOW, profilesSd)
+                .build()
 
         // Act: explore HLG_10_BIT and HDR10_10_BIT
-        val provider = QualityExploredEncoderProfilesProvider(
-            baseProvider,
-            allQualities,
-            setOf(HLG_10_BIT, HDR10_10_BIT),
-            defaultCameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                baseProvider,
+                allQualities,
+                setOf(HLG_10_BIT, HDR10_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert: all qualities of HLG10 and HDR10 should be explored.
         verifyAllQualitiesAreSupported(provider, HLG_10_BIT)
@@ -275,45 +304,52 @@ class QualityExploredEncoderProfilesProviderTest {
         val videoProfileFhdSdr =
             createFakeVideoProfileProxy(RESOLUTION_1080P.width, RESOLUTION_1080P.height)
         // Arrange: create HD HDR10 VideoProfile.
-        val videoProfileHdHdr10 = createFakeVideoProfileProxy(
-            RESOLUTION_720P.width,
-            RESOLUTION_720P.height,
-            videoBitDepth = BIT_DEPTH_10,
-            videoHdrFormat = HDR_HDR10
-        )
+        val videoProfileHdHdr10 =
+            createFakeVideoProfileProxy(
+                RESOLUTION_720P.width,
+                RESOLUTION_720P.height,
+                videoBitDepth = BIT_DEPTH_10,
+                videoHdrFormat = HDR_HDR10
+            )
         // Arrange: create FHD audio profile.
         val audioProfileFhd = createFakeAudioProfileProxy()
         // Arrange: create FHD EncoderProfiles.
-        val profilesFhd = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            30,
-            THREE_GPP,
-            listOf(audioProfileFhd),
-            listOf(videoProfileFhdSdr)
-        )
+        val profilesFhd =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                30,
+                THREE_GPP,
+                listOf(audioProfileFhd),
+                listOf(videoProfileFhdSdr)
+            )
         // Arrange: create HD audio profile.
         val audioProfileHd = createFakeAudioProfileProxy()
         // Arrange: create HD EncoderProfiles.
-        val profilesHd = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            20,
-            WEBM,
-            listOf(audioProfileHd),
-            listOf(videoProfileHdHdr10)
-        )
+        val profilesHd =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                20,
+                WEBM,
+                listOf(audioProfileHd),
+                listOf(videoProfileHdHdr10)
+            )
         // Arrange: create EncoderProfileProvider with above EncoderProfiles.
-        val baseProvider = FakeEncoderProfilesProvider.Builder()
-            .add(QUALITY_HIGH, profilesFhd)
-            .add(QUALITY_1080P, profilesFhd)
-            .add(QUALITY_720P, profilesHd)
-            .add(QUALITY_LOW, profilesHd)
-            .build()
+        val baseProvider =
+            FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_HIGH, profilesFhd)
+                .add(QUALITY_1080P, profilesFhd)
+                .add(QUALITY_720P, profilesHd)
+                .add(QUALITY_LOW, profilesHd)
+                .build()
 
         // Act: explore FHD by SDR and HDR10_10_BIT
-        val provider = QualityExploredEncoderProfilesProvider(
-            baseProvider,
-            setOf(FHD),
-            setOf(SDR, HDR10_10_BIT),
-            defaultCameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                baseProvider,
+                setOf(FHD),
+                setOf(SDR, HDR10_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert: FHD HDR10 is explored and no duplicate video profile to be added.
         val encoderProfiles = provider.getAll(QUALITY_1080P)!!
@@ -332,35 +368,43 @@ class QualityExploredEncoderProfilesProviderTest {
     fun bitrateIsScaled() {
         // Arrange: create a FHD videoProfile with a specific bitrate.
         val baseBitrate = 1000
-        val profilesFhd = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            DEFAULT_DURATION,
-            DEFAULT_OUTPUT_FORMAT,
-            listOf(createFakeAudioProfileProxy()),
-            listOf(createFakeVideoProfileProxy(
-                RESOLUTION_1080P.width,
-                RESOLUTION_1080P.height,
-                bitrate = baseBitrate
-            ))
-        )
-        val baseProvider = FakeEncoderProfilesProvider.Builder()
-            .add(QUALITY_HIGH, profilesFhd)
-            .add(QUALITY_1080P, profilesFhd)
-            .add(QUALITY_LOW, profilesFhd)
-            .build()
+        val profilesFhd =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                DEFAULT_DURATION,
+                DEFAULT_OUTPUT_FORMAT,
+                listOf(createFakeAudioProfileProxy()),
+                listOf(
+                    createFakeVideoProfileProxy(
+                        RESOLUTION_1080P.width,
+                        RESOLUTION_1080P.height,
+                        bitrate = baseBitrate
+                    )
+                )
+            )
+        val baseProvider =
+            FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_HIGH, profilesFhd)
+                .add(QUALITY_1080P, profilesFhd)
+                .add(QUALITY_LOW, profilesFhd)
+                .build()
 
         // Act: explore UHD.
-        val provider = QualityExploredEncoderProfilesProvider(
-            baseProvider,
-            setOf(UHD),
-            setOf(SDR),
-            defaultCameraResolutions,
-        ) { unlimitedVideoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                baseProvider,
+                setOf(UHD),
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
 
         // Assert.
         verifyQualitiesAreSupported(provider, SDR, QUALITY_2160P)
         val profiles = provider.getAll(QUALITY_2160P)!!
         // Expected bitrate = base bitrate * width rational * height rational
-        assertThat(profiles.videoProfiles.single().bitrate.toDouble()).isWithin(0.001)
+        assertThat(profiles.videoProfiles.single().bitrate.toDouble())
+            .isWithin(0.001)
             .of(baseBitrate * 3840.0 / 1920.0 * 2160.0 / 1080.0)
     }
 
@@ -372,12 +416,15 @@ class QualityExploredEncoderProfilesProviderTest {
             FakeVideoEncoderInfo(supportedBitrateRange = Range.create(1, bitrateUpperBound))
 
         // Act.
-        val provider = QualityExploredEncoderProfilesProvider(
-            providerSupportOnlySdrFhd,
-            setOf(UHD),
-            setOf(SDR),
-            defaultCameraResolutions,
-        ) { videoEncoderInfo }
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                setOf(UHD),
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                videoEncoderInfo
+            }
 
         // Assert.
         verifyQualitiesAreSupported(provider, SDR, QUALITY_2160P)
@@ -388,9 +435,15 @@ class QualityExploredEncoderProfilesProviderTest {
     private fun verifyAllQualitiesAreSupported(
         provider: EncoderProfilesProvider,
         dynamicRange: DynamicRange,
-    ) = verifyQualitiesAreSupported(
-        provider, dynamicRange, QUALITY_2160P, QUALITY_1080P, QUALITY_720P, QUALITY_480P
-    )
+    ) =
+        verifyQualitiesAreSupported(
+            provider,
+            dynamicRange,
+            QUALITY_2160P,
+            QUALITY_1080P,
+            QUALITY_720P,
+            QUALITY_480P
+        )
 
     private fun verifyQualitiesAreSupported(
         provider: EncoderProfilesProvider,
@@ -398,18 +451,24 @@ class QualityExploredEncoderProfilesProviderTest {
         vararg qualities: Int
     ) {
         for (quality in qualities) {
-            assertWithMessage("Verify supported for $quality and $dynamicRange").that(
-                provider.hasMatchedDynamicRangeProfile(quality, dynamicRange)
-            ).isTrue()
+            assertWithMessage("Verify supported for $quality and $dynamicRange")
+                .that(provider.hasMatchedDynamicRangeProfile(quality, dynamicRange))
+                .isTrue()
         }
     }
 
     private fun verifyAllQualitiesAreNotSupported(
         provider: EncoderProfilesProvider,
         dynamicRange: DynamicRange,
-    ) = verifyQualitiesAreNotSupported(
-        provider, dynamicRange, QUALITY_2160P, QUALITY_1080P, QUALITY_720P, QUALITY_480P
-    )
+    ) =
+        verifyQualitiesAreNotSupported(
+            provider,
+            dynamicRange,
+            QUALITY_2160P,
+            QUALITY_1080P,
+            QUALITY_720P,
+            QUALITY_480P
+        )
 
     private fun verifyQualitiesAreNotSupported(
         provider: EncoderProfilesProvider,
@@ -417,18 +476,19 @@ class QualityExploredEncoderProfilesProviderTest {
         vararg qualities: Int
     ) {
         for (quality in qualities) {
-            assertWithMessage("Verify not supported for $quality and $dynamicRange").that(
-                provider.hasMatchedDynamicRangeProfile(quality, dynamicRange)
-            ).isFalse()
+            assertWithMessage("Verify not supported for $quality and $dynamicRange")
+                .that(provider.hasMatchedDynamicRangeProfile(quality, dynamicRange))
+                .isFalse()
         }
     }
 
     private fun EncoderProfilesProvider.getMatchedDynamicRangeProfileCount(
         quality: Int,
         dynamicRange: DynamicRange
-    ): Int = getAll(quality)?.videoProfiles?.count { videoProfile ->
-        isHdrSettingsMatched(videoProfile, dynamicRange)
-    } ?: 0
+    ): Int =
+        getAll(quality)?.videoProfiles?.count { videoProfile ->
+            isHdrSettingsMatched(videoProfile, dynamicRange)
+        } ?: 0
 
     private fun EncoderProfilesProvider.hasMatchedDynamicRangeProfile(
         quality: Int,

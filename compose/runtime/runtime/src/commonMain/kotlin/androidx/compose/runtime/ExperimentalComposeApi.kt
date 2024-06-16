@@ -18,8 +18,9 @@ package androidx.compose.runtime
 
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
-    message = "This is an experimental API for Compose and is likely to change before becoming " +
-        "stable."
+    message =
+        "This is an experimental API for Compose and is likely to change before becoming " +
+            "stable."
 )
 @Target(
     AnnotationTarget.CLASS,

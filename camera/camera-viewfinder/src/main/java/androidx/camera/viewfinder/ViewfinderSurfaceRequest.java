@@ -35,7 +35,6 @@ import android.view.TextureView;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -59,7 +58,6 @@ import java.util.concurrent.Executor;
  * @deprecated Use {@link androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest} instead.
  */
 @Deprecated
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ViewfinderSurfaceRequest {
 
     private static final String TAG = "ViewfinderSurfaceRequest";

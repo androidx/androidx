@@ -20,9 +20,7 @@ import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.solver.CodeGenScope
 
-/**
- * Common interface for database validation witters.
- */
+/** Common interface for database validation witters. */
 abstract class ValidationWriter {
 
     private lateinit var countingScope: CountingCodeGenScope
@@ -34,9 +32,7 @@ abstract class ValidationWriter {
 
     protected abstract fun write(connectionParamName: String, scope: CountingCodeGenScope)
 
-    /**
-     * The estimated amount of statements this writer will write.
-     */
+    /** The estimated amount of statements this writer will write. */
     fun statementCount() = countingScope.statementCount()
 
     protected class CountingCodeGenScope(private val scope: CodeGenScope) {
@@ -49,9 +45,8 @@ abstract class ValidationWriter {
     }
 
     // A wrapper class that counts statements added to a CodeBlock
-    protected class CodeBlockWrapper(
-        private val builder: XCodeBlock.Builder
-    ) : XCodeBlock.Builder by builder {
+    protected class CodeBlockWrapper(private val builder: XCodeBlock.Builder) :
+        XCodeBlock.Builder by builder {
 
         var statementCount = 0
             private set

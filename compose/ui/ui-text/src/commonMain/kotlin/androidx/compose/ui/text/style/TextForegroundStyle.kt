@@ -29,9 +29,8 @@ import kotlin.jvm.JvmName
 
 /**
  * An internal interface to represent possible ways to draw Text e.g. color, brush. This interface
- * aims to unify unspecified versions of complementary drawing styles. There are some guarantees
- * as following;
- *
+ * aims to unify unspecified versions of complementary drawing styles. There are some guarantees as
+ * following;
  * - If [color] is not [Color.Unspecified], brush is null.
  * - If [brush] is not null, color is [Color.Unspecified].
  * - Both [color] can be [Color.Unspecified] and [brush] null, indicating that nothing is specified.
@@ -88,9 +87,7 @@ internal interface TextForegroundStyle {
     }
 }
 
-private data class ColorStyle(
-    val value: Color
-) : TextForegroundStyle {
+private data class ColorStyle(val value: Color) : TextForegroundStyle {
     init {
         require(value.isSpecified) {
             "ColorStyle value must be specified, use TextForegroundStyle.Unspecified instead."
@@ -107,10 +104,8 @@ private data class ColorStyle(
         get() = color.alpha
 }
 
-private data class BrushStyle(
-    val value: ShaderBrush,
-    override val alpha: Float
-) : TextForegroundStyle {
+private data class BrushStyle(val value: ShaderBrush, override val alpha: Float) :
+    TextForegroundStyle {
     override val color: Color
         get() = Color.Unspecified
 
@@ -139,10 +134,11 @@ internal fun lerp(
     }
 }
 
-internal fun Color.modulate(alpha: Float): Color = when {
-    alpha.isNaN() || alpha >= 1f -> this
-    else -> this.copy(alpha = this.alpha * alpha)
-}
+internal fun Color.modulate(alpha: Float): Color =
+    when {
+        alpha.isNaN() || alpha >= 1f -> this
+        else -> this.copy(alpha = this.alpha * alpha)
+    }
 
 private fun Float.takeOrElse(block: () -> Float): Float {
     return if (this.isNaN()) block() else this

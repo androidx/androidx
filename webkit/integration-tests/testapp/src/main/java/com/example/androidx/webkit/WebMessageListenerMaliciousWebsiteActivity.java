@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebMessageCompat;
@@ -58,12 +57,11 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
         }
 
         @Override
-        @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                 WebResourceRequest request) {
             for (WebViewAssetLoader loader : mAssetLoaders) {
                 WebResourceResponse response = loader.shouldInterceptRequest(
-                        Api21Impl.getUrl(request));
+                        request.getUrl());
                 if (response != null) {
                     return response;
                 }

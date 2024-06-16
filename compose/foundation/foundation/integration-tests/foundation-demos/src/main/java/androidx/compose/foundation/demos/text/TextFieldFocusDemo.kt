@@ -59,18 +59,20 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
-private val modifierKeys = setOf(
-    NativeKeyEvent.KEYCODE_SHIFT_LEFT,
-    NativeKeyEvent.KEYCODE_SHIFT_RIGHT,
-    NativeKeyEvent.KEYCODE_ALT_LEFT,
-    NativeKeyEvent.KEYCODE_ALT_RIGHT,
-    NativeKeyEvent.KEYCODE_CTRL_LEFT,
-    NativeKeyEvent.KEYCODE_CTRL_RIGHT,
-    NativeKeyEvent.KEYCODE_META_LEFT,
-    NativeKeyEvent.KEYCODE_META_RIGHT,
-)
+private val modifierKeys =
+    setOf(
+        NativeKeyEvent.KEYCODE_SHIFT_LEFT,
+        NativeKeyEvent.KEYCODE_SHIFT_RIGHT,
+        NativeKeyEvent.KEYCODE_ALT_LEFT,
+        NativeKeyEvent.KEYCODE_ALT_RIGHT,
+        NativeKeyEvent.KEYCODE_CTRL_LEFT,
+        NativeKeyEvent.KEYCODE_CTRL_RIGHT,
+        NativeKeyEvent.KEYCODE_META_LEFT,
+        NativeKeyEvent.KEYCODE_META_RIGHT,
+    )
 
-private val KeyEvent.keyCode get() = nativeKeyEvent.keyCode
+private val KeyEvent.keyCode
+    get() = nativeKeyEvent.keyCode
 
 private val demoInstructionText =
     """Navigate the below text fields using the (shift)-tab keys on a physical keyboard.
@@ -81,12 +83,14 @@ private val demoInstructionText =
         | so the enter key ought to move the focus to the next focus element.
         | In multi-line, the tab and enter keys should add '\t' and '\n', respectively.
         |"""
-        .trimMargin().replace("\n", "")
+        .trimMargin()
+        .replace("\n", "")
 
 private val keyIndicatorInstructionText =
     """The keys being pressed and their modifiers are shown below.
         | Keys that are currently being pressed are in red text."""
-        .trimMargin().replace("\n", "")
+        .trimMargin()
+        .replace("\n", "")
 
 @Composable
 fun TextFieldFocusDemo() {
@@ -110,26 +114,23 @@ fun TextFieldFocusDemo() {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(10.dp)
-            .onPreviewKeyEvent { event ->
-                if (event.keyCode !in modifierKeys) {
-                    when (event.type) {
-                        KeyEventType.KeyDown -> onKeyDown(event)
-                        KeyEventType.KeyUp -> onKeyUp(event)
+        modifier =
+            Modifier.safeDrawingPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(10.dp)
+                .onPreviewKeyEvent { event ->
+                    if (event.keyCode !in modifierKeys) {
+                        when (event.type) {
+                            KeyEventType.KeyDown -> onKeyDown(event)
+                            KeyEventType.KeyUp -> onKeyUp(event)
+                        }
                     }
-                }
-                false // don't consume the event, we just want to observe it
-            },
+                    false // don't consume the event, we just want to observe it
+                },
     ) {
         val (multiLine, setMultiLine) = rememberSaveable { mutableStateOf(false) }
         Text(demoInstructionText)
-        SingleLineToggle(
-            checked = multiLine,
-            onCheckedChange = setMultiLine
-        )
+        SingleLineToggle(checked = multiLine, onCheckedChange = setMultiLine)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             DemoTextField("Up", multiLine)
             Row {
@@ -154,29 +155,20 @@ private fun SingleLineToggle(checked: Boolean, onCheckedChange: ((Boolean) -> Un
 }
 
 @Composable
-private fun DemoTextField(
-    initText: String,
-    multiLine: Boolean,
-    startWithFocus: Boolean = false
-) {
-    var modifier = Modifier
-        .padding(6.dp)
-        .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
-        .padding(6.dp)
+private fun DemoTextField(initText: String, multiLine: Boolean, startWithFocus: Boolean = false) {
+    var modifier =
+        Modifier.padding(6.dp).border(1.dp, Color.LightGray, RoundedCornerShape(6.dp)).padding(6.dp)
 
     if (startWithFocus) {
         val focusRequester = remember { FocusRequester() }
         modifier = modifier.focusRequester(focusRequester)
-        LaunchedEffect(focusRequester) {
-            focusRequester.requestFocus()
-        }
+        LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
     }
 
-    var text by remember(multiLine) {
-        mutableStateOf(
-            if (multiLine) "$initText line 1\n$initText line 2" else initText
-        )
-    }
+    var text by
+        remember(multiLine) {
+            mutableStateOf(if (multiLine) "$initText line 1\n$initText line 2" else initText)
+        }
 
     BasicTextField(
         value = text,
@@ -197,9 +189,7 @@ private data class KeyState(
 private fun KeyPressList(keys: List<KeyState>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp)),
+        modifier = Modifier.fillMaxSize().border(1.dp, Color.LightGray, RoundedCornerShape(4.dp)),
     ) {
         keys.forEach { keyState ->
             key(keyState.downTime) {
@@ -214,10 +204,14 @@ private fun KeyPressList(keys: List<KeyState>) {
                     val shift = if (event.isShiftPressed) "SHIFT + " else ""
                     val meta = if (event.isMetaPressed) "META + " else ""
                     Text(
-                        text = ctrl + alt + shift + meta +
-                            NativeKeyEvent.keyCodeToString(event.keyCode)
-                                .replace("KEYCODE_", "")
-                                .replace("DPAD_", ""),
+                        text =
+                            ctrl +
+                                alt +
+                                shift +
+                                meta +
+                                NativeKeyEvent.keyCodeToString(event.keyCode)
+                                    .replace("KEYCODE_", "")
+                                    .replace("DPAD_", ""),
                         color = if (keyState.isUp) Color.Unspecified else Color.Red,
                     )
                 }

@@ -24,21 +24,19 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanUncheckedReflectionTest : AbstractLintDetectorTest(
-    useDetector = BanUncheckedReflection(),
-    useIssues = listOf(BanUncheckedReflection.ISSUE),
-    stubs = arrayOf(Stubs.ChecksSdkIntAtLeast),
-) {
+class BanUncheckedReflectionTest :
+    AbstractLintDetectorTest(
+        useDetector = BanUncheckedReflection(),
+        useIssues = listOf(BanUncheckedReflection.ISSUE),
+        stubs = arrayOf(Stubs.ChecksSdkIntAtLeast),
+    ) {
 
     @Test
     fun `Detection of unchecked reflection in real-world Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.sample.core.app.ActivityRecreator"),
-            RestrictTo
-        )
+        val input = arrayOf(javaSample("androidx.sample.core.app.ActivityRecreator"), RestrictTo)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                         performStopActivity3ParamsMethod.invoke(activityThread,
                         ^
@@ -46,66 +44,58 @@ src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke re
                         performStopActivity2ParamsMethod.invoke(activityThread,
                         ^
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Detection of unchecked reflection in real-world Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.sample.core.app.ActivityRecreatorKt"),
-            RestrictTo
-        )
+        val input = arrayOf(ktSample("androidx.sample.core.app.ActivityRecreatorKt"), RestrictTo)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
-src/androidx/sample/core/app/ActivityRecreatorKt.kt:176: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+        val expected =
+            """
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:172: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                         performStopActivity3ParamsMethod!!.invoke(
                         ^
-src/androidx/sample/core/app/ActivityRecreatorKt.kt:181: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
-                        performStopActivity2ParamsMethod!!.invoke(
-                        ^
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+                        performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        lint()
-            .files(*input)
-            .run()
-            .expect(expected)
+        lint().files(*input).run().expect(expected)
     }
 
     @Test
     fun `Checked reflection in real-world Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.sample.core.app.ActivityRecreatorChecked"),
-            RestrictTo
-        )
+        val input =
+            arrayOf(javaSample("androidx.sample.core.app.ActivityRecreatorChecked"), RestrictTo)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 No warnings.
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Checked reflection in real-world Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.sample.core.app.ActivityRecreatorKtChecked"),
-            RestrictTo
-        )
+        val input =
+            arrayOf(ktSample("androidx.sample.core.app.ActivityRecreatorKtChecked"), RestrictTo)
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Checked reflection using preceding if with return`() {
-        val input = kotlin("""
+        val input =
+            kotlin(
+                """
             package androidx.foo
 
             import android.os.Build
@@ -119,14 +109,19 @@ No warnings.
                 )
                 method.invoke(null, true)
             }
-        """.trimIndent())
+        """
+                    .trimIndent()
+            )
 
         check(input).expectClean()
     }
 
     @Test
     fun `Checked reflection using @DeprecatedSinceApi method`() {
-        val input = arrayOf(kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
             package androidx.foo
 
             import android.os.Build
@@ -140,16 +135,21 @@ No warnings.
                 )
                 method.invoke(null, true)
             }
-        """.trimIndent()),
-            Stubs.DeprecatedSinceApi
-        )
+        """
+                        .trimIndent()
+                ),
+                Stubs.DeprecatedSinceApi
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Checked reflection using @DeprecatedSinceApi class`() {
-        val input = arrayOf(java("""
+        val input =
+            arrayOf(
+                java(
+                    """
             package androidx.foo;
 
             import android.os.Build;
@@ -172,17 +172,21 @@ No warnings.
                     }
                 }
             }
-        """.trimIndent()),
-            Stubs.DeprecatedSinceApi
-        )
+        """
+                        .trimIndent()
+                ),
+                Stubs.DeprecatedSinceApi
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Checked reflection using Kotlin range check`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package androidx.foo
 
                 import android.os.Build
@@ -196,8 +200,10 @@ No warnings.
                         method.invoke(null, true)
                     }
                 }
-            """.trimIndent())
-        )
+            """
+                        .trimIndent()
+                )
+            )
 
         check(*input).expectClean()
     }

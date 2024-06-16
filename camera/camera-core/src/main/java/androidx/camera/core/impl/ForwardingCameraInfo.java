@@ -21,7 +21,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
@@ -40,7 +39,6 @@ import java.util.concurrent.Executor;
  * A {@link CameraInfoInternal} that forwards all the calls into the given
  * {@link CameraInfoInternal}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ForwardingCameraInfo implements CameraInfoInternal {
 
     private final CameraInfoInternal mCameraInfoInternal;

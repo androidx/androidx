@@ -24,15 +24,13 @@ import org.junit.Test
 private class AttachedStateDebuggerNode() : Modifier.Node() {
 
     var localIsAttached: Boolean = false
+
     fun validateHierarchy() {
         check(isAttached)
-        visitAncestors(Nodes.Any) {
-            check(it.isAttached)
-        }
-        visitSubtree(Nodes.Any) {
-            check(it.isAttached)
-        }
+        visitAncestors(Nodes.Any) { check(it.isAttached) }
+        visitSubtree(Nodes.Any) { check(it.isAttached) }
     }
+
     override fun onAttach() {
         localIsAttached = true
         validateHierarchy()
@@ -49,10 +47,7 @@ class NodeChainTests {
     fun testAttachDetach() {
         val a = AttachedStateDebuggerNode()
         val b = AttachedStateDebuggerNode()
-        chainTester()
-            .attach()
-            .withModifierNodes(a, b)
-            .validateAttached()
+        chainTester().attach().withModifierNodes(a, b).validateAttached()
 
         check(a.localIsAttached)
         check(b.localIsAttached)
@@ -181,8 +176,10 @@ class NodeChainTests {
                  a
                 -b
                  c
-                """.trimIndent()
-            ).apply {
+                """
+                    .trimIndent()
+            )
+            .apply {
                 val (entA, entC) = nodes
                 withModifiers(a1, modifierD(), b1)
                 val (entA2, entB2) = nodes
@@ -195,11 +192,7 @@ class NodeChainTests {
     fun getModifierNode_returnsModifiers() {
         val a = modifierA()
         val b = modifierB()
-        val modifierInfo = chainTester()
-            .attach()
-            .withModifiers(a, b)
-            .chain
-            .getModifierInfo()
+        val modifierInfo = chainTester().attach().withModifiers(a, b).chain.getModifierInfo()
 
         assertThat(modifierInfo.map { it.modifier }).isEqualTo(listOf(a, b))
     }

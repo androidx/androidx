@@ -34,16 +34,17 @@ import androidx.compose.ui.unit.sp
 fun TextStyleSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(
-            color = Color.Red,
-            fontSize = 16.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.W800,
-            fontStyle = FontStyle.Italic,
-            letterSpacing = 0.5.em,
-            background = Color.LightGray,
-            textDecoration = TextDecoration.Underline
-        )
+        style =
+            TextStyle(
+                color = Color.Red,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.W800,
+                fontStyle = FontStyle.Italic,
+                letterSpacing = 0.5.em,
+                background = Color.LightGray,
+                textDecoration = TextDecoration.Underline
+            )
     )
 }
 
@@ -52,15 +53,16 @@ fun TextStyleSample() {
 fun TextStyleBrushSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(
-            brush = Brush.linearGradient(listOf(Color.Red, Color.Blue, Color.Green)),
-            alpha = 0.8f,
-            fontSize = 16.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.W800,
-            fontStyle = FontStyle.Italic,
-            letterSpacing = 0.5.em,
-            textDecoration = TextDecoration.Underline
-        )
+        style =
+            TextStyle(
+                brush = Brush.linearGradient(listOf(Color.Red, Color.Blue, Color.Green)),
+                alpha = 0.8f,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.W800,
+                fontStyle = FontStyle.Italic,
+                letterSpacing = 0.5.em,
+                textDecoration = TextDecoration.Underline
+            )
     )
 }

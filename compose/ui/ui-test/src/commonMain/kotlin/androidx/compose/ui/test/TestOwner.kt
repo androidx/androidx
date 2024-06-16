@@ -27,9 +27,7 @@ import androidx.compose.ui.semantics.getAllSemanticsNodes
  */
 @InternalTestApi
 interface TestOwner {
-    /**
-     * Clock that drives frames and recompositions in compose tests.
-     */
+    /** Clock that drives frames and recompositions in compose tests. */
     val mainClock: MainTestClock
 
     /**
@@ -45,11 +43,11 @@ interface TestOwner {
      *
      * This is a blocking call. Returns only after compose is idle.
      *
-     * Can crash in case it hits time out. This is not supposed to be handled as it
-     * surfaces only in incorrect tests.
+     * Can crash in case it hits time out. This is not supposed to be handled as it surfaces only in
+     * incorrect tests.
      *
      * @param atLeastOneRootExpected Whether the caller expects that at least one compose root is
-     * present in the tested app. This affects synchronization efforts / timeouts of this API.
+     *   present in the tested app. This affects synchronization efforts / timeouts of this API.
      */
     fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest>
 }
@@ -75,24 +73,25 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
      *
      * This is a blocking call. Returns only after compose is idle.
      *
-     * Can crash in case it hits time out. This is not supposed to be handled as it
-     * surfaces only in incorrect tests.
+     * Can crash in case it hits time out. This is not supposed to be handled as it surfaces only in
+     * incorrect tests.
      */
     internal fun getAllSemanticsNodes(
         atLeastOneRootRequired: Boolean,
         useUnmergedTree: Boolean,
         skipDeactivatedNodes: Boolean = true
     ): Iterable<SemanticsNode> {
-        val roots = testOwner.getRoots(atLeastOneRootRequired).also {
-            check(!atLeastOneRootRequired || it.isNotEmpty()) {
-                "No compose hierarchies found in the app. Possible reasons include: " +
-                    "(1) the Activity that calls setContent did not launch; " +
-                    "(2) setContent was not called; " +
-                    "(3) setContent was called before the ComposeTestRule ran. " +
-                    "If setContent is called by the Activity, make sure the Activity is " +
-                    "launched after the ComposeTestRule runs"
+        val roots =
+            testOwner.getRoots(atLeastOneRootRequired).also {
+                check(!atLeastOneRootRequired || it.isNotEmpty()) {
+                    "No compose hierarchies found in the app. Possible reasons include: " +
+                        "(1) the Activity that calls setContent did not launch; " +
+                        "(2) setContent was not called; " +
+                        "(3) setContent was called before the ComposeTestRule ran. " +
+                        "If setContent is called by the Activity, make sure the Activity is " +
+                        "launched after the ComposeTestRule runs"
+                }
             }
-        }
 
         return testOwner.runOnUiThread {
             roots.flatMap {

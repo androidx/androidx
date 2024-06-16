@@ -29,13 +29,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class ScannerAdapter(
-    private val onClick: (BluetoothDevice) -> Unit
-) : ListAdapter<ScanResult, ScannerAdapter.ViewHolder>(ScannerDiffCallback) {
+class ScannerAdapter(private val onClick: (BluetoothDevice) -> Unit) :
+    ListAdapter<ScanResult, ScannerAdapter.ViewHolder>(ScannerDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_scan_result, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_scan_result, parent, false)
         return ViewHolder(view)
     }
 
@@ -50,9 +49,7 @@ class ScannerAdapter(
         private val buttonConnect: Button = itemView.findViewById(R.id.button_connect)
 
         init {
-            buttonConnect.setOnClickListener {
-                onClick(getItem(bindingAdapterPosition).device)
-            }
+            buttonConnect.setOnClickListener { onClick(getItem(bindingAdapterPosition).device) }
         }
 
         fun bind(bluetoothDevice: BluetoothDevice) {

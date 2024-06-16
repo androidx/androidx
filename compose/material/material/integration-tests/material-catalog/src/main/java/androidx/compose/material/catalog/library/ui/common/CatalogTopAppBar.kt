@@ -29,6 +29,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.catalog.library.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,13 +56,7 @@ fun CatalogTopAppBar(
     var moreMenuExpanded by remember { mutableStateOf(false) }
     TopAppBar(
         windowInsets = AppBarDefaults.topAppBarWindowInsets,
-        title = {
-            Text(
-                text = title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
+        title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         actions = {
             Box {
                 Row {
@@ -72,10 +67,7 @@ fun CatalogTopAppBar(
                         )
                     }
                     IconButton(onClick = { moreMenuExpanded = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
                     }
                 }
                 MoreMenu(
@@ -112,18 +104,19 @@ fun CatalogTopAppBar(
                 )
             }
         },
-        navigationIcon = if (showBackNavigationIcon) {
-            {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
+        navigationIcon =
+            if (showBackNavigationIcon) {
+                {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
                 }
+            } else {
+                null
             }
-        } else {
-            null
-        }
     )
 }
 
@@ -139,10 +132,7 @@ private fun MoreMenu(
     onPrivacyClick: () -> Unit,
     onLicensesClick: () -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest
-    ) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
         DropdownMenuItem(onClick = onGuidelinesClick) {
             Text(stringResource(id = R.string.view_design_guidelines))
         }

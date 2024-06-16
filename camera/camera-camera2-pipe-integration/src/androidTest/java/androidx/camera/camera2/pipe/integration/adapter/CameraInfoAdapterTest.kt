@@ -35,16 +35,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Contains tests for [CameraInfoAdapter].
- */
+/** Contains tests for [CameraInfoAdapter]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class CameraInfoAdapterTest {
 
-    @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    @get:Rule val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     private val lensFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var cameraInfoAdapter: CameraInfoAdapter

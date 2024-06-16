@@ -43,38 +43,24 @@ fun SelectableButtonSample() {
         var selectedButton by remember { mutableStateOf(0) }
         // RadioButton uses the Radio selection control by default.
         SelectableButton(
-            label = {
-                Text("Selectable button", maxLines = 3, overflow = TextOverflow.Ellipsis)
-            },
+            label = { Text("Selectable button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
             secondaryLabel = {
                 Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 0,
             onSelect = { selectedButton = 0 },
-            icon = {
-                Icon(
-                    Icons.Filled.Favorite,
-                    contentDescription = "Favorite icon"
-                )
-            },
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite icon") },
             enabled = true,
         )
         Spacer(modifier = Modifier.height(4.dp))
         SelectableButton(
-            label = {
-                Text("Selectable button", maxLines = 3, overflow = TextOverflow.Ellipsis)
-            },
+            label = { Text("Selectable button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
             secondaryLabel = {
                 Text("With secondary label", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 1,
             onSelect = { selectedButton = 1 },
-            icon = {
-                Icon(
-                    Icons.Filled.Favorite,
-                    contentDescription = "Favorite icon"
-                )
-            },
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite icon") },
             enabled = true,
         )
     }
@@ -87,9 +73,7 @@ fun SplitSelectableButtonSample() {
         var selectedButton by remember { mutableStateOf(0) }
         // SplitRadioButton uses the Radio selection control by default.
         SplitSelectableButton(
-            label = {
-                Text("First Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
-            },
+            label = { Text("First Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
             selected = selectedButton == 0,
             onSelectionClick = { selectedButton = 0 },
             onContainerClick = {
@@ -99,9 +83,7 @@ fun SplitSelectableButtonSample() {
         )
         Spacer(modifier = Modifier.height(4.dp))
         SplitSelectableButton(
-            label = {
-                Text("Second Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
-            },
+            label = { Text("Second Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
             selected = selectedButton == 1,
             onSelectionClick = { selectedButton = 1 },
             onContainerClick = {

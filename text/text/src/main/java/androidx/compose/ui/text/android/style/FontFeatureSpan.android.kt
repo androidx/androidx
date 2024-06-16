@@ -19,9 +19,7 @@ package androidx.compose.ui.text.android.style
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 
-/**
- * Span that change font feature settings for font.
- */
+/** Span that change font feature settings for font. */
 internal class FontFeatureSpan(val fontFeatureSettings: String) : MetricAffectingSpan() {
     override fun updateMeasureState(textPaint: TextPaint) {
         textPaint.fontFeatureSettings = fontFeatureSettings

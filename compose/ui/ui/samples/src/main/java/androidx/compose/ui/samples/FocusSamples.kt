@@ -61,8 +61,7 @@ import androidx.compose.ui.unit.dp
 fun FocusableSample() {
     var color by remember { mutableStateOf(Black) }
     Box(
-        Modifier
-            .border(2.dp, color)
+        Modifier.border(2.dp, color)
             // The onFocusChanged should be added BEFORE the focusable that is being observed.
             .onFocusChanged { color = if (it.isFocused) Green else Black }
             .focusable()
@@ -74,8 +73,7 @@ fun FocusableSample() {
 fun FocusableSampleUsingLowerLevelFocusTarget() {
     var color by remember { mutableStateOf(Black) }
     Box(
-        Modifier
-            .border(2.dp, color)
+        Modifier.border(2.dp, color)
             // The onFocusChanged should be added BEFORE the focusTarget that is being observed.
             .onFocusChanged { color = if (it.isFocused) Green else Black }
             .focusTarget()
@@ -91,14 +89,15 @@ fun CaptureFocusSample() {
     TextField(
         value = value,
         onValueChange = {
-            value = it.apply {
-                if (length > 5) focusRequester.captureFocus() else focusRequester.freeFocus()
-            }
+            value =
+                it.apply {
+                    if (length > 5) focusRequester.captureFocus() else focusRequester.freeFocus()
+                }
         },
-        modifier = Modifier
-            .border(2.dp, borderColor)
-            .focusRequester(focusRequester)
-            .onFocusChanged { borderColor = if (it.isCaptured) Red else Transparent }
+        modifier =
+            Modifier.border(2.dp, borderColor).focusRequester(focusRequester).onFocusChanged {
+                borderColor = if (it.isCaptured) Red else Transparent
+            }
     )
 }
 
@@ -108,12 +107,13 @@ fun CaptureFocusSample() {
 fun RestoreFocusSample() {
     val focusRequester = remember { FocusRequester() }
     LazyRow(
-        Modifier
-            .focusRequester(focusRequester)
-            .focusProperties {
-                exit = { focusRequester.saveFocusedChild(); Default }
-                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+        Modifier.focusRequester(focusRequester).focusProperties {
+            exit = {
+                focusRequester.saveFocusedChild()
+                Default
             }
+            enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+        }
     ) {
         item { Button(onClick = {}) { Text("1") } }
         item { Button(onClick = {}) { Text("2") } }
@@ -144,10 +144,7 @@ fun FocusRestorerCustomFallbackSample() {
         Modifier.focusRestorer { focusRequester }
     ) {
         item {
-            Button(
-                modifier = Modifier.focusRequester(focusRequester),
-                onClick = {}
-            ) { Text("1") }
+            Button(modifier = Modifier.focusRequester(focusRequester), onClick = {}) { Text("1") }
         }
         item { Button(onClick = {}) { Text("2") } }
         item { Button(onClick = {}) { Text("3") } }
@@ -161,8 +158,7 @@ fun RequestFocusSample() {
     val focusRequester = remember { FocusRequester() }
     var color by remember { mutableStateOf(Black) }
     Box(
-        Modifier
-            .clickable { focusRequester.requestFocus() }
+        Modifier.clickable { focusRequester.requestFocus() }
             .border(2.dp, color)
             // The focusRequester should be added BEFORE the focusable.
             .focusRequester(focusRequester)
@@ -222,8 +218,7 @@ fun CustomFocusOrderSample() {
         val (item1, item2, item3, item4) = remember { FocusRequester.createRefs() }
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
             Box(
-                Modifier
-                    .focusRequester(item1)
+                Modifier.focusRequester(item1)
                     .focusProperties {
                         next = item2
                         right = item2
@@ -233,8 +228,7 @@ fun CustomFocusOrderSample() {
                     .focusable()
             )
             Box(
-                Modifier
-                    .focusRequester(item2)
+                Modifier.focusRequester(item2)
                     .focusProperties {
                         next = item3
                         right = item1
@@ -246,24 +240,20 @@ fun CustomFocusOrderSample() {
         }
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
             Box(
-                Modifier
-                    .focusRequester(item3)
-                    .focusProperties {
-                        next = item4
-                        right = item4
-                        up = item1
-                        previous = item2
-                    }
+                Modifier.focusRequester(item3).focusProperties {
+                    next = item4
+                    right = item4
+                    up = item1
+                    previous = item2
+                }
             )
             Box(
-                Modifier
-                    .focusRequester(item4)
-                    .focusProperties {
-                        next = item1
-                        left = item3
-                        up = item2
-                        previous = item3
-                    }
+                Modifier.focusRequester(item4).focusProperties {
+                    next = item1
+                    left = item3
+                    up = item2
+                    previous = item3
+                }
             )
         }
     }
@@ -274,19 +264,18 @@ fun CustomFocusOrderSample() {
 fun FocusPropertiesSample() {
     Column {
         // Always focusable.
-        Box(modifier = Modifier
-            .focusProperties { canFocus = true }
-            .focusTarget()
-        )
+        Box(modifier = Modifier.focusProperties { canFocus = true }.focusTarget())
         // Only focusable in non-touch mode.
         val inputModeManager = LocalInputModeManager.current
-        Box(modifier = Modifier
-            .focusProperties { canFocus = inputModeManager.inputMode != Touch }
-            .focusTarget()
+        Box(
+            modifier =
+                Modifier.focusProperties { canFocus = inputModeManager.inputMode != Touch }
+                    .focusTarget()
         )
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun CancelFocusMoveSample() {
@@ -296,15 +285,13 @@ fun CancelFocusMoveSample() {
         // Box 1.
         Box(Modifier.focusTarget())
         // Box 2.
-        Box(modifier = Modifier
-            .focusProperties { up = Cancel }
-            .focusTarget()
-        )
+        Box(modifier = Modifier.focusProperties { up = Cancel }.focusTarget())
         // Box 3.
         Box(Modifier.focusTarget())
     }
 }
 
+@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusEnterSample() {
@@ -317,6 +304,7 @@ fun CustomFocusEnterSample() {
     }
 }
 
+@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusExitSample() {

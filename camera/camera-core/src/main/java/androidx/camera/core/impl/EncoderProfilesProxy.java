@@ -41,7 +41,6 @@ import android.media.MediaRecorder;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -54,7 +53,6 @@ import java.util.List;
  * EncoderProfilesProxy defines the get methods that is mapping to the fields of
  * {@link EncoderProfiles}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderProfilesProxy {
 
     /** Constant representing no codec profile. */

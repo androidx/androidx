@@ -61,9 +61,7 @@ public object MealType {
     val MEAL_TYPE_INT_TO_STRING_MAP = MEAL_TYPE_STRING_TO_INT_MAP.reverse()
 }
 
-/**
- * Type of meal.
- */
+/** Type of meal. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(

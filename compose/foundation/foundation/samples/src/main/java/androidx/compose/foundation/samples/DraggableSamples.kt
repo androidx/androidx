@@ -48,16 +48,17 @@ fun DraggableSample() {
 
     // seekbar itself
     Box(
-        modifier = Modifier
-            .width(max)
-            .draggable(
-                orientation = Orientation.Horizontal,
-                state = rememberDraggableState { delta ->
-                    val newValue = offsetPosition.value + delta
-                    offsetPosition.value = newValue.coerceIn(minPx, maxPx)
-                }
-            )
-            .background(Color.Black)
+        modifier =
+            Modifier.width(max)
+                .draggable(
+                    orientation = Orientation.Horizontal,
+                    state =
+                        rememberDraggableState { delta ->
+                            val newValue = offsetPosition.value + delta
+                            offsetPosition.value = newValue.coerceIn(minPx, maxPx)
+                        }
+                )
+                .background(Color.Black)
     ) {
         Box(
             Modifier.offset { IntOffset(offsetPosition.value.roundToInt(), 0) }

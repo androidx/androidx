@@ -32,13 +32,13 @@ import java.util.List;
  * <p>Example usage:
  * <pre class="prettyprint">
  *    ProfileStore profileStore = ProfileStore.getInstance();
- *
+ * <p>
  *    // Use this store instance to manage Profiles.
  *    Profile createdProfile = profileStore.getOrCreateProfile("test_profile");
  *    createdProfile.getGeolocationPermissions().clear("example");
  *    //...
  *    profileStore.deleteProfile("profile_test");
- *
+ * <p>
  * </pre>
  */
 @UiThread

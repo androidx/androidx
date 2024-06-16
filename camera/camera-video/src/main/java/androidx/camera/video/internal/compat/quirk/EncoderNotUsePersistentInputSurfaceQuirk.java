@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat.quirk;
 import android.media.MediaCodec;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
@@ -39,7 +38,6 @@ import java.util.List;
  *                  problematic devices.
  *     Device(s): All API 21 and 22 devices, Model SM-N9208, Model SM-G920V
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncoderNotUsePersistentInputSurfaceQuirk implements Quirk {
 
     private static final List<String> DEVICE_MODELS = Arrays.asList(

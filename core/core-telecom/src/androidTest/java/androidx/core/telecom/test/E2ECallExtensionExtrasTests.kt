@@ -47,15 +47,15 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * This test class helps verify the E2E behavior for calls added via Jetpack to ensure that the
- * call details contain the appropriate extension extras that define the support for capability
- * exchange between the VOIP app and ICS.
+ * This test class helps verify the E2E behavior for calls added via Jetpack to ensure that the call
+ * details contain the appropriate extension extras that define the support for capability exchange
+ * between the VOIP app and ICS.
  *
  * Note: Currently, this test only verifies the presence of [CallsManager.PROPERTY_IS_TRANSACTIONAL]
  * (only in V) in the call properties, if the phone account supports transactional ops (U+ devices),
  * or if the [CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED] key is present in the call
- * extras (pre-U devices). In the future, this will be expanded to be provide more robust testing
- * to verify binder functionality as well as supporting the case for auto
+ * extras (pre-U devices). In the future, this will be expanded to be provide more robust testing to
+ * verify binder functionality as well as supporting the case for auto
  * ([CallsManager.EXTRA_VOIP_API_VERSION]).
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -64,9 +64,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     companion object {
-        /**
-         * Logging for within the test class.
-         */
+        /** Logging for within the test class. */
         internal val TAG = E2ECallExtensionExtrasTests::class.simpleName
     }
 
@@ -88,13 +86,15 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
         Utils.resetUtils()
     }
 
-    /***********************************************************************************************
-     *                           V2 APIs (Android U and above) tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * V2 APIs (Android U and above) tests
+     * *******************************************************************************************
+     */
 
     /**
-     * For U+ devices using the v2 APIs, assert that the incoming call details either support
-     * the [CallsManager.PROPERTY_IS_TRANSACTIONAL] property (V) or the phone account supports
+     * For U+ devices using the v2 APIs, assert that the incoming call details either support the
+     * [CallsManager.PROPERTY_IS_TRANSACTIONAL] property (V) or the phone account supports
      * transactional operations (U+).
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -106,8 +106,8 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     }
 
     /**
-     * For U+ devices using the v2 APIs, assert that the outgoing call details either support
-     * the [CallsManager.PROPERTY_IS_TRANSACTIONAL] property (V) or the phone account supports
+     * For U+ devices using the v2 APIs, assert that the outgoing call details either support the
+     * [CallsManager.PROPERTY_IS_TRANSACTIONAL] property (V) or the phone account supports
      * transactional operations (U+).
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -118,9 +118,11 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
-    /***********************************************************************************************
-     *                           Backwards Compatibility Layer tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Backwards Compatibility Layer tests
+     * *******************************************************************************************
+     */
 
     /**
      * For pre-U devices using the backwards compatibility library, assert that the incoming call
@@ -150,9 +152,11 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
         )
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
 
     /**
      * Helper to add a call via CallsManager#addCall and block (if needed) until the connection
@@ -172,7 +176,8 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                         val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                         Assert.assertNotNull("The returned Call object is <NULL>", call!!)
 
-                        // Enforce waiting logic to ensure that the call details extras are populated.
+                        // Enforce waiting logic to ensure that the call details extras are
+                        // populated.
                         if (waitForCallDetailExtras) {
                             TestUtils.waitOnCallExtras(call)
                         }
@@ -191,26 +196,27 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
         }
     }
 
-    /**
-     * Helper to assert the call extra or property set on the call coming from Telecom.
-     */
+    /** Helper to assert the call extra or property set on the call coming from Telecom. */
     private fun assertCallExtraOrProperty(call: Call) {
         // Call details should be present at this point
         val callDetails = call.details!!
-        if (TestUtils.buildIsAtLeastU()) {
+        if (Utils.hasPlatformV2Apis()) {
             if (TestUtils.buildIsAtLeastV()) {
                 assertTrue(callDetails.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL))
-            } else if (Utils.hasPlatformV2Apis()) {
+            } else {
                 // Wait for capability exchange to complete before verifying the extension level:
-                runBlocking {
-                    waitOnInCallServiceToReachXCallCompats(1)
-                }
-                 assertEquals(InCallServiceCompat.CAPABILITY_EXCHANGE,
-                     MockInCallServiceDelegate.getServiceWithExtensions()?.mExtensionLevelSupport)
+                runBlocking { waitOnInCallServiceToReachXCallCompats(1) }
+                assertEquals(
+                    InCallServiceCompat.CAPABILITY_EXCHANGE,
+                    MockInCallServiceDelegate.getServiceWithExtensions()?.mExtensionLevelSupport
+                )
             }
         } else {
-            val containsBackwardsCompatKey = callDetails.extras != null && callDetails.extras
-                .containsKey(CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED)
+            val containsBackwardsCompatKey =
+                callDetails.extras != null &&
+                    callDetails.extras.containsKey(
+                        CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED
+                    )
             assertTrue(containsBackwardsCompatKey)
         }
     }

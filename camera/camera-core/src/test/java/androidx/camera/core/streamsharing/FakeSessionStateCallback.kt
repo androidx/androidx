@@ -17,14 +17,9 @@
 package androidx.camera.core.streamsharing
 
 import android.hardware.camera2.CameraCaptureSession
-import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 
-/**
- * A fake [CameraCaptureSession.StateCallback].
- */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+/** A fake [CameraCaptureSession.StateCallback]. */
 class FakeSessionStateCallback : CameraCaptureSession.StateCallback() {
 
     var onConfiguredCalled = false
@@ -63,10 +58,7 @@ class FakeSessionStateCallback : CameraCaptureSession.StateCallback() {
         onClosedCalled = true
     }
 
-    override fun onSurfacePrepared(
-        session: CameraCaptureSession,
-        surface: Surface
-    ) {
+    override fun onSurfacePrepared(session: CameraCaptureSession, surface: Surface) {
         super.onSurfacePrepared(session, surface)
         onSurfacePreparedCalled = true
     }

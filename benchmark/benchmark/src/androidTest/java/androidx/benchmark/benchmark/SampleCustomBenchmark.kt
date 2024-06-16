@@ -37,56 +37,62 @@ class SampleCustomBenchmark {
     var counter: Long = 0
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule(
-        // Ideally, this config object would be specified per test, but that requires non-trivial
-        // changes to BenchmarkRule/BenchmarkState, and can be explored later
-        MicrobenchmarkConfig(
-            metrics = listOf(
-                TimeCapture(), // put TimeCapture early to prioritize it (starts last, stops first)
-                object : MetricCapture(
-                    // list of names of submetrics this capture will produce
-                    listOf("customCounter", "surpriseZero")
-                ) {
-                    var valueAtPause: Long = 0
-                    var pausedOffset: Long = 0
+    val benchmarkRule =
+        BenchmarkRule(
+            // Ideally, this config object would be specified per test, but that requires
+            // non-trivial
+            // changes to BenchmarkRule/BenchmarkState, and can be explored later
+            MicrobenchmarkConfig(
+                metrics =
+                    listOf(
+                        TimeCapture(), // put TimeCapture early to prioritize it (starts last, stops
+                        // first)
+                        object :
+                            MetricCapture(
+                                // list of names of submetrics this capture will produce
+                                listOf("customCounter", "surpriseZero")
+                            ) {
+                            var valueAtPause: Long = 0
+                            var pausedOffset: Long = 0
 
-                    override fun captureStart(timeNs: Long) {
-                        counter = 0
-                    }
+                            override fun captureStart(timeNs: Long) {
+                                counter = 0
+                            }
 
-                    override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
-                        output[offset] = counter - pausedOffset
+                            override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
+                                output[offset] = counter - pausedOffset
 
-                        // note that this number that's reported isn't the metric for one iter, but
-                        // for N iters, and is divided on your behalf. This means with a quick
-                        // benchmark like the one below, you might see results like:
-                        // SampleCustomBenchmark.sample
-                        // timeNs            min 25.1,   median 25.1,   max 25.4
-                        // customCounter     min 20.0,   median 20.0,   max 20.0
-                        // surpriseZero      min  0.0,   median  0.0,   max  0.0
-                        // allocationCount   min  0.0,   median  0.0,   max  0.0
-                        output[offset + 1] = 1000
-                    }
+                                // note that this number that's reported isn't the metric for one
+                                // iter, but
+                                // for N iters, and is divided on your behalf. This means with a
+                                // quick
+                                // benchmark like the one below, you might see results like:
+                                // SampleCustomBenchmark.sample
+                                // timeNs            min 25.1,   median 25.1,   max 25.4
+                                // customCounter     min 20.0,   median 20.0,   max 20.0
+                                // surpriseZero      min  0.0,   median  0.0,   max  0.0
+                                // allocationCount   min  0.0,   median  0.0,   max  0.0
+                                output[offset + 1] = 1000
+                            }
 
-                    override fun capturePaused() {
-                        valueAtPause = counter
-                    }
+                            override fun capturePaused() {
+                                valueAtPause = counter
+                            }
 
-                    override fun captureResumed() {
-                        pausedOffset += counter - valueAtPause
-                    }
-                }
-            ),
-            profiler = ProfilerConfig.MethodTracing()
+                            override fun captureResumed() {
+                                pausedOffset += counter - valueAtPause
+                            }
+                        }
+                    ),
+                profiler = ProfilerConfig.MethodTracing()
+            )
         )
-    )
+
     @Test
     fun sample() {
-        assumeFalse(ProfilerConfig.MethodTracing.affectsMeasurementOnThisDevice)
+        assumeFalse(ProfilerConfig.MethodTracing.AFFECTS_MEASUREMENTS_ON_THIS_DEVICE)
         benchmarkRule.measureRepeated {
-            repeat(20) {
-                counter++
-            }
+            repeat(20) { counter++ }
             runWithTimingDisabled {
                 counter++ // this is ignored, so customCounter output is simply 20
             }

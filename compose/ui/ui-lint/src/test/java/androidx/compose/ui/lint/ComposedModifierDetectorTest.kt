@@ -27,11 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
-/**
- * Test for [ComposedModifierDetector].
- */
+/** Test for [ComposedModifierDetector]. */
 @RunWith(JUnit4::class)
 class ComposedModifierDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposedModifierDetector()
@@ -41,9 +37,10 @@ class ComposedModifierDetectorTest : LintDetectorTest() {
 
     @Test
     fun noComposableCalls() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -66,11 +63,11 @@ class ComposedModifierDetectorTest : LintDetectorTest() {
 
                 fun Modifier.test4(): Modifier = composed({}, { this@test4})
             """
-            ),
-            UiStubs.composed,
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                UiStubs.composed,
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .skipTestModes(TestMode.WHITESPACE) // b/202187519, remove when upgrading to 7.1.0
             .run()
             .expect(
@@ -94,9 +91,10 @@ src/test/test.kt:22: Warning: Unnecessary use of Modifier.composed [UnnecessaryC
 
     @Test
     fun composableCalls() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -155,15 +153,14 @@ src/test/test.kt:22: Warning: Unnecessary use of Modifier.composed [UnnecessaryC
                     this@test6
                 }
             """
-            ),
-            UiStubs.composed,
-            Stubs.Composable,
-            Stubs.Modifier,
-            Stubs.Remember
-        )
+                ),
+                UiStubs.composed,
+                Stubs.Composable,
+                Stubs.Modifier,
+                Stubs.Remember
+            )
             .skipTestModes(TestMode.WHITESPACE) // b/202187519, remove when upgrading to 7.1.0
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

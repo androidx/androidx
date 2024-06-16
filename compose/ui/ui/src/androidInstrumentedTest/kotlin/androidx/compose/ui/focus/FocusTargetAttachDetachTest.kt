@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +46,9 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,8 +56,14 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusTargetAttachDetachTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
+
+    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
+    @After
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     @Test
     fun reorderedFocusRequesterModifiers_onFocusChangedInSameModifierChain() {
@@ -69,17 +78,18 @@ class FocusTargetAttachDetachTest {
             val focusTarget2 = Modifier.focusTarget()
             Box {
                 Box(
-                    modifier = if (observingFocusTarget1) {
-                        onFocusChanged
-                            .then(focusRequesterModifier)
-                            .then(focusTarget1)
-                            .then(focusTarget2)
-                    } else {
-                        focusTarget1
-                            .then(onFocusChanged)
-                            .then(focusRequesterModifier)
-                            .then(focusTarget2)
-                    }
+                    modifier =
+                        if (observingFocusTarget1) {
+                            onFocusChanged
+                                .then(focusRequesterModifier)
+                                .then(focusTarget1)
+                                .then(focusTarget2)
+                        } else {
+                            focusTarget1
+                                .then(onFocusChanged)
+                                .then(focusRequesterModifier)
+                                .then(focusTarget2)
+                        }
                 )
             }
         }
@@ -107,15 +117,12 @@ class FocusTargetAttachDetachTest {
             val focusTarget = Modifier.focusTarget()
             Box {
                 Box(
-                    modifier = if (onFocusChangedHasFocusTarget) {
-                        onFocusChanged
-                            .then(focusRequesterModifier)
-                            .then(focusTarget)
-                    } else {
-                        focusTarget
-                            .then(onFocusChanged)
-                            .then(focusRequesterModifier)
-                    }
+                    modifier =
+                        if (onFocusChangedHasFocusTarget) {
+                            onFocusChanged.then(focusRequesterModifier).then(focusTarget)
+                        } else {
+                            focusTarget.then(onFocusChanged).then(focusRequesterModifier)
+                        }
                 )
             }
         }
@@ -139,8 +146,7 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
                     .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
             )
@@ -165,8 +171,7 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
                     .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
             ) {
@@ -193,13 +198,9 @@ class FocusTargetAttachDetachTest {
         var optionalModifiers by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusRequester(focusRequester)
-                    .thenIf(optionalModifiers) {
-                        Modifier
-                            .onFocusEvent { focusState = it }
-                            .focusTarget()
-                    }
+                Modifier.focusRequester(focusRequester).thenIf(optionalModifiers) {
+                    Modifier.onFocusEvent { focusState = it }.focusTarget()
+                }
             )
         }
         rule.runOnIdle {
@@ -223,8 +224,7 @@ class FocusTargetAttachDetachTest {
         rule.setFocusableContent {
             if (optionalBox) {
                 Box(
-                    Modifier
-                        .focusRequester(focusRequester)
+                    Modifier.focusRequester(focusRequester)
                         .onFocusEvent { focusState = it }
                         .focusTarget()
                 )
@@ -250,8 +250,7 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
                     .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
             ) {
@@ -279,15 +278,10 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
             ) {
-                Box(
-                    Modifier
-                        .focusRequester(focusRequester)
-                        .focusTarget()
-                )
+                Box(Modifier.focusRequester(focusRequester).focusTarget())
             }
         }
         rule.runOnIdle {
@@ -314,13 +308,9 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(optionalFocusTarget) {
-                        Modifier
-                            .focusTarget()
-                            .focusRequester(focusRequester)
-                            .focusTarget()
+                        Modifier.focusTarget().focusRequester(focusRequester).focusTarget()
                     }
             )
         }
@@ -344,19 +334,11 @@ class FocusTargetAttachDetachTest {
         val focusRequester = FocusRequester()
         var optionalFocusTargets by mutableStateOf(true)
         rule.setFocusableContent {
-            Box(
-                Modifier
-                    .onFocusChanged { parentFocusState = it }
-                    .focusTarget()
-            ) {
+            Box(Modifier.onFocusChanged { parentFocusState = it }.focusTarget()) {
                 Box(
-                    Modifier
-                        .onFocusChanged { focusState = it }
+                    Modifier.onFocusChanged { focusState = it }
                         .thenIf(optionalFocusTargets) {
-                            Modifier
-                                .focusTarget()
-                                .focusRequester(focusRequester)
-                                .focusTarget()
+                            Modifier.focusTarget().focusRequester(focusRequester).focusTarget()
                         }
                 )
             }
@@ -385,15 +367,10 @@ class FocusTargetAttachDetachTest {
         val focusRequester = FocusRequester()
         var optionalBox by mutableStateOf(true)
         rule.setFocusableContent {
-            Box(
-                Modifier
-                    .onFocusChanged { parentFocusState = it }
-                    .focusTarget()
-            ) {
+            Box(Modifier.onFocusChanged { parentFocusState = it }.focusTarget()) {
                 if (optionalBox) {
                     Box(
-                        Modifier
-                            .onFocusChanged { focusState = it }
+                        Modifier.onFocusChanged { focusState = it }
                             .focusRequester(focusRequester)
                             .focusTarget()
                     )
@@ -424,19 +401,12 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(optionalFocusTarget) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
                     }
             ) {
-                Box(
-                    Modifier
-                        .focusRequester(focusRequester)
-                        .focusTarget()
-                )
+                Box(Modifier.focusRequester(focusRequester).focusTarget())
             }
         }
         rule.runOnIdle {
@@ -449,9 +419,7 @@ class FocusTargetAttachDetachTest {
         rule.runOnIdle { optionalFocusTarget = false }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isTrue()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isTrue() }
     }
 
     @Test
@@ -462,25 +430,17 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(optionalFocusTarget) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
                     }
             ) {
                 Box(
-                    Modifier
-                        .onFocusChanged { focusState = it }
+                    Modifier.onFocusChanged { focusState = it }
                         .focusProperties { canFocus = false }
                         .focusTarget()
                 ) {
-                    Box(
-                        Modifier
-                            .focusRequester(focusRequester)
-                            .focusTarget()
-                    )
+                    Box(Modifier.focusRequester(focusRequester).focusTarget())
                 }
             }
         }
@@ -507,23 +467,16 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusProperties { canFocus = false }
                     .focusTarget()
             ) {
                 Box(
                     Modifier.thenIf(optionalFocusTarget) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
                     }
                 ) {
-                    Box(
-                        Modifier
-                            .focusRequester(focusRequester)
-                            .focusTarget()
-                    )
+                    Box(Modifier.focusRequester(focusRequester).focusTarget())
                 }
             }
         }
@@ -551,22 +504,19 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusProperties { canFocus = false }
                     .focusTarget()
             ) {
                 Box(
                     Modifier.thenIf(optionalFocusTarget) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
-                        }
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
+                    }
                 ) {
                     Box(
-                        Modifier
-                            .focusRequester(focusRequester)
-                            .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
+                        Modifier.focusRequester(focusRequester).thenIf(optionalFocusTarget) {
+                            Modifier.focusTarget()
+                        }
                     )
                 }
             }
@@ -593,22 +543,16 @@ class FocusTargetAttachDetachTest {
         val focusRequester = FocusRequester()
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
-            Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusTarget()
-            ) {
+            Box(Modifier.onFocusChanged { focusState = it }.focusTarget()) {
                 Box(
                     Modifier.thenIf(optionalFocusTarget) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
                     }
                 ) {
                     Box(
-                        Modifier
-                            .focusRequester(focusRequester)
-                            .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
+                        Modifier.focusRequester(focusRequester).thenIf(optionalFocusTarget) {
+                            Modifier.focusTarget()
+                        }
                     )
                 }
             }
@@ -636,8 +580,7 @@ class FocusTargetAttachDetachTest {
         var optionalFocusTarget by mutableStateOf(true)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(optionalFocusTarget) { Modifier.focusTarget() }
                     .focusRequester(focusRequester)
                     .focusTarget()
@@ -660,8 +603,7 @@ class FocusTargetAttachDetachTest {
         var addFocusTarget by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
                     .thenIf(addFocusTarget) { Modifier.focusTarget() }
             ) {
@@ -688,8 +630,7 @@ class FocusTargetAttachDetachTest {
         var addFocusTarget by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
                     .thenIf(addFocusTarget) { Modifier.focusTarget() }
             )
@@ -714,19 +655,14 @@ class FocusTargetAttachDetachTest {
         var addFocusTarget by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .thenIf(addFocusTarget) {
-                        Modifier
-                            .onFocusChanged { focusState = it }
-                            .focusTarget()
+                Modifier.thenIf(addFocusTarget) {
+                        Modifier.onFocusChanged { focusState = it }.focusTarget()
                     }
                     .focusRequester(focusRequester)
                     .focusTarget()
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
         rule.runOnIdle { addFocusTarget = true }
@@ -744,17 +680,13 @@ class FocusTargetAttachDetachTest {
         rule.setFocusableContent {
             Box(
                 Modifier.thenIf(addFocusTarget) {
-                    Modifier
-                        .onFocusChanged { focusState = it }
-                        .focusTarget()
+                    Modifier.onFocusChanged { focusState = it }.focusTarget()
                 }
             ) {
                 Box(Modifier.focusRequester(focusRequester).focusTarget())
             }
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
         rule.runOnIdle { addFocusTarget = true }
@@ -773,24 +705,17 @@ class FocusTargetAttachDetachTest {
         var addFocusTarget2 by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .thenIf(addFocusTarget1) {
-                        Modifier
-                            .onFocusChanged { focusState1 = it }
-                            .focusTarget()
+                Modifier.thenIf(addFocusTarget1) {
+                        Modifier.onFocusChanged { focusState1 = it }.focusTarget()
                     }
                     .thenIf(addFocusTarget2) {
-                        Modifier
-                            .onFocusChanged { focusState2 = it }
-                            .focusTarget()
+                        Modifier.onFocusChanged { focusState2 = it }.focusTarget()
                     }
                     .focusRequester(focusRequester)
                     .focusTarget()
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
         rule.runOnIdle {
@@ -816,29 +741,19 @@ class FocusTargetAttachDetachTest {
         rule.setFocusableContent {
             Box(
                 Modifier.thenIf(addFocusTarget1) {
-                    Modifier
-                        .onFocusChanged { focusState1 = it }
-                        .focusTarget()
-                    }
+                    Modifier.onFocusChanged { focusState1 = it }.focusTarget()
+                }
             ) {
                 Box(
                     Modifier.thenIf(addFocusTarget1) {
-                        Modifier
-                            .onFocusChanged { focusState2 = it }
-                            .focusTarget()
+                        Modifier.onFocusChanged { focusState2 = it }.focusTarget()
                     }
                 ) {
-                    Box(
-                        Modifier
-                            .focusRequester(focusRequester)
-                            .focusTarget()
-                    )
+                    Box(Modifier.focusRequester(focusRequester).focusTarget())
                 }
             }
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
         rule.runOnIdle {
@@ -861,11 +776,8 @@ class FocusTargetAttachDetachTest {
         var addFocusTarget by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .thenIf(addFocusTarget) {
-                        Modifier
-                            .onFocusChanged { focusState = it }
-                            .focusTarget()
+                Modifier.thenIf(addFocusTarget) {
+                        Modifier.onFocusChanged { focusState = it }.focusTarget()
                     }
                     .focusRequester(focusRequester)
                     .focusTarget()
@@ -891,18 +803,11 @@ class FocusTargetAttachDetachTest {
         var addFocusTarget by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .thenIf(addFocusTarget) {
-                        Modifier
-                            .onFocusChanged { focusState = it }
-                            .focusTarget()
-                    }
+                Modifier.thenIf(addFocusTarget) {
+                    Modifier.onFocusChanged { focusState = it }.focusTarget()
+                }
             ) {
-                Box(
-                    Modifier
-                        .focusRequester(focusRequester)
-                        .focusTarget()
-                )
+                Box(Modifier.focusRequester(focusRequester).focusTarget())
             }
         }
         rule.runOnIdle {
@@ -924,12 +829,9 @@ class FocusTargetAttachDetachTest {
         var removeDeactivatedItem by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(!removeDeactivatedItem) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
                     }
             )
         }
@@ -938,9 +840,7 @@ class FocusTargetAttachDetachTest {
         rule.runOnIdle { removeDeactivatedItem = true }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isFalse()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isFalse() }
     }
 
     fun removingDeactivatedItem_withInactiveNextFocusTarget() {
@@ -949,12 +849,9 @@ class FocusTargetAttachDetachTest {
         var removeDeactivatedItem by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(!removeDeactivatedItem) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
                     }
             ) {
                 Box(Modifier.focusTarget())
@@ -965,9 +862,7 @@ class FocusTargetAttachDetachTest {
         rule.runOnIdle { removeDeactivatedItem = true }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isFalse()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isFalse() }
     }
 
     @Test
@@ -977,18 +872,12 @@ class FocusTargetAttachDetachTest {
         var removeDeactivatedItem by mutableStateOf(false)
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .onFocusChanged { focusState = it }
+                Modifier.onFocusChanged { focusState = it }
                     .thenIf(!removeDeactivatedItem) {
-                        Modifier
-                            .focusProperties { canFocus = false }
-                            .focusTarget()
-                        }
+                        Modifier.focusProperties { canFocus = false }.focusTarget()
+                    }
             ) {
-                Box(Modifier
-                    .focusProperties { canFocus = false }
-                    .focusTarget()
-                )
+                Box(Modifier.focusProperties { canFocus = false }.focusTarget())
             }
         }
 
@@ -996,9 +885,7 @@ class FocusTargetAttachDetachTest {
         rule.runOnIdle { removeDeactivatedItem = true }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isFalse()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isFalse() }
     }
 
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
@@ -1030,10 +917,10 @@ class FocusTargetAttachDetachTest {
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             inputModeManager = LocalInputModeManager.current
             Box(
-                modifier = Modifier
-                    .testTag(targetTestTag)
-                    .focusRequester(focusRequester)
-                    .then(focusTargetAndKeyInputModifier)
+                modifier =
+                    Modifier.testTag(targetTestTag)
+                        .focusRequester(focusRequester)
+                        .then(focusTargetAndKeyInputModifier)
             )
         }
 
@@ -1056,14 +943,15 @@ class FocusTargetAttachDetachTest {
         class FocusTargetAndKeyInputNode : DelegatingNode() {
             val keyEvents = mutableListOf<KeyEvent>()
             val focusTargetNode = FocusTargetNode()
-            val keyInputNode = object : KeyInputModifierNode, Modifier.Node() {
-                override fun onKeyEvent(event: KeyEvent): Boolean {
-                    keyEvents.add(event)
-                    return true
-                }
+            val keyInputNode =
+                object : KeyInputModifierNode, Modifier.Node() {
+                    override fun onKeyEvent(event: KeyEvent): Boolean {
+                        keyEvents.add(event)
+                        return true
+                    }
 
-                override fun onPreKeyEvent(event: KeyEvent) = false
-            }
+                    override fun onPreKeyEvent(event: KeyEvent) = false
+                }
 
             init {
                 delegate(focusTargetNode)
@@ -1081,10 +969,10 @@ class FocusTargetAttachDetachTest {
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             inputModeManager = LocalInputModeManager.current
             Box(
-                modifier = Modifier
-                    .testTag(targetTestTag)
-                    .focusRequester(focusRequester)
-                    .then(focusTargetAndKeyInputModifier)
+                modifier =
+                    Modifier.testTag(targetTestTag)
+                        .focusRequester(focusRequester)
+                        .then(focusTargetAndKeyInputModifier)
             )
         }
 
@@ -1104,8 +992,8 @@ class FocusTargetAttachDetachTest {
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun focusTarget_nodeThatIsSoftKeyInputNodeKind_implementing_receivesSoftKeyEventsWhenFocused() {
-        class FocusTargetAndSoftKeyboardNode : DelegatingNode(),
-            SoftKeyboardInterceptionModifierNode {
+        class FocusTargetAndSoftKeyboardNode :
+            DelegatingNode(), SoftKeyboardInterceptionModifierNode {
             val keyEvents = mutableListOf<KeyEvent>()
             val focusTargetNode = FocusTargetNode()
 
@@ -1127,10 +1015,10 @@ class FocusTargetAttachDetachTest {
 
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             Box(
-                modifier = Modifier
-                    .testTag(targetTestTag)
-                    .focusRequester(focusRequester)
-                    .then(focusTargetAndSoftKeyboardModifier)
+                modifier =
+                    Modifier.testTag(targetTestTag)
+                        .focusRequester(focusRequester)
+                        .then(focusTargetAndSoftKeyboardModifier)
             )
         }
 
@@ -1141,14 +1029,16 @@ class FocusTargetAttachDetachTest {
         // sendKeyEvent, which in turn notifies FocusOwner that there's a
         // SoftKeyboardInterceptionModifierNode-interceptable key event first. performKeyInput goes
         // through dispatchKeyEvent which does not notify SoftKeyboardInterceptionModifierNodes.
-        rule.onRoot().performKeyPress(
-            KeyEvent(
-                NativeKeyEvent(
-                    android.view.KeyEvent.ACTION_DOWN,
-                    android.view.KeyEvent.KEYCODE_ENTER
+        rule
+            .onRoot()
+            .performKeyPress(
+                KeyEvent(
+                    NativeKeyEvent(
+                        android.view.KeyEvent.ACTION_DOWN,
+                        android.view.KeyEvent.KEYCODE_ENTER
+                    )
                 )
             )
-        )
 
         assertThat(focusTargetAndSoftKeyboardNode.keyEvents).hasSize(1)
         assertThat(focusTargetAndSoftKeyboardNode.keyEvents[0].key).isEqualTo(Key.Enter)
@@ -1160,13 +1050,13 @@ class FocusTargetAttachDetachTest {
         class FocusTargetAndSoftKeyboardNode : DelegatingNode() {
             val keyEvents = mutableListOf<KeyEvent>()
             val focusTargetNode = FocusTargetNode()
-            val softKeyboardInterceptionNode = object : SoftKeyboardInterceptionModifierNode,
-                Modifier.Node() {
-                override fun onInterceptKeyBeforeSoftKeyboard(event: KeyEvent) =
-                    keyEvents.add(event)
+            val softKeyboardInterceptionNode =
+                object : SoftKeyboardInterceptionModifierNode, Modifier.Node() {
+                    override fun onInterceptKeyBeforeSoftKeyboard(event: KeyEvent) =
+                        keyEvents.add(event)
 
-                override fun onPreInterceptKeyBeforeSoftKeyboard(event: KeyEvent) = false
-            }
+                    override fun onPreInterceptKeyBeforeSoftKeyboard(event: KeyEvent) = false
+                }
 
             init {
                 delegate(focusTargetNode)
@@ -1183,10 +1073,10 @@ class FocusTargetAttachDetachTest {
 
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             Box(
-                modifier = Modifier
-                    .testTag(targetTestTag)
-                    .focusRequester(focusRequester)
-                    .then(focusTargetAndSoftKeyboardModifier)
+                modifier =
+                    Modifier.testTag(targetTestTag)
+                        .focusRequester(focusRequester)
+                        .then(focusTargetAndSoftKeyboardModifier)
             )
         }
 
@@ -1197,14 +1087,16 @@ class FocusTargetAttachDetachTest {
         // sendKeyEvent, which in turn notifies FocusOwner that there's a
         // SoftKeyboardInterceptionModifierNode-interceptable key event first. performKeyInput goes
         // through dispatchKeyEvent which does not notify SoftKeyboardInterceptionModifierNodes.
-        rule.onRoot().performKeyPress(
-            KeyEvent(
-                NativeKeyEvent(
-                    android.view.KeyEvent.ACTION_DOWN,
-                    android.view.KeyEvent.KEYCODE_ENTER
+        rule
+            .onRoot()
+            .performKeyPress(
+                KeyEvent(
+                    NativeKeyEvent(
+                        android.view.KeyEvent.ACTION_DOWN,
+                        android.view.KeyEvent.KEYCODE_ENTER
+                    )
                 )
             )
-        )
 
         assertThat(focusTargetAndSoftKeyboardNode.keyEvents).hasSize(1)
         assertThat(focusTargetAndSoftKeyboardNode.keyEvents[0].key).isEqualTo(Key.Enter)
@@ -1234,10 +1126,10 @@ class FocusTargetAttachDetachTest {
 
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             Box(
-                modifier = Modifier
-                    .testTag(targetTestTag)
-                    .focusRequester(focusRequester)
-                    .then(focusTargetAndRotaryModifier)
+                modifier =
+                    Modifier.testTag(targetTestTag)
+                        .focusRequester(focusRequester)
+                        .then(focusTargetAndRotaryModifier)
             )
         }
 
@@ -1258,10 +1150,12 @@ class FocusTargetAttachDetachTest {
         class FocusTargetAndRotaryNode : DelegatingNode() {
             val events = mutableListOf<RotaryScrollEvent>()
             val focusTargetNode = FocusTargetNode()
-            val rotaryInputNode = object : RotaryInputModifierNode, Modifier.Node() {
-                override fun onRotaryScrollEvent(event: RotaryScrollEvent) = events.add(event)
-                override fun onPreRotaryScrollEvent(event: RotaryScrollEvent) = false
-            }
+            val rotaryInputNode =
+                object : RotaryInputModifierNode, Modifier.Node() {
+                    override fun onRotaryScrollEvent(event: RotaryScrollEvent) = events.add(event)
+
+                    override fun onPreRotaryScrollEvent(event: RotaryScrollEvent) = false
+                }
 
             init {
                 delegate(focusTargetNode)
@@ -1277,10 +1171,10 @@ class FocusTargetAttachDetachTest {
 
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             Box(
-                modifier = Modifier
-                    .testTag(targetTestTag)
-                    .focusRequester(focusRequester)
-                    .then(focusTargetAndRotaryModifier)
+                modifier =
+                    Modifier.testTag(targetTestTag)
+                        .focusRequester(focusRequester)
+                        .then(focusTargetAndRotaryModifier)
             )
         }
 
@@ -1306,9 +1200,11 @@ class FocusTargetAttachDetachTest {
 
         class FocusEventAndFocusTargetNode : DelegatingNode(), FocusEventModifierNode {
             val focusStates = mutableListOf<FocusState>()
+
             override fun onFocusEvent(focusState: FocusState) {
                 focusStates.add(focusState)
             }
+
             init {
                 delegate(focusTargetNode)
             }
@@ -1322,9 +1218,9 @@ class FocusTargetAttachDetachTest {
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             if (composeFocusableBox) {
                 Box(
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .then(focusEventAndFocusTargetModifier)
+                    modifier =
+                        Modifier.focusRequester(focusRequester)
+                            .then(focusEventAndFocusTargetModifier)
                 )
             }
         }
@@ -1354,6 +1250,7 @@ class FocusTargetAttachDetachTest {
 
         class MyFocusEventNode : Modifier.Node(), FocusEventModifierNode {
             val focusStates = mutableListOf<FocusState>()
+
             override fun onFocusEvent(focusState: FocusState) {
                 focusStates.add(focusState)
             }
@@ -1376,9 +1273,10 @@ class FocusTargetAttachDetachTest {
 
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             if (composeFocusableBox) {
-                Box(modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .then(focusEventAndFocusTargetModifier)
+                Box(
+                    modifier =
+                        Modifier.focusRequester(focusRequester)
+                            .then(focusEventAndFocusTargetModifier)
                 )
             }
         }

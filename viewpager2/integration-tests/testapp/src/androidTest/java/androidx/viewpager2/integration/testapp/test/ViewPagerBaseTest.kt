@@ -64,7 +64,8 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
         }
     }
 
-    override val layoutId get() = R.id.view_pager
+    override val layoutId
+        get() = R.id.view_pager
 
     private val twoOfSpades = "2\n♣"
     private val threeOfSpades = "3\n♣"

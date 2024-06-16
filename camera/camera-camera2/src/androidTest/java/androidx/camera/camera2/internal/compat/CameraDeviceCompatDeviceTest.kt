@@ -50,7 +50,6 @@ import org.mockito.Mockito
 /**
  * Tests some of the methods of [CameraDeviceCompat] on device.
  *
- *
  * These need to run on device since they rely on native implementation details of the
  * [CameraDevice] class on some API levels.
  */
@@ -59,9 +58,10 @@ import org.mockito.Mockito
 @SdkSuppress(minSdkVersion = 21)
 class CameraDeviceCompatDeviceTest {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     private var cameraDevice: AsyncCameraDevice? = null
     private var surfaceTexture: SurfaceTexture? = null
@@ -72,9 +72,9 @@ class CameraDeviceCompatDeviceTest {
     @Before
     @Throws(CameraAccessException::class, InterruptedException::class)
     fun setUp() {
-        val cameraManager = ApplicationProvider.getApplicationContext<Context>().getSystemService(
-            Context.CAMERA_SERVICE
-        ) as CameraManager
+        val cameraManager =
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val cameraIds = cameraManager.cameraIdList
         Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
         val cameraId = cameraIds[0]
@@ -87,12 +87,11 @@ class CameraDeviceCompatDeviceTest {
         } catch (ex: Exception) {
             throw AssertionError("Unable to open camera.", ex)
         }
-        val streamConfigurationMap = cameraManager.getCameraCharacteristics(
-            cameraId
-        ).get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val validSizes = streamConfigurationMap!!.getOutputSizes(
-            SurfaceTexture::class.java
-        )
+        val streamConfigurationMap =
+            cameraManager
+                .getCameraCharacteristics(cameraId)
+                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val validSizes = streamConfigurationMap!!.getOutputSizes(SurfaceTexture::class.java)
         Assume.assumeTrue("No valid sizes available for SurfaceTexture.", validSizes.isNotEmpty())
         surfaceTexture = SurfaceTexture(0)
         surfaceTexture!!.setDefaultBufferSize(validSizes[0].width, validSizes[0].height)
@@ -119,22 +118,20 @@ class CameraDeviceCompatDeviceTest {
     @Test
     @Throws(CameraAccessExceptionCompat::class)
     fun canConfigureCaptureSession() {
-        val outputConfig = OutputConfigurationCompat(
-            surface!!
-        )
-        val stateCallback = Mockito.mock(
-            CameraCaptureSession.StateCallback::class.java
-        )
-        val sessionConfig = SessionConfigurationCompat(
-            SessionConfigurationCompat.SESSION_REGULAR,
-            listOf(outputConfig),
-            Dispatchers.Default.asExecutor(),
-            stateCallback
-        )
-        val deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(
-            cameraDevice!!.openAsync().get(),
-            compatHandler!!
-        )
+        val outputConfig = OutputConfigurationCompat(surface!!)
+        val stateCallback = Mockito.mock(CameraCaptureSession.StateCallback::class.java)
+        val sessionConfig =
+            SessionConfigurationCompat(
+                SessionConfigurationCompat.SESSION_REGULAR,
+                listOf(outputConfig),
+                Dispatchers.Default.asExecutor(),
+                stateCallback
+            )
+        val deviceCompat =
+            CameraDeviceCompat.toCameraDeviceCompat(
+                cameraDevice!!.openAsync().get(),
+                compatHandler!!
+            )
         try {
             deviceCompat.createCaptureSession(sessionConfig)
         } catch (e: CameraAccessExceptionCompat) {
@@ -146,10 +143,7 @@ class CameraDeviceCompatDeviceTest {
             )
             throw e
         }
-        Mockito.verify(stateCallback, Mockito.timeout(3000)).onConfigured(
-            ArgumentMatchers.any(
-                CameraCaptureSession::class.java
-            )
-        )
+        Mockito.verify(stateCallback, Mockito.timeout(3000))
+            .onConfigured(ArgumentMatchers.any(CameraCaptureSession::class.java))
     }
 }

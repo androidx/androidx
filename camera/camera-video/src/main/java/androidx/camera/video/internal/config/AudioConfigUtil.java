@@ -21,7 +21,6 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
@@ -41,7 +40,6 @@ import java.util.Objects;
 /**
  * A collection of utilities used for resolving and debugging audio configurations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioConfigUtil {
     private static final String TAG = "AudioConfigUtil";
 

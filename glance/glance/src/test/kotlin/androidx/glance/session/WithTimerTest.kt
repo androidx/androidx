@@ -123,9 +123,7 @@ class WithTimerTest {
     fun addTimeBeforeStartTimer() = runTest {
         var expected: IllegalStateException? = null
         try {
-            withTimer(timeSource) {
-                addTime(100.milliseconds)
-            }
+            withTimer(timeSource) { addTime(100.milliseconds) }
         } catch (e: IllegalStateException) {
             expected = e
         } finally {
@@ -156,18 +154,20 @@ class WithTimerTest {
         val checkpoint3 = AtomicBoolean(false)
         val checkpoint4 = AtomicBoolean(false)
 
-        val result = withTimerOrNull(timeSource) {
-            // The outer timer should trigger during the delay(), and nothing after that should run.
-            startTimer(200.milliseconds)
-            checkpoint1.set(true)
+        val result =
             withTimerOrNull(timeSource) {
-                startTimer(1.seconds)
-                checkpoint2.set(true)
-                delay(201.milliseconds)
-                checkpoint3.set(true)
+                // The outer timer should trigger during the delay(), and nothing after that should
+                // run.
+                startTimer(200.milliseconds)
+                checkpoint1.set(true)
+                withTimerOrNull(timeSource) {
+                    startTimer(1.seconds)
+                    checkpoint2.set(true)
+                    delay(201.milliseconds)
+                    checkpoint3.set(true)
+                }
+                checkpoint4.set(true)
             }
-            checkpoint4.set(true)
-        }
 
         assertThat(result).isNull()
         assertThat(checkpoint1.get()).isTrue()

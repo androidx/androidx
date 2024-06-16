@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.viewfinder
 
 import android.graphics.Rect
@@ -24,7 +22,6 @@ import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType
 import androidx.camera.viewfinder.internal.transform.Rotation.RotationValue
 import androidx.camera.viewfinder.internal.transform.TransformationInfo
@@ -67,9 +64,7 @@ private const val BACK_CAMERA = false
 
 private const val ARBITRARY_ROTATION = Surface.ROTATION_0
 
-/**
- * Instrument tests for [ViewfinderTransformation].
- */
+/** Instrument tests for [ViewfinderTransformation]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -87,29 +82,21 @@ class ViewfinderTransformationTest {
     @Test
     fun cropRectWidthOffByOnePixel_match() {
         assertThat(
-            isCropRectAspectRatioMatchPreviewView(
-                Rect(
-                    0,
-                    0,
-                    PREVIEW_VIEW_SIZE.height + 1,
-                    PREVIEW_VIEW_SIZE.width - 1
+                isCropRectAspectRatioMatchPreviewView(
+                    Rect(0, 0, PREVIEW_VIEW_SIZE.height + 1, PREVIEW_VIEW_SIZE.width - 1)
                 )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun cropRectWidthOffByTwoPixels_mismatch() {
         assertThat(
-            isCropRectAspectRatioMatchPreviewView(
-                Rect(
-                    0,
-                    0,
-                    PREVIEW_VIEW_SIZE.height + 2,
-                    PREVIEW_VIEW_SIZE.width - 2
+                isCropRectAspectRatioMatchPreviewView(
+                    Rect(0, 0, PREVIEW_VIEW_SIZE.height + 2, PREVIEW_VIEW_SIZE.width - 2)
                 )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     private fun isCropRectAspectRatioMatchPreviewView(cropRect: Rect): Boolean {
@@ -124,75 +111,77 @@ class ViewfinderTransformationTest {
 
     @Test
     fun correctTextureViewWith0Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_0)).isEqualTo(
-            intArrayOf(
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height
+        assertThat(getTextureViewCorrection(Surface.ROTATION_0))
+            .isEqualTo(
+                intArrayOf(
+                    0,
+                    0,
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height
+                )
             )
-        )
     }
 
     @Test
     fun correctTextureViewWith90Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_90)).isEqualTo(
-            intArrayOf(
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height
+        assertThat(getTextureViewCorrection(Surface.ROTATION_90))
+            .isEqualTo(
+                intArrayOf(
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0,
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height
+                )
             )
-        )
     }
 
     @Test
     fun correctTextureViewWith180Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_180)).isEqualTo(
-            intArrayOf(
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0
+        assertThat(getTextureViewCorrection(Surface.ROTATION_180))
+            .isEqualTo(
+                intArrayOf(
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0,
+                    SURFACE_SIZE.width,
+                    0
+                )
             )
-        )
     }
 
     @Test
     fun correctTextureViewWith270Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_270)).isEqualTo(
-            intArrayOf(
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0
+        assertThat(getTextureViewCorrection(Surface.ROTATION_270))
+            .isEqualTo(
+                intArrayOf(
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0
+                )
             )
-        )
     }
 
     private fun getTextureViewCorrection(@RotationValue rotation: Int): IntArray {
         return getTextureViewCorrection(rotation, BACK_CAMERA)
     }
 
-    /**
-     * Corrects TextureView based on target rotation and return the corrected vertices.
-     */
+    /** Corrects TextureView based on target rotation and return the corrected vertices. */
     private fun getTextureViewCorrection(
         @RotationValue rotation: Int,
         isFrontCamera: Boolean
@@ -224,12 +213,9 @@ class ViewfinderTransformationTest {
     fun ratioMatch_surfaceIsScaledToFillPreviewView() {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
-            TransformationInfo.of(
-                CROP_RECT,
-                90,
-                ARBITRARY_ROTATION
-            ),
-            SURFACE_SIZE, BACK_CAMERA
+            TransformationInfo.of(CROP_RECT, 90, ARBITRARY_ROTATION),
+            SURFACE_SIZE,
+            BACK_CAMERA
         )
 
         // Act.
@@ -238,13 +224,14 @@ class ViewfinderTransformationTest {
         // Assert.
         val correctCropRectWidth =
             CROP_RECT.height().toFloat() / SURFACE_SIZE.height * SURFACE_SIZE.width
-        assertThat(mView.scaleX).isWithin(FLOAT_ERROR)
+        assertThat(mView.scaleX)
+            .isWithin(FLOAT_ERROR)
             .of(PREVIEW_VIEW_SIZE.width / correctCropRectWidth)
         val correctCropRectHeight: Float =
             CROP_RECT.width().toFloat() / SURFACE_SIZE.width * SURFACE_SIZE.height
-        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(
-            PREVIEW_VIEW_SIZE.height / correctCropRectHeight
-        )
+        assertThat(mView.scaleY)
+            .isWithin(FLOAT_ERROR)
+            .of(PREVIEW_VIEW_SIZE.height / correctCropRectHeight)
         assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0f)
         assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-200f)
     }
@@ -395,9 +382,7 @@ class ViewfinderTransformationTest {
 
     @Test
     fun frontCameraRotated90_transformationIsMirrored() {
-        testOffCenterCropRectMirroring(
-            FRONT_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90
-        )
+        testOffCenterCropRectMirroring(FRONT_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90)
 
         // Assert:
         assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(6.666F)
@@ -408,9 +393,7 @@ class ViewfinderTransformationTest {
 
     @Test
     fun previewViewSizeIs0_noOps() {
-        testOffCenterCropRectMirroring(
-            FRONT_CAMERA, CROP_RECT_90, Size(0, 0), 90
-        )
+        testOffCenterCropRectMirroring(FRONT_CAMERA, CROP_RECT_90, Size(0, 0), 90)
 
         // Assert: no transform applied.
         assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(1F)
@@ -437,11 +420,7 @@ class ViewfinderTransformationTest {
         rotationDegrees: Int
     ) {
         mPreviewTransform.setTransformationInfo(
-            TransformationInfo.of(
-                cropRect,
-                rotationDegrees,
-                ARBITRARY_ROTATION
-            ),
+            TransformationInfo.of(cropRect, rotationDegrees, ARBITRARY_ROTATION),
             SURFACE_SIZE,
             isFrontCamera
         )

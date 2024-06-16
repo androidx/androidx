@@ -22,13 +22,13 @@ typealias CharSubject = Subject<Char>
 
 /**
  * In a fluent assertion chain, an object with which you can do any of the following:
- *
  * - Set an optional message with [withMessage].
- * - For the types of [Subject] built into Kruth, directly specify the value under test
- * with [withMessage].
+ * - For the types of [Subject] built into Kruth, directly specify the value under test with
+ *   [withMessage].
  */
 @Suppress("StaticFinalBuilder") // Cannot be final for binary compatibility.
-open class StandardSubjectBuilder internal constructor(
+open class StandardSubjectBuilder
+internal constructor(
     metadata: FailureMetadata,
 ) : PlatformStandardSubjectBuilder by PlatformStandardSubjectBuilderImpl(metadata) {
     internal val metadata = metadata
@@ -38,9 +38,7 @@ open class StandardSubjectBuilder internal constructor(
         }
 
     companion object {
-        /**
-         * Returns a new instance that invokes the given [FailureStrategy] when a check fails.
-         */
+        /** Returns a new instance that invokes the given [FailureStrategy] when a check fails. */
         @JvmStatic
         fun forCustomFailureStrategy(failureStrategy: FailureStrategy): StandardSubjectBuilder {
             return StandardSubjectBuilder(FailureMetadata(failureStrategy = failureStrategy))
@@ -55,15 +53,13 @@ open class StandardSubjectBuilder internal constructor(
     fun withMessage(messageToPrepend: String): StandardSubjectBuilder =
         StandardSubjectBuilder(metadata = metadata.withMessage(message = messageToPrepend))
 
-    fun <T> that(actual: T?): Subject<T> =
-        Subject(actual = actual, metadata = metadata, null)
+    fun <T> that(actual: T?): Subject<T> = Subject(actual = actual, metadata = metadata, null)
 
     // actual cannot be made nullable due to autoboxing and this overload is necessary to allow
     // StandardSubjectBuilder.that(char) from Java to resolve properly as an Object
     // (otherwise it is source-incompatibly interpreted as Int).
     // See: NumericComparisonTest#testNumericPrimitiveTypes_isNotEqual_shouldFail_charToInt
-    fun that(actual: Char): Subject<Char> =
-        Subject(actual = actual, metadata = metadata, null)
+    fun that(actual: Char): Subject<Char> = Subject(actual = actual, metadata = metadata, null)
 
     fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T> =
         ComparableSubject(actual = actual, metadata = metadata)
@@ -74,28 +70,22 @@ open class StandardSubjectBuilder internal constructor(
     fun that(actual: Boolean?): BooleanSubject =
         BooleanSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: Long): LongSubject =
-        LongSubject(actual = actual, metadata = metadata)
+    fun that(actual: Long): LongSubject = LongSubject(actual = actual, metadata = metadata)
 
     // Workaround for https://youtrack.jetbrains.com/issue/KT-645
-    fun <T : Long?> that(actual: T): LongSubject =
-        LongSubject(actual = actual, metadata = metadata)
+    fun <T : Long?> that(actual: T): LongSubject = LongSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: Double?): DoubleSubject =
-        DoubleSubject(actual = actual, metadata = metadata)
+    fun that(actual: Double?): DoubleSubject = DoubleSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: Float?): FloatSubject =
-        FloatSubject(actual = actual, metadata = metadata)
+    fun that(actual: Float?): FloatSubject = FloatSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: Int): IntegerSubject =
-        IntegerSubject(actual = actual, metadata = metadata)
+    fun that(actual: Int): IntegerSubject = IntegerSubject(actual = actual, metadata = metadata)
 
     // Workaround for https://youtrack.jetbrains.com/issue/KT-645
     fun <T : Int?> that(actual: T): IntegerSubject =
         IntegerSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: String?): StringSubject =
-        StringSubject(actual = actual, metadata = metadata)
+    fun that(actual: String?): StringSubject = StringSubject(actual = actual, metadata = metadata)
 
     fun <T> that(actual: Iterable<T>?): IterableSubject<T> =
         IterableSubject(actual = actual, metadata = metadata)

@@ -57,30 +57,20 @@ class GroupSizeValidationTests {
             noMoreGroupsThan = 3,
             noMoreSlotsThan = 9,
         ) {
-            ColumnLike { }
+            ColumnLike {}
         }
     }
 
     @Test
     fun textLikeSize() = compositionTest {
-        slotExpect(
-            name = "TextLike",
-            noMoreGroupsThan = 4,
-            noMoreSlotsThan = 4
-        ) {
-            TextLike("")
-        }
+        slotExpect(name = "TextLike", noMoreGroupsThan = 4, noMoreSlotsThan = 4) { TextLike("") }
     }
 
     // TODO reenable in https://youtrack.jetbrains.com/issue/COMPOSE-1504/Compose-1.7.-Enable-Strong-Skipping-mode-for-the-sources
     @Ignore
     @Test
     fun basicTextLikeSize() = compositionTest {
-        slotExpect(
-            name = "TextLike",
-            noMoreGroupsThan = 5,
-            noMoreSlotsThan = 13
-        ) {
+        slotExpect(name = "TextLike", noMoreGroupsThan = 5, noMoreSlotsThan = 13) {
             BasicTextLike("")
         }
     }
@@ -89,12 +79,8 @@ class GroupSizeValidationTests {
     @Ignore
     @Test
     fun checkboxLike() = compositionTest {
-        slotExpect(
-            name = "CheckboxLike",
-            noMoreGroupsThan = 8,
-            noMoreSlotsThan = 17
-        ) {
-            CheckboxLike(checked = false, onCheckedChange = { })
+        slotExpect(name = "CheckboxLike", noMoreGroupsThan = 8, noMoreSlotsThan = 17) {
+            CheckboxLike(checked = false, onCheckedChange = {})
         }
     }
 }
@@ -175,24 +161,20 @@ private interface Modifier {
 
 @Immutable
 private object Arrangement {
-    @Stable
-    interface Vertical
+    @Stable interface Vertical
 
-    @Stable
-    val Top = object : Vertical { }
+    @Stable val Top = object : Vertical {}
 }
 
 @Immutable
 private object Alignment {
-    @Stable
-    interface Horizontal
+    @Stable interface Horizontal
 
-    @Stable
-    val Start = object : Horizontal { }
+    @Stable val Start = object : Horizontal {}
 }
 
 private object SpacerMeasurePolicy : MeasurePolicy {
-    override fun measure() { }
+    override fun measure() {}
 }
 
 @Composable
@@ -200,8 +182,7 @@ private fun SpacerLike(modifier: Modifier) {
     LayoutLike(measurePolicy = SpacerMeasurePolicy, modifier = modifier)
 }
 
-@Immutable
-private interface ColumnScope
+@Immutable private interface ColumnScope
 
 private object ColumnScopeInstance : ColumnScope
 
@@ -213,8 +194,7 @@ private inline fun ColumnLike(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val measurePolicy =
-        columnMeasurePolicy(verticalArrangement, horizontalAlignment)
+    val measurePolicy = columnMeasurePolicy(verticalArrangement, horizontalAlignment)
     LayoutLike(
         content = { ColumnScopeInstance.content() },
         measurePolicy = measurePolicy,
@@ -223,19 +203,19 @@ private inline fun ColumnLike(
 }
 
 private object DefaultColumnRowMeasurePolicy : MeasurePolicy {
-    override fun measure() { }
+    override fun measure() {}
 }
 
-@Composable private fun columnMeasurePolicy(
+@Composable
+private fun columnMeasurePolicy(
     verticalArrangement: Arrangement.Vertical,
     horizontalAlignment: Alignment.Horizontal
-) = if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
-    DefaultColumnRowMeasurePolicy
-} else {
-    remember(verticalArrangement, horizontalAlignment) {
+) =
+    if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
         DefaultColumnRowMeasurePolicy
+    } else {
+        remember(verticalArrangement, horizontalAlignment) { DefaultColumnRowMeasurePolicy }
     }
-}
 
 @Immutable
 @JvmInline
@@ -243,19 +223,15 @@ private value class Color(val value: ULong) {
 
     @Stable
     @Suppress("UNUSED_PARAMETER")
-    fun copy(
-        alpha: Float = 0f,
-        red: Float = 0f,
-        green: Float = 0f,
-        blue: Float = 0f
-    ): Color = this
+    fun copy(alpha: Float = 0f, red: Float = 0f, green: Float = 0f, blue: Float = 0f): Color = this
 
     companion object {
-        @Stable
-        val Unspecified = Color(0u)
+        @Stable val Unspecified = Color(0u)
     }
 }
-private val Color.isSpecified: Boolean get() = this != Color.Unspecified
+
+private val Color.isSpecified: Boolean
+    get() = this != Color.Unspecified
 
 private inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()
 
@@ -263,17 +239,13 @@ private inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified
 @JvmInline
 private value class TextUnit(val packedValue: Long) {
     companion object {
-        @Stable
-        val Unspecified = TextUnit(0)
+        @Stable val Unspecified = TextUnit(0)
     }
 }
 
-@JvmInline
-value class FontStyle(val value: Int)
+@JvmInline value class FontStyle(val value: Int)
 
-@Immutable
-@Suppress("unused")
-private class FontWeight(val weight: Int)
+@Immutable @Suppress("unused") private class FontWeight(val weight: Int)
 
 @Immutable
 @Suppress("UNUSED_PARAMETER")
@@ -281,26 +253,21 @@ private sealed class FontFamily(canLoadSynchronously: Boolean) {
     @Stable
     interface Resolver {
         companion object {
-            val Default = object : Resolver { }
+            val Default = object : Resolver {}
         }
     }
 }
 
 private val LocalFontFamilyResolver = staticCompositionLocalOf { FontFamily.Resolver.Default }
 
-@Immutable
-@Suppress("unused")
-private class TextDecoration(val mask: Int)
+@Immutable @Suppress("unused") private class TextDecoration(val mask: Int)
 
-@JvmInline
-@Suppress("unused")
-private value class TextAlign(val value: Int)
+@JvmInline @Suppress("unused") private value class TextAlign(val value: Int)
 
 @JvmInline
 private value class TextOverflow(val value: Int) {
     companion object {
-        @Stable
-        val Clip = TextOverflow(1)
+        @Stable val Clip = TextOverflow(1)
     }
 }
 
@@ -356,9 +323,8 @@ private val DefaultTextStyle = TextStyle()
 private val LocalTextStyle = staticCompositionLocalOf { DefaultTextStyle }
 private val LocalContentColor = staticCompositionLocalOf { Color.Unspecified }
 private val LocalContentAlpha = staticCompositionLocalOf { 1f }
-private val LocalSelectionRegistrar = staticCompositionLocalOf<SelectionRegistrar?> {
-    DefaultSelectionRegister
-}
+private val LocalSelectionRegistrar =
+    staticCompositionLocalOf<SelectionRegistrar?> { DefaultSelectionRegister }
 
 @Composable
 private fun TextLike(
@@ -382,23 +348,20 @@ private fun TextLike(
 ) {
     val localColor = LocalContentColor.current
     val localAlpha = LocalContentAlpha.current
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            localColor.copy(localAlpha)
-        }
-    }
+    val textColor = color.takeOrElse { style.color.takeOrElse { localColor.copy(localAlpha) } }
 
-    val mergedStyle = style.merge2(
-        color = textColor,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        textAlign = textAlign,
-        lineHeight = lineHeight,
-        fontFamily = fontFamily,
-        textDecoration = textDecoration,
-        fontStyle = fontStyle,
-        letterSpacing = letterSpacing
-    )
+    val mergedStyle =
+        style.merge2(
+            color = textColor,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+            fontFamily = fontFamily,
+            textDecoration = textDecoration,
+            fontStyle = fontStyle,
+            letterSpacing = letterSpacing
+        )
     EmptyBasicTextLikeComposable(
         text = text,
         modifier = modifier,
@@ -411,9 +374,7 @@ private fun TextLike(
     )
 }
 
-/**
- * This composable adds no internal overhead, to isolate material text details
- */
+/** This composable adds no internal overhead, to isolate material text details */
 @Suppress("UNUSED_PARAMETER")
 @Composable
 private fun EmptyBasicTextLikeComposable(
@@ -445,8 +406,9 @@ private fun CompositionTestScope.slotExpect(
     val receivedSlots = group.slotsSize
 
     if (receivedGroups > noMoreGroupsThan || receivedSlots > noMoreSlotsThan) {
-        error("Expected $noMoreGroupsThan groups and $noMoreSlotsThan slots " +
-            "but received $receivedGroups and $receivedSlots\n"
+        error(
+            "Expected $noMoreGroupsThan groups and $noMoreSlotsThan slots " +
+                "but received $receivedGroups and $receivedSlots\n"
         )
     }
     if (receivedSlots < noMoreSlotsThan || receivedGroups < noMoreGroupsThan) {
@@ -457,16 +419,12 @@ private fun CompositionTestScope.slotExpect(
     }
 }
 
-@Suppress("unused")
-private class AnnotatedString(val text: String)
+@Suppress("unused") private class AnnotatedString(val text: String)
 
 @Suppress("unused")
-private class TextState(
-    val textDelegate: TextDelegate,
-    val selectionId: Long
-) {
+private class TextState(val textDelegate: TextDelegate, val selectionId: Long) {
     var selectionBackgroundColor: Color = Color.Unspecified
-    var onTextLayout: (TextLayoutResult) -> Unit = { }
+    var onTextLayout: (TextLayoutResult) -> Unit = {}
 }
 
 @Suppress("unused")
@@ -497,16 +455,15 @@ private fun updateTextDelegate(
 @Suppress("UNUSED_PARAMETER")
 private class TextController(val state: TextState) {
     val measurePolicy: MeasurePolicy = DefaultColumnRowMeasurePolicy
-    fun setTextDelegate(updateTextDelegate: TextDelegate) { }
-    fun update(selectionRegistrar: SelectionRegistrar?) { }
+
+    fun setTextDelegate(updateTextDelegate: TextDelegate) {}
+
+    fun update(selectionRegistrar: SelectionRegistrar?) {}
 }
 
 @Immutable
 @Suppress("unused")
-private class TextSelectionColors(
-    val handleColor: Color,
-    val backgroundColor: Color
-) {
+private class TextSelectionColors(val handleColor: Color, val backgroundColor: Color) {
     companion object {
         val Default = TextSelectionColors(Color.Unspecified, Color.Unspecified)
     }
@@ -540,13 +497,12 @@ private fun BasicTextLike(
 
     // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
     // changes, but it is only saved in the initial creation of TextState.
-    val selectableId = if (selectionRegistrar == null) {
-        SelectionRegistrar.InvalidSelectableId
-    } else {
-        remember(text, selectionRegistrar) {
-            selectionRegistrar.nextSelectableId()
+    val selectableId =
+        if (selectionRegistrar == null) {
+            SelectionRegistrar.InvalidSelectableId
+        } else {
+            remember(text, selectionRegistrar) { selectionRegistrar.nextSelectableId() }
         }
-    }
 
     val controller = remember {
         TextController(
@@ -602,7 +558,10 @@ private fun CheckboxLike(
 ) {
     TriStateCheckboxLike(
         state = ToggleableState(checked),
-        onClick = if (onCheckedChange != null) { { onCheckedChange(!checked) } } else null,
+        onClick =
+            if (onCheckedChange != null) {
+                { onCheckedChange(!checked) }
+            } else null,
         enabled = enabled,
         modifier = modifier
     )
@@ -625,20 +584,12 @@ private fun TriStateCheckboxLike(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    CheckboxImplLike(
-        enabled = enabled,
-        value = state,
-        modifier = modifier
-    )
+    CheckboxImplLike(enabled = enabled, value = state, modifier = modifier)
 }
 
 @Suppress("UNUSED_EXPRESSION")
 @Composable
-private fun CheckboxImplLike(
-    enabled: Boolean,
-    value: ToggleableState,
-    modifier: Modifier
-) {
+private fun CheckboxImplLike(enabled: Boolean, value: ToggleableState, modifier: Modifier) {
     CanvasLike(modifier) {
         enabled
         value
@@ -649,8 +600,7 @@ private interface DrawScope
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-private fun CanvasLike(modifier: Modifier, onDraw: DrawScope.() -> Unit) =
-    SpacerLike(modifier)
+private fun CanvasLike(modifier: Modifier, onDraw: DrawScope.() -> Unit) = SpacerLike(modifier)
 
 // Utility functions for the tests
 
@@ -673,14 +623,15 @@ private fun CompositionGroup.asString(): String {
     return stringOf(this, "")
 }
 
-@Suppress("ConstPropertyName")
-private const val MarkerGroup = -340126117
+@Suppress("ConstPropertyName") private const val MarkerGroup = -340126117
 
 private fun findMarkerGroup(compositionData: CompositionData): CompositionGroup {
     fun findGroup(groups: Iterable<CompositionGroup>, key: Int): CompositionGroup? {
         for (group in groups) {
             if (group.key == key) return group
-            findGroup(group.compositionGroups, key)?.let { return it }
+            findGroup(group.compositionGroups, key)?.let {
+                return it
+            }
         }
         return null
     }

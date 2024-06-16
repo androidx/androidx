@@ -27,11 +27,11 @@ import kotlin.jvm.JvmInline
 /**
  * This class:
  * 1) Caches the lambdas being produced by [itemProvider]. This allows us to perform less
- * recompositions as the compose runtime can skip the whole composition if we subcompose with the
- * same instance of the content lambda.
+ *    recompositions as the compose runtime can skip the whole composition if we subcompose with the
+ *    same instance of the content lambda.
  * 2) Updates the mapping between keys and indexes when we have a new factory
  * 3) Adds state restoration on top of the composable returned by [itemProvider] with help of
- * [saveableStateHolder].
+ *    [saveableStateHolder].
  */
 @ExperimentalFoundationApi
 internal class LazyLayoutItemContentFactory(
@@ -62,9 +62,7 @@ internal class LazyLayoutItemContentFactory(
         }
     }
 
-    /**
-     * Return cached item content lambda or creates a new lambda and puts it in the cache.
-     */
+    /** Return cached item content lambda or creates a new lambda and puts it in the cache. */
     fun getContent(index: Int, key: Any, contentType: Any?): @Composable () -> Unit {
         val cached = lambdasCache[key]
         return if (cached != null && cached.index == index && cached.contentType == contentType) {
@@ -76,11 +74,7 @@ internal class LazyLayoutItemContentFactory(
         }
     }
 
-    private inner class CachedItemContent(
-        index: Int,
-        val key: Any,
-        val contentType: Any?
-    ) {
+    private inner class CachedItemContent(index: Int, val key: Any, val contentType: Any?) {
         // the index resolved during the latest composition
         var index = index
             private set
@@ -89,40 +83,40 @@ internal class LazyLayoutItemContentFactory(
         val content: (@Composable () -> Unit)
             get() = _content ?: createContentLambda().also { _content = it }
 
-        private fun createContentLambda() = @Composable {
-            val itemProvider = itemProvider()
+        private fun createContentLambda() =
+            @Composable {
+                val itemProvider = itemProvider()
 
-            var index = index
-            if (index >= itemProvider.itemCount || itemProvider.getKey(index) != key) {
-                index = itemProvider.getIndex(key)
-                if (index != -1) this.index = index
-            }
+                var index = index
+                if (index >= itemProvider.itemCount || itemProvider.getKey(index) != key) {
+                    index = itemProvider.getIndex(key)
+                    if (index != -1) this.index = index
+                }
 
-            ReusableContentHost(active = index != -1) {
-                SkippableItem(
-                    itemProvider,
-                    StableValue(saveableStateHolder),
-                    index,
-                    StableValue(key)
-                )
-            }
-            DisposableEffect(key) {
-                onDispose {
-                    // we clear the cached content lambda when disposed to not leak RecomposeScopes
-                    _content = null
+                ReusableContentHost(active = index != -1) {
+                    SkippableItem(
+                        itemProvider,
+                        StableValue(saveableStateHolder),
+                        index,
+                        StableValue(key)
+                    )
+                }
+                DisposableEffect(key) {
+                    onDispose {
+                        // we clear the cached content lambda when disposed to not leak
+                        // RecomposeScopes
+                        _content = null
+                    }
                 }
             }
-        }
     }
 }
 
-@Stable
-@JvmInline
-private value class StableValue<T>(val value: T)
+@Stable @JvmInline private value class StableValue<T>(val value: T)
 
 /**
- * Hack around skippable functions to force skip SaveableStateProvider and Item block when
- * nothing changed. It allows us to skip heavy-weight composition local providers.
+ * Hack around skippable functions to force skip SaveableStateProvider and Item block when nothing
+ * changed. It allows us to skip heavy-weight composition local providers.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

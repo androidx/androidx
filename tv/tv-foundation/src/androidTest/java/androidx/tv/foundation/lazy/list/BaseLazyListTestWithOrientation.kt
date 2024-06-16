@@ -48,8 +48,7 @@ import org.junit.Rule
 
 open class BaseLazyListTestWithOrientation(private val orientation: Orientation) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical
@@ -104,11 +103,12 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
         }
 
     fun SemanticsNodeInteraction.assertStartPositionIsAlmost(expected: Dp) {
-        val position = if (vertical) {
-            getUnclippedBoundsInRoot().top
-        } else {
-            getUnclippedBoundsInRoot().left
-        }
+        val position =
+            if (vertical) {
+                getUnclippedBoundsInRoot().top
+            } else {
+                getUnclippedBoundsInRoot().left
+            }
         position.assertIsEqualTo(expected, tolerance = 2.dp)
     }
 
@@ -126,36 +126,35 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
             assertTopPositionInRootIsEqualTo(expectedStart)
         }
 
-    fun PaddingValues(
-        mainAxis: Dp = 0.dp,
-        crossAxis: Dp = 0.dp
-    ) = PaddingValues(
-        beforeContent = mainAxis,
-        afterContent = mainAxis,
-        beforeContentCrossAxis = crossAxis,
-        afterContentCrossAxis = crossAxis
-    )
+    fun PaddingValues(mainAxis: Dp = 0.dp, crossAxis: Dp = 0.dp) =
+        PaddingValues(
+            beforeContent = mainAxis,
+            afterContent = mainAxis,
+            beforeContentCrossAxis = crossAxis,
+            afterContentCrossAxis = crossAxis
+        )
 
     fun PaddingValues(
         beforeContent: Dp = 0.dp,
         afterContent: Dp = 0.dp,
         beforeContentCrossAxis: Dp = 0.dp,
         afterContentCrossAxis: Dp = 0.dp,
-    ) = if (vertical) {
-        PaddingValues(
-            start = beforeContentCrossAxis,
-            top = beforeContent,
-            end = afterContentCrossAxis,
-            bottom = afterContent
-        )
-    } else {
-        PaddingValues(
-            start = beforeContent,
-            top = beforeContentCrossAxis,
-            end = afterContent,
-            bottom = afterContentCrossAxis
-        )
-    }
+    ) =
+        if (vertical) {
+            PaddingValues(
+                start = beforeContentCrossAxis,
+                top = beforeContent,
+                end = afterContentCrossAxis,
+                bottom = afterContent
+            )
+        } else {
+            PaddingValues(
+                start = beforeContent,
+                top = beforeContentCrossAxis,
+                end = afterContent,
+                bottom = afterContentCrossAxis
+            )
+        }
 
     fun TvLazyListState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
@@ -164,9 +163,7 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
     }
 
     fun TvLazyListState.scrollTo(index: Int) {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            scrollToItem(index)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { scrollToItem(index) }
     }
 
     fun ComposeContentTestRule.keyPress(numberOfKeyPresses: Int, reverseScroll: Boolean = false) {
@@ -190,16 +187,16 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
         reverseLayout: Boolean = false,
         userScrollEnabled: Boolean = true,
         spacedBy: Dp = 0.dp,
-        pivotOffsets: PivotOffsets =
-            PivotOffsets(parentFraction = 0f),
+        pivotOffsets: PivotOffsets = PivotOffsets(parentFraction = 0f),
         content: TvLazyListScope.() -> Unit
     ) {
         if (vertical) {
-            val verticalArrangement = when {
-                spacedBy != 0.dp -> Arrangement.spacedBy(spacedBy)
-                !reverseLayout -> Arrangement.Top
-                else -> Arrangement.Bottom
-            }
+            val verticalArrangement =
+                when {
+                    spacedBy != 0.dp -> Arrangement.spacedBy(spacedBy)
+                    !reverseLayout -> Arrangement.Top
+                    else -> Arrangement.Bottom
+                }
             TvLazyColumn(
                 modifier = modifier,
                 state = state,
@@ -211,11 +208,12 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
                 content = content
             )
         } else {
-            val horizontalArrangement = when {
-                spacedBy != 0.dp -> Arrangement.spacedBy(spacedBy)
-                !reverseLayout -> Arrangement.Start
-                else -> Arrangement.End
-            }
+            val horizontalArrangement =
+                when {
+                    spacedBy != 0.dp -> Arrangement.spacedBy(spacedBy)
+                    !reverseLayout -> Arrangement.Start
+                    else -> Arrangement.End
+                }
             TvLazyRow(
                 modifier = modifier,
                 state = state,

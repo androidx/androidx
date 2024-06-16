@@ -35,17 +35,22 @@ class GlanceNodeAssertionTest {
     @Test
     fun assertExists_success() {
         // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
+            )
 
         assertion.assertExists()
         // no error
@@ -53,42 +58,52 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun assertExists_error() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
+            )
 
-        val assertionError = assertThrows(AssertionError::class.java) {
-            assertion.assertExists()
-        }
+        val assertionError = assertThrows(AssertionError::class.java) { assertion.assertExists() }
 
-        assertThat(assertionError).hasMessageThat().isEqualTo(
-            "Failed assertExists" +
-                "\nReason: Expected '1' node(s) matching condition: " +
-                "TestTag = 'non-existing-test-tag', but found '0'"
-        )
+        assertThat(assertionError)
+            .hasMessageThat()
+            .isEqualTo(
+                "Failed assertExists" +
+                    "\nReason: Expected '1' node(s) matching condition: " +
+                    "TestTag = 'non-existing-test-tag', but found '0'"
+            )
     }
 
     @Test
     fun assertDoesNotExist_success() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
+            )
 
         assertion.assertDoesNotExist()
         // no error
@@ -96,42 +111,53 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun assertDoesNotExist_error() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+            )
 
-        val assertionError = assertThrows(AssertionError::class.java) {
-            assertion.assertDoesNotExist()
-        }
+        val assertionError =
+            assertThrows(AssertionError::class.java) { assertion.assertDoesNotExist() }
 
-        assertThat(assertionError).hasMessageThat().isEqualTo(
-            "Failed assertDoesNotExist" +
-                "\nReason: Did not expect any node matching condition: " +
-                "TestTag = 'existing-test-tag', but found '1'"
-        )
+        assertThat(assertionError)
+            .hasMessageThat()
+            .isEqualTo(
+                "Failed assertDoesNotExist" +
+                    "\nReason: Did not expect any node matching condition: " +
+                    "TestTag = 'existing-test-tag', but found '1'"
+            )
     }
 
     @Test
     fun assert_withMatcher_success() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+            )
 
         assertion.assert(hasText(text = "another text"))
         // no error
@@ -139,43 +165,50 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun chainAssertions() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+            )
 
-        assertion
-            .assertExists()
-            .assert(hasText(text = "another text"))
+        assertion.assertExists().assert(hasText(text = "another text"))
         // no error
     }
 
     @Test
     fun chainAssertion_failureInFirst() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+            )
 
-        val assertionError = assertThrows(AssertionError::class.java) {
-            assertion
-                .assertDoesNotExist()
-                .assert(hasText(text = "another text"))
-        }
+        val assertionError =
+            assertThrows(AssertionError::class.java) {
+                assertion.assertDoesNotExist().assert(hasText(text = "another text"))
+            }
 
         assertThat(assertionError)
             .hasMessageThat()
@@ -188,23 +221,27 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun chainAssertion_failureInSecond() {
-        val assertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children.add(EmittableText().apply { text = "some text" })
-                children.add(EmittableSpacer())
-                children.add(EmittableText().apply {
-                    text = "another text"
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                })
-            },
-            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
-        )
+        val assertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children.add(EmittableText().apply { text = "some text" })
+                        children.add(EmittableSpacer())
+                        children.add(
+                            EmittableText().apply {
+                                text = "another text"
+                                modifier =
+                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                            }
+                        )
+                    },
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+            )
 
-        val assertionError = assertThrows(AssertionError::class.java) {
-            assertion
-                .assertExists()
-                .assert(hasText(text = "non-existing text"))
-        }
+        val assertionError =
+            assertThrows(AssertionError::class.java) {
+                assertion.assertExists().assert(hasText(text = "non-existing text"))
+            }
 
         assertThat(assertionError)
             .hasMessageThat()

@@ -26,7 +26,8 @@ import org.junit.Test
 class BitmapDrawableTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
-    @Test fun fromBitmap() {
+    @Test
+    fun fromBitmap() {
         val b = createBitmap(1, 1)
         val drawable = b.toDrawable(context.resources)
         assertEquals(b, drawable.bitmap)

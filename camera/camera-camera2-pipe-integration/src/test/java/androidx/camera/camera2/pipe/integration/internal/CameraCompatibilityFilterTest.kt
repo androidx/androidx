@@ -67,11 +67,17 @@ class CameraCompatibilityFilterTest {
         ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", "fake-fingerprint")
 
         setupCameras()
-        val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
-            ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
-                CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), null, -1L
-        )
+        val cameraFactoryAdapter =
+            CameraFactoryProvider()
+                .newInstance(
+                    ApplicationProvider.getApplicationContext(),
+                    CameraThreadConfig.create(
+                        CameraXExecutors.mainThreadExecutor(),
+                        Handler(Looper.getMainLooper())
+                    ),
+                    null,
+                    -1L
+                )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds).containsExactly("0", "1", "2")
     }
@@ -84,11 +90,17 @@ class CameraCompatibilityFilterTest {
 
         setupCameras()
 
-        val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
-            ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
-                CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), CameraSelector.DEFAULT_BACK_CAMERA, -1L
-        )
+        val cameraFactoryAdapter =
+            CameraFactoryProvider()
+                .newInstance(
+                    ApplicationProvider.getApplicationContext(),
+                    CameraThreadConfig.create(
+                        CameraXExecutors.mainThreadExecutor(),
+                        Handler(Looper.getMainLooper())
+                    ),
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    -1L
+                )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds).containsExactly("0", "2")
     }
@@ -97,11 +109,17 @@ class CameraCompatibilityFilterTest {
     fun NotFilterOutIncompatibleCameras_whenBuildFingerprintIsRobolectric() {
         setupCameras()
 
-        val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
-            ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
-                CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), null, -1L
-        )
+        val cameraFactoryAdapter =
+            CameraFactoryProvider()
+                .newInstance(
+                    ApplicationProvider.getApplicationContext(),
+                    CameraThreadConfig.create(
+                        CameraXExecutors.mainThreadExecutor(),
+                        Handler(Looper.getMainLooper())
+                    ),
+                    null,
+                    -1L
+                )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds)
             .containsExactly("0", "1", "2", "3")
@@ -114,7 +132,6 @@ class CameraCompatibilityFilterTest {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics =
             Shadow.extract<ShadowCameraCharacteristics>(characteristics).apply {
-
                 set(CameraCharacteristics.LENS_FACING, lensFacing)
 
                 set(
@@ -135,14 +152,16 @@ class CameraCompatibilityFilterTest {
 
         capabilities?.let {
             shadowCharacteristics.set(
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, capabilities
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
+                capabilities
             )
         }
 
         // Add the camera to the camera service
         (Shadow.extract<Any>(
-            ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE)
-        ) as ShadowCameraManager).addCamera(cameraId, characteristics)
+                ApplicationProvider.getApplicationContext<Context>()
+                    .getSystemService(Context.CAMERA_SERVICE)
+            ) as ShadowCameraManager)
+            .addCamera(cameraId, characteristics)
     }
 }

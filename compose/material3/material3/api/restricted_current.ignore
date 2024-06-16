@@ -1,13 +1,3 @@
 // Baseline format: 1.0
-ChangedDeprecated: androidx.compose.material3.TextKt#Text(androidx.compose.ui.text.AnnotatedString, androidx.compose.ui.Modifier, long, long, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontFamily, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.text.style.TextAlign, long, int, boolean, int, int, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent>, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>, androidx.compose.ui.text.TextStyle):
-    Method androidx.compose.material3.TextKt.Text has changed deprecation state true --> false
-
-
-RemovedClass: androidx.compose.material3.TextDefaults:
-    Removed class androidx.compose.material3.TextDefaults
-RemovedClass: androidx.compose.material3.TextLinkStyles:
-    Removed class androidx.compose.material3.TextLinkStyles
-
-
-RemovedMethod: androidx.compose.material3.TextKt#Text(androidx.compose.ui.text.AnnotatedString, androidx.compose.ui.Modifier, long, long, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontFamily, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.text.style.TextAlign, long, int, boolean, int, int, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent>, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>, androidx.compose.ui.text.TextStyle, androidx.compose.material3.TextLinkStyles):
-    Removed method androidx.compose.material3.TextKt.Text(androidx.compose.ui.text.AnnotatedString,androidx.compose.ui.Modifier,long,long,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontFamily,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.text.style.TextAlign,long,int,boolean,int,int,java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent>,kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>,androidx.compose.ui.text.TextStyle,androidx.compose.material3.TextLinkStyles)
+AddedClass: androidx.compose.material3.ModalBottomSheetKt:
+    Added class androidx.compose.material3.ModalBottomSheetKt

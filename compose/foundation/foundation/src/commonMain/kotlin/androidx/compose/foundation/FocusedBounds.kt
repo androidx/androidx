@@ -25,8 +25,8 @@ import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
- * Calls [onPositioned] whenever the bounds of the currently-focused area changes.
- * If a child of this node has focus, [onPositioned] will be called immediately with a non-null
+ * Calls [onPositioned] whenever the bounds of the currently-focused area changes. If a child of
+ * this node has focus, [onPositioned] will be called immediately with a non-null
  * [LayoutCoordinates] that can be queried for the focused bounds, and again every time the focused
  * child changes or is repositioned. When a child loses focus, [onPositioned] will be passed `null`.
  *
@@ -40,11 +40,9 @@ import androidx.compose.ui.platform.InspectorInfo
 fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
     this then FocusedBoundsObserverElement(onPositioned)
 
-private class FocusedBoundsObserverElement(
-    val onPositioned: (LayoutCoordinates?) -> Unit
-) : ModifierNodeElement<FocusedBoundsObserverNode>() {
-    override fun create(): FocusedBoundsObserverNode =
-        FocusedBoundsObserverNode(onPositioned)
+private class FocusedBoundsObserverElement(val onPositioned: (LayoutCoordinates?) -> Unit) :
+    ModifierNodeElement<FocusedBoundsObserverNode>() {
+    override fun create(): FocusedBoundsObserverNode = FocusedBoundsObserverNode(onPositioned)
 
     override fun update(node: FocusedBoundsObserverNode) {
         node.onPositioned = onPositioned
@@ -64,15 +62,13 @@ private class FocusedBoundsObserverElement(
     }
 }
 
-internal class FocusedBoundsObserverNode(
-    var onPositioned: (LayoutCoordinates?) -> Unit
-) : Modifier.Node(), TraversableNode {
+internal class FocusedBoundsObserverNode(var onPositioned: (LayoutCoordinates?) -> Unit) :
+    Modifier.Node(), TraversableNode {
 
     override val traverseKey: Any = TraverseKey
 
     /** Called when a child gains/loses focus or is focused and changes position. */
-
-     fun onFocusBoundsChanged(focusedBounds: LayoutCoordinates?) {
+    fun onFocusBoundsChanged(focusedBounds: LayoutCoordinates?) {
         onPositioned(focusedBounds)
         findNearestAncestor()?.onFocusBoundsChanged(focusedBounds)
     }
@@ -81,25 +77,28 @@ internal class FocusedBoundsObserverNode(
 }
 
 /**
- * Modifier used by [Modifier.focusable] to publish the location of the focused element.
- * Should only be applied to the node when it is actually focused. Right now this will keep
- * this node around, but once the un-delegate API lands we can remove this node entirely if it
- * is not focused. (b/276790428)
+ * Modifier used by [Modifier.focusable] to publish the location of the focused element. Should only
+ * be applied to the node when it is actually focused. Right now this will keep this node around,
+ * but once the un-delegate API lands we can remove this node entirely if it is not focused.
+ * (b/276790428)
  */
-internal class FocusedBoundsNode : Modifier.Node(), TraversableNode,
-    GlobalPositionAwareModifierNode {
+internal class FocusedBoundsNode :
+    Modifier.Node(), TraversableNode, GlobalPositionAwareModifierNode {
     private var isFocused: Boolean = false
 
-    override val traverseKey: Any get() = TraverseKey
+    override val traverseKey: Any
+        get() = TraverseKey
 
     override val shouldAutoInvalidate: Boolean = false
 
     private val observer: FocusedBoundsObserverNode?
-        get() = if (isAttached) {
-            findNearestAncestor(FocusedBoundsObserverNode.TraverseKey) as? FocusedBoundsObserverNode
-        } else {
-            null
-        }
+        get() =
+            if (isAttached) {
+                findNearestAncestor(FocusedBoundsObserverNode.TraverseKey)
+                    as? FocusedBoundsObserverNode
+            } else {
+                null
+            }
 
     private var layoutCoordinates: LayoutCoordinates? = null
 

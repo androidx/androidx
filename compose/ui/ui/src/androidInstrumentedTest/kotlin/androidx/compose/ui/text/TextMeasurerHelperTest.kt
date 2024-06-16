@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextMeasurerHelperTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val context = InstrumentationRegistry.getInstrumentation().targetContext
 
@@ -50,9 +49,7 @@ class TextMeasurerHelperTest {
         val measurers = mutableSetOf<TextMeasurer>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalFontFamilyResolver provides fontFamilyResolver.value
-            ) {
+            CompositionLocalProvider(LocalFontFamilyResolver provides fontFamilyResolver.value) {
                 val textMeasurer = rememberTextMeasurer()
                 measurers.add(textMeasurer)
             }
@@ -73,9 +70,7 @@ class TextMeasurerHelperTest {
         val measurers = mutableSetOf<TextMeasurer>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides density.value
-            ) {
+            CompositionLocalProvider(LocalDensity provides density.value) {
                 val textMeasurer = rememberTextMeasurer()
                 measurers.add(textMeasurer)
             }
@@ -94,9 +89,7 @@ class TextMeasurerHelperTest {
         val measurers = mutableSetOf<TextMeasurer>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides layoutDirection.value
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection.value) {
                 val textMeasurer = rememberTextMeasurer()
                 measurers.add(textMeasurer)
             }

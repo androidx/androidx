@@ -22,10 +22,10 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
- * Helper method to determine if the appropriate [TileMode] is supported on the given Android
- * API level this provides an opportunity for consumers to fallback on an alternative user
- * experience for devices that do not support the corresponding blend mode. Usages of [TileMode]
- * types that are not supported will fallback onto the default of [TileMode.Clamp]
+ * Helper method to determine if the appropriate [TileMode] is supported on the given Android API
+ * level this provides an opportunity for consumers to fallback on an alternative user experience
+ * for devices that do not support the corresponding blend mode. Usages of [TileMode] types that are
+ * not supported will fallback onto the default of [TileMode.Clamp]
  */
 actual fun TileMode.isSupported(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || this != TileMode.Decal
@@ -62,9 +62,7 @@ fun Shader.TileMode.toComposeTileMode(): TileMode =
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object TileModeVerificationHelper {
-    @DoNotInline
-    fun getFrameworkTileModeDecal() = Shader.TileMode.DECAL
+    @DoNotInline fun getFrameworkTileModeDecal() = Shader.TileMode.DECAL
 
-    @DoNotInline
-    fun getComposeTileModeDecal() = TileMode.Decal
+    @DoNotInline fun getComposeTileModeDecal() = TileMode.Decal
 }

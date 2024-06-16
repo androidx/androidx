@@ -31,17 +31,16 @@ import androidx.recyclerview.widget.RecyclerView
 
 @Sampled
 fun loadStateAdapterSample() {
-    class LoadStateViewHolder(
-        parent: ViewGroup,
-        retry: () -> Unit
-    ) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context)
-            .inflate(R.layout.load_state_item, parent, false)
-    ) {
+    class LoadStateViewHolder(parent: ViewGroup, retry: () -> Unit) :
+        RecyclerView.ViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.load_state_item, parent, false)
+        ) {
         private val progressBar: ProgressBar = itemView.findViewById(R.id.progress_bar)
         private val errorMsg: TextView = itemView.findViewById(R.id.error_msg)
-        private val retry: Button = itemView.findViewById<Button>(R.id.retry_button)
-            .also { it.setOnClickListener { retry.invoke() } }
+        private val retry: Button =
+            itemView.findViewById<Button>(R.id.retry_button).also {
+                it.setOnClickListener { retry.invoke() }
+            }
 
         fun bind(loadState: LoadState) {
             if (loadState is LoadState.Error) {
@@ -52,20 +51,20 @@ fun loadStateAdapterSample() {
             errorMsg.visibility = toVisibility(loadState !is LoadState.Loading)
         }
 
-        private fun toVisibility(constraint: Boolean): Int = if (constraint) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        private fun toVisibility(constraint: Boolean): Int =
+            if (constraint) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
     }
 
     /**
      * Adapter which displays a loading spinner when `state = LoadState.Loading`, and an error
      * message and retry button when `state is LoadState.Error`.
      */
-    class MyLoadStateAdapter(
-        private val retry: () -> Unit
-    ) : LoadStateAdapter<LoadStateViewHolder>() {
+    class MyLoadStateAdapter(private val retry: () -> Unit) :
+        LoadStateAdapter<LoadStateViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
             LoadStateViewHolder(parent, retry)

@@ -37,7 +37,6 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProcessingUtil;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 
@@ -54,7 +53,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * An {@link AdvancedExtenderImpl} implementation that have long processing time for capture and
  * is capable of outputting the postview and the process progress event.
  */
-@RequiresApi(21)
 public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
     private static final int EV_INDEX = 10;
 
@@ -386,7 +384,6 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
             return 0;
         }
 
-        @RequiresApi(21)
         @Override
         public void onCaptureSessionStart(@NonNull RequestProcessorImpl requestProcessor) {
             mRequestProcessor = requestProcessor;

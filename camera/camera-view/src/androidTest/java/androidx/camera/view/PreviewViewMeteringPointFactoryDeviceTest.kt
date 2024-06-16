@@ -30,9 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Instrument test for [PreviewViewMeteringPointFactory].
- */
+/** Instrument test for [PreviewViewMeteringPointFactory]. */
 @SmallTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -210,11 +208,12 @@ class PreviewViewMeteringPointFactoryDeviceTest(
                 cropRect,
                 rotationDegrees,
                 FAKE_TARGET_ROTATION,
-                /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                /*hasCameraTransform=*/ true,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
-            surfaceSize, isFrontCamera
+            surfaceSize,
+            isFrontCamera
         )
         val meteringPointFactory = PreviewViewMeteringPointFactory(previewTransformation)
 

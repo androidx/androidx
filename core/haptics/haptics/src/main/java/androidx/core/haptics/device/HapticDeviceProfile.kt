@@ -23,10 +23,10 @@ import androidx.core.haptics.signal.PredefinedEffectSignal
 import androidx.core.haptics.signal.WaveformSignal
 import java.util.Objects
 
-/**
- * A [HapticDeviceProfile] describes the vibrator hardware capabilities for a device.
- */
-class HapticDeviceProfile @JvmOverloads constructor(
+/** A [HapticDeviceProfile] describes the vibrator hardware capabilities for a device. */
+class HapticDeviceProfile
+@JvmOverloads
+constructor(
 
     /**
      * Hint for whether the device supports controlling the vibration strength.
@@ -44,9 +44,7 @@ class HapticDeviceProfile @JvmOverloads constructor(
      */
     hardwareOptimizedPredefinedEffectsHint: Set<PredefinedEffectSignal> = emptySet(),
 
-    /**
-     * The vibrator capabilities related to the support for [CompositionSignal]s.
-     */
+    /** The vibrator capabilities related to the support for [CompositionSignal]s. */
     val compositionProfile: HapticCompositionProfile = HapticCompositionProfile(),
 ) {
     /**
@@ -67,9 +65,9 @@ class HapticDeviceProfile @JvmOverloads constructor(
      * Predefined effects are always supported by the Android platform, but not all devices provide
      * optimized hardware implementation for these haptic effects.
      *
-     * The set contains only the effects that have confirmed hardware implementation reported by
-     * the device vibrator. The set will be empty if the device hardware does not report support for
-     * any predefined haptic effect, or if the required APIs are not available in this SDK level.
+     * The set contains only the effects that have confirmed hardware implementation reported by the
+     * device vibrator. The set will be empty if the device hardware does not report support for any
+     * predefined haptic effect, or if the required APIs are not available in this SDK level.
      */
     val hardwareOptimizedPredefinedEffects: Set<PredefinedEffectSignal>
 
@@ -80,9 +78,9 @@ class HapticDeviceProfile @JvmOverloads constructor(
 
         val availablePredefinedEffects = PredefinedEffectSignal.getSdkAvailableEffects()
         hardwareOptimizedPredefinedEffects =
-            hardwareOptimizedPredefinedEffectsHint.filter {
-                availablePredefinedEffects.contains(it)
-            }.toSet()
+            hardwareOptimizedPredefinedEffectsHint
+                .filter { availablePredefinedEffects.contains(it) }
+                .toSet()
     }
 
     /**
@@ -94,8 +92,8 @@ class HapticDeviceProfile @JvmOverloads constructor(
      * the one intended, e.g. [WaveformSignal] with partial amplitudes on a device without amplitude
      * control will play at a fixed default vibration strength.
      *
-     * This method will always return true for [PredefinedEffectSignal], as the platform will play
-     * a device-specific predefined vibration even without hardware support for these effects. If
+     * This method will always return true for [PredefinedEffectSignal], as the platform will play a
+     * device-specific predefined vibration even without hardware support for these effects. If
      * hardware support is required for your use case then check
      * [hardwareOptimizedPredefinedEffects] directly.
      *
@@ -103,8 +101,7 @@ class HapticDeviceProfile @JvmOverloads constructor(
      * @return true if the device vibrator can play the given haptic signal as intended, false
      *   otherwise.
      */
-    fun supports(signal: HapticSignal): Boolean =
-        signal.isSupportedBy(this)
+    fun supports(signal: HapticSignal): Boolean = signal.isSupportedBy(this)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

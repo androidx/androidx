@@ -56,9 +56,7 @@ class CameraSurfaceAdapter(
         initSupportedSurfaceCombinationMap(context, availableCameraIds)
     }
 
-    /**
-     * Prepare supportedSurfaceCombinationMap for surface adapter.
-     */
+    /** Prepare supportedSurfaceCombinationMap for surface adapter. */
     private fun initSupportedSurfaceCombinationMap(
         context: Context,
         availableCameraIds: Set<String>
@@ -69,17 +67,20 @@ class CameraSurfaceAdapter(
                     component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))!!
                 val streamConfigurationMap =
                     cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-                val cameraQuirks = CameraQuirks(
-                    cameraMetadata, StreamConfigurationMapCompat(
-                        streamConfigurationMap,
-                        OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+                val cameraQuirks =
+                    CameraQuirks(
+                        cameraMetadata,
+                        StreamConfigurationMapCompat(
+                            streamConfigurationMap,
+                            OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+                        )
                     )
-                )
-                supportedSurfaceCombinationMap[cameraId] = SupportedSurfaceCombination(
-                    context,
-                    cameraMetadata,
-                    EncoderProfilesProviderAdapter(cameraId, cameraQuirks.quirks)
-                )
+                supportedSurfaceCombinationMap[cameraId] =
+                    SupportedSurfaceCombination(
+                        context,
+                        cameraMetadata,
+                        EncoderProfilesProviderAdapter(cameraId, cameraQuirks.quirks)
+                    )
             } catch (exception: DoNotDisturbException) {
                 Log.error {
                     "Failed to create supported surface combinations: " +
@@ -92,10 +93,10 @@ class CameraSurfaceAdapter(
     /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
-     * @param cameraMode  the working camera mode.
-     * @param cameraId    the camera id of the camera device to transform the object
+     * @param cameraMode the working camera mode.
+     * @param cameraId the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
-     * @param size        the size info for the surface configuration object
+     * @param size the size info for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
     override fun transformSurfaceConfig(
@@ -108,14 +109,15 @@ class CameraSurfaceAdapter(
 
         return supportedSurfaceCombinationMap[cameraId]!!.transformSurfaceConfig(
             cameraMode,
-            imageFormat, size
+            imageFormat,
+            size
         )
     }
 
     /**
      * Check whether the supportedSurfaceCombination for the camera id exists
      *
-     * @param cameraId          the camera id of the camera device used by the use case.
+     * @param cameraId the camera id of the camera device used by the use case.
      */
     private fun checkIfSupportedCombinationExist(cameraId: String): Boolean {
         return supportedSurfaceCombinationMap.containsKey(cameraId)
@@ -124,19 +126,17 @@ class CameraSurfaceAdapter(
     /**
      * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
-     * @param cameraMode        the working camera mode.
-     * @param cameraId          the camera id of the camera device used by the use cases
-     * @param existingSurfaces  list of surfaces already configured and used by the camera. The
-     *                          resolutions for these surface can not change.
+     * @param cameraMode the working camera mode.
+     * @param cameraId the camera id of the camera device used by the use cases
+     * @param existingSurfaces list of surfaces already configured and used by the camera. The
+     *   resolutions for these surface can not change.
      * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
-     *                                          supported sizes list that will be given a
-     *                                          suggested stream specification
-     * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
+     *   supported sizes list that will be given a suggested stream specification
+     * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
      * @return map of suggested stream specifications for given use cases
-     * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
-     *                                  there isn't a supported combination of surfaces
-     *                                  available, or if the {@code cameraId}
-     *                                  is not a valid id.
+     * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if there
+     *   isn't a supported combination of surfaces available, or if the {@code cameraId} is not a
+     *   valid id.
      */
     override fun getSuggestedStreamSpecs(
         cameraMode: Int,

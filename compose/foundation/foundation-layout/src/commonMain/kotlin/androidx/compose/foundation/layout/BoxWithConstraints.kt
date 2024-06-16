@@ -29,25 +29,23 @@ import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A composable that defines its own content according to the available space, based on the incoming
- * constraints or the current [LayoutDirection].
- * Example usage:
+ * constraints or the current [LayoutDirection]. Example usage:
+ *
  * @sample androidx.compose.foundation.layout.samples.BoxWithConstraintsSample
  *
- * The composable will compose the given children, and will position the resulting layout
- * elements in a parent layout which behaves similar to a [Box].
- * The layout will size itself to fit the content, subject to the incoming constraints.
- * When children are smaller than the parent, by default they will be positioned inside
- * the layout according to the [contentAlignment]. For individually specifying the alignments
- * of the children layouts, use the [BoxScope.align] modifier.
- * By default, the content will be measured without the [Box]'s incoming min constraints,
+ * The composable will compose the given children, and will position the resulting layout elements
+ * in a parent layout which behaves similar to a [Box]. The layout will size itself to fit the
+ * content, subject to the incoming constraints. When children are smaller than the parent, by
+ * default they will be positioned inside the layout according to the [contentAlignment]. For
+ * individually specifying the alignments of the children layouts, use the [BoxScope.align]
+ * modifier. By default, the content will be measured without the [Box]'s incoming min constraints,
  * unless [propagateMinConstraints] is `true`. As an example, setting [propagateMinConstraints] to
  * `true` can be useful when the [BoxWithConstraints] has content on which modifiers cannot be
  * specified directly and setting a min size on the content of the [BoxWithConstraints] is needed.
  * If [propagateMinConstraints] is set to `true`, the min size set on the [BoxWithConstraints] will
  * also be applied to the content, whereas otherwise the min size will only apply to the
- * [BoxWithConstraints].
- * When the content has more than one layout child the layout children will be stacked one
- * on top of the other (positioned as explained above) in the composition order.
+ * [BoxWithConstraints]. When the content has more than one layout child the layout children will be
+ * stacked one on top of the other (positioned as explained above) in the composition order.
  *
  * @param modifier Modifier to be applied to the layout.
  * @param contentAlignment The default alignment inside the [BoxWithConstraints].
@@ -60,8 +58,7 @@ fun BoxWithConstraints(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     propagateMinConstraints: Boolean = false,
-    content:
-        @Composable @UiComposable BoxWithConstraintsScope.() -> Unit
+    content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit
 ) {
     val measurePolicy = maybeCachedBoxMeasurePolicy(contentAlignment, propagateMinConstraints)
     SubcomposeLayout(modifier) { constraints ->
@@ -71,9 +68,7 @@ fun BoxWithConstraints(
     }
 }
 
-/**
- * Receiver scope being used by the children parameter of [BoxWithConstraints]
- */
+/** Receiver scope being used by the children parameter of [BoxWithConstraints] */
 @Stable
 interface BoxWithConstraintsScope : BoxScope {
     /**
@@ -112,12 +107,21 @@ private data class BoxWithConstraintsScopeImpl(
     private val density: Density,
     override val constraints: Constraints
 ) : BoxWithConstraintsScope, BoxScope by BoxScopeInstance {
-    override val minWidth: Dp get() = with(density) { constraints.minWidth.toDp() }
-    override val maxWidth: Dp get() = with(density) {
-        if (constraints.hasBoundedWidth) constraints.maxWidth.toDp() else Dp.Infinity
-    }
-    override val minHeight: Dp get() = with(density) { constraints.minHeight.toDp() }
-    override val maxHeight: Dp get() = with(density) {
-        if (constraints.hasBoundedHeight) constraints.maxHeight.toDp() else Dp.Infinity
-    }
+    override val minWidth: Dp
+        get() = with(density) { constraints.minWidth.toDp() }
+
+    override val maxWidth: Dp
+        get() =
+            with(density) {
+                if (constraints.hasBoundedWidth) constraints.maxWidth.toDp() else Dp.Infinity
+            }
+
+    override val minHeight: Dp
+        get() = with(density) { constraints.minHeight.toDp() }
+
+    override val maxHeight: Dp
+        get() =
+            with(density) {
+                if (constraints.hasBoundedHeight) constraints.maxHeight.toDp() else Dp.Infinity
+            }
 }

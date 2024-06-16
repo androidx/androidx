@@ -25,32 +25,25 @@ import kotlin.contracts.contract
  * It is not an XType as it does not represent a class or primitive.
  */
 interface XMethodType : XExecutableType {
-    /**
-     * The return type of the method
-     */
+    /** The return type of the method */
     val returnType: XType
 
     val typeVariables: List<XTypeVariableType>
 
-    /**
-     * Returns the names of [TypeVariableName]s for this executable.
-     */
+    /** Returns the names of [TypeVariableName]s for this executable. */
     @Deprecated(
         message = "Use typeVariables property and convert to JavaPoet names.",
-        replaceWith = ReplaceWith(
-            expression = "typeVariables.map { it.asTypeName().toJavaPoet() }",
-            imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-        )
+        replaceWith =
+            ReplaceWith(
+                expression = "typeVariables.map { it.asTypeName().toJavaPoet() }",
+                imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+            )
     )
     val typeVariableNames: List<TypeVariableName>
 }
 
-/**
- * Returns `true` if this method type represents a suspend function
- */
+/** Returns `true` if this method type represents a suspend function */
 fun XMethodType.isSuspendFunction(): Boolean {
-    contract {
-        returns(true) implies (this@isSuspendFunction is XSuspendMethodType)
-    }
+    contract { returns(true) implies (this@isSuspendFunction is XSuspendMethodType) }
     return this is XSuspendMethodType
 }

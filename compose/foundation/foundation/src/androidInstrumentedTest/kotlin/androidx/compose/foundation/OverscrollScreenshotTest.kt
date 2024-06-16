@@ -50,11 +50,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class OverscrollScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_UI)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_UI)
 
     @get:Rule
     val animationScaleRule: AnimationDurationScaleRule =
@@ -66,20 +64,16 @@ class OverscrollScreenshotTest {
     @Ignore("b/197325932 no animations in screenshot tests")
     fun overscroll_dragTop() {
         animationScaleRule.setAnimationDurationScale(1f)
-        rule.setContent {
-            VerticalScrollable()
+        rule.setContent { VerticalScrollable() }
+
+        rule.onNodeWithTag(overscrollTag).performTouchInput {
+            down(Offset(centerX + width / 2 - 10, centerY))
+            moveBy(Offset(0f, 500f))
+            repeat(5) { moveBy(Offset(0f, 200f)) }
         }
 
-        rule.onNodeWithTag(overscrollTag)
-            .performTouchInput {
-                down(Offset(centerX + width / 2 - 10, centerY))
-                moveBy(Offset(0f, 500f))
-                repeat(5) {
-                    moveBy(Offset(0f, 200f))
-                }
-            }
-
-        rule.onNodeWithTag(overscrollTag)
+        rule
+            .onNodeWithTag(overscrollTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "overscroll_top_origin")
     }
@@ -88,20 +82,16 @@ class OverscrollScreenshotTest {
     @Ignore("b/197325932 no animations in screenshot tests")
     fun overscroll_dragBottom() {
         animationScaleRule.setAnimationDurationScale(1f)
-        rule.setContent {
-            VerticalScrollable()
+        rule.setContent { VerticalScrollable() }
+
+        rule.onNodeWithTag(overscrollTag).performTouchInput {
+            down(Offset(centerX + width / 2 - 10, centerY))
+            moveBy(Offset(0f, -500f))
+            repeat(5) { moveBy(Offset(0f, -200f)) }
         }
 
-        rule.onNodeWithTag(overscrollTag)
-            .performTouchInput {
-                down(Offset(centerX + width / 2 - 10, centerY))
-                moveBy(Offset(0f, -500f))
-                repeat(5) {
-                    moveBy(Offset(0f, -200f))
-                }
-            }
-
-        rule.onNodeWithTag(overscrollTag)
+        rule
+            .onNodeWithTag(overscrollTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "overscroll_bottom_origin")
     }
@@ -110,20 +100,16 @@ class OverscrollScreenshotTest {
     @Ignore("b/197325932 no animations in screenshot tests")
     fun overscroll_dragLeft() {
         animationScaleRule.setAnimationDurationScale(1f)
-        rule.setContent {
-            HorizontalScrollable()
+        rule.setContent { HorizontalScrollable() }
+
+        rule.onNodeWithTag(overscrollTag).performTouchInput {
+            down(Offset(centerX, centerY + height / 2 - 10))
+            moveBy(Offset(500f, 0f))
+            repeat(5) { moveBy(Offset(200f, 0f)) }
         }
 
-        rule.onNodeWithTag(overscrollTag)
-            .performTouchInput {
-                down(Offset(centerX, centerY + height / 2 - 10))
-                moveBy(Offset(500f, 0f))
-                repeat(5) {
-                    moveBy(Offset(200f, 0f))
-                }
-            }
-
-        rule.onNodeWithTag(overscrollTag)
+        rule
+            .onNodeWithTag(overscrollTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "overscroll_left_origin")
     }
@@ -132,20 +118,16 @@ class OverscrollScreenshotTest {
     @Ignore("b/197325932 no animations in screenshot tests")
     fun overscroll_dragRight() {
         animationScaleRule.setAnimationDurationScale(1f)
-        rule.setContent {
-            HorizontalScrollable()
+        rule.setContent { HorizontalScrollable() }
+
+        rule.onNodeWithTag(overscrollTag).performTouchInput {
+            down(Offset(centerX, centerY + height / 2 - 10))
+            moveBy(Offset(-500f, 0f))
+            repeat(5) { moveBy(Offset(-200f, 0f)) }
         }
 
-        rule.onNodeWithTag(overscrollTag)
-            .performTouchInput {
-                down(Offset(centerX, centerY + height / 2 - 10))
-                moveBy(Offset(-500f, 0f))
-                repeat(5) {
-                    moveBy(Offset(-200f, 0f))
-                }
-            }
-
-        rule.onNodeWithTag(overscrollTag)
+        rule
+            .onNodeWithTag(overscrollTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "overscroll_right_origin")
     }
@@ -154,24 +136,16 @@ class OverscrollScreenshotTest {
     @Composable
     fun VerticalScrollable() {
         CompositionLocalProvider(
-            LocalOverscrollConfiguration provides OverscrollConfiguration(
-                glowColor = Color.Red,
-                drawPadding = PaddingValues(10.dp)
-            )
+            LocalOverscrollConfiguration provides
+                OverscrollConfiguration(glowColor = Color.Red, drawPadding = PaddingValues(10.dp))
         ) {
-            Box(
-                Modifier
-                    .wrapContentSize(Alignment.TopStart)
-            ) {
+            Box(Modifier.wrapContentSize(Alignment.TopStart)) {
                 LazyColumn(
-                    Modifier
-                        .border(5.dp, Color.Black)
+                    Modifier.border(5.dp, Color.Black)
                         .size(width = 400.dp, height = 200.dp)
                         .testTag(overscrollTag)
                 ) {
-                    items(7) {
-                        Box(Modifier.size(400.dp, 50.dp))
-                    }
+                    items(7) { Box(Modifier.size(400.dp, 50.dp)) }
                 }
             }
         }
@@ -181,24 +155,16 @@ class OverscrollScreenshotTest {
     @Composable
     fun HorizontalScrollable() {
         CompositionLocalProvider(
-            LocalOverscrollConfiguration provides OverscrollConfiguration(
-                glowColor = Color.Red,
-                drawPadding = PaddingValues(10.dp)
-            )
+            LocalOverscrollConfiguration provides
+                OverscrollConfiguration(glowColor = Color.Red, drawPadding = PaddingValues(10.dp))
         ) {
-            Box(
-                Modifier
-                    .wrapContentSize(Alignment.TopStart)
-            ) {
+            Box(Modifier.wrapContentSize(Alignment.TopStart)) {
                 LazyRow(
-                    Modifier
-                        .border(5.dp, Color.Black)
+                    Modifier.border(5.dp, Color.Black)
                         .size(width = 200.dp, height = 400.dp)
                         .testTag(overscrollTag)
                 ) {
-                    items(7) {
-                        Box(Modifier.size(50.dp, 400.dp))
-                    }
+                    items(7) { Box(Modifier.size(50.dp, 400.dp)) }
                 }
             }
         }

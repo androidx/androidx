@@ -26,13 +26,13 @@ import androidx.annotation.RestrictTo
  * ending condition for each value or velocity query, and instead only requires the play time to be
  * passed for such queries.
  *
- * The implementation of this interface should cache the starting conditions and ending
- * conditions of animations as needed.
+ * The implementation of this interface should cache the starting conditions and ending conditions
+ * of animations as needed.
  *
  * __Note__: [Animation] does not track the lifecycle of an animation. It merely reacts to play time
  * change and returns the new value/velocity as a result. It can be used as a building block for
- * more lifecycle aware animations. In contrast, [Animatable] and [Transition] are
- * stateful and manage their own lifecycles.
+ * more lifecycle aware animations. In contrast, [Animatable] and [Transition] are stateful and
+ * manage their own lifecycles.
  *
  * @see [Animatable]
  * @see [rememberTransition]
@@ -40,28 +40,23 @@ import androidx.annotation.RestrictTo
  */
 @JvmDefaultWithCompatibility
 interface Animation<T, V : AnimationVector> {
-    /**
-     * This amount of time in nanoseconds that the animation will run before it finishes
-     */
-    @get:Suppress("MethodNameUnits")
-    val durationNanos: Long
+    /** This amount of time in nanoseconds that the animation will run before it finishes */
+    @get:Suppress("MethodNameUnits") val durationNanos: Long
 
     /**
      * The [TwoWayConverter] that will be used to convert value/velocity from any arbitrary data
-     * type to [AnimationVector]. This makes it possible to animate different dimensions of the
-     * data object independently (e.g. x/y dimensions of the position data).
+     * type to [AnimationVector]. This makes it possible to animate different dimensions of the data
+     * object independently (e.g. x/y dimensions of the position data).
      */
     val typeConverter: TwoWayConverter<T, V>
 
-    /**
-     * This is the value that the [Animation] will reach when it finishes uninterrupted.
-     */
+    /** This is the value that the [Animation] will reach when it finishes uninterrupted. */
     val targetValue: T
 
     /**
-     * Whether or not the [Animation] represents an infinite animation. That is, one that will
-     * not finish by itself, one that needs an external action to stop. For examples, an
-     * indeterminate progress bar, which will only stop when it is removed from the composition.
+     * Whether or not the [Animation] represents an infinite animation. That is, one that will not
+     * finish by itself, one that needs an external action to stop. For examples, an indeterminate
+     * progress bar, which will only stop when it is removed from the composition.
      */
     val isInfinite: Boolean
 
@@ -110,10 +105,11 @@ internal const val SecondsToMillis: Long = 1_000L
  */
 fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos: Long): T =
     typeConverter.convertFromVector(getVelocityVectorFromNanos(playTimeNanos))
+
 /**
- * Creates a [TargetBasedAnimation] from a given [VectorizedAnimationSpec] of [AnimationVector] type. This
- * convenient method is intended for when the value being animated (i.e. start value, end value,
- * etc) is of [AnimationVector] type.
+ * Creates a [TargetBasedAnimation] from a given [VectorizedAnimationSpec] of [AnimationVector]
+ * type. This convenient method is intended for when the value being animated (i.e. start value, end
+ * value, etc) is of [AnimationVector] type.
  *
  * @param initialValue the value that the animation will start from
  * @param targetValue the value that the animation will end at
@@ -134,19 +130,19 @@ fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     )
 
 /**
- * Creates a [TargetBasedAnimation] with the given start/end conditions of the animation, and
- * the provided [animationSpec].
+ * Creates a [TargetBasedAnimation] with the given start/end conditions of the animation, and the
+ * provided [animationSpec].
  *
- * The resulting [Animation] assumes that the start value and velocity, as well as end value do
- * not change throughout the animation, and cache these values. This caching enables much more
- * convenient query for animation value and velocity (where only playtime needs to be passed
- * into the methods).
+ * The resulting [Animation] assumes that the start value and velocity, as well as end value do not
+ * change throughout the animation, and cache these values. This caching enables much more
+ * convenient query for animation value and velocity (where only playtime needs to be passed into
+ * the methods).
  *
- * __Note__: When interruptions happen to the [TargetBasedAnimation], a new instance should
- * be created that use the current value and velocity as the starting conditions. This type of
- * interruption handling is the default behavior for both [Animatable] and
- * [Transition]. Consider using those APIs for the interruption handling, as well as
- * built-in animation lifecycle management.
+ * __Note__: When interruptions happen to the [TargetBasedAnimation], a new instance should be
+ * created that use the current value and velocity as the starting conditions. This type of
+ * interruption handling is the default behavior for both [Animatable] and [Transition]. Consider
+ * using those APIs for the interruption handling, as well as built-in animation lifecycle
+ * management.
  *
  * @param animationSpec the [AnimationSpec] that will be used to calculate value/velocity
  * @param initialValue the start value of the animation
@@ -160,13 +156,14 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
     initialValue: T,
     targetValue: T,
     initialVelocity: T
-) = TargetBasedAnimation(
-    animationSpec,
-    typeConverter,
-    initialValue,
-    targetValue,
-    typeConverter.convertToVector(initialVelocity)
-)
+) =
+    TargetBasedAnimation(
+        animationSpec,
+        typeConverter,
+        initialValue,
+        targetValue,
+        typeConverter.convertToVector(initialVelocity)
+    )
 
 /**
  * This is a convenient animation wrapper class that works for all target based animations, i.e.
@@ -176,24 +173,24 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
  * the animation, and cache these values. This caching enables much more convenient query for
  * animation value and velocity (where only playtime needs to be passed into the methods).
  *
- * __Note__: When interruptions happen to the [TargetBasedAnimation], a new instance should
- * be created that use the current value and velocity as the starting conditions. This type of
- * interruption handling is the default behavior for both [Animatable] and
- * [Transition]. Consider using those APIs for the interruption handling, as well as
- * built-in animation lifecycle management.
+ * __Note__: When interruptions happen to the [TargetBasedAnimation], a new instance should be
+ * created that use the current value and velocity as the starting conditions. This type of
+ * interruption handling is the default behavior for both [Animatable] and [Transition]. Consider
+ * using those APIs for the interruption handling, as well as built-in animation lifecycle
+ * management.
  *
  * @param animationSpec the [VectorizedAnimationSpec] that will be used to calculate value/velocity
  * @param initialValue the start value of the animation
  * @param targetValue the end value of the animation
  * @param typeConverter the [TwoWayConverter] that is used to convert animation type [T] from/to [V]
  * @param initialVelocityVector the start velocity of the animation in the form of [AnimationVector]
- *
  * @see [Transition]
  * @see [rememberTransition]
  * @see [updateTransition]
  * @see [Animatable]
  */
-class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
+class TargetBasedAnimation<T, V : AnimationVector>
+internal constructor(
     internal val animationSpec: VectorizedAnimationSpec<V>,
     override val typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
@@ -235,14 +232,15 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
      * convenient query for animation value and velocity (where only playtime needs to be passed
      * into the methods).
      *
-     * __Note__: When interruptions happen to the [TargetBasedAnimation], a new instance should
-     * be created that use the current value and velocity as the starting conditions. This type of
-     * interruption handling is the default behavior for both [Animatable] and
-     * [Transition]. Consider using those APIs for the interruption handling, as well as
-     * built-in animation lifecycle management.
+     * __Note__: When interruptions happen to the [TargetBasedAnimation], a new instance should be
+     * created that use the current value and velocity as the starting conditions. This type of
+     * interruption handling is the default behavior for both [Animatable] and [Transition].
+     * Consider using those APIs for the interruption handling, as well as built-in animation
+     * lifecycle management.
      *
      * @param animationSpec the [AnimationSpec] that will be used to calculate value/velocity
-     * @param typeConverter the [TwoWayConverter] that is used to convert animation type [T] from/to [V]
+     * @param typeConverter the [TwoWayConverter] that is used to convert animation type [T] from/to
+     *   [V]
      * @param initialValue the start value of the animation
      * @param targetValue the end value of the animation
      * @param initialVelocityVector the start velocity vector, null by default (meaning 0 velocity).
@@ -264,25 +262,30 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
     private var initialValueVector = typeConverter.convertToVector(initialValue)
     private var targetValueVector = typeConverter.convertToVector(targetValue)
     private val initialVelocityVector =
-        initialVelocityVector?.copy() ?: typeConverter.convertToVector(initialValue)
-            .newInstance()
+        initialVelocityVector?.copy() ?: typeConverter.convertToVector(initialValue).newInstance()
 
-    override val isInfinite: Boolean get() = animationSpec.isInfinite
+    override val isInfinite: Boolean
+        get() = animationSpec.isInfinite
+
     override fun getValueFromNanos(playTimeNanos: Long): T {
         return if (!isFinishedFromNanos(playTimeNanos)) {
-            animationSpec.getValueFromNanos(
-                playTimeNanos, initialValueVector,
-                targetValueVector, initialVelocityVector
-            ).let {
-                // TODO: Remove after b/232030217
-                for (i in 0 until it.size) {
-                    checkPrecondition(!it.get(i).isNaN()) {
-                        "AnimationVector cannot contain a NaN. $it. Animation: $this," +
-                            " playTimeNanos: $playTimeNanos"
+            animationSpec
+                .getValueFromNanos(
+                    playTimeNanos,
+                    initialValueVector,
+                    targetValueVector,
+                    initialVelocityVector
+                )
+                .let {
+                    // TODO: Remove after b/232030217
+                    for (i in 0 until it.size) {
+                        checkPrecondition(!it.get(i).isNaN()) {
+                            "AnimationVector cannot contain a NaN. $it. Animation: $this," +
+                                " playTimeNanos: $playTimeNanos"
+                        }
                     }
+                    typeConverter.convertFromVector(it)
                 }
-                typeConverter.convertFromVector(it)
-            }
         } else {
             targetValue
         }
@@ -294,11 +297,12 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
     override val durationNanos: Long
         get() {
             if (_durationNanos < 0L) {
-                _durationNanos = animationSpec.getDurationNanos(
-                    initialValue = initialValueVector,
-                    targetValue = targetValueVector,
-                    initialVelocity = this.initialVelocityVector
-                )
+                _durationNanos =
+                    animationSpec.getDurationNanos(
+                        initialValue = initialValueVector,
+                        targetValue = targetValueVector,
+                        initialVelocity = this.initialVelocityVector
+                    )
             }
             return _durationNanos
         }
@@ -306,11 +310,15 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
     private var _endVelocity: V? = null
 
     private val endVelocity
-        get() = _endVelocity ?: animationSpec.getEndVelocity(
-                initialValueVector,
-                targetValueVector,
-                this.initialVelocityVector
-            ).also { _endVelocity = it }
+        get() =
+            _endVelocity
+                ?: animationSpec
+                    .getEndVelocity(
+                        initialValueVector,
+                        targetValueVector,
+                        this.initialVelocityVector
+                    )
+                    .also { _endVelocity = it }
 
     override fun getVelocityVectorFromNanos(playTimeNanos: Long): V {
         return if (!isFinishedFromNanos(playTimeNanos)) {
@@ -333,20 +341,21 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
 }
 
 /**
- * [DecayAnimation] is an animation that slows down from [initialVelocityVector] as
- * time goes on. [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It
- * serves as an animation calculation engine that supports convenient query of value/velocity
- * given a play time. To achieve that, [DecayAnimation] stores all the animation related
- * information: [initialValue], [initialVelocityVector], decay animation spec, [typeConverter].
+ * [DecayAnimation] is an animation that slows down from [initialVelocityVector] as time goes on.
+ * [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It serves as an
+ * animation calculation engine that supports convenient query of value/velocity given a play time.
+ * To achieve that, [DecayAnimation] stores all the animation related information: [initialValue],
+ * [initialVelocityVector], decay animation spec, [typeConverter].
  *
- * __Note__: Unless there's a need to control the timing manually, it's
- * generally recommended to use higher level animation APIs that build on top [DecayAnimation],
- * such as [Animatable.animateDecay], [AnimationState.animateDecay], etc.
+ * __Note__: Unless there's a need to control the timing manually, it's generally recommended to use
+ * higher level animation APIs that build on top [DecayAnimation], such as
+ * [Animatable.animateDecay], [AnimationState.animateDecay], etc.
  *
  * @see Animatable.animateDecay
  * @see AnimationState.animateDecay
  */
-class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/ constructor(
+class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/
+constructor(
     private val animationSpec: VectorizedDecayAnimationSpec<V>,
     override val typeConverter: TwoWayConverter<T, V>,
     val initialValue: T,
@@ -356,31 +365,30 @@ class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/ constructor(
     val initialVelocityVector: V = initialVelocityVector.copy()
     private val endVelocity: V
 
-    override val targetValue: T = typeConverter.convertFromVector(
-        animationSpec.getTargetValue(initialValueVector, initialVelocityVector)
-    )
-    @get:Suppress("MethodNameUnits")
-    override val durationNanos: Long
+    override val targetValue: T =
+        typeConverter.convertFromVector(
+            animationSpec.getTargetValue(initialValueVector, initialVelocityVector)
+        )
+    @get:Suppress("MethodNameUnits") override val durationNanos: Long
 
     // DecayAnimation finishes by design
     override val isInfinite: Boolean = false
 
     /**
      * [DecayAnimation] is an animation that slows down from [initialVelocityVector] as time goes
-     * on. [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It
-     * serves as an animation calculation engine that supports convenient query of value/velocity
-     * given a play time. To achieve that, [DecayAnimation] stores all the animation related
-     * information: [initialValue], [initialVelocityVector], decay animation spec, [typeConverter].
+     * on. [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It serves
+     * as an animation calculation engine that supports convenient query of value/velocity given a
+     * play time. To achieve that, [DecayAnimation] stores all the animation related information:
+     * [initialValue], [initialVelocityVector], decay animation spec, [typeConverter].
      *
-     * __Note__: Unless there's a need to control the timing manually, it's
-     * generally recommended to use higher level animation APIs that build on top [DecayAnimation],
-     * such as [Animatable.animateDecay], [AnimationState.animateDecay], etc.
+     * __Note__: Unless there's a need to control the timing manually, it's generally recommended to
+     * use higher level animation APIs that build on top [DecayAnimation], such as
+     * [Animatable.animateDecay], [AnimationState.animateDecay], etc.
      *
      * @param animationSpec Decay animation spec that defines the slow-down curve of the animation
      * @param typeConverter Type converter to convert the type [T] from and to [AnimationVector]
      * @param initialValue The starting value of the animation
      * @param initialVelocityVector The starting velocity of the animation in [AnimationVector] form
-     *
      * @see Animatable.animateDecay
      * @see AnimationState.animateDecay
      */
@@ -398,20 +406,19 @@ class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/ constructor(
 
     /**
      * [DecayAnimation] is an animation that slows down from [initialVelocity] as time goes on.
-     * [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It
-     * serves as an animation calculation engine that supports convenient query of value/velocity
-     * given a play time. To achieve that, [DecayAnimation] stores all the animation related
-     * information: [initialValue], [initialVelocity], [animationSpec], [typeConverter].
+     * [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It serves as an
+     * animation calculation engine that supports convenient query of value/velocity given a play
+     * time. To achieve that, [DecayAnimation] stores all the animation related information:
+     * [initialValue], [initialVelocity], [animationSpec], [typeConverter].
      *
-     * __Note__: Unless there's a need to control the timing manually, it's
-     * generally recommended to use higher level animation APIs that build on top [DecayAnimation],
-     * such as [Animatable.animateDecay], [AnimationState.animateDecay], etc.
+     * __Note__: Unless there's a need to control the timing manually, it's generally recommended to
+     * use higher level animation APIs that build on top [DecayAnimation], such as
+     * [Animatable.animateDecay], [AnimationState.animateDecay], etc.
      *
      * @param animationSpec Decay animation spec that defines the slow-down curve of the animation
      * @param typeConverter Type converter to convert the type [T] from and to [AnimationVector]
      * @param initialValue The starting value of the animation
      * @param initialVelocity The starting velocity of the animation
-     *
      * @see Animatable.animateDecay
      * @see AnimationState.animateDecay
      */
@@ -428,19 +435,17 @@ class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/ constructor(
     )
 
     init {
-        durationNanos = animationSpec.getDurationNanos(
-            initialValueVector, initialVelocityVector
-        )
-        endVelocity = animationSpec.getVelocityFromNanos(
-            durationNanos,
-            initialValueVector,
-            initialVelocityVector
-        ).copy()
+        durationNanos = animationSpec.getDurationNanos(initialValueVector, initialVelocityVector)
+        endVelocity =
+            animationSpec
+                .getVelocityFromNanos(durationNanos, initialValueVector, initialVelocityVector)
+                .copy()
         for (i in 0 until endVelocity.size) {
-            endVelocity[i] = endVelocity[i].coerceIn(
-                -animationSpec.absVelocityThreshold,
-                animationSpec.absVelocityThreshold
-            )
+            endVelocity[i] =
+                endVelocity[i].coerceIn(
+                    -animationSpec.absVelocityThreshold,
+                    animationSpec.absVelocityThreshold
+                )
         }
     }
 
@@ -472,15 +477,15 @@ class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/ constructor(
 }
 
 /**
- * [DecayAnimation] is an animation that slows down from [initialVelocity] as
- * time goes on. [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It
- * serves as an animation calculation engine that supports convenient query of value/velocity
- * given a play time. To achieve that, [DecayAnimation] stores all the animation related
- * information: [initialValue], [initialVelocity], decay animation spec.
+ * [DecayAnimation] is an animation that slows down from [initialVelocity] as time goes on.
+ * [DecayAnimation] is stateless, and it does not have any concept of lifecycle. It serves as an
+ * animation calculation engine that supports convenient query of value/velocity given a play time.
+ * To achieve that, [DecayAnimation] stores all the animation related information: [initialValue],
+ * [initialVelocity], decay animation spec.
  *
- * __Note__: Unless there's a need to control the timing manually, it's
- * generally recommended to use higher level animation APIs that build on top [DecayAnimation],
- * such as [Animatable.animateDecay], [animateDecay], etc.
+ * __Note__: Unless there's a need to control the timing manually, it's generally recommended to use
+ * higher level animation APIs that build on top [DecayAnimation], such as
+ * [Animatable.animateDecay], [animateDecay], etc.
  *
  * @param animationSpec decay animation that will be used
  * @param initialValue starting value that will be passed to the decay animation
@@ -490,9 +495,10 @@ fun DecayAnimation(
     animationSpec: FloatDecayAnimationSpec,
     initialValue: Float,
     initialVelocity: Float = 0f
-) = DecayAnimation(
-    animationSpec.generateDecayAnimationSpec(),
-    Float.VectorConverter,
-    initialValue,
-    AnimationVector(initialVelocity)
-)
+) =
+    DecayAnimation(
+        animationSpec.generateDecayAnimationSpec(),
+        Float.VectorConverter,
+        initialValue,
+        AnimationVector(initialVelocity)
+    )

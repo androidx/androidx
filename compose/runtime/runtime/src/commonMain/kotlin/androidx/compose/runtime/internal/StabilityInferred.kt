@@ -20,13 +20,13 @@ import androidx.compose.runtime.ComposeCompilerApi
 
 /**
  * This annotation is added on classes by the compiler when their stability is inferred. It
- * indicates that there will be a synthetic static final int `$stable` added to the class which
- * can be used by the compose compiler plugin to generate expressions to determine the stability
- * of a realized type at runtime.
+ * indicates that there will be a synthetic static final int `$stable` added to the class which can
+ * be used by the compose compiler plugin to generate expressions to determine the stability of a
+ * realized type at runtime.
  *
  * @param parameters A bitmask, with one bit per type parameter of the annotated class. A 1 bit
- * indicates that the stability of the annotated class should be calculated as a combination of
- * the stability of the class itself and the stability of that type parameter.
+ *   indicates that the stability of the annotated class should be calculated as a combination of
+ *   the stability of the class itself and the stability of that type parameter.
  */
 @ComposeCompilerApi
 @Target(AnnotationTarget.CLASS)

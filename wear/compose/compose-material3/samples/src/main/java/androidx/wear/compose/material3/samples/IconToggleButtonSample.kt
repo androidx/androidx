@@ -31,13 +31,7 @@ import androidx.wear.compose.material3.IconToggleButton
 @Composable
 fun IconToggleButtonSample() {
     var checked by remember { mutableStateOf(true) }
-    IconToggleButton(
-        checked = checked,
-        onCheckedChange = { checked = !checked }
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = "Favorite icon"
-        )
+    IconToggleButton(checked = checked, onCheckedChange = { checked = !checked }) {
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
 }

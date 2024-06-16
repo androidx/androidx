@@ -41,12 +41,11 @@ class PreviewPixelHDRnetQuirk : Quirk {
 
     companion object {
 
-        /** The devices that support wysiwyg preview in 3rd party apps (go/p20-wysiwyg-hdr)  */
+        /** The devices that support wysiwyg preview in 3rd party apps (go/p20-wysiwyg-hdr) */
         private val SUPPORTED_DEVICES = listOf("sunfish", "bramble", "redfin", "barbet")
 
         fun isEnabled(): Boolean =
-            "Google".equals(Build.MANUFACTURER, ignoreCase = true) && SUPPORTED_DEVICES.contains(
-                Build.DEVICE.lowercase(Locale.getDefault())
-        )
+            "Google".equals(Build.MANUFACTURER, ignoreCase = true) &&
+                SUPPORTED_DEVICES.contains(Build.DEVICE.lowercase(Locale.getDefault()))
     }
 }

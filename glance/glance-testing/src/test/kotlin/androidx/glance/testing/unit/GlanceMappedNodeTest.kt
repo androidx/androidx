@@ -29,35 +29,34 @@ class GlanceMappedNodeTest {
         val childNode2 = EmittableSpacer()
         val childNode3 = EmittableText().apply { text = "another text" }
 
-        val glanceNode = GlanceMappedNode(
-            EmittableColumn().apply {
-                children.add(childNode1)
-                children.add(childNode2)
-                children.add(childNode3)
-            }
-        )
+        val glanceNode =
+            GlanceMappedNode(
+                EmittableColumn().apply {
+                    children.add(childNode1)
+                    children.add(childNode2)
+                    children.add(childNode3)
+                }
+            )
 
-        assertThat(glanceNode.children()).containsExactly(
-            GlanceMappedNode(childNode1),
-            GlanceMappedNode(childNode2),
-            GlanceMappedNode(childNode3)
-        ).inOrder()
+        assertThat(glanceNode.children())
+            .containsExactly(
+                GlanceMappedNode(childNode1),
+                GlanceMappedNode(childNode2),
+                GlanceMappedNode(childNode3)
+            )
+            .inOrder()
     }
 
     @Test
     fun nodeChildren_noChildren_returnsEmptyList() {
-        val glanceNode = GlanceMappedNode(
-            EmittableColumn()
-        )
+        val glanceNode = GlanceMappedNode(EmittableColumn())
 
         assertThat(glanceNode.children()).isEmpty()
     }
 
     @Test
     fun nodeChildren_terminalEmittable_returnsEmptyList() {
-        val glanceNode = GlanceMappedNode(
-            EmittableText().apply { text = "test" }
-        )
+        val glanceNode = GlanceMappedNode(EmittableText().apply { text = "test" })
 
         assertThat(glanceNode.children()).isEmpty()
     }

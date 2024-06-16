@@ -36,9 +36,17 @@ import androidx.wear.compose.material3.Text
 @Sampled
 @Composable
 fun SimpleButtonSample() {
+    Button(onClick = { /* Do something */ }, label = { Text("Button") })
+}
+
+@Sampled
+@Composable
+fun ButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     Button(
-        onClick = { /* Do something */ },
-        label = { Text("Button") }
+        onClick = onClickHandler,
+        onLongClick = onLongClickHandler,
+        onLongClickLabel = "OnLongClick action",
+        label = { Text("With onLongClick") }
     )
 }
 
@@ -62,9 +70,20 @@ fun ButtonSample() {
 @Sampled
 @Composable
 fun SimpleFilledTonalButtonSample() {
+    FilledTonalButton(onClick = { /* Do something */ }, label = { Text("Filled Tonal Button") })
+}
+
+@Sampled
+@Composable
+fun FilledTonalButtonWithOnLongClickSample(
+    onClickHandler: () -> Unit,
+    onLongClickHandler: () -> Unit
+) {
     FilledTonalButton(
-        onClick = { /* Do something */ },
-        label = { Text("Filled Tonal Button") }
+        onClick = onClickHandler,
+        onLongClick = onLongClickHandler,
+        onLongClickLabel = "OnLongClick action",
+        label = { Text("With onLongClick") }
     )
 }
 
@@ -88,9 +107,20 @@ fun FilledTonalButtonSample() {
 @Sampled
 @Composable
 fun SimpleOutlinedButtonSample() {
+    OutlinedButton(onClick = { /* Do something */ }, label = { Text("Outlined Button") })
+}
+
+@Sampled
+@Composable
+fun OutlinedButtonWithOnLongClickSample(
+    onClickHandler: () -> Unit,
+    onLongClickHandler: () -> Unit
+) {
     OutlinedButton(
-        onClick = { /* Do something */ },
-        label = { Text("Outlined Button") }
+        onClick = onClickHandler,
+        onLongClick = onLongClickHandler,
+        onLongClickLabel = "OnLongClick action",
+        label = { Text("With onLongClick") }
     )
 }
 
@@ -114,9 +144,17 @@ fun OutlinedButtonSample() {
 @Sampled
 @Composable
 fun SimpleChildButtonSample() {
+    ChildButton(onClick = { /* Do something */ }, label = { Text("Child Button") })
+}
+
+@Sampled
+@Composable
+fun ChildButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     ChildButton(
-        onClick = { /* Do something */ },
-        label = { Text("Child Button") }
+        onClick = onClickHandler,
+        onLongClick = onLongClickHandler,
+        onLongClickLabel = "OnLongClick action",
+        label = { Text("With onLongClick") }
     )
 }
 
@@ -152,6 +190,17 @@ fun CompactButtonSample() {
     ) {
         Text("Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
+}
+
+@Sampled
+@Composable
+fun CompactButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
+    CompactButton(
+        onClick = onClickHandler,
+        onLongClick = onLongClickHandler,
+        onLongClickLabel = "OnLongClick action",
+        label = { Text("With onLongClick") }
+    )
 }
 
 @Sampled

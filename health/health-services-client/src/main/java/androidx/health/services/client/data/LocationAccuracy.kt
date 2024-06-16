@@ -25,8 +25,8 @@ import androidx.health.services.client.proto.DataProto.DataPointAccuracy.Locatio
 @Suppress("ParcelCreator")
 public class LocationAccuracy(
     /**
-     * Represents the estimated horizontal accuracy of the location, radial, in meters.
-     * Range starting from 0.0.
+     * Represents the estimated horizontal accuracy of the location, radial, in meters. Range
+     * starting from 0.0.
      *
      * @throws IllegalArgumentException if [horizontalPositionErrorMeters] is negative
      */
@@ -43,12 +43,18 @@ public class LocationAccuracy(
 ) : DataPointAccuracy() {
     init {
         if (horizontalPositionErrorMeters < 0.0) {
-            Log.w(TAG, "horizontalPositionErrorMeters value " +
-                "$horizontalPositionErrorMeters is out of range")
+            Log.w(
+                TAG,
+                "horizontalPositionErrorMeters value " +
+                    "$horizontalPositionErrorMeters is out of range"
+            )
         }
         if (verticalPositionErrorMeters < 0.0) {
-            Log.w(TAG, "verticalPositionErrorMeters value " +
-                "$verticalPositionErrorMeters is out of range")
+            Log.w(
+                TAG,
+                "verticalPositionErrorMeters value " +
+                    "$verticalPositionErrorMeters is out of range"
+            )
         }
     }
 

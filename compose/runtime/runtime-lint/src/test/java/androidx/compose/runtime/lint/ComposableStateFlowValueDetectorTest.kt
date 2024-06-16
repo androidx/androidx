@@ -29,26 +29,22 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ComposableStateFlowValueDetector].
- */
+/** Test for [ComposableStateFlowValueDetector]. */
 class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposableStateFlowValueDetector()
 
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ComposableStateFlowValueDetector.StateFlowValueCalledInComposition)
 
-    /**
-     * Combined stub of StateFlow / supertypes
-     */
-    private val stateFlowStub: TestFile = bytecodeStub(
-        filename = "StateFlow.kt",
-        filepath = "kotlinx/coroutines/flow",
-        checksum = 0xd479b246,
-        """
+    /** Combined stub of StateFlow / supertypes */
+    private val stateFlowStub: TestFile =
+        bytecodeStub(
+            filename = "StateFlow.kt",
+            filepath = "kotlinx/coroutines/flow",
+            checksum = 0xd479b246,
+            """
         package kotlinx.coroutines.flow
 
         interface Flow<out T>
@@ -59,12 +55,12 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
             val value: T
         }
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uKSScxLKcrPTKnQS87PLcgvTtUr
         Ks0rycxN1UvLzxfiCkktLnHLyS/3LlFi0GIAAH26nstEAAAA
         """,
-        """
+            """
         kotlinx/coroutines/flow/Flow.class:
         H4sIAAAAAAAA/31QPU8CQRSctygfJ+rhJybGaGcsPCRWakxsSC7BmAixoVpg
         IQvHXsLuIeX9LgtztT/K+A46Tdxi5r3Z2cy+9/X98QngFnXC6TR2kTbLYBDP
@@ -74,7 +70,7 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
         6Yibk9fEOD1Tb9rqfqSejIn5oY6NLXIiNrE+BRwyCuajFR/geLVYQpE9pR4K
         IcohKiE8bHGJaoht7PRAFrvw+d6iZrFnsf8DtOaVdpUBAAA=
         """,
-        """
+            """
         kotlinx/coroutines/flow/SharedFlow.class:
         H4sIAAAAAAAA/31RTUtCQRQ992k+fVmpfWlERESLFj2TVilCG0kygpQ2rkYd
         bfQ5D94bzaW/q0W47kdF90kQFLq5554795zhzHx+vX8AuMER4WzkG0/pmdv1
@@ -85,7 +81,7 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
         TmufhcrXISe3sMG57CgeYjjkajHml3iAwvI7CUneSrURq8OpY7OONLa4xXYd
         O8i0QSGyyPF5iN0QeyH2vwGCO5LBCwIAAA==
         """,
-        """
+            """
         kotlinx/coroutines/flow/StateFlow.class:
         H4sIAAAAAAAA/41RTU/bQBB9s3YcJ6VgAqUh/VALHIADpqiHilAkLqiRqBAk
         Qkg5bZIlLDG2lF2nHP1bOPAjeqgsjv1RVceU9lCE2svMvNl9b2fefv/x9RuA
@@ -98,13 +94,14 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
         5V1u4BXnj3zjCbOmunBaeNrCdAszCLjEbAs1zHVBBvN41oVnsGDw3KBusGjg
         G1R+AgX9oFiBAgAA
         """
-    )
+        )
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -163,10 +160,10 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            stateFlowStub
-        )
+                ),
+                Stubs.Composable,
+                stateFlowStub
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -220,9 +217,10 @@ src/androidx/compose/runtime/foo/TestFlow.kt:56: Error: StateFlow.value should n
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -278,12 +276,11 @@ src/androidx/compose/runtime/foo/TestFlow.kt:56: Error: StateFlow.value should n
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            stateFlowStub
-        )
+                ),
+                Stubs.Composable,
+                stateFlowStub
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

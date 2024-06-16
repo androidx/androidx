@@ -69,14 +69,12 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class CameraXServiceTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig
-) {
+class CameraXServiceTest(private val implName: String, private val cameraXConfig: CameraXConfig) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraXConfig)
+        )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -86,17 +84,19 @@ class CameraXServiceTest(
         )
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -140,38 +140,43 @@ class CameraXServiceTest(
         service.setOnUseCaseBoundCallback(useCaseCallback)
 
         // Act: bind VideoCapture and ImageCapture.
-        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
-            putExtra(EXTRA_VIDEO_CAPTURE_ENABLED, true)
-            putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
-        })
+        context.startService(
+            createServiceIntent(ACTION_BIND_USE_CASES).apply {
+                putExtra(EXTRA_VIDEO_CAPTURE_ENABLED, true)
+                putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
+            }
+        )
 
         // Assert: verify bound UseCases.
         val captor = ArgumentCaptor<Collection<UseCase>>()
         useCaseCallback.verifyAcceptCall(Collection::class.java, false, 3000L, CallTimes(1), captor)
-        assertThat(captor.value!!.map { it.javaClass }).containsExactly(
-            VideoCapture::class.java,
-            ImageCapture::class.java
-        )
+        assertThat(captor.value!!.map { it.javaClass })
+            .containsExactly(VideoCapture::class.java, ImageCapture::class.java)
 
         // Act: rebind by ImageAnalysis.
         useCaseCallback.clearAcceptCalls()
-        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
-            putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
-        })
+        context.startService(
+            createServiceIntent(ACTION_BIND_USE_CASES).apply {
+                putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
+            }
+        )
 
         // Assert: verify bound UseCases.
         useCaseCallback.verifyAcceptCall(Collection::class.java, false, 3000L, CallTimes(1), captor)
-        assertThat(captor.value!!.map { it.javaClass }).containsExactly(
-            ImageAnalysis::class.java,
-        )
+        assertThat(captor.value!!.map { it.javaClass })
+            .containsExactly(
+                ImageAnalysis::class.java,
+            )
     }
 
     @Test
     fun canReceiveAnalysisFrame() {
         // Arrange.
-        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
-            putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
-        })
+        context.startService(
+            createServiceIntent(ACTION_BIND_USE_CASES).apply {
+                putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
+            }
+        )
 
         // Act.
         val latch = service.acquireAnalysisFrameCountDownLatch()
@@ -183,9 +188,11 @@ class CameraXServiceTest(
     @Test
     fun canTakePicture() {
         // Arrange.
-        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
-            putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
-        })
+        context.startService(
+            createServiceIntent(ACTION_BIND_USE_CASES).apply {
+                putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
+            }
+        )
 
         // Act.
         val latch = service.acquireTakePictureCountDownLatch()
@@ -203,9 +210,11 @@ class CameraXServiceTest(
             Build.VERSION.SDK_INT == 28 && isEmulator()
         )
         // Arrange.
-        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
-            putExtra(EXTRA_VIDEO_CAPTURE_ENABLED, true)
-        })
+        context.startService(
+            createServiceIntent(ACTION_BIND_USE_CASES).apply {
+                putExtra(EXTRA_VIDEO_CAPTURE_ENABLED, true)
+            }
+        )
 
         // Act.
         val latch = service.acquireRecordVideoCountDownLatch()
@@ -220,9 +229,7 @@ class CameraXServiceTest(
     }
 
     private fun createServiceIntent(action: String? = null) =
-        Intent(context, CameraXService::class.java).apply {
-            action?.let { setAction(it) }
-        }
+        Intent(context, CameraXService::class.java).apply { action?.let { setAction(it) } }
 
     private fun isForegroundService(service: Service): Boolean {
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -237,19 +244,17 @@ class CameraXServiceTest(
 
     private suspend fun bindService(): CameraXService {
         val serviceDeferred = CompletableDeferred<CameraXService>()
-        serviceConnection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binder = service as CameraXService.CameraXServiceBinder
-                serviceDeferred.complete(binder.service)
-            }
+        serviceConnection =
+            object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                    val binder = service as CameraXService.CameraXServiceBinder
+                    serviceDeferred.complete(binder.service)
+                }
 
-            override fun onServiceDisconnected(name: ComponentName?) {
+                override fun onServiceDisconnected(name: ComponentName?) {}
             }
-        }
         context.bindService(createServiceIntent(), serviceConnection, Service.BIND_AUTO_CREATE)
-        return withTimeout(3000L) {
-            serviceDeferred.await()
-        }
+        return withTimeout(3000L) { serviceDeferred.await() }
     }
 
     private fun isBackgroundRestricted(): Boolean =

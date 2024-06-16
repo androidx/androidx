@@ -37,15 +37,13 @@ import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 /** Enable to print logs during debugging, see [logDebug]. */
-@VisibleForTesting
-internal const val TIA_DEBUG = false
+@VisibleForTesting internal const val TIA_DEBUG = false
 private const val TIA_TAG = "AndroidTextInputSession"
 
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
@@ -88,22 +86,22 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 val oldComposition = oldValue.composition
                 val newComposition = newValue.composition
 
-                if ((oldSelection != newSelection) || oldComposition != newComposition) {
+                // No need to restart the IME if there wasn't a composing region. This is useful
+                // to not unnecessarily restart filtered digit only, or password fields.
+                if (
+                    restartImeIfContentChanges &&
+                        oldValue.composition != null &&
+                        !oldValue.contentEquals(newValue)
+                ) {
+                    composeImm.restartInput()
+                } else if (oldSelection != newSelection || oldComposition != newComposition) {
+                    // Don't call updateSelection if input is going to be restarted anyway
                     composeImm.updateSelection(
                         selectionStart = newSelection.min,
                         selectionEnd = newSelection.max,
                         compositionStart = newComposition?.min ?: -1,
                         compositionEnd = newComposition?.max ?: -1
                     )
-                }
-
-                // No need to restart the IME if keyboard type is configured as Password. IME
-                // should not keep an internal input state if the content needs to be secured.
-                if (restartImeIfContentChanges &&
-                    !oldValue.contentEquals(newValue) &&
-                    imeOptions.keyboardType != KeyboardType.Password
-                ) {
-                    composeImm.restartInput()
                 }
             }
         }
@@ -114,76 +112,78 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 // before calling startStylusHandwriting. We need to wait for one frame
                 // because TextInputService.startInput also waits for one frame before
                 // actually calling imm.restartInput.
-                withFrameMillis { }
-                it.collect {
-                    composeImm.startStylusHandwriting()
-                }
+                withFrameMillis {}
+                it.collect { composeImm.startStylusHandwriting() }
             }
         }
 
-        val cursorUpdatesController = CursorAnchorInfoController(
-            composeImm = composeImm,
-            textFieldState = state,
-            textLayoutState = layoutState,
-            monitorScope = this,
-        )
+        val cursorUpdatesController =
+            CursorAnchorInfoController(
+                composeImm = composeImm,
+                textFieldState = state,
+                textLayoutState = layoutState,
+                monitorScope = this,
+            )
 
         startInputMethod { outAttrs ->
             logDebug { "createInputConnection(value=\"${state.visualText}\")" }
 
-            val textInputSession = object : TextInputSession {
-                override val text: TextFieldCharSequence
-                    get() = state.visualText
+            val textInputSession =
+                object : TextInputSession {
+                    override val text: TextFieldCharSequence
+                        get() = state.visualText
 
-                override fun requestEdit(block: EditingBuffer.() -> Unit) {
-                    state.editUntransformedTextAsUser(
-                        restartImeIfContentChanges = false,
-                        block = block
-                    )
-                }
-
-                override fun sendKeyEvent(keyEvent: KeyEvent) {
-                    composeImm.sendKeyEvent(keyEvent)
-                }
-
-                override fun onImeAction(imeAction: ImeAction) {
-                    onImeAction?.invoke(imeAction)
-                }
-
-                override fun onCommitContent(transferableContent: TransferableContent): Boolean {
-                    return receiveContentConfiguration?.onCommitContent(transferableContent)
-                        ?: false
-                }
-
-                override fun requestCursorUpdates(cursorUpdateMode: Int) {
-                    cursorUpdatesController.requestUpdates(cursorUpdateMode)
-                }
-
-                override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        return state.performHandwritingGesture(
-                            gesture,
-                            layoutState,
-                            viewConfiguration
+                    override fun requestEdit(block: EditingBuffer.() -> Unit) {
+                        state.editUntransformedTextAsUser(
+                            restartImeIfContentChanges = false,
+                            block = block
                         )
                     }
-                    return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
-                }
 
-                override fun previewHandwritingGesture(
-                    gesture: PreviewableHandwritingGesture,
-                    cancellationSignal: CancellationSignal?
-                ): Boolean {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        return state.previewHandwritingGesture(
-                            gesture,
-                            layoutState,
-                            cancellationSignal
-                        )
+                    override fun sendKeyEvent(keyEvent: KeyEvent) {
+                        composeImm.sendKeyEvent(keyEvent)
                     }
-                    return false
+
+                    override fun onImeAction(imeAction: ImeAction) {
+                        onImeAction?.invoke(imeAction)
+                    }
+
+                    override fun onCommitContent(
+                        transferableContent: TransferableContent
+                    ): Boolean {
+                        return receiveContentConfiguration?.onCommitContent(transferableContent)
+                            ?: false
+                    }
+
+                    override fun requestCursorUpdates(cursorUpdateMode: Int) {
+                        cursorUpdatesController.requestUpdates(cursorUpdateMode)
+                    }
+
+                    override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            return state.performHandwritingGesture(
+                                gesture,
+                                layoutState,
+                                viewConfiguration
+                            )
+                        }
+                        return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
+                    }
+
+                    override fun previewHandwritingGesture(
+                        gesture: PreviewableHandwritingGesture,
+                        cancellationSignal: CancellationSignal?
+                    ): Boolean {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            return state.previewHandwritingGesture(
+                                gesture,
+                                layoutState,
+                                cancellationSignal
+                            )
+                        }
+                        return false
+                    }
                 }
-            }
 
             outAttrs.update(
                 text = state.visualText,

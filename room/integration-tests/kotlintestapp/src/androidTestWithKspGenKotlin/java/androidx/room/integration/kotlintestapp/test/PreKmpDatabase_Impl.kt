@@ -1,4 +1,12 @@
-@file:Suppress("ktlint", "UNCHECKED_CAST", "UNSAFE_CALL", "DEPRECATION", "DEPRECATION_ERROR", "OVERRIDE_DEPRECATION", "REDUNDANT_PROJECTION", "RestrictedApiAndroidX") // Generated code
+@file:Suppress(
+    "UNCHECKED_CAST",
+    "UNSAFE_CALL",
+    "DEPRECATION",
+    "DEPRECATION_ERROR",
+    "OVERRIDE_DEPRECATION",
+    "REDUNDANT_PROJECTION",
+    "RestrictedApiAndroidX"
+) // Generated code
 
 package androidx.room.integration.kotlintestapp.test
 
@@ -33,82 +41,139 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
         PreKmpDatabase_TheDao_Impl(this)
     }
 
-
-    protected override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
-        val _openCallback: SupportSQLiteOpenHelper.Callback = RoomOpenHelper(config, object :
-            RoomOpenHelper.Delegate(2) {
-            public override fun createAllTables(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS `TheEntity` (`id` INTEGER NOT NULL, `text` TEXT NOT NULL, `custom` BLOB NOT NULL, PRIMARY KEY(`id`))")
-                db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
-                db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fbcbaa42ae194c6600f45bb10ebfcc1f')")
-            }
-
-            public override fun dropAllTables(db: SupportSQLiteDatabase) {
-                db.execSQL("DROP TABLE IF EXISTS `TheEntity`")
-                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
-                if (_callbacks != null) {
-                    for (_callback: RoomDatabase.Callback in _callbacks) {
-                        _callback.onDestructiveMigration(db)
+    protected override fun createOpenHelper(
+        config: DatabaseConfiguration
+    ): SupportSQLiteOpenHelper {
+        val _openCallback: SupportSQLiteOpenHelper.Callback =
+            RoomOpenHelper(
+                config,
+                object : RoomOpenHelper.Delegate(2) {
+                    public override fun createAllTables(db: SupportSQLiteDatabase) {
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `TheEntity` (`id` INTEGER NOT NULL, `text` TEXT NOT NULL, `custom` BLOB NOT NULL, PRIMARY KEY(`id`))"
+                        )
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)"
+                        )
+                        db.execSQL(
+                            "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fbcbaa42ae194c6600f45bb10ebfcc1f')"
+                        )
                     }
-                }
-            }
 
-            public override fun onCreate(db: SupportSQLiteDatabase) {
-                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
-                if (_callbacks != null) {
-                    for (_callback: RoomDatabase.Callback in _callbacks) {
-                        _callback.onCreate(db)
+                    public override fun dropAllTables(db: SupportSQLiteDatabase) {
+                        db.execSQL("DROP TABLE IF EXISTS `TheEntity`")
+                        val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
+                        if (_callbacks != null) {
+                            for (_callback: RoomDatabase.Callback in _callbacks) {
+                                _callback.onDestructiveMigration(db)
+                            }
+                        }
                     }
-                }
-            }
 
-            public override fun onOpen(db: SupportSQLiteDatabase) {
-                mDatabase = db
-                internalInitInvalidationTracker(db)
-                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
-                if (_callbacks != null) {
-                    for (_callback: RoomDatabase.Callback in _callbacks) {
-                        _callback.onOpen(db)
+                    public override fun onCreate(db: SupportSQLiteDatabase) {
+                        val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
+                        if (_callbacks != null) {
+                            for (_callback: RoomDatabase.Callback in _callbacks) {
+                                _callback.onCreate(db)
+                            }
+                        }
                     }
-                }
-            }
 
-            public override fun onPreMigrate(db: SupportSQLiteDatabase) {
-                dropFtsSyncTriggers(db)
-            }
+                    public override fun onOpen(db: SupportSQLiteDatabase) {
+                        mDatabase = db
+                        internalInitInvalidationTracker(db)
+                        val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
+                        if (_callbacks != null) {
+                            for (_callback: RoomDatabase.Callback in _callbacks) {
+                                _callback.onOpen(db)
+                            }
+                        }
+                    }
 
-            public override fun onPostMigrate(db: SupportSQLiteDatabase) {
-            }
+                    public override fun onPreMigrate(db: SupportSQLiteDatabase) {
+                        dropFtsSyncTriggers(db)
+                    }
 
-            public override fun onValidateSchema(db: SupportSQLiteDatabase):
-                RoomOpenHelper.ValidationResult {
-                val _columnsTheEntity: HashMap<String, TableInfo.Column> =
-                    HashMap<String, TableInfo.Column>(3)
-                _columnsTheEntity.put("id", TableInfo.Column("id", "INTEGER", true, 1, null,
-                    TableInfo.CREATED_FROM_ENTITY))
-                _columnsTheEntity.put("text", TableInfo.Column("text", "TEXT", true, 0, null,
-                    TableInfo.CREATED_FROM_ENTITY))
-                _columnsTheEntity.put("custom", TableInfo.Column("custom", "BLOB", true, 0, null,
-                    TableInfo.CREATED_FROM_ENTITY))
-                val _foreignKeysTheEntity: HashSet<TableInfo.ForeignKey> = HashSet<TableInfo.ForeignKey>(0)
-                val _indicesTheEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(0)
-                val _infoTheEntity: TableInfo = TableInfo("TheEntity", _columnsTheEntity,
-                    _foreignKeysTheEntity, _indicesTheEntity)
-                val _existingTheEntity: TableInfo = read(db, "TheEntity")
-                if (!_infoTheEntity.equals(_existingTheEntity)) {
-                    return RoomOpenHelper.ValidationResult(false, """
+                    public override fun onPostMigrate(db: SupportSQLiteDatabase) {}
+
+                    public override fun onValidateSchema(
+                        db: SupportSQLiteDatabase
+                    ): RoomOpenHelper.ValidationResult {
+                        val _columnsTheEntity: HashMap<String, TableInfo.Column> =
+                            HashMap<String, TableInfo.Column>(3)
+                        _columnsTheEntity.put(
+                            "id",
+                            TableInfo.Column(
+                                "id",
+                                "INTEGER",
+                                true,
+                                1,
+                                null,
+                                TableInfo.CREATED_FROM_ENTITY
+                            )
+                        )
+                        _columnsTheEntity.put(
+                            "text",
+                            TableInfo.Column(
+                                "text",
+                                "TEXT",
+                                true,
+                                0,
+                                null,
+                                TableInfo.CREATED_FROM_ENTITY
+                            )
+                        )
+                        _columnsTheEntity.put(
+                            "custom",
+                            TableInfo.Column(
+                                "custom",
+                                "BLOB",
+                                true,
+                                0,
+                                null,
+                                TableInfo.CREATED_FROM_ENTITY
+                            )
+                        )
+                        val _foreignKeysTheEntity: HashSet<TableInfo.ForeignKey> =
+                            HashSet<TableInfo.ForeignKey>(0)
+                        val _indicesTheEntity: HashSet<TableInfo.Index> =
+                            HashSet<TableInfo.Index>(0)
+                        val _infoTheEntity: TableInfo =
+                            TableInfo(
+                                "TheEntity",
+                                _columnsTheEntity,
+                                _foreignKeysTheEntity,
+                                _indicesTheEntity
+                            )
+                        val _existingTheEntity: TableInfo = read(db, "TheEntity")
+                        if (!_infoTheEntity.equals(_existingTheEntity)) {
+                            return RoomOpenHelper.ValidationResult(
+                                false,
+                                """
               |TheEntity(androidx.room.integration.kotlintestapp.test.PreKmpDatabase.TheEntity).
               | Expected:
-              |""".trimMargin() + _infoTheEntity + """
+              |"""
+                                    .trimMargin() +
+                                    _infoTheEntity +
+                                    """
               |
               | Found:
-              |""".trimMargin() + _existingTheEntity)
-                }
-                return RoomOpenHelper.ValidationResult(true, null)
-            }
-        }, "fbcbaa42ae194c6600f45bb10ebfcc1f", "c5a810f0a0f12e6d217d248fa35d0d13")
+              |"""
+                                        .trimMargin() +
+                                    _existingTheEntity
+                            )
+                        }
+                        return RoomOpenHelper.ValidationResult(true, null)
+                    }
+                },
+                "fbcbaa42ae194c6600f45bb10ebfcc1f",
+                "c5a810f0a0f12e6d217d248fa35d0d13"
+            )
         val _sqliteConfig: SupportSQLiteOpenHelper.Configuration =
-            SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build()
+            SupportSQLiteOpenHelper.Configuration.builder(config.context)
+                .name(config.name)
+                .callback(_openCallback)
+                .build()
         val _helper: SupportSQLiteOpenHelper = config.sqliteOpenHelperFactory.create(_sqliteConfig)
         return _helper
     }
@@ -138,8 +203,10 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
     protected override fun getRequiredTypeConverters(): Map<Class<out Any>, List<Class<out Any>>> {
         val _typeConvertersMap: HashMap<Class<out Any>, List<Class<out Any>>> =
             HashMap<Class<out Any>, List<Class<out Any>>>()
-        _typeConvertersMap.put(PreKmpDatabase.TheDao::class.java,
-            PreKmpDatabase_TheDao_Impl.getRequiredConverters())
+        _typeConvertersMap.put(
+            PreKmpDatabase.TheDao::class.java,
+            PreKmpDatabase_TheDao_Impl.getRequiredConverters()
+        )
         return _typeConvertersMap
     }
 
@@ -150,11 +217,15 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
         return _autoMigrationSpecsSet
     }
 
-    public override
-    fun getAutoMigrations(autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>):
-        List<Migration> {
+    public override fun getAutoMigrations(
+        autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>
+    ): List<Migration> {
         val _autoMigrations: MutableList<Migration> = ArrayList<Migration>()
-        _autoMigrations.add(PreKmpDatabase_AutoMigration_1_2_Impl(autoMigrationSpecs.getValue(PreKmpDatabase.MigrationSpec1To2::class.java)))
+        _autoMigrations.add(
+            PreKmpDatabase_AutoMigration_1_2_Impl(
+                autoMigrationSpecs.getValue(PreKmpDatabase.MigrationSpec1To2::class.java)
+            )
+        )
         return _autoMigrations
     }
 

@@ -16,11 +16,8 @@
 
 package androidx.camera.core.imagecapture;
 
-import android.os.Build;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureConfig;
 
@@ -31,7 +28,6 @@ import java.util.List;
 /**
  * Interface for controlling {@link ImageCapture}.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public interface ImageCaptureControl {
 
     /**

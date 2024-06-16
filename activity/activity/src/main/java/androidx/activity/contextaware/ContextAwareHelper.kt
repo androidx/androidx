@@ -19,27 +19,24 @@ import android.content.Context
 import java.util.concurrent.CopyOnWriteArraySet
 
 /**
- * Helper class for implementing [ContextAware]. Classes using this helper should
- * call [addOnContextAvailableListener] and [removeOnContextAvailableListener] as the respective
- * methods of [ContextAware] are called.
+ * Helper class for implementing [ContextAware]. Classes using this helper should call
+ * [addOnContextAvailableListener] and [removeOnContextAvailableListener] as the respective methods
+ * of [ContextAware] are called.
  *
- * You must call [dispatchOnContextAvailable] once the
- * [Context] is available to dispatch the callbacks to all registered listeners.
+ * You must call [dispatchOnContextAvailable] once the [Context] is available to dispatch the
+ * callbacks to all registered listeners.
  *
- * Listeners added after the context has been made available via
- * [dispatchOnContextAvailable] will have the Context synchronously
- * delivered to them up until [clearAvailableContext] is called.
+ * Listeners added after the context has been made available via [dispatchOnContextAvailable] will
+ * have the Context synchronously delivered to them up until [clearAvailableContext] is called.
  */
 class ContextAwareHelper {
     private val listeners: MutableSet<OnContextAvailableListener> = CopyOnWriteArraySet()
 
-    @Volatile
-    private var context: Context? = null
+    @Volatile private var context: Context? = null
 
     /**
-     * Get the [Context] if it is currently available. If this returns
-     * `null`, you can use [addOnContextAvailableListener] to receive
-     * a callback for when it available.
+     * Get the [Context] if it is currently available. If this returns `null`, you can use
+     * [addOnContextAvailableListener] to receive a callback for when it available.
      *
      * @return the Context if it is currently available.
      */
@@ -48,22 +45,19 @@ class ContextAwareHelper {
     }
 
     /**
-     * Add a new [OnContextAvailableListener] for receiving a callback for when
-     * this class is associated with a [android.content.Context].
+     * Add a new [OnContextAvailableListener] for receiving a callback for when this class is
+     * associated with a [android.content.Context].
      *
      * @param listener The listener that should be added.
      * @see removeOnContextAvailableListener
      */
     fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
-        context?.let {
-            listener.onContextAvailable(it)
-        }
+        context?.let { listener.onContextAvailable(it) }
         listeners.add(listener)
     }
 
     /**
-     * Remove a [OnContextAvailableListener] previously added via
-     * [addOnContextAvailableListener].
+     * Remove a [OnContextAvailableListener] previously added via [addOnContextAvailableListener].
      *
      * @param listener The listener that should be removed.
      * @see addOnContextAvailableListener
@@ -73,8 +67,8 @@ class ContextAwareHelper {
     }
 
     /**
-     * Dispatch the callback of [OnContextAvailableListener.onContextAvailable] to
-     * all currently added listeners in the order they were added.
+     * Dispatch the callback of [OnContextAvailableListener.onContextAvailable] to all currently
+     * added listeners in the order they were added.
      *
      * @param context The [Context] the [ContextAware] object is now associated with.
      */
@@ -85,10 +79,7 @@ class ContextAwareHelper {
         }
     }
 
-    /**
-     * Clear any [Context] previously made available via
-     * [dispatchOnContextAvailable].
-     */
+    /** Clear any [Context] previously made available via [dispatchOnContextAvailable]. */
     fun clearAvailableContext() {
         context = null
     }

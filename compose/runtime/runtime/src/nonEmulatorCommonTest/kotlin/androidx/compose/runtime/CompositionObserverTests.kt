@@ -50,23 +50,23 @@ class CompositionObserverTests {
                 Text("$data")
             }
 
-            validate {
-                Text("$data")
-            }
+            validate { Text("$data") }
 
-            scope?.observe(object : RecomposeScopeObserver {
-                override fun onBeginScopeComposition(scope: RecomposeScope) {
-                    startCount++
-                }
+            scope?.observe(
+                object : RecomposeScopeObserver {
+                    override fun onBeginScopeComposition(scope: RecomposeScope) {
+                        startCount++
+                    }
 
-                override fun onEndScopeComposition(scope: RecomposeScope) {
-                    endCount++
-                }
+                    override fun onEndScopeComposition(scope: RecomposeScope) {
+                        endCount++
+                    }
 
-                override fun onScopeDisposed(scope: RecomposeScope) {
-                    disposedCount++
+                    override fun onScopeDisposed(scope: RecomposeScope) {
+                        disposedCount++
+                    }
                 }
-            })
+            )
 
             data++
             expectChanges()
@@ -94,23 +94,24 @@ class CompositionObserverTests {
                 Text("$data")
             }
 
-            validate {
-                Text("$data")
-            }
+            validate { Text("$data") }
 
-            val handle = scope?.observe(object : RecomposeScopeObserver {
-                override fun onBeginScopeComposition(scope: RecomposeScope) {
-                    startCount++
-                }
+            val handle =
+                scope?.observe(
+                    object : RecomposeScopeObserver {
+                        override fun onBeginScopeComposition(scope: RecomposeScope) {
+                            startCount++
+                        }
 
-                override fun onEndScopeComposition(scope: RecomposeScope) {
-                    endCount++
-                }
+                        override fun onEndScopeComposition(scope: RecomposeScope) {
+                            endCount++
+                        }
 
-                override fun onScopeDisposed(scope: RecomposeScope) {
-                    disposedCount++
-                }
-            })
+                        override fun onScopeDisposed(scope: RecomposeScope) {
+                            disposedCount++
+                        }
+                    }
+                )
 
             data++
             expectChanges()
@@ -156,19 +157,21 @@ class CompositionObserverTests {
                 }
             }
 
-            scope?.observe(object : RecomposeScopeObserver {
-                override fun onBeginScopeComposition(scope: RecomposeScope) {
-                    startCount++
-                }
+            scope?.observe(
+                object : RecomposeScopeObserver {
+                    override fun onBeginScopeComposition(scope: RecomposeScope) {
+                        startCount++
+                    }
 
-                override fun onEndScopeComposition(scope: RecomposeScope) {
-                    endCount++
-                }
+                    override fun onEndScopeComposition(scope: RecomposeScope) {
+                        endCount++
+                    }
 
-                override fun onScopeDisposed(scope: RecomposeScope) {
-                    disposedCount++
+                    override fun onScopeDisposed(scope: RecomposeScope) {
+                        disposedCount++
+                    }
                 }
-            })
+            )
 
             data++
             expectChanges()
@@ -192,26 +195,23 @@ class CompositionObserverTests {
         var beginCount = 0
         var endCount = 0
         var data by mutableStateOf(0)
-        val observer = object : CompositionObserver {
-            override fun onBeginComposition(
-                composition: Composition,
-                invalidationMap: Map<RecomposeScope, Set<Any>?>
-            ) {
-                beginCount++
+        val observer =
+            object : CompositionObserver {
+                override fun onBeginComposition(
+                    composition: Composition,
+                    invalidationMap: Map<RecomposeScope, Set<Any>?>
+                ) {
+                    beginCount++
+                }
+
+                override fun onEndComposition(composition: Composition) {
+                    endCount++
+                }
             }
 
-            override fun onEndComposition(composition: Composition) {
-                endCount++
-            }
-        }
+        val handle = compose(observer) { Text("Some composition: $data") }
 
-        val handle = compose(observer) {
-            Text("Some composition: $data")
-        }
-
-        validate {
-            Text("Some composition: $data")
-        }
+        validate { Text("Some composition: $data") }
 
         assertEquals(1, beginCount)
         assertEquals(1, endCount)
@@ -238,25 +238,22 @@ class CompositionObserverTests {
         var beginCount = 0
         var endCount = 0
         var data by mutableStateOf(0)
-        val observer = object : CompositionObserver {
-            override fun onBeginComposition(
-                composition: Composition,
-                invalidationMap: Map<RecomposeScope, Set<Any>?>
-            ) {
-                beginCount++
-            }
+        val observer =
+            object : CompositionObserver {
+                override fun onBeginComposition(
+                    composition: Composition,
+                    invalidationMap: Map<RecomposeScope, Set<Any>?>
+                ) {
+                    beginCount++
+                }
 
-            override fun onEndComposition(composition: Composition) {
-                endCount++
+                override fun onEndComposition(composition: Composition) {
+                    endCount++
+                }
             }
-        }
-        compose {
-            Text("Some composition: $data")
-        }
+        compose { Text("Some composition: $data") }
 
-        validate {
-            Text("Some composition: $data")
-        }
+        validate { Text("Some composition: $data") }
         val handle = composition?.observe(observer)
 
         assertEquals(0, beginCount)
@@ -285,28 +282,28 @@ class CompositionObserverTests {
         var endCount = 0
         var data by mutableStateOf(0)
         val compositionsSeen = mutableSetOf<Composition>()
-        val observer = object : CompositionObserver {
-            override fun onBeginComposition(
-                composition: Composition,
-                invalidationMap: Map<RecomposeScope, Set<Any>?>
-            ) {
-                compositionsSeen.add(composition)
-                beginCount++
-            }
+        val observer =
+            object : CompositionObserver {
+                override fun onBeginComposition(
+                    composition: Composition,
+                    invalidationMap: Map<RecomposeScope, Set<Any>?>
+                ) {
+                    compositionsSeen.add(composition)
+                    beginCount++
+                }
 
-            override fun onEndComposition(composition: Composition) {
-                endCount++
+                override fun onEndComposition(composition: Composition) {
+                    endCount++
+                }
             }
-        }
 
         var seen = data
-        val handle = compose(observer) {
-            Text("Root: $data")
+        val handle =
+            compose(observer) {
+                Text("Root: $data")
 
-            TestSubcomposition {
-                seen = data
+                TestSubcomposition { seen = data }
             }
-        }
 
         assertEquals(data, seen)
         assertEquals(2, beginCount)
@@ -336,27 +333,26 @@ class CompositionObserverTests {
         var endCount = 0
         var data by mutableStateOf(0)
         val compositionsSeen = mutableSetOf<Composition>()
-        val observer = object : CompositionObserver {
-            override fun onBeginComposition(
-                composition: Composition,
-                invalidationMap: Map<RecomposeScope, Set<Any>?>
-            ) {
-                compositionsSeen.add(composition)
-                beginCount++
-            }
+        val observer =
+            object : CompositionObserver {
+                override fun onBeginComposition(
+                    composition: Composition,
+                    invalidationMap: Map<RecomposeScope, Set<Any>?>
+                ) {
+                    compositionsSeen.add(composition)
+                    beginCount++
+                }
 
-            override fun onEndComposition(composition: Composition) {
-                endCount++
+                override fun onEndComposition(composition: Composition) {
+                    endCount++
+                }
             }
-        }
 
         var seen = data
         compose {
             Text("Root: $data")
 
-            TestSubcomposition {
-                seen = data
-            }
+            TestSubcomposition { seen = data }
         }
 
         assertEquals(data, seen)
@@ -390,31 +386,33 @@ class CompositionObserverTests {
         var endCountTwo = 0
         var data by mutableStateOf(0)
         val compositionsSeen = mutableSetOf<Composition>()
-        val observer1 = object : CompositionObserver {
-            override fun onBeginComposition(
-                composition: Composition,
-                invalidationMap: Map<RecomposeScope, Set<Any>?>
-            ) {
-                compositionsSeen.add(composition)
-                beginCountOne++
-            }
+        val observer1 =
+            object : CompositionObserver {
+                override fun onBeginComposition(
+                    composition: Composition,
+                    invalidationMap: Map<RecomposeScope, Set<Any>?>
+                ) {
+                    compositionsSeen.add(composition)
+                    beginCountOne++
+                }
 
-            override fun onEndComposition(composition: Composition) {
-                endCountOne++
+                override fun onEndComposition(composition: Composition) {
+                    endCountOne++
+                }
             }
-        }
-        val observer2 = object : CompositionObserver {
-            override fun onBeginComposition(
-                composition: Composition,
-                invalidationMap: Map<RecomposeScope, Set<Any>?>
-            ) {
-                beginCountTwo++
-            }
+        val observer2 =
+            object : CompositionObserver {
+                override fun onBeginComposition(
+                    composition: Composition,
+                    invalidationMap: Map<RecomposeScope, Set<Any>?>
+                ) {
+                    beginCountTwo++
+                }
 
-            override fun onEndComposition(composition: Composition) {
-                endCountTwo++
+                override fun onEndComposition(composition: Composition) {
+                    endCountTwo++
+                }
             }
-        }
 
         var seen = data
         compose {
@@ -423,9 +421,7 @@ class CompositionObserverTests {
             TestSubcomposition {
                 seen = data
 
-                TestSubcomposition {
-                    seen = data
-                }
+                TestSubcomposition { seen = data }
             }
         }
 
@@ -525,23 +521,24 @@ class CompositionObserverTests {
         val composition = composition ?: error("No composition")
         fun changes(vararg indexes: Int) {
             var validatedSomething = false
-            val handle = composition.observe(
-                object : CompositionObserver {
-                    override fun onBeginComposition(
-                        composition: Composition,
-                        invalidationMap: Map<RecomposeScope, Set<Any>?>
-                    ) {
-                        validatedSomething = true
-                        for (index in indexes) {
-                            assertTrue(invalidationMap.containsKey(expectedScopes[index]))
+            val handle =
+                composition.observe(
+                    object : CompositionObserver {
+                        override fun onBeginComposition(
+                            composition: Composition,
+                            invalidationMap: Map<RecomposeScope, Set<Any>?>
+                        ) {
+                            validatedSomething = true
+                            for (index in indexes) {
+                                assertTrue(invalidationMap.containsKey(expectedScopes[index]))
+                            }
+                        }
+
+                        override fun onEndComposition(composition: Composition) {
+                            // Nothing to do
                         }
                     }
-
-                    override fun onEndComposition(composition: Composition) {
-                        // Nothing to do
-                    }
-                }
-            )
+                )
             for (index in indexes) {
                 data[index].value++
             }

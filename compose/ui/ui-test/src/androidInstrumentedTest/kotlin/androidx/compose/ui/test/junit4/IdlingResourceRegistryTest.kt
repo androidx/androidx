@@ -46,9 +46,8 @@ class IdlingResourceRegistryTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val scope = TestScope(UnconfinedTestDispatcher())
     @OptIn(InternalTestApi::class)
-    private val registry = IdlingResourceRegistry(scope).apply {
-        setOnIdleCallback { onIdleCalled = true }
-    }
+    private val registry =
+        IdlingResourceRegistry(scope).apply { setOnIdleCallback { onIdleCalled = true } }
 
     @After
     fun verifyRegistryStoppedPolling() {
@@ -73,16 +72,12 @@ class IdlingResourceRegistryTest {
         resource.isIdleNow = false
         assertThat(registry.isIdleNow).isFalse()
 
-        assertThatPollingStartsAndEnds {
-            resource.isIdleNow = true
-        }
+        assertThatPollingStartsAndEnds { resource.isIdleNow = true }
 
         resource.isIdleNow = false
         assertThat(registry.isIdleNow).isFalse()
 
-        assertThatPollingStartsAndEnds {
-            resource.isIdleNow = true
-        }
+        assertThatPollingStartsAndEnds { resource.isIdleNow = true }
     }
 
     @Test
@@ -153,9 +148,7 @@ class IdlingResourceRegistryTest {
         val resource = TestIdlingResource(false)
         registry.registerIdlingResource(resource)
 
-        assertThatPollingStartsAndEnds {
-            resource.isIdleNow = true
-        }
+        assertThatPollingStartsAndEnds { resource.isIdleNow = true }
     }
 
     private fun assertThatPollingStartsAndEnds(makeIdle: () -> Unit) {

@@ -38,17 +38,17 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * A layout composable that places its children in a vertical sequence. For a layout composable
- * that places its children in a horizontal sequence, see [Row]. Note that by default items do
- * not scroll; see `Modifier.verticalScroll` to add this behavior. For a vertically
- * scrollable list that only composes and lays out the currently visible items see `LazyColumn`.
+ * A layout composable that places its children in a vertical sequence. For a layout composable that
+ * places its children in a horizontal sequence, see [Row]. Note that by default items do not
+ * scroll; see `Modifier.verticalScroll` to add this behavior. For a vertically scrollable list that
+ * only composes and lays out the currently visible items see `LazyColumn`.
  *
- * The [Column] layout is able to assign children heights according to their weights provided
- * using the [ColumnScope.weight] modifier. If a child is not provided a weight, it will be
- * asked for its preferred height before the sizes of the children with weights are calculated
- * proportionally to their weight based on the remaining available space. Note that if the
- * [Column] is vertically scrollable or part of a vertically scrollable container, any provided
- * weights will be disregarded as the remaining available space will be infinite.
+ * The [Column] layout is able to assign children heights according to their weights provided using
+ * the [ColumnScope.weight] modifier. If a child is not provided a weight, it will be asked for its
+ * preferred height before the sizes of the children with weights are calculated proportionally to
+ * their weight based on the remaining available space. Note that if the [Column] is vertically
+ * scrollable or part of a vertically scrollable container, any provided weights will be disregarded
+ * as the remaining available space will be infinite.
  *
  * When none of its children have weights, a [Column] will be as small as possible to fit its
  * children one on top of the other. In order to change the height of the [Column], use the
@@ -60,11 +60,12 @@ import androidx.compose.ui.unit.LayoutDirection
  *
  * When the size of the [Column] is larger than the sum of its children sizes, a
  * [verticalArrangement] can be specified to define the positioning of the children inside the
- * [Column]. See [Arrangement] for available positioning behaviors; a custom arrangement can also
- * be defined using the constructor of [Arrangement]. Below is an illustration of different
- * vertical arrangements:
+ * [Column]. See [Arrangement] for available positioning behaviors; a custom arrangement can also be
+ * defined using the constructor of [Arrangement]. Below is an illustration of different vertical
+ * arrangements:
  *
- * ![Column arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/column_arrangement_visualization.gif)
+ * ![Column
+ * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/column_arrangement_visualization.gif)
  *
  * Example usage:
  *
@@ -73,7 +74,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param modifier The modifier to be applied to the Column.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalAlignment The horizontal alignment of the layout's children.
- *
  * @see Row
  * @see [androidx.compose.foundation.lazy.LazyColumn]
  */
@@ -93,10 +93,11 @@ inline fun Column(
 }
 
 @PublishedApi
-internal val DefaultColumnMeasurePolicy: MeasurePolicy = ColumnMeasurePolicy(
-    verticalArrangement = Arrangement.Top,
-    horizontalAlignment = Alignment.Start,
-)
+internal val DefaultColumnMeasurePolicy: MeasurePolicy =
+    ColumnMeasurePolicy(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start,
+    )
 
 @PublishedApi
 @Composable
@@ -121,7 +122,9 @@ internal data class ColumnMeasurePolicy(
 ) : MeasurePolicy, RowColumnMeasurePolicy {
 
     override fun Placeable.mainAxisSize(): Int = height
+
     override fun Placeable.crossAxisSize(): Int = width
+
     override fun populateMainAxisPositions(
         mainAxisLayoutSize: Int,
         childrenMainAxisSize: IntArray,
@@ -129,11 +132,7 @@ internal data class ColumnMeasurePolicy(
         measureScope: MeasureScope
     ) {
         with(verticalArrangement) {
-            measureScope.arrange(
-                mainAxisLayoutSize,
-                childrenMainAxisSize,
-                mainAxisPositions
-            )
+            measureScope.arrange(mainAxisLayoutSize, childrenMainAxisSize, mainAxisPositions)
         }
     }
 
@@ -152,17 +151,18 @@ internal data class ColumnMeasurePolicy(
         return with(measureScope) {
             layout(crossAxisLayoutSize, mainAxisLayoutSize) {
                 placeables.forEachIndexed { i, placeable ->
-                    val crossAxisPosition = getCrossAxisPosition(
-                        placeable!!,
-                        placeable.rowColumnParentData,
-                        crossAxisLayoutSize,
-                        beforeCrossAxisAlignmentLine,
-                        measureScope.layoutDirection
-                    )
+                    val crossAxisPosition =
+                        getCrossAxisPosition(
+                            placeable!!,
+                            placeable.rowColumnParentData,
+                            crossAxisLayoutSize,
+                            beforeCrossAxisAlignmentLine,
+                            measureScope.layoutDirection
+                        )
                     placeable.place(
                         crossAxisPosition,
                         mainAxisPositions[i],
-                 )
+                    )
                 }
             }
         }
@@ -181,8 +181,7 @@ internal data class ColumnMeasurePolicy(
             layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine
-        ) ?: horizontalAlignment.align(0, crossAxisLayoutSize - placeable.width,
-            layoutDirection)
+        ) ?: horizontalAlignment.align(0, crossAxisLayoutSize - placeable.width, layoutDirection)
     }
 
     override fun createConstraints(
@@ -222,38 +221,42 @@ internal data class ColumnMeasurePolicy(
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int
-    ) = IntrinsicMeasureBlocks.VerticalMinWidth(
-        measurables,
-        height,
-        verticalArrangement.spacing.roundToPx(),
-    )
+    ) =
+        IntrinsicMeasureBlocks.VerticalMinWidth(
+            measurables,
+            height,
+            verticalArrangement.spacing.roundToPx(),
+        )
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int
-    ) = IntrinsicMeasureBlocks.VerticalMinHeight(
-        measurables,
-        width,
-        verticalArrangement.spacing.roundToPx(),
-    )
+    ) =
+        IntrinsicMeasureBlocks.VerticalMinHeight(
+            measurables,
+            width,
+            verticalArrangement.spacing.roundToPx(),
+        )
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int
-    ) = IntrinsicMeasureBlocks.VerticalMaxWidth(
-        measurables,
-        height,
-        verticalArrangement.spacing.roundToPx(),
-    )
+    ) =
+        IntrinsicMeasureBlocks.VerticalMaxWidth(
+            measurables,
+            height,
+            verticalArrangement.spacing.roundToPx(),
+        )
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int
-    ) = IntrinsicMeasureBlocks.VerticalMaxHeight(
-        measurables,
-        width,
-        verticalArrangement.spacing.roundToPx(),
-    )
+    ) =
+        IntrinsicMeasureBlocks.VerticalMaxHeight(
+            measurables,
+            width,
+            verticalArrangement.spacing.roundToPx(),
+        )
 }
 
 internal fun createColumnConstraints(
@@ -280,9 +283,7 @@ internal fun createColumnConstraints(
     }
 }
 
-/**
- * Scope for the children of [Column].
- */
+/** Scope for the children of [Column]. */
 @LayoutScopeMarker
 @Immutable
 @JvmDefaultWithCompatibility
@@ -290,24 +291,23 @@ interface ColumnScope {
     /**
      * Size the element's height proportional to its [weight] relative to other weighted sibling
      * elements in the [Column]. The parent will divide the vertical space remaining after measuring
-     * unweighted child elements and distribute it according to this weight.
-     * When [fill] is true, the element will be forced to occupy the whole height allocated to it.
-     * Otherwise, the element is allowed to be smaller - this will result in [Column] being smaller,
-     * as the unused allocated height will not be redistributed to other siblings.
+     * unweighted child elements and distribute it according to this weight. When [fill] is true,
+     * the element will be forced to occupy the whole height allocated to it. Otherwise, the element
+     * is allowed to be smaller - this will result in [Column] being smaller, as the unused
+     * allocated height will not be redistributed to other siblings.
      *
-     * In a [FlowColumn], when a weight is applied to an item, the item is scaled based on
-     * the number of weighted items that fall on the column it was placed in.
+     * In a [FlowColumn], when a weight is applied to an item, the item is scaled based on the
+     * number of weighted items that fall on the column it was placed in.
      *
-     * @param weight The proportional height to give to this element, as related to the total of
-     * all weighted siblings. Must be positive.
+     * @param weight The proportional height to give to this element, as related to the total of all
+     *   weighted siblings. Must be positive.
      * @param fill When `true`, the element will occupy the whole height allocated.
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleColumn
      */
     @Stable
     fun Modifier.weight(
-        @FloatRange(from = 0.0, fromInclusive = false)
-        weight: Float,
+        @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true
     ): Modifier
 
@@ -316,49 +316,45 @@ interface ColumnScope {
      * the [Column]'s `horizontalAlignment` parameter.
      *
      * Example usage:
+     *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignInColumn
      */
-    @Stable
-    fun Modifier.align(alignment: Alignment.Horizontal): Modifier
+    @Stable fun Modifier.align(alignment: Alignment.Horizontal): Modifier
 
     /**
      * Position the element horizontally such that its [alignmentLine] aligns with sibling elements
-     * also configured to [alignBy]. [alignBy] is a form of [align],
-     * so both modifiers will not work together if specified for the same layout.
-     * Within a [Column], all components with [alignBy] will align horizontally using
-     * the specified [VerticalAlignmentLine]s or values provided using the other
-     * [alignBy] overload, forming a sibling group.
-     * At least one element of the sibling group will be placed as it had [Alignment.Start] align
-     * in [Column], and the alignment of the other siblings will be then determined such that
-     * the alignment lines coincide. Note that if only one element in a [Column] has the
-     * [alignBy] modifier specified the element will be positioned
-     * as if it had [Alignment.Start] align.
+     * also configured to [alignBy]. [alignBy] is a form of [align], so both modifiers will not work
+     * together if specified for the same layout. Within a [Column], all components with [alignBy]
+     * will align horizontally using the specified [VerticalAlignmentLine]s or values provided using
+     * the other [alignBy] overload, forming a sibling group. At least one element of the sibling
+     * group will be placed as it had [Alignment.Start] align in [Column], and the alignment of the
+     * other siblings will be then determined such that the alignment lines coincide. Note that if
+     * only one element in a [Column] has the [alignBy] modifier specified the element will be
+     * positioned as if it had [Alignment.Start] align.
      *
      * Example usage:
+     *
      * @sample androidx.compose.foundation.layout.samples.SimpleRelativeToSiblingsInColumn
      */
-    @Stable
-    fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine): Modifier
+    @Stable fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine): Modifier
 
     /**
-     * Position the element horizontally such that the alignment line for the content as
-     * determined by [alignmentLineBlock] aligns with sibling elements also configured to
-     * [alignBy]. [alignBy] is a form of [align], so both modifiers
-     * will not work together if specified for the same layout.
-     * Within a [Column], all components with [alignBy] will align horizontally using
-     * the specified [VerticalAlignmentLine]s or values obtained from [alignmentLineBlock],
-     * forming a sibling group.
-     * At least one element of the sibling group will be placed as it had [Alignment.Start] align
-     * in [Column], and the alignment of the other siblings will be then determined such that
-     * the alignment lines coincide. Note that if only one element in a [Column] has the
-     * [alignBy] modifier specified the element will be positioned
-     * as if it had [Alignment.Start] align.
+     * Position the element horizontally such that the alignment line for the content as determined
+     * by [alignmentLineBlock] aligns with sibling elements also configured to [alignBy]. [alignBy]
+     * is a form of [align], so both modifiers will not work together if specified for the same
+     * layout. Within a [Column], all components with [alignBy] will align horizontally using the
+     * specified [VerticalAlignmentLine]s or values obtained from [alignmentLineBlock], forming a
+     * sibling group. At least one element of the sibling group will be placed as it had
+     * [Alignment.Start] align in [Column], and the alignment of the other siblings will be then
+     * determined such that the alignment lines coincide. Note that if only one element in a
+     * [Column] has the [alignBy] modifier specified the element will be positioned as if it had
+     * [Alignment.Start] align.
      *
      * Example usage:
+     *
      * @sample androidx.compose.foundation.layout.samples.SimpleRelativeToSiblings
      */
-    @Stable
-    fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
+    @Stable fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
 }
 
 internal object ColumnScopeInstance : ColumnScope {
@@ -375,23 +371,14 @@ internal object ColumnScopeInstance : ColumnScope {
     }
 
     @Stable
-    override fun Modifier.align(alignment: Alignment.Horizontal) = this.then(
-        HorizontalAlignElement(
-            horizontal = alignment
-        )
-    )
+    override fun Modifier.align(alignment: Alignment.Horizontal) =
+        this.then(HorizontalAlignElement(horizontal = alignment))
 
     @Stable
-    override fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine) = this.then(
-        WithAlignmentLineElement(
-            alignmentLine = alignmentLine
-        )
-    )
+    override fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine) =
+        this.then(WithAlignmentLineElement(alignmentLine = alignmentLine))
 
     @Stable
-    override fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int) = this.then(
-        WithAlignmentLineBlockElement(
-            block = alignmentLineBlock
-        )
-    )
+    override fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int) =
+        this.then(WithAlignmentLineBlockElement(block = alignmentLineBlock))
 }

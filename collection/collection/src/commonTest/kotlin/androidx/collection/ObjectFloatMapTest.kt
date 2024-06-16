@@ -80,36 +80,50 @@ internal class ObjectFloatTest {
 
     @Test
     fun objectFloatMapInitFunction() {
-        val map1 = objectFloatMapOf(
-            "Hello", 1f,
-        )
+        val map1 =
+            objectFloatMapOf(
+                "Hello",
+                1f,
+            )
         assertEquals(1, map1.size)
         assertEquals(1f, map1["Hello"])
 
-        val map2 = objectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-        )
+        val map2 =
+            objectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+            )
         assertEquals(2, map2.size)
         assertEquals(1f, map2["Hello"])
         assertEquals(2f, map2["Bonjour"])
 
-        val map3 = objectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-            "Hallo", 3f,
-        )
+        val map3 =
+            objectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+                "Hallo",
+                3f,
+            )
         assertEquals(3, map3.size)
         assertEquals(1f, map3["Hello"])
         assertEquals(2f, map3["Bonjour"])
         assertEquals(3f, map3["Hallo"])
 
-        val map4 = objectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-            "Hallo", 3f,
-            "Konnichiwa", 4f,
-        )
+        val map4 =
+            objectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+                "Hallo",
+                3f,
+                "Konnichiwa",
+                4f,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1f, map4["Hello"])
@@ -117,13 +131,19 @@ internal class ObjectFloatTest {
         assertEquals(3f, map4["Hallo"])
         assertEquals(4f, map4["Konnichiwa"])
 
-        val map5 = objectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-            "Hallo", 3f,
-            "Konnichiwa", 4f,
-            "Ciao", 5f,
-        )
+        val map5 =
+            objectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+                "Hallo",
+                3f,
+                "Konnichiwa",
+                4f,
+                "Ciao",
+                5f,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1f, map5["Hello"])
@@ -135,36 +155,50 @@ internal class ObjectFloatTest {
 
     @Test
     fun mutableObjectFloatMapInitFunction() {
-        val map1 = mutableObjectFloatMapOf(
-            "Hello", 1f,
-        )
+        val map1 =
+            mutableObjectFloatMapOf(
+                "Hello",
+                1f,
+            )
         assertEquals(1, map1.size)
         assertEquals(1f, map1["Hello"])
 
-        val map2 = mutableObjectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-        )
+        val map2 =
+            mutableObjectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+            )
         assertEquals(2, map2.size)
         assertEquals(1f, map2["Hello"])
         assertEquals(2f, map2["Bonjour"])
 
-        val map3 = mutableObjectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-            "Hallo", 3f,
-        )
+        val map3 =
+            mutableObjectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+                "Hallo",
+                3f,
+            )
         assertEquals(3, map3.size)
         assertEquals(1f, map3["Hello"])
         assertEquals(2f, map3["Bonjour"])
         assertEquals(3f, map3["Hallo"])
 
-        val map4 = mutableObjectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-            "Hallo", 3f,
-            "Konnichiwa", 4f,
-        )
+        val map4 =
+            mutableObjectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+                "Hallo",
+                3f,
+                "Konnichiwa",
+                4f,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1f, map4["Hello"])
@@ -172,13 +206,19 @@ internal class ObjectFloatTest {
         assertEquals(3f, map4["Hallo"])
         assertEquals(4f, map4["Konnichiwa"])
 
-        val map5 = mutableObjectFloatMapOf(
-            "Hello", 1f,
-            "Bonjour", 2f,
-            "Hallo", 3f,
-            "Konnichiwa", 4f,
-            "Ciao", 5f,
-        )
+        val map5 =
+            mutableObjectFloatMapOf(
+                "Hello",
+                1f,
+                "Bonjour",
+                2f,
+                "Hallo",
+                3f,
+                "Konnichiwa",
+                4f,
+                "Ciao",
+                5f,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1f, map5["Hello"])
@@ -272,9 +312,7 @@ internal class ObjectFloatTest {
         val map = MutableObjectFloatMap<String>()
         map["Hello"] = 1f
 
-        assertFailsWith<NoSuchElementException> {
-            map["Bonjour"]
-        }
+        assertFailsWith<NoSuchElementException> { map["Bonjour"] }
     }
 
     @Test
@@ -568,29 +606,25 @@ internal class ObjectFloatTest {
     @Test
     fun joinToString() {
         val map = MutableObjectFloatMap<String?>()
-        repeat(5) {
-            map[it.toString()] = it.toFloat()
-        }
+        repeat(5) { map[it.toString()] = it.toFloat() }
         val order = IntArray(5)
         var index = 0
-        map.forEach { _, value ->
-            order[index++] = value.toInt()
-        }
+        map.forEach { _, value -> order[index++] = value.toInt() }
         assertEquals(
             "${order[0]}=${order[0].toFloat()}, ${order[1]}=${order[1].toFloat()}, " +
-            "${order[2]}=${order[2].toFloat()}, ${order[3]}=${order[3].toFloat()}, " +
-            "${order[4]}=${order[4].toFloat()}",
+                "${order[2]}=${order[2].toFloat()}, ${order[3]}=${order[3].toFloat()}, " +
+                "${order[4]}=${order[4].toFloat()}",
             map.joinToString()
         )
         assertEquals(
             "x${order[0]}=${order[0].toFloat()}, ${order[1]}=${order[1].toFloat()}, " +
-            "${order[2]}=${order[2].toFloat()}...",
+                "${order[2]}=${order[2].toFloat()}...",
             map.joinToString(prefix = "x", postfix = "y", limit = 3)
         )
         assertEquals(
             ">${order[0]}=${order[0].toFloat()}-${order[1]}=${order[1].toFloat()}-" +
-            "${order[2]}=${order[2].toFloat()}-${order[3]}=${order[3].toFloat()}-" +
-            "${order[4]}=${order[4].toFloat()}<",
+                "${order[2]}=${order[2].toFloat()}-${order[3]}=${order[3].toFloat()}-" +
+                "${order[4]}=${order[4].toFloat()}<",
             map.joinToString(separator = "-", prefix = ">", postfix = "<")
         )
         val names = arrayOf("one", "two", "three", "four", "five")

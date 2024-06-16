@@ -45,8 +45,8 @@ public class NightModeStackedHandlingTestCase {
     /**
      * Regression test for the following scenario:
      *
-     * If you have a stack of activities which includes one with android:configChanges="uiMode"
-     * and you call AppCompatDelegate.setDefaultNightMode it can cause other activities to not be
+     * If you have a stack of activities which includes one with android:configChanges="uiMode" and
+     * you call AppCompatDelegate.setDefaultNightMode it can cause other activities to not be
      * recreated.
      *
      * Eg:
@@ -56,9 +56,9 @@ public class NightModeStackedHandlingTestCase {
      *
      * Here is your stack : A > B > C (C on top)
      *
-     * Call AppCompatDelegate.setDefaultNightMode with a new mode on activity C. Activity C
-     * receives the change in onConfigurationChanged but there is a good chance that activity A
-     * and/or B were not recreated.
+     * Call AppCompatDelegate.setDefaultNightMode with a new mode on activity C. Activity C receives
+     * the change in onConfigurationChanged but there is a good chance that activity A and/or B were
+     * not recreated.
      */
     @Test
     public fun testDefaultNightModeWithStackedActivities() {
@@ -66,17 +66,13 @@ public class NightModeStackedHandlingTestCase {
         val result = Instrumentation.ActivityResult(0, Intent())
         val monitorA = ActivityMonitor(NightModeActivityA::class.java.name, result, false)
         val monitorB = ActivityMonitor(NightModeActivityB::class.java.name, result, false)
-        val monitorC = ActivityMonitor(
-            NightModeUiModeConfigChangesActivity::class.java.name,
-            result, false
-        )
+        val monitorC =
+            ActivityMonitor(NightModeUiModeConfigChangesActivity::class.java.name, result, false)
         instr.addMonitor(monitorA)
         instr.addMonitor(monitorB)
         instr.addMonitor(monitorC)
 
-        instr.runOnMainSync {
-            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
-        }
+        instr.runOnMainSync { AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO) }
 
         // Start activity A.
         instr.startActivitySync(
@@ -113,9 +109,7 @@ public class NightModeStackedHandlingTestCase {
         // Toggle default night mode.
         val activityC = monitorC.waitForActivityWithTimeout(3000) as NightModeActivity
         assertNotNull(activityC)
-        activityC.runOnUiThread {
-            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
-        }
+        activityC.runOnUiThread { AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES) }
 
         // Activity C should receive a configuration change.
         activityC.expectOnConfigurationChange(3000)
@@ -140,8 +134,8 @@ public class NightModeStackedHandlingTestCase {
      * Regression test for the following scenario:
      *
      * If you have a stack of activities where every activity has `android:configChanges="uiMode"`
-     * and you call [AppCompatDelegate.setDefaultNightMode] from thread other than the top
-     * activity, then it can cause the bottom activity to not receive `onConfigurationChanged`.
+     * and you call [AppCompatDelegate.setDefaultNightMode] from thread other than the top activity,
+     * then it can cause the bottom activity to not receive `onConfigurationChanged`.
      *
      * Eg:
      * - Activity A DOES intercept uiMode config changes in manifest
@@ -152,8 +146,8 @@ public class NightModeStackedHandlingTestCase {
      *
      * Call [AppCompatDelegate.setDefaultNightMode] with a new mode on activity C (but not directly
      * from this activity, ex with RX AndroidSchedulers.mainThread or an handler). Activity C
-     * receives both `onConfigurationChanged` and `onNightModeChanged`, but activities A and B
-     * may not receive either callback or change their configurations.
+     * receives both `onConfigurationChanged` and `onNightModeChanged`, but activities A and B may
+     * not receive either callback or change their configurations.
      *
      * Process:
      * 1. A > B > C > setDefaultNightMode YES
@@ -164,25 +158,17 @@ public class NightModeStackedHandlingTestCase {
     public fun testDefaultNightModeWithStackedActivitiesAndNavigation() {
         val instr = InstrumentationRegistry.getInstrumentation()
         val result = Instrumentation.ActivityResult(0, Intent())
-        val monitorA = ActivityMonitor(
-            NightModeUiModeConfigChangesActivity::class.java.name,
-            result, false
-        )
-        val monitorB = ActivityMonitor(
-            NightModeUiModeConfigChangesActivityB::class.java.name,
-            result, false
-        )
-        val monitorC = ActivityMonitor(
-            NightModeUiModeConfigChangesActivityC::class.java.name,
-            result, false
-        )
+        val monitorA =
+            ActivityMonitor(NightModeUiModeConfigChangesActivity::class.java.name, result, false)
+        val monitorB =
+            ActivityMonitor(NightModeUiModeConfigChangesActivityB::class.java.name, result, false)
+        val monitorC =
+            ActivityMonitor(NightModeUiModeConfigChangesActivityC::class.java.name, result, false)
         instr.addMonitor(monitorA)
         instr.addMonitor(monitorB)
         instr.addMonitor(monitorC)
 
-        instr.runOnMainSync {
-            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
-        }
+        instr.runOnMainSync { AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO) }
 
         // Start activity A.
         instr.startActivitySync(
@@ -243,9 +229,7 @@ public class NightModeStackedHandlingTestCase {
 
         // Tear down activities C and B, in that order.
         listOf(activityC, activityB).forEach { activity ->
-            activity.runOnUiThread {
-                activity.finish()
-            }
+            activity.runOnUiThread { activity.finish() }
             waitUntilState(activity, Lifecycle.State.DESTROYED)
         }
 

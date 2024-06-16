@@ -36,58 +36,56 @@ internal object JavaSourceCompilationStep : KotlinCompilationStep {
         workingDir: File,
         arguments: CompilationStepArguments
     ): CompilationStepResult {
-        val javaSources: Map<JavaFileObject, Source> = arguments.sourceSets
-            .asSequence()
-            .flatMap {
-                it.javaSources
-            }.associateBy {
-                it.toJFO()
-            }
+        val javaSources: Map<JavaFileObject, Source> =
+            arguments.sourceSets.asSequence().flatMap { it.javaSources }.associateBy { it.toJFO() }
         if (javaSources.isEmpty()) {
             return CompilationStepResult.skip(arguments)
         }
-        val classpaths = if (arguments.inheritClasspaths) {
-            arguments.additionalClasspaths + getSystemClasspathFiles()
-        } else {
-            arguments.additionalClasspaths
-        }.filter { it.exists() }
+        val classpaths =
+            if (arguments.inheritClasspaths) {
+                    arguments.additionalClasspaths + getSystemClasspathFiles()
+                } else {
+                    arguments.additionalClasspaths
+                }
+                .filter { it.exists() }
 
-        val compiler = Compiler.javac()
-            .withOptions(arguments.javacArguments + "-Xlint")
-            .withClasspath(classpaths)
+        val compiler =
+            Compiler.javac()
+                .withOptions(arguments.javacArguments + "-Xlint")
+                .withClasspath(classpaths)
 
         val result = compiler.compile(javaSources.keys)
 
-        val generatedClasses = if (result.status() == Compilation.Status.SUCCESS) {
-            val classpathOut = workingDir.resolve(GEN_CLASS_OUT)
-            result.generatedFiles().map {
-                val targetFile = classpathOut.resolve(
-                    it.toUri().path.substringAfter("CLASS_OUTPUT/")
-                ).also { file ->
-                    file.parentFile.mkdirs()
-                }
-                it.openInputStream().use { inputStream ->
-                    targetFile.outputStream().use { outputStream ->
-                        inputStream.copyTo(outputStream)
+        val generatedClasses =
+            if (result.status() == Compilation.Status.SUCCESS) {
+                val classpathOut = workingDir.resolve(GEN_CLASS_OUT)
+                result.generatedFiles().map {
+                    val targetFile =
+                        classpathOut
+                            .resolve(it.toUri().path.substringAfter("CLASS_OUTPUT/"))
+                            .also { file -> file.parentFile.mkdirs() }
+                    it.openInputStream().use { inputStream ->
+                        targetFile.outputStream().use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
                     }
                 }
+                listOf(classpathOut)
+            } else {
+                emptyList()
             }
-            listOf(
-                classpathOut
-            )
-        } else {
-            emptyList()
-        }
 
         return CompilationStepResult(
             success = result.status() == Compilation.Status.SUCCESS,
             generatedSourceRoots = emptyList(),
             diagnostics = result.diagnostics().toDiagnosticMessages(javaSources),
-            nextCompilerArguments = arguments.copy(
-                // NOTE: ideally, we should remove java sources but we know that there are no next
-                // steps so we skip unnecessary work
-                sourceSets = arguments.sourceSets
-            ),
+            nextCompilerArguments =
+                arguments.copy(
+                    // NOTE: ideally, we should remove java sources but we know that there are no
+                    // next
+                    // steps so we skip unnecessary work
+                    sourceSets = arguments.sourceSets
+                ),
             outputClasspath = generatedClasses
         )
     }

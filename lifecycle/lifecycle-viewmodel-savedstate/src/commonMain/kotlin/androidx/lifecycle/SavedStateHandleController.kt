@@ -18,10 +18,8 @@ package androidx.lifecycle
 import androidx.savedstate.SavedStateRegistry
 
 @OptIn(ExperimentalStdlibApi::class)
-internal class SavedStateHandleController(
-    private val key: String,
-    val handle: SavedStateHandle
-) : LifecycleEventObserver, AutoCloseable {
+internal class SavedStateHandleController(private val key: String, val handle: SavedStateHandle) :
+    LifecycleEventObserver, AutoCloseable {
 
     var isAttached = false
         private set

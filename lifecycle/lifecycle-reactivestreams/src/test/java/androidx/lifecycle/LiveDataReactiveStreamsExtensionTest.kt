@@ -28,8 +28,7 @@ import org.junit.Test
 
 class LiveDataReactiveStreamsExtensionTest {
 
-    @get:Rule
-    val rule = InstantTaskExecutorRule()
+    @get:Rule val rule = InstantTaskExecutorRule()
 
     private lateinit var lifecycleOwner: LifecycleOwner
 

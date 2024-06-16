@@ -31,7 +31,7 @@ abstract class RowAdapter(val out: XType) {
      * Called when cursor variable along with column indices variables are ready.
      *
      * @param indices the list of index variables to use when getting columns from the cursor to
-     * convert the row.
+     *   convert the row.
      * @param cursorVarName the name of the cursor local variable
      */
     open fun onCursorReady(
@@ -39,17 +39,12 @@ abstract class RowAdapter(val out: XType) {
         scope: CodeGenScope,
         indices: List<ColumnIndexVar> =
             getDefaultIndexAdapter().apply { onCursorReady(cursorVarName, scope) }.getIndexVars(),
-    ) {
-    }
+    ) {}
 
-    /**
-     * Called to convert a single row.
-     */
+    /** Called to convert a single row. */
     abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
 
-    /**
-     * Gets the default index adapter for the implementation
-     */
+    /** Gets the default index adapter for the implementation */
     abstract fun getDefaultIndexAdapter(): IndexAdapter
 
     // TODO(b/319660042): Remove once migration to driver API is done.

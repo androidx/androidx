@@ -32,22 +32,22 @@ import androidx.room.solver.CodeGenScope
  * Base class for query result binders that observe the database. It includes common functionality
  * like creating a finalizer to release the query or creating the actual adapter call code.
  */
-abstract class BaseObservableQueryResultBinder(
-    adapter: QueryResultAdapter?
-) : QueryResultBinder(adapter) {
+abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?) :
+    QueryResultBinder(adapter) {
 
     protected fun XTypeSpec.Builder.createFinalizeMethod(roomSQLiteQueryVar: String) {
         addFunction(
             XFunSpec.builder(
-                language = language,
-                name = "finalize",
-                visibility = VisibilityModifier.PROTECTED,
-                // To 'override' finalize in Kotlin one does not use the 'override' keyword, but in
-                // Java the @Override is needed
-                isOverride = language == CodeLanguage.JAVA
-            ).apply {
-                addStatement("%L.release()", roomSQLiteQueryVar)
-            }.build()
+                    language = language,
+                    name = "finalize",
+                    visibility = VisibilityModifier.PROTECTED,
+                    // To 'override' finalize in Kotlin one does not use the 'override' keyword, but
+                    // in
+                    // Java the @Override is needed
+                    isOverride = language == CodeLanguage.JAVA
+                )
+                .apply { addStatement("%L.release()", roomSQLiteQueryVar) }
+                .build()
         )
     }
 
@@ -59,11 +59,12 @@ abstract class BaseObservableQueryResultBinder(
         scope: CodeGenScope,
         cancellationSignalVar: String
     ) {
-        val transactionWrapper = if (inTransaction) {
-            builder.transactionWrapper(dbProperty.name)
-        } else {
-            null
-        }
+        val transactionWrapper =
+            if (inTransaction) {
+                builder.transactionWrapper(dbProperty.name)
+            } else {
+                null
+            }
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
@@ -72,15 +73,16 @@ abstract class BaseObservableQueryResultBinder(
             addLocalVariable(
                 name = cursorVar,
                 typeName = CURSOR,
-                assignExpr = XCodeBlock.of(
-                    language = language,
-                    format = "%M(%N, %L, %L, %L)",
-                    RoomTypeNames.DB_UTIL.packageMember("query"),
-                    dbProperty,
-                    roomSQLiteQueryVar,
-                    if (shouldCopyCursor) "true" else "false",
-                    cancellationSignalVar
-                )
+                assignExpr =
+                    XCodeBlock.of(
+                        language = language,
+                        format = "%M(%N, %L, %L, %L)",
+                        RoomTypeNames.DB_UTIL.packageMember("query"),
+                        dbProperty,
+                        roomSQLiteQueryVar,
+                        if (shouldCopyCursor) "true" else "false",
+                        cancellationSignalVar
+                    )
             )
             beginControlFlow("try").apply {
                 val adapterScope = scope.fork()
@@ -89,9 +91,7 @@ abstract class BaseObservableQueryResultBinder(
                 transactionWrapper?.commitTransaction()
                 addStatement("return %L", outVar)
             }
-            nextControlFlow("finally").apply {
-                addStatement("%L.close()", cursorVar)
-            }
+            nextControlFlow("finally").apply { addStatement("%L.close()", cursorVar) }
             endControlFlow()
         }
         transactionWrapper?.endTransactionWithControlFlow()

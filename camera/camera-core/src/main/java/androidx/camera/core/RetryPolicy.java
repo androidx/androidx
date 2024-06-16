@@ -20,7 +20,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraProviderInitRetryPolicy;
 import androidx.camera.core.impl.RetryPolicyInternal;
@@ -88,7 +87,6 @@ import java.lang.annotation.RetentionPolicy;
  * {@link ExecutionState#STATUS_CAMERA_UNAVAILABLE}, the retry policy applies
  * {@link RetryConfig#DEFAULT_DELAY_RETRY}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalRetryPolicy
 public interface RetryPolicy {
 

@@ -17,5 +17,6 @@ package androidx.lifecycle.observers
 
 class InterfaceImpl2 : Interface1, Interface2 {
     override fun onCreate() {}
+
     override fun onDestroy() {}
 }

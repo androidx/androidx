@@ -39,10 +39,10 @@ import androidx.compose.ui.util.fastForEach
  * Enables text selection for its direct or indirect children.
  *
  * Use of a lazy layout, such as [LazyRow][androidx.compose.foundation.lazy.LazyRow] or
- * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn], within a [SelectionContainer]
- * has undefined behavior on text items that aren't composed. For example, texts that aren't
- * composed will not be included in copy operations and select all will not expand the
- * selection to include them.
+ * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn], within a [SelectionContainer] has
+ * undefined behavior on text items that aren't composed. For example, texts that aren't composed
+ * will not be included in copy operations and select all will not expand the selection to include
+ * them.
  *
  * @sample androidx.compose.foundation.samples.SelectionSample
  */
@@ -52,25 +52,20 @@ fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () ->
     SelectionContainer(
         modifier = modifier,
         selection = selection,
-        onSelectionChange = {
-            selection = it
-        },
+        onSelectionChange = { selection = it },
         children = content
     )
 }
 
 /**
- * Disables text selection for its direct or indirect children. To use this, simply add this
- * to wrap one or more text composables.
+ * Disables text selection for its direct or indirect children. To use this, simply add this to wrap
+ * one or more text composables.
  *
  * @sample androidx.compose.foundation.samples.DisableSelectionSample
  */
 @Composable
 fun DisableSelection(content: @Composable () -> Unit) {
-    CompositionLocalProvider(
-        LocalSelectionRegistrar provides null,
-        content = content
-    )
+    CompositionLocalProvider(LocalSelectionRegistrar provides null, content = content)
 }
 
 /**
@@ -84,15 +79,14 @@ fun DisableSelection(content: @Composable () -> Unit) {
 internal fun SelectionContainer(
     /** A [Modifier] for SelectionContainer. */
     modifier: Modifier = Modifier,
-    /** Current Selection status.*/
+    /** Current Selection status. */
     selection: Selection?,
     /** A function containing customized behaviour when selection changes. */
     onSelectionChange: (Selection?) -> Unit,
     children: @Composable () -> Unit
 ) {
-    val registrarImpl = rememberSaveable(saver = SelectionRegistrarImpl.Saver) {
-        SelectionRegistrarImpl()
-    }
+    val registrarImpl =
+        rememberSaveable(saver = SelectionRegistrarImpl.Saver) { SelectionRegistrarImpl() }
 
     val manager = remember { SelectionManager(registrarImpl) }
 
@@ -113,29 +107,33 @@ internal fun SelectionContainer(
             // cross-composable selection.
             SimpleLayout(modifier = modifier.then(manager.modifier)) {
                 children()
-                if (manager.isInTouchMode &&
-                    manager.hasFocus &&
-                    !manager.isTriviallyCollapsedSelection()
+                if (
+                    manager.isInTouchMode &&
+                        manager.hasFocus &&
+                        !manager.isTriviallyCollapsedSelection()
                 ) {
                     manager.selection?.let {
                         listOf(true, false).fastForEach { isStartHandle ->
-                            val observer = remember(isStartHandle) {
-                                manager.handleDragObserver(isStartHandle)
-                            }
-
-                            val positionProvider: () -> Offset = remember(isStartHandle) {
-                                if (isStartHandle) {
-                                    { manager.startHandlePosition ?: Offset.Unspecified }
-                                } else {
-                                    { manager.endHandlePosition ?: Offset.Unspecified }
+                            val observer =
+                                remember(isStartHandle) {
+                                    manager.handleDragObserver(isStartHandle)
                                 }
-                            }
 
-                            val direction = if (isStartHandle) {
-                                it.start.direction
-                            } else {
-                                it.end.direction
-                            }
+                            val positionProvider: () -> Offset =
+                                remember(isStartHandle) {
+                                    if (isStartHandle) {
+                                        { manager.startHandlePosition ?: Offset.Unspecified }
+                                    } else {
+                                        { manager.endHandlePosition ?: Offset.Unspecified }
+                                    }
+                                }
+
+                            val direction =
+                                if (isStartHandle) {
+                                    it.start.direction
+                                } else {
+                                    it.end.direction
+                                }
 
                             val lineHeight = if (isStartHandle) {
                                 manager.startHandleLineHeight
@@ -148,9 +146,10 @@ internal fun SelectionContainer(
                                 direction = direction,
                                 handlesCrossed = it.handlesCrossed,
                                 lineHeight = lineHeight,
-                                modifier = Modifier.pointerInput(observer) {
-                                    detectDownAndDragGesturesWithObserver(observer)
-                                },
+                                modifier =
+                                    Modifier.pointerInput(observer) {
+                                        detectDownAndDragGesturesWithObserver(observer)
+                                    },
                             )
                         }
                     }

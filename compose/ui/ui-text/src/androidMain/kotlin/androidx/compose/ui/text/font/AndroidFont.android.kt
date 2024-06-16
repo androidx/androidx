@@ -27,18 +27,18 @@ import androidx.compose.runtime.Stable
 import java.io.File
 
 /**
- * Create a Font declaration from a file in the assets directory. The content of the [File] is
- * read during construction.
+ * Create a Font declaration from a file in the assets directory. The content of the [File] is read
+ * during construction.
  *
  * @param path full path starting from the assets directory (i.e. dir/myfont.ttf for
- * assets/dir/myfont.ttf).
+ *   assets/dir/myfont.ttf).
  * @param assetManager Android AssetManager
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @param variationSettings on API 26 and above these settings are applied to a variable font when
- * the font is loaded
+ *   the font is loaded
  */
 @Stable
 fun Font(
@@ -53,12 +53,12 @@ fun Font(
  * Create a Font declaration from a file. The content of the [File] is read during construction.
  *
  * @param file the font file.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @param variationSettings on API 26 and above these settings are applied to a variable font when
- * the font is loaded
+ *   the font is loaded
  */
 @Stable
 @Suppress("StreamFiles")
@@ -74,10 +74,10 @@ fun Font(
  * [ParcelFileDescriptor] is read during construction.
  *
  * @param fileDescriptor the file descriptor for the font file.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @param variationSettings these settings are applied to a variable font when the font is loaded
  */
 @RequiresApi(26)
@@ -97,36 +97,34 @@ fun Font(
  * Android for both blocking and async load.
  *
  * You may subclass this to add new types of font descriptions that may be used in
- * [FontListFontFamily]. For example, you can add a [FontLoadingStrategy.Blocking] font that
- * returns a Typeface from a local resource not supported by an existing [Font]. Or, you can create
- * an [FontLoadingStrategy.Async] font that loads a font file from your server.
+ * [FontListFontFamily]. For example, you can add a [FontLoadingStrategy.Blocking] font that returns
+ * a Typeface from a local resource not supported by an existing [Font]. Or, you can create an
+ * [FontLoadingStrategy.Async] font that loads a font file from your server.
  *
  * When introducing new font descriptors, it is recommended to follow the patterns of providing a
  * public Font constructor and a private implementation class:
- *
  * 1. Declare an internal or private subclass of AndroidFont
  * 2. Expose a public Font(...) constructor that returns your new type.
  *
  * Font constructors are
- *
  * 1. Regular functions named `Font` that return type `Font`
  * 2. The first argument is the font name, or similar object that describes the font uniquely
  * 3. If the font has a provider, loader, or similar argument, put it after the font name.
  * 4. The last two arguments are FontWeight and FontStyle.
  *
  * Examples of Font constructors:
- *
  * ```
  * fun Font("myIdentifier", MyFontLoader, FontWeight, FontStyle): Font
  * fun Font(CustomFontDescription(...), MyFontLoader, FontWeight, FontStyle): Font
  * fun Font(CustomFontDescription(...), FontWeight, FontStyle): Font
- *```
+ * ```
  *
  * @param loadingStrategy loadingStrategy this font will provide in fallback chains
  * @param typefaceLoader a loader that knows how to load this [AndroidFont], may be shared between
- * several fonts
+ *   several fonts
  */
-abstract class AndroidFont constructor(
+abstract class AndroidFont
+constructor(
     final override val loadingStrategy: FontLoadingStrategy,
     val typefaceLoader: TypefaceLoader,
     variationSettings: FontVariation.Settings,
@@ -134,9 +132,7 @@ abstract class AndroidFont constructor(
 
     @Deprecated(
         "Replaced with fontVariation constructor",
-        ReplaceWith(
-            "AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())"
-        )
+        ReplaceWith("AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())")
     )
     constructor(
         loadingStrategy: FontLoadingStrategy,
@@ -168,9 +164,9 @@ abstract class AndroidFont constructor(
      *
      * Examples of new types of fonts that [TypefaceLoader] can add:
      * - [FontLoadingStrategy.Blocking] [Font] that loads Typeface from a local resource not
-     * supported by an existing font
+     *   supported by an existing font
      * - [FontLoadingStrategy.OptionalLocal] [Font] that "loads" a platform Typeface only available
-     * on some devices.
+     *   on some devices.
      * - [FontLoadingStrategy.Async] [Font] that loads a font from a backend via a network request.
      *
      * During resolution from [FontFamily.Resolver], an [AndroidFont] subclass will be queried for
@@ -216,9 +212,9 @@ abstract class AndroidFont constructor(
          * cancelled and considered a permanent failure. Implementations should use structured
          * concurrency to cooperatively cancel work.
          *
-         * Compose does not know what resources are required to satisfy a font load.
-         * Subclasses implementing [FontLoadingStrategy.Async] behavior should ensure requests are
-         * de-duped for the same resource.
+         * Compose does not know what resources are required to satisfy a font load. Subclasses
+         * implementing [FontLoadingStrategy.Async] behavior should ensure requests are de-duped for
+         * the same resource.
          *
          * It is possible for [awaitLoad] to be called for the same instance of [AndroidFont] in
          * parallel. Implementations should support parallel concurrent loads, or de-dup.
@@ -226,7 +222,6 @@ abstract class AndroidFont constructor(
          * @param context current Android context for loading the font
          * @param font the font to load which contains this loader as [AndroidFont.typefaceLoader]
          * @return [android.graphics.Typeface] for loaded font, or null if not available
-         *
          */
         suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface?
     }

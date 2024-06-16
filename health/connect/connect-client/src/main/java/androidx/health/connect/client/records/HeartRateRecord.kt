@@ -110,7 +110,6 @@ public class HeartRateRecord(
      *
      * @param time The point in time when the measurement was taken.
      * @param beatsPerMinute Heart beats per minute. Validation range: 1-300.
-     *
      * @see HeartRateRecord
      */
     public class Sample(

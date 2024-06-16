@@ -34,22 +34,18 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
 
-/**
- * Factory function to create a platform specific [TextFieldKeyEventHandler].
- */
+/** Factory function to create a platform specific [TextFieldKeyEventHandler]. */
 internal expect fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler
 
-/**
- * Returns whether this key event is created by the software keyboard.
- */
+/** Returns whether this key event is created by the software keyboard. */
 internal expect val KeyEvent.isFromSoftKeyboard: Boolean
 
 /**
- * Handles KeyEvents coming to a BasicTextField. This is mostly to support hardware keyboard but
- * any KeyEvent can also be sent by the IME or other platform systems.
+ * Handles KeyEvents coming to a BasicTextField. This is mostly to support hardware keyboard but any
+ * KeyEvent can also be sent by the IME or other platform systems.
  *
- * This class is left abstract to make sure that each platform extends from it. Platforms can
- * decide to extend or completely override KeyEvent actions defined here.
+ * This class is left abstract to make sure that each platform extends from it. Platforms can decide
+ * to extend or completely override KeyEvent actions defined here.
  */
 internal abstract class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
@@ -132,46 +128,32 @@ internal abstract class TextFieldKeyEventHandler {
                 KeyCommand.END -> moveCursorToEnd()
                 KeyCommand.DELETE_PREV_CHAR -> {
                     deleteIfSelectedOr {
-                        getPrecedingCharacterIndex().takeIf { it != NoCharacterFound }?.let {
-                            TextRange(it, selection.end)
-                        }
+                        getPrecedingCharacterIndex()
+                            .takeIf { it != NoCharacterFound }
+                            ?.let { TextRange(it, selection.end) }
                     }
                 }
-
                 KeyCommand.DELETE_NEXT_CHAR -> {
                     // Note that some software keyboards, such as Samsung, go through this code
                     // path instead of making calls on the InputConnection directly.
                     deleteIfSelectedOr {
-                        getNextCharacterIndex().takeIf { it != NoCharacterFound }?.let {
-                            TextRange(selection.start, it)
-                        }
+                        getNextCharacterIndex()
+                            .takeIf { it != NoCharacterFound }
+                            ?.let { TextRange(selection.start, it) }
                     }
                 }
-
                 KeyCommand.DELETE_PREV_WORD -> {
-                    deleteIfSelectedOr {
-                        TextRange(getPreviousWordOffset(), selection.end)
-                    }
+                    deleteIfSelectedOr { TextRange(getPreviousWordOffset(), selection.end) }
                 }
-
                 KeyCommand.DELETE_NEXT_WORD -> {
-                    deleteIfSelectedOr {
-                        TextRange(selection.start, getNextWordOffset())
-                    }
+                    deleteIfSelectedOr { TextRange(selection.start, getNextWordOffset()) }
                 }
-
                 KeyCommand.DELETE_FROM_LINE_START -> {
-                    deleteIfSelectedOr {
-                        TextRange(getLineStartByOffset(), selection.end)
-                    }
+                    deleteIfSelectedOr { TextRange(getLineStartByOffset(), selection.end) }
                 }
-
                 KeyCommand.DELETE_TO_LINE_END -> {
-                    deleteIfSelectedOr {
-                        TextRange(selection.start, getLineEndByOffset())
-                    }
+                    deleteIfSelectedOr { TextRange(selection.start, getLineEndByOffset()) }
                 }
-
                 KeyCommand.NEW_LINE -> {
                     if (!singleLine) {
                         textFieldState.editUntransformedTextAsUser {
@@ -182,7 +164,6 @@ internal abstract class TextFieldKeyEventHandler {
                         onSubmit()
                     }
                 }
-
                 KeyCommand.TAB -> {
                     if (!singleLine) {
                         textFieldState.editUntransformedTextAsUser {
@@ -193,7 +174,6 @@ internal abstract class TextFieldKeyEventHandler {
                         consumed = false // let propagate to focus system
                     }
                 }
-
                 KeyCommand.SELECT_ALL -> selectAll()
                 KeyCommand.SELECT_LEFT_CHAR -> moveCursorLeft().selectMovement()
                 KeyCommand.SELECT_RIGHT_CHAR -> moveCursorRight().selectMovement()
@@ -215,11 +195,9 @@ internal abstract class TextFieldKeyEventHandler {
                 KeyCommand.UNDO -> {
                     textFieldState.undo()
                 }
-
                 KeyCommand.REDO -> {
                     textFieldState.redo()
                 }
-
                 KeyCommand.CHARACTER_PALETTE -> {
                     showCharacterPalette()
                 }
@@ -236,13 +214,14 @@ internal abstract class TextFieldKeyEventHandler {
     ) {
         val layoutResult = textLayoutState.layoutResult
         val visibleTextLayoutHeight = textLayoutState.getVisibleTextLayoutHeight()
-        val preparedSelection = TextFieldPreparedSelection(
-            state = state,
-            textLayoutResult = layoutResult,
-            isFromSoftKeyboard = isFromSoftKeyboard,
-            visibleTextLayoutHeight = visibleTextLayoutHeight,
-            textPreparedSelectionState = preparedSelectionState
-        )
+        val preparedSelection =
+            TextFieldPreparedSelection(
+                state = state,
+                textLayoutResult = layoutResult,
+                isFromSoftKeyboard = isFromSoftKeyboard,
+                visibleTextLayoutHeight = visibleTextLayoutHeight,
+                textPreparedSelectionState = preparedSelectionState
+            )
         preparedSelection.block()
         if (preparedSelection.selection != preparedSelection.initialValue.selection) {
             // selection changes are applied atomically at the end of context evaluation
@@ -256,9 +235,14 @@ internal abstract class TextFieldKeyEventHandler {
      * [Float.NaN].
      */
     private fun TextLayoutState.getVisibleTextLayoutHeight(): Float {
-        return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutCoordinates ->
-            decoratorNodeCoordinates?.takeIf { it.isAttached }
-                ?.localBoundingBoxOf(textLayoutCoordinates)
-        }?.size?.height ?: Float.NaN
+        return textLayoutNodeCoordinates
+            ?.takeIf { it.isAttached }
+            ?.let { textLayoutCoordinates ->
+                decoratorNodeCoordinates
+                    ?.takeIf { it.isAttached }
+                    ?.localBoundingBoxOf(textLayoutCoordinates)
+            }
+            ?.size
+            ?.height ?: Float.NaN
     }
 }

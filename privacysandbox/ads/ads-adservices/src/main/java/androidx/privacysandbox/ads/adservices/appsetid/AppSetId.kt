@@ -17,22 +17,19 @@
 package androidx.privacysandbox.ads.adservices.appsetid
 
 /**
- * A unique, per-device, per developer-account user-resettable ID for non-monetizing advertising
- * use cases.
+ * A unique, per-device, per developer-account user-resettable ID for non-monetizing advertising use
+ * cases.
  *
- * Represents the appSetID and scope of this appSetId from the
- * [AppSetIdManager#getAppSetId()] API. The scope of the ID can be per app or per developer account
- * associated with the user. AppSetId is used for analytics, spam detection, frequency capping and
- * fraud prevention use cases, on a given device, that one may need to correlate usage or actions
- * across a set of apps owned by an organization.
+ * Represents the appSetID and scope of this appSetId from the [AppSetIdManager#getAppSetId()] API.
+ * The scope of the ID can be per app or per developer account associated with the user. AppSetId is
+ * used for analytics, spam detection, frequency capping and fraud prevention use cases, on a given
+ * device, that one may need to correlate usage or actions across a set of apps owned by an
+ * organization.
  *
  * @param id The appSetID.
  * @param scope The scope of the ID. Can be AppSetId.SCOPE_APP or AppSetId.SCOPE_DEVELOPER.
  */
-class AppSetId public constructor(
-    val id: String,
-    val scope: Int
-) {
+class AppSetId public constructor(val id: String, val scope: Int) {
     init {
         require(scope == SCOPE_APP || scope == SCOPE_DEVELOPER) { "Scope undefined." }
     }
@@ -40,8 +37,7 @@ class AppSetId public constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AppSetId) return false
-        return this.id == other.id &&
-            this.scope == other.scope
+        return this.id == other.id && this.scope == other.scope
     }
 
     override fun hashCode(): Int {

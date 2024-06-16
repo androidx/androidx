@@ -27,13 +27,13 @@ import androidx.opengl.EGLExt
 import androidx.opengl.EGLSyncKHR
 
 /**
- * A synchronization primitive which signals when hardware units have completed work on a
- * particular resource. They initially start in an unsignaled state and make a one-time
- * transaction to either a signaled or error state.
+ * A synchronization primitive which signals when hardware units have completed work on a particular
+ * resource. They initially start in an unsignaled state and make a one-time transaction to either a
+ * signaled or error state.
  *
  * [SyncFenceCompat] is a presentation fence used in combination with
- * [SurfaceControlCompat.Transaction.setBuffer]. Note that depending on API level, this will
- * utilize either [android.hardware.SyncFence] or a compatibility implementation.
+ * [SurfaceControlCompat.Transaction.setBuffer]. Note that depending on API level, this will utilize
+ * either [android.hardware.SyncFence] or a compatibility implementation.
  */
 class SyncFenceCompat : AutoCloseable {
     internal val mImpl: SyncFenceImpl
@@ -46,13 +46,15 @@ class SyncFenceCompat : AutoCloseable {
          */
         @JvmStatic
         fun createNativeSyncFence(): SyncFenceCompat {
-            val usePlatformSyncFence = !FrontBufferUtils.UseCompatSurfaceControl &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            val usePlatformSyncFence =
+                !FrontBufferUtils.UseCompatSurfaceControl &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             return if (usePlatformSyncFence) {
                 SyncFenceCompatVerificationHelper.createSyncFenceCompatV33()
             } else {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                    ?: throw IllegalStateException("No EGL Display available")
+                val display =
+                    EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                        ?: throw IllegalStateException("No EGL Display available")
                 val eglSync: EGLSyncKHR =
                     EGLExt.eglCreateSyncKHR(display, EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                         ?: throw IllegalStateException("Unable to create sync object")
@@ -93,26 +95,20 @@ class SyncFenceCompat : AutoCloseable {
      *
      * @param timeoutNanos time in nanoseconds to wait for before timing out.
      */
-    fun await(timeoutNanos: Long): Boolean =
-        mImpl.await(timeoutNanos)
+    fun await(timeoutNanos: Long): Boolean = mImpl.await(timeoutNanos)
 
-    /**
-     * Waits forever for a [SyncFenceImpl] to signal
-     */
-    fun awaitForever(): Boolean =
-        mImpl.awaitForever()
+    /** Waits forever for a [SyncFenceImpl] to signal */
+    fun awaitForever(): Boolean = mImpl.awaitForever()
 
-    /**
-     * Close the [SyncFenceImpl]
-     */
+    /** Close the [SyncFenceImpl] */
     override fun close() {
         mImpl.close()
     }
 
     /**
-     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns an instant, [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
-     * if the fence hasn't yet signaled, then [SyncFenceCompat.SIGNAL_TIME_PENDING] is returned.
+     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain. This returns
+     * an instant, [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and if the
+     * fence hasn't yet signaled, then [SyncFenceCompat.SIGNAL_TIME_PENDING] is returned.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun getSignalTimeNanos(): Long {
@@ -121,14 +117,13 @@ class SyncFenceCompat : AutoCloseable {
 
     /**
      * Checks if the SyncFence object is valid.
+     *
      * @return `true` if it is valid, `false` otherwise
      */
     fun isValid() = mImpl.isValid()
 }
 
-/**
- * Helper class to avoid class verification failures
- */
+/** Helper class to avoid class verification failures */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class SyncFenceCompatVerificationHelper private constructor() {
     companion object {
@@ -146,19 +141,16 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
                 throw RuntimeException("eglGetPlatformDisplay failed")
             }
 
-            val eglSync = EGL15.eglCreateSync(
-                display,
-                android.opengl.EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID,
-                mEmptyAttributes,
-                0
-            )
-            GLES20.glFlush()
-            val syncFenceCompat = SyncFenceCompat(
-                android.opengl.EGLExt.eglDupNativeFenceFDANDROID(
+            val eglSync =
+                EGL15.eglCreateSync(
                     display,
-                    eglSync
+                    android.opengl.EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID,
+                    mEmptyAttributes,
+                    0
                 )
-            )
+            GLES20.glFlush()
+            val syncFenceCompat =
+                SyncFenceCompat(android.opengl.EGLExt.eglDupNativeFenceFDANDROID(display, eglSync))
             EGL15.eglDestroySync(display, eglSync)
 
             return syncFenceCompat

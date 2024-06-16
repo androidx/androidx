@@ -44,19 +44,14 @@ import androidx.compose.ui.unit.dp
 @Preview
 @Composable
 private fun SearchBarPreview() {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SearchBar(Modifier.fillMaxWidth())
         OutlinedSearchBar(Modifier.fillMaxWidth())
     }
 }
 
 @Composable
-fun SearchBar(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.LightGray
-) {
+fun SearchBar(modifier: Modifier = Modifier, backgroundColor: Color = Color.LightGray) {
     CommonSearchBar(
         modifier = modifier,
         outlined = false,
@@ -65,53 +60,39 @@ fun SearchBar(
 }
 
 @Composable
-fun OutlinedSearchBar(
-    modifier: Modifier = Modifier,
-    borderColor: Color = Color.LightGray
-) {
-    CommonSearchBar(
-        modifier = modifier,
-        outlined = true,
-        borderOrBackgroundColor = borderColor
-    )
+fun OutlinedSearchBar(modifier: Modifier = Modifier, borderColor: Color = Color.LightGray) {
+    CommonSearchBar(modifier = modifier, outlined = true, borderOrBackgroundColor = borderColor)
 }
 
 @Composable
-private fun CommonSearchBar(
-    modifier: Modifier,
-    outlined: Boolean,
-    borderOrBackgroundColor: Color
-) {
+private fun CommonSearchBar(modifier: Modifier, outlined: Boolean, borderOrBackgroundColor: Color) {
     var placeholder: String by remember { mutableStateOf("Search...") }
-    val backgroundModifier = if (outlined) {
-        Modifier.border(BorderStroke(2.dp, borderOrBackgroundColor), RoundedCornerShape(32.dp))
-    } else {
-        Modifier.background(borderOrBackgroundColor, RoundedCornerShape(32.dp))
-    }
+    val backgroundModifier =
+        if (outlined) {
+            Modifier.border(BorderStroke(2.dp, borderOrBackgroundColor), RoundedCornerShape(32.dp))
+        } else {
+            Modifier.background(borderOrBackgroundColor, RoundedCornerShape(32.dp))
+        }
     OutlinedTextField(
-        modifier = modifier
-            .then(backgroundModifier)
-            .onFocusChanged {
-                placeholder = if (it.isFocused) {
-                    "I'm not implemented yet!"
-                } else {
-                    "Search..."
-                }
+        modifier =
+            modifier.then(backgroundModifier).onFocusChanged {
+                placeholder =
+                    if (it.isFocused) {
+                        "I'm not implemented yet!"
+                    } else {
+                        "Search..."
+                    }
             },
         value = "",
-        onValueChange = { _ ->
-        },
-        placeholder = {
-            Text(text = placeholder, maxLines = 1, overflow = TextOverflow.Clip)
-        },
-        trailingIcon = {
-            Icon(imageVector = Icons.Default.Search, contentDescription = null)
-        },
+        onValueChange = { _ -> },
+        placeholder = { Text(text = placeholder, maxLines = 1, overflow = TextOverflow.Clip) },
+        trailingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
         singleLine = true,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = Color.Transparent,
-        )
+        colors =
+            TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                backgroundColor = Color.Transparent,
+            )
     )
 }

@@ -37,14 +37,13 @@ import org.junit.runner.RunWith
 class SafeTransactionInOnResumeTest {
 
     @Suppress("DEPRECATION")
-    var activityRule = androidx.test.rule.ActivityTestRule<OnResumeTestActivity>(
-        OnResumeTestActivity::class.java
-    )
+    var activityRule =
+        androidx.test.rule.ActivityTestRule<OnResumeTestActivity>(OnResumeTestActivity::class.java)
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.M)
@@ -56,6 +55,7 @@ class SafeTransactionInOnResumeTest {
 class DialogActivity : Activity() {
     companion object {
         private var dialogActivity: Activity? = null
+
         fun finish() {
             dialogActivity!!.finish()
             dialogActivity = null
@@ -72,6 +72,7 @@ class OnResumeTestActivity : FragmentActivity() {
     private var firstResume = true
     private val testFinishedLatch = CountDownLatch(1)
     private var testSuccess = false
+
     override fun onResume() {
         super.onResume()
         if (firstResume) {

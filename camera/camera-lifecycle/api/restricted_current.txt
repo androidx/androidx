@@ -4,7 +4,7 @@ package androidx.camera.lifecycle {
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraProviderConfiguration {
   }
 
-  @RequiresApi(21) public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {
+  public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.camera.core.CameraSelector cameraSelector, androidx.camera.core.UseCase?... useCases);
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.camera.core.CameraSelector cameraSelector, androidx.camera.core.UseCaseGroup useCaseGroup);
     method @MainThread public androidx.camera.core.ConcurrentCamera bindToLifecycle(java.util.List<androidx.camera.core.ConcurrentCamera.SingleCameraConfig?> singleCameraConfigs);
@@ -29,7 +29,7 @@ package androidx.camera.lifecycle {
   }
 
   public final class ProcessCameraProviderExtKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? awaitInstance(androidx.camera.lifecycle.ProcessCameraProvider.Companion, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.ProcessCameraProvider>);
+    method public static suspend Object? awaitInstance(androidx.camera.lifecycle.ProcessCameraProvider.Companion, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.ProcessCameraProvider>);
   }
 
 }

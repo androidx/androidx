@@ -38,6 +38,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CaptureConfigTest {
     private var mMockSurface0: DeferrableSurface? = null
+
     @Before
     fun setup() {
         mMockSurface0 = mock(DeferrableSurface::class.java)
@@ -143,12 +144,8 @@ class CaptureConfigTest {
     @Test
     fun builderAddMultipleCameraCaptureCallbacks() {
         val builder = CaptureConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
 
         builder.addCameraCaptureCallback(callback0)
         builder.addCameraCaptureCallback(callback1)
@@ -160,12 +157,8 @@ class CaptureConfigTest {
     @Test
     fun builderAddAllCameraCaptureCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
         val callbacks: List<CameraCaptureCallback> = Lists.newArrayList(callback0, callback1)
 
         builder.addAllRepeatingCameraCaptureCallbacks(callbacks)
@@ -196,9 +189,7 @@ class CaptureConfigTest {
         val captureConfig = builder.build()
 
         val fakeMultiValueSet =
-            captureConfig.implementationOptions.retrieveOption(
-                FAKE_MULTI_VALUE_SET_OPTION
-            )
+            captureConfig.implementationOptions.retrieveOption(FAKE_MULTI_VALUE_SET_OPTION)
 
         assertThat(fakeMultiValueSet).isNotNull()
         assertThat(fakeMultiValueSet!!.allItems).containsExactly(obj1, obj2)
@@ -213,27 +204,20 @@ class CaptureConfigTest {
         val captureConfig = builder.build()
 
         assertThat(
-            captureConfig.implementationOptions.retrieveOption(
-                CaptureConfig.OPTION_ROTATION
+                captureConfig.implementationOptions.retrieveOption(CaptureConfig.OPTION_ROTATION)
             )
-        ).isEqualTo(90)
+            .isEqualTo(90)
     }
 
     @Test
     fun builderFromPrevious_containsCameraCaptureCallbacks() {
         var builder = CaptureConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
         builder.addCameraCaptureCallback(callback0)
         builder.addCameraCaptureCallback(callback1)
         builder = CaptureConfig.Builder.from(builder.build())
-        val callback2 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback2 = mock(CameraCaptureCallback::class.java)
 
         builder.addCameraCaptureCallback(callback2)
         val configuration = builder.build()
@@ -244,9 +228,7 @@ class CaptureConfigTest {
 
     @Test
     fun builderRemoveCameraCaptureCallback_returnsFalseIfNotAdded() {
-        val mockCallback = mock(
-            CameraCaptureCallback::class.java
-        )
+        val mockCallback = mock(CameraCaptureCallback::class.java)
         val builder = CaptureConfig.Builder()
 
         assertThat(builder.removeCameraCaptureCallback(mockCallback)).isFalse()
@@ -255,9 +237,7 @@ class CaptureConfigTest {
     @Test
     fun builderRemoveCameraCaptureCallback_removesAddedCallback() {
         // Arrange.
-        val mockCallback = mock(
-            CameraCaptureCallback::class.java
-        )
+        val mockCallback = mock(CameraCaptureCallback::class.java)
         val builder = CaptureConfig.Builder()
 
         // Act.
@@ -281,11 +261,7 @@ class CaptureConfigTest {
         val builder = CaptureConfig.Builder()
         val configuration = builder.build()
 
-        configuration.cameraCaptureCallbacks.add(
-            mock(
-                CameraCaptureCallback::class.java
-            )
-        )
+        configuration.cameraCaptureCallbacks.add(mock(CameraCaptureCallback::class.java))
     }
 
     @Test
@@ -313,18 +289,10 @@ class CaptureConfigTest {
     @Test
     fun builderChange_doNotChangeEarlierBuiltInstance() {
         // 1. Arrange
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback2 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val deferrableSurface1 = mock(
-            DeferrableSurface::class.java
-        )
-        val deferrableSurface2 = mock(
-            DeferrableSurface::class.java
-        )
+        val callback1 = mock(CameraCaptureCallback::class.java)
+        val callback2 = mock(CameraCaptureCallback::class.java)
+        val deferrableSurface1 = mock(DeferrableSurface::class.java)
+        val deferrableSurface2 = mock(DeferrableSurface::class.java)
         val fpsRange1 = Range(30, 30)
         val fpsRange2 = Range(15, 30)
         val optionValue1 = 1
@@ -417,9 +385,7 @@ class CaptureConfigTest {
         assertThat(captureConfig.videoStabilizationMode).isEqualTo(StabilizationMode.OFF)
     }
 
-    /**
-     * A fake [MultiValueSet].
-     */
+    /** A fake [MultiValueSet]. */
     internal class FakeMultiValueSet : MultiValueSet<Any?>() {
         override fun clone(): MultiValueSet<Any?> {
             val multiValueSet = FakeMultiValueSet()
@@ -429,14 +395,9 @@ class CaptureConfigTest {
     }
 
     companion object {
-        private val OPTION = Option.create<Int>(
-            "camerax.test.option_0", Int::class.java
-        )
+        private val OPTION = Option.create<Int>("camerax.test.option_0", Int::class.java)
 
         private val FAKE_MULTI_VALUE_SET_OPTION: Option<FakeMultiValueSet> =
-            Option.create(
-                "option.fakeMultiValueSet.1",
-                FakeMultiValueSet::class.java
-            )
+            Option.create("option.fakeMultiValueSet.1", FakeMultiValueSet::class.java)
     }
 }

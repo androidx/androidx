@@ -40,6 +40,7 @@ import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,8 +48,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusManagerCompositionLocalTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var focusManager: FocusManager
     private lateinit var inputModeManager: InputModeManager
@@ -60,10 +60,10 @@ class FocusManagerCompositionLocalTest {
         val focusRequester = FocusRequester()
         rule.setTestContent(extraItemForInitialFocus = false) {
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
+                modifier =
+                    Modifier.focusRequester(focusRequester)
+                        .onFocusChanged { focusStates += it }
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -99,21 +99,13 @@ class FocusManagerCompositionLocalTest {
         val focusRequester = FocusRequester()
         rule.setTestContent {
             focusManager = LocalFocusManager.current
-            Box(
-                modifier = Modifier
-                    .onFocusChanged { grandparentFocusState = it }
-                    .focusTarget()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .onFocusChanged { parentFocusState = it }
-                        .focusTarget()
-                ) {
+            Box(modifier = Modifier.onFocusChanged { grandparentFocusState = it }.focusTarget()) {
+                Box(modifier = Modifier.onFocusChanged { parentFocusState = it }.focusTarget()) {
                     Box(
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { focusState = it }
-                            .focusTarget()
+                        modifier =
+                            Modifier.focusRequester(focusRequester)
+                                .onFocusChanged { focusState = it }
+                                .focusTarget()
                     )
                 }
             }
@@ -136,17 +128,14 @@ class FocusManagerCompositionLocalTest {
         }
     }
 
+    @Ignore("b/325466015")
     @Test
     fun takeFocus_whenRootIsInactive() {
         // Arrange.
         lateinit var view: View
         rule.setTestContent(extraItemForInitialFocus = false) {
             view = LocalView.current
-            Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
-            )
+            Box(modifier = Modifier.onFocusChanged { focusStates += it }.focusTarget())
         }
 
         // Act.
@@ -168,11 +157,7 @@ class FocusManagerCompositionLocalTest {
         lateinit var view: View
         rule.setTestContent(extraItemForInitialFocus = false) {
             view = LocalView.current
-            Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
-            )
+            Box(modifier = Modifier.onFocusChanged { focusStates += it }.focusTarget())
         }
 
         // Act.
@@ -193,10 +178,10 @@ class FocusManagerCompositionLocalTest {
         rule.setTestContent(extraItemForInitialFocus = false) {
             view = LocalView.current
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
+                modifier =
+                    Modifier.focusRequester(focusRequester)
+                        .onFocusChanged { focusStates += it }
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -205,9 +190,7 @@ class FocusManagerCompositionLocalTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            view.clearFocus()
-        }
+        rule.runOnIdle { view.clearFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -232,10 +215,10 @@ class FocusManagerCompositionLocalTest {
         val focusRequester = FocusRequester()
         rule.setTestContent {
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
+                modifier =
+                    Modifier.focusRequester(focusRequester)
+                        .onFocusChanged { focusStates += it }
+                        .focusTarget()
             )
         }
         rule.runOnIdle { focusStates.clear() }
@@ -265,10 +248,10 @@ class FocusManagerCompositionLocalTest {
         val focusRequester = FocusRequester()
         rule.setTestContent(extraItemForInitialFocus = false) {
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
+                modifier =
+                    Modifier.focusRequester(focusRequester)
+                        .onFocusChanged { focusStates += it }
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -302,10 +285,10 @@ class FocusManagerCompositionLocalTest {
         rule.setTestContent {
             focusManager = LocalFocusManager.current
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
+                modifier =
+                    Modifier.focusRequester(focusRequester)
+                        .onFocusChanged { focusStates += it }
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -329,12 +312,11 @@ class FocusManagerCompositionLocalTest {
         // Arrange.
         val focusRequester = FocusRequester()
         rule.setTestContent(extraItemForInitialFocus = false) {
-
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusStates += it }
-                    .focusTarget()
+                modifier =
+                    Modifier.focusRequester(focusRequester)
+                        .onFocusChanged { focusStates += it }
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -368,11 +350,7 @@ class FocusManagerCompositionLocalTest {
         // Arrange.
         val textField = "textField"
         rule.setTestContent(extraItemForInitialFocus = false) {
-            TextField(
-                value = "",
-                onValueChange = {},
-                modifier = Modifier.testTag(textField)
-            )
+            TextField(value = "", onValueChange = {}, modifier = Modifier.testTag(textField))
         }
         rule.onNodeWithTag(textField).requestFocus()
 

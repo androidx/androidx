@@ -41,8 +41,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TraversableModifierNodeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var parentNode: ClassOneWithSharedKeyTraversalNode
 
@@ -62,155 +61,143 @@ class TraversableModifierNodeTest {
     /**
      * The UI hierarchy for this test is setup as:
      *
-     *  Parent Column (ClassOneWithSharedKeyTraversalNode)
-     *    ⤷ ChildA Row (ClassOneWithSharedKeyTraversalNode)
-     *        ⤷ GrandchildA Box (ClassOneWithSharedKeyTraversalNode)
-     *        ⤷ GrandchildB Box (ClassTwoWithSharedKeyTraversalNode)
-     *        ⤷ GrandchildC Box (ClassThreeWithOtherKeyTraversalNode)
+     * Parent Column (ClassOneWithSharedKeyTraversalNode) ⤷ ChildA Row
+     * (ClassOneWithSharedKeyTraversalNode) ⤷ GrandchildA Box (ClassOneWithSharedKeyTraversalNode) ⤷
+     * GrandchildB Box (ClassTwoWithSharedKeyTraversalNode) ⤷ GrandchildC Box
+     * (ClassThreeWithOtherKeyTraversalNode)
      *
-     *    ⤷ ChildB Row (ClassTwoWithSharedKeyTraversalNode)
-     *         ⤷ GrandchildD Box (ClassOneWithSharedKeyTraversalNode)
-     *         ⤷ GrandchildE Box (ClassTwoWithSharedKeyTraversalNode)
-     *         ⤷ GrandchildF Box (ClassThreeWithOtherKeyTraversalNode)
+     * ⤷ ChildB Row (ClassTwoWithSharedKeyTraversalNode) ⤷ GrandchildD Box
+     * (ClassOneWithSharedKeyTraversalNode) ⤷ GrandchildE Box (ClassTwoWithSharedKeyTraversalNode) ⤷
+     * GrandchildF Box (ClassThreeWithOtherKeyTraversalNode)
      *
-     *    ⤷ ChildC Row (ClassThreeWithOtherKeyTraversalNode)
-     *         ⤷ GrandchildG Box (ClassOneWithSharedKeyTraversalNode)
-     *         ⤷ GrandchildH Box (ClassTwoWithSharedKeyTraversalNode)
-     *         ⤷ GrandchildI Box (ClassThreeWithOtherKeyTraversalNode)
+     * ⤷ ChildC Row (ClassThreeWithOtherKeyTraversalNode) ⤷ GrandchildG Box
+     * (ClassOneWithSharedKeyTraversalNode) ⤷ GrandchildH Box (ClassTwoWithSharedKeyTraversalNode) ⤷
+     * GrandchildI Box (ClassThreeWithOtherKeyTraversalNode)
      *
-     *    ⤷ ChildD Row (ClassTwoWithSharedKeyTraversalNode)
-     *         ⤷ GrandchildJ Box (ClassOneWithSharedKeyTraversalNode)
-     *
+     * ⤷ ChildD Row (ClassTwoWithSharedKeyTraversalNode) ⤷ GrandchildJ Box
+     * (ClassOneWithSharedKeyTraversalNode)
      */
     @Composable
     private fun createUi() {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Red)
-                .testTraversalNodeClassOneWithSharedKey("Parent") {
+            modifier =
+                Modifier.fillMaxSize().background(Color.Red).testTraversalNodeClassOneWithSharedKey(
+                    "Parent"
+                ) {
                     parentNode = this
                 },
         ) {
             // Child A
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Green)
-                    .testTraversalNodeClassOneWithSharedKey("Child_A") {
-                        childA = this
-                    }
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .background(Color.Green)
+                        .testTraversalNodeClassOneWithSharedKey("Child_A") { childA = this }
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Blue)
-                        .testTraversalNodeClassOneWithSharedKey("Grandchild_A") {
-                            grandChildNodeA = this
-                        }
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Blue)
+                            .testTraversalNodeClassOneWithSharedKey("Grandchild_A") {
+                                grandChildNodeA = this
+                            }
+                ) {}
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.White)
-                        .testTraversalNodeClassTwoWithSharedKey("Grandchild_B") {
-                            grandChildNodeB = this
-                        }
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.White)
+                            .testTraversalNodeClassTwoWithSharedKey("Grandchild_B") {
+                                grandChildNodeB = this
+                            }
+                ) {}
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Black)
-                        .testTraversalNodeClassThreeWithOtherKey("Grandchild_C") {
-                            grandChildNodeC = this
-                        }
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Black)
+                            .testTraversalNodeClassThreeWithOtherKey("Grandchild_C") {
+                                grandChildNodeC = this
+                            }
+                ) {}
             }
             // Child B
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Magenta)
-                    .testTraversalNodeClassTwoWithSharedKey("Child_B") {
-                        childB = this
-                    }
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .background(Color.Magenta)
+                        .testTraversalNodeClassTwoWithSharedKey("Child_B") { childB = this }
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Yellow)
-                        .testTraversalNodeClassOneWithSharedKey("Grandchild_D") {
-                            grandChildNodeD = this
-                        }
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Yellow)
+                            .testTraversalNodeClassOneWithSharedKey("Grandchild_D") {
+                                grandChildNodeD = this
+                            }
+                ) {}
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Blue)
-                        .testTraversalNodeClassTwoWithSharedKey("Grandchild_E")
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Blue)
+                            .testTraversalNodeClassTwoWithSharedKey("Grandchild_E")
+                ) {}
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Gray)
-                        .testTraversalNodeClassThreeWithOtherKey("Grandchild_F") {
-                            grandChildNodeF = this
-                        }
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Gray)
+                            .testTraversalNodeClassThreeWithOtherKey("Grandchild_F") {
+                                grandChildNodeF = this
+                            }
+                ) {}
             }
             // Child C
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Cyan)
-                    .testTraversalNodeClassThreeWithOtherKey("Child_C") {
-                        childC = this
-                    }
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .background(Color.Cyan)
+                        .testTraversalNodeClassThreeWithOtherKey("Child_C") { childC = this }
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Blue)
-                        .testTraversalNodeClassOneWithSharedKey("Grandchild_G") {
-                            grandChildNodeG = this
-                        }
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Blue)
+                            .testTraversalNodeClassOneWithSharedKey("Grandchild_G") {
+                                grandChildNodeG = this
+                            }
+                ) {}
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Magenta)
-                        .testTraversalNodeClassTwoWithSharedKey("Grandchild_H")
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Magenta)
+                            .testTraversalNodeClassTwoWithSharedKey("Grandchild_H")
+                ) {}
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Black)
-                        .testTraversalNodeClassThreeWithOtherKey("Grandchild_I")
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Black)
+                            .testTraversalNodeClassThreeWithOtherKey("Grandchild_I")
+                ) {}
             }
 
             // Child D
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Green)
-                    .testTraversalNodeClassTwoWithSharedKey("Child_D")
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .background(Color.Green)
+                        .testTraversalNodeClassTwoWithSharedKey("Child_D")
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.Black)
-                        .testTraversalNodeClassOneWithSharedKey("Grandchild_J")
-                ) { }
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Black)
+                            .testTraversalNodeClassOneWithSharedKey("Grandchild_J")
+                ) {}
             }
         }
     }
 
     @Before
     fun setup() {
-        rule.setContent {
-            createUi()
-        }
+        rule.setContent { createUi() }
     }
 
     // *********** Nearest Traversable Ancestor Tests ***********
@@ -219,37 +206,25 @@ class TraversableModifierNodeTest {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts at grandchild A (which has a parent and grandparent of the same class)
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeA.findNearestAncestor()
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeA.findNearestAncestor() }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(childA)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(childA) }
 
         // Starts at grandchild D (which has a parent of a different class + same key and
         // grandparent of the same class).
         nearestAncestorNode = null
 
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeD.findNearestAncestor()
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeD.findNearestAncestor() }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode) }
 
         // Starts at grandchild G (which has a parent of a different class + different key and
         // a grandparent of the same class).
         nearestAncestorNode = null
 
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeG.findNearestAncestor()
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeG.findNearestAncestor() }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode) }
     }
 
     @Test
@@ -258,25 +233,17 @@ class TraversableModifierNodeTest {
 
         // Starts at grandchild B (which has a parent and grandparent of different class but the
         // same key). Neither should match.
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeB.findNearestAncestor()
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeB.findNearestAncestor() }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
 
         nearestAncestorNode = null
 
         // Starts at grandchild C (which has a parent and grandparent of different class and a
         // different key). Neither should match.
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeC.findNearestAncestor()
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeC.findNearestAncestor() }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
     }
 
     @Test
@@ -285,49 +252,37 @@ class TraversableModifierNodeTest {
 
         // Starts from grandchild A with SHARED_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeA.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeA.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(childA)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(childA) }
 
         nearestAncestorNode = null
 
         // Starts from grandchild D with SHARED_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeD.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeD.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(childB)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(childB) }
 
         nearestAncestorNode = null
 
         // Starts from grandchild G with SHARED_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeG.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeG.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode) }
 
         nearestAncestorNode = null
 
         // Starts from grandchild G with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeG.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeG.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(childC)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(childC) }
     }
 
     @Test
@@ -336,49 +291,37 @@ class TraversableModifierNodeTest {
 
         // Starts from grandchild A with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeA.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeA.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
 
         nearestAncestorNode = null
 
         // Starts from grandchild B with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeB.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeB.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
 
         nearestAncestorNode = null
 
         // Starts from grandchild C with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeC.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeC.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
 
         nearestAncestorNode = null
 
         // Starts from grandchild F with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            nearestAncestorNode =
-                grandChildNodeF.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
+            nearestAncestorNode = grandChildNodeF.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
     }
 
     @Test
@@ -386,9 +329,7 @@ class TraversableModifierNodeTest {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts from grandchild A with null key.
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeA.findNearestAncestor(null)
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeA.findNearestAncestor(null) }
 
         rule.runOnIdle {
             // No ancestors have a key of null
@@ -398,24 +339,16 @@ class TraversableModifierNodeTest {
         // Starts from grandchild D with null key.
         nearestAncestorNode = null
 
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeD.findNearestAncestor(null)
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeD.findNearestAncestor(null) }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
 
         // Starts from grandchild F with null key.
         nearestAncestorNode = null
 
-        rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeF.findNearestAncestor(null)
-        }
+        rule.runOnIdle { nearestAncestorNode = grandChildNodeF.findNearestAncestor(null) }
 
-        rule.runOnIdle {
-            Truth.assertThat(nearestAncestorNode).isEqualTo(null)
-        }
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
     }
 
     // *********** Traverse Ancestors Tests ***********
@@ -432,9 +365,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassAncestors).isEqualTo(2)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassAncestors).isEqualTo(2) }
 
         // Starts at grandchild D (which has a parent of a different class + same key and
         // grandparent of the same class).
@@ -448,9 +379,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassAncestors).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassAncestors).isEqualTo(1) }
 
         // Starts at grandchild G (which has a parent of a different class + different key and
         // a grandparent of the same class).
@@ -464,9 +393,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassAncestors).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassAncestors).isEqualTo(1) }
     }
 
     @Test
@@ -482,9 +409,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassAncestors).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassAncestors).isEqualTo(1) }
     }
 
     @Test
@@ -503,11 +428,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -539,11 +462,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -575,11 +496,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -611,11 +530,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -650,11 +567,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -686,11 +601,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -725,11 +638,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         differentKeyDifferentClassAncestors++
                     }
@@ -761,11 +672,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         differentKeyDifferentClassAncestors++
                     }
@@ -797,11 +706,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         differentKeyDifferentClassAncestors++
                     }
@@ -832,9 +739,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassChildren).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassChildren).isEqualTo(1) }
     }
 
     @Test
@@ -852,7 +757,6 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassChildren++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassChildren++
                     }
@@ -885,11 +789,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -924,11 +826,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -958,9 +858,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassNodes).isEqualTo(5)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassNodes).isEqualTo(5) }
     }
 
     @Test
@@ -974,9 +872,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassNodes).isEqualTo(4)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassNodes).isEqualTo(4) }
     }
 
     @Test
@@ -997,9 +893,7 @@ class TraversableModifierNodeTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(sameClassNodes).isEqualTo(4)
-        }
+        rule.runOnIdle { Truth.assertThat(sameClassNodes).isEqualTo(4) }
     }
 
     @Test
@@ -1018,11 +912,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
                     }
-
                     else -> {
                         otherNodes++
                     }
@@ -1055,11 +947,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
                     }
-
                     else -> {
                         otherNodes++
                     }
@@ -1092,11 +982,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
                     }
-
                     else -> {
                         otherNodes++
                     }
@@ -1125,22 +1013,21 @@ class TraversableModifierNodeTest {
             parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
-                val action = when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        sameClassNodes++
-                        TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
+                val action =
+                    when (it) {
+                        is ClassOneWithSharedKeyTraversalNode -> {
+                            sameClassNodes++
+                            TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
+                        }
+                        is ClassTwoWithSharedKeyTraversalNode -> {
+                            sameKeyDifferentClassNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
+                        else -> {
+                            otherNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
                     }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        sameKeyDifferentClassNodes++
-                        TraverseDescendantsAction.ContinueTraversal
-                    }
-
-                    else -> {
-                        otherNodes++
-                        TraverseDescendantsAction.ContinueTraversal
-                    }
-                }
                 action
             }
         }
@@ -1165,22 +1052,21 @@ class TraversableModifierNodeTest {
             parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
-                val action = when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        sameClassNodes++
-                        TraverseDescendantsAction.CancelTraversal
+                val action =
+                    when (it) {
+                        is ClassOneWithSharedKeyTraversalNode -> {
+                            sameClassNodes++
+                            TraverseDescendantsAction.CancelTraversal
+                        }
+                        is ClassTwoWithSharedKeyTraversalNode -> {
+                            sameKeyDifferentClassNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
+                        else -> {
+                            otherNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
                     }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        sameKeyDifferentClassNodes++
-                        TraverseDescendantsAction.ContinueTraversal
-                    }
-
-                    else -> {
-                        otherNodes++
-                        TraverseDescendantsAction.ContinueTraversal
-                    }
-                }
                 action
             }
         }
@@ -1205,22 +1091,21 @@ class TraversableModifierNodeTest {
             parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
-                val action = when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        sameClassNodes++
-                        TraverseDescendantsAction.ContinueTraversal
+                val action =
+                    when (it) {
+                        is ClassOneWithSharedKeyTraversalNode -> {
+                            sameClassNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
+                        is ClassTwoWithSharedKeyTraversalNode -> {
+                            sameKeyDifferentClassNodes++
+                            TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
+                        }
+                        else -> {
+                            otherNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
                     }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        sameKeyDifferentClassNodes++
-                        TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
-                    }
-
-                    else -> {
-                        otherNodes++
-                        TraverseDescendantsAction.ContinueTraversal
-                    }
-                }
                 action
             }
         }
@@ -1245,22 +1130,21 @@ class TraversableModifierNodeTest {
             parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
-                val action = when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        sameClassNodes++
-                        TraverseDescendantsAction.ContinueTraversal
+                val action =
+                    when (it) {
+                        is ClassOneWithSharedKeyTraversalNode -> {
+                            sameClassNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
+                        is ClassTwoWithSharedKeyTraversalNode -> {
+                            sameKeyDifferentClassNodes++
+                            TraverseDescendantsAction.CancelTraversal
+                        }
+                        else -> {
+                            otherNodes++
+                            TraverseDescendantsAction.ContinueTraversal
+                        }
                     }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        sameKeyDifferentClassNodes++
-                        TraverseDescendantsAction.CancelTraversal
-                    }
-
-                    else -> {
-                        otherNodes++
-                        TraverseDescendantsAction.ContinueTraversal
-                    }
-                }
                 action
             }
         }
@@ -1289,11 +1173,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -1328,11 +1210,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         classOneWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         classTwoWithSharedKeyTraversalNodeAncestors++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
@@ -1367,11 +1247,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         differentKeyDifferentClassNodes++
                     }
@@ -1405,11 +1283,9 @@ class TraversableModifierNodeTest {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
                     }
-
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
                     }
-
                     is ClassThreeWithOtherKeyTraversalNode -> {
                         differentKeyDifferentClassNodes++
                     }
@@ -1435,17 +1311,13 @@ private const val OTHER_TRAVERSAL_NODE_KEY = "OTHER_TRAVERSAL_NODE_KEY"
 private fun Modifier.testTraversalNodeClassOneWithSharedKey(
     label: String,
     block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)? = null
-) = this then TestTraversalModifierElementClassOneWithSharedKey(
-    label = label,
-    block = block
-)
+) = this then TestTraversalModifierElementClassOneWithSharedKey(label = label, block = block)
 
 private data class TestTraversalModifierElementClassOneWithSharedKey(
     val label: String,
     val block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)?
 ) : ModifierNodeElement<ClassOneWithSharedKeyTraversalNode>() {
-    override fun create() =
-        ClassOneWithSharedKeyTraversalNode(label = label, block = block)
+    override fun create() = ClassOneWithSharedKeyTraversalNode(label = label, block = block)
 
     override fun update(node: ClassOneWithSharedKeyTraversalNode) {
         node.label = label
@@ -1475,9 +1347,7 @@ private class ClassOneWithSharedKeyTraversalNode(
     override val traverseKey = SHARED_TRAVERSAL_NODE_KEY
 
     init {
-        block?.let {
-            it()
-        }
+        block?.let { it() }
     }
 
     override fun toString() =
@@ -1488,19 +1358,13 @@ private class ClassOneWithSharedKeyTraversalNode(
 private fun Modifier.testTraversalNodeClassTwoWithSharedKey(
     label: String,
     block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)? = null
-) = this then TestTraversalModifierElementClassTwoWithSharedKey(
-    label = label,
-    block = block
-)
+) = this then TestTraversalModifierElementClassTwoWithSharedKey(label = label, block = block)
 
 private data class TestTraversalModifierElementClassTwoWithSharedKey(
     val label: String,
     val block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)?
 ) : ModifierNodeElement<ClassTwoWithSharedKeyTraversalNode>() {
-    override fun create() = ClassTwoWithSharedKeyTraversalNode(
-        label = label,
-        block = block
-    )
+    override fun create() = ClassTwoWithSharedKeyTraversalNode(label = label, block = block)
 
     override fun update(node: ClassTwoWithSharedKeyTraversalNode) {
         node.label = label
@@ -1517,15 +1381,12 @@ private data class TestTraversalModifierElementClassTwoWithSharedKey(
 private class ClassTwoWithSharedKeyTraversalNode(
     var label: String,
     var block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)?
-) :
-    Modifier.Node(), TraversableNode {
+) : Modifier.Node(), TraversableNode {
 
     override val traverseKey = SHARED_TRAVERSAL_NODE_KEY
 
     init {
-        block?.let {
-            it()
-        }
+        block?.let { it() }
     }
 
     override fun toString() =
@@ -1536,18 +1397,14 @@ private class ClassTwoWithSharedKeyTraversalNode(
 private fun Modifier.testTraversalNodeClassThreeWithOtherKey(
     label: String,
     block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)? = null
-) = this then TestTraversalModifierElementClassThreeWithOtherKey(
-    label = label,
-    block
-)
+) = this then TestTraversalModifierElementClassThreeWithOtherKey(label = label, block)
 
 private data class TestTraversalModifierElementClassThreeWithOtherKey(
     val label: String,
     val block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)?
 ) : ModifierNodeElement<ClassThreeWithOtherKeyTraversalNode>() {
 
-    override fun create() =
-        ClassThreeWithOtherKeyTraversalNode(label = label, block = block)
+    override fun create() = ClassThreeWithOtherKeyTraversalNode(label = label, block = block)
 
     override fun update(node: ClassThreeWithOtherKeyTraversalNode) {
         node.label = label
@@ -1568,9 +1425,7 @@ private class ClassThreeWithOtherKeyTraversalNode(
     override val traverseKey = OTHER_TRAVERSAL_NODE_KEY
 
     init {
-        block?.let {
-            it()
-        }
+        block?.let { it() }
     }
 
     override fun toString() =

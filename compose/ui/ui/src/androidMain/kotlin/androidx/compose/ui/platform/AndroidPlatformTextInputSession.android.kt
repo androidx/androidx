@@ -36,12 +36,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * On Android there are three levels of input sessions:
  * 1. [PlatformTextInputModifierNode.establishTextInputSession]: The app is performing some
- *   initialization before requesting the keyboard.
+ *    initialization before requesting the keyboard.
  * 2. [PlatformTextInputSession.startInputMethod]: The app has requested the keyboard with a
- *   particular implementation for [View.onCreateInputConnection] represented by a
- *   [PlatformTextInputMethodRequest].
- * 3. [View.onCreateInputConnection]: The system has responded to the keyboard request by asking
- *   the view for a new [InputConnection].
+ *    particular implementation for [View.onCreateInputConnection] represented by a
+ *    [PlatformTextInputMethodRequest].
+ * 3. [View.onCreateInputConnection]: The system has responded to the keyboard request by asking the
+ *    view for a new [InputConnection].
  *
  * Each of these sessions is a parent of the next, in terms of lifetime and cancellation.
  *
@@ -55,9 +55,7 @@ internal class AndroidPlatformTextInputSession(
     private val textInputService: TextInputService,
     private val coroutineScope: CoroutineScope
 ) : PlatformTextInputSessionScope, CoroutineScope by coroutineScope {
-    /**
-     * Coordinates between calls to [startInputMethod].
-     */
+    /** Coordinates between calls to [startInputMethod]. */
     private val methodSessionMutex = SessionMutex<InputMethodSession>()
 
     /**
@@ -70,9 +68,7 @@ internal class AndroidPlatformTextInputSession(
     override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing =
         methodSessionMutex.withSessionCancellingPrevious(
             sessionInitializer = { coroutineScope ->
-                InputMethodSession(request, onConnectionClosed = {
-                    coroutineScope.cancel()
-                })
+                InputMethodSession(request, onConnectionClosed = { coroutineScope.cancel() })
             }
         ) { methodSession ->
             @Suppress("RemoveExplicitTypeArguments")
@@ -118,7 +114,8 @@ private class InputMethodSession(
     private var connection: NullableInputConnectionWrapper? = null
     private var disposed = false
 
-    val isActive: Boolean get() = !disposed
+    val isActive: Boolean
+        get() = !disposed
 
     /**
      * Creates a new [InputConnection] and initializes [outAttrs] by calling this session's
@@ -135,11 +132,10 @@ private class InputMethodSession(
 
             val connectionDelegate = request.createInputConnection(outAttrs)
             return NullableInputConnectionWrapper(
-                delegate = connectionDelegate,
-                onConnectionClosed = onConnectionClosed
-            ).also {
-                connection = it
-            }
+                    delegate = connectionDelegate,
+                    onConnectionClosed = onConnectionClosed
+                )
+                .also { connection = it }
         }
     }
 

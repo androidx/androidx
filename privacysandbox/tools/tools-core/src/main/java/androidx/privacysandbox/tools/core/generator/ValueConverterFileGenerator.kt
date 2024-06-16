@@ -47,12 +47,13 @@ class ValueConverterFileGenerator(
 
     fun generate(value: AnnotatedValue) =
         FileSpec.builder(
-            value.converterNameSpec().packageName,
-            value.converterNameSpec().simpleName
-        ).build {
-            addCommonSettings()
-            addType(generateConverter(value))
-        }
+                value.converterNameSpec().packageName,
+                value.converterNameSpec().simpleName
+            )
+            .build {
+                addCommonSettings()
+                addType(generateConverter(value))
+            }
 
     private fun generateConverter(value: AnnotatedValue): TypeSpec {
         if (target == SERVER) {
@@ -60,20 +61,19 @@ class ValueConverterFileGenerator(
                 primaryConstructor(
                     listOf(
                         PropertySpec.builder(contextPropertyName, contextClass)
-                            .addModifiers(KModifier.PUBLIC).build()
+                            .addModifiers(KModifier.PUBLIC)
+                            .build()
                     )
                 )
                 addFunction(generateFromParcelable(value))
                 addFunction(generateToParcelable(value))
-                if (value is AnnotatedEnumClass)
-                    addProperty(generateEnumValuesProperty(value))
+                if (value is AnnotatedEnumClass) addProperty(generateEnumValuesProperty(value))
             }
         }
         return TypeSpec.objectBuilder(value.converterNameSpec()).build() {
             addFunction(generateFromParcelable(value))
             addFunction(generateToParcelable(value))
-            if (value is AnnotatedEnumClass)
-                addProperty(generateEnumValuesProperty(value))
+            if (value is AnnotatedEnumClass) addProperty(generateEnumValuesProperty(value))
         }
     }
 
@@ -84,9 +84,9 @@ class ValueConverterFileGenerator(
             addStatement("val parcelable = %T()", value.parcelableNameSpec())
             when (value) {
                 is AnnotatedDataClass ->
-                    value.properties.map(::generateToParcelablePropertyConversion)
+                    value.properties
+                        .map(::generateToParcelablePropertyConversion)
                         .forEach(::addCode)
-
                 is AnnotatedEnumClass ->
                     addStatement("parcelable.variant_ordinal = annotatedValue.ordinal")
             }
@@ -119,7 +119,6 @@ class ValueConverterFileGenerator(
                     }
                     addStatement("return annotatedValue")
                 }
-
             is AnnotatedEnumClass ->
                 FunSpec.builder(fromParcelableMethodName).build {
                     addParameter("parcelable", value.parcelableNameSpec())
@@ -135,21 +134,13 @@ class ValueConverterFileGenerator(
         CodeBlock.builder().build {
             add(
                 "${property.name} = %L",
-                binderConverter.convertToModelCode(
-                    property.type, "parcelable.${property.name}"
-                )
+                binderConverter.convertToModelCode(property.type, "parcelable.${property.name}")
             )
         }
 
     private fun generateEnumValuesProperty(value: AnnotatedEnumClass) =
-        PropertySpec.builder(
-            "enumValues",
-            Types.list(value.type).poetTypeName()
-        )
+        PropertySpec.builder("enumValues", Types.list(value.type).poetTypeName())
             .addModifiers(KModifier.PRIVATE)
-            .initializer(
-                CodeBlock.of(
-                    "%T.values().toList()", value.type.poetClassName()
-                )
-        ).build()
+            .initializer(CodeBlock.of("%T.values().toList()", value.type.poetClassName()))
+            .build()
 }

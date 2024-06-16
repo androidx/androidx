@@ -22,29 +22,26 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 
-/**
- * Truth subject for diagnostic messages
- */
-class DiagnosticMessagesSubject internal constructor(
+/** Truth subject for diagnostic messages */
+class DiagnosticMessagesSubject
+internal constructor(
     failureMetadata: FailureMetadata,
     private val diagnosticMessages: List<DiagnosticMessage>,
-) : Subject<DiagnosticMessagesSubject, List<DiagnosticMessage>>(
-    failureMetadata, diagnosticMessages
-) {
+) :
+    Subject<DiagnosticMessagesSubject, List<DiagnosticMessage>>(
+        failureMetadata,
+        diagnosticMessages
+    ) {
 
     private val lineContents by lazy {
         diagnosticMessages.mapNotNull {
             it.location?.let { location ->
-                location.source?.contents?.lines()?.getOrNull(
-                    location.line - 1
-                )
+                location.source?.contents?.lines()?.getOrNull(location.line - 1)
             }
         }
     }
 
-    private val locations by lazy {
-        diagnosticMessages.mapNotNull { it.location }
-    }
+    private val locations by lazy { diagnosticMessages.mapNotNull { it.location } }
 
     /**
      * Checks the location of the diagnostic message against the given [lineNumber].
@@ -52,22 +49,14 @@ class DiagnosticMessagesSubject internal constructor(
      * Note that if there are multiple messages, any match will be sufficient.
      */
     fun onLine(lineNumber: Int) = apply {
-        if (locations.none {
-            it.line == lineNumber
-        }
-        ) {
+        if (locations.none { it.line == lineNumber }) {
             failWithActual(
-                simpleFact(
-                    "expected line $lineNumber but it was " +
-                        locations.joinToString(",")
-                )
+                simpleFact("expected line $lineNumber but it was " + locations.joinToString(","))
             )
         }
     }
 
-    /**
-     * Checks the number of messages in the subject.
-     */
+    /** Checks the number of messages in the subject. */
     fun hasCount(expected: Int) = apply {
         if (diagnosticMessages.size != expected) {
             failWithActual(
@@ -76,31 +65,25 @@ class DiagnosticMessagesSubject internal constructor(
         }
     }
 
-    /**
-     * Checks the contents of the line from the original file against the given [content].
-     */
+    /** Checks the contents of the line from the original file against the given [content]. */
     fun onLineContaining(content: String) = apply {
         if (lineContents.isEmpty()) {
             failWithActual(
                 simpleFact("Cannot validate line content due to missing location information")
             )
         }
-        if (lineContents.none {
-            it.contains(content)
-        }
-        ) {
+        if (lineContents.none { it.contains(content) }) {
             failWithActual(
                 simpleFact(
-                    "expected line content with $content but was " +
-                        lineContents.joinToString("\n")
+                    "expected line content with $content but was " + lineContents.joinToString("\n")
                 )
             )
         }
     }
 
     /**
-     * Checks the contents of the source where the diagnostic message was reported on, against
-     * the given [source].
+     * Checks the contents of the source where the diagnostic message was reported on, against the
+     * given [source].
      */
     fun onSource(source: Source) = apply {
         if (locations.none { it.source == source }) {
@@ -109,7 +92,8 @@ class DiagnosticMessagesSubject internal constructor(
                     """
                     Expected diagnostic to be on $source but found it on
                     ${locations.joinToString(",")}
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             )
         }
@@ -121,12 +105,8 @@ class DiagnosticMessagesSubject internal constructor(
                 DiagnosticMessagesSubject(metadata, actual)
             }
 
-        fun assertThat(
-            diagnosticMessages: List<DiagnosticMessage>
-        ): DiagnosticMessagesSubject {
-            return Truth.assertAbout(FACTORY).that(
-                diagnosticMessages
-            )
+        fun assertThat(diagnosticMessages: List<DiagnosticMessage>): DiagnosticMessagesSubject {
+            return Truth.assertAbout(FACTORY).that(diagnosticMessages)
         }
     }
 }

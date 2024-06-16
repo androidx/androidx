@@ -22,28 +22,31 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * [IssueRegistry] containing Compose UI specific lint issues.
- */
+/** [IssueRegistry] containing Compose UI specific lint issues. */
 class UiIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        ComposedModifierDetector.UnnecessaryComposedModifier,
-        ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
-        ModifierDeclarationDetector.ModifierFactoryReturnType,
-        ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
-        ModifierNodeInspectablePropertiesDetector.ModifierNodeInspectableProperties,
-        ModifierParameterDetector.ModifierParameter,
-        MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes,
-        ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope,
-        SuspiciousCompositionLocalModifierReadDetector.SuspiciousCompositionLocalModifierRead,
-        SuspiciousModifierThenDetector.SuspiciousModifierThen
-    )
-    override val vendor = Vendor(
-        vendorName = "Jetpack Compose",
-        identifier = "androidx.compose.ui",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
-    )
+    override val issues
+        get() =
+            listOf(
+                ComposedModifierDetector.UnnecessaryComposedModifier,
+                ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
+                ModifierDeclarationDetector.ModifierFactoryReturnType,
+                ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
+                ModifierNodeInspectablePropertiesDetector.ModifierNodeInspectableProperties,
+                ModifierParameterDetector.ModifierParameter,
+                MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes,
+                ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope,
+                SuspiciousCompositionLocalModifierReadDetector
+                    .SuspiciousCompositionLocalModifierRead,
+                SuspiciousModifierThenDetector.SuspiciousModifierThen
+            )
+
+    override val vendor =
+        Vendor(
+            vendorName = "Jetpack Compose",
+            identifier = "androidx.compose.ui",
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+        )
 }

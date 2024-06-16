@@ -41,8 +41,7 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(maxSdkVersion = 32)
 class LocalesUpdateTestCase() {
-    @get:Rule
-    val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
+    @get:Rule val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
     var systemLocales = LocaleListCompat.getEmptyLocaleList()
     var expectedLocales = LocaleListCompat.getEmptyLocaleList()
 
@@ -50,11 +49,12 @@ class LocalesUpdateTestCase() {
     fun setUp() {
         // Since no locales are applied as of now, current configuration will have system
         // locales.
-        systemLocales = LocalesUpdateActivity.getConfigLocales(rule.activity
-            .resources.configuration)
-        expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST,
-            systemLocales)
+        systemLocales =
+            LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
+        expectedLocales =
+            LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
     }
+
     @Test
     fun testDialogDoesNotOverrideActivityConfiguration() {
         setLocalesAndWaitForRecreate(rule, CUSTOM_LOCALE_LIST)
@@ -69,10 +69,7 @@ class LocalesUpdateTestCase() {
         rule.runOnUiThread { dialog.dismiss() }
 
         // Assert that the locales are unchanged
-        assertConfigurationLocalesEquals(
-            expectedLocales,
-            rule.activity.resources.configuration
-        )
+        assertConfigurationLocalesEquals(expectedLocales, rule.activity.resources.configuration)
     }
 
     @Test
@@ -102,19 +99,13 @@ class LocalesUpdateTestCase() {
     fun testOnConfigurationChangeNotCalled() {
         var activity = rule.activity
         // Set locales to CUSTOM_LOCALE_LIST.
-        LocalesUtils.setLocalesAndWait(
-            rule,
-            CUSTOM_LOCALE_LIST
-        )
+        LocalesUtils.setLocalesAndWait(rule, CUSTOM_LOCALE_LIST)
         // Assert that onConfigurationChange was not called on the original activity
         assertNull(activity.lastConfigurationChangeAndClear)
 
         activity = rule.activity
         // Set locales back to system locales.
-        setLocalesAndWait(
-            rule,
-            LocaleListCompat.getEmptyLocaleList()
-        )
+        setLocalesAndWait(rule, LocaleListCompat.getEmptyLocaleList())
         // Assert that onConfigurationChange was not called
         assertNull(activity.lastConfigurationChangeAndClear)
     }

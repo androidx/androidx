@@ -30,13 +30,14 @@ public abstract class Preferences internal constructor() {
      * T must be one of the following: Boolean, Int, Long, Float, String, Set<String>.
      *
      * Construct Keys for your data type using: [booleanPreferencesKey], [intPreferencesKey],
-     * [longPreferencesKey], [floatPreferencesKey], [stringPreferencesKey], [stringSetPreferencesKey]
+     * [longPreferencesKey], [floatPreferencesKey], [stringPreferencesKey],
+     * [stringSetPreferencesKey]
      */
-    public class Key<T>
-    internal constructor(public val name: String) {
+    public class Key<T> internal constructor(public val name: String) {
         /**
-         * Infix function to create a Preferences.Pair.
-         * This is used to support [preferencesOf] and [MutablePreferences.putAll]
+         * Infix function to create a Preferences.Pair. This is used to support [preferencesOf] and
+         * [MutablePreferences.putAll]
+         *
          * @param value is the value this preferences key should point to.
          */
         public infix fun to(value: T): Preferences.Pair<T> = Preferences.Pair(this, value)
@@ -80,14 +81,14 @@ public abstract class Preferences internal constructor() {
      *
      * @param T the type of the preference
      * @param key the key for the preference
-     * @throws ClassCastException if there is something stored with the same name as [key] but
-     * it cannot be cast to T
+     * @throws ClassCastException if there is something stored with the same name as [key] but it
+     *   cannot be cast to T
      */
     public abstract operator fun <T> get(key: Key<T>): T?
 
     /**
-     * Retrieve a map of all key preference pairs. The returned map is unmodifiable, and attempts
-     * to mutate it will throw runtime exceptions.
+     * Retrieve a map of all key preference pairs. The returned map is unmodifiable, and attempts to
+     * mutate it will throw runtime exceptions.
      *
      * @return a map containing all the preferences in this Preferences
      */
@@ -121,23 +122,20 @@ public abstract class Preferences internal constructor() {
 /**
  * Mutable version of [Preferences]. Allows for creating Preferences with different key-value pairs.
  */
-public class MutablePreferences internal constructor(
+public class MutablePreferences
+internal constructor(
     internal val preferencesMap: MutableMap<Key<*>, Any> = mutableMapOf(),
     startFrozen: Boolean = true
 ) : Preferences() {
 
-    /**
-     * If frozen, mutating methods will throw.
-     */
+    /** If frozen, mutating methods will throw. */
     private val frozen = AtomicBoolean(startFrozen)
 
     internal fun checkNotFrozen() {
         check(!frozen.get()) { "Do mutate preferences once returned to DataStore." }
     }
 
-    /**
-     * Causes any future mutations to result in an exception being thrown.
-     */
+    /** Causes any future mutations to result in an exception being thrown. */
     internal fun freeze() {
         frozen.set(true)
     }
@@ -151,16 +149,19 @@ public class MutablePreferences internal constructor(
         return when (val value = preferencesMap[key]) {
             is ByteArray -> value.copyOf()
             else -> value
-        } as T?
+        }
+            as T?
     }
 
     override fun asMap(): Map<Key<*>, Any> {
-        return immutableMap(preferencesMap.entries.associate { entry ->
-            when (val value = entry.value) {
-                is ByteArray -> Pair(entry.key, value.copyOf())
-                else -> Pair(entry.key, entry.value)
+        return immutableMap(
+            preferencesMap.entries.associate { entry ->
+                when (val value = entry.value) {
+                    is ByteArray -> Pair(entry.key, value.copyOf())
+                    else -> Pair(entry.key, entry.value)
+                }
             }
-        })
+        )
     }
 
     // Mutating methods below:
@@ -168,24 +169,20 @@ public class MutablePreferences internal constructor(
     /**
      * Set a key value pair in MutablePreferences.
      *
-     * Example usage:
-     * val COUNTER_KEY = intPreferencesKey("counter")
+     * Example usage: val COUNTER_KEY = intPreferencesKey("counter")
      *
      * // Once edit completes successfully, preferenceStore will contain the incremented counter.
-     * preferenceStore.edit { prefs: MutablePreferences ->
-     *   prefs\[COUNTER_KEY\] = prefs\[COUNTER_KEY\] :? 0 + 1
-     * }
+     * preferenceStore.edit { prefs: MutablePreferences -> prefs\[COUNTER_KEY\] =
+     * prefs\[COUNTER_KEY\] :? 0 + 1 }
      *
      * @param key the preference to set
-     * @param key the value to set the preference to
+     * @param value the value to set the preference to
      */
     public operator fun <T> set(key: Key<T>, value: T) {
         setUnchecked(key, value)
     }
 
-    /**
-     * Private setter function. The type of key and value *must* be the same.
-     */
+    /** Private setter function. The type of key and value *must* be the same. */
     internal fun setUnchecked(key: Key<*>, value: Any?) {
         checkNotFrozen()
 
@@ -200,11 +197,10 @@ public class MutablePreferences internal constructor(
     }
 
     /**
-     * Appends or replaces all pairs from [prefs] to this MutablePreferences. Keys in [prefs]
-     * will overwrite keys in this Preferences.
+     * Appends or replaces all pairs from [prefs] to this MutablePreferences. Keys in [prefs] will
+     * overwrite keys in this Preferences.
      *
-     * Example usage:
-     * mutablePrefs += preferencesOf(COUNTER_KEY to 100, NAME to "abcdef")
+     * Example usage: mutablePrefs += preferencesOf(COUNTER_KEY to 100, NAME to "abcdef")
      *
      * @param prefs Preferences to append to this MutablePreferences
      */
@@ -216,8 +212,7 @@ public class MutablePreferences internal constructor(
     /**
      * Appends or replaces all [pair] to this MutablePreferences.
      *
-     * Example usage:
-     * mutablePrefs += COUNTER_KEY to 100
+     * Example usage: mutablePrefs += COUNTER_KEY to 100
      *
      * @param pair the Preference.Pair to add to this MutablePreferences
      */
@@ -227,11 +222,10 @@ public class MutablePreferences internal constructor(
     }
 
     /**
-     * Removes the preference with the given key from this MutablePreferences. If this
-     * Preferences does not contain the key, this is a no-op.
+     * Removes the preference with the given key from this MutablePreferences. If this Preferences
+     * does not contain the key, this is a no-op.
      *
-     * Example usage:
-     * mutablePrefs -= COUNTER_KEY
+     * Example usage: mutablePrefs -= COUNTER_KEY
      *
      * @param key the key to remove from this MutablePreferences
      */
@@ -247,9 +241,7 @@ public class MutablePreferences internal constructor(
      */
     public fun putAll(vararg pairs: Preferences.Pair<*>) {
         checkNotFrozen()
-        pairs.forEach {
-            setUnchecked(it.key, it.value)
-        }
+        pairs.forEach { setUnchecked(it.key, it.value) }
     }
 
     /**
@@ -299,19 +291,15 @@ public class MutablePreferences internal constructor(
         }
     }
 
-    /**
-     * For better debugging.
-     */
+    /** For better debugging. */
     override fun toString(): String =
-        preferencesMap.entries.joinToString(
-            separator = ",\n",
-            prefix = "{\n",
-            postfix = "\n}"
-        ) { entry ->
-            val value = when (val value = entry.value) {
-                is ByteArray -> value.joinToString(", ", "[", "]")
-                else -> "${entry.value}"
-            }
+        preferencesMap.entries.joinToString(separator = ",\n", prefix = "{\n", postfix = "\n}") {
+            entry ->
+            val value =
+                when (val value = entry.value) {
+                    is ByteArray -> value.joinToString(", ", "[", "]")
+                    else -> "${entry.value}"
+                }
             "  ${entry.key.name} = $value"
         }
 }
@@ -325,8 +313,8 @@ public class MutablePreferences internal constructor(
  * transaction is aborted and an exception is thrown.
  *
  * Note: values that are changed in [transform] are NOT updated in DataStore until after the
- * transform completes. Do not assume that the data has been successfully persisted until after
- * edit returns successfully.
+ * transform completes. Do not assume that the data has been successfully persisted until after edit
+ * returns successfully.
  *
  * Note: do NOT store a reference to the MutablePreferences provided to transform. Mutating this
  * after [transform] returns will NOT change the data in DataStore. Future versions of this may
@@ -334,21 +322,17 @@ public class MutablePreferences internal constructor(
  *
  * See [DataStore.updateData].
  *
- * Example usage:
- * val COUNTER_KEY = intPreferencesKey("my_counter")
+ * Example usage: val COUNTER_KEY = intPreferencesKey("my_counter")
  *
- * dataStore.edit { prefs ->
- *   prefs\[COUNTER_KEY\] = prefs\[COUNTER_KEY\] :? 0 + 1
- * }
+ * dataStore.edit { prefs -> prefs\[COUNTER_KEY\] = prefs\[COUNTER_KEY\] :? 0 + 1 }
  *
  * @param transform block which accepts MutablePreferences that contains all the preferences
- * currently in DataStore. Changes to this MutablePreferences object will be persisted once
- * transform completes.
- * @throws androidx.datastore.core.IOException when an exception is encountered when writing
- * data to disk
+ *   currently in DataStore. Changes to this MutablePreferences object will be persisted once
+ *   transform completes.
+ * @throws androidx.datastore.core.IOException when an exception is encountered when writing data to
+ *   disk
  * @throws Exception when thrown by the transform block
  */
-
 public suspend fun DataStore<Preferences>.edit(
     transform: suspend (MutablePreferences) -> Unit
 ): Preferences {

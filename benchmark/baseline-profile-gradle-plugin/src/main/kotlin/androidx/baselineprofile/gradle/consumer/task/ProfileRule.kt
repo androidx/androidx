@@ -29,18 +29,18 @@ internal data class ProfileRule(
 
         private val PROFILE_RULE_REGEX = "(H?S?P?)L([^;]*);(->)?(.*)".toRegex()
 
-        fun parse(rule: String): ProfileRule? = when (val result = PROFILE_RULE_REGEX.find(rule)) {
-            null -> null
-            else -> {
-                // Ignore `->`
-                val (flags, classDescriptor, _, methodDescriptor) = result.destructured
-                val fullClassName = classDescriptor.split("/").joinToString(".")
-                ProfileRule(rule, flags, classDescriptor, methodDescriptor, fullClassName)
+        fun parse(rule: String): ProfileRule? =
+            when (val result = PROFILE_RULE_REGEX.find(rule)) {
+                null -> null
+                else -> {
+                    // Ignore `->`
+                    val (flags, classDescriptor, _, methodDescriptor) = result.destructured
+                    val fullClassName = classDescriptor.split("/").joinToString(".")
+                    ProfileRule(rule, flags, classDescriptor, methodDescriptor, fullClassName)
+                }
             }
-        }
 
-        internal val comparator: Comparator<ProfileRule> = compareBy(
-            { it.classDescriptor }, { it.methodDescriptor ?: "" }
-        )
+        internal val comparator: Comparator<ProfileRule> =
+            compareBy({ it.classDescriptor }, { it.methodDescriptor ?: "" })
     }
 }

@@ -44,46 +44,58 @@ class ImageCaptureUnlockedOrientationTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "cameraXConfig={2}, {4}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacingList.forEach { lens ->
-                captureModes.forEach { mode ->
-                    cameraXConfigList.forEach { cameraXConfig ->
-                        val lensName = if (lens == CameraSelector.LENS_FACING_BACK) {
-                            "Back lens"
-                        } else {
-                            "Front lens"
-                        }
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                lensFacingList.forEach { lens ->
+                    captureModes.forEach { mode ->
+                        cameraXConfigList.forEach { cameraXConfig ->
+                            val lensName =
+                                if (lens == CameraSelector.LENS_FACING_BACK) {
+                                    "Back lens"
+                                } else {
+                                    "Front lens"
+                                }
 
-                        val captureModeName = when (mode) {
-                            IMAGE_CAPTURE_MODE_IN_MEMORY -> "In memory"
-                            IMAGE_CAPTURE_MODE_FILE -> "File"
-                            IMAGE_CAPTURE_MODE_OUTPUT_STREAM -> "Output stream"
-                            IMAGE_CAPTURE_MODE_MEDIA_STORE -> "Media store"
-                            else -> "Invalid capture mode"
-                        }
+                            val captureModeName =
+                                when (mode) {
+                                    IMAGE_CAPTURE_MODE_IN_MEMORY -> "In memory"
+                                    IMAGE_CAPTURE_MODE_FILE -> "File"
+                                    IMAGE_CAPTURE_MODE_OUTPUT_STREAM -> "Output stream"
+                                    IMAGE_CAPTURE_MODE_MEDIA_STORE -> "Media store"
+                                    else -> "Invalid capture mode"
+                                }
 
-                        add(
-                            arrayOf(
-                                lens, mode, cameraXConfig, RotationUnlocked.Natural,
-                                "$lensName - $captureModeName - Natural"
+                            add(
+                                arrayOf(
+                                    lens,
+                                    mode,
+                                    cameraXConfig,
+                                    RotationUnlocked.Natural,
+                                    "$lensName - $captureModeName - Natural"
+                                )
                             )
-                        )
-                        add(
-                            arrayOf(
-                                lens, mode, cameraXConfig, RotationUnlocked.Left,
-                                "$lensName - $captureModeName - Left"
+                            add(
+                                arrayOf(
+                                    lens,
+                                    mode,
+                                    cameraXConfig,
+                                    RotationUnlocked.Left,
+                                    "$lensName - $captureModeName - Left"
+                                )
                             )
-                        )
-                        add(
-                            arrayOf(
-                                lens, mode, cameraXConfig, RotationUnlocked.Right,
-                                "$lensName - $captureModeName - Right"
+                            add(
+                                arrayOf(
+                                    lens,
+                                    mode,
+                                    cameraXConfig,
+                                    RotationUnlocked.Right,
+                                    "$lensName - $captureModeName - Right"
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
-        }
     }
 
     @Before
@@ -107,21 +119,19 @@ class ImageCaptureUnlockedOrientationTest(
     }
 
     private fun rotateDeviceAndWait() {
-        val monitor = Instrumentation.ActivityMonitor(
-            UnlockedOrientationActivity::class.java.name,
-            null,
-            false
-        )
+        val monitor =
+            Instrumentation.ActivityMonitor(
+                UnlockedOrientationActivity::class.java.name,
+                null,
+                false
+            )
         InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
 
         // Rotate
         rotation.rotate(mDevice)
 
         // Wait for the activity to be recreated after rotation
-        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
-            monitor,
-            2000L
-        )
+        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(monitor, 2000L)
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 }

@@ -19,7 +19,7 @@ package androidx.camera.core;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
@@ -41,7 +41,6 @@ import java.util.List;
  * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#getConcurrentCameraIds()">concurrent camera streaming</a>
  *
  */
-@RequiresApi(21)
 public class ConcurrentCamera {
 
     @NonNull
@@ -79,6 +78,8 @@ public class ConcurrentCamera {
         private LifecycleOwner mLifecycleOwner;
         @NonNull
         private UseCaseGroup mUseCaseGroup;
+        @NonNull
+        private LayoutSettings mLayoutSettings;
 
         /**
          * Constructor of a {@link SingleCameraConfig} for concurrent cameras.
@@ -91,8 +92,26 @@ public class ConcurrentCamera {
                 @NonNull CameraSelector cameraSelector,
                 @NonNull UseCaseGroup useCaseGroup,
                 @NonNull LifecycleOwner lifecycleOwner) {
+            this(cameraSelector, useCaseGroup, LayoutSettings.DEFAULT, lifecycleOwner);
+        }
+
+        /**
+         * Constructor of a {@link SingleCameraConfig} for concurrent cameras.
+         *
+         * @param cameraSelector {@link CameraSelector}.
+         * @param useCaseGroup {@link UseCaseGroup}.
+         * @param layoutSettings {@link LayoutSettings}.
+         * @param lifecycleOwner {@link LifecycleOwner}.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public SingleCameraConfig(
+                @NonNull CameraSelector cameraSelector,
+                @NonNull UseCaseGroup useCaseGroup,
+                @NonNull LayoutSettings layoutSettings,
+                @NonNull LifecycleOwner lifecycleOwner) {
             this.mCameraSelector = cameraSelector;
             this.mUseCaseGroup = useCaseGroup;
+            this.mLayoutSettings = layoutSettings;
             this.mLifecycleOwner = lifecycleOwner;
         }
 
@@ -121,6 +140,16 @@ public class ConcurrentCamera {
         @NonNull
         public UseCaseGroup getUseCaseGroup() {
             return mUseCaseGroup;
+        }
+
+        /**
+         * Returns {@link LayoutSettings}.
+         * @return {@link LayoutSettings} instance.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutSettings getLayoutSettings() {
+            return mLayoutSettings;
         }
     }
 }

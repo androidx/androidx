@@ -51,10 +51,7 @@ fun CanvasPieChartSample() {
         modifier = Modifier.size(300.dp)
     ) {
         // Apples (80%)
-        drawCircle(
-            color = Color.Red,
-            radius = size.width / 2
-        )
+        drawCircle(color = Color.Red, radius = size.width / 2)
 
         // Bananas (20%)
         drawArc(

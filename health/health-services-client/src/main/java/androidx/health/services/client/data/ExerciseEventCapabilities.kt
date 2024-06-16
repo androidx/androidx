@@ -23,19 +23,21 @@ import androidx.health.services.client.proto.DataProto.ExerciseEventCapabilities
 
 /** Contains the capabilities specific to the associated [ExerciseEvent]. */
 public abstract class ExerciseEventCapabilities @RestrictTo(Scope.LIBRARY_GROUP) constructor() {
-  /** Returns true if this [ExerciseEvent] is supported by the device and false otherwise. */
-  public abstract val isSupported: Boolean
+    /** Returns true if this [ExerciseEvent] is supported by the device and false otherwise. */
+    public abstract val isSupported: Boolean
 
-  internal open fun toProto(): DataProto.ExerciseEventCapabilities =
-    DataProto.ExerciseEventCapabilities.getDefaultInstance()
+    internal open fun toProto(): DataProto.ExerciseEventCapabilities =
+        DataProto.ExerciseEventCapabilities.getDefaultInstance()
 
-  public companion object {
-    @JvmStatic
-    internal fun fromProto(proto: DataProto.ExerciseEventCapabilities): ExerciseEventCapabilities? =
-      when (proto.exerciseEventCapabilitiesCase) {
-        ExerciseEventCapabilitiesCase.GOLF_SHOT_CAPABILITIES ->
-          GolfShotEventCapabilities(proto.golfShotCapabilities)
-        else -> null
-      }
-  }
+    public companion object {
+        @JvmStatic
+        internal fun fromProto(
+            proto: DataProto.ExerciseEventCapabilities
+        ): ExerciseEventCapabilities? =
+            when (proto.exerciseEventCapabilitiesCase) {
+                ExerciseEventCapabilitiesCase.GOLF_SHOT_CAPABILITIES ->
+                    GolfShotEventCapabilities(proto.golfShotCapabilities)
+                else -> null
+            }
+    }
 }

@@ -35,13 +35,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 @Composable
 fun RememberLauncherForActivityResult() {
     val result = remember { mutableStateOf<Bitmap?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-        result.value = it
-    }
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+            result.value = it
+        }
 
-    Button(onClick = { launcher.launch() }) {
-        Text(text = "Take a picture")
-    }
+    Button(onClick = { launcher.launch() }) { Text(text = "Take a picture") }
 
     result.value?.let { image ->
         Image(image.asImageBitmap(), null, modifier = Modifier.fillMaxWidth())

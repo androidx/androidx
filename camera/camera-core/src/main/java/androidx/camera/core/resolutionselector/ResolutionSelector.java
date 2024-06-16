@@ -21,7 +21,6 @@ import static androidx.camera.core.resolutionselector.AspectRatioStrategy.RATIO_
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
@@ -88,7 +87,6 @@ import java.lang.annotation.RetentionPolicy;
  * resolution mode. However, if neither the {@link ResolutionStrategy} nor the
  * {@link ResolutionFilter} are set, there will be no default value specified.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ResolutionSelector {
     /**
      * This mode allows CameraX to select the normal output sizes on the camera device.

@@ -25,35 +25,29 @@ import org.junit.Rule
 import org.junit.Test
 
 class ParameterizedComposeTestRuleTest {
-    @get:Rule
-    val composeTestRule = createParameterizedComposeTestRule<Param>()
+    @get:Rule val composeTestRule = createParameterizedComposeTestRule<Param>()
 
     @Test
     fun assertionErrorInParameterIsPropagated() {
         val paramList = listOf(Param("first"), Param("second"))
-        composeTestRule.setContent {
-            Box(modifier = Modifier.size(10.dp))
-        }
+        composeTestRule.setContent { Box(modifier = Modifier.size(10.dp)) }
 
-        val error = kotlin.runCatching {
-            composeTestRule.forEachParameter(paramList) {
-                if (it.singleParam == "first") {
-                    throw AssertionError()
+        val error =
+            kotlin.runCatching {
+                composeTestRule.forEachParameter(paramList) {
+                    if (it.singleParam == "first") {
+                        throw AssertionError()
+                    }
                 }
             }
-        }
 
         assertTrue(error.exceptionOrNull()?.localizedMessage?.contains("Error on Config") == true)
     }
 
     @Test(expected = IllegalStateException::class)
     fun setContentCannotBeCalledTwice() {
-        composeTestRule.setContent {
-            Box(modifier = Modifier.size(10.dp))
-        }
-        composeTestRule.setContent {
-            Box(modifier = Modifier.size(10.dp))
-        }
+        composeTestRule.setContent { Box(modifier = Modifier.size(10.dp)) }
+        composeTestRule.setContent { Box(modifier = Modifier.size(10.dp)) }
     }
 
     @Test(expected = IllegalStateException::class)
@@ -65,9 +59,7 @@ class ParameterizedComposeTestRuleTest {
     fun forEachParameterRunsCompositionForEachParameter() {
         val paramList = listOf(Param("first"), Param("second"))
         var recompositionCount = 0
-        composeTestRule.setContent {
-            recompositionCount++
-        }
+        composeTestRule.setContent { recompositionCount++ }
         composeTestRule.forEachParameter(paramList) {}
         assertTrue(recompositionCount == paramList.size)
     }
@@ -76,9 +68,7 @@ class ParameterizedComposeTestRuleTest {
     fun forEachParameterPropagatesParameterToContentAndRunBlock() {
         val paramList = listOf(Param("first"), Param("second"))
         var index = 0
-        composeTestRule.setContent {
-            assertTrue(it.singleParam == paramList[index].singleParam)
-        }
+        composeTestRule.setContent { assertTrue(it.singleParam == paramList[index].singleParam) }
 
         composeTestRule.forEachParameter(paramList) {
             assertTrue(it.singleParam == paramList[index].singleParam)

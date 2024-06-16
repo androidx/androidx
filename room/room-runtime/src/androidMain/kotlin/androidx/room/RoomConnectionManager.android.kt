@@ -45,10 +45,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
 
     private var supportDatabase: SupportSQLiteDatabase? = null
 
-    constructor(
-        config: DatabaseConfiguration,
-        openDelegate: RoomOpenDelegate
-    ) {
+    constructor(config: DatabaseConfiguration, openDelegate: RoomOpenDelegate) {
         this.configuration = config
         this.openDelegate = openDelegate
         this.callbacks = config.callbacks ?: emptyList()
@@ -61,28 +58,31 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
             requireNotNull(config.sqliteOpenHelperFactory) {
                 "SQLiteManager was constructed with both null driver and open helper factory!"
             }
-            val openHelperConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context)
-                .name(config.name)
-                .callback(SupportOpenHelperCallback(openDelegate.version))
-                .build()
-            this.connectionPool = SupportConnectionPool(
-                SupportSQLiteDriver(config.sqliteOpenHelperFactory.create(openHelperConfig))
-            )
+            val openHelperConfig =
+                SupportSQLiteOpenHelper.Configuration.builder(config.context)
+                    .name(config.name)
+                    .callback(SupportOpenHelperCallback(openDelegate.version))
+                    .build()
+            this.connectionPool =
+                SupportConnectionPool(
+                    SupportSQLiteDriver(config.sqliteOpenHelperFactory.create(openHelperConfig))
+                )
         } else {
-            this.connectionPool = if (configuration.name == null) {
-                // An in-memory database must use a single connection pool.
-                newSingleConnectionPool(
-                    driver = DriverWrapper(config.sqliteDriver),
-                    fileName = ":memory:"
-                )
-            } else {
-                newConnectionPool(
-                    driver = DriverWrapper(config.sqliteDriver),
-                    fileName = configuration.name,
-                    maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
-                    maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
-                )
-            }
+            this.connectionPool =
+                if (configuration.name == null) {
+                    // An in-memory database must use a single connection pool.
+                    newSingleConnectionPool(
+                        driver = DriverWrapper(config.sqliteDriver),
+                        fileName = ":memory:"
+                    )
+                } else {
+                    newConnectionPool(
+                        driver = DriverWrapper(config.sqliteDriver),
+                        fileName = configuration.name,
+                        maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
+                        maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
+                    )
+                }
         }
         init()
     }
@@ -99,9 +99,12 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         // SupportSQLiteDatabase is extracted out of the RoomOpenHelper installed.
         val configWithCompatibilityCallback =
             config.installOnOpenCallback { db -> supportDatabase = db }
-        this.connectionPool = SupportConnectionPool(
-            SupportSQLiteDriver(supportOpenHelperFactory.invoke(configWithCompatibilityCallback))
-        )
+        this.connectionPool =
+            SupportConnectionPool(
+                SupportSQLiteDriver(
+                    supportOpenHelperFactory.invoke(configWithCompatibilityCallback)
+                )
+            )
         init()
     }
 
@@ -122,21 +125,18 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     // TODO(b/316944352): Figure out auto-close with driver APIs
     fun isSupportDatabaseOpen() = supportDatabase?.isOpen ?: false
 
-    /**
-     * An implementation of [SupportSQLiteOpenHelper.Callback] used in compatibility mode.
-     */
-    inner class SupportOpenHelperCallback(
-        version: Int
-    ) : SupportSQLiteOpenHelper.Callback(version) {
+    /** An implementation of [SupportSQLiteOpenHelper.Callback] used in compatibility mode. */
+    inner class SupportOpenHelperCallback(version: Int) :
+        SupportSQLiteOpenHelper.Callback(version) {
         override fun onCreate(db: SupportSQLiteDatabase) {
-            this@RoomConnectionManager.onCreate(
-                SupportSQLiteConnection(db)
-            )
+            this@RoomConnectionManager.onCreate(SupportSQLiteConnection(db))
         }
 
         override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
             this@RoomConnectionManager.onMigrate(
-                SupportSQLiteConnection(db), oldVersion, newVersion
+                SupportSQLiteConnection(db),
+                oldVersion,
+                newVersion
             )
         }
 
@@ -185,16 +185,15 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     }
 
     /**
-     * An implementation of a connection pool used in compatibility mode. This impl doesn't do
-     * any connection management since the SupportSQLite* APIs already internally do.
+     * An implementation of a connection pool used in compatibility mode. This impl doesn't do any
+     * connection management since the SupportSQLite* APIs already internally do.
      */
-    private class SupportConnectionPool(
-        val supportDriver: SupportSQLiteDriver
-    ) : ConnectionPool {
-        private val supportConnection by lazy(LazyThreadSafetyMode.PUBLICATION) {
-            val fileName = supportDriver.openHelper.databaseName ?: ":memory:"
-            SupportPooledConnection(supportDriver.open(fileName))
-        }
+    private class SupportConnectionPool(val supportDriver: SupportSQLiteDriver) : ConnectionPool {
+        private val supportConnection by
+            lazy(LazyThreadSafetyMode.PUBLICATION) {
+                val fileName = supportDriver.openHelper.databaseName ?: ":memory:"
+                SupportPooledConnection(supportDriver.open(fileName))
+            }
 
         override suspend fun <R> useConnection(
             isReadOnly: Boolean,
@@ -208,9 +207,8 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         }
     }
 
-    private class SupportPooledConnection(
-        val delegate: SupportSQLiteConnection
-    ) : Transactor, RawConnectionAccessor {
+    private class SupportPooledConnection(val delegate: SupportSQLiteConnection) :
+        Transactor, RawConnectionAccessor {
 
         private var currentTransactionType: Transactor.SQLiteTransactionType? = null
 
@@ -247,8 +245,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                 db.setTransactionSuccessful()
                 return result
             } catch (rollback: RollbackException) {
-                @Suppress("UNCHECKED_CAST")
-                return rollback.result as R
+                @Suppress("UNCHECKED_CAST") return rollback.result as R
             } finally {
                 db.endTransaction()
                 if (!db.inTransaction()) {
@@ -287,11 +284,13 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     private fun DatabaseConfiguration.installOnOpenCallback(
         onOpen: (SupportSQLiteDatabase) -> Unit
     ): DatabaseConfiguration {
-        val newCallbacks = (this.callbacks ?: emptyList()) + object : RoomDatabase.Callback() {
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                onOpen.invoke(db)
-            }
-        }
+        val newCallbacks =
+            (this.callbacks ?: emptyList()) +
+                object : RoomDatabase.Callback() {
+                    override fun onOpen(db: SupportSQLiteDatabase) {
+                        onOpen.invoke(db)
+                    }
+                }
         return this.copy(callbacks = newCallbacks)
     }
 }

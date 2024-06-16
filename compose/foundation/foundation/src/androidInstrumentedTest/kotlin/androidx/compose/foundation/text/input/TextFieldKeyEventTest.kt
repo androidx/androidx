@@ -59,8 +59,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
 class TextFieldKeyEventTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tag = "TextFieldTestTag"
 
@@ -480,10 +479,7 @@ class TextFieldKeyEventTest {
 
     @Test
     fun textField_pageNavigationDown() {
-        keysSequenceTest(
-            initText = "A\nB\nC\nD\nE",
-            modifier = Modifier.requiredSize(73.dp)
-        ) {
+        keysSequenceTest(initText = "A\nB\nC\nD\nE", modifier = Modifier.requiredSize(73.dp)) {
             pressKey(Key.PageDown)
             expectedSelection(TextRange(4))
         }
@@ -705,28 +701,22 @@ class TextFieldKeyEventTest {
         }
 
         fun expectedText(text: String) {
-            rule.runOnIdle {
-                assertThat(state.text.toString()).isEqualTo(text)
-            }
+            rule.runOnIdle { assertThat(state.text.toString()).isEqualTo(text) }
         }
 
         fun expectedSelection(selection: TextRange) {
-            rule.runOnIdle {
-                assertThat(state.selection).isEqualTo(selection)
-            }
+            rule.runOnIdle { assertThat(state.selection).isEqualTo(selection) }
         }
 
         fun expectedClipboardText(text: String) {
-            rule.runOnIdle {
-                assertThat(clipboardManager.getText()?.text).isEqualTo(text)
-            }
+            rule.runOnIdle { assertThat(clipboardManager.getText()?.text).isEqualTo(text) }
         }
     }
 
     /**
-     * @param noTextLayout Whether the BasicTextField under test should calculate its text layout.
-     * A text layout calculation can be prevented by specifying a decorator but not calling the
-     * inner text field.
+     * @param noTextLayout Whether the BasicTextField under test should calculate its text layout. A
+     *   text layout calculation can be prevented by specifying a decorator but not calling the
+     *   inner text field.
      */
     private fun keysSequenceTest(
         initText: String = "",
@@ -748,30 +738,24 @@ class TextFieldKeyEventTest {
                 if (!secure) {
                     BasicTextField(
                         state = state,
-                        textStyle = TextStyle(
-                            fontFamily = TEST_FONT_FAMILY,
-                            fontSize = 30.sp
-                        ),
-                        modifier = modifier
-                            .focusRequester(focusRequester)
-                            .testTag(tag),
+                        textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 30.sp),
+                        modifier = modifier.focusRequester(focusRequester).testTag(tag),
                         lineLimits = if (singleLine) SingleLine else MultiLine(),
                         decorator = {
-                            if (!noTextLayout) { it() }
+                            if (!noTextLayout) {
+                                it()
+                            }
                         }
                     )
                 } else {
                     BasicSecureTextField(
                         state = state,
-                        textStyle = TextStyle(
-                            fontFamily = TEST_FONT_FAMILY,
-                            fontSize = 30.sp
-                        ),
-                        modifier = modifier
-                            .focusRequester(focusRequester)
-                            .testTag(tag),
+                        textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 30.sp),
+                        modifier = modifier.focusRequester(focusRequester).testTag(tag),
                         decorator = {
-                            if (!noTextLayout) { it() }
+                            if (!noTextLayout) {
+                                it()
+                            }
                         }
                     )
                 }

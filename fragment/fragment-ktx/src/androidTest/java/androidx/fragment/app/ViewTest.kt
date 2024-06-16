@@ -36,18 +36,16 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewTest {
     @Suppress("DEPRECATION")
-    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
+    @get:Rule
+    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    private val fragmentManager
+        get() = activityRule.activity.supportFragmentManager
 
     @UiThreadTest
     @Test
     fun findFragment() {
         val fragment = ViewFragment()
-        fragmentManager.commitNow {
-            add(android.R.id.content, fragment)
-        }
+        fragmentManager.commitNow { add(android.R.id.content, fragment) }
 
         val foundFragment = fragment.requireView().findFragment<ViewFragment>()
         assertWithMessage("View should have Fragment set")
@@ -62,8 +60,7 @@ class ViewTest {
             view.findFragment<Fragment>()
             fail("findFragment should throw IllegalStateException if a Fragment was not set")
         } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains("View $view does not have a Fragment set")
+            assertThat(e).hasMessageThat().contains("View $view does not have a Fragment set")
         }
     }
 }

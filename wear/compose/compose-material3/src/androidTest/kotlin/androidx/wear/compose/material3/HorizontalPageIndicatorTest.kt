@@ -18,13 +18,15 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.RoundScreen
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -34,8 +36,7 @@ import org.junit.Test
 
 @RequiresApi(Build.VERSION_CODES.O)
 class HorizontalPageIndicatorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     public fun supports_testtag_circular() {
@@ -91,61 +92,115 @@ class HorizontalPageIndicatorTest {
         in_between_positions(isRound = false)
     }
 
+    @Test
+    fun horizontal_page_indicator_circular_9_pages_sized_appropriately() {
+        val indicatorSize = 6.dp
+        val spacing = 2.dp
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+                Box(modifier = Modifier.size(200.dp)) {
+                    HorizontalPageIndicator(
+                        modifier = Modifier.testTag(TEST_TAG),
+                        pageCount = 9,
+                        currentPage = 1,
+                        currentPageOffsetFraction = { 0f },
+                        indicatorSize = indicatorSize,
+                        spacing = spacing
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo((indicatorSize + spacing) * 6)
+        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2)
+    }
+
+    @Test
+    fun horizontal_page_indicator_circular_3_pages_sized_appropriately() {
+        val indicatorSize = 6.dp
+        val spacing = 2.dp
+        val pagesCount = 3
+
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+                Box(modifier = Modifier.size(200.dp)) {
+                    HorizontalPageIndicator(
+                        modifier = Modifier.testTag(TEST_TAG),
+                        pageCount = pagesCount,
+                        currentPage = 1,
+                        currentPageOffsetFraction = { 0f },
+                        indicatorSize = indicatorSize,
+                        spacing = spacing
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo((indicatorSize + spacing) * pagesCount)
+        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2)
+    }
+
     private fun position_is_selected(isRound: Boolean) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-                HorizontalPageIndicator(
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .size(150.dp),
-                    pageCount = PAGE_COUNT,
-                    currentPage = SELECTED_PAGE_INDEX,
-                    currentPageOffsetFraction = { 0.0f },
-                    selectedColor = selectedColor,
-                    unselectedColor = unselectedColor,
-                    indicatorSize = 20.dp
-                )
+                Box(modifier = Modifier.testTag(TEST_TAG).size(150.dp)) {
+                    HorizontalPageIndicator(
+                        pageCount = PAGE_COUNT,
+                        currentPage = SELECTED_PAGE_INDEX,
+                        currentPageOffsetFraction = { 0.0f },
+                        selectedColor = selectedColor,
+                        unselectedColor = unselectedColor,
+                        indicatorSize = 20.dp
+                    )
+                }
             }
         }
         rule.waitForIdle()
 
         // A selected dot with specified color should be visible on the screen, which is apprx 1.3%
         // (1.3% per dot, 1 dot in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(selectedColor, 1.2f..1.5f)
         // Unselected dots should also be visible on the screen, and should take around 4%
         // (1.3% per dot, 3 dots total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 3.8f..4.5f)
     }
 
     private fun in_between_positions(isRound: Boolean) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-                HorizontalPageIndicator(
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .size(150.dp)
-                        .fillMaxWidth(),
-                    pageCount = PAGE_COUNT,
-                    currentPage = SELECTED_PAGE_INDEX,
-                    currentPageOffsetFraction = { 0.5f },
-                    selectedColor = selectedColor,
-                    unselectedColor = unselectedColor,
-                    indicatorSize = 20.dp
-                )
+                Box(modifier = Modifier.testTag(TEST_TAG).size(150.dp)) {
+                    HorizontalPageIndicator(
+                        pageCount = PAGE_COUNT,
+                        currentPage = SELECTED_PAGE_INDEX,
+                        currentPageOffsetFraction = { 0.5f },
+                        selectedColor = selectedColor,
+                        unselectedColor = unselectedColor,
+                        indicatorSize = 20.dp
+                    )
+                }
             }
         }
         rule.waitForIdle()
 
         // Selected color should occupy 2 dots with space in between, which
         // approximately equals to 3.5%
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(selectedColor, 3f..4f)
         // Unselected dots ( which doesn't participate in color merge)
         // should also be visible on the screen, and should take around 2.7%
         // (1.3% per dot, 2 dots in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 2.5f..3f)
     }
 

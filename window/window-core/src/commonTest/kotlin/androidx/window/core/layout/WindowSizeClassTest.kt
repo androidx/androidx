@@ -21,24 +21,22 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-/**
- * Tests for [WindowSizeClass] that verify construction.
- */
+/** Tests for [WindowSizeClass] that verify construction. */
 class WindowSizeClassTest {
 
     @Test
     fun testWidthSizeClass_construction() {
-        val expected = listOf(
-            WindowWidthSizeClass.COMPACT,
-            WindowWidthSizeClass.MEDIUM,
-            WindowWidthSizeClass.EXPANDED
-        )
+        val expected =
+            listOf(
+                WindowWidthSizeClass.COMPACT,
+                WindowWidthSizeClass.MEDIUM,
+                WindowWidthSizeClass.EXPANDED
+            )
 
-        val actual = listOf(100f, 700f, 900f).map { width ->
-            WindowSizeClass.compute(width, 100f)
-        }.map { sizeClass ->
-            sizeClass.windowWidthSizeClass
-        }
+        val actual =
+            listOf(100f, 700f, 900f)
+                .map { width -> WindowSizeClass.compute(width, 100f) }
+                .map { sizeClass -> sizeClass.windowWidthSizeClass }
 
         assertEquals(expected, actual)
     }
@@ -64,17 +62,17 @@ class WindowSizeClassTest {
 
     @Test
     fun testHeightSizeClass_construction() {
-        val expected = listOf(
-            WindowHeightSizeClass.COMPACT,
-            WindowHeightSizeClass.MEDIUM,
-            WindowHeightSizeClass.EXPANDED
-        )
+        val expected =
+            listOf(
+                WindowHeightSizeClass.COMPACT,
+                WindowHeightSizeClass.MEDIUM,
+                WindowHeightSizeClass.EXPANDED
+            )
 
-        val actual = listOf(100f, 500f, 900f).map { height ->
-            WindowSizeClass.compute(100f, height)
-        }.map { sizeClass ->
-            sizeClass.windowHeightSizeClass
-        }
+        val actual =
+            listOf(100f, 500f, 900f)
+                .map { height -> WindowSizeClass.compute(100f, height) }
+                .map { sizeClass -> sizeClass.windowHeightSizeClass }
 
         assertEquals(expected, actual)
     }
@@ -112,15 +110,11 @@ class WindowSizeClassTest {
 
     @Test
     fun negative_width_throws() {
-        assertFailsWith(IllegalArgumentException::class) {
-            WindowSizeClass.compute(-1f, 0f)
-        }
+        assertFailsWith(IllegalArgumentException::class) { WindowSizeClass.compute(-1f, 0f) }
     }
 
     @Test
     fun negative_height_throws() {
-        assertFailsWith(IllegalArgumentException::class) {
-            WindowSizeClass.compute(0f, -1f)
-        }
+        assertFailsWith(IllegalArgumentException::class) { WindowSizeClass.compute(0f, -1f) }
     }
 }

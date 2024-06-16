@@ -33,9 +33,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-open class BaseLazyGridTestWithOrientation(
-    orientation: Orientation
-) : BaseLazyLayoutTestWithOrientation(orientation) {
+open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
+    BaseLazyLayoutTestWithOrientation(orientation) {
 
     fun LazyGridState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
@@ -44,9 +43,7 @@ open class BaseLazyGridTestWithOrientation(
     }
 
     fun LazyGridState.scrollTo(index: Int) {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            scrollToItem(index)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { scrollToItem(index) }
     }
 
     fun SemanticsNodeInteraction.scrollBy(offset: Dp) = scrollMainAxisBy(offset)
@@ -64,19 +61,20 @@ open class BaseLazyGridTestWithOrientation(
         crossAxisSpacedBy: Dp = 0.dp,
         mainAxisSpacedBy: Dp = 0.dp,
         content: LazyGridScope.() -> Unit
-    ) = LazyGrid(
-        GridCells.Fixed(cells),
-        modifier,
-        state,
-        contentPadding,
-        reverseLayout,
-        reverseArrangement,
-        flingBehavior,
-        userScrollEnabled,
-        crossAxisSpacedBy,
-        mainAxisSpacedBy,
-        content
-    )
+    ) =
+        LazyGrid(
+            GridCells.Fixed(cells),
+            modifier,
+            state,
+            contentPadding,
+            reverseLayout,
+            reverseArrangement,
+            flingBehavior,
+            userScrollEnabled,
+            crossAxisSpacedBy,
+            mainAxisSpacedBy,
+            content
+        )
 
     @Composable
     fun LazyGrid(
@@ -93,15 +91,17 @@ open class BaseLazyGridTestWithOrientation(
         content: LazyGridScope.() -> Unit
     ) {
         if (vertical) {
-            val verticalArrangement = when {
-                mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
-                reverseLayout xor reverseArrangement -> Arrangement.Bottom
-                else -> Arrangement.Top
-            }
-            val horizontalArrangement = when {
-                crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
-                else -> Arrangement.Start
-            }
+            val verticalArrangement =
+                when {
+                    mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
+                    reverseLayout xor reverseArrangement -> Arrangement.Bottom
+                    else -> Arrangement.Top
+                }
+            val horizontalArrangement =
+                when {
+                    crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
+                    else -> Arrangement.Start
+                }
             LazyVerticalGrid(
                 columns = cells,
                 modifier = modifier,
@@ -115,15 +115,17 @@ open class BaseLazyGridTestWithOrientation(
                 content = content
             )
         } else {
-            val horizontalArrangement = when {
-                mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
-                reverseLayout xor reverseArrangement -> Arrangement.End
-                else -> Arrangement.Start
-            }
-            val verticalArrangement = when {
-                crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
-                else -> Arrangement.Top
-            }
+            val horizontalArrangement =
+                when {
+                    mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
+                    reverseLayout xor reverseArrangement -> Arrangement.End
+                    else -> Arrangement.Start
+                }
+            val verticalArrangement =
+                when {
+                    crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
+                    else -> Arrangement.Top
+                }
             LazyHorizontalGrid(
                 rows = cells,
                 modifier = modifier,

@@ -60,31 +60,15 @@ fun SuspendDoubleTapToLikeDemo() {
                             coroutineScope {
                                 // `launch` creates a new coroutine without blocking. This allows
                                 // the two animations in this CoroutineScope to run together.
-                                launch {
-                                    animate(0f, 1f) { value, _ ->
-                                        alpha = value
-                                    }
-                                }
-                                launch {
-                                    animate(0f, 2f) { value, _ ->
-                                        scale = value
-                                    }
-                                }
+                                launch { animate(0f, 1f) { value, _ -> alpha = value } }
+                                launch { animate(0f, 2f) { value, _ -> scale = value } }
                             }
                             // CoroutineScope doesn't return until all animations in the scope
                             // finish. So by the time we get here, the enter animations from the
                             // previous CoroutineScope have all finished.
                             coroutineScope {
-                                launch {
-                                    animate(alpha, 0f) { value, _ ->
-                                        alpha = value
-                                    }
-                                }
-                                launch {
-                                    animate(scale, 4f) { value, _ ->
-                                        scale = value
-                                    }
-                                }
+                                launch { animate(alpha, 0f) { value, _ -> alpha = value } }
+                                launch { animate(scale, 4f) { value, _ -> scale = value } }
                             }
                         }
                     }
@@ -96,11 +80,7 @@ fun SuspendDoubleTapToLikeDemo() {
             Icons.Filled.Favorite,
             "Like",
             Modifier.align(Alignment.Center)
-                .graphicsLayer(
-                    alpha = alpha,
-                    scaleX = scale,
-                    scaleY = scale
-                ),
+                .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
             tint = Color.Red
         )
     }

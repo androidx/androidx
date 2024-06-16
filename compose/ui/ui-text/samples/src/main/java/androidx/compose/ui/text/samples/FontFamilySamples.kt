@@ -29,54 +29,43 @@ import androidx.compose.ui.text.font.FontWeight
 @Sampled
 @Composable
 fun FontFamilySansSerifSample() {
-    Text(
-        text = "Demo Text sans-serif",
-        fontFamily = FontFamily.SansSerif
-    )
+    Text(text = "Demo Text sans-serif", fontFamily = FontFamily.SansSerif)
 }
 
 @Sampled
 @Composable
 fun FontFamilySerifSample() {
-    Text(
-        text = "Demo Text serif",
-        fontFamily = FontFamily.Serif
-    )
+    Text(text = "Demo Text serif", fontFamily = FontFamily.Serif)
 }
 
 @Sampled
 @Composable
 fun FontFamilyMonospaceSample() {
-    Text(
-        text = "Demo Text monospace",
-        fontFamily = FontFamily.Monospace
-    )
+    Text(text = "Demo Text monospace", fontFamily = FontFamily.Monospace)
 }
 
 @Sampled
 @Composable
 fun FontFamilyCursiveSample() {
-    Text(
-        text = "Demo Text cursive",
-        fontFamily = FontFamily.Cursive
-    )
+    Text(text = "Demo Text cursive", fontFamily = FontFamily.Cursive)
 }
 
 @Sampled
 @Composable
 fun CustomFontFamilySample() {
-    val fontFamily = FontFamily(
-        Font(
-            resId = R.font.my_font_400_regular,
-            weight = FontWeight.W400,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.my_font_400_italic,
-            weight = FontWeight.W400,
-            style = FontStyle.Italic
+    val fontFamily =
+        FontFamily(
+            Font(
+                resId = R.font.my_font_400_regular,
+                weight = FontWeight.W400,
+                style = FontStyle.Normal
+            ),
+            Font(
+                resId = R.font.my_font_400_italic,
+                weight = FontWeight.W400,
+                style = FontStyle.Italic
+            )
         )
-    )
     Text(text = "Demo Text", fontFamily = fontFamily)
 }
 
@@ -84,18 +73,17 @@ fun CustomFontFamilySample() {
 @Composable
 fun FontFamilySynthesisSample() {
     // The font family contains a single font, with normal weight
-    val fontFamily = FontFamily(
-        Font(resId = R.font.myfont, weight = FontWeight.Normal)
-    )
+    val fontFamily = FontFamily(Font(resId = R.font.myfont, weight = FontWeight.Normal))
     // Configuring the Text composable to be bold
     // Using FontSynthesis.Weight to have the system render the font bold my making the glyphs
     // thicker
     Text(
         text = "Demo Text",
-        style = TextStyle(
-            fontFamily = fontFamily,
-            fontWeight = FontWeight.Bold,
-            fontSynthesis = FontSynthesis.Weight
-        )
+        style =
+            TextStyle(
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSynthesis = FontSynthesis.Weight
+            )
     )
 }

@@ -18,28 +18,29 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.XCodeBlock
 
-/**
- * helper class to create correct transaction code.
- */
+/** helper class to create correct transaction code. */
 interface TransactionWrapper {
     fun beginTransactionWithControlFlow()
+
     fun commitTransaction()
+
     fun endTransactionWithControlFlow()
 }
 
-fun XCodeBlock.Builder.transactionWrapper(dbPropertyName: String) = object : TransactionWrapper {
-    override fun beginTransactionWithControlFlow() {
-        addStatement("%N.beginTransaction()", dbPropertyName)
-        beginControlFlow("try")
-    }
+fun XCodeBlock.Builder.transactionWrapper(dbPropertyName: String) =
+    object : TransactionWrapper {
+        override fun beginTransactionWithControlFlow() {
+            addStatement("%N.beginTransaction()", dbPropertyName)
+            beginControlFlow("try")
+        }
 
-    override fun commitTransaction() {
-        addStatement("%N.setTransactionSuccessful()", dbPropertyName)
-    }
+        override fun commitTransaction() {
+            addStatement("%N.setTransactionSuccessful()", dbPropertyName)
+        }
 
-    override fun endTransactionWithControlFlow() {
-        nextControlFlow("finally")
-        addStatement("%N.endTransaction()", dbPropertyName)
-        endControlFlow()
+        override fun endTransactionWithControlFlow() {
+            nextControlFlow("finally")
+            addStatement("%N.endTransaction()", dbPropertyName)
+            endControlFlow()
+        }
     }
-}

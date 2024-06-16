@@ -20,66 +20,44 @@ import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ClassName
 
 interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberContainer {
-    /**
-     * The qualified name of the Class/Interface.
-     */
+    /** The qualified name of the Class/Interface. */
     val qualifiedName: String
 
-    /**
-     * The qualified name of the package that contains this element.
-     */
+    /** The qualified name of the package that contains this element. */
     val packageName: String
 
-    /**
-     * The package that contains this element.
-     */
+    /** The package that contains this element. */
     val packageElement: XPackageElement
 
-    /**
-     * The type represented by this [XTypeElement].
-     */
+    /** The type represented by this [XTypeElement]. */
     override val type: XType
 
-    /**
-     * The super type of this element if it represents a class.
-     */
-    @Deprecated(
-        message = "Function name was misleading.",
-        replaceWith = ReplaceWith("superClass")
-    )
+    /** The super type of this element if it represents a class. */
+    @Deprecated(message = "Function name was misleading.", replaceWith = ReplaceWith("superClass"))
     val superType: XType?
         get() = superClass
 
-    /**
-     * The super class of this element if it represents a class.
-     */
+    /** The super class of this element if it represents a class. */
     val superClass: XType?
 
-    /**
-     * The super interfaces implemented by this class.
-     */
+    /** The super interfaces implemented by this class. */
     val superInterfaces: List<XType>
 
-    /**
-     * Javapoet [ClassName] of the type.
-     */
-     @Deprecated(
-         message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
-         replaceWith = ReplaceWith(
-             expression = "asClassName().toJavaPoet()",
-             imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-         )
-     )
+    /** Javapoet [ClassName] of the type. */
+    @Deprecated(
+        message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith =
+            ReplaceWith(
+                expression = "asClassName().toJavaPoet()",
+                imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+            )
+    )
     override val className: ClassName
 
-    /**
-     * Gets the [XClassName] of the type element.
-     */
+    /** Gets the [XClassName] of the type element. */
     override fun asClassName(): XClassName
 
-    /**
-     * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.
-     */
+    /** The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface. */
     val enclosingTypeElement: XTypeElement?
 
     override val enclosingElement: XMemberContainer?
@@ -90,19 +68,15 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     override val fallbackLocationText: String
         get() = qualifiedName
 
-    /**
-     * Returns `true` if this [XTypeElement] is a nested class/interface.
-     */
+    /** Returns `true` if this [XTypeElement] is a nested class/interface. */
     fun isNested(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] represents an interface
-     */
+    /** Returns `true` if this [XTypeElement] represents an interface */
     fun isInterface(): Boolean
 
     /**
-     * Returns `true` if this [XTypeElement] represents a Kotlin functional interface,
-     * i.e. marked with the keyword `fun`
+     * Returns `true` if this [XTypeElement] represents a Kotlin functional interface, i.e. marked
+     * with the keyword `fun`
      */
     fun isFunctionalInterface(): Boolean
 
@@ -112,19 +86,13 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
      */
     fun isClass(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] represents a Kotlin data class
-     */
+    /** Returns `true` if this [XTypeElement] represents a Kotlin data class */
     fun isDataClass(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] represents a Kotlin value class
-     */
+    /** Returns `true` if this [XTypeElement] represents a Kotlin value class */
     fun isValueClass(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] represents a class with the Kotlin `expect` keyword
-     */
+    /** Returns `true` if this [XTypeElement] represents a class with the Kotlin `expect` keyword */
     fun isExpect(): Boolean
 
     /**
@@ -133,31 +101,19 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
      */
     fun isAnnotationClass(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] is an `object` or `companion object` in Kotlin
-     */
+    /** Returns `true` if this [XTypeElement] is an `object` or `companion object` in Kotlin */
     fun isKotlinObject(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] is declared as a Kotlin `companion object`
-     */
+    /** Returns `true` if this [XTypeElement] is declared as a Kotlin `companion object` */
     fun isCompanionObject(): Boolean
 
-    /**
-     * Returns `true` if this [XTypeElement] is a Java record class (i.e. [java.lang.Record]).
-     */
+    /** Returns `true` if this [XTypeElement] is a Java record class (i.e. [java.lang.Record]). */
     fun isRecordClass(): Boolean
 
-    /**
-     * Fields declared in this type
-     *  includes all instance/static fields in this
-     */
+    /** Fields declared in this type includes all instance/static fields in this */
     fun getDeclaredFields(): List<XFieldElement>
 
-    /**
-     * All fields, including private supers.
-     * Room only ever reads fields this way.
-     */
+    /** All fields, including private supers. Room only ever reads fields this way. */
     fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement>
 
     /**
@@ -167,35 +123,27 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
      */
     fun findPrimaryConstructor(): XConstructorElement?
 
-    /**
-     * methods declared in this type
-     *  includes all instance/static methods in this
-     */
+    /** methods declared in this type includes all instance/static methods in this */
     fun getDeclaredMethods(): List<XMethodElement>
 
     /**
-     * Methods declared in this type and its parents
-     *  includes all instance/static methods in this (including private)
-     *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g.
-     *  not private).
-     *  does not include static methods in parent interfaces
+     * Methods declared in this type and its parents includes all instance/static methods in this
+     * (including private) includes all instance/static methods in parent CLASS if they are
+     * accessible from this (e.g. not private). does not include static methods in parent interfaces
      *
      * The order is defined as:
-     *   1. All interfaces methods appear before all class methods,
-     *   2. All super class methods appear before all sub class methods,
-     *   3. Within a given class/interface methods appear in the order they're declared in source.
+     * 1. All interfaces methods appear before all class methods,
+     * 2. All super class methods appear before all sub class methods,
+     * 3. Within a given class/interface methods appear in the order they're declared in source.
      */
     fun getAllMethods(): Sequence<XMethodElement>
 
     /**
-     * Instance methods declared in this and supers
-     *  include non private instance methods
-     *  also includes non-private instance methods from supers
+     * Instance methods declared in this and supers include non private instance methods also
+     * includes non-private instance methods from supers
      */
     fun getAllNonPrivateInstanceMethods(): Sequence<XMethodElement> {
-        return getAllMethods().filter {
-            !it.isPrivate() && !it.isStatic()
-        }
+        return getAllMethods().filter { !it.isPrivate() && !it.isStatic() }
     }
 
     /**
@@ -206,9 +154,7 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
      */
     fun getConstructors(): List<XConstructorElement>
 
-    /**
-     * List of interfaces implemented by this class
-     */
+    /** List of interfaces implemented by this class */
     fun getSuperInterfaceElements(): List<XTypeElement>
 
     /**
@@ -217,10 +163,11 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
      */
     fun getEnclosedTypeElements(): List<XTypeElement>
 
-    fun getEnclosedElements(): List<XElement> = mutableListOf<XElement>().apply {
-        addAll(getEnclosedTypeElements())
-        addAll(getDeclaredFields())
-        addAll(getConstructors())
-        addAll(getDeclaredMethods())
-    }
+    fun getEnclosedElements(): List<XElement> =
+        mutableListOf<XElement>().apply {
+            addAll(getEnclosedTypeElements())
+            addAll(getDeclaredFields())
+            addAll(getConstructors())
+            addAll(getDeclaredMethods())
+        }
 }

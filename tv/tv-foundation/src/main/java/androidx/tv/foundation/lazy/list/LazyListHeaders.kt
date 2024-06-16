@@ -22,7 +22,8 @@ import androidx.compose.ui.util.fastForEachIndexed
  * This method finds the sticky header in composedItems list or composes the header item if needed.
  *
  * @param composedVisibleItems list of items already composed and expected to be visible. if the
- * header wasn't in this list but is needed the header will be added as the first item in this list.
+ *   header wasn't in this list but is needed the header will be added as the first item in this
+ *   list.
  * @param itemProvider the provider so we can compose a header if it wasn't composed already
  * @param headerIndexes list of indexes of headers. Must be sorted.
  * @param beforeContentPadding the padding before the first item in the list
@@ -72,11 +73,12 @@ internal fun findOrComposeLazyListHeader(
 
     val measuredHeaderItem = itemProvider.getAndMeasure(currentHeaderListPosition)
 
-    var headerOffset = if (currentHeaderOffset != Int.MIN_VALUE) {
-        maxOf(-beforeContentPadding, currentHeaderOffset)
-    } else {
-        -beforeContentPadding
-    }
+    var headerOffset =
+        if (currentHeaderOffset != Int.MIN_VALUE) {
+            maxOf(-beforeContentPadding, currentHeaderOffset)
+        } else {
+            -beforeContentPadding
+        }
     // if we have a next header overlapping with the current header, the next one will be
     // pushing the current one away from the viewport.
     if (nextHeaderOffset != Int.MIN_VALUE) {

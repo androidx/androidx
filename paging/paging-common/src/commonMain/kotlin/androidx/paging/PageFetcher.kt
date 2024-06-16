@@ -33,8 +33,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     private val pagingSourceFactory: suspend () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig,
-    @OptIn(ExperimentalPagingApi::class)
-    remoteMediator: RemoteMediator<Key, Value>? = null
+    @OptIn(ExperimentalPagingApi::class) remoteMediator: RemoteMediator<Key, Value>? = null
 ) {
     /**
      * Channel of refresh signals that would trigger a new instance of [PageFetcherSnapshot].
@@ -42,7 +41,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
      * `false` otherwise.
      *
      * NOTE: This channel is conflated, which means it has a buffer size of 1, and will always
-     *  broadcast the latest value received.
+     * broadcast the latest value received.
      */
     private val refreshEvents = ConflatedEventBus<Boolean>()
 
@@ -52,17 +51,15 @@ internal class PageFetcher<Key : Any, Value : Any>(
     // the paging.
     val flow: Flow<PagingData<Value>> = simpleChannelFlow {
         @OptIn(ExperimentalPagingApi::class)
-        val remoteMediatorAccessor = remoteMediator?.let {
-            RemoteMediatorAccessor(this, it)
-        }
+        val remoteMediatorAccessor = remoteMediator?.let { RemoteMediatorAccessor(this, it) }
 
-        refreshEvents
-            .flow
+        refreshEvents.flow
             .onStart {
                 @OptIn(ExperimentalPagingApi::class)
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
-            .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
+            .simpleScan(null) {
+                previousGeneration: GenerationInfo<Key, Value>?,
                 triggerRemoteRefresh: Boolean ->
                 // Enable refresh if this is the first generation and we have LAUNCH_INITIAL_REFRESH
                 // or if this generation was started due to [refresh] being invoked.
@@ -70,17 +67,19 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     remoteMediatorAccessor?.allowRefresh()
                 }
 
-                val pagingSource = generateNewPagingSource(
-                    previousPagingSource = previousGeneration?.snapshot?.pagingSource
-                )
+                val pagingSource =
+                    generateNewPagingSource(
+                        previousPagingSource = previousGeneration?.snapshot?.pagingSource
+                    )
 
                 var previousPagingState = previousGeneration?.snapshot?.currentPagingState()
 
                 // If cached PagingState had pages loaded, but previous generation didn't, use
                 // the cached PagingState to handle cases where invalidation happens too quickly,
                 // so that getRefreshKey and remote refresh at least have some data to work with.
-                if (previousPagingState?.pages.isNullOrEmpty() &&
-                    previousGeneration?.state?.pages?.isNotEmpty() == true
+                if (
+                    previousPagingState?.pages.isNullOrEmpty() &&
+                        previousGeneration?.state?.pages?.isNotEmpty() == true
                 ) {
                     previousPagingState = previousGeneration.state
                 }
@@ -89,43 +88,51 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 // re-use last PagingState that successfully loaded pages and has an anchorPosition.
                 // This prevents rapid invalidation from deleting the anchorPosition if the
                 // previous generation didn't have time to load before getting invalidated.
-                if (previousPagingState?.anchorPosition == null &&
-                    previousGeneration?.state?.anchorPosition != null
+                if (
+                    previousPagingState?.anchorPosition == null &&
+                        previousGeneration?.state?.anchorPosition != null
                 ) {
                     previousPagingState = previousGeneration.state
                 }
 
-                val initialKey: Key? = when (previousPagingState) {
-                    null -> initialKey
-                    else -> pagingSource.getRefreshKey(previousPagingState).also {
-                        log(DEBUG) { "Refresh key $it returned from PagingSource $pagingSource" }
+                val initialKey: Key? =
+                    when (previousPagingState) {
+                        null -> initialKey
+                        else ->
+                            pagingSource.getRefreshKey(previousPagingState).also {
+                                log(DEBUG) {
+                                    "Refresh key $it returned from PagingSource $pagingSource"
+                                }
+                            }
                     }
-                }
 
                 previousGeneration?.snapshot?.close()
                 previousGeneration?.job?.cancel()
 
                 GenerationInfo(
-                    snapshot = PageFetcherSnapshot(
-                        initialKey = initialKey,
-                        pagingSource = pagingSource,
-                        config = config,
-                        retryFlow = retryEvents.flow,
-                        // Only trigger remote refresh on refresh signals that do not originate from
-                        // initialization or PagingSource invalidation.
-                        remoteMediatorConnection = remoteMediatorAccessor,
-                        jumpCallback = this@PageFetcher::refresh,
-                        previousPagingState = previousPagingState,
-                    ),
+                    snapshot =
+                        PageFetcherSnapshot(
+                            initialKey = initialKey,
+                            pagingSource = pagingSource,
+                            config = config,
+                            retryFlow = retryEvents.flow,
+                            // Only trigger remote refresh on refresh signals that do not originate
+                            // from
+                            // initialization or PagingSource invalidation.
+                            remoteMediatorConnection = remoteMediatorAccessor,
+                            jumpCallback = this@PageFetcher::refresh,
+                            previousPagingState = previousPagingState,
+                        ),
                     state = previousPagingState,
                     job = Job(),
                 )
             }
             .filterNotNull()
             .simpleMapLatest { generation ->
-                val downstreamFlow = generation.snapshot
-                    .injectRemoteEvents(generation.job, remoteMediatorAccessor)
-                    .onEach { log(VERBOSE) { "Sent $it" } }
+                val downstreamFlow =
+                    generation.snapshot
+                        .injectRemoteEvents(generation.job, remoteMediatorAccessor)
+                        .onEach { log(VERBOSE) { "Sent $it" } }
 
                 PagingData(
                     flow = downstreamFlow,
@@ -217,7 +224,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
             An instance of PagingSource was re-used when Pager expected to create a new
             instance. Ensure that the pagingSourceFactory passed to Pager always returns a
             new instance of PagingSource.
-            """.trimIndent()
+            """
+                .trimIndent()
         }
 
         // Hook up refresh signals from PagingSource.
@@ -237,9 +245,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
         override fun refresh() = this@PageFetcher.refresh()
     }
 
-    inner class PagerHintReceiver<Key : Any, Value : Any> constructor(
-        @get:VisibleForTesting
-        internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
+    inner class PagerHintReceiver<Key : Any, Value : Any>
+    constructor(
+        @get:VisibleForTesting internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
     ) : HintReceiver {
 
         override fun accessHint(viewportHint: ViewportHint) {

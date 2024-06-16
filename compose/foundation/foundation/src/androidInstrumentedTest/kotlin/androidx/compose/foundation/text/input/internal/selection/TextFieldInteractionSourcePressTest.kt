@@ -51,8 +51,7 @@ import org.junit.Test
 @LargeTest
 class TextFieldInteractionSourcePressTest : FocusedWindowTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val TAG = "BasicTextField"
 
@@ -142,9 +141,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
                 modifier = Modifier.testTag(TAG),
                 textStyle = defaultTextStyle,
                 interactionSource = interactionSource,
-                decorator = {
-                    Box(modifier = Modifier.size(100.dp))
-                }
+                decorator = { Box(modifier = Modifier.size(100.dp)) }
             )
         }
 
@@ -226,9 +223,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
             }
         }
 
-        rule.onNodeWithTag(TAG).performTouchInput {
-            doubleClick()
-        }
+        rule.onNodeWithTag(TAG).performTouchInput { doubleClick() }
 
         rule.runOnIdle {
             assertThat(interactions.size).isEqualTo(4)

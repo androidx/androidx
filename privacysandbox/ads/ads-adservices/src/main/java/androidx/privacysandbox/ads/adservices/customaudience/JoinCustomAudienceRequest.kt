@@ -22,18 +22,14 @@ package androidx.privacysandbox.ads.adservices.customaudience
  * @param customAudience the custom audience to join.
  */
 class JoinCustomAudienceRequest public constructor(val customAudience: CustomAudience) {
-    /**
-     * Checks whether two [JoinCustomAudienceRequest] objects contain the same information.
-     */
+    /** Checks whether two [JoinCustomAudienceRequest] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is JoinCustomAudienceRequest) return false
         return this.customAudience == other.customAudience
     }
 
-    /**
-     * Returns the hash of the [JoinCustomAudienceRequest] object's data.
-     */
+    /** Returns the hash of the [JoinCustomAudienceRequest] object's data. */
     override fun hashCode(): Int {
         return customAudience.hashCode()
     }

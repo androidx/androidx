@@ -25,7 +25,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.SessionProcessor;
 
@@ -37,7 +36,6 @@ import java.util.Map;
  * A unified vendor extensions interface which interacts with both basic and advanced extender
  * vendor implementation.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VendorExtender {
     /**
      * Indicates whether the extension is supported on the device.

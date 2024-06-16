@@ -28,33 +28,36 @@ private const val EXTENSION_MODE_STRING_AUTO = "AUTO"
 object ExtensionModeUtil {
 
     @JvmStatic
-    fun getExtensionModeStringFromId(mode: Int): String = when (mode) {
-        ExtensionMode.NONE -> EXTENSION_MODE_STRING_NONE
-        ExtensionMode.BOKEH -> EXTENSION_MODE_STRING_BOKEH
-        ExtensionMode.HDR -> EXTENSION_MODE_STRING_HDR
-        ExtensionMode.NIGHT -> EXTENSION_MODE_STRING_NIGHT
-        ExtensionMode.FACE_RETOUCH -> EXTENSION_MODE_STRING_FACE_RETOUCH
-        ExtensionMode.AUTO -> EXTENSION_MODE_STRING_AUTO
-        else -> throw IllegalArgumentException("Invalid extension mode!!")
-    }
+    fun getExtensionModeStringFromId(mode: Int): String =
+        when (mode) {
+            ExtensionMode.NONE -> EXTENSION_MODE_STRING_NONE
+            ExtensionMode.BOKEH -> EXTENSION_MODE_STRING_BOKEH
+            ExtensionMode.HDR -> EXTENSION_MODE_STRING_HDR
+            ExtensionMode.NIGHT -> EXTENSION_MODE_STRING_NIGHT
+            ExtensionMode.FACE_RETOUCH -> EXTENSION_MODE_STRING_FACE_RETOUCH
+            ExtensionMode.AUTO -> EXTENSION_MODE_STRING_AUTO
+            else -> throw IllegalArgumentException("Invalid extension mode!!")
+        }
 
     @JvmStatic
-    fun getExtensionModeIdFromString(mode: String): Int = when (mode) {
-        EXTENSION_MODE_STRING_NONE -> ExtensionMode.NONE
-        EXTENSION_MODE_STRING_BOKEH -> ExtensionMode.BOKEH
-        EXTENSION_MODE_STRING_HDR -> ExtensionMode.HDR
-        EXTENSION_MODE_STRING_NIGHT -> ExtensionMode.NIGHT
-        EXTENSION_MODE_STRING_FACE_RETOUCH -> ExtensionMode.FACE_RETOUCH
-        EXTENSION_MODE_STRING_AUTO -> ExtensionMode.AUTO
-        else -> throw IllegalArgumentException("Invalid extension mode!!")
-    }
+    fun getExtensionModeIdFromString(mode: String): Int =
+        when (mode) {
+            EXTENSION_MODE_STRING_NONE -> ExtensionMode.NONE
+            EXTENSION_MODE_STRING_BOKEH -> ExtensionMode.BOKEH
+            EXTENSION_MODE_STRING_HDR -> ExtensionMode.HDR
+            EXTENSION_MODE_STRING_NIGHT -> ExtensionMode.NIGHT
+            EXTENSION_MODE_STRING_FACE_RETOUCH -> ExtensionMode.FACE_RETOUCH
+            EXTENSION_MODE_STRING_AUTO -> ExtensionMode.AUTO
+            else -> throw IllegalArgumentException("Invalid extension mode!!")
+        }
 
     @JvmStatic
-    val AVAILABLE_EXTENSION_MODES = arrayOf(
-        ExtensionMode.BOKEH,
-        ExtensionMode.HDR,
-        ExtensionMode.NIGHT,
-        ExtensionMode.FACE_RETOUCH,
-        ExtensionMode.AUTO
-    )
+    val AVAILABLE_EXTENSION_MODES =
+        arrayOf(
+            ExtensionMode.BOKEH,
+            ExtensionMode.HDR,
+            ExtensionMode.NIGHT,
+            ExtensionMode.FACE_RETOUCH,
+            ExtensionMode.AUTO
+        )
 }

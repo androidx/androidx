@@ -54,8 +54,7 @@ import org.mockito.kotlin.whenever
 @OptIn(ExperimentalCoroutinesApi::class)
 class ActivityEmbeddingRuleTest {
 
-    @get:Rule
-    val testRule: ActivityEmbeddingRule = ActivityEmbeddingRule()
+    @get:Rule val testRule: ActivityEmbeddingRule = ActivityEmbeddingRule()
 
     private val mockActivity: Activity = mock()
     private val testScope = TestScope()
@@ -77,24 +76,12 @@ class ActivityEmbeddingRuleTest {
 
     @Test
     fun testActivityEmbeddingController_overrideIsActivityEmbedded() {
-        assertFalse(
-            activityEmbeddingController.isActivityEmbedded(mockActivity)
-        )
-        testRule.overrideIsActivityEmbedded(
-            activity = mockActivity,
-            isActivityEmbedded = true
-        )
-        assertTrue(
-            activityEmbeddingController.isActivityEmbedded(mockActivity)
-        )
+        assertFalse(activityEmbeddingController.isActivityEmbedded(mockActivity))
+        testRule.overrideIsActivityEmbedded(activity = mockActivity, isActivityEmbedded = true)
+        assertTrue(activityEmbeddingController.isActivityEmbedded(mockActivity))
 
-        testRule.overrideIsActivityEmbedded(
-            activity = mockActivity,
-            isActivityEmbedded = false
-        )
-        assertFalse(
-            activityEmbeddingController.isActivityEmbedded(mockActivity)
-        )
+        testRule.overrideIsActivityEmbedded(activity = mockActivity, isActivityEmbedded = false)
+        assertFalse(activityEmbeddingController.isActivityEmbedded(mockActivity))
     }
 
     @Test
@@ -134,10 +121,11 @@ class ActivityEmbeddingRuleTest {
 
         assertEquals(2, ruleController.getRules().size)
 
-        val splitPairRule3 = SplitPairRule.Builder(emptySet())
-            .setMinWidthDp(splitPairRule1.minWidthDp + 1)
-            .setTag(splitPairRule1.tag)
-            .build()
+        val splitPairRule3 =
+            SplitPairRule.Builder(emptySet())
+                .setMinWidthDp(splitPairRule1.minWidthDp + 1)
+                .setTag(splitPairRule1.tag)
+                .build()
 
         ruleController.addRule(splitPairRule3)
 
@@ -214,9 +202,7 @@ class ActivityEmbeddingRuleTest {
         val activityRule = createActivityRule("Tag1")
         rules.add(activityRule)
 
-        assertThrows(IllegalArgumentException::class.java) {
-            ruleController.setRules(rules)
-        }
+        assertThrows(IllegalArgumentException::class.java) { ruleController.setRules(rules) }
     }
 
     @Test
@@ -245,14 +231,16 @@ class ActivityEmbeddingRuleTest {
     fun testRuleResetsOnException() {
         EmbeddingBackend.reset()
         try {
-            ActivityEmbeddingRule().apply(
-                object : Statement() {
-                    override fun evaluate() {
-                        throw TestException
-                    }
-                },
-                Description.EMPTY
-            ).evaluate()
+            ActivityEmbeddingRule()
+                .apply(
+                    object : Statement() {
+                        override fun evaluate() {
+                            throw TestException
+                        }
+                    },
+                    Description.EMPTY
+                )
+                .evaluate()
         } catch (e: TestException) {
             // Throw unexpected exception
         }
@@ -270,66 +258,63 @@ class ActivityEmbeddingRuleTest {
     }
 
     @Test
-    fun testOverrideSplitInfo() = testScope.runTest {
-        val expected = listOf(
-            TestSplitInfo(
-                TestActivityStack(listOf(mockActivity), isEmpty = false),
-                TestActivityStack(listOf(mockActivity), isEmpty = false),
-            )
-        )
+    fun testOverrideSplitInfo() =
+        testScope.runTest {
+            val expected =
+                listOf(
+                    TestSplitInfo(
+                        TestActivityStack(listOf(mockActivity), isEmpty = false),
+                        TestActivityStack(listOf(mockActivity), isEmpty = false),
+                    )
+                )
 
-        testRule.overrideSplitInfo(mockActivity, expected)
+            testRule.overrideSplitInfo(mockActivity, expected)
 
-        val actual = splitController.splitInfoList(mockActivity).first().toList()
+            val actual = splitController.splitInfoList(mockActivity).first().toList()
 
-        assertEquals(expected, actual)
-    }
+            assertEquals(expected, actual)
+        }
 
     @Test
-    fun testOverrideSplitInfo_updatesExistingListeners() = testScope.runTest {
-        val expected1 = listOf(
-            TestSplitInfo(
-                TestActivityStack(listOf(mockActivity), isEmpty = false),
-                TestActivityStack(listOf(mockActivity), isEmpty = false),
-            )
-        )
-        val expected2 = listOf(
-            TestSplitInfo(
-                TestActivityStack(listOf(mockActivity), isEmpty = false),
-                TestActivityStack(listOf(mockActivity), isEmpty = false),
-                SplitAttributes(splitType = SPLIT_TYPE_HINGE),
-            )
-        )
+    fun testOverrideSplitInfo_updatesExistingListeners() =
+        testScope.runTest {
+            val expected1 =
+                listOf(
+                    TestSplitInfo(
+                        TestActivityStack(listOf(mockActivity), isEmpty = false),
+                        TestActivityStack(listOf(mockActivity), isEmpty = false),
+                    )
+                )
+            val expected2 =
+                listOf(
+                    TestSplitInfo(
+                        TestActivityStack(listOf(mockActivity), isEmpty = false),
+                        TestActivityStack(listOf(mockActivity), isEmpty = false),
+                        SplitAttributes(splitType = SPLIT_TYPE_HINGE),
+                    )
+                )
 
-        val value = testScope.async(Dispatchers.Unconfined) {
-            splitController.splitInfoList(mockActivity).take(3).toList()
+            val value =
+                testScope.async(Dispatchers.Unconfined) {
+                    splitController.splitInfoList(mockActivity).take(3).toList()
+                }
+            testRule.overrideSplitInfo(mockActivity, expected1)
+            testRule.overrideSplitInfo(mockActivity, expected2)
+            runTest(UnconfinedTestDispatcher(testScope.testScheduler)) {
+                assertEquals(listOf(emptyList(), expected1, expected2), value.await())
+            }
         }
-        testRule.overrideSplitInfo(mockActivity, expected1)
-        testRule.overrideSplitInfo(mockActivity, expected2)
-        runTest(UnconfinedTestDispatcher(testScope.testScheduler)) {
-            assertEquals(
-                listOf(emptyList(), expected1, expected2),
-                value.await()
-            )
-        }
-    }
 
     private fun createSplitPairRule(tag: String? = null): SplitPairRule {
-        return SplitPairRule.Builder(emptySet())
-            .setTag(tag)
-            .build()
+        return SplitPairRule.Builder(emptySet()).setTag(tag).build()
     }
 
     private fun createSplitPlaceholderRule(tag: String? = null): SplitPlaceholderRule {
-        return SplitPlaceholderRule.Builder(emptySet(), Intent())
-            .setTag(tag)
-            .build()
+        return SplitPlaceholderRule.Builder(emptySet(), Intent()).setTag(tag).build()
     }
 
     private fun createActivityRule(tag: String? = null): ActivityRule {
-        return ActivityRule.Builder(emptySet())
-            .setTag(tag)
-            .build()
+        return ActivityRule.Builder(emptySet()).setTag(tag).build()
     }
 
     private object TestException : Exception("TEST EXCEPTION")

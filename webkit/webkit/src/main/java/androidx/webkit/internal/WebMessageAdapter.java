@@ -37,7 +37,7 @@ import java.util.Objects;
  * This class is used to pass a PostMessage from the app to Chromium.
  */
 public class WebMessageAdapter implements WebMessageBoundaryInterface {
-    private WebMessageCompat mWebMessageCompat;
+    private final WebMessageCompat mWebMessageCompat;
 
     private static final String[] sFeatures = {Features.WEB_MESSAGE_ARRAY_BUFFER};
 

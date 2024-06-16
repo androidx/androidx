@@ -23,7 +23,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class OpaqueUnitKeyDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = OpaqueUnitKeyDetector()
@@ -1741,4 +1740,3 @@ Fix for src/test/test.kt line 8: Move expression outside of `key`'s arguments an
 
     // endregion key() test cases
 }
-/* ktlint-enable max-line-length */

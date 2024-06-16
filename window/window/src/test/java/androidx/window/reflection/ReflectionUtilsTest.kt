@@ -24,9 +24,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Unit test for reflection utilities
- */
+/** Unit test for reflection utilities */
 class ReflectionUtilsTest {
 
     private lateinit var classLoader: ClassLoader
@@ -38,9 +36,7 @@ class ReflectionUtilsTest {
 
     @Test
     fun testValidateReflectionSuccess() {
-        val result = validateReflection {
-            true
-        }
+        val result = validateReflection { true }
         assertTrue(result)
     }
 

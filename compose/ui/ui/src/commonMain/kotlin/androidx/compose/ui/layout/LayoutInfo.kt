@@ -27,73 +27,51 @@ import androidx.compose.ui.unit.LayoutDirection
 interface LayoutInfo {
 
     /**
-     * This returns a new List of [Modifier]s and the coordinates and any extra information
-     * that may be useful. This is used for tooling to retrieve layout modifier and layer
-     * information.
+     * This returns a new List of [Modifier]s and the coordinates and any extra information that may
+     * be useful. This is used for tooling to retrieve layout modifier and layer information.
      */
     fun getModifierInfo(): List<ModifierInfo>
 
-    /**
-     * The measured width of this layout and all of its modifiers.
-     */
+    /** The measured width of this layout and all of its modifiers. */
     val width: Int
 
-    /**
-     * The measured height of this layout and all of its modifiers.
-     */
+    /** The measured height of this layout and all of its modifiers. */
     val height: Int
 
-    /**
-     * Coordinates of just the contents of the layout, after being affected by all modifiers.
-     */
+    /** Coordinates of just the contents of the layout, after being affected by all modifiers. */
     val coordinates: LayoutCoordinates
 
-    /**
-     * Whether or not this layout and all of its parents have been placed in the hierarchy.
-     */
+    /** Whether or not this layout and all of its parents have been placed in the hierarchy. */
     val isPlaced: Boolean
 
-    /**
-     * Parent of this layout.
-     */
+    /** Parent of this layout. */
     val parentInfo: LayoutInfo?
 
-    /**
-     * The density in use for this layout.
-     */
+    /** The density in use for this layout. */
     val density: Density
 
-    /**
-     * The layout direction in use for this layout.
-     */
+    /** The layout direction in use for this layout. */
     val layoutDirection: LayoutDirection
 
-    /**
-     * The [ViewConfiguration] in use for this layout.
-     */
+    /** The [ViewConfiguration] in use for this layout. */
     val viewConfiguration: ViewConfiguration
 
-    /**
-     * Returns true if this layout is currently a part of the layout tree.
-     */
+    /** Returns true if this layout is currently a part of the layout tree. */
     val isAttached: Boolean
 
-    /**
-     * Unique and stable id representing this node to the semantics system.
-     */
+    /** Unique and stable id representing this node to the semantics system. */
     val semanticsId: Int
 
     /**
      * True if the node is deactivated. For example, the children of
-     * [androidx.compose.ui.layout.SubcomposeLayout] which are retained to be reused in future
-     * are considered deactivated.
+     * [androidx.compose.ui.layout.SubcomposeLayout] which are retained to be reused in future are
+     * considered deactivated.
      */
-    val isDeactivated: Boolean get() = false
+    val isDeactivated: Boolean
+        get() = false
 }
 
-/**
- * Used by tooling to examine the modifiers on a [LayoutInfo].
- */
+/** Used by tooling to examine the modifiers on a [LayoutInfo]. */
 class ModifierInfo(
     val modifier: Modifier,
     val coordinates: LayoutCoordinates,

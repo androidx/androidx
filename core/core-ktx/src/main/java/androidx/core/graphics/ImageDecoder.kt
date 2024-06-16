@@ -35,9 +35,7 @@ import androidx.annotation.RequiresApi
 public inline fun ImageDecoder.Source.decodeBitmap(
     crossinline action: ImageDecoder.(info: ImageInfo, source: Source) -> Unit
 ): Bitmap {
-    return ImageDecoder.decodeBitmap(this) { decoder, info, source ->
-        decoder.action(info, source)
-    }
+    return ImageDecoder.decodeBitmap(this) { decoder, info, source -> decoder.action(info, source) }
 }
 
 /**

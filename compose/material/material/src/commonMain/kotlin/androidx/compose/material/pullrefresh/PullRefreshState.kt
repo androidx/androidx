@@ -48,10 +48,10 @@ import kotlinx.coroutines.launch
  *
  * @param refreshing A boolean representing whether a refresh is currently occurring.
  * @param onRefresh The function to be called to trigger a refresh.
- * @param refreshThreshold The threshold below which, if a release
- * occurs, [onRefresh] will be called.
+ * @param refreshThreshold The threshold below which, if a release occurs, [onRefresh] will be
+ *   called.
  * @param refreshingOffset The offset at which the indicator will be drawn while refreshing. This
- * offset corresponds to the position of the bottom of the indicator.
+ *   offset corresponds to the position of the bottom of the indicator.
  */
 @Composable
 @ExperimentalMaterialApi
@@ -73,9 +73,8 @@ fun rememberPullRefreshState(
         refreshingOffsetPx = refreshingOffset.toPx()
     }
 
-    val state = remember(scope) {
-        PullRefreshState(scope, onRefreshState, refreshingOffsetPx, thresholdPx)
-    }
+    val state =
+        remember(scope) { PullRefreshState(scope, onRefreshState, refreshingOffsetPx, thresholdPx) }
 
     SideEffect {
         state.setRefreshing(refreshing)
@@ -100,7 +99,8 @@ fun rememberPullRefreshState(
  * Should be created using [rememberPullRefreshState].
  */
 @ExperimentalMaterialApi
-class PullRefreshState internal constructor(
+class PullRefreshState
+internal constructor(
     private val animationScope: CoroutineScope,
     private val onRefreshState: State<() -> Unit>,
     refreshingOffset: Float,
@@ -114,11 +114,17 @@ class PullRefreshState internal constructor(
      * gone beyond the refreshThreshold - e.g. a value of 2f indicates that the user has pulled to
      * two times the refreshThreshold.
      */
-    val progress get() = adjustedDistancePulled / threshold
+    val progress
+        get() = adjustedDistancePulled / threshold
 
-    internal val refreshing get() = _refreshing
-    internal val position get() = _position
-    internal val threshold get() = _threshold
+    internal val refreshing
+        get() = _refreshing
+
+    internal val position
+        get() = _position
+
+    internal val threshold
+        get() = _threshold
 
     private val adjustedDistancePulled by derivedStateOf { distancePulled * DragMultiplier }
 
@@ -145,16 +151,19 @@ class PullRefreshState internal constructor(
             onRefreshState.value()
         }
         animateIndicatorTo(0f)
-        val consumed = when {
-            // We are flinging without having dragged the pull refresh (for example a fling inside
-            // a list) - don't consume
-            distancePulled == 0f -> 0f
-            // If the velocity is negative, the fling is upwards, and we don't want to prevent the
-            // the list from scrolling
-            velocity < 0f -> 0f
-            // We are showing the indicator, and the fling is downwards - consume everything
-            else -> velocity
-        }
+        val consumed =
+            when {
+                // We are flinging without having dragged the pull refresh (for example a fling
+                // inside
+                // a list) - don't consume
+                distancePulled == 0f -> 0f
+                // If the velocity is negative, the fling is upwards, and we don't want to prevent
+                // the
+                // the list from scrolling
+                velocity < 0f -> 0f
+                // We are showing the indicator, and the fling is downwards - consume everything
+                else -> velocity
+            }
         distancePulled = 0f
         return consumed
     }
@@ -183,52 +192,50 @@ class PullRefreshState internal constructor(
     // overhead of running through the animation pipeline instead of directly mutating the state.
     private val mutatorMutex = MutatorMutex()
 
-    private fun animateIndicatorTo(offset: Float) = animationScope.launch {
-        mutatorMutex.mutate {
-            animate(initialValue = _position, targetValue = offset) { value, _ ->
-                _position = value
+    private fun animateIndicatorTo(offset: Float) =
+        animationScope.launch {
+            mutatorMutex.mutate {
+                animate(initialValue = _position, targetValue = offset) { value, _ ->
+                    _position = value
+                }
             }
         }
-    }
 
-    private fun calculateIndicatorPosition(): Float = when {
-        // If drag hasn't gone past the threshold, the position is the adjustedDistancePulled.
-        adjustedDistancePulled <= threshold -> adjustedDistancePulled
-        else -> {
-            // How far beyond the threshold pull has gone, as a percentage of the threshold.
-            val overshootPercent = abs(progress) - 1.0f
-            // Limit the overshoot to 200%. Linear between 0 and 200.
-            val linearTension = overshootPercent.fastCoerceIn(0f, 2f)
-            // Non-linear tension. Increases with linearTension, but at a decreasing rate.
-            val tensionPercent = linearTension - linearTension.pow(2) / 4
-            // The additional offset beyond the threshold.
-            val extraOffset = threshold * tensionPercent
-            threshold + extraOffset
+    private fun calculateIndicatorPosition(): Float =
+        when {
+            // If drag hasn't gone past the threshold, the position is the adjustedDistancePulled.
+            adjustedDistancePulled <= threshold -> adjustedDistancePulled
+            else -> {
+                // How far beyond the threshold pull has gone, as a percentage of the threshold.
+                val overshootPercent = abs(progress) - 1.0f
+                // Limit the overshoot to 200%. Linear between 0 and 200.
+                val linearTension = overshootPercent.fastCoerceIn(0f, 2f)
+                // Non-linear tension. Increases with linearTension, but at a decreasing rate.
+                val tensionPercent = linearTension - linearTension.pow(2) / 4
+                // The additional offset beyond the threshold.
+                val extraOffset = threshold * tensionPercent
+                threshold + extraOffset
+            }
         }
-    }
 }
 
-/**
- * Default parameter values for [rememberPullRefreshState].
- */
+/** Default parameter values for [rememberPullRefreshState]. */
 @ExperimentalMaterialApi
 object PullRefreshDefaults {
     /**
-     * If the indicator is below this threshold offset when it is released, a refresh
-     * will be triggered.
+     * If the indicator is below this threshold offset when it is released, a refresh will be
+     * triggered.
      */
     val RefreshThreshold = 80.dp
 
-    /**
-     * The offset at which the indicator should be rendered whilst a refresh is occurring.
-     */
+    /** The offset at which the indicator should be rendered whilst a refresh is occurring. */
     val RefreshingOffset = 56.dp
 }
 
 /**
- * The distance pulled is multiplied by this value to give us the adjusted distance pulled, which
- * is used in calculating the indicator position (when the adjusted distance pulled is less than
- * the refresh threshold, it is the indicator position, otherwise the indicator position is
- * derived from the progress).
+ * The distance pulled is multiplied by this value to give us the adjusted distance pulled, which is
+ * used in calculating the indicator position (when the adjusted distance pulled is less than the
+ * refresh threshold, it is the indicator position, otherwise the indicator position is derived from
+ * the progress).
  */
 private const val DragMultiplier = 0.5f

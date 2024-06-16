@@ -34,6 +34,7 @@ class BeginGetPublicKeyCredentialOptionTest {
             "android.service.credentials.BeginGetCredentialOption.BUNDLE_ID_KEY"
         private const val BUNDLE_ID = "id"
     }
+
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
@@ -57,7 +58,9 @@ class BeginGetPublicKeyCredentialOptionTest {
     @Test
     fun constructor_success() {
         BeginGetPublicKeyCredentialOption(
-            Bundle(), BUNDLE_ID, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
+            Bundle(),
+            BUNDLE_ID,
+            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             "client_data_hash".toByteArray()
         )
     }
@@ -66,10 +69,13 @@ class BeginGetPublicKeyCredentialOptionTest {
     fun getter_clientDataHash_success() {
         val testClientDataHashExpected = "client_data_hash".toByteArray()
 
-        val beginGetPublicKeyCredentialOpt = BeginGetPublicKeyCredentialOption(
-            Bundle(), BUNDLE_ID,
-            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}", testClientDataHashExpected
-        )
+        val beginGetPublicKeyCredentialOpt =
+            BeginGetPublicKeyCredentialOption(
+                Bundle(),
+                BUNDLE_ID,
+                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
+                testClientDataHashExpected
+            )
 
         val testClientDataHashActual = beginGetPublicKeyCredentialOpt.clientDataHash
         assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected)
@@ -79,9 +85,8 @@ class BeginGetPublicKeyCredentialOptionTest {
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
 
-        val getPublicKeyCredentialOpt = BeginGetPublicKeyCredentialOption(
-            Bundle(), BUNDLE_ID, testJsonExpected
-        )
+        val getPublicKeyCredentialOpt =
+            BeginGetPublicKeyCredentialOption(Bundle(), BUNDLE_ID, testJsonExpected)
 
         val testJsonActual = getPublicKeyCredentialOpt.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
@@ -94,13 +99,16 @@ class BeginGetPublicKeyCredentialOptionTest {
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION)
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+        )
         expectedData.putString(
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
-            requestJsonExpected)
+            requestJsonExpected
+        )
         expectedData.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash)
+            clientDataHash
+        )
 
         val option = BeginGetPublicKeyCredentialOption(expectedData, BUNDLE_ID, requestJsonExpected)
 
@@ -116,13 +124,13 @@ class BeginGetPublicKeyCredentialOptionTest {
         val bundle = Bundle()
         bundle.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION)
-        bundle.putString(
-            GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
-            requestJsonExpected)
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+        )
+        bundle.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON, requestJsonExpected)
         bundle.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash)
+            clientDataHash
+        )
 
         val option = BeginGetPublicKeyCredentialOption.createFrom(bundle, "id")
         assertThat(option.id).isEqualTo("id")
@@ -135,13 +143,13 @@ class BeginGetPublicKeyCredentialOptionTest {
         val bundle = Bundle()
         bundle.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION)
-        bundle.putString(
-            GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
-            requestJsonExpected)
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+        )
+        bundle.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON, requestJsonExpected)
         bundle.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash)
+            clientDataHash
+        )
 
         val option = BeginGetPublicKeyCredentialOption.createFromEntrySlice(bundle, "id")
         assertThat(option.id).isEqualTo("id")

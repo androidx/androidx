@@ -58,14 +58,24 @@ class NutritionAggregationExtensionsTest {
     }
 
     @get:Rule
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        HealthPermission.getWritePermission(NutritionRecord::class),
-        HealthPermission.getReadPermission(NutritionRecord::class)
-    )
+    val grantPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            HealthPermission.getWritePermission(NutritionRecord::class),
+            HealthPermission.getReadPermission(NutritionRecord::class)
+        )
 
     @After
     fun tearDown() = runTest {
         healthConnectClient.deleteRecords(NutritionRecord::class, TimeRangeFilter.none())
+    }
+
+    @Test
+    fun aggregateNutritionTransFatTotal_noData() = runTest {
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(TimeRangeFilter.none(), emptySet())
+
+        assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
+        assertThat(aggregationResult.dataOrigins).isEmpty()
     }
 
     @Test
@@ -114,8 +124,7 @@ class NutritionAggregationExtensionsTest {
             healthConnectClient.aggregateNutritionTransFatTotal(TimeRangeFilter.none(), emptySet())
 
         assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL]).isEqualTo(Mass.grams(1.7))
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -160,17 +169,18 @@ class NutritionAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-            TimeRangeFilter.between(
-                START_TIME + 30.seconds,
-                START_TIME + 6.minutes + 45.seconds
-            ), emptySet()
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(
+                TimeRangeFilter.between(
+                    START_TIME + 30.seconds,
+                    START_TIME + 6.minutes + 45.seconds
+                ),
+                emptySet()
+            )
 
         assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL])
             .isEqualTo(Mass.grams(0.15 + 0.4 + 0.375))
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -195,12 +205,11 @@ class NutritionAggregationExtensionsTest {
                 )
             )
 
-            val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-                TimeRangeFilter.between(
-                    START_TIME + 1.minutes,
-                    START_TIME + 2.minutes
-                ), emptySet()
-            )
+            val aggregationResult =
+                healthConnectClient.aggregateNutritionTransFatTotal(
+                    TimeRangeFilter.between(START_TIME + 1.minutes, START_TIME + 2.minutes),
+                    emptySet()
+                )
 
             assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
             assertThat(aggregationResult.dataOrigins).isEmpty()
@@ -228,12 +237,11 @@ class NutritionAggregationExtensionsTest {
                 )
             )
 
-            val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-                TimeRangeFilter.between(
-                    START_TIME,
-                    START_TIME + 2.minutes
-                ), emptySet()
-            )
+            val aggregationResult =
+                healthConnectClient.aggregateNutritionTransFatTotal(
+                    TimeRangeFilter.between(START_TIME, START_TIME + 2.minutes),
+                    emptySet()
+                )
 
             assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL])
                 .isEqualTo(Mass.grams(0.3))
@@ -256,12 +264,11 @@ class NutritionAggregationExtensionsTest {
                 )
             )
 
-            val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-                TimeRangeFilter.between(
-                    START_TIME + 15.seconds,
-                    START_TIME + 45.seconds
-                ), emptySet()
-            )
+            val aggregationResult =
+                healthConnectClient.aggregateNutritionTransFatTotal(
+                    TimeRangeFilter.between(START_TIME + 15.seconds, START_TIME + 45.seconds),
+                    emptySet()
+                )
 
             assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL])
                 .isEqualTo(Mass.grams(0.25))
@@ -311,17 +318,18 @@ class NutritionAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-            TimeRangeFilter.between(
-                LocalDateTime.ofInstant(START_TIME + 30.seconds, ZoneOffset.UTC),
-                LocalDateTime.ofInstant(START_TIME + 6.minutes + 45.seconds, ZoneOffset.UTC)
-            ), emptySet()
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(
+                TimeRangeFilter.between(
+                    LocalDateTime.ofInstant(START_TIME + 30.seconds, ZoneOffset.UTC),
+                    LocalDateTime.ofInstant(START_TIME + 6.minutes + 45.seconds, ZoneOffset.UTC)
+                ),
+                emptySet()
+            )
 
         assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL])
             .isEqualTo(Mass.grams(0.15 + 0.4 + 0.375))
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -339,18 +347,20 @@ class NutritionAggregationExtensionsTest {
                 )
             )
 
-            val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-                TimeRangeFilter.between(
-                    LocalDateTime.ofInstant(
-                        START_TIME - 2.hours + 15.seconds,
-                        ZoneOffset.ofHours(2)
+            val aggregationResult =
+                healthConnectClient.aggregateNutritionTransFatTotal(
+                    TimeRangeFilter.between(
+                        LocalDateTime.ofInstant(
+                            START_TIME - 2.hours + 15.seconds,
+                            ZoneOffset.ofHours(2)
+                        ),
+                        LocalDateTime.ofInstant(
+                            START_TIME - 2.hours + 45.seconds,
+                            ZoneOffset.ofHours(2)
+                        )
                     ),
-                    LocalDateTime.ofInstant(
-                        START_TIME - 2.hours + 45.seconds,
-                        ZoneOffset.ofHours(2)
-                    )
-                ), emptySet()
-            )
+                    emptySet()
+                )
 
             assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL])
                 .isEqualTo(Mass.grams(0.25))
@@ -373,15 +383,14 @@ class NutritionAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-            TimeRangeFilter.none(),
-            setOf(DataOrigin(context.packageName))
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(
+                TimeRangeFilter.none(),
+                setOf(DataOrigin(context.packageName))
+            )
 
-        assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL])
-            .isEqualTo(Mass.grams(0.5))
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL]).isEqualTo(Mass.grams(0.5))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -398,10 +407,11 @@ class NutritionAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-            TimeRangeFilter.after(START_TIME + 2.minutes),
-            emptySet()
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(
+                TimeRangeFilter.after(START_TIME + 2.minutes),
+                emptySet()
+            )
 
         assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
         assertThat(aggregationResult.dataOrigins).isEmpty()
@@ -421,12 +431,14 @@ class NutritionAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-            TimeRangeFilter.between(
-                LocalDateTime.ofInstant(START_TIME, ZoneOffset.UTC),
-                LocalDateTime.ofInstant(START_TIME + 60.minutes, ZoneOffset.UTC)
-            ), emptySet()
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(
+                TimeRangeFilter.between(
+                    LocalDateTime.ofInstant(START_TIME, ZoneOffset.UTC),
+                    LocalDateTime.ofInstant(START_TIME + 60.minutes, ZoneOffset.UTC)
+                ),
+                emptySet()
+            )
 
         assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
         assertThat(aggregationResult.dataOrigins).isEmpty()
@@ -446,10 +458,11 @@ class NutritionAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateNutritionTransFatTotal(
-            TimeRangeFilter.none(),
-            setOf(DataOrigin("some random package name"))
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(
+                TimeRangeFilter.none(),
+                setOf(DataOrigin("some random package name"))
+            )
 
         assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
         assertThat(aggregationResult.dataOrigins).isEmpty()

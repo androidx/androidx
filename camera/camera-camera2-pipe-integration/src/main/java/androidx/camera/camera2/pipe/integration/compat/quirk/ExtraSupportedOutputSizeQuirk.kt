@@ -24,23 +24,19 @@ import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirk
 
 /**
- * QuirkSummary
- * Bug Id: b/241876294, b/299075294
- * Description: CamcorderProfile resolutions can not find a match in the output size list of
- *              [CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]. Some resolutions are
- *              added back as they are supported by the camera and do not have stretching issues.
- * Device(s): Motorola Moto E5 Play.
+ * QuirkSummary Bug Id: b/241876294, b/299075294 Description: CamcorderProfile resolutions can not
+ * find a match in the output size list of [CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP].
+ * Some resolutions are added back as they are supported by the camera and do not have stretching
+ * issues. Device(s): Motorola Moto E5 Play.
  *
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
 class ExtraSupportedOutputSizeQuirk : Quirk {
-    /**
-     * Returns the extra supported resolutions on the device.
-     */
+    /** Returns the extra supported resolutions on the device. */
     fun getExtraSupportedResolutions(format: Int): Array<Size> {
-        return if ((format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE &&
-                isMotoE5Play)
+        return if (
+            (format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE && isMotoE5Play)
         ) {
             motoE5PlayExtraSupportedResolutions
         } else {
@@ -48,9 +44,7 @@ class ExtraSupportedOutputSizeQuirk : Quirk {
         }
     }
 
-    /**
-     * Returns the extra supported resolutions on the device.
-     */
+    /** Returns the extra supported resolutions on the device. */
     fun <T> getExtraSupportedResolutions(klass: Class<T>): Array<Size> {
         return if (StreamConfigurationMap.isOutputSupportedFor(klass) && isMotoE5Play) {
             motoE5PlayExtraSupportedResolutions
@@ -61,13 +55,14 @@ class ExtraSupportedOutputSizeQuirk : Quirk {
 
     // Both the front and the main cameras support the following resolutions.
     private val motoE5PlayExtraSupportedResolutions: Array<Size>
-        get() = arrayOf(
-            // FHD
-            Size(1440, 1080),
-            // HD
-            Size(960, 720),
-            // SD (640:480 is already included in the original list)
-        )
+        get() =
+            arrayOf(
+                // FHD
+                Size(1440, 1080),
+                // HD
+                Size(960, 720),
+                // SD (640:480 is already included in the original list)
+            )
 
     companion object {
         fun isEnabled(): Boolean {
@@ -75,11 +70,8 @@ class ExtraSupportedOutputSizeQuirk : Quirk {
         }
 
         internal val isMotoE5Play: Boolean
-            get() = "motorola".equals(
-                Build.BRAND,
-                ignoreCase = true
-            ) && "moto e5 play".equals(
-                Build.MODEL, ignoreCase = true
-            )
+            get() =
+                "motorola".equals(Build.BRAND, ignoreCase = true) &&
+                    "moto e5 play".equals(Build.MODEL, ignoreCase = true)
     }
 }

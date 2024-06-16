@@ -34,13 +34,15 @@ internal class LazyStaggeredGridScrollPosition(
 ) {
     var indices = initialIndices
         private set
+
     var index by mutableIntStateOf(calculateFirstVisibleIndex(initialIndices))
         private set
+
     var scrollOffsets = initialOffsets
         private set
-    var scrollOffset by mutableIntStateOf(
-        calculateFirstVisibleScrollOffset(initialIndices, initialOffsets)
-    )
+
+    var scrollOffset by
+        mutableIntStateOf(calculateFirstVisibleScrollOffset(initialIndices, initialOffsets))
         private set
 
     private fun calculateFirstVisibleIndex(indices: IntArray): Int {
@@ -70,21 +72,19 @@ internal class LazyStaggeredGridScrollPosition(
     /** The last know key of the item at lowest of [indices] position. */
     private var lastKnownFirstItemKey: Any? = null
 
-    val nearestRangeState = LazyLayoutNearestRangeState(
-        initialIndices.minOrNull() ?: 0,
-        NearestItemsSlidingWindowSize,
-        NearestItemsExtraItemCount
-    )
+    val nearestRangeState =
+        LazyLayoutNearestRangeState(
+            initialIndices.minOrNull() ?: 0,
+            NearestItemsSlidingWindowSize,
+            NearestItemsExtraItemCount
+        )
 
-    /**
-     * Updates the current scroll position based on the results of the last measurement.
-     */
+    /** Updates the current scroll position based on the results of the last measurement. */
     fun updateFromMeasureResult(measureResult: LazyStaggeredGridMeasureResult) {
         val firstVisibleIndex = calculateFirstVisibleIndex(measureResult.firstVisibleItemIndices)
 
-        lastKnownFirstItemKey = measureResult.visibleItemsInfo
-            .fastFirstOrNull { it.index == firstVisibleIndex }
-            ?.key
+        lastKnownFirstItemKey =
+            measureResult.visibleItemsInfo.fastFirstOrNull { it.index == firstVisibleIndex }?.key
         nearestRangeState.update(firstVisibleIndex)
         // we ignore the index and offset from measureResult until we get at least one
         // measurement with real items. otherwise the initial index and scroll passed to the
@@ -107,14 +107,13 @@ internal class LazyStaggeredGridScrollPosition(
 
     /**
      * Updates the scroll position - the passed values will be used as a start position for
-     * composing the items during the next measure pass and will be updated by the real
-     * position calculated during the measurement. This means that there is no guarantee that
-     * exactly this index and offset will be applied as it is possible that:
-     * a) there will be no item at this index in reality
-     * b) item at this index will be smaller than the asked scrollOffset, which means we would
-     * switch to the next item
-     * c) there will be not enough items to fill the viewport after the requested index, so we
-     * would have to compose few elements before the asked index, changing the first visible item.
+     * composing the items during the next measure pass and will be updated by the real position
+     * calculated during the measurement. This means that there is no guarantee that exactly this
+     * index and offset will be applied as it is possible that: a) there will be no item at this
+     * index in reality b) item at this index will be smaller than the asked scrollOffset, which
+     * means we would switch to the next item c) there will be not enough items to fill the viewport
+     * after the requested index, so we would have to compose few elements before the asked index,
+     * changing the first visible item.
      */
     fun requestPositionAndForgetLastKnownKey(index: Int, scrollOffset: Int) {
         val newIndices = fillIndices(index, indices.size)
@@ -127,20 +126,21 @@ internal class LazyStaggeredGridScrollPosition(
     }
 
     /**
-     * In addition to keeping the first visible item index we also store the key of this item.
-     * When the user provided custom keys for the items this mechanism allows us to detect when
-     * there were items added or removed before our current first visible item and keep this item
-     * as the first visible one even given that its index has been changed.
+     * In addition to keeping the first visible item index we also store the key of this item. When
+     * the user provided custom keys for the items this mechanism allows us to detect when there
+     * were items added or removed before our current first visible item and keep this item as the
+     * first visible one even given that its index has been changed.
      */
     @ExperimentalFoundationApi
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyLayoutItemProvider,
         indices: IntArray
     ): IntArray {
-        val newIndex = itemProvider.findIndexByKey(
-            key = lastKnownFirstItemKey,
-            lastKnownIndex = indices.getOrNull(0) ?: 0
-        )
+        val newIndex =
+            itemProvider.findIndexByKey(
+                key = lastKnownFirstItemKey,
+                lastKnownIndex = indices.getOrNull(0) ?: 0
+            )
         return if (newIndex !in indices) {
             nearestRangeState.update(newIndex)
             val newIndices = Snapshot.withoutReadObservation { fillIndices(newIndex, indices.size) }
@@ -166,7 +166,5 @@ internal class LazyStaggeredGridScrollPosition(
  */
 private const val NearestItemsSlidingWindowSize = 90
 
-/**
- * The minimum amount of items near the current first visible item we want to have mapping for.
- */
+/** The minimum amount of items near the current first visible item we want to have mapping for. */
 private const val NearestItemsExtraItemCount = 200

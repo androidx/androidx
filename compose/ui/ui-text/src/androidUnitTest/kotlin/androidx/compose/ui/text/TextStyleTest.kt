@@ -140,13 +140,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `constructor with link styles`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Magenta)))
-
-        assertThat(style.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Magenta)))
-    }
-
-    @Test
     fun `empty copy with existing brush should not remove brush`() {
         val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
 
@@ -173,9 +166,7 @@ class TextStyleTest {
     fun `platformTextStyle copy with existing drawStyle should not remove drawStyle`() {
         val style = TextStyle(drawStyle = Stroke(2f))
 
-        assertThat(
-            style.copy(platformStyle = PlatformTextStyle()).drawStyle
-        ).isEqualTo(Stroke(2f))
+        assertThat(style.copy(platformStyle = PlatformTextStyle()).drawStyle).isEqualTo(Stroke(2f))
     }
 
     @Test
@@ -893,123 +884,72 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge null and non-null linkStyles uses other's linkStyles`() {
-        val style = TextStyle(linkStyles = null)
-        val otherStyle = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Red)))
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Red)))
-    }
-
-    @Test
-    fun `merge non-null and non linkStyles uses original`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Red)))
-        val otherStyle = TextStyle(linkStyles = null)
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Red)))
-    }
-
-    @Test
-    fun `merge with both null uses null`() {
-        val style = TextStyle(linkStyles = null)
-        val otherStyle = TextStyle(linkStyles = null)
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(null)
-    }
-
-    @Test
-    fun `merge with both non-null uses other's linkStyles`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Red)))
-        val otherStyle = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Blue)))
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Blue)))
-    }
-
-    @Test
-    fun `merge with both non-null uses merged linkStyles`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(color = Color.Red)))
-        val otherStyle = TextStyle(linkStyles = TextLinkStyles(SpanStyle(background = Color.Blue)))
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(
-            TextLinkStyles(SpanStyle(color = Color.Red, background = Color.Blue))
-        )
-    }
-
-    @Test
     fun `plus operator merges other TextStyle`() {
-        val style = TextStyle(
-            color = Color.Red,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            textDirection = TextDirection.Rtl
-        ) + TextStyle(
-            color = Color.Green,
-            fontFamily = FontFamily.Cursive,
-            textAlign = TextAlign.Justify,
-            lineHeight = 12.sp
-        )
-
-        assertThat(style).isEqualTo(
+        val style =
             TextStyle(
-                color = Color.Green, // SpanStyle attribute overridden by RHS
-                fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
-                fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
-                textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
-                textDirection = TextDirection.Rtl, // from LHS,
-                lineHeight = 12.sp // ParagraphStyle attribute from RHS
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                textDirection = TextDirection.Rtl
+            ) +
+                TextStyle(
+                    color = Color.Green,
+                    fontFamily = FontFamily.Cursive,
+                    textAlign = TextAlign.Justify,
+                    lineHeight = 12.sp
+                )
+
+        assertThat(style)
+            .isEqualTo(
+                TextStyle(
+                    color = Color.Green, // SpanStyle attribute overridden by RHS
+                    fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
+                    fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
+                    textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
+                    textDirection = TextDirection.Rtl, // from LHS,
+                    lineHeight = 12.sp // ParagraphStyle attribute from RHS
+                )
             )
-        )
     }
 
     @Test
     fun `plus operator merges other SpanStyle`() {
-        val style = TextStyle(
-            color = Color.Red,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        ) + SpanStyle(
-            color = Color.Green,
-            fontFamily = FontFamily.Cursive
-        )
-
-        assertThat(style).isEqualTo(
+        val style =
             TextStyle(
-                color = Color.Green, // SpanStyle attribute overridden by RHS
-                fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
-                fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
-                textAlign = TextAlign.Center // ParagraphStyle attribute from LHS
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            ) + SpanStyle(color = Color.Green, fontFamily = FontFamily.Cursive)
+
+        assertThat(style)
+            .isEqualTo(
+                TextStyle(
+                    color = Color.Green, // SpanStyle attribute overridden by RHS
+                    fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
+                    fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
+                    textAlign = TextAlign.Center // ParagraphStyle attribute from LHS
+                )
             )
-        )
     }
 
     @Test
     fun `plus operator merges other ParagraphStyle`() {
-        val style = TextStyle(
-            color = Color.Red,
-            textAlign = TextAlign.Center,
-            textDirection = TextDirection.Rtl
-        ) + ParagraphStyle(
-            textAlign = TextAlign.Justify,
-            lineHeight = 12.sp
-        )
-
-        assertThat(style).isEqualTo(
+        val style =
             TextStyle(
-                color = Color.Red, // SpanStyle from LHS
-                textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
-                textDirection = TextDirection.Rtl, // from LHS,
-                lineHeight = 12.sp // ParagraphStyle attribute from RHS
+                color = Color.Red,
+                textAlign = TextAlign.Center,
+                textDirection = TextDirection.Rtl
+            ) + ParagraphStyle(textAlign = TextAlign.Justify, lineHeight = 12.sp)
+
+        assertThat(style)
+            .isEqualTo(
+                TextStyle(
+                    color = Color.Red, // SpanStyle from LHS
+                    textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
+                    textDirection = TextDirection.Rtl, // from LHS,
+                    lineHeight = 12.sp // ParagraphStyle attribute from RHS
+                )
             )
-        )
     }
 
     @Test
@@ -1202,16 +1142,13 @@ class TextStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.baselineShift)
-            .isEqualTo(lerp(baselineShift1, baselineShift2, t))
+        assertThat(newStyle.baselineShift).isEqualTo(lerp(baselineShift1, baselineShift2, t))
     }
 
     @Test
     fun `lerp textGeometricTransform with a and b are not Null`() {
-        val textTransform1 =
-            TextGeometricTransform(scaleX = 1.5f, skewX = 0.1f)
-        val textTransform2 =
-            TextGeometricTransform(scaleX = 1.0f, skewX = 0.3f)
+        val textTransform1 = TextGeometricTransform(scaleX = 1.5f, skewX = 0.1f)
+        val textTransform2 = TextGeometricTransform(scaleX = 1.0f, skewX = 0.3f)
         val t = 0.3f
         val style1 = TextStyle(textGeometricTransform = textTransform1)
         val style2 = TextStyle(textGeometricTransform = textTransform2)
@@ -1427,9 +1364,7 @@ class TextStyleTest {
         val fraction = 0.4f
         val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
-        assertThat(newStyle.textIndent).isEqualTo(
-            lerp(TextIndent(), style2.textIndent!!, fraction)
-        )
+        assertThat(newStyle.textIndent).isEqualTo(lerp(TextIndent(), style2.textIndent!!, fraction))
     }
 
     @Test
@@ -1439,9 +1374,8 @@ class TextStyleTest {
         val fraction = 0.6f
         val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
-        assertThat(newStyle.textIndent).isEqualTo(
-            lerp(style1.textIndent!!, style2.textIndent!!, fraction)
-        )
+        assertThat(newStyle.textIndent)
+            .isEqualTo(lerp(style1.textIndent!!, style2.textIndent!!, fraction))
     }
 
     @Test
@@ -1452,9 +1386,10 @@ class TextStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
-        assertThat(newStyle.lineHeight).isEqualTo(
-            androidx.compose.ui.unit.lerp(style1.lineHeight, style2.lineHeight, fraction)
-        )
+        assertThat(newStyle.lineHeight)
+            .isEqualTo(
+                androidx.compose.ui.unit.lerp(style1.lineHeight, style2.lineHeight, fraction)
+            )
     }
 
     @Test
@@ -1486,9 +1421,7 @@ class TextStyleTest {
 
     @Test
     fun `copy without platformStyle uses existing platformStyle`() {
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(includeFontPadding = false)
-        )
+        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
         val newStyle = style.copy()
 
         assertThat(newStyle.platformStyle).isEqualTo(style.platformStyle)
@@ -1627,25 +1560,8 @@ class TextStyleTest {
         val decoration = TextDecoration.Underline
         val shadow = Shadow(color = Color.Green, offset = Offset(2f, 4f))
 
-        val style = TextStyle(
-            color = color,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = decoration,
-            shadow = shadow
-        )
-
-        assertThat(style.toSpanStyle()).isEqualTo(
-            SpanStyle(
+        val style =
+            TextStyle(
                 color = color,
                 fontSize = fontSize,
                 fontWeight = fontWeight,
@@ -1661,7 +1577,26 @@ class TextStyleTest {
                 textDecoration = decoration,
                 shadow = shadow
             )
-        )
+
+        assertThat(style.toSpanStyle())
+            .isEqualTo(
+                SpanStyle(
+                    color = color,
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = decoration,
+                    shadow = shadow
+                )
+            )
     }
 
     @Test
@@ -1682,26 +1617,8 @@ class TextStyleTest {
         val shadow = Shadow(color = Color.Green, offset = Offset(2f, 4f))
         val drawStyle = Stroke(width = 8f)
 
-        val style = TextStyle(
-            brush = brush,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = decoration,
-            shadow = shadow,
-            drawStyle = drawStyle
-        )
-
-        assertThat(style.toSpanStyle()).isEqualTo(
-            SpanStyle(
+        val style =
+            TextStyle(
                 brush = brush,
                 fontSize = fontSize,
                 fontWeight = fontWeight,
@@ -1718,7 +1635,27 @@ class TextStyleTest {
                 shadow = shadow,
                 drawStyle = drawStyle
             )
-        )
+
+        assertThat(style.toSpanStyle())
+            .isEqualTo(
+                SpanStyle(
+                    brush = brush,
+                    fontSize = fontSize,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontSynthesis = fontSynthesis,
+                    fontFamily = fontFamily,
+                    fontFeatureSettings = fontFeatureSettings,
+                    letterSpacing = letterSpacing,
+                    baselineShift = baselineShift,
+                    textGeometricTransform = textGeometricTransform,
+                    localeList = localeList,
+                    background = background,
+                    textDecoration = decoration,
+                    shadow = shadow,
+                    drawStyle = drawStyle
+                )
+            )
     }
 
     @Test
@@ -1727,41 +1664,45 @@ class TextStyleTest {
         val textDirection = TextDirection.Rtl
         val lineHeight = 100.sp
         val textIndent = TextIndent(firstLine = 20.sp, restLine = 40.sp)
-        val lineHeightStyle = LineHeightStyle(
-            alignment = LineHeightStyle.Alignment.Center,
-            trim = LineHeightStyle.Trim.None
-        )
+        val lineHeightStyle =
+            LineHeightStyle(
+                alignment = LineHeightStyle.Alignment.Center,
+                trim = LineHeightStyle.Trim.None
+            )
         val hyphens = Hyphens.Auto
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
         val textMotion = TextMotion.Animated
 
-        val style = TextStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
-            lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak,
-            hyphens = hyphens,
-            textMotion = textMotion
-        )
-
-        assertThat(style.toParagraphStyle()).isEqualTo(
-            ParagraphStyle(
+        val style =
+            TextStyle(
                 textAlign = textAlign,
                 textDirection = textDirection,
                 lineHeight = lineHeight,
                 textIndent = textIndent,
                 lineHeightStyle = lineHeightStyle,
-                hyphens = hyphens,
                 lineBreak = lineBreak,
+                hyphens = hyphens,
                 textMotion = textMotion
             )
-        )
+
+        assertThat(style.toParagraphStyle())
+            .isEqualTo(
+                ParagraphStyle(
+                    textAlign = textAlign,
+                    textDirection = textDirection,
+                    lineHeight = lineHeight,
+                    textIndent = textIndent,
+                    lineHeightStyle = lineHeightStyle,
+                    hyphens = hyphens,
+                    lineBreak = lineBreak,
+                    textMotion = textMotion
+                )
+            )
     }
 
     @Test(expected = IllegalStateException::class)
@@ -1845,34 +1786,41 @@ class TextStyleTest {
 
     @Test
     fun `hashCode is different for different line height behavior`() {
-        val style = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Bottom,
-                trim = LineHeightStyle.Trim.None
+        val style =
+            TextStyle(
+                lineHeightStyle =
+                    LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Bottom,
+                        trim = LineHeightStyle.Trim.None
+                    )
             )
-        )
-        val otherStyle = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Center,
-                trim = LineHeightStyle.Trim.Both
+        val otherStyle =
+            TextStyle(
+                lineHeightStyle =
+                    LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.Both
+                    )
             )
-        )
 
         assertThat(style.hashCode()).isNotEqualTo(otherStyle.hashCode())
     }
 
     @Test
     fun `copy with lineHeightStyle returns new lineHeightStyle`() {
-        val style = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Bottom,
-                trim = LineHeightStyle.Trim.None
+        val style =
+            TextStyle(
+                lineHeightStyle =
+                    LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Bottom,
+                        trim = LineHeightStyle.Trim.None
+                    )
             )
-        )
-        val newLineHeightStyle = LineHeightStyle(
-            alignment = LineHeightStyle.Alignment.Center,
-            trim = LineHeightStyle.Trim.Both
-        )
+        val newLineHeightStyle =
+            LineHeightStyle(
+                alignment = LineHeightStyle.Alignment.Center,
+                trim = LineHeightStyle.Trim.Both
+            )
         val newStyle = style.copy(lineHeightStyle = newLineHeightStyle)
 
         assertThat(newStyle.lineHeightStyle).isEqualTo(newLineHeightStyle)
@@ -1880,12 +1828,14 @@ class TextStyleTest {
 
     @Test
     fun `copy without lineHeightStyle uses existing lineHeightStyle`() {
-        val style = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Bottom,
-                trim = LineHeightStyle.Trim.None
+        val style =
+            TextStyle(
+                lineHeightStyle =
+                    LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Bottom,
+                        trim = LineHeightStyle.Trim.None
+                    )
             )
-        )
         val newStyle = style.copy()
 
         assertThat(newStyle.lineHeightStyle).isEqualTo(style.lineHeightStyle)
@@ -1923,18 +1873,22 @@ class TextStyleTest {
 
     @Test
     fun `merge with both non-null lineHeightStyle returns other's lineHeightStyle`() {
-        val style = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Center,
-                trim = LineHeightStyle.Trim.None
+        val style =
+            TextStyle(
+                lineHeightStyle =
+                    LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.None
+                    )
             )
-        )
-        val otherStyle = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Bottom,
-                trim = LineHeightStyle.Trim.Both
+        val otherStyle =
+            TextStyle(
+                lineHeightStyle =
+                    LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Bottom,
+                        trim = LineHeightStyle.Trim.Both
+                    )
             )
-        )
 
         val newStyle = style.merge(otherStyle)
 
@@ -1950,127 +1904,85 @@ class TextStyleTest {
 
     @Test
     fun resolveTextDirection_unspecified() {
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Ltr,
-                TextDirection.Unspecified
-            )
-        ).isEqualTo(TextDirection.Ltr)
+        assertThat(resolveTextDirection(LayoutDirection.Ltr, TextDirection.Unspecified))
+            .isEqualTo(TextDirection.Ltr)
 
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Rtl,
-                TextDirection.Unspecified
-            )
-        ).isEqualTo(TextDirection.Rtl)
+        assertThat(resolveTextDirection(LayoutDirection.Rtl, TextDirection.Unspecified))
+            .isEqualTo(TextDirection.Rtl)
     }
 
     @Test
     fun resolveTextDirection_Content() {
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Ltr,
-                TextDirection.Content
-            )
-        ).isEqualTo(TextDirection.ContentOrLtr)
+        assertThat(resolveTextDirection(LayoutDirection.Ltr, TextDirection.Content))
+            .isEqualTo(TextDirection.ContentOrLtr)
 
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Rtl,
-                TextDirection.Content
-            )
-        ).isEqualTo(TextDirection.ContentOrRtl)
+        assertThat(resolveTextDirection(LayoutDirection.Rtl, TextDirection.Content))
+            .isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
     fun resolveTextDirection_ContentOrLtr() {
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Ltr,
-                TextDirection.ContentOrLtr
-            )
-        ).isEqualTo(TextDirection.ContentOrLtr)
+        assertThat(resolveTextDirection(LayoutDirection.Ltr, TextDirection.ContentOrLtr))
+            .isEqualTo(TextDirection.ContentOrLtr)
 
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Rtl,
-                TextDirection.ContentOrLtr
-            )
-        ).isEqualTo(TextDirection.ContentOrLtr)
+        assertThat(resolveTextDirection(LayoutDirection.Rtl, TextDirection.ContentOrLtr))
+            .isEqualTo(TextDirection.ContentOrLtr)
     }
 
     @Test
     fun resolveTextDirection_ContentOrRtl() {
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Ltr,
-                TextDirection.ContentOrRtl
-            )
-        ).isEqualTo(TextDirection.ContentOrRtl)
+        assertThat(resolveTextDirection(LayoutDirection.Ltr, TextDirection.ContentOrRtl))
+            .isEqualTo(TextDirection.ContentOrRtl)
 
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Rtl,
-                TextDirection.ContentOrRtl
-            )
-        ).isEqualTo(TextDirection.ContentOrRtl)
+        assertThat(resolveTextDirection(LayoutDirection.Rtl, TextDirection.ContentOrRtl))
+            .isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
     fun resolveTextDirection_Ltr() {
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Ltr,
-                TextDirection.Ltr
-            )
-        ).isEqualTo(TextDirection.Ltr)
+        assertThat(resolveTextDirection(LayoutDirection.Ltr, TextDirection.Ltr))
+            .isEqualTo(TextDirection.Ltr)
 
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Rtl,
-                TextDirection.Ltr
-            )
-        ).isEqualTo(TextDirection.Ltr)
+        assertThat(resolveTextDirection(LayoutDirection.Rtl, TextDirection.Ltr))
+            .isEqualTo(TextDirection.Ltr)
     }
 
     @Test
     fun resolveTextDirection_Rtl() {
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Ltr,
-                TextDirection.Rtl
-            )
-        ).isEqualTo(TextDirection.Rtl)
+        assertThat(resolveTextDirection(LayoutDirection.Ltr, TextDirection.Rtl))
+            .isEqualTo(TextDirection.Rtl)
 
-        assertThat(
-            resolveTextDirection(
-                LayoutDirection.Rtl,
-                TextDirection.Rtl
-            )
-        ).isEqualTo(TextDirection.Rtl)
+        assertThat(resolveTextDirection(LayoutDirection.Rtl, TextDirection.Rtl))
+            .isEqualTo(TextDirection.Rtl)
     }
 
     @Test
     fun textStyle_allParamsMerge_nonDefaultWins() {
         val subject = TextStyle.Default
         val parameters = TextStyle::class.allConstructorParams()
-        val others = parameters.map { (param, constructor) ->
-            val args = mapOf(param to subject.getNotEqualValueFor(param))
-                .addPairwiseArgsToFix(parameters.map { it.first })
-            param to constructor.callBy(args)
-        }
+        val others =
+            parameters.map { (param, constructor) ->
+                val args =
+                    mapOf(param to subject.getNotEqualValueFor(param))
+                        .addPairwiseArgsToFix(parameters.map { it.first })
+                param to constructor.callBy(args)
+            }
         for ((param, other) in others) {
             val merged = subject.merge(other)
             val inverseMerged = other.merge(subject)
 
             // hand-rolling error messages since this is a all-params test
-            assertNotEquals(subject, merged,
+            assertNotEquals(
+                subject,
+                merged,
                 "subject.merge(other) on param=`${param.name}` failed" +
                     "\n\tmerged  = $merged" +
                     "\n\tother   = $other" +
                     "\n\tsubject = $subject"
             )
-            assertNotEquals(subject, inverseMerged,
+            assertNotEquals(
+                subject,
+                inverseMerged,
                 "other.merge(subject) on param=`${param.name}` failed" +
                     "\n\tmerged  = $merged" +
                     "\n\tother   = $other" +
@@ -2089,70 +2001,62 @@ private fun Map<KParameter, Any?>.addPairwiseArgsToFix(
     params: Collection<KParameter>
 ): Map<KParameter, Any?> {
     val name = keys.first().name
-    return this + when (name) {
-        "brush" -> {
-            val alpha = params.first { it.name == "alpha" }
-            mapOf(alpha to 0.7f)
+    return this +
+        when (name) {
+            "brush" -> {
+                val alpha = params.first { it.name == "alpha" }
+                mapOf(alpha to 0.7f)
+            }
+            "alpha" -> {
+                val brush = params.first { it.name == "brush" }
+                mapOf(brush to linearGradient(listOf(Color.Red)))
+            }
+            else -> emptyMap()
         }
-        "alpha" -> {
-            val brush = params.first { it.name == "brush" }
-            mapOf(brush to linearGradient(listOf(Color.Red)))
-        }
-        else -> emptyMap()
-    }
 }
 
-/**
- * All parameters on any public constructor, distinct by name
- */
-private fun KClass<TextStyle>.allConstructorParams() = this.constructors
-    .filter { it.visibility == KVisibility.PUBLIC }
-    .flatMap { it.parameters.map { param -> param to it } }
-    .fastDistinctBy { it.first.name }
+/** All parameters on any public constructor, distinct by name */
+private fun KClass<TextStyle>.allConstructorParams() =
+    this.constructors
+        .filter { it.visibility == KVisibility.PUBLIC }
+        .flatMap { it.parameters.map { param -> param to it } }
+        .fastDistinctBy { it.first.name }
 
-/**
- * Compute a distinct value for [KParameter] from the value in [kParameter]
- */
+/** Compute a distinct value for [KParameter] from the value in [kParameter] */
 private fun TextStyle.getNotEqualValueFor(kParameter: KParameter): Any {
     val prop: KProperty1<TextStyle, *> =
         TextStyle::class.memberProperties.first { it.name == kParameter.name }
     val currentValue = prop.get(this)
-    val newValue: Any = when (kParameter.type.jvmErasure) {
-        Color::class -> Color.Magenta
-        TextUnit::class -> 4.em
-        FontWeight::class -> FontWeight(712)
-        FontStyle::class -> FontStyle.Italic
-        FontSynthesis::class -> FontSynthesis.Weight
-        FontFamily::class -> FontFamily.Cursive
-        String::class -> (currentValue as? String ?: "") + " more text"
-        BaselineShift::class -> BaselineShift.Superscript
-        TextGeometricTransform::class -> TextGeometricTransform(0.5f, 0.5f)
-        LocaleList::class -> LocaleList("fr")
-        TextDecoration::class -> TextDecoration.Underline
-        Shadow::class -> Shadow(color = Color.Red)
-        TextAlign::class -> TextAlign.Justify
-        TextDirection::class -> TextDirection.Rtl
-        TextIndent::class -> TextIndent(10.sp)
-        PlatformTextStyle::class -> PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None)
-        LineHeightStyle::class -> LineHeightStyle(
-            LineHeightStyle.Alignment.Center,
-            LineHeightStyle.Trim.None
-        )
-        LineBreak::class -> LineBreak.Heading
-        Hyphens::class -> Hyphens.Auto
-        DrawStyle::class -> Stroke(1f)
-        TextMotion::class -> TextMotion.Animated
-        Brush::class -> linearGradient(listOf(Color.Blue, Color.Red))
-        Float::class -> (currentValue as? Float).nextDistinct()
-        Int::class -> (currentValue as? Int ?: 0) + 4
-        TextLinkStyles::class -> TextLinkStyles(
-            SpanStyle(Color.Red),
-            SpanStyle(Color.Green),
-            SpanStyle(Color.Blue),
-            SpanStyle()
-        )
-        else -> TODO("Please add an branch to this switch for ${kParameter.type}")
-    }
+    val newValue: Any =
+        when (kParameter.type.jvmErasure) {
+            Color::class -> Color.Magenta
+            TextUnit::class -> 4.em
+            FontWeight::class -> FontWeight(712)
+            FontStyle::class -> FontStyle.Italic
+            FontSynthesis::class -> FontSynthesis.Weight
+            FontFamily::class -> FontFamily.Cursive
+            String::class -> (currentValue as? String ?: "") + " more text"
+            BaselineShift::class -> BaselineShift.Superscript
+            TextGeometricTransform::class -> TextGeometricTransform(0.5f, 0.5f)
+            LocaleList::class -> LocaleList("fr")
+            TextDecoration::class -> TextDecoration.Underline
+            Shadow::class -> Shadow(color = Color.Red)
+            TextAlign::class -> TextAlign.Justify
+            TextDirection::class -> TextDirection.Rtl
+            TextIndent::class -> TextIndent(10.sp)
+            PlatformTextStyle::class ->
+                PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None)
+            LineHeightStyle::class ->
+                LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None)
+            LineBreak::class -> LineBreak.Heading
+            Hyphens::class -> Hyphens.Auto
+            DrawStyle::class -> Stroke(1f)
+            TextMotion::class -> TextMotion.Animated
+            Brush::class -> linearGradient(listOf(Color.Blue, Color.Red))
+            Float::class -> (currentValue as? Float).nextDistinct()
+            Int::class -> (currentValue as? Int ?: 0) + 4
+            else -> TODO("Please add an branch to this switch for ${kParameter.type}")
+        }
     require(newValue != currentValue) {
         "Logic for making distinct values failed, update this function so that" +
             " $currentValue != $newValue for ${prop.name}; you may need to add logic" +
@@ -2161,9 +2065,7 @@ private fun TextStyle.getNotEqualValueFor(kParameter: KParameter): Any {
     return newValue
 }
 
-/**
- * Floats can break addition on NaN and Infinity, hardcode distinct values
- */
+/** Floats can break addition on NaN and Infinity, hardcode distinct values */
 private fun Float?.nextDistinct(): Float {
     return if (this == null) {
         1f

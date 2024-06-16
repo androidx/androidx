@@ -70,6 +70,8 @@ android {
 }
 
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     android()
     ios() {
         // Link to sqlite3 available in iOS
@@ -189,7 +191,7 @@ androidXMultiplatform {
                 implementation(libs.okio)
             }
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nativeMain)
@@ -224,4 +226,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Room-Runtime"
+    legacyDisableKotlinStrictApiMode = true
 }

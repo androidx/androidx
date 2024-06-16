@@ -34,9 +34,9 @@ import kotlinx.coroutines.runBlocking
 /**
  * Base fragment to be used for testing different manual flows.
  *
- * Create a new subclass of this for each independent flow you wish to test. There will only be
- * one active fragment in the app's main activity at any time. Use [getSdkApi] to get a handle
- * to the SDK.
+ * Create a new subclass of this for each independent flow you wish to test. There will only be one
+ * active fragment in the app's main activity at any time. Use [getSdkApi] to get a handle to the
+ * SDK.
  */
 abstract class BaseFragment : Fragment() {
     private lateinit var sdkApi: ISdkApi
@@ -46,7 +46,7 @@ abstract class BaseFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activity = requireActivity()
-        sdkSandboxManager = SdkSandboxManagerCompat.from(requireContext())
+        sdkSandboxManager = SdkSandboxManagerCompat.from(requireContext().applicationContext)
         runBlocking {
             val loadedSdks = sdkSandboxManager.getSandboxedSdks()
             var loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
@@ -58,9 +58,7 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    /**
-     * Returns a handle to the already loaded SDK.
-     */
+    /** Returns a handle to the already loaded SDK. */
     fun getSdkApi(): ISdkApi {
         return sdkApi
     }
@@ -80,10 +78,10 @@ abstract class BaseFragment : Fragment() {
     }
 
     /**
-     * Called when the app's drawer layout state changes. When called, change the Z-order of
-     * any [SandboxedSdkView] owned by the fragment to ensure that the remote UI is not drawn over
-     * the drawer. If the drawer is open, move all remote views to Z-below, otherwise move them
-     * to Z-above.
+     * Called when the app's drawer layout state changes. When called, change the Z-order of any
+     * [SandboxedSdkView] owned by the fragment to ensure that the remote UI is not drawn over the
+     * drawer. If the drawer is open, move all remote views to Z-below, otherwise move them to
+     * Z-above.
      */
     abstract fun handleDrawerStateChange(isDrawerOpen: Boolean)
 

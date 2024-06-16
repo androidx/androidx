@@ -25,22 +25,23 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = CommonModuleIncompatibilityDetector()
 
-    override fun getIssues(): MutableList<Issue> = mutableListOf(
-        CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
-        CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
-        CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE
-    )
+    override fun getIssues(): MutableList<Issue> =
+        mutableListOf(
+            CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
+            CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
+            CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE
+        )
 
     @Test
     fun detectsImportInCommonMain() {
-        val file = kotlin(
-            "commonMain/test/TestFile.kt",
-            """
+        val file =
+            kotlin(
+                    "commonMain/test/TestFile.kt",
+                    """
                 package test
 
                 import java.util.ArrayList as MyList
@@ -49,11 +50,11 @@ class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
                 import android.os.Bundle
                 import android.*
             """
-        ).within("src")
+                )
+                .within("src")
 
-        lint().files(
-            file
-        )
+        lint()
+            .files(file)
             .run()
             .expect(
                 """
@@ -73,15 +74,17 @@ src/commonMain/test/TestFile.kt:8: Error: Platform-dependent import in a common 
                 import android.*
                        ~~~~~~~
 5 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun detectsJavaClassCallsInCommonMain() {
-        val file = kotlin(
-            "commonMain/test/TestFile.kt",
-            """
+        val file =
+            kotlin(
+                    "commonMain/test/TestFile.kt",
+                    """
                 package test
 
                 fun test(test: String) {
@@ -97,11 +100,11 @@ src/commonMain/test/TestFile.kt:8: Error: Platform-dependent import in a common 
                   }
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        lint().files(
-            file
-        )
+        lint()
+            .files(file)
             .run()
             .expect(
                 """
@@ -118,15 +121,17 @@ src/commonMain/test/TestFile.kt:12: Error: Platform reference in a common module
                     if (javaClass != other?.javaClass) return false
                                             ~~~~~~~~~
 4 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun detectsLambdaSuperTypeInCommonMain() {
-        val file = kotlin(
-            "commonMain/test/TestFile.kt",
-            """
+        val file =
+            kotlin(
+                    "commonMain/test/TestFile.kt",
+                    """
                 package test
 
                 abstract class Test : () -> Unit
@@ -138,11 +143,11 @@ src/commonMain/test/TestFile.kt:12: Error: Platform reference in a common module
                     override fun invoke() {}
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        lint().files(
-            file
-        )
+        lint()
+            .files(file)
             .run()
             .expect(
                 """
@@ -156,15 +161,17 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 val a = object : () -> Unit {
                         ^
 3 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun ignoresImportInOtherModules() {
-        val jvmFile = kotlin(
-            "jvmMain/test/TestFile.kt",
-            """
+        val jvmFile =
+            kotlin(
+                    "jvmMain/test/TestFile.kt",
+                    """
                 package test
 
                 import java.util.ArrayList as MyList
@@ -173,11 +180,13 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 import android.os.Bundle
                 import android.*
             """
-        ).within("src")
+                )
+                .within("src")
 
-        val androidFile = kotlin(
-            "androidMain/test/TestFile.kt",
-            """
+        val androidFile =
+            kotlin(
+                    "androidMain/test/TestFile.kt",
+                    """
                 package test
 
                 import java.util.*
@@ -185,11 +194,13 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 import android.os.Bundle
                 import android.*
             """
-        ).within("src")
+                )
+                .within("src")
 
-        val file = kotlin(
-            "main/test/TestFile.kt",
-            """
+        val file =
+            kotlin(
+                    "main/test/TestFile.kt",
+                    """
                 package test
 
                 import java.util.*
@@ -197,22 +208,18 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 import android.os.Bundle
                 import android.*
             """
-        ).within("src")
+                )
+                .within("src")
 
-        lint().files(
-            file,
-            androidFile,
-            jvmFile
-        )
-            .run()
-            .expectClean()
+        lint().files(file, androidFile, jvmFile).run().expectClean()
     }
 
     @Test
     fun ignoresJavaClassCallsInOtherSourceSets() {
-        val jvmFile = kotlin(
-            "jvmMain/test/TestFile.kt",
-            """
+        val jvmFile =
+            kotlin(
+                    "jvmMain/test/TestFile.kt",
+                    """
                 package test
 
                 fun test(test: String) {
@@ -228,11 +235,13 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                   }
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        val androidFile = kotlin(
-            "androidMain/test/TestFile.kt",
-            """
+        val androidFile =
+            kotlin(
+                    "androidMain/test/TestFile.kt",
+                    """
                 package test
 
                 fun test(test: String) {
@@ -248,11 +257,13 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                   }
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        val file = kotlin(
-            "main/test/TestFile.kt",
-            """
+        val file =
+            kotlin(
+                    "main/test/TestFile.kt",
+                    """
                 package test
 
                 fun test(test: String) {
@@ -268,22 +279,18 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                   }
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        lint().files(
-            file,
-            androidFile,
-            jvmFile
-        )
-            .run()
-            .expectClean()
+        lint().files(file, androidFile, jvmFile).run().expectClean()
     }
 
     @Test
     fun ignoreLambdaSuperTypeInPlatformSourceSets() {
-        val jvmFile = kotlin(
-            "jvmMain/test/TestFile.kt",
-            """
+        val jvmFile =
+            kotlin(
+                    "jvmMain/test/TestFile.kt",
+                    """
                 package test
 
                 abstract class Test : () -> Unit
@@ -295,11 +302,13 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                     override fun invoke() {}
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        val androidFile = kotlin(
-            "androidMain/test/TestFile.kt",
-            """
+        val androidFile =
+            kotlin(
+                    "androidMain/test/TestFile.kt",
+                    """
                 package test
 
                 abstract class Test : () -> Unit
@@ -311,11 +320,13 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                     override fun invoke() {}
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        val file = kotlin(
-            "main/test/TestFile.kt",
-            """
+        val file =
+            kotlin(
+                    "main/test/TestFile.kt",
+                    """
                 package test
 
                 abstract class Test : () -> Unit
@@ -327,15 +338,9 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                     override fun invoke() {}
                 }
             """
-        ).within("src")
+                )
+                .within("src")
 
-        lint().files(
-            jvmFile,
-            androidFile,
-            file
-        )
-            .run()
-            .expectClean()
+        lint().files(jvmFile, androidFile, file).run().expectClean()
     }
 }
-/* ktlint-enable max-line-length */

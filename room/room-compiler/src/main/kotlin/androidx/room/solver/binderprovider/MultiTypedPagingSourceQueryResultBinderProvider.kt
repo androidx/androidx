@@ -48,13 +48,13 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments.last()
-        val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(typeArg, it)
-        }
-        val tableNames = (
-            (listAdapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }
-            ).toSet()
+        val listAdapter =
+            context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
+                ListQueryResultAdapter(typeArg, it)
+            }
+        val tableNames =
+            ((listAdapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name })
+                .toSet()
 
         return MultiTypedPagingSourceQueryResultBinder(
             listAdapter = listAdapter,

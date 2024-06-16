@@ -27,12 +27,12 @@ import org.junit.Test
 class UnitTestFiltersTest {
     @Test
     fun isCircularProgressIndicator_match() {
-        val nodeAssertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children += EmittableCircularProgressIndicator()
-            },
-            onNodeMatcher = isIndeterminateCircularProgressIndicator()
-        )
+        val nodeAssertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply { children += EmittableCircularProgressIndicator() },
+                onNodeMatcher = isIndeterminateCircularProgressIndicator()
+            )
 
         nodeAssertion.assertExists()
         // no error
@@ -40,16 +40,15 @@ class UnitTestFiltersTest {
 
     @Test
     fun isCircularProgressIndicator_noMatch_assertionError() {
-        val nodeAssertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children += EmittableLinearProgressIndicator()
-            },
-            onNodeMatcher = isIndeterminateCircularProgressIndicator()
-        )
+        val nodeAssertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply { children += EmittableLinearProgressIndicator() },
+                onNodeMatcher = isIndeterminateCircularProgressIndicator()
+            )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
-            nodeAssertion.assertExists()
-        }
+        val assertionError =
+            Assert.assertThrows(AssertionError::class.java) { nodeAssertion.assertExists() }
 
         assertThat(assertionError)
             .hasMessageThat()
@@ -62,14 +61,15 @@ class UnitTestFiltersTest {
 
     @Test
     fun isIndeterminateLinearProgressIndicator_match() {
-        val nodeAssertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children += EmittableLinearProgressIndicator().apply {
-                    indeterminate = true
-                }
-            },
-            onNodeMatcher = isIndeterminateLinearProgressIndicator()
-        )
+        val nodeAssertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children +=
+                            EmittableLinearProgressIndicator().apply { indeterminate = true }
+                    },
+                onNodeMatcher = isIndeterminateLinearProgressIndicator()
+            )
 
         nodeAssertion.assertExists()
         // no error
@@ -77,16 +77,15 @@ class UnitTestFiltersTest {
 
     @Test
     fun isIndeterminateLinearProgressIndicator_noMatch_assertionError() {
-        val nodeAssertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children += EmittableCircularProgressIndicator()
-            },
-            onNodeMatcher = isIndeterminateLinearProgressIndicator()
-        )
+        val nodeAssertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply { children += EmittableCircularProgressIndicator() },
+                onNodeMatcher = isIndeterminateLinearProgressIndicator()
+            )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
-            nodeAssertion.assertExists()
-        }
+        val assertionError =
+            Assert.assertThrows(AssertionError::class.java) { nodeAssertion.assertExists() }
 
         assertThat(assertionError)
             .hasMessageThat()
@@ -99,14 +98,14 @@ class UnitTestFiltersTest {
 
     @Test
     fun isLinearProgressIndicator_match() {
-        val nodeAssertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children += EmittableLinearProgressIndicator().apply {
-                    progress = 10.0f
-                }
-            },
-            onNodeMatcher = isLinearProgressIndicator(10.0f)
-        )
+        val nodeAssertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children += EmittableLinearProgressIndicator().apply { progress = 10.0f }
+                    },
+                onNodeMatcher = isLinearProgressIndicator(10.0f)
+            )
 
         nodeAssertion.assertExists()
         // no error
@@ -114,19 +113,21 @@ class UnitTestFiltersTest {
 
     @Test
     fun isLinearProgressIndicator_progressValueNotMatch_assertionError() {
-        val nodeAssertion = getGlanceNodeAssertionFor(
-            emittable = EmittableColumn().apply {
-                children += EmittableLinearProgressIndicator().apply {
-                    indeterminate = false
-                    progress = 10.0f
-                }
-            },
-            onNodeMatcher = isLinearProgressIndicator(11.0f)
-        )
+        val nodeAssertion =
+            getGlanceNodeAssertionFor(
+                emittable =
+                    EmittableColumn().apply {
+                        children +=
+                            EmittableLinearProgressIndicator().apply {
+                                indeterminate = false
+                                progress = 10.0f
+                            }
+                    },
+                onNodeMatcher = isLinearProgressIndicator(11.0f)
+            )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
-            nodeAssertion.assertExists()
-        }
+        val assertionError =
+            Assert.assertThrows(AssertionError::class.java) { nodeAssertion.assertExists() }
 
         assertThat(assertionError)
             .hasMessageThat()

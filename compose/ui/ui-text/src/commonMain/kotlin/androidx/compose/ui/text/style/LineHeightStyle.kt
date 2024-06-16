@@ -20,8 +20,8 @@ import androidx.compose.ui.text.PlatformParagraphStyle
 
 /**
  * The configuration for line height such as alignment of the line in the provided line height,
- * whether to apply additional space as a result of line height to top of first line top and
- * bottom of last line.
+ * whether to apply additional space as a result of line height to top of first line top and bottom
+ * of last line.
  *
  * The configuration is applied only when a line height is defined on the text.
  *
@@ -30,24 +30,18 @@ import androidx.compose.ui.text.PlatformParagraphStyle
  * Please check [Trim] and [Alignment] for more description.
  *
  * @param alignment defines how to align the line in the space provided by the line height.
- * @param trim defines whether the space that would be added to the top of first line, and
- * bottom of the last line should be trimmed or not. This feature is available only when
- * [PlatformParagraphStyle.includeFontPadding] is false.
+ * @param trim defines whether the space that would be added to the top of first line, and bottom of
+ *   the last line should be trimmed or not. This feature is available only when
+ *   [PlatformParagraphStyle.includeFontPadding] is false.
  */
-class LineHeightStyle(
-    val alignment: Alignment,
-    val trim: Trim
-) {
+class LineHeightStyle(val alignment: Alignment, val trim: Trim) {
     companion object {
         /**
          * The default configuration for [LineHeightStyle]:
          * - alignment = [Alignment.Proportional]
          * - trim = [Trim.Both]
          */
-        val Default = LineHeightStyle(
-            alignment = Alignment.Proportional,
-            trim = Trim.Both
-        )
+        val Default = LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.Both)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -67,10 +61,7 @@ class LineHeightStyle(
     }
 
     override fun toString(): String {
-        return "LineHeightStyle(" +
-            "alignment=$alignment, " +
-            "trim=$trim" +
-            ")"
+        return "LineHeightStyle(" + "alignment=$alignment, " + "trim=$trim" + ")"
     }
 
     /**
@@ -100,9 +91,9 @@ class LineHeightStyle(
              * line height. Single line text is both the first and last line. This feature is
              * available only when [PlatformParagraphStyle.includeFontPadding] is false.
              *
-             * For example, when line height is 3.em, and [Alignment] is
-             * [Alignment.Center], the first line has 2.em height and the height from
-             * first line baseline to second line baseline is still 3.em:
+             * For example, when line height is 3.em, and [Alignment] is [Alignment.Center], the
+             * first line has 2.em height and the height from first line baseline to second line
+             * baseline is still 3.em:
              * <pre>
              * +--------+
              * | Line1  |
@@ -121,9 +112,9 @@ class LineHeightStyle(
              * line height. Single line text is both the first and last line. This feature is
              * available only when [PlatformParagraphStyle.includeFontPadding] is false.
              *
-             * For example, when line height is 3.em, and [Alignment] is
-             * [Alignment.Center], the last line has 2.em height and the height from
-             * first line baseline to second line baseline is still 3.em:
+             * For example, when line height is 3.em, and [Alignment] is [Alignment.Center], the
+             * last line has 2.em height and the height from first line baseline to second line
+             * baseline is still 3.em:
              * <pre>
              * +--------+
              * |        |
@@ -138,13 +129,13 @@ class LineHeightStyle(
             val LastLineBottom = Trim(FlagTrimBottom)
 
             /**
-             * Trim the space that would be added to the top of the first line and bottom of the last
-             * line as a result of the line height. This feature is available only when
+             * Trim the space that would be added to the top of the first line and bottom of the
+             * last line as a result of the line height. This feature is available only when
              * [PlatformParagraphStyle.includeFontPadding] is false.
              *
-             * For example, when line height is 3.em, and [Alignment] is
-             * [Alignment.Center], the first and last line has 2.em height and the height
-             * from first line baseline to second line baseline is still 3.em:
+             * For example, when line height is 3.em, and [Alignment] is [Alignment.Center], the
+             * first and last line has 2.em height and the height from first line baseline to second
+             * line baseline is still 3.em:
              * <pre>
              * +--------+
              * | Line1  |
@@ -160,9 +151,9 @@ class LineHeightStyle(
             /**
              * Do not trim first line top or last line bottom.
              *
-             * For example, when line height is 3.em, and [Alignment] is
-             * [Alignment.Center], the first line height, last line height and the height
-             * from first line baseline to second line baseline are 3.em:
+             * For example, when line height is 3.em, and [Alignment] is [Alignment.Center], the
+             * first line height, last line height and the height from first line baseline to second
+             * line baseline are 3.em:
              * <pre>
              * +--------+
              * |        |
@@ -190,8 +181,8 @@ class LineHeightStyle(
     /**
      * Defines how to align the line in the space provided by the line height.
      *
-     * @param topRatio the ratio of ascent to ascent+descent in percentage. Valid values are
-     * between 0f (inclusive) and 1f (inclusive).
+     * @param topRatio the ratio of ascent to ascent+descent in percentage. Valid values are between
+     *   0f (inclusive) and 1f (inclusive).
      */
     @kotlin.jvm.JvmInline
     value class Alignment constructor(internal val topRatio: Float) {
@@ -214,11 +205,11 @@ class LineHeightStyle(
 
         companion object {
             /**
-             * Align the line to the top of the space reserved for that line. This means that all extra
-             * space as a result of line height is applied to the bottom of the line. When the provided
-             * line height value is smaller than the actual line height, the line will still be aligned
-             * to the top, therefore the required difference will be subtracted from the bottom of the
-             * line.
+             * Align the line to the top of the space reserved for that line. This means that all
+             * extra space as a result of line height is applied to the bottom of the line. When the
+             * provided line height value is smaller than the actual line height, the line will
+             * still be aligned to the top, therefore the required difference will be subtracted
+             * from the bottom of the line.
              *
              * For example, when line height is 3.em, the lines are aligned to the top of 3.em
              * height:
@@ -258,18 +249,18 @@ class LineHeightStyle(
 
             /**
              * Align the line proportional to the ascent and descent values of the line. For example
-             * if ascent is 8 units of length, and descent is 2 units; an additional space of 10 units
-             * will be distributed as 8 units to top, and 2 units to the bottom of the line. This is
-             * the default behavior.
+             * if ascent is 8 units of length, and descent is 2 units; an additional space of 10
+             * units will be distributed as 8 units to top, and 2 units to the bottom of the line.
+             * This is the default behavior.
              */
             val Proportional = Alignment(topRatio = -1f)
 
             /**
              * Align the line to the bottom of the space reserved for that line. This means that all
              * extra space as a result of line height is applied to the top of the line. When the
-             * provided line height value is smaller than the actual line height, the line will still
-             * be aligned to the bottom, therefore the required difference will be subtracted from the
-             * top of the line.
+             * provided line height value is smaller than the actual line height, the line will
+             * still be aligned to the bottom, therefore the required difference will be subtracted
+             * from the top of the line.
              *
              * For example, when line height is 3.em, the lines are aligned to the bottom of 3.em
              * height:

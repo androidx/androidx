@@ -21,80 +21,84 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class MissingJvmDefaultWithCompatibilityDetectorTest : AbstractLintDetectorTest(
-    useDetector = MissingJvmDefaultWithCompatibilityDetector(),
-    useIssues = listOf(MissingJvmDefaultWithCompatibilityDetector.ISSUE),
-
-) {
+class MissingJvmDefaultWithCompatibilityDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = MissingJvmDefaultWithCompatibilityDetector(),
+        useIssues = listOf(MissingJvmDefaultWithCompatibilityDetector.ISSUE),
+    ) {
     @Test
     fun `Test lint for interface with stable default method`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 interface InterfaceWithDefaultMethod {
                     fun methodWithoutDefaultImplementation(foo: Int): String
                     fun methodWithDefaultImplementation(): Int = 3
                 }
-            """)
-        )
+            """
+                )
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/InterfaceWithDefaultMethod.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it has a stable method with a default implementation [MissingJvmDefaultWithCompatibility]
                 interface InterfaceWithDefaultMethod {
                 ^
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Autofix for src/java/androidx/InterfaceWithDefaultMethod.kt line 4: Annotate with @JvmDefaultWithCompatibility:
 @@ -4 +4
 +                 @JvmDefaultWithCompatibility
         """
-        /* ktlint-enable max-line-length */
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectedFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test lint for interface with stable method with default parameter`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 interface InterfaceWithMethodWithDefaultParameterValue {
                     fun methodWithDefaultParameterValue(foo: Int = 3): Int
                 }
-            """)
-        )
+            """
+                )
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it has a stable method with a parameter with a default value [MissingJvmDefaultWithCompatibility]
                 interface InterfaceWithMethodWithDefaultParameterValue {
                 ^
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Autofix for src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt line 4: Annotate with @JvmDefaultWithCompatibility:
 @@ -4 +4
 +                 @JvmDefaultWithCompatibility
         """
-        /* ktlint-enable max-line-length */
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectedFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test lint for interface implementing @JvmDefaultWithCompatibility interface`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 import kotlin.jvm.JvmDefaultWithCompatibility
@@ -103,41 +107,45 @@ Autofix for src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt li
                 interface InterfaceWithAnnotation {
                     fun foo(bar: Int = 3): Int
                 }
-            """),
-            kotlin("""
+            """
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 interface InterfaceWithoutAnnotation: InterfaceWithAnnotation {
                     fun baz(): Int
                 }
-            """),
-            Stubs.JvmDefaultWithCompatibility
-        )
+            """
+                ),
+                Stubs.JvmDefaultWithCompatibility
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/InterfaceWithoutAnnotation.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it implements an interface which uses this annotation [MissingJvmDefaultWithCompatibility]
                 interface InterfaceWithoutAnnotation: InterfaceWithAnnotation {
                 ^
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate with @JvmDefaultWithCompatibility:
 @@ -4 +4
 +                 @JvmDefaultWithCompatibility
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectedFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test lint does not apply to interface implementing @JvmDefaultWithCompatibility`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 import kotlin.jvm.JvmDefaultWithCompatibility
@@ -146,54 +154,60 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                 interface InterfaceWithAnnotation {
                     fun foo(bar: Int = 3): Int = 4
                 }
-            """),
-            Stubs.JvmDefaultWithCompatibility
-        )
+            """
+                ),
+                Stubs.JvmDefaultWithCompatibility
+            )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 
     @Test
     fun `Test lint does not apply to unstable interface`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 @RequiresOptIn
                 interface UnstableInterface {
                     fun foo(bar: Int = 3): Int = 4
                 }
-            """),
-            Stubs.OptIn
-        )
+            """
+                ),
+                Stubs.OptIn
+            )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 
     @Test
     fun `Test lint does not apply to interface with no stable methods`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 interface InterfaceWithoutStableMethods {
                     @RequiresOptIn
                     fun unstableMethod(foo: Int = 3): Int = 4
                 }
-            """),
-            Stubs.OptIn
-        )
+            """
+                ),
+                Stubs.OptIn
+            )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 
     @Test
     fun `Test lint does apply to interface with one unstable method and one stable method`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 interface InterfaceWithStableAndUnstableMethods {
@@ -201,50 +215,54 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                     fun unstableMethod(foo: Int = 3): Int = 4
                     fun stableMethod(foo: Int = 3): Int = 4
                 }
-            """),
-            Stubs.OptIn
-        )
+            """
+                ),
+                Stubs.OptIn
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/InterfaceWithStableAndUnstableMethods.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it has a stable method with a default implementation [MissingJvmDefaultWithCompatibility]
                 interface InterfaceWithStableAndUnstableMethods {
                 ^
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Autofix for src/java/androidx/InterfaceWithStableAndUnstableMethods.kt line 4: Annotate with @JvmDefaultWithCompatibility:
 @@ -4 +4
 +                 @JvmDefaultWithCompatibility
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectedFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test lint does not apply to interface with no default methods`() {
-        val input = arrayOf(
-            kotlin("""
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 interface InterfaceWithoutDefaults {
                     fun methodWithoutDefaults(foo: Int): Int
                 }
-            """)
-        )
+            """
+                )
+            )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 
     @Test
     fun `Test lint does not apply to Java file`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 interface JavaInterface {
@@ -252,10 +270,10 @@ Autofix for src/java/androidx/InterfaceWithStableAndUnstableMethods.kt line 4: A
                         return 3;
                     }
                 }
-            """)
-        )
+            """
+                )
+            )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 }

@@ -46,21 +46,9 @@ fun SameWidthBoxes() {
     // the Box's to use the same width.
     Box {
         Column(Modifier.width(IntrinsicSize.Min).fillMaxHeight()) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .size(20.dp, 10.dp)
-                    .background(Color.Gray)
-            )
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .size(30.dp, 10.dp)
-                    .background(Color.Blue)
-            )
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .size(10.dp, 10.dp)
-                    .background(Color.Magenta)
-            )
+            Box(modifier = Modifier.fillMaxWidth().size(20.dp, 10.dp).background(Color.Gray))
+            Box(modifier = Modifier.fillMaxWidth().size(30.dp, 10.dp).background(Color.Blue))
+            Box(modifier = Modifier.fillMaxWidth().size(10.dp, 10.dp).background(Color.Magenta))
         }
     }
 }
@@ -84,8 +72,9 @@ fun MatchParentDividerForText() {
             )
             Box(Modifier.width(1.dp).fillMaxHeight().background(Color.Black))
             Text(
-                text = "This is a much much much much much much much much much much" +
-                    " much much much much much much longer text",
+                text =
+                    "This is a much much much much much much much much much much" +
+                        " much much much much much much longer text",
                 modifier = Modifier.weight(1f).fillMaxHeight()
             )
         }
@@ -105,15 +94,11 @@ fun SameWidthTextBoxes() {
 
     Box {
         Column(Modifier.width(IntrinsicSize.Max).fillMaxHeight()) {
-            Box(Modifier.fillMaxWidth().background(Color.Gray)) {
-                Text("Short text")
-            }
+            Box(Modifier.fillMaxWidth().background(Color.Gray)) { Text("Short text") }
             Box(Modifier.fillMaxWidth().background(Color.Blue)) {
                 Text("Extremely long text giving the width of its siblings")
             }
-            Box(Modifier.fillMaxWidth().background(Color.Magenta)) {
-                Text("Medium length text")
-            }
+            Box(Modifier.fillMaxWidth().background(Color.Magenta)) { Text("Medium length text") }
         }
     }
 }

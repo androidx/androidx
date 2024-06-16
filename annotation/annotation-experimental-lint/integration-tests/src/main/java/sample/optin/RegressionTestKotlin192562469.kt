@@ -26,58 +26,49 @@ class RegressionTestKotlin192562469 {
         fun experimentalMethod()
     }
 
-    /**
-     * Unsafe usage due to implementation of an experimental interface.
-     */
+    /** Unsafe usage due to implementation of an experimental interface. */
     internal class ConcreteExperimentalInterface : ExperimentalInterface { // unsafe
         override fun experimentalMethod() {} // unsafe override
     }
 
-    /**
-     * Safe usage due to opt-in.
-     */
+    /** Safe usage due to opt-in. */
     @OptIn(ExperimentalKotlinAnnotation::class)
     internal class ConcreteExperimentalInterfaceOptIn : ExperimentalInterface {
         override fun experimentalMethod() {}
     }
 
-    /**
-     * Safe usage due to propagation.
-     */
+    /** Safe usage due to propagation. */
     @ExperimentalKotlinAnnotation
     internal class ConcreteExperimentalInterfacePropagate : ExperimentalInterface {
         override fun experimentalMethod() {}
     }
 
-    /**
-     * Unsafe implementations of an experimental interface.
-     */
+    /** Unsafe implementations of an experimental interface. */
     fun regressionTestOverrides() {
-        val anonymous: ExperimentalInterface = object : ExperimentalInterface { // unsafe
-            override fun experimentalMethod() {} // unsafe override
-        }
+        val anonymous: ExperimentalInterface =
+            object : ExperimentalInterface { // unsafe
+                override fun experimentalMethod() {} // unsafe override
+            }
         val lambda = ExperimentalInterface {} // unsafe
     }
 
-    /**
-     * Safe implementations of an experimental interface due to opt-in.
-     */
+    /** Safe implementations of an experimental interface due to opt-in. */
     @OptIn(ExperimentalKotlinAnnotation::class)
     fun regressionTestOverridesOptIn() {
-        val anonymous: ExperimentalInterface = object : ExperimentalInterface {
-            override fun experimentalMethod() {} // safe
-        }
+        val anonymous: ExperimentalInterface =
+            object : ExperimentalInterface {
+                override fun experimentalMethod() {} // safe
+            }
         val lambda = ExperimentalInterface {} // safe
     }
 
-    /**
-     * Safe implementations of an experimental interface due to propagation.
-     */
+    /** Safe implementations of an experimental interface due to propagation. */
     @ExperimentalKotlinAnnotation
     fun regressionTestOverridesPropagate() {
-        val anonymous: ExperimentalInterface = object : ExperimentalInterface {
-            override fun experimentalMethod() {} // safe
-        }
+        val anonymous: ExperimentalInterface =
+            object : ExperimentalInterface {
+                override fun experimentalMethod() {} // safe
+            }
         val lambda = ExperimentalInterface {} // safe
     }
 }

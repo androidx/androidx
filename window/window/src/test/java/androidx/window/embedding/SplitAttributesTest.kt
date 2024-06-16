@@ -38,18 +38,21 @@ import org.robolectric.RobolectricTestRunner
 class SplitAttributesTest {
     @Test
     fun testSplitAttributesEquals() {
-        val attrs1 = SplitAttributes.Builder()
-            .setSplitType(SPLIT_TYPE_EQUAL)
-            .setLayoutDirection(LOCALE)
-            .build()
-        val attrs2 = SplitAttributes.Builder()
-            .setSplitType(SPLIT_TYPE_HINGE)
-            .setLayoutDirection(LOCALE)
-            .build()
-        val attrs3 = SplitAttributes.Builder()
-            .setSplitType(SPLIT_TYPE_HINGE)
-            .setLayoutDirection(TOP_TO_BOTTOM)
-            .build()
+        val attrs1 =
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_EQUAL)
+                .setLayoutDirection(LOCALE)
+                .build()
+        val attrs2 =
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_HINGE)
+                .setLayoutDirection(LOCALE)
+                .build()
+        val attrs3 =
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_HINGE)
+                .setLayoutDirection(TOP_TO_BOTTOM)
+                .build()
 
         assertNotEquals(attrs1, attrs2)
         assertNotEquals(attrs1.hashCode(), attrs2.hashCode())
@@ -63,11 +66,12 @@ class SplitAttributesTest {
 
     @Test
     fun testTypesEquals() {
-        val splitTypes = arrayOf(
-            SPLIT_TYPE_EQUAL,
-            SPLIT_TYPE_EXPAND,
-            SPLIT_TYPE_HINGE,
-        )
+        val splitTypes =
+            arrayOf(
+                SPLIT_TYPE_EQUAL,
+                SPLIT_TYPE_EXPAND,
+                SPLIT_TYPE_HINGE,
+            )
 
         for ((i, type1) in splitTypes.withIndex()) {
             for ((j, type2) in splitTypes.withIndex()) {
@@ -83,39 +87,33 @@ class SplitAttributesTest {
 
         assertEquals(
             "Two SplitTypes must regarded as equal if their ratios are the same.",
-            SPLIT_TYPE_EQUAL, SplitType.ratio(0.5f)
+            SPLIT_TYPE_EQUAL,
+            SplitType.ratio(0.5f)
         )
         assertEquals(SPLIT_TYPE_EQUAL.hashCode(), SplitType.ratio(0.5f).hashCode())
     }
 
     @Test
     fun testSplitRatioRatio() {
-        assertThrows(WindowStrictModeException::class.java) {
-            SplitType.ratio(-0.01f)
-        }
-        assertThrows(WindowStrictModeException::class.java) {
-            SplitType.ratio(0.0f)
-        }
+        assertThrows(WindowStrictModeException::class.java) { SplitType.ratio(-0.01f) }
+        assertThrows(WindowStrictModeException::class.java) { SplitType.ratio(0.0f) }
         SplitType.ratio(0.001f)
         SplitType.ratio(0.5f)
         SplitType.ratio(0.999f)
-        assertThrows(WindowStrictModeException::class.java) {
-            SplitType.ratio(1.0f)
-        }
-        assertThrows(WindowStrictModeException::class.java) {
-            SplitType.ratio(1.1f)
-        }
+        assertThrows(WindowStrictModeException::class.java) { SplitType.ratio(1.0f) }
+        assertThrows(WindowStrictModeException::class.java) { SplitType.ratio(1.1f) }
     }
 
     @Test
     fun testLayoutDirectionEquals() {
-        val layoutDirectionList = arrayOf(
-            LOCALE,
-            LEFT_TO_RIGHT,
-            RIGHT_TO_LEFT,
-            TOP_TO_BOTTOM,
-            BOTTOM_TO_TOP,
-        )
+        val layoutDirectionList =
+            arrayOf(
+                LOCALE,
+                LEFT_TO_RIGHT,
+                RIGHT_TO_LEFT,
+                TOP_TO_BOTTOM,
+                BOTTOM_TO_TOP,
+            )
 
         for ((i, layoutDirection1) in layoutDirectionList.withIndex()) {
             for ((j, layoutDirection2) in layoutDirectionList.withIndex()) {

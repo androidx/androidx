@@ -58,24 +58,22 @@ class SurfaceControlWrapperTest {
     }
 
     private abstract class SurfaceHolderCallback : SurfaceHolder.Callback {
-        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
-        }
+        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
 
-        override fun surfaceDestroyed(p0: SurfaceHolder) {
-        }
+        override fun surfaceDestroyed(p0: SurfaceHolder) {}
     }
 
     @Test
     fun testCreateFromWindow() {
-        val surfaceControl = SurfaceControl.Builder()
-            .setName("SurfaceControlCompact_createFromWindow")
-            .build()
+        val surfaceControl =
+            SurfaceControl.Builder().setName("SurfaceControlCompact_createFromWindow").build()
         var scWrapper: SurfaceControlWrapper? = null
         try {
-            scWrapper = SurfaceControlWrapper.Builder()
-                .setParent(Surface(surfaceControl))
-                .setDebugName("SurfaceControlWrapperTest")
-                .build()
+            scWrapper =
+                SurfaceControlWrapper.Builder()
+                    .setParent(Surface(surfaceControl))
+                    .setDebugName("SurfaceControlWrapperTest")
+                    .build()
         } catch (e: IllegalArgumentException) {
             fail()
         } finally {
@@ -86,15 +84,15 @@ class SurfaceControlWrapperTest {
 
     @Test
     fun testSurfaceControlWrapperBuilder_surfaceParent() {
-        val surfaceControl = SurfaceControl.Builder()
-            .setName("SurfaceControlCompact_createFromWindow")
-            .build()
+        val surfaceControl =
+            SurfaceControl.Builder().setName("SurfaceControlCompact_createFromWindow").build()
         var scWrapper: SurfaceControlWrapper? = null
         try {
-            scWrapper = SurfaceControlWrapper.Builder()
-                .setParent(Surface(surfaceControl))
-                .setDebugName("SurfaceControlWrapperTest")
-                .build()
+            scWrapper =
+                SurfaceControlWrapper.Builder()
+                    .setParent(Surface(surfaceControl))
+                    .setDebugName("SurfaceControlWrapperTest")
+                    .build()
         } catch (e: IllegalArgumentException) {
             fail()
         } finally {
@@ -139,8 +137,9 @@ class SurfaceControlWrapperTest {
     fun testSurfaceTransactionOnCompleteCallback() {
         val listener = TransactionOnCompleteListener()
 
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -168,8 +167,9 @@ class SurfaceControlWrapperTest {
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
 
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -197,8 +197,9 @@ class SurfaceControlWrapperTest {
         val listener = TransactionOnCommitListener()
         val listener2 = TransactionOnCommitListener()
 
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -233,8 +234,9 @@ class SurfaceControlWrapperTest {
         val listener1 = TransactionOnCommitListener()
         val listener2 = TransactionOnCompleteListener()
 
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -264,15 +266,15 @@ class SurfaceControlWrapperTest {
 
     @Test
     fun testSurfaceControlIsValid_valid() {
-        val surfaceControl = SurfaceControl.Builder()
-            .setName("SurfaceControlCompact_createFromWindow")
-            .build()
+        val surfaceControl =
+            SurfaceControl.Builder().setName("SurfaceControlCompact_createFromWindow").build()
         var scCompat: SurfaceControlWrapper? = null
         try {
-            scCompat = SurfaceControlWrapper.Builder()
-                .setParent(Surface(surfaceControl))
-                .setDebugName("SurfaceControlWrapperTest")
-                .build()
+            scCompat =
+                SurfaceControlWrapper.Builder()
+                    .setParent(Surface(surfaceControl))
+                    .setDebugName("SurfaceControlWrapperTest")
+                    .build()
 
             assertTrue(scCompat.isValid())
         } catch (e: IllegalArgumentException) {
@@ -285,16 +287,16 @@ class SurfaceControlWrapperTest {
 
     @Test
     fun testSurfaceControlIsValid_validNotValid() {
-        val surfaceControl = SurfaceControl.Builder()
-            .setName("SurfaceControlCompact_createFromWindow")
-            .build()
+        val surfaceControl =
+            SurfaceControl.Builder().setName("SurfaceControlCompact_createFromWindow").build()
         var scCompat: SurfaceControlWrapper? = null
 
         try {
-            scCompat = SurfaceControlWrapper.Builder()
-                .setParent(Surface(surfaceControl))
-                .setDebugName("SurfaceControlWrapperTest")
-                .build()
+            scCompat =
+                SurfaceControlWrapper.Builder()
+                    .setParent(Surface(surfaceControl))
+                    .setDebugName("SurfaceControlWrapperTest")
+                    .build()
             assertTrue(scCompat.isValid())
 
             scCompat.release()
@@ -311,16 +313,16 @@ class SurfaceControlWrapperTest {
 
     @Test
     fun testSurfaceControlIsValid_multipleRelease() {
-        val surfaceControl = SurfaceControl.Builder()
-            .setName("SurfaceControlCompact_createFromWindow")
-            .build()
+        val surfaceControl =
+            SurfaceControl.Builder().setName("SurfaceControlCompact_createFromWindow").build()
         var scCompat: SurfaceControlWrapper? = null
 
         try {
-            scCompat = SurfaceControlWrapper.Builder()
-                .setParent(Surface(surfaceControl))
-                .setDebugName("SurfaceControlWrapperTest")
-                .build()
+            scCompat =
+                SurfaceControlWrapper.Builder()
+                    .setParent(Surface(surfaceControl))
+                    .setDebugName("SurfaceControlWrapperTest")
+                    .build()
             assertTrue(scCompat.isValid())
             scCompat.release()
             scCompat.release()
@@ -339,11 +341,11 @@ class SurfaceControlWrapperTest {
     fun testTransactionReparent_null() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 val buffer =
@@ -358,9 +360,7 @@ class SurfaceControlWrapperTest {
                     .setBuffer(scCompat, buffer)
                     .reparent(scCompat, null)
             },
-            { bitmap, rect ->
-                Color.BLACK == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.BLACK == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -368,16 +368,16 @@ class SurfaceControlWrapperTest {
     fun testTransactionReparent_childOfSibling() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
-                val scCompat2 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapper")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
+                val scCompat2 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapper")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 val buffer =
@@ -401,9 +401,7 @@ class SurfaceControlWrapperTest {
                     .setBuffer(scCompat2, buffer2)
                     .reparent(scCompat, scCompat2)
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -411,11 +409,11 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetVisibility_show() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 val buffer =
@@ -428,14 +426,9 @@ class SurfaceControlWrapperTest {
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
-                    .setVisibility(
-                        scCompat,
-                        true
-                    )
+                    .setVisibility(scCompat, true)
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -443,11 +436,11 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetVisibility_hide() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 val buffer =
@@ -460,14 +453,9 @@ class SurfaceControlWrapperTest {
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
-                    .setVisibility(
-                        scCompat,
-                        false
-                    )
+                    .setVisibility(scCompat, false)
             },
-            { bitmap, rect ->
-                Color.BLACK == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.BLACK == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -475,16 +463,16 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetLayer_zero() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat1 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
-                val scCompat2 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat1 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
+                val scCompat2 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 SurfaceControlWrapper.Transaction()
@@ -507,9 +495,7 @@ class SurfaceControlWrapperTest {
                         )
                     )
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -517,16 +503,16 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetLayer_positive() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat1 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
-                val scCompat2 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat1 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
+                val scCompat2 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 SurfaceControlWrapper.Transaction()
@@ -549,9 +535,7 @@ class SurfaceControlWrapperTest {
                         )
                     )
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -559,16 +543,16 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetLayer_negative() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat1 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
-                val scCompat2 = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat1 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
+                val scCompat2 =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 SurfaceControlWrapper.Transaction()
@@ -591,9 +575,7 @@ class SurfaceControlWrapperTest {
                         )
                     )
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -601,11 +583,11 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetDamageRegion_all() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 SurfaceControlWrapper.Transaction()
@@ -627,9 +609,7 @@ class SurfaceControlWrapperTest {
                         )
                     )
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -637,18 +617,15 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetDamageRegion_null() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 SurfaceControlWrapper.Transaction()
-                    .setDamageRegion(
-                        scCompat,
-                        null
-                    )
+                    .setDamageRegion(scCompat, null)
                     .setBuffer(
                         scCompat,
                         SurfaceControlUtils.getSolidBuffer(
@@ -658,9 +635,7 @@ class SurfaceControlWrapperTest {
                         )
                     )
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -668,11 +643,11 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetDesiredPresentTime_now() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                 SurfaceControlWrapper.Transaction()
@@ -686,9 +661,7 @@ class SurfaceControlWrapperTest {
                     )
                     .setDesiredPresentTime(0)
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -696,28 +669,24 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetBufferTransparency_opaque() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
-                    .setOpaque(
-                        scCompat,
-                        true
-                    )
+                    .setOpaque(scCompat, true)
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -725,29 +694,25 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetAlpha_0_0() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
-                    .setOpaque(
-                        scCompat,
-                        false
-                    )
+                    .setOpaque(scCompat, false)
                     .setAlpha(scCompat, 0.0f)
             },
-            { bitmap, rect ->
-                Color.BLACK == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.BLACK == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -755,43 +720,41 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetAlpha_0_5() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
                     .setAlpha(scCompat, 0.5f)
             },
             { bitmap, rect ->
                 val coord = intArrayOf(rect.left, rect.top)
-                val fConnector: ColorSpace.Connector = ColorSpace.connect(
-                    ColorSpace.get(ColorSpace.Named.SRGB),
-                    bitmap.colorSpace!!
-                )
+                val fConnector: ColorSpace.Connector =
+                    ColorSpace.connect(ColorSpace.get(ColorSpace.Named.SRGB), bitmap.colorSpace!!)
 
                 val red = fConnector.transform(1.0f, 0.0f, 0.0f)
                 val black = fConnector.transform(0.0f, 0.0f, 0.0f)
-                val expectedResult = Color.valueOf(red[0], red[1], red[2], 0.5f)
-                    .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
+                val expectedResult =
+                    Color.valueOf(red[0], red[1], red[2], 0.5f)
+                        .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
 
-                (Math.abs(
-                    expectedResult.red() - bitmap.getColor(coord[0], coord[1]).red()
-                ) < 2.5e-3f) &&
+                (Math.abs(expectedResult.red() - bitmap.getColor(coord[0], coord[1]).red()) <
+                    2.5e-3f) &&
                     (Math.abs(
                         expectedResult.green() - bitmap.getColor(coord[0], coord[1]).green()
                     ) < 2.5e-3f) &&
-                    (Math.abs(
-                        expectedResult.blue() - bitmap.getColor(coord[0], coord[1]).blue()
-                    ) < 2.5e-3f)
+                    (Math.abs(expectedResult.blue() - bitmap.getColor(coord[0], coord[1]).blue()) <
+                        2.5e-3f)
             }
         )
     }
@@ -800,25 +763,24 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetAlpha_1_0() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
                     .setAlpha(scCompat, 1.0f)
             },
-            { bitmap, rect ->
-                Color.RED == bitmap.getPixel(rect.left, rect.top)
-            }
+            { bitmap, rect -> Color.RED == bitmap.getPixel(rect.left, rect.top) }
         )
     }
 
@@ -827,18 +789,19 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetCrop_null() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlWrapperTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlWrapperTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -857,18 +820,19 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetCrop_standardCrop() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -887,36 +851,38 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetCrop_standardThenNullCrop() {
         var scCompat: SurfaceControlWrapper? = null
         val listener = TransactionOnCompleteListener()
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        scCompat = SurfaceControlWrapper
-                            .Builder()
-                            .setParent(it.getSurfaceView().holder.surface)
-                            .setDebugName("SurfaceControlCompatTest")
-                            .build()
+        val scenario =
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    val callback =
+                        object : SurfaceHolderCallback() {
+                            override fun surfaceCreated(sh: SurfaceHolder) {
+                                scCompat =
+                                    SurfaceControlWrapper.Builder()
+                                        .setParent(it.getSurfaceView().holder.surface)
+                                        .setDebugName("SurfaceControlCompatTest")
+                                        .build()
 
-                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                        val buffer = SurfaceControlUtils.getSolidBuffer(
-                            SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                            SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                            Color.BLUE
-                        )
+                                // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                                val buffer =
+                                    SurfaceControlUtils.getSolidBuffer(
+                                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                                        Color.BLUE
+                                    )
 
-                        SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(listener)
-                            .setBuffer(scCompat!!, buffer)
-                            .setVisibility(scCompat!!, true)
-                            .setCrop(scCompat!!, Rect(20, 30, 90, 60))
-                            .commit()
-                    }
+                                SurfaceControlWrapper.Transaction()
+                                    .addTransactionCompletedListener(listener)
+                                    .setBuffer(scCompat!!, buffer)
+                                    .setVisibility(scCompat!!, true)
+                                    .setCrop(scCompat!!, Rect(20, 30, 90, 60))
+                                    .commit()
+                            }
+                        }
+
+                    it.addSurface(it.mSurfaceView, callback)
                 }
-
-                it.addSurface(it.mSurfaceView, callback)
-            }
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
@@ -927,11 +893,12 @@ class SurfaceControlWrapperTest {
             }
 
             // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-            val buffer = SurfaceControlUtils.getSolidBuffer(
-                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                Color.BLUE
-            )
+            val buffer =
+                SurfaceControlUtils.getSolidBuffer(
+                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                    Color.BLUE
+                )
 
             SurfaceControlWrapper.Transaction()
                 .setBuffer(scCompat!!, buffer)
@@ -952,18 +919,19 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetPosition() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -978,10 +946,10 @@ class SurfaceControlWrapperTest {
                         coord[1] + 29
                     ) &&
                     Color.BLACK ==
-                    bitmap.getPixel(
-                        coord[0] + 29,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                    ) &&
+                        bitmap.getPixel(
+                            coord[0] + 29,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        ) &&
                     Color.RED == bitmap.getPixel(coord[0] + 30, coord[1] + 30)
             }
         )
@@ -992,18 +960,19 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetScale() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getSolidBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE
-                )
+                val buffer =
+                    SurfaceControlUtils.getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -1015,16 +984,16 @@ class SurfaceControlWrapperTest {
                 // Check outer bounds of square to ensure its scaled correctly
                 Color.RED == bitmap.getPixel(coord[0], coord[1]) &&
                     Color.RED ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                    ) &&
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                        ) &&
                     // Scale reduced by 50%, so should be black here
                     Color.BLACK ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                    )
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        )
             }
         )
     }
@@ -1034,29 +1003,27 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetBufferTransform_identity() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getQuadrantBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE,
-                    Color.BLACK,
-                    Color.BLACK,
-                    Color.BLACK
-                )
+                val buffer =
+                    SurfaceControlUtils.getQuadrantBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE,
+                        Color.BLACK,
+                        Color.BLACK,
+                        Color.BLACK
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
                     .setVisibility(scCompat, true)
-                    .setBufferTransform(
-                        scCompat,
-                        SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
-                    )
+                    .setBufferTransform(scCompat, SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY)
             },
             { bitmap, rect ->
                 val coord = intArrayOf(rect.left, rect.top)
@@ -1064,15 +1031,15 @@ class SurfaceControlWrapperTest {
                 // Check outer bounds of square to ensure its scaled correctly
                 Color.RED == bitmap.getPixel(coord[0], coord[1]) &&
                     Color.RED ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                    ) &&
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                        ) &&
                     Color.BLACK ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                    )
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        )
             }
         )
     }
@@ -1082,21 +1049,22 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetGeometry_identity() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getQuadrantBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE,
-                    Color.BLACK,
-                    Color.BLACK,
-                    Color.BLACK
-                )
+                val buffer =
+                    SurfaceControlUtils.getQuadrantBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE,
+                        Color.BLACK,
+                        Color.BLACK,
+                        Color.BLACK
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -1116,15 +1084,15 @@ class SurfaceControlWrapperTest {
                 // Check outer bounds of square to ensure its scaled correctly
                 Color.RED == bitmap.getPixel(coord[0], coord[1]) &&
                     Color.RED ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                    ) &&
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 - 1,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                        ) &&
                     Color.BLACK ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                    )
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        )
             }
         )
     }
@@ -1134,21 +1102,22 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetBufferTransform_singleTransform() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getQuadrantBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE,
-                    Color.BLACK,
-                    Color.BLACK,
-                    Color.BLACK
-                )
+                val buffer =
+                    SurfaceControlUtils.getQuadrantBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE,
+                        Color.BLACK,
+                        Color.BLACK,
+                        Color.BLACK
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -1167,15 +1136,15 @@ class SurfaceControlWrapperTest {
                         coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 4 - 1
                     ) &&
                     Color.BLACK ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH * 3 / 4,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                    ) &&
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH * 3 / 4,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        ) &&
                     Color.RED ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 + 1,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                    )
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 + 1,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                        )
             }
         )
     }
@@ -1185,21 +1154,22 @@ class SurfaceControlWrapperTest {
     fun testTransactionSetGeometry_singleTransform() {
         verifySurfaceControlWrapperTest(
             { surfaceView ->
-                val scCompat = SurfaceControlWrapper
-                    .Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName("SurfaceControlCompatTest")
-                    .build()
+                val scCompat =
+                    SurfaceControlWrapper.Builder()
+                        .setParent(surfaceView.holder.surface)
+                        .setDebugName("SurfaceControlCompatTest")
+                        .build()
 
                 // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                val buffer = SurfaceControlUtils.getQuadrantBuffer(
-                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                    Color.BLUE,
-                    Color.BLACK,
-                    Color.BLACK,
-                    Color.BLACK
-                )
+                val buffer =
+                    SurfaceControlUtils.getQuadrantBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.BLUE,
+                        Color.BLACK,
+                        Color.BLACK,
+                        Color.BLACK
+                    )
 
                 SurfaceControlWrapper.Transaction()
                     .setBuffer(scCompat, buffer)
@@ -1222,15 +1192,15 @@ class SurfaceControlWrapperTest {
                         coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 4 - 1
                     ) &&
                     Color.BLACK ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH * 3 / 4,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                    ) &&
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH * 3 / 4,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        ) &&
                     Color.RED ==
-                    bitmap.getPixel(
-                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 + 1,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
-                    )
+                        bitmap.getPixel(
+                            coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2 + 1,
+                            coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2 - 1
+                        )
             }
         )
     }

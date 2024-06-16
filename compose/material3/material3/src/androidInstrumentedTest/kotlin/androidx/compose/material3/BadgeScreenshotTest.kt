@@ -43,11 +43,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class BadgeScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun lightTheme_noContent() {
@@ -56,15 +54,11 @@ class BadgeScreenshotTest {
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
                 contentAlignment = Alignment.Center
             ) {
-                BadgedBox(badge = { Badge() }) {
-                    Icon(Icons.Filled.Favorite, null)
-                }
+                BadgedBox(badge = { Badge() }) { Icon(Icons.Filled.Favorite, null) }
             }
         }
 
-        assertBadgeAgainstGolden(
-            goldenIdentifier = "badge_lightTheme_noContent"
-        )
+        assertBadgeAgainstGolden(goldenIdentifier = "badge_lightTheme_noContent")
     }
 
     @Test
@@ -74,15 +68,11 @@ class BadgeScreenshotTest {
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
                 contentAlignment = Alignment.Center
             ) {
-                BadgedBox(badge = { Badge() }) {
-                    Icon(Icons.Filled.Favorite, null)
-                }
+                BadgedBox(badge = { Badge() }) { Icon(Icons.Filled.Favorite, null) }
             }
         }
 
-        assertBadgeAgainstGolden(
-            goldenIdentifier = "badge_darkTheme_noContent"
-        )
+        assertBadgeAgainstGolden(goldenIdentifier = "badge_darkTheme_noContent")
     }
 
     @Test
@@ -92,15 +82,11 @@ class BadgeScreenshotTest {
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
                 contentAlignment = Alignment.Center
             ) {
-                BadgedBox(badge = { Badge { Text("8") } }) {
-                    Icon(Icons.Filled.Favorite, null)
-                }
+                BadgedBox(badge = { Badge { Text("8") } }) { Icon(Icons.Filled.Favorite, null) }
             }
         }
 
-        assertBadgeAgainstGolden(
-            goldenIdentifier = "badge_lightTheme_withContent"
-        )
+        assertBadgeAgainstGolden(goldenIdentifier = "badge_lightTheme_withContent")
     }
 
     @Test
@@ -110,19 +96,16 @@ class BadgeScreenshotTest {
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
                 contentAlignment = Alignment.Center
             ) {
-                BadgedBox(badge = { Badge { Text("8") } }) {
-                    Icon(Icons.Filled.Favorite, null)
-                }
+                BadgedBox(badge = { Badge { Text("8") } }) { Icon(Icons.Filled.Favorite, null) }
             }
         }
 
-        assertBadgeAgainstGolden(
-            goldenIdentifier = "badge_darkTheme_withContent"
-        )
+        assertBadgeAgainstGolden(goldenIdentifier = "badge_darkTheme_withContent")
     }
 
     private fun assertBadgeAgainstGolden(goldenIdentifier: String) {
-        composeTestRule.onNodeWithTag(TestTag)
+        composeTestRule
+            .onNodeWithTag(TestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

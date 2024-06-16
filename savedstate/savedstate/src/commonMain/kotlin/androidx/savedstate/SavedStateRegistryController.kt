@@ -23,22 +23,20 @@ import kotlin.jvm.JvmStatic
 /**
  * An API for [SavedStateRegistryOwner] implementations to control [SavedStateRegistry].
  *
- * `SavedStateRegistryOwner` should call [performRestore] to restore state of
- * [SavedStateRegistry] and [performSave] to gather SavedState from it.
+ * `SavedStateRegistryOwner` should call [performRestore] to restore state of [SavedStateRegistry]
+ * and [performSave] to gather SavedState from it.
  */
 class SavedStateRegistryController private constructor(private val owner: SavedStateRegistryOwner) {
 
-    /**
-     * The [SavedStateRegistry] owned by this controller
-     */
+    /** The [SavedStateRegistry] owned by this controller */
     val savedStateRegistry: SavedStateRegistry = SavedStateRegistry()
 
     private var attached = false
 
     /**
-     * Perform the initial, one time attachment necessary to configure this
-     * [SavedStateRegistry]. This must be called when the owner's [Lifecycle] is
-     * [Lifecycle.State.INITIALIZED] and before you call [performRestore].
+     * Perform the initial, one time attachment necessary to configure this [SavedStateRegistry].
+     * This must be called when the owner's [Lifecycle] is [Lifecycle.State.INITIALIZED] and before
+     * you call [performRestore].
      */
     @MainThread
     fun performAttach() {
@@ -71,9 +69,8 @@ class SavedStateRegistryController private constructor(private val owner: SavedS
     }
 
     /**
-     * An interface for an owner of this  [SavedStateRegistry]
-     * to perform state saving, it will call all registered providers and
-     * merge with unconsumed state.
+     * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
+     * all registered providers and merge with unconsumed state.
      *
      * @param outBundle Bundle in which to place a saved state
      */

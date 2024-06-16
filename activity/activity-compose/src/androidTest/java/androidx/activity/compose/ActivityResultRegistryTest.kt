@@ -55,40 +55,38 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ActivityResultRegistryTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
     var launchCount = 0
-    val registryOwner = object : ActivityResultRegistryOwner {
-        override val activityResultRegistry = object : ActivityResultRegistry() {
-            override fun <I : Any?, O : Any?> onLaunch(
-                requestCode: Int,
-                contract: ActivityResultContract<I, O>,
-                input: I,
-                options: ActivityOptionsCompat?
-            ) {
-                launchCount++
-            }
+    val registryOwner =
+        object : ActivityResultRegistryOwner {
+            override val activityResultRegistry =
+                object : ActivityResultRegistry() {
+                    override fun <I : Any?, O : Any?> onLaunch(
+                        requestCode: Int,
+                        contract: ActivityResultContract<I, O>,
+                        input: I,
+                        options: ActivityOptionsCompat?
+                    ) {
+                        launchCount++
+                    }
+                }
         }
-    }
 
     @Test
     fun testLaunch() {
         var launcher: ActivityResultLauncher<Intent>? by mutableStateOf(null)
         composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalActivityResultRegistryOwner provides registryOwner
-            ) {
-                launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {}
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides registryOwner) {
+                launcher =
+                    rememberLauncherForActivityResult(
+                        ActivityResultContracts.StartActivityForResult()
+                    ) {}
             }
         }
         composeTestRule.runOnIdle {
             launcher?.launch(Intent()) ?: fail("launcher was not composed")
-            assertWithMessage("the registry was not invoked")
-                .that(launchCount)
-                .isEqualTo(1)
+            assertWithMessage("the registry was not invoked").that(launchCount).isEqualTo(1)
         }
     }
 
@@ -96,12 +94,11 @@ class ActivityResultRegistryTest {
     fun testGetContract() {
         var launcher: ActivityResultLauncher<Intent>? by mutableStateOf(null)
         composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalActivityResultRegistryOwner provides registryOwner
-            ) {
-                launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {}
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides registryOwner) {
+                launcher =
+                    rememberLauncherForActivityResult(
+                        ActivityResultContracts.StartActivityForResult()
+                    ) {}
             }
         }
         composeTestRule.runOnIdle {
@@ -115,12 +112,11 @@ class ActivityResultRegistryTest {
     fun testUnregister() {
         var launcher: ManagedActivityResultLauncher<Intent, ActivityResult>? by mutableStateOf(null)
         composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalActivityResultRegistryOwner provides registryOwner
-            ) {
-                launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {}
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides registryOwner) {
+                launcher =
+                    rememberLauncherForActivityResult(
+                        ActivityResultContracts.StartActivityForResult()
+                    ) {}
             }
         }
         composeTestRule.runOnIdle {
@@ -128,9 +124,11 @@ class ActivityResultRegistryTest {
                 @Suppress("DEPRECATION") // the unregister method is deprecated
                 launcher?.unregister()
             } catch (e: UnsupportedOperationException) {
-                assertThat(e).hasMessageThat().contains(
-                    "Registration is automatically handled by rememberLauncherForActivityResult"
-                )
+                assertThat(e)
+                    .hasMessageThat()
+                    .contains(
+                        "Registration is automatically handled by rememberLauncherForActivityResult"
+                    )
             }
         }
     }
@@ -146,12 +144,11 @@ class ActivityResultRegistryTest {
 
         activityScenario.onActivity { activity ->
             (activity as ComponentActivity).setContent {
-                CompositionLocalProvider(
-                    LocalActivityResultRegistryOwner provides registryOwner
-                ) {
-                    launcher = rememberLauncherForActivityResult(
-                        ActivityResultContracts.StartActivityForResult()
-                    ) {}
+                CompositionLocalProvider(LocalActivityResultRegistryOwner provides registryOwner) {
+                    launcher =
+                        rememberLauncherForActivityResult(
+                            ActivityResultContracts.StartActivityForResult()
+                        ) {}
                 }
             }
         }
@@ -161,38 +158,37 @@ class ActivityResultRegistryTest {
 
         activityScenario.recreate()
 
-        val restoredOwner = object : ActivityResultRegistryOwner {
-            override val activityResultRegistry = object : ActivityResultRegistry() {
-                override fun <I : Any?, O : Any?> onLaunch(
-                    requestCode: Int,
-                    contract: ActivityResultContract<I, O>,
-                    input: I,
-                    options: ActivityOptionsCompat?
-                ) {
-                    launchCount++
-                }
+        val restoredOwner =
+            object : ActivityResultRegistryOwner {
+                override val activityResultRegistry =
+                    object : ActivityResultRegistry() {
+                        override fun <I : Any?, O : Any?> onLaunch(
+                            requestCode: Int,
+                            contract: ActivityResultContract<I, O>,
+                            input: I,
+                            options: ActivityOptionsCompat?
+                        ) {
+                            launchCount++
+                        }
+                    }
             }
-        }
 
         restoredOwner.activityResultRegistry.onRestoreInstanceState(savedState)
 
         activityScenario.onActivity { activity ->
             (activity as ComponentActivity).setContent {
-                CompositionLocalProvider(
-                    LocalActivityResultRegistryOwner provides restoredOwner
-                ) {
-                    launcher = rememberLauncherForActivityResult(
-                        ActivityResultContracts.StartActivityForResult()
-                    ) {}
+                CompositionLocalProvider(LocalActivityResultRegistryOwner provides restoredOwner) {
+                    launcher =
+                        rememberLauncherForActivityResult(
+                            ActivityResultContracts.StartActivityForResult()
+                        ) {}
                 }
             }
         }
 
         composeTestRule.runOnIdle {
             launcher?.launch(Intent()) ?: fail("launcher was not composed")
-            assertWithMessage("the registry was not invoked")
-                .that(launchCount)
-                .isEqualTo(1)
+            assertWithMessage("the registry was not invoked").that(launchCount).isEqualTo(1)
         }
     }
 
@@ -200,33 +196,34 @@ class ActivityResultRegistryTest {
     fun testRecomposeBeforeLaunch() {
         var counter = 0
         var code = 0
-        val registry = object : ActivityResultRegistry() {
-            override fun <I : Any?, O : Any?> onLaunch(
-                requestCode: Int,
-                contract: ActivityResultContract<I, O>,
-                input: I,
-                options: ActivityOptionsCompat?
-            ) {
-                code = requestCode
+        val registry =
+            object : ActivityResultRegistry() {
+                override fun <I : Any?, O : Any?> onLaunch(
+                    requestCode: Int,
+                    contract: ActivityResultContract<I, O>,
+                    input: I,
+                    options: ActivityOptionsCompat?
+                ) {
+                    code = requestCode
+                }
             }
-        }
-        val owner = object : ActivityResultRegistryOwner {
-            override val activityResultRegistry = registry
-        }
+        val owner =
+            object : ActivityResultRegistryOwner {
+                override val activityResultRegistry = registry
+            }
         var recompose by mutableStateOf(false)
         val launchChannel = Channel<Boolean>()
         val launchFlow = launchChannel.receiveAsFlow()
         composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalActivityResultRegistryOwner provides owner
-            ) {
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides owner) {
                 @Suppress("ControlFlowWithEmptyBody") // triggering recompose
                 if (recompose) {}
-                val launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
-                    counter++
-                }
+                val launcher =
+                    rememberLauncherForActivityResult(
+                        ActivityResultContracts.StartActivityForResult()
+                    ) {
+                        counter++
+                    }
                 LaunchedEffect(Unit) {
                     launchFlow.collect { shouldLaunch ->
                         if (shouldLaunch) {
@@ -238,9 +235,7 @@ class ActivityResultRegistryTest {
         }
 
         recompose = true
-        composeTestRule.runOnIdle {
-            assertThat(counter).isEqualTo(0)
-        }
+        composeTestRule.runOnIdle { assertThat(counter).isEqualTo(0) }
         launchChannel.trySend(true)
         composeTestRule.runOnIdle {
             registry.dispatchResult(code, RESULT_OK, Intent())
@@ -252,32 +247,33 @@ class ActivityResultRegistryTest {
     fun testRecomposeAfterLaunch() {
         var counter = 0
         var code = 0
-        val registry = object : ActivityResultRegistry() {
-            override fun <I : Any?, O : Any?> onLaunch(
-                requestCode: Int,
-                contract: ActivityResultContract<I, O>,
-                input: I,
-                options: ActivityOptionsCompat?
-            ) {
-                code = requestCode
-                launchCount++
+        val registry =
+            object : ActivityResultRegistry() {
+                override fun <I : Any?, O : Any?> onLaunch(
+                    requestCode: Int,
+                    contract: ActivityResultContract<I, O>,
+                    input: I,
+                    options: ActivityOptionsCompat?
+                ) {
+                    code = requestCode
+                    launchCount++
+                }
             }
-        }
-        val owner = object : ActivityResultRegistryOwner {
-            override val activityResultRegistry = registry
-        }
+        val owner =
+            object : ActivityResultRegistryOwner {
+                override val activityResultRegistry = registry
+            }
         composeTestRule.setContent {
             var recompose by remember { mutableStateOf(false) }
-            CompositionLocalProvider(
-                LocalActivityResultRegistryOwner provides owner
-            ) {
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides owner) {
                 @Suppress("ControlFlowWithEmptyBody") // triggering recompose
-                if (recompose) { }
-                val launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
-                    counter++
-                }
+                if (recompose) {}
+                val launcher =
+                    rememberLauncherForActivityResult(
+                        ActivityResultContracts.StartActivityForResult()
+                    ) {
+                        counter++
+                    }
                 Button(
                     onClick = {
                         launcher.launch(Intent())
@@ -300,31 +296,29 @@ class ActivityResultRegistryTest {
     fun testLaunchWithSameContract() {
         var counter = 0
         var code = 0
-        val registry = object : ActivityResultRegistry() {
-            override fun <I : Any?, O : Any?> onLaunch(
-                requestCode: Int,
-                contract: ActivityResultContract<I, O>,
-                input: I,
-                options: ActivityOptionsCompat?
-            ) {
-                code = requestCode
-                launchCount++
+        val registry =
+            object : ActivityResultRegistry() {
+                override fun <I : Any?, O : Any?> onLaunch(
+                    requestCode: Int,
+                    contract: ActivityResultContract<I, O>,
+                    input: I,
+                    options: ActivityOptionsCompat?
+                ) {
+                    code = requestCode
+                    launchCount++
+                }
             }
-        }
-        val owner = object : ActivityResultRegistryOwner {
-            override val activityResultRegistry = registry
-        }
+        val owner =
+            object : ActivityResultRegistryOwner {
+                override val activityResultRegistry = registry
+            }
         val contract = ActivityResultContracts.StartActivityForResult()
         composeTestRule.setContent {
             var recompose by remember { mutableStateOf(false) }
-            CompositionLocalProvider(
-                LocalActivityResultRegistryOwner provides owner
-            ) {
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides owner) {
                 @Suppress("ControlFlowWithEmptyBody") // triggering recompose
-                if (recompose) { }
-                val launcher = rememberLauncherForActivityResult(contract) {
-                    counter++
-                }
+                if (recompose) {}
+                val launcher = rememberLauncherForActivityResult(contract) { counter++ }
                 Button(
                     onClick = {
                         launcher.launch(Intent())

@@ -21,15 +21,17 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class WithPluginClasspathUsageDetectorTest : GradleLintDetectorTest(
-    detector = WithPluginClasspathUsageDetector(),
-    issues = listOf(WithPluginClasspathUsageDetector.ISSUE)
-) {
+class WithPluginClasspathUsageDetectorTest :
+    GradleLintDetectorTest(
+        detector = WithPluginClasspathUsageDetector(),
+        issues = listOf(WithPluginClasspathUsageDetector.ISSUE)
+    ) {
     @Test
     fun `Test withPluginClassPath usage`() {
 
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.testkit.runner.GradleRunner
                 import java.io.File
 
@@ -41,19 +43,23 @@ class WithPluginClasspathUsageDetectorTest : GradleLintDetectorTest(
                             .build()
                     }
                 }
-                """.trimIndent()
-        )
+                """
+                    .trimIndent()
+            )
 
-        val message = "Avoid usage of GradleRunner#withPluginClasspath, which is broken. " +
-            "Instead use something like https://github.com/autonomousapps/" +
-            "dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
+        val message =
+            "Avoid usage of GradleRunner#withPluginClasspath, which is broken. " +
+                "Instead use something like https://github.com/autonomousapps/" +
+                "dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
 
-        val expected = """
+        val expected =
+            """
             src/TestClass.kt:8: Error: $message [WithPluginClasspathUsage]
                         .withPluginClasspath()
                          ~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }

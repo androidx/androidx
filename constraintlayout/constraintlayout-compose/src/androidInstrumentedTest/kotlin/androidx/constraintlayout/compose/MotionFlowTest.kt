@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MotionFlowTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setup() {
@@ -66,10 +65,10 @@ class MotionFlowTest {
             val progress by animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f)
 
             MotionLayout(
-                modifier = Modifier
-                    .size(rootSize),
-                motionScene = MotionScene(
-                    """
+                modifier = Modifier.size(rootSize),
+                motionScene =
+                    MotionScene(
+                        """
             {
                 ConstraintSets: {
                   start: {
@@ -102,17 +101,14 @@ class MotionFlowTest {
                 }
             }
             """
-                ),
+                    ),
                 progress = progress
             ) {
                 val numArray = arrayOf("1", "2", "3", "4")
                 for (num in numArray) {
                     Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .layoutId(num)
-                            .testTag(num)
-                            .background(Color.Red)
+                        modifier =
+                            Modifier.size(10.dp).layoutId(num).testTag(num).background(Color.Red)
                     )
                 }
             }

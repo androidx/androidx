@@ -26,8 +26,7 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 class SystemUiBenchmark {
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     @Test
     @Ignore

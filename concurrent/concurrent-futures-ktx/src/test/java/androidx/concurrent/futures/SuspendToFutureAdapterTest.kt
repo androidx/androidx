@@ -42,9 +42,8 @@ class SuspendToFutureAdapterTest {
     fun completeNormally() {
         val expected = Any()
         val completer = CompletableDeferred<Any>()
-        val future = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            completer.await()
-        }
+        val future =
+            SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) { completer.await() }
 
         assertWithMessage("isDone before completion").that(future.isDone).isFalse()
         completer.complete(expected)
@@ -56,9 +55,8 @@ class SuspendToFutureAdapterTest {
     @Test
     fun completeWithException() {
         val completer = CompletableDeferred<Any>()
-        val future = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            completer.await()
-        }
+        val future =
+            SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) { completer.await() }
 
         assertWithMessage("isDone before completion").that(future.isDone).isFalse()
         // Note: anonymous subclass object used here so as to defeat kotlinx.coroutines'
@@ -69,18 +67,16 @@ class SuspendToFutureAdapterTest {
         assertWithMessage("isCancelled").that(future.isCancelled).isFalse()
         val result = runCatching { future.get() }
         assertWithMessage("result failed").that(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull())
-            .isInstanceOf(ExecutionException::class.java)
-        assertThat(result.exceptionOrNull())
-            .hasCauseThat()
-            .isSameInstanceAs(exception)
+        assertThat(result.exceptionOrNull()).isInstanceOf(ExecutionException::class.java)
+        assertThat(result.exceptionOrNull()).hasCauseThat().isSameInstanceAs(exception)
     }
 
     @Test
     fun cancelledInternally() {
-        val future = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            throw CancellationException("internal cancellation")
-        }
+        val future =
+            SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
+                throw CancellationException("internal cancellation")
+            }
         assertThat(future.isDone).isTrue()
         assertThat(future.isCancelled).isTrue()
         assertThat(runCatching { future.get() }.exceptionOrNull())
@@ -90,13 +86,14 @@ class SuspendToFutureAdapterTest {
     @Test
     fun cancelledExternally() {
         var cancellationException: CancellationException? = null
-        val future = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            try {
-                awaitCancellation()
-            } catch (ce: CancellationException) {
-                cancellationException = ce
+        val future =
+            SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
+                try {
+                    awaitCancellation()
+                } catch (ce: CancellationException) {
+                    cancellationException = ce
+                }
             }
-        }
         assertWithMessage("isDone before completion").that(future.isDone).isFalse()
         assertWithMessage("cancel returned").that(future.cancel(true)).isTrue()
         assertWithMessage("isDone after completion").that(future.isDone).isTrue()
@@ -118,9 +115,8 @@ class SuspendToFutureAdapterTest {
 
     @Test
     fun multipleExternalCancellation() {
-        val future = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            awaitCancellation()
-        }
+        val future =
+            SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) { awaitCancellation() }
         assertWithMessage("isDone before cancel").that(future.isDone).isFalse()
         assertWithMessage("cancel 1").that(future.cancel(true)).isTrue()
         assertWithMessage("isDone after cancel 1").that(future.isDone).isTrue()
@@ -132,22 +128,21 @@ class SuspendToFutureAdapterTest {
 
     @Test
     fun mainDispatcherIsDefault() {
-        val future = SuspendToFutureAdapter.launchFuture {
-            coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher
-        }
+        val future =
+            SuspendToFutureAdapter.launchFuture {
+                coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher
+            }
         assertWithMessage("observed dispatcher")
-            .that(future.get()).isSameInstanceAs(Dispatchers.Main)
+            .that(future.get())
+            .isSameInstanceAs(Dispatchers.Main)
     }
 
     @Test
     fun noDispatchForNoSuspend() {
         val expected = Any()
         val dispatcher = CountingDispatcher()
-        val future = SuspendToFutureAdapter.launchFuture(dispatcher) {
-            expected
-        }
-        assertWithMessage("isDone")
-            .that(future.isDone).isTrue()
+        val future = SuspendToFutureAdapter.launchFuture(dispatcher) { expected }
+        assertWithMessage("isDone").that(future.isDone).isTrue()
         assertWithMessage("future value").that(future.get()).isSameInstanceAs(expected)
 
         // We should get zero dispatches if we do not suspend
@@ -157,13 +152,11 @@ class SuspendToFutureAdapterTest {
     @Test
     fun noDispatchForImmediateResume() {
         val dispatcher = CountingDispatcher()
-        val future = SuspendToFutureAdapter.launchFuture(dispatcher) {
-            suspendCancellableCoroutine {
-                it.resume(Unit)
+        val future =
+            SuspendToFutureAdapter.launchFuture(dispatcher) {
+                suspendCancellableCoroutine { it.resume(Unit) }
             }
-        }
-        assertWithMessage("isDone")
-            .that(future.isDone).isTrue()
+        assertWithMessage("isDone").that(future.isDone).isTrue()
         assertWithMessage("future value").that(future.get()).isSameInstanceAs(Unit)
 
         // We should get zero dispatches; resuming a continuation synchronously in
@@ -175,19 +168,18 @@ class SuspendToFutureAdapterTest {
     fun avoidAdditionalDispatch() {
         val dispatcher = CountingDispatcher()
         lateinit var continuation: Continuation<Int>
-        val future = SuspendToFutureAdapter.launchFuture(dispatcher) {
-            suspendCancellableCoroutine {
-                continuation = it
+        val future =
+            SuspendToFutureAdapter.launchFuture(dispatcher) {
+                suspendCancellableCoroutine { continuation = it }
             }
-        }
 
-        assertWithMessage("future isDone before continuation resume")
-            .that(future.isDone).isFalse()
+        assertWithMessage("future isDone before continuation resume").that(future.isDone).isFalse()
 
         continuation.resume(5)
 
         assertWithMessage("future isDone immediately after continuation resume")
-            .that(future.isDone).isTrue()
+            .that(future.isDone)
+            .isTrue()
         assertWithMessage("future value").that(future.get()).isEqualTo(5)
 
         // We shouldn't get more than one dispatch: from when suspendCancellableCoroutine resumes.
@@ -200,14 +192,9 @@ class SuspendToFutureAdapterTest {
     fun dispatchForDisabledUndispatchedLaunch() {
         val expected = Any()
         val dispatcher = CountingDispatcher()
-        val future = SuspendToFutureAdapter.launchFuture(
-            dispatcher,
-            launchUndispatched = false
-        ) {
-            expected
-        }
-        assertWithMessage("isDone")
-            .that(future.isDone).isTrue()
+        val future =
+            SuspendToFutureAdapter.launchFuture(dispatcher, launchUndispatched = false) { expected }
+        assertWithMessage("isDone").that(future.isDone).isTrue()
         assertWithMessage("future value").that(future.get()).isSameInstanceAs(expected)
 
         // We should get one dispatch from disabling the default undispatched launch
@@ -216,25 +203,22 @@ class SuspendToFutureAdapterTest {
 
     @Test
     fun launchAfterFailedFuture() {
-        val first = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            error("future task failed")
-        }
+        val first =
+            SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
+                error("future task failed")
+            }
         assertWithMessage("first future task failed")
             .that(runCatching { first.get() }.isFailure)
             .isTrue()
 
         val expected = Any()
-        val second = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            expected
-        }
+        val second = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) { expected }
 
         assertWithMessage("second future succeeded")
             .that(runCatching { second.get() }.isSuccess)
             .isTrue()
 
-        assertWithMessage("second future value")
-            .that(second.get())
-            .isSameInstanceAs(expected)
+        assertWithMessage("second future value").that(second.get()).isSameInstanceAs(expected)
     }
 
     private class CountingDispatcher : CoroutineDispatcher() {

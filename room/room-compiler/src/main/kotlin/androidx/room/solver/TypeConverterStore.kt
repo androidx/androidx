@@ -28,31 +28,20 @@ interface TypeConverterStore {
     val typeConverters: List<TypeConverter>
 
     /**
-     * Finds a [TypeConverter] (might be composite) that can convert the given [input] type into
-     * one of the given [columnTypes]. If [columnTypes] is not specified, targets all
+     * Finds a [TypeConverter] (might be composite) that can convert the given [input] type into one
+     * of the given [columnTypes]. If [columnTypes] is not specified, targets all
      * `knownColumnTypes`.
      */
-    fun findConverterIntoStatement(
-        input: XType,
-        columnTypes: List<XType>?
-    ): TypeConverter?
+    fun findConverterIntoStatement(input: XType, columnTypes: List<XType>?): TypeConverter?
 
     /**
      * Finds a [TypeConverter] (might be composite) that can convert the given [columnTypes] into
      * the [output] type. If [columnTypes] is not specified, uses all `knownColumnTypes`.
      */
-    fun findConverterFromCursor(
-        columnTypes: List<XType>?,
-        output: XType
-    ): TypeConverter?
+    fun findConverterFromCursor(columnTypes: List<XType>?, output: XType): TypeConverter?
 
-    /**
-     * Finds a [TypeConverter] from [input] to [output].
-     */
-    fun findTypeConverter(
-        input: XType,
-        output: XType
-    ): TypeConverter?
+    /** Finds a [TypeConverter] from [input] to [output]. */
+    fun findTypeConverter(input: XType, output: XType): TypeConverter?
 
     fun reverse(converter: TypeConverter): TypeConverter? {
         return when (converter) {
@@ -63,14 +52,11 @@ interface TypeConverterStore {
                 CompositeTypeConverter(r2, r1)
             }
             // reverse of require not null is upcast since not null can be converted into nullable
-            is RequireNotNullTypeConverter -> UpCastTypeConverter(
-                upCastFrom = converter.to,
-                upCastTo = converter.from
-            )
+            is RequireNotNullTypeConverter ->
+                UpCastTypeConverter(upCastFrom = converter.to, upCastTo = converter.from)
             else -> {
                 typeConverters.firstOrNull {
-                    it.from.isSameType(converter.to) &&
-                        it.to.isSameType(converter.from)
+                    it.from.isSameType(converter.to) && it.to.isSameType(converter.from)
                 }
             }
         }
@@ -80,25 +66,26 @@ interface TypeConverterStore {
         /**
          * @param context Processing context
          * @param typeConverters Available TypeConverters, ordered by priority when they have the
-         *        same cost.
+         *   same cost.
          * @param knownColumnTypes List of types that can be saved into db/read from without a
-         *        converter.
+         *   converter.
          */
         fun create(
             context: Context,
             typeConverters: List<TypeConverter>,
             knownColumnTypes: List<XType>
-        ) = if (context.useNullAwareConverter) {
-            NullAwareTypeConverterStore(
-                context = context,
-                typeConverters = typeConverters,
-                knownColumnTypes = knownColumnTypes
-            )
-        } else {
-            TypeConverterStoreImpl(
-                typeConverters = typeConverters,
-                knownColumnTypes = knownColumnTypes
-            )
-        }
+        ) =
+            if (context.useNullAwareConverter) {
+                NullAwareTypeConverterStore(
+                    context = context,
+                    typeConverters = typeConverters,
+                    knownColumnTypes = knownColumnTypes
+                )
+            } else {
+                TypeConverterStoreImpl(
+                    typeConverters = typeConverters,
+                    knownColumnTypes = knownColumnTypes
+                )
+            }
     }
 }

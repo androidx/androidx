@@ -28,17 +28,17 @@ import kotlin.test.fail
 import org.junit.Assert.assertArrayEquals
 
 /**
- * Creates a path from the specified shape, using the EvenOdd fill type to match SVG.
- * The returned path has its origin set to 0,0 for convenience.
+ * Creates a path from the specified shape, using the EvenOdd fill type to match SVG. The returned
+ * path has its origin set to 0,0 for convenience.
  */
-internal fun createSvgPath(svgShape: SvgShape) = Path().apply {
-    addSvg(svgShape.pathData)
-    val bounds = getBounds()
-    translate(Offset(-bounds.left, -bounds.top))
-    fillType = PathFillType.EvenOdd
-}
+internal fun createSvgPath(svgShape: SvgShape) =
+    Path().apply {
+        addSvg(svgShape.pathData)
+        val bounds = getBounds()
+        translate(Offset(-bounds.left, -bounds.top))
+        fillType = PathFillType.EvenOdd
+    }
 
-/* ktlint-disable max-line-length */
 internal enum class SvgShape(val pathData: String) {
     Cubics(
         "M958.729,822.904L958.729,1086.67C958.729,1159.45 899.635,1218.55 826.848,1218.55L563.086,1218.55L355.844,1444.63L450.045,1218.55L337.004,1218.55C264.217,1218.55 205.123,1159.45 205.123,1086.67L205.123,822.904C205.123,750.117 264.217,691.023 337.004,691.023L826.848,691.023C899.635,691.023 958.729,750.117 958.729,822.904ZM581.925,850.888C544.745,781.585 470.384,781.585 433.204,816.236C396.023,850.888 396.023,920.191 433.204,989.493C459.23,1041.47 526.155,1093.45 581.925,1128.1C637.696,1093.45 704.621,1041.47 730.647,989.493C767.829,920.191 767.829,850.888 730.647,816.236C693.467,781.585 619.106,781.585 581.925,850.888Z"
@@ -56,17 +56,17 @@ internal enum class SvgShape(val pathData: String) {
         "M648.094,783.362C721.785,623.533 869.168,623.533 942.86,703.447C1016.55,783.362 1016.55,943.19 942.86,1103.02C891.275,1222.89 758.631,1342.76 648.094,1422.68C537.557,1342.76 404.913,1222.89 353.329,1103.02C279.638,943.19 279.638,783.362 353.329,703.447C427.021,623.533 574.403,623.533 648.094,783.362Z"
     ),
 }
-/* ktlint-enable max-line-length */
 
-private fun valueCountForType(type: PathSegment.Type) = when (type) {
-    PathSegment.Type.Move -> 2
-    PathSegment.Type.Line -> 4
-    PathSegment.Type.Quadratic -> 6
-    PathSegment.Type.Conic -> 8
-    PathSegment.Type.Cubic -> 8
-    PathSegment.Type.Close -> 0
-    PathSegment.Type.Done -> 0
-}
+private fun valueCountForType(type: PathSegment.Type) =
+    when (type) {
+        PathSegment.Type.Move -> 2
+        PathSegment.Type.Line -> 4
+        PathSegment.Type.Quadratic -> 6
+        PathSegment.Type.Conic -> 8
+        PathSegment.Type.Cubic -> 8
+        PathSegment.Type.Close -> 0
+        PathSegment.Type.Done -> 0
+    }
 
 internal fun assertPathEquals(
     expected: Path,
@@ -103,9 +103,9 @@ internal fun assertPointEquals(expected: Offset, actual: FloatArray, offset: Int
 }
 
 /**
- * Compares two bitmaps and fails the test if they are different. The two bitmaps
- * are considered different if more than [errorCount] pixels differ by more than
- * [threshold] in any of the RGB channels.
+ * Compares two bitmaps and fails the test if they are different. The two bitmaps are considered
+ * different if more than [errorCount] pixels differ by more than [threshold] in any of the RGB
+ * channels.
  */
 internal fun compareBitmaps(bitmap1: Bitmap, bitmap2: Bitmap, errorCount: Int, threshold: Int = 1) {
     assertEquals(bitmap1.width, bitmap2.width)
@@ -125,10 +125,7 @@ internal fun compareBitmaps(bitmap1: Bitmap, bitmap2: Bitmap, errorCount: Int, t
             val (r1, g1, b1, _) = p1[index]
             val (r2, g2, b2, _) = p2[index]
 
-            if (abs(r1 - r2) > threshold ||
-                abs(g1 - g2) > threshold ||
-                abs(b1 - b2) > threshold
-            ) {
+            if (abs(r1 - r2) > threshold || abs(g1 - g2) > threshold || abs(b1 - b2) > threshold) {
                 count++
             }
         }

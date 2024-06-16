@@ -43,8 +43,8 @@ fun getLastInsertedRowId(connection: SQLiteConnection): Long {
 }
 
 /**
- * Returns the number of database rows that were changed or inserted or deleted by the most
- * recently completed INSERT, DELETE, or UPDATE statement.
+ * Returns the number of database rows that were changed or inserted or deleted by the most recently
+ * completed INSERT, DELETE, or UPDATE statement.
  *
  * See the (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#changes] for
  * details.

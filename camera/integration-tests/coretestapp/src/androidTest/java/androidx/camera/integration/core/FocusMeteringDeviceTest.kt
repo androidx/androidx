@@ -66,44 +66,47 @@ class FocusMeteringDeviceTest(
     private val cameraXConfig: CameraXConfig
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraXConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraXConfig)
+        )
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "selector={0},config={2}")
-        fun data() = listOf(
-            arrayOf(
-                "front",
-                CameraSelector.DEFAULT_FRONT_CAMERA,
-                Camera2Config::class.simpleName,
-                Camera2Config.defaultConfig()
-            ),
-            arrayOf(
-                "front",
-                CameraSelector.DEFAULT_FRONT_CAMERA,
-                CameraPipeConfig::class.simpleName,
-                CameraPipeConfig.defaultConfig()
-            ),
-            arrayOf(
-                "back",
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                Camera2Config::class.simpleName,
-                Camera2Config.defaultConfig()
-            ),
-            arrayOf(
-                "back",
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                CameraPipeConfig::class.simpleName,
-                CameraPipeConfig.defaultConfig()
+        fun data() =
+            listOf(
+                arrayOf(
+                    "front",
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    Camera2Config::class.simpleName,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "front",
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig.defaultConfig()
+                ),
+                arrayOf(
+                    "back",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    Camera2Config::class.simpleName,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "back",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig.defaultConfig()
+                )
             )
-        )
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -124,20 +127,19 @@ class FocusMeteringDeviceTest(
         withContext(Dispatchers.Main) {
             val fakeLifecycleOwner = FakeLifecycleOwner()
             fakeLifecycleOwner.startAndResume()
-            camera = cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                cameraSelector,
-                ImageCapture.Builder().build()
-            )
+            camera =
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    cameraSelector,
+                    ImageCapture.Builder().build()
+                )
         }
     }
 
     @After
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
     }
 
@@ -145,7 +147,8 @@ class FocusMeteringDeviceTest(
     fun futureCompletes_whenFocusMeteringStarted() = runBlocking {
         assumeThat(
             "No AF/AE/AWB region available on this device!",
-            hasMeteringRegion(cameraSelector), equalTo(true)
+            hasMeteringRegion(cameraSelector),
+            equalTo(true)
         )
 
         val focusMeteringAction = FocusMeteringAction.Builder(validMeteringPoint).build()
@@ -168,7 +171,8 @@ class FocusMeteringDeviceTest(
     fun isFocusMeteringSupported_whenMeteringPointValid() = runBlocking {
         assumeThat(
             "No AF/AE/AWB region available on this device!",
-            hasMeteringRegion(cameraSelector), equalTo(true)
+            hasMeteringRegion(cameraSelector),
+            equalTo(true)
         )
 
         val focusMeteringAction = FocusMeteringAction.Builder(validMeteringPoint).build()
@@ -187,14 +191,16 @@ class FocusMeteringDeviceTest(
     fun focusMeteringSucceeds_whenSupported() = runBlocking {
         assumeThat(
             "No AF/AE/AWB region available on this device!",
-            hasMeteringRegion(cameraSelector), equalTo(true)
+            hasMeteringRegion(cameraSelector),
+            equalTo(true)
         )
 
         val focusMeteringAction = FocusMeteringAction.Builder(validMeteringPoint).build()
 
         assumeThat(
             "FocusMeteringAction not supported!",
-            camera.cameraInfo.isFocusMeteringSupported(focusMeteringAction), equalTo(true)
+            camera.cameraInfo.isFocusMeteringSupported(focusMeteringAction),
+            equalTo(true)
         )
 
         val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
@@ -208,7 +214,8 @@ class FocusMeteringDeviceTest(
 
         assumeThat(
             "FocusMeteringAction supported!",
-            camera.cameraInfo.isFocusMeteringSupported(focusMeteringAction), equalTo(false)
+            camera.cameraInfo.isFocusMeteringSupported(focusMeteringAction),
+            equalTo(false)
         )
 
         val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
@@ -218,9 +225,7 @@ class FocusMeteringDeviceTest(
 
     @Test
     fun focusMeteringFailsWithOperationCanceledException_whenNoUseCaseIsBound() = runBlocking {
-        withContext(Dispatchers.Main) {
-            cameraProvider.unbindAll()
-        }
+        withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
 
         val focusMeteringAction = FocusMeteringAction.Builder(validMeteringPoint).build()
         val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
@@ -232,7 +237,8 @@ class FocusMeteringDeviceTest(
     fun futureCompletes_whenFocusMeteringWithAe() {
         assumeThat(
             "No AE region available on this device!",
-            hasMeteringRegion(cameraSelector, FLAG_AE), equalTo(true)
+            hasMeteringRegion(cameraSelector, FLAG_AE),
+            equalTo(true)
         )
 
         val action = FocusMeteringAction.Builder(validMeteringPoint, FLAG_AE).build()
@@ -245,7 +251,8 @@ class FocusMeteringDeviceTest(
     fun futureCompletes_whenFocusMeteringWithAwb() {
         assumeThat(
             "No AWB region available on this device!",
-            hasMeteringRegion(cameraSelector, FLAG_AWB), equalTo(true)
+            hasMeteringRegion(cameraSelector, FLAG_AWB),
+            equalTo(true)
         )
 
         val action = FocusMeteringAction.Builder(validMeteringPoint, FLAG_AWB).build()
@@ -258,7 +265,8 @@ class FocusMeteringDeviceTest(
     fun futureCompletes_whenFocusMeteringWithAeAwb() {
         assumeThat(
             "No AE/AWB region available on this device!",
-            hasMeteringRegion(cameraSelector, FLAG_AE or FLAG_AWB), equalTo(true)
+            hasMeteringRegion(cameraSelector, FLAG_AE or FLAG_AWB),
+            equalTo(true)
         )
 
         val action = FocusMeteringAction.Builder(validMeteringPoint, FLAG_AE or FLAG_AWB).build()
@@ -271,16 +279,18 @@ class FocusMeteringDeviceTest(
     fun futureCompletes_whenFocusMeteringWithMorePointsThanSupported() {
         assumeThat(
             "No AF/AE/AWB region available on this device!",
-            hasMeteringRegion(cameraSelector), equalTo(true)
+            hasMeteringRegion(cameraSelector),
+            equalTo(true)
         )
 
         val factory = SurfaceOrientedMeteringPointFactory(1f, 1f)
         // Most devices don't support 4 AF/AE/AWB regions. but it should still complete.
-        val action = FocusMeteringAction.Builder(factory.createPoint(0f, 0f))
-            .addPoint(factory.createPoint(1f, 0f))
-            .addPoint(factory.createPoint(0.2f, 0.2f))
-            .addPoint(factory.createPoint(0.3f, 0.4f))
-            .build()
+        val action =
+            FocusMeteringAction.Builder(factory.createPoint(0f, 0f))
+                .addPoint(factory.createPoint(1f, 0f))
+                .addPoint(factory.createPoint(0.2f, 0.2f))
+                .addPoint(factory.createPoint(0.3f, 0.4f))
+                .build()
         val future = camera.cameraControl.startFocusAndMetering(action)
 
         assertFutureCompletes(future)
@@ -294,7 +304,6 @@ class FocusMeteringDeviceTest(
      * Since some devices may require a long time to complete convergence, we are setting a long
      * [FocusMeteringAction.mAutoCancelDurationInMillis] in these tests.
      */
-
     @Test
     fun futureCompletes_whenFocusMeteringStartedWithLongCancelDuration() = runBlocking {
         Assume.assumeTrue(
@@ -308,9 +317,10 @@ class FocusMeteringDeviceTest(
             hasMeteringRegion(cameraSelector)
         )
 
-        val focusMeteringAction = FocusMeteringAction.Builder(validMeteringPoint)
-            .setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
-            .build()
+        val focusMeteringAction =
+            FocusMeteringAction.Builder(validMeteringPoint)
+                .setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
+                .build()
 
         val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
 
@@ -330,11 +340,10 @@ class FocusMeteringDeviceTest(
             hasMeteringRegion(cameraSelector, FLAG_AF)
         )
 
-        val focusMeteringAction = FocusMeteringAction.Builder(
-            validMeteringPoint,
-            FLAG_AF
-        ).setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
-            .build()
+        val focusMeteringAction =
+            FocusMeteringAction.Builder(validMeteringPoint, FLAG_AF)
+                .setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
+                .build()
 
         val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
 
@@ -354,11 +363,10 @@ class FocusMeteringDeviceTest(
             hasMeteringRegion(cameraSelector, FLAG_AE or FLAG_AWB)
         )
 
-        val focusMeteringAction = FocusMeteringAction.Builder(
-            validMeteringPoint,
-            FLAG_AE or FLAG_AWB
-        ).setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
-            .build()
+        val focusMeteringAction =
+            FocusMeteringAction.Builder(validMeteringPoint, FLAG_AE or FLAG_AWB)
+                .setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
+                .build()
 
         val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
 
@@ -370,9 +378,7 @@ class FocusMeteringDeviceTest(
         @FocusMeteringAction.MeteringMode flags: Int = FLAG_AF or FLAG_AE or FLAG_AWB
     ): Boolean {
         return try {
-            val cameraCharacteristics = CameraUtil.getCameraCharacteristics(
-                selector.lensFacing!!
-            )
+            val cameraCharacteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
             cameraCharacteristics?.run {
                 (if (flags.hasFlag(FLAG_AF)) (get(CONTROL_MAX_REGIONS_AF)!! > 0) else false) ||
                     (if (flags.hasFlag(FLAG_AE)) (get(CONTROL_MAX_REGIONS_AE)!! > 0) else false) ||
@@ -394,18 +400,14 @@ class FocusMeteringDeviceTest(
     }
 
     private fun <T> assertFutureFailsWithIllegalArgumentException(future: ListenableFuture<T>) {
-        Assert.assertThrows(ExecutionException::class.java) {
-            future[10, TimeUnit.SECONDS]
-        }.apply {
-            assertThat(cause).isInstanceOf(IllegalArgumentException::class.java)
-        }
+        Assert.assertThrows(ExecutionException::class.java) { future[10, TimeUnit.SECONDS] }
+            .apply { assertThat(cause).isInstanceOf(IllegalArgumentException::class.java) }
     }
 
     private fun <T> assertFutureFailsWithOperationCancellation(future: ListenableFuture<T>) {
-        Assert.assertThrows(ExecutionException::class.java) {
-            future[10, TimeUnit.SECONDS]
-        }.apply {
-            assertThat(cause).isInstanceOf(CameraControl.OperationCanceledException::class.java)
-        }
+        Assert.assertThrows(ExecutionException::class.java) { future[10, TimeUnit.SECONDS] }
+            .apply {
+                assertThat(cause).isInstanceOf(CameraControl.OperationCanceledException::class.java)
+            }
     }
 }

@@ -90,21 +90,16 @@ class Camera2CameraControlDeviceTest {
     private lateinit var cameraControl: CameraControlAdapter
     private lateinit var comboListener: ComboRequestListener
 
-    @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    @get:Rule val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         context = ApplicationProvider.getApplicationContext()
-        CameraXUtil.initialize(
-            context,
-            CameraPipeConfig.defaultConfig()
-        )
-        cameraSelector = CameraSelector.Builder().requireLensFacing(
-            CameraSelector.LENS_FACING_BACK
-        ).build()
+        CameraXUtil.initialize(context, CameraPipeConfig.defaultConfig())
+        cameraSelector =
+            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
         cameraControl = camera.cameraControl.toCameraControlAdapter()
         camera2CameraControl = cameraControl.camera2cameraControl
@@ -114,9 +109,7 @@ class Camera2CameraControlDeviceTest {
     @After
     fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
-            withContext(Dispatchers.Main) {
-                camera.removeUseCases(camera.useCases)
-            }
+            withContext(Dispatchers.Main) { camera.removeUseCases(camera.useCases) }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -124,9 +117,8 @@ class Camera2CameraControlDeviceTest {
 
     @Test
     fun canGetInteropApi() {
-        Truth.assertThat(
-            Camera2CameraControl.from(cameraControl)
-        ).isSameInstanceAs(camera2CameraControl)
+        Truth.assertThat(Camera2CameraControl.from(cameraControl))
+            .isSameInstanceAs(camera2CameraControl)
     }
 
     @Test
@@ -148,36 +140,34 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         Truth.assertThat(
-            camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CONTROL_CAPTURE_INTENT, null
+                camera2CameraControl
+                    .getCaptureRequestOptions()
+                    .getCaptureRequestOption(CONTROL_CAPTURE_INTENT, null)
             )
-        ).isEqualTo(
-            CONTROL_CAPTURE_INTENT_PREVIEW
-        )
+            .isEqualTo(CONTROL_CAPTURE_INTENT_PREVIEW)
         Truth.assertThat(
-            camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                COLOR_CORRECTION_MODE, null
+                camera2CameraControl
+                    .getCaptureRequestOptions()
+                    .getCaptureRequestOption(COLOR_CORRECTION_MODE, null)
             )
-        ).isEqualTo(
-            CameraMetadata.COLOR_CORRECTION_MODE_FAST
-        )
+            .isEqualTo(CameraMetadata.COLOR_CORRECTION_MODE_FAST)
     }
 
     @Test
     fun canSubmitCaptureRequestOptions_beforeBinding() = runBlocking {
-        val future = updateCamera2Option<Int>(
-            CONTROL_CAPTURE_INTENT,
-            CONTROL_CAPTURE_INTENT_PREVIEW
-        )
+        val future =
+            updateCamera2Option<Int>(CONTROL_CAPTURE_INTENT, CONTROL_CAPTURE_INTENT_PREVIEW)
         bindUseCase()
         assertFutureCompletes(future)
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_CAPTURE_INTENT] ==
+                        CONTROL_CAPTURE_INTENT_PREVIEW
+                },
+            )
     }
 
     @Test
@@ -186,18 +176,17 @@ class Camera2CameraControlDeviceTest {
         bindUseCase()
 
         // Act.
-        val future = updateCamera2Option(
-            CONTROL_CAPTURE_INTENT,
-            CONTROL_CAPTURE_INTENT_PREVIEW
-        )
+        val future = updateCamera2Option(CONTROL_CAPTURE_INTENT, CONTROL_CAPTURE_INTENT_PREVIEW)
         assertFutureCompletes(future)
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_CAPTURE_INTENT] ==
+                        CONTROL_CAPTURE_INTENT_PREVIEW
+                },
+            )
     }
 
     @Test
@@ -222,72 +211,68 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         Truth.assertThat(
-            camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CONTROL_CAPTURE_INTENT, null
+                camera2CameraControl
+                    .getCaptureRequestOptions()
+                    .getCaptureRequestOption(CONTROL_CAPTURE_INTENT, null)
             )
-        ).isEqualTo(
-            CONTROL_CAPTURE_INTENT_PREVIEW
-        )
+            .isEqualTo(CONTROL_CAPTURE_INTENT_PREVIEW)
         Truth.assertThat(
-            camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                COLOR_CORRECTION_MODE, null
+                camera2CameraControl
+                    .getCaptureRequestOptions()
+                    .getCaptureRequestOption(COLOR_CORRECTION_MODE, null)
             )
-        ).isEqualTo(null)
+            .isEqualTo(null)
 
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW &&
-                    requestMetadata.request[COLOR_CORRECTION_MODE] != COLOR_CORRECTION_MODE_FAST
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_CAPTURE_INTENT] ==
+                        CONTROL_CAPTURE_INTENT_PREVIEW &&
+                        requestMetadata.request[COLOR_CORRECTION_MODE] != COLOR_CORRECTION_MODE_FAST
+                },
+            )
     }
 
     @Test
     fun canOverrideAfMode() = runBlocking {
-        updateCamera2Option(
-            CONTROL_AF_MODE,
-            CONTROL_AF_MODE_OFF
-        )
+        updateCamera2Option(CONTROL_AF_MODE, CONTROL_AF_MODE_OFF)
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_AF_MODE] == CONTROL_AF_MODE_OFF
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_AF_MODE] == CONTROL_AF_MODE_OFF
+                },
+            )
     }
 
     @Test
     fun canOverrideAeMode() = runBlocking {
-        updateCamera2Option(
-            CONTROL_AE_MODE,
-            CONTROL_AE_MODE_OFF
-        )
+        updateCamera2Option(CONTROL_AE_MODE, CONTROL_AE_MODE_OFF)
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_OFF
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_OFF
+                },
+            )
     }
 
     @Test
     fun canOverrideAwbMode() = runBlocking {
-        updateCamera2Option(
-            CONTROL_AWB_MODE,
-            CONTROL_AWB_MODE_OFF
-        )
+        updateCamera2Option(CONTROL_AWB_MODE, CONTROL_AWB_MODE_OFF)
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_AWB_MODE] == CONTROL_AWB_MODE_OFF
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_AWB_MODE] == CONTROL_AWB_MODE_OFF
+                },
+            )
     }
 
     @Test
@@ -304,77 +289,75 @@ class Camera2CameraControlDeviceTest {
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[SCALER_CROP_REGION] == cropRegion
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[SCALER_CROP_REGION] == cropRegion
+                },
+            )
     }
 
     @Test
     fun canOverrideAfRegion() = runBlocking {
         // Arrange.
-        val meteringRectangles = arrayOf(
-            MeteringRectangle(0, 0, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
-        )
+        val meteringRectangles =
+            arrayOf(MeteringRectangle(0, 0, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX))
 
         // Act.
         updateCamera2Option(CONTROL_AF_REGIONS, meteringRectangles)
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_AF_REGIONS] == meteringRectangles
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_AF_REGIONS] == meteringRectangles
+                },
+            )
     }
 
     @Test
     fun canOverrideAeRegion() = runBlocking {
         // Arrange.
-        val meteringRectangles = arrayOf(
-            MeteringRectangle(0, 0, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
-        )
+        val meteringRectangles =
+            arrayOf(MeteringRectangle(0, 0, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX))
 
         // Act.
         updateCamera2Option(CONTROL_AE_REGIONS, meteringRectangles)
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_AE_REGIONS] == meteringRectangles
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_AE_REGIONS] == meteringRectangles
+                },
+            )
     }
 
     @Test
     fun canOverrideAwbRegion() = runBlocking {
         // Arrange.
-        val meteringRectangles = arrayOf(
-            MeteringRectangle(0, 0, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
-        )
+        val meteringRectangles =
+            arrayOf(MeteringRectangle(0, 0, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX))
 
         // Act.
         updateCamera2Option(CONTROL_AWB_REGIONS, meteringRectangles)
         bindUseCase()
 
         // Assert.
-        registerListener().verify(
-            { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_AWB_REGIONS] == meteringRectangles
-            },
-        )
+        registerListener()
+            .verify(
+                { requestMetadata: RequestMetadata, _ ->
+                    requestMetadata.request[CONTROL_AWB_REGIONS] == meteringRectangles
+                },
+            )
     }
 
     @Test
     fun cancelPendingFuture_whenInactive() {
         // Arrange.
-        val future = updateCamera2Option(
-            CONTROL_CAPTURE_INTENT,
-            CONTROL_CAPTURE_INTENT_PREVIEW
-        )
+        val future = updateCamera2Option(CONTROL_CAPTURE_INTENT, CONTROL_CAPTURE_INTENT_PREVIEW)
 
         // Act.
         camera.detachUseCases()
@@ -392,71 +375,75 @@ class Camera2CameraControlDeviceTest {
     @Suppress("DEPRECATION")
     @Test
     fun canSetPhysicalCameraId() = runBlocking {
-        val physicalCameraIds = CameraUtil.getCameraCharacteristics(
-            cameraSelector.lensFacing!!
-        )!!.physicalCameraIds.toList()
+        val physicalCameraIds =
+            CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)!!
+                .physicalCameraIds
+                .toList()
 
         // Skip the test if the camera is not a logical camera.
         Assume.assumeTrue(physicalCameraIds.isNotEmpty())
 
         // Arrange.
         val physicalCameraId = physicalCameraIds[0]
-        val useCase = ImageAnalysis.Builder().also { imageAnalysisBuilder ->
-            Camera2Interop.Extender(imageAnalysisBuilder).setPhysicalCameraId(
-                physicalCameraId
-            )
-        }.build().apply {
-            // set analyzer to make it active.
-            setAnalyzer(Dispatchers.Default.asExecutor()) {
-                // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
-                // closing of the CameraDevice from being stuck.
-                it.close()
-            }
-        }
+        val useCase =
+            ImageAnalysis.Builder()
+                .also { imageAnalysisBuilder ->
+                    Camera2Interop.Extender(imageAnalysisBuilder)
+                        .setPhysicalCameraId(physicalCameraId)
+                }
+                .build()
+                .apply {
+                    // set analyzer to make it active.
+                    setAnalyzer(Dispatchers.Default.asExecutor()) {
+                        // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent
+                        // the
+                        // closing of the CameraDevice from being stuck.
+                        it.close()
+                    }
+                }
 
         // Act.
         bindUseCase(useCase)
 
         // Assert.
-        registerListener().verify(
-            { _, captureResult: FrameInfo ->
-                captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        totalCaptureResult.physicalCameraTotalResults.containsKey(
-                            physicalCameraId
-                        )
-                    } else {
-                        totalCaptureResult.physicalCameraResults.containsKey(physicalCameraId)
+        registerListener()
+            .verify(
+                { _, captureResult: FrameInfo ->
+                    captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            totalCaptureResult.physicalCameraTotalResults.containsKey(
+                                physicalCameraId
+                            )
+                        } else {
+                            totalCaptureResult.physicalCameraResults.containsKey(physicalCameraId)
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
     }
 
     private fun getZoom2XCropRegion(): Rect {
         val cameraManager =
-            InstrumentationRegistry.getInstrumentation().context.getSystemService(
-                Context.CAMERA_SERVICE
-            ) as CameraManager
-        val characteristics = cameraManager.getCameraCharacteristics(
-            camera.cameraInfo.toCameraInfoAdapter().cameraId
-        )
+            InstrumentationRegistry.getInstrumentation()
+                .context
+                .getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val characteristics =
+            cameraManager.getCameraCharacteristics(camera.cameraInfo.toCameraInfoAdapter().cameraId)
 
-        val maxDigitalZoom = characteristics.get(
-            CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM
-        )
+        val maxDigitalZoom =
+            characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
 
         Assume.assumeTrue(maxDigitalZoom != null && maxDigitalZoom >= 2)
 
-        return characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
-            .let { sensorRect ->
-                Rect(
-                    sensorRect!!.centerX() - sensorRect.width() / 4,
-                    sensorRect.centerY() - sensorRect.height() / 4,
-                    sensorRect.centerX() + sensorRect.width() / 4,
-                    sensorRect.centerY() + sensorRect.height() / 4
-                )
-            }
+        return characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE).let {
+            sensorRect ->
+            Rect(
+                sensorRect!!.centerX() - sensorRect.width() / 4,
+                sensorRect.centerY() - sensorRect.height() / 4,
+                sensorRect.centerX() + sensorRect.width() / 4,
+                sensorRect.centerY() + sensorRect.height() / 4
+            )
+        }
     }
 
     private fun registerListener(capturesCount: Int = 60): VerifyResultListener =
@@ -480,20 +467,22 @@ class Camera2CameraControlDeviceTest {
     }
 
     private fun bindUseCase(
-        useCase: UseCase = ImageAnalysis.Builder().build().apply {
-            // set analyzer to make it active.
-            setAnalyzer(Dispatchers.Default.asExecutor()) {
-                // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
-                // closing of the CameraDevice from being stuck.
-                it.close()
+        useCase: UseCase =
+            ImageAnalysis.Builder().build().apply {
+                // set analyzer to make it active.
+                setAnalyzer(Dispatchers.Default.asExecutor()) {
+                    // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
+                    // closing of the CameraDevice from being stuck.
+                    it.close()
+                }
             }
-        }
     ) {
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            cameraSelector,
-            useCase,
-        )
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context,
+                cameraSelector,
+                useCase,
+            )
         camera2CameraControl = Camera2CameraControl.from(camera.cameraControl)
     }
 }

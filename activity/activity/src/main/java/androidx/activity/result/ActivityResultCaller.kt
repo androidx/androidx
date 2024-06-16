@@ -30,19 +30,17 @@ interface ActivityResultCaller {
      * Register a request to [start an activity for result][Activity.startActivityForResult],
      * designated by the given [contract][ActivityResultContract].
      *
-     * This creates a record in the [registry][ActivityResultRegistry] associated with this
-     * caller, managing request code, as well as conversions to/from [Intent] under the hood.
+     * This creates a record in the [registry][ActivityResultRegistry] associated with this caller,
+     * managing request code, as well as conversions to/from [Intent] under the hood.
      *
      * This *must* be called unconditionally, as part of initialization path, typically as a field
      * initializer of an Activity or Fragment.
      *
      * @param I the type of the input(if any) required to call the activity
      * @param O the type of output returned as an activity result
-     *
      * @param contract the contract, specifying conversions to/from [Intent]s
-     * @param callback the callback to be called on the main thread when activity result
-     * is available
-     *
+     * @param callback the callback to be called on the main thread when activity result is
+     *   available
      * @return the launcher that can be used to start the activity or dispose of the prepared call.
      */
     fun <I, O> registerForActivityResult(
@@ -54,20 +52,18 @@ interface ActivityResultCaller {
      * Register a request to [start an activity for result][Activity.startActivityForResult],
      * designated by the given [contract][ActivityResultContract].
      *
-     * This creates a record in the given [registry][ActivityResultRegistry], managing request
-     * code, as well as conversions to/from [Intent] under the hood.
+     * This creates a record in the given [registry][ActivityResultRegistry], managing request code,
+     * as well as conversions to/from [Intent] under the hood.
      *
      * This *must* be called unconditionally, as part of initialization path, typically as a field
      * initializer of an Activity or Fragment.
      *
      * @param I the type of the input(if any) required to call the activity
      * @param O the type of output returned as an activity result
-     *
      * @param contract the contract, specifying conversions to/from [Intent]s
      * @param registry the registry where to hold the record.
-     * @param callback the callback to be called on the main thread when activity result
-     * is available
-     *
+     * @param callback the callback to be called on the main thread when activity result is
+     *   available
      * @return the launcher that can be used to start the activity or dispose of the prepared call.
      */
     fun <I, O> registerForActivityResult(
@@ -78,9 +74,8 @@ interface ActivityResultCaller {
 }
 
 /**
- * A version of [ActivityResultCaller.registerForActivityResult]
- * that additionally takes an input right away, producing a launcher that doesn't take any
- * additional input when called.
+ * A version of [ActivityResultCaller.registerForActivityResult] that additionally takes an input
+ * right away, producing a launcher that doesn't take any additional input when called.
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
@@ -95,9 +90,8 @@ fun <I, O> ActivityResultCaller.registerForActivityResult(
 }
 
 /**
- * A version of [ActivityResultCaller.registerForActivityResult]
- * that additionally takes an input right away, producing a launcher that doesn't take any
- * additional input when called.
+ * A version of [ActivityResultCaller.registerForActivityResult] that additionally takes an input
+ * right away, producing a launcher that doesn't take any additional input when called.
  *
  * @see ActivityResultCaller.registerForActivityResult
  */

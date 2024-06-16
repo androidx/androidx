@@ -18,8 +18,8 @@ package androidx.activity.contextaware
 import android.content.Context
 
 /**
- * Listener for receiving a callback at the first moment a [Context] is made
- * available to the [ContextAware] class.
+ * Listener for receiving a callback at the first moment a [Context] is made available to the
+ * [ContextAware] class.
  *
  * @see ContextAware.addOnContextAvailableListener
  */

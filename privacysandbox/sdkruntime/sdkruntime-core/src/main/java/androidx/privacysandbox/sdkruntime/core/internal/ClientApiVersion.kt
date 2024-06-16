@@ -21,13 +21,12 @@ import androidx.annotation.RestrictTo
 /**
  * List of all supported internal API versions (Client-Core communication).
  *
- * NEVER REMOVE / MODIFY RELEASED VERSIONS:
- * That could break loading of SDKs built with previous/future library version.
+ * NEVER REMOVE / MODIFY RELEASED VERSIONS: That could break loading of SDKs built with
+ * previous/future library version.
  *
  * Adding new version here bumps internal API version for next library release:
- * [androidx.privacysandbox.sdkruntime.core.Versions.API_VERSION]
- * When adding a new version, ALL new features from this version should be specified
- * (NO FUTURE CHANGES SUPPORTED).
+ * [androidx.privacysandbox.sdkruntime.core.Versions.API_VERSION] When adding a new version, ALL new
+ * features from this version should be specified (NO FUTURE CHANGES SUPPORTED).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 enum class ClientApiVersion(
@@ -35,33 +34,22 @@ enum class ClientApiVersion(
     private val newFeatures: Set<ClientFeature> = emptySet()
 ) {
     V1__1_0_ALPHA01(apiLevel = 1),
-
-    V2__1_0_ALPHA02(
-        apiLevel = 2,
-        newFeatures = setOf(
-            ClientFeature.SDK_SANDBOX_CONTROLLER
-        )
-    ),
+    V2__1_0_ALPHA02(apiLevel = 2, newFeatures = setOf(ClientFeature.SDK_SANDBOX_CONTROLLER)),
 
     // V3 was released as V4 (original release postponed)
     V4__1_0_ALPHA05(
         apiLevel = 4,
-        newFeatures = setOf(
-            ClientFeature.SDK_ACTIVITY_HANDLER,
-            ClientFeature.APP_OWNED_INTERFACES,
-        )
+        newFeatures =
+            setOf(
+                ClientFeature.SDK_ACTIVITY_HANDLER,
+                ClientFeature.APP_OWNED_INTERFACES,
+            )
     ),
-
-    V5__1_0_ALPHA13(
-        apiLevel = 5,
-        newFeatures = setOf(
-            ClientFeature.LOAD_SDK
-        )
-    ),
+    V5__1_0_ALPHA13(apiLevel = 5, newFeatures = setOf(ClientFeature.LOAD_SDK)),
 
     /**
-     * Unreleased API version.
-     * Features not added to other versions will be automatically added here (to allow testing).
+     * Unreleased API version. Features not added to other versions will be automatically added here
+     * (to allow testing).
      */
     FUTURE_VERSION(apiLevel = Int.MAX_VALUE);
 
@@ -75,9 +63,7 @@ enum class ClientApiVersion(
             return FEATURE_TO_VERSION_MAP[clientFeature] ?: FUTURE_VERSION
         }
 
-        /**
-         * Build mapping between [ClientFeature] and version where it first became available.
-         */
+        /** Build mapping between [ClientFeature] and version where it first became available. */
         private fun buildFeatureMap(): Map<ClientFeature, ClientApiVersion> {
             if (FUTURE_VERSION.newFeatures.isNotEmpty()) {
                 throw IllegalStateException("FUTURE_VERSION MUST NOT define any features")

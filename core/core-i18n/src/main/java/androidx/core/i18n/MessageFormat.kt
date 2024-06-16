@@ -23,15 +23,15 @@ class MessageFormat private constructor() {
     companion object {
         /**
          * Formats a message pattern string with a variable number of name/value pair arguments.
-         * Creates an ICU MessageFormat for the locale and pattern,
-         * and formats with the arguments.
+         * Creates an ICU MessageFormat for the locale and pattern, and formats with the arguments.
          *
          * @param context Android context object. Used to retrieve user preferences.
          * @param locale Locale for number formatting and plural selection etc.
          * @param msg an ICU-MessageFormat-syntax string
          * @param namedArguments map of argument name to argument value
          */
-        @JvmStatic @JvmOverloads
+        @JvmStatic
+        @JvmOverloads
         fun format(
             context: Context,
             locale: Locale = Locale.getDefault(),
@@ -40,14 +40,14 @@ class MessageFormat private constructor() {
         ): String {
             val result: StringBuffer = StringBuffer()
             return MessageFormat(context, msg, locale)
-                .format(namedArguments, result, null).toString()
+                .format(namedArguments, result, null)
+                .toString()
         }
 
         /**
-         * Formats a message pattern from Android resource for the default locale with a variable number
-         * of name/value pair arguments.
-         * Creates an ICU MessageFormat for Locale.getDefault() and pattern,
-         * and formats with the arguments.
+         * Formats a message pattern from Android resource for the default locale with a variable
+         * number of name/value pair arguments. Creates an ICU MessageFormat for Locale.getDefault()
+         * and pattern, and formats with the arguments.
          *
          * @param context Android context object
          * @param id Android string resource ID representing ICU-MessageFormat-syntax string
@@ -58,7 +58,8 @@ class MessageFormat private constructor() {
             return format(
                 context,
                 Locale.getDefault(),
-                context.resources.getString(id), namedArguments
+                context.resources.getString(id),
+                namedArguments
             )
         }
     }

@@ -23,20 +23,24 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ImplicitCastVerificationFailureDetectorTest : AbstractLintDetectorTest(
-    useDetector = ClassVerificationFailureDetector(),
-    useIssues = listOf(ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE),
-    stubs = arrayOf(
-        // AndroidManifest with minSdkVersion=14
-        manifest().minSdk(14),
-        RequiresApi,
-        DoNotInline,
-    ),
-) {
+class ImplicitCastVerificationFailureDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = ClassVerificationFailureDetector(),
+        useIssues = listOf(ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE),
+        stubs =
+            arrayOf(
+                // AndroidManifest with minSdkVersion=14
+                manifest().minSdk(14),
+                RequiresApi,
+                DoNotInline,
+            ),
+    ) {
     @Test
     fun `Unsafe implicit cast for method argument`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -60,8 +64,11 @@ class ImplicitCastVerificationFailureDetectorTest : AbstractLintDetectorTest(
                         }
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -84,11 +91,13 @@ class ImplicitCastVerificationFailureDetectorTest : AbstractLintDetectorTest(
                         }
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java:11: Error: This expression has type android.app.Notification.MessagingStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
         Api16Impl.setBuilder(style, builder);
                              ~~~~~
@@ -98,7 +107,8 @@ src/java/androidx/UnsafeImplicitCastAsMethodArgumentKotlin.kt:11: Error: This ex
 2 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: Extract to static inner class:
 @@ -11 +11
 -         Api16Impl.setBuilder(style, builder);
@@ -118,15 +128,16 @@ Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: E
 @@ -24 +35
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Unsafe implicit cast within catch block`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Presentation;
@@ -154,8 +165,11 @@ Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: E
                         }
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Presentation
@@ -183,11 +197,13 @@ Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: E
                         }
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java:15: Error: This expression has type android.view.WindowManager.InvalidDisplayException (introduced in API level 17) but it used as type java.lang.Throwable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
             Log.w("Error", "Couldn't show presentation!", e);
                                                           ~
@@ -197,7 +213,8 @@ src/java/androidx/UnsafeImplicitCastInCatchBlockKotlin.kt:15: Error: This expres
 2 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extract to static inner class:
 @@ -15 +15
 -             Log.w("Error", "Couldn't show presentation!", e);
@@ -211,15 +228,16 @@ Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extra
 + }
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Unsafe implicit cast in assignment statement`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -233,8 +251,11 @@ Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extra
                         style = messagingStyle;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -248,11 +269,13 @@ Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extra
                         style = messagingStyle
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/UnsafeImplicitCastInAssignmentJava.java:11: Error: This expression has type android.app.Notification.MessagingStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
         style = messagingStyle;
                 ~~~~~~~~~~~~~~
@@ -262,7 +285,8 @@ src/java/androidx/UnsafeImplicitCastInAssignmentKotlin.kt:11: Error: This expres
 2 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extract to static inner class:
 @@ -11 +11
 -         style = messagingStyle;
@@ -282,15 +306,16 @@ Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extra
 @@ -14 +25
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Unsafe implicit cast on return`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -302,8 +327,11 @@ Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extra
                         return style;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -315,11 +343,13 @@ Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extra
                         return style
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/ImplicitCastOnReturnJava.java:9: Error: This expression has type android.app.Notification.MessagingStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
         return style;
                ~~~~~
@@ -329,7 +359,8 @@ src/java/androidx/ImplicitCastOnReturnKotlin.kt:9: Error: This expression has ty
 2 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to static inner class:
 @@ -9 +9
 -         return style;
@@ -349,15 +380,16 @@ Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to stati
 @@ -12 +23
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Unsafe implicit cast of method call result`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.graphics.drawable.AdaptiveIconDrawable;
@@ -381,8 +413,11 @@ Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to stati
                         }
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.graphics.drawable.AdaptiveIconDrawable
@@ -405,11 +440,13 @@ Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to stati
                         }
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/ImplicitCastOfMethodCallResultJava.java:11: Error: This expression has type android.graphics.drawable.AdaptiveIconDrawable (introduced in API level 26) but it used as type android.graphics.drawable.Drawable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
         return Api26Impl.createAdaptiveIconDrawable(null, null);
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -419,7 +456,8 @@ src/java/androidx/ImplicitCastOfMethodCallResultKotlin.kt:11: Error: This expres
 2 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extract to static inner class:
 @@ -11 +11
 -         return Api26Impl.createAdaptiveIconDrawable(null, null);
@@ -433,15 +471,16 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
 + }
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Safe implicit cast to object`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -455,8 +494,11 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         style = messagingStyle;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -470,16 +512,20 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         style = messagingStyle
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Safe explicit cast`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -493,8 +539,11 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         style = (Notification.Style) messagingStyle;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -508,16 +557,20 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         style = messagingStyle as Notification.Style
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Safe implicit cast between classes from the same API level`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.media.tv.BroadcastInfoResponse;
@@ -532,8 +585,11 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         response = pesResponse;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.media.tv.BroadcastInfoResponse
@@ -548,16 +604,20 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         response = pesResponse
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Safe implicit cast within @RequiresApi class`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -574,8 +634,11 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         builder.extend(extender);
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -590,16 +653,20 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         builder.extend(extender)
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Safe implicit cast from null value`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.Notification;
@@ -611,8 +678,11 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         return null;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.Notification
@@ -624,16 +694,20 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         return null
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Safe implicit cast from type introduced earlier than the minSdk`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.app.FragmentBreadCrumbs;
@@ -647,8 +721,11 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         viewGroup = breadCrumbs;
                     }
                 }
-            """.trimIndent()),
-            kotlin("""
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 import android.app.FragmentBreadCrumbs
@@ -662,16 +739,20 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         viewGroup = breadCrumbs
                     }
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Unsafe implicit cast to varargs method`() {
-        val input = arrayOf(
-            java("""
+        val input =
+            arrayOf(
+                java(
+                    """
                 package java.androidx;
 
                 import android.icu.number.FormattedNumber;
@@ -694,11 +775,13 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                         }
                     }
                 }
-            """.trimIndent())
-        )
+            """
+                        .trimIndent()
+                )
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/UnsafeCastToVarargs.java:11: Error: This expression has type android.icu.number.FormattedNumber (introduced in API level 30) but it used as type java.lang.CharSequence (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
                                               ~~~~~~~
@@ -710,7 +793,8 @@ src/java/androidx/UnsafeCastToVarargs.java:11: Error: This expression has type a
                                                                 ~~~~~~~
 3 errors, 0 warnings
         """
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/UnsafeCastToVarargs.java line 11: Extract to static inner class:
 @@ -11 +11
 -         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
@@ -766,7 +850,6 @@ Fix for src/java/androidx/UnsafeCastToVarargs.java line 11: Extract to static in
 @@ -23 +34
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

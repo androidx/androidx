@@ -33,7 +33,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":compose:foundation:foundation"))
+    api("androidx.compose.foundation:foundation:1.7.0-beta02")
     api("androidx.compose.ui:ui:1.6.0")
     api("androidx.compose.ui:ui-text:1.6.0")
     api("androidx.compose.runtime:runtime:1.6.0")
@@ -81,6 +81,7 @@ androidx {
             "components that are shared between different WearOS Compose Material libraries. It " +
             "builds upon the Jetpack Compose libraries."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 tasks.withType(KotlinCompile).configureEach {

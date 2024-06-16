@@ -32,7 +32,8 @@ class SinglePointerPredictorTest {
 
     @Test
     fun simplePrediction() {
-        val generators = arrayOf(
+        val generators =
+            arrayOf(
                 // Constant
                 { _: Long -> 0f },
                 // Velocity
@@ -46,7 +47,7 @@ class SinglePointerPredictorTest {
                 // Acceleration & velocity
                 { delta: Long -> delta.toFloat() + delta.toFloat().pow(2) / 4 },
                 { delta: Long -> -delta.toFloat() - delta.toFloat().pow(2) / 4 }
-        )
+            )
         for ((xIndex, xGenerator) in generators.withIndex()) {
             for ((yIndex, yGenerator) in generators.withIndex()) {
                 if (xIndex == 0 && yIndex == 0) {
@@ -77,7 +78,7 @@ class SinglePointerPredictorTest {
         val predictor = constructPredictor()
         val coordGenerator = { delta: Long -> delta.toFloat() }
         val motionGenerator = MotionEventGenerator(coordGenerator, coordGenerator, null)
-        var lastPredictedTime = 0L;
+        var lastPredictedTime = 0L
         for (i in 1..INITIAL_FEED) {
             predictor.onTouchEvent(motionGenerator.next())
             val predicted = predictor.predict(motionGenerator.getRateMs().toInt() * 10)
@@ -97,14 +98,15 @@ class SinglePointerPredictorTest {
         val predictor = constructPredictor()
         val coordGenerator = { delta: Long -> delta.toFloat() }
         // Pressure will be 1 at the beginning and trend to zero while never getting there
-        val pressureGenerator = fun(delta: Long): Float {
-            if (delta > 500) {
-                return ((700 - delta) / 500).toFloat()
+        val pressureGenerator =
+            fun(delta: Long): Float {
+                if (delta > 500) {
+                    return ((700 - delta) / 500).toFloat()
+                }
+                return 1f
             }
-            return 1f
-        }
         val motionGenerator =
-                MotionEventGenerator(coordGenerator, coordGenerator, pressureGenerator)
+            MotionEventGenerator(coordGenerator, coordGenerator, pressureGenerator)
         var lastPredictedTime = 0L
         var lastPredictedEvent: MotionEvent? = null
         var predicted: MotionEvent?
@@ -115,7 +117,7 @@ class SinglePointerPredictorTest {
                 assertThat(predicted.eventTime).isAtLeast(lastPredictedTime)
                 lastPredictedTime = predicted.eventTime
             } else if (lastPredictedEvent != null) {
-                assertThat(lastPredictedEvent.getHistorySize()).isEqualTo(0);
+                assertThat(lastPredictedEvent.getHistorySize()).isEqualTo(0)
             }
             lastPredictedEvent = predicted
             if (i > INITIAL_FEED) {
@@ -125,11 +127,8 @@ class SinglePointerPredictorTest {
     }
 }
 
-private fun constructPredictor(): SinglePointerPredictor = SinglePointerPredictor(
-        Configuration.STRATEGY_BALANCED,
-        0,
-        MotionEvent.TOOL_TYPE_STYLUS
-)
+private fun constructPredictor(): SinglePointerPredictor =
+    SinglePointerPredictor(Configuration.STRATEGY_BALANCED, 0, MotionEvent.TOOL_TYPE_STYLUS)
 
 private const val INITIAL_FEED = 20
 private const val MAX_ITERATIONS = 10000

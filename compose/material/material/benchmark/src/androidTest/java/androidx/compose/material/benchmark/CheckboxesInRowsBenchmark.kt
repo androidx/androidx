@@ -33,9 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Benchmark that runs [CheckboxesInRowsTestCase].
- */
+/** Benchmark that runs [CheckboxesInRowsTestCase]. */
 @LargeTest
 @RunWith(Parameterized::class)
 class CheckboxesInRowsBenchmark(private val numberOfCheckboxes: Int) {
@@ -46,8 +44,7 @@ class CheckboxesInRowsBenchmark(private val numberOfCheckboxes: Int) {
         fun initParameters(): Array<Any> = arrayOf(1, 10)
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val checkboxCaseFactory = { CheckboxesInRowsTestCase(numberOfCheckboxes) }
 

@@ -46,9 +46,7 @@ class LoaderManagerTest {
     fun testInitLoader() {
         val countDownLatch = CountDownLatch(1)
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            loaderManager.initLoader(0, StringLoader()) {
-                countDownLatch.countDown()
-            }
+            loaderManager.initLoader(0, StringLoader()) { countDownLatch.countDown() }
         }
         assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
     }
@@ -69,9 +67,7 @@ class LoaderManagerTest {
     fun testRestartLoader() {
         val countDownLatch = CountDownLatch(1)
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            loaderManager.restartLoader(0, StringLoader()) {
-                countDownLatch.countDown()
-            }
+            loaderManager.restartLoader(0, StringLoader()) { countDownLatch.countDown() }
         }
         assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
     }

@@ -80,16 +80,15 @@ import org.jetbrains.uast.tryResolve
 class ExperimentalDetector : Detector(), SourceCodeScanner {
     private val visitedUsages: MutableMap<UElement, MutableSet<String>> = mutableMapOf()
 
-    override fun applicableAnnotations(): List<String> = listOf(
-        JAVA_EXPERIMENTAL_ANNOTATION,
-        KOTLIN_EXPERIMENTAL_ANNOTATION,
-        JAVA_REQUIRES_OPT_IN_ANNOTATION,
-        KOTLIN_REQUIRES_OPT_IN_ANNOTATION
-    )
+    override fun applicableAnnotations(): List<String> =
+        listOf(
+            JAVA_EXPERIMENTAL_ANNOTATION,
+            KOTLIN_EXPERIMENTAL_ANNOTATION,
+            JAVA_REQUIRES_OPT_IN_ANNOTATION,
+            KOTLIN_REQUIRES_OPT_IN_ANNOTATION
+        )
 
-    override fun applicableSuperClasses(): List<String> = listOf(
-        "java.lang.Object"
-    )
+    override fun applicableSuperClasses(): List<String> = listOf("java.lang.Object")
 
     override fun visitClass(
         context: JavaContext,
@@ -98,11 +97,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // Infer the overridden method by taking the first (and only) abstract method from the
         // functional interface being implemented.
         val superClass = (lambda.functionalInterfaceType as? PsiClassReferenceType)?.resolve()
-        superClass?.toUElementOfType<UClass>()?.methods
+        superClass
+            ?.toUElementOfType<UClass>()
+            ?.methods
             ?.firstOrNull { method -> method.isAbstract() }
-            ?.let { superMethod ->
-                checkMethodOverride(context, lambda, superMethod)
-            }
+            ?.let { superMethod -> checkMethodOverride(context, lambda, superMethod) }
     }
 
     override fun visitClass(
@@ -120,8 +119,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     }
 
     /**
-     * Extract the relevant annotations from the method override and run the checks
-     * on the annotations.
+     * Extract the relevant annotations from the method override and run the checks on the
+     * annotations.
      *
      * Based on Lint's `AnnotationHandler.checkCall)()`.
      */
@@ -137,9 +136,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // Look for annotations on the class as well: these trickle
         // down to all the methods in the class
         val containingClass: PsiClass? = superMethod.containingClass
-        val (classAnnotations, pkgAnnotations) = getClassAndPkgAnnotations(
-            containingClass, evaluator
-        )
+        val (classAnnotations, pkgAnnotations) =
+            getClassAndPkgAnnotations(containingClass, evaluator)
 
         doCheckMethodOverride(
             context,
@@ -153,8 +151,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     }
 
     /**
-     * Do the checks of a method override based on the method, class, and package
-     * annotations given.
+     * Do the checks of a method override based on the method, class, and package annotations given.
      *
      * Based on Lint's `AnnotationHandler.doCheckCall()`.
      */
@@ -263,16 +260,17 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                         // if it's not annotated on the element
                         if (annotated is UAnnotated) {
                             var found = false
-                            for (
-                                uAnnotation in uAnnotations ?: run {
-                                    val list = context.evaluator.getAllAnnotations(
-                                        annotated,
-                                        inHierarchy = false
-                                    )
-                                    uAnnotations = list
-                                    list
-                                }
-                            ) {
+                            for (uAnnotation in
+                                uAnnotations
+                                    ?: run {
+                                        val list =
+                                            context.evaluator.getAllAnnotations(
+                                                annotated,
+                                                inHierarchy = false
+                                            )
+                                        uAnnotations = list
+                                        list
+                                    }) {
                                 val qualifiedName = uAnnotation.qualifiedName
                                 if (qualifiedName == signature) {
                                     found = true
@@ -286,14 +284,14 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                         if (annotated is PsiModifierListOwner) {
                             var found = false
 
-                            for (
-                                psiAnnotation in psiAnnotations ?: run {
-                                    val array =
-                                        context.evaluator.getAllAnnotations(annotated, false)
-                                    psiAnnotations = array
-                                    array
-                                }
-                            ) {
+                            for (psiAnnotation in
+                                psiAnnotations
+                                    ?: run {
+                                        val array =
+                                            context.evaluator.getAllAnnotations(annotated, false)
+                                        psiAnnotations = array
+                                        array
+                                    }) {
                                 val qualifiedName = psiAnnotation.qualifiedName
                                 if (qualifiedName == signature) {
                                     found = true
@@ -308,17 +306,23 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                 }
 
                 visitAnnotationUsage(
-                    context, argument, type, annotation,
-                    signature, method, referenced, annotations, allMethodAnnotations,
-                    allClassAnnotations, packageAnnotations
+                    context,
+                    argument,
+                    type,
+                    annotation,
+                    signature,
+                    method,
+                    referenced,
+                    annotations,
+                    allMethodAnnotations,
+                    allClassAnnotations,
+                    packageAnnotations
                 )
             }
         }
     }
 
-    /**
-     * Copied from Lint's `AnnotationHandler`.
-     */
+    /** Copied from Lint's `AnnotationHandler`. */
     private fun getClassAndPkgAnnotations(
         containingClass: PsiClass?,
         evaluator: JavaEvaluator,
@@ -336,12 +340,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             classAnnotations = filterRelevantAnnotations(evaluator, annotations)
 
             val pkg = evaluator.getPackage(containingClass)
-            pkgAnnotations = if (pkg != null) {
-                val annotations2 = evaluator.getAllAnnotations(pkg, inHierarchy = false)
-                filterRelevantAnnotations(evaluator, annotations2)
-            } else {
-                emptyList()
-            }
+            pkgAnnotations =
+                if (pkg != null) {
+                    val annotations2 = evaluator.getAllAnnotations(pkg, inHierarchy = false)
+                    filterRelevantAnnotations(evaluator, annotations2)
+                } else {
+                    emptyList()
+                }
         } else {
             classAnnotations = emptyList()
             pkgAnnotations = emptyList()
@@ -350,9 +355,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         return Pair(classAnnotations, pkgAnnotations)
     }
 
-    /**
-     * Copied from Lint's `AnnotationHandler`.
-     */
+    /** Copied from Lint's `AnnotationHandler`. */
     private fun filterRelevantAnnotations(
         evaluator: JavaEvaluator,
         annotations: Array<PsiAnnotation>,
@@ -364,11 +367,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         }
         for (annotation in annotations) {
             val signature = annotation.qualifiedName
-            if (signature == null ||
-                (
-                    signature.startsWith("kotlin.") ||
-                        signature.startsWith("java.")
-                    ) && !relevantAnnotations.contains(signature)
+            if (
+                signature == null ||
+                    (signature.startsWith("kotlin.") || signature.startsWith("java.")) &&
+                        !relevantAnnotations.contains(signature)
             ) {
                 // @Override, @SuppressWarnings etc. Ignore
                 continue
@@ -394,13 +396,14 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             // Here we want to map from @foo.bar.Baz to the corresponding int def.
             // Don't need to compute this if performing @IntDef or @StringDef lookup
 
-            val cls = annotation.nameReferenceElement?.resolve() ?: run {
-                val project = annotation.project
-                JavaPsiFacade.getInstance(project).findClass(
-                    signature,
-                    GlobalSearchScope.projectScope(project)
-                )
-            } ?: continue
+            val cls =
+                annotation.nameReferenceElement?.resolve()
+                    ?: run {
+                        val project = annotation.project
+                        JavaPsiFacade.getInstance(project)
+                            .findClass(signature, GlobalSearchScope.projectScope(project))
+                    }
+                    ?: continue
             if (cls !is PsiClass || !cls.isAnnotationType) {
                 continue
             }
@@ -412,11 +415,9 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                     if (result == null) {
                         result = ArrayList(2)
                     }
-                    val innerU = UastFacade.convertElement(
-                        inner,
-                        null,
-                        UAnnotation::class.java
-                    ) as UAnnotation
+                    val innerU =
+                        UastFacade.convertElement(inner, null, UAnnotation::class.java)
+                            as UAnnotation
                     result.add(innerU)
                 }
             }
@@ -445,15 +446,18 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // Don't visit values assigned to annotated fields or properties, parameters passed to
         // annotated methods, or annotated properties being referenced as fields. We'll visit the
         // annotated fields and methods separately.
-        if (referenced is PsiField && type == ASSIGNMENT_RHS ||
-            referenced is PsiMethod && type == ASSIGNMENT_RHS ||
-            referenced is PsiMethod && type == FIELD_REFERENCE ||
-            referenced is PsiMethod && type == METHOD_CALL_PARAMETER) {
+        if (
+            referenced is PsiField && type == ASSIGNMENT_RHS ||
+                referenced is PsiMethod && type == ASSIGNMENT_RHS ||
+                referenced is PsiMethod && type == FIELD_REFERENCE ||
+                referenced is PsiMethod && type == METHOD_CALL_PARAMETER
+        ) {
             return
         }
 
         when (qualifiedName) {
-            JAVA_EXPERIMENTAL_ANNOTATION, JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
+            JAVA_EXPERIMENTAL_ANNOTATION,
+            JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
                 // Only allow Java annotations, since the Kotlin compiler doesn't understand our
                 // annotations and could get confused when it's trying to opt-in to some random
                 // annotation that it doesn't understand.
@@ -462,13 +466,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                     annotation,
                     referenced,
                     usage,
-                    listOf(
-                        JAVA_USE_EXPERIMENTAL_ANNOTATION,
-                        JAVA_OPT_IN_ANNOTATION
-                    ),
+                    listOf(JAVA_USE_EXPERIMENTAL_ANNOTATION, JAVA_OPT_IN_ANNOTATION),
                 )
             }
-            KOTLIN_EXPERIMENTAL_ANNOTATION, KOTLIN_REQUIRES_OPT_IN_ANNOTATION -> {
+            KOTLIN_EXPERIMENTAL_ANNOTATION,
+            KOTLIN_REQUIRES_OPT_IN_ANNOTATION -> {
                 // Don't check usages of Kotlin annotations from Kotlin sources, since the Kotlin
                 // compiler handles that already. Allow either Java or Kotlin annotations, since
                 // we can enforce both and it's possible that a Kotlin-sourced experimental library
@@ -518,7 +520,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         }
 
         // Check whether the usage actually considered experimental.
-        val decl = referenced.toUElement() ?: usage.getReferencedElement() ?: return
+        val decl =
+            referenced as? UElement
+                ?: referenced.toUElement()
+                ?: usage.getReferencedElement()
+                ?: return
         if (!decl.isExperimentalityRequired(context, annotationFqName)) {
             return
         }
@@ -533,28 +539,28 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // possible that we'll fail to read the level for other reasons, but the safest
         // fallback is `ERROR` either way.
         val level = annotation.extractAttribute(context, "level", "ERROR")
-        if (level != null) {
-            report(
-                context,
-                usage,
-                annotationFqName,
-                "This declaration is opt-in and its usage should be marked with " +
-                    "`@$annotationFqName` or `@OptIn(markerClass = $annotationFqName.class)`",
-                level
-            )
-        } else {
-            // This is a more serious failure where we obtained a representation that we
-            // couldn't understand.
-            report(
-                context,
-                usage,
-                annotationFqName,
-                "Failed to read `level` from `@$annotationFqName` -- assuming `ERROR`. " +
-                    "This declaration is opt-in and its usage should be marked with " +
-                    "`@$annotationFqName` or `@OptIn(markerClass = $annotationFqName.class)`",
-                "ERROR"
-            )
-        }
+
+        // Building default strings.
+        val missingLevelErrorPrefix =
+            "Failed to read `level` from `@$annotationFqName` -- assuming `ERROR`. "
+        val defaultMessage =
+            "This declaration is opt-in and its usage should be marked with " +
+                "`@$annotationFqName` or `@OptIn(markerClass = $annotationFqName.class)`"
+
+        // Retrieve the message attribute from the annotation.
+        var message: String? = annotation.extractAttribute(context, "message", defaultMessage)
+
+        // Fallback to the default message if we couldn't retrieve the message attribute or if
+        // the user didn't add change it, the default value is set to empty string.
+        if (message.isNullOrEmpty()) message = defaultMessage
+
+        report(
+            context,
+            usage,
+            annotationFqName,
+            if (level == null) missingLevelErrorPrefix + message else message,
+            level ?: "ERROR"
+        )
     }
 
     /**
@@ -570,7 +576,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         annotationFqName: String,
     ): Boolean {
         // Is the element itself experimental?
-        if (isDeclarationAnnotatedWith(annotationFqName)) {
+        if (isDeclarationAnnotatedWith(context.evaluator, annotationFqName)) {
             return true
         }
 
@@ -590,7 +596,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // which is landed on the backing field if any
         if (sourcePsi is KtProperty && this is UMethod) {
             val backingField = (uastParent as? UClass)?.fields?.find { it.sourcePsi == sourcePsi }
-            if (backingField?.isDeclarationAnnotatedWith(annotationFqName) == true) {
+            if (
+                backingField?.isDeclarationAnnotatedWith(context.evaluator, annotationFqName) ==
+                    true
+            ) {
                 return true
             }
         }
@@ -615,7 +624,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         return config.getOption(ISSUE_ERROR, "opt-in")?.contains(annotationFqName) == true ||
             config.getOption(ISSUE_WARNING, "opt-in")?.contains(annotationFqName) == true ||
             anyParentMatches({ element ->
-                element.isDeclarationAnnotatedWith(annotationFqName) ||
+                element.isDeclarationAnnotatedWith(context.evaluator, annotationFqName) ||
                     element.isDeclarationAnnotatedWithOptInOf(annotationFqName, optInFqNames)
             }) ||
             context.evaluator.getPackage(this)?.let { element ->
@@ -634,11 +643,12 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         var addedFix = false
         usage.getContainingUMethod()?.let { containingMethod ->
             val isKotlin = isKotlin(usage.lang)
-            val optInAnnotation = if (isKotlin) {
-                "@androidx.annotation.OptIn($annotation::class)"
-            } else {
-                "@androidx.annotation.OptIn(markerClass = $annotation.class)"
-            }
+            val optInAnnotation =
+                if (isKotlin) {
+                    "@androidx.annotation.OptIn($annotation::class)"
+                } else {
+                    "@androidx.annotation.OptIn(markerClass = $annotation.class)"
+                }
             lintFixes.add(createAnnotateFix(context, containingMethod, optInAnnotation))
             lintFixes.add(createAnnotateFix(context, containingMethod, propagateAnnotation))
             addedFix = true
@@ -656,25 +666,27 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         element: UDeclaration,
         annotation: String,
     ): LintFix {
-        val elementLabel = when (element) {
-            is UMethod -> "'${element.name}'"
-            is UClass -> "containing class '${element.name}'"
-            is UAnonymousClass -> "containing anonymous class"
-            else -> throw IllegalArgumentException("Unsupported element type")
-        }
+        val elementLabel =
+            when (element) {
+                is UMethod -> "'${element.name}'"
+                is UAnonymousClass -> "containing anonymous class"
+                is UClass -> "containing class '${element.name}'"
+                else -> throw IllegalArgumentException("Unsupported element type")
+            }
 
         // If the element can include modifiers, e.g. not an anonymous class or lambda, find the
         // where the list should start. This ensures that we don't insert the annotation in an
         // invalid position, such as after the `public` or `fun` keywords. We also don't want to
         // place it on the element range itself, since that would place it before the comments.
         val elementSourcePsi = element.sourcePsi
-        val elementForInsert = if (elementSourcePsi is PsiModifierListOwner) {
-            elementSourcePsi.asIterable().firstOrNull { child ->
-                child !is PsiWhiteSpace && child !is PsiComment
-            } ?: throw IllegalArgumentException("Failed to locate element declaration")
-        } else {
-            element
-        }
+        val elementForInsert =
+            if (elementSourcePsi is PsiModifierListOwner) {
+                elementSourcePsi.asIterable().firstOrNull { child ->
+                    child !is PsiWhiteSpace && child !is PsiComment
+                } ?: throw IllegalArgumentException("Failed to locate element declaration")
+            } else {
+                element
+            }
 
         return fix()
             .name("Add '$annotation' annotation to $elementLabel")
@@ -683,20 +695,20 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             .build()
     }
 
-    /**
-     * Returns an iterable of child elements.
-     */
-    private fun PsiElement.asIterable(): Iterable<PsiElement> = object : Iterable<PsiElement> {
-        override fun iterator(): Iterator<PsiElement> = object : Iterator<PsiElement> {
-            private var current = firstChild
-            override fun hasNext(): Boolean = current != null
-            override fun next(): PsiElement = current.apply { current = nextSibling }
-        }
-    }
+    /** Returns an iterable of child elements. */
+    private fun PsiElement.asIterable(): Iterable<PsiElement> =
+        object : Iterable<PsiElement> {
+            override fun iterator(): Iterator<PsiElement> =
+                object : Iterator<PsiElement> {
+                    private var current = firstChild
 
-    /**
-     * Reports an issue and trims indentation on the [message].
-     */
+                    override fun hasNext(): Boolean = current != null
+
+                    override fun next(): PsiElement = current.apply { current = nextSibling }
+                }
+        }
+
+    /** Reports an issue and trims indentation on the [message]. */
     private fun report(
         context: JavaContext,
         usage: UElement,
@@ -704,18 +716,25 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         message: String,
         level: String,
     ) {
-        val issue = when (level) {
-            ENUM_ERROR -> ISSUE_ERROR
-            ENUM_WARNING -> ISSUE_WARNING
-            else -> throw IllegalArgumentException(
-                "Level was \"$level\" but must be one of: $ENUM_ERROR, $ENUM_WARNING"
-            )
-        }
+        val issue =
+            when (level) {
+                ENUM_ERROR -> ISSUE_ERROR
+                ENUM_WARNING -> ISSUE_WARNING
+                else ->
+                    throw IllegalArgumentException(
+                        "Level was \"$level\" but must be one of: $ENUM_ERROR, $ENUM_WARNING"
+                    )
+            }
 
         try {
             if (context.configuration.getOption(issue, "opt-in")?.contains(annotation) != true) {
-                context.report(issue, usage, context.getNameLocation(usage), message.trimIndent(),
-                    createLintFix(context, usage, annotation))
+                context.report(
+                    issue,
+                    usage,
+                    context.getNameLocation(usage),
+                    message.trimIndent(),
+                    createLintFix(context, usage, annotation)
+                )
             }
         } catch (e: UnsupportedOperationException) {
             if ("Method not implemented" == e.message) {
@@ -728,10 +747,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        private val IMPLEMENTATION = Implementation(
-            ExperimentalDetector::class.java,
-            Scope.JAVA_FILE_SCOPE,
-        )
+        private val IMPLEMENTATION =
+            Implementation(
+                ExperimentalDetector::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            )
 
         const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
         const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
@@ -739,15 +759,12 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
         const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
 
-        const val JAVA_EXPERIMENTAL_ANNOTATION =
-            "androidx.annotation.experimental.Experimental"
+        const val JAVA_EXPERIMENTAL_ANNOTATION = "androidx.annotation.experimental.Experimental"
         const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.UseExperimental"
 
-        const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
-            "androidx.annotation.RequiresOptIn"
-        const val JAVA_OPT_IN_ANNOTATION =
-            "androidx.annotation.OptIn"
+        const val JAVA_REQUIRES_OPT_IN_ANNOTATION = "androidx.annotation.RequiresOptIn"
+        const val JAVA_OPT_IN_ANNOTATION = "androidx.annotation.OptIn"
 
         const val ENUM_ERROR = "ERROR"
         const val ENUM_WARNING = "WARNING"
@@ -761,7 +778,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             return Issue.create(
                 id = issueId,
                 briefDescription = "Unsafe opt-in usage intended to be $levelText-level severity",
-                explanation = """
+                explanation =
+                    """
                 This API has been flagged as opt-in with $levelText-level severity.
 
                 Any declaration annotated with this marker is considered part of an unstable or
@@ -791,10 +809,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val ISSUE_ERROR = issueForLevel(ENUM_ERROR, Severity.ERROR)
         val ISSUE_WARNING = issueForLevel(ENUM_WARNING, Severity.WARNING)
 
-        val ISSUES = listOf(
-            ISSUE_ERROR,
-            ISSUE_WARNING,
-        )
+        val ISSUES =
+            listOf(
+                ISSUE_ERROR,
+                ISSUE_WARNING,
+            )
     }
 }
 
@@ -814,9 +833,7 @@ private fun UAnnotation.hasMatchingAttributeValueClass(
     return false
 }
 
-/**
- * Returns the fully-qualified class name for a given attribute value, if any.
- */
+/** Returns the fully-qualified class name for a given attribute value, if any. */
 private fun UExpression?.getFullyQualifiedName(): String? {
     val type = if (this is UClassLiteralExpression) this.type else this?.evaluate()
     return (type as? PsiClassType)?.canonicalText
@@ -824,30 +841,22 @@ private fun UExpression?.getFullyQualifiedName(): String? {
 
 private fun UElement?.getReferencedElement(): UElement? =
     when (this) {
-        is UBinaryExpression ->
-            leftOperand.tryResolve() // or referenced
-        is UMethod ->
-            this // or referenced
+        is UBinaryExpression -> leftOperand.tryResolve() // or referenced
+        is UMethod -> this // or referenced
         is UClass ->
             uastSuperTypes.firstNotNullOfOrNull {
                 PsiTypesUtil.getPsiClass(it.type)
             } // or referenced
         is USimpleNameReferenceExpression ->
             resolve().let { field -> field as? PsiField ?: field as? PsiMethod } // or referenced
+        is UEnumConstant -> resolveMethod() // or referenced
         is UCallExpression ->
             resolve() ?: classReference?.resolve() // referenced is empty for constructor
-        is UCallableReferenceExpression ->
-            resolve() as? PsiMethod // or referenced
-        is UAnnotation ->
-            null
-        is UEnumConstant ->
-            resolveMethod() // or referenced
-        is UArrayAccessExpression ->
-            (receiver as? UReferenceExpression)?.resolve() // or referenced
-        is UVariable ->
-            this
-        else ->
-            null
+        is UCallableReferenceExpression -> resolve() as? PsiMethod // or referenced
+        is UAnnotation -> null
+        is UArrayAccessExpression -> (receiver as? UReferenceExpression)?.resolve() // or referenced
+        is UVariable -> this
+        else -> null
     }.toUElement()
 
 /**
@@ -868,14 +877,10 @@ private inline fun UElement.anyParentMatches(
     }
 }
 
-/**
- * Returns whether the package is annotated with the specified annotation.
- */
+/** Returns whether the package is annotated with the specified annotation. */
 private fun PsiPackage.isAnnotatedWith(
     annotationFqName: String,
-): Boolean = annotations.any { annotation ->
-    annotation.hasQualifiedName(annotationFqName)
-}
+): Boolean = annotations.any { annotation -> annotation.hasQualifiedName(annotationFqName) }
 
 /**
  * Returns whether the package is annotated with any of the specified opt-in annotations where the
@@ -884,38 +889,55 @@ private fun PsiPackage.isAnnotatedWith(
 private fun PsiPackage.isAnnotatedWithOptInOf(
     annotationFqName: String,
     optInFqNames: List<String>,
-): Boolean = optInFqNames.any { optInFqName ->
-    annotations.any { annotation ->
-        annotation.hasQualifiedName(optInFqName) &&
-            ((annotation.toUElementOfType<UAnnotation>())?.hasMatchingAttributeValueClass(
-                "markerClass",
-                annotationFqName,
-            ) ?: false)
+): Boolean =
+    optInFqNames.any { optInFqName ->
+        annotations.any { annotation ->
+            annotation.hasQualifiedName(optInFqName) &&
+                ((annotation.toUElementOfType<UAnnotation>())?.hasMatchingAttributeValueClass(
+                    "markerClass",
+                    annotationFqName,
+                ) ?: false)
+        }
     }
+
+/**
+ * Returns whether the element declaration is annotated with the specified annotation or annotated
+ * with annotation that is annotated with the specified annotation
+ */
+private fun UElement.isDeclarationAnnotatedWith(
+    evaluator: JavaEvaluator,
+    annotationFqName: String,
+): Boolean {
+    return (this as? UAnnotated)?.uAnnotations?.firstOrNull { uAnnotation ->
+        // Directly annotated
+        if (uAnnotation.qualifiedName == annotationFqName) return@firstOrNull true
+
+        // Annotated with an annotation that is annotated with the specified annotation
+        val cls = uAnnotation.resolve()
+        if (cls == null || !cls.isAnnotationType) return@firstOrNull false
+        val metaAnnotations = evaluator.getAllAnnotations(cls, inHierarchy = false)
+        metaAnnotations.find { it.qualifiedName == annotationFqName } != null
+    } != null
 }
 
 /**
- * Returns whether the element declaration is annotated with the specified annotation.
- */
-private fun UElement.isDeclarationAnnotatedWith(
-    annotationFqName: String,
-) = (this as? UAnnotated)?.findAnnotation(annotationFqName) != null
-
-/**
- * Returns whether the element declaration is annotated with any of the specified opt-in
- * annotations where the value of `markerClass` contains the specified annotation.
+ * Returns whether the element declaration is annotated with any of the specified opt-in annotations
+ * where the value of `markerClass` contains the specified annotation.
  */
 private fun UElement.isDeclarationAnnotatedWithOptInOf(
     annotationFqName: String,
     optInFqNames: List<String>,
-) = (this as? UAnnotated)?.let { annotated ->
-    optInFqNames.any { optInFqName ->
-        annotated.findAnnotation(optInFqName)?.hasMatchingAttributeValueClass(
-            "markerClass",
-            annotationFqName,
-        ) == true
-    }
-} == true
+) =
+    (this as? UAnnotated)?.let { annotated ->
+        optInFqNames.any { optInFqName ->
+            annotated
+                .findAnnotation(optInFqName)
+                ?.hasMatchingAttributeValueClass(
+                    "markerClass",
+                    annotationFqName,
+                ) == true
+        }
+    } == true
 
 private fun PsiModifierListOwner.isAbstract(): Boolean =
     modifierList?.hasModifierProperty(PsiModifier.ABSTRACT) == true ||

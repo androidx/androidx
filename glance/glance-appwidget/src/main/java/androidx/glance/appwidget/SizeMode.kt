@@ -19,15 +19,13 @@ package androidx.glance.appwidget
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.LocalSize
 
-/**
- * Modes describing how the [GlanceAppWidget] should handle size specification.
- */
+/** Modes describing how the [GlanceAppWidget] should handle size specification. */
 sealed interface SizeMode {
     /**
      * The [GlanceAppWidget] provides a single UI.
      *
-     * The [LocalSize] will be the minimum size the App Widget can be, as defined in
-     * the App Widget provider info (see [android.appwidget.AppWidgetManager.getAppWidgetInfo]).
+     * The [LocalSize] will be the minimum size the App Widget can be, as defined in the App Widget
+     * provider info (see [android.appwidget.AppWidgetManager.getAppWidgetInfo]).
      */
     object Single : SizeMode {
         override fun toString(): String = "SizeMode.Single"
@@ -48,10 +46,10 @@ sealed interface SizeMode {
     /**
      * The [GlanceAppWidget] provides a UI for a fixed set of sizes.
      *
-     * On Android 12 and later, the composable will be called once per size provided and the
-     * mapping from size to view will be sent to the system. The framework will then decide which
-     * view to display based on the current size of the App Widget (see
-     * [android.widget.RemoteViews] for details)
+     * On Android 12 and later, the composable will be called once per size provided and the mapping
+     * from size to view will be sent to the system. The framework will then decide which view to
+     * display based on the current size of the App Widget (see [android.widget.RemoteViews] for
+     * details)
      *
      * Before Android 12, the composable will be called for each size at which the app widget may be
      * displayed (like for [Exact]). For each size, the best view will be chosen, which is the

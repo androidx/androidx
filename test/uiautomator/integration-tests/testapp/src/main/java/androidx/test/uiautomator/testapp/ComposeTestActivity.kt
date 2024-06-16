@@ -73,9 +73,7 @@ private fun TestView(context: Context) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(text)
-                    Button(onClick = { text = "Updated" }) {
-                        Text("Update")
-                    }
+                    Button(onClick = { text = "Updated" }) { Text("Update") }
                 }
             }
         }

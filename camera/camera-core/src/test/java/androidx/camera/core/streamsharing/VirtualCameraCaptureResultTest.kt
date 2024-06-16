@@ -28,9 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [VirtualCameraCaptureResult].
- */
+/** Unit tests for [VirtualCameraCaptureResult]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -59,8 +57,8 @@ class VirtualCameraCaptureResultTest {
     @Test
     fun metadataWithBaseValue_returnBaseValue() {
         // Arrange.
-        val baseCameraCaptureResult = FakeCameraCaptureResult()
-            .apply {
+        val baseCameraCaptureResult =
+            FakeCameraCaptureResult().apply {
                 timestamp = 2L
                 aeState = CameraCaptureMetaData.AeState.CONVERGED
                 afState = CameraCaptureMetaData.AfState.LOCKED_FOCUSED

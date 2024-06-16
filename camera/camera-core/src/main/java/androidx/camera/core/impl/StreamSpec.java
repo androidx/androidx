@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 
 import com.google.auto.value.AutoValue;
@@ -33,7 +32,6 @@ import com.google.auto.value.AutoValue;
  * <p>The values communicated by this class specify what the camera is expecting to produce as a
  * frame stream, and can be useful for configuring the frame consumer.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class StreamSpec {
 

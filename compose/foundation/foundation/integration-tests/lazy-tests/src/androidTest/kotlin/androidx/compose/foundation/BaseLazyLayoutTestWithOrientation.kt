@@ -39,8 +39,7 @@ import androidx.compose.ui.unit.dp
 import org.junit.Rule
 
 open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientation) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical
@@ -92,11 +91,12 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
         }
 
     fun SemanticsNodeInteraction.assertStartPositionIsAlmost(expected: Dp) {
-        val position = if (vertical) {
-            getUnclippedBoundsInRoot().top
-        } else {
-            getUnclippedBoundsInRoot().left
-        }
+        val position =
+            if (vertical) {
+                getUnclippedBoundsInRoot().top
+            } else {
+                getUnclippedBoundsInRoot().left
+            }
         position.assertIsEqualTo(expected, tolerance = 1.dp)
     }
 
@@ -121,45 +121,41 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
             assertTopPositionInRootIsEqualTo(expectedStart)
         }
 
-    fun SemanticsNodeInteraction.assertAxisBounds(
-        offset: DpOffset,
-        size: DpSize
-    ) =
+    fun SemanticsNodeInteraction.assertAxisBounds(offset: DpOffset, size: DpSize) =
         assertMainAxisStartPositionInRootIsEqualTo(offset.y)
             .assertCrossAxisStartPositionInRootIsEqualTo(offset.x)
             .assertMainAxisSizeIsEqualTo(size.height)
             .assertCrossAxisSizeIsEqualTo(size.width)
 
-    fun PaddingValues(
-        mainAxis: Dp = 0.dp,
-        crossAxis: Dp = 0.dp
-    ) = PaddingValues(
-        beforeContent = mainAxis,
-        afterContent = mainAxis,
-        beforeContentCrossAxis = crossAxis,
-        afterContentCrossAxis = crossAxis
-    )
+    fun PaddingValues(mainAxis: Dp = 0.dp, crossAxis: Dp = 0.dp) =
+        PaddingValues(
+            beforeContent = mainAxis,
+            afterContent = mainAxis,
+            beforeContentCrossAxis = crossAxis,
+            afterContentCrossAxis = crossAxis
+        )
 
     fun PaddingValues(
         beforeContent: Dp = 0.dp,
         afterContent: Dp = 0.dp,
         beforeContentCrossAxis: Dp = 0.dp,
         afterContentCrossAxis: Dp = 0.dp,
-    ) = if (vertical) {
-        androidx.compose.foundation.layout.PaddingValues(
-            start = beforeContentCrossAxis,
-            top = beforeContent,
-            end = afterContentCrossAxis,
-            bottom = afterContent
-        )
-    } else {
-        androidx.compose.foundation.layout.PaddingValues(
-            start = beforeContent,
-            top = beforeContentCrossAxis,
-            end = afterContent,
-            bottom = afterContentCrossAxis
-        )
-    }
+    ) =
+        if (vertical) {
+            androidx.compose.foundation.layout.PaddingValues(
+                start = beforeContentCrossAxis,
+                top = beforeContent,
+                end = afterContentCrossAxis,
+                bottom = afterContent
+            )
+        } else {
+            androidx.compose.foundation.layout.PaddingValues(
+                start = beforeContent,
+                top = beforeContentCrossAxis,
+                end = afterContent,
+                bottom = afterContentCrossAxis
+            )
+        }
 
     internal fun Modifier.debugBorder(color: Color = Color.Black) = border(1.dp, color)
 

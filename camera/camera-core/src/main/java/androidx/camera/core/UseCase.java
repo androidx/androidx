@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -43,7 +44,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -76,7 +76,6 @@ import java.util.Set;
  * that are usable by a camera. UseCase also will communicate of the active/inactive state to
  * the Camera.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -442,7 +441,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @MirrorMode.Mirror
     protected int getMirrorModeInternal() {
-        return ((ImageOutputConfig) mCurrentConfig).getMirrorMode(MIRROR_MODE_OFF);
+        return ((ImageOutputConfig) mCurrentConfig).getMirrorMode(MIRROR_MODE_UNSPECIFIED);
     }
 
     /**
@@ -453,6 +452,7 @@ public abstract class UseCase {
     public boolean isMirroringRequired(@NonNull CameraInternal camera) {
         int mirrorMode = getMirrorModeInternal();
         switch (mirrorMode) {
+            case MIRROR_MODE_UNSPECIFIED:
             case MIRROR_MODE_OFF:
                 return false;
             case MIRROR_MODE_ON:

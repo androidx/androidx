@@ -45,11 +45,9 @@ import org.junit.Test
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class CreateSdkActivityLauncherTest {
-    @get:Rule
-    var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
+    @get:Rule var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
 
-    @get:Rule
-    var intentsRule = IntentsRule()
+    @get:Rule var intentsRule = IntentsRule()
 
     private val sdkSandboxActivityMatcher =
         hasAction(`is`("android.app.sdksandbox.action.START_SANDBOXED_ACTIVITY"))

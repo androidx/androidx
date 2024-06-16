@@ -37,6 +37,12 @@ import java.io.InputStreamReader;
  */
 public final class CarAppApiLevels {
     /**
+     * API level 8.
+     */
+    @CarAppApiLevel
+    public static final int LEVEL_8 = 8;
+
+    /**
      * API level 7.
      *
      * <p>Includes a Badge feature for GridItem image.</p>
@@ -138,7 +144,7 @@ public final class CarAppApiLevels {
 
 
             int apiLevel = Integer.parseInt(line);
-            if (apiLevel < LEVEL_1 || apiLevel > LEVEL_7) {
+            if (apiLevel < LEVEL_1 || apiLevel > LEVEL_8) {
                 throw new IllegalStateException("Unrecognized Car API level: " + line);
             }
             return apiLevel;

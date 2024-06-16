@@ -19,9 +19,9 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 /**
- * A [SynchronizedObject] provides a mechanism for thread coordination. Instances of this class
- * are used within [synchronized] functions to establish mutual exclusion, guaranteeing that only
- * one thread accesses a protected resource or code block at a time.
+ * A [SynchronizedObject] provides a mechanism for thread coordination. Instances of this class are
+ * used within [synchronized] functions to establish mutual exclusion, guaranteeing that only one
+ * thread accesses a protected resource or code block at a time.
  */
 internal expect class SynchronizedObject()
 

@@ -23,8 +23,7 @@ package androidx.credentials.exceptions.domerrors
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class EncodingError :
-    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ENCODING_ERROR) {
+class EncodingError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ENCODING_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ENCODING_ERROR: String =
             "androidx.credentials.TYPE_ENCODING_ERROR"

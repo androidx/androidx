@@ -34,11 +34,12 @@ class ReturnFromAwaitPointerEventScopeDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope)
 
-    private val ForEachGestureStub: TestFile = bytecodeStub(
-        filename = "ForEachGesture.kt",
-        filepath = "androidx/compose/foundation/gestures",
-        checksum = 0x1be9b2ef,
-        """
+    private val ForEachGestureStub: TestFile =
+        bytecodeStub(
+            filename = "ForEachGesture.kt",
+            filepath = "androidx/compose/foundation/gestures",
+            checksum = 0x1be9b2ef,
+            """
             package androidx.compose.foundation.gestures
             import androidx.compose.ui.input.pointer.PointerInputScope
 
@@ -46,14 +47,14 @@ class ReturnFromAwaitPointerEventScopeDetectorTest : LintDetectorTest() {
                 block()
             }
             """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2VMQQoCMRAbUQR7EOkDBMWThzl7F1dkL4J+oGzr7oDOlHYK
         Pt/KejOQEBISAJgCwKRyAT+Yg9k59knIv7GTV5Qc8CGFvVMSxj5kLSlku2ok
         nVw3nMegVXM0m79lISSORTEKsYZk17eSY2BP3F/H6PLtG3pWW0+WZqb10c7v
         VVvdwh4+IfeLY6cAAAA=
         """,
-        """
+            """
         androidx/compose/foundation/gestures/ForEachGestureKt.class:
         H4sIAAAAAAAA/7VUzU8bRxT/zdr4C0jMBlIgjUOK2/ARsoaGNq2jqBEx7aqO
         QTGkqjhU4/XiDLZnrN1Zi944Veq/0UPPUU9tDxXKsX9U1Te2IYBpkCL1sLO/
@@ -75,17 +76,18 @@ class ReturnFromAwaitPointerEventScopeDetectorTest : LintDetectorTest() {
         Hwkp+j+i70aMhHSP09vVwhe9dRVf0n+TtB8R3/k9xFzkXXzs4hPcc7GARRdL
         WN4DC3EfK3tIhxgJ8SDE7RC5EE6Iuz2xECLxLyV8urHMBgAA
         """
-    )
+        )
 
-    private val stubs = arrayOf(
-        Stubs.Composable,
-        Stubs.Modifier,
-        UiStubs.Density,
-        UiStubs.PointerInputScope,
-        UiStubs.PointerEvent,
-        ForEachGestureStub,
-        UiStubs.Alignment,
-    )
+    private val stubs =
+        arrayOf(
+            Stubs.Composable,
+            Stubs.Modifier,
+            UiStubs.Density,
+            UiStubs.PointerInputScope,
+            UiStubs.PointerEvent,
+            ForEachGestureStub,
+            UiStubs.Alignment,
+        )
 
     @Test
     fun awaitPointerEventScope_standalone_shouldNotWarn() {
@@ -153,9 +155,10 @@ class ReturnFromAwaitPointerEventScopeDetectorTest : LintDetectorTest() {
 
     @Test
     fun awaitPointerEventScope_assignedToVariable_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.Composable
@@ -173,9 +176,9 @@ class ReturnFromAwaitPointerEventScopeDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -190,9 +193,10 @@ src/test/test.kt:12: $WarningMessage
 
     @Test
     fun awaitPointerEventScope_returnedFromMethod_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -203,9 +207,9 @@ src/test/test.kt:12: $WarningMessage
                     }
                 }
             """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -220,9 +224,10 @@ src/test/test.kt:7: $WarningMessage
 
     @Test
     fun awaitPointerEventScope_assignedFromLambdaMethod_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -247,9 +252,9 @@ src/test/test.kt:7: $WarningMessage
                     return result
                 }
             """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -267,9 +272,10 @@ src/test/test.kt:18: $WarningMessage
 
     @Test
     fun awaitPointerEventScope_returnedFromLambdaMethod_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -290,9 +296,9 @@ src/test/test.kt:18: $WarningMessage
                     } ?: false
                 }
             """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .skipTestModes(TestMode.BODY_REMOVAL)
             .run()
             .expect(
@@ -334,10 +340,7 @@ src/test/test.kt:16: $WarningMessage
     }
 
     private fun expectClean(source: String) {
-        lint()
-            .files(kotlin(source), *stubs)
-            .run()
-            .expectClean()
+        lint().files(kotlin(source), *stubs).run().expectClean()
     }
 
     private val WarningMessage: String =

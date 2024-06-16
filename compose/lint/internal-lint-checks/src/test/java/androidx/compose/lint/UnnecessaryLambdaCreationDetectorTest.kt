@@ -31,19 +31,19 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/* ktlint-disable max-line-length */
 @RunWith(Parameterized::class)
 class UnnecessaryLambdaCreationDetectorTest(
-    @Suppress("unused")
-    private val parameterizedDebugString: String,
+    @Suppress("unused") private val parameterizedDebugString: String,
     private val stub: TestFile
 ) : LintDetectorTest() {
     companion object {
-        private val stub = kotlinAndBytecodeStub(
-            filename = "Stub.kt",
-            filepath = "test",
-            checksum = 0x8a5a4526,
-            source = """
+        private val stub =
+            kotlinAndBytecodeStub(
+                filename = "Stub.kt",
+                filepath = "test",
+                checksum = 0x8a5a4526,
+                source =
+                    """
                 package test
 
                 import androidx.compose.runtime.Composable
@@ -65,12 +65,12 @@ class UnnecessaryLambdaCreationDetectorTest(
                     content()
                 }
             """,
-            """
+                """
             META-INF/main.kotlin_module:
             H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgEuNiKUktLhFiCy4pTfIG0iFAnneJ
             EoMWAwBxHEvpMAAAAA==
             """,
-            """
+                """
             test/StubKt.class:
             H4sIAAAAAAAA/51UXU8TQRQ9s4XuUoosFZQWxa8iBT+21G8hJoaEsLGiAcQH
             nqbbBYe2s2Z32vhIfPE3+GTiP/BNfTAE3/xRxjtbiiBV1CZ7Z+bec+bcO3em
@@ -91,14 +91,12 @@ class UnnecessaryLambdaCreationDetectorTest(
             SNbAndgWcZfGBfJeoCZcXEfCxSUXeRcTuOxiEgUXU5heB4twBVfX0RfBjHAt
             QjrC9QipCGMRxiM4EXp/AGJveMs/BgAA
             """
-        )
+            )
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params(): Array<Any> = arrayOf(
-            arrayOf("Source stubs", stub.kotlin),
-            arrayOf("Compiled stubs", stub.bytecode)
-        )
+        fun params(): Array<Any> =
+            arrayOf(arrayOf("Source stubs", stub.kotlin), arrayOf("Compiled stubs", stub.bytecode))
     }
 
     override fun getDetector(): Detector = UnnecessaryLambdaCreationDetector()
@@ -116,7 +114,7 @@ class UnnecessaryLambdaCreationDetectorTest(
     @Test
     fun warnsForSingleExpressions() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -157,8 +155,9 @@ class UnnecessaryLambdaCreationDetectorTest(
                 }
             }
         """
-        ).expect(
-            """
+            )
+            .expect(
+                """
 src/test/test.kt:13: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
         lambda()
         ~~~~~~
@@ -173,13 +172,13 @@ src/test/test.kt:25: Error: Creating an unnecessary lambda to emit a captured la
         ~~~~~~~~~~~~~~~~~
 4 errors, 0 warnings
         """
-        )
+            )
     }
 
     @Test
     fun warnsForMultipleLambdas() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -199,8 +198,9 @@ src/test/test.kt:25: Error: Creating an unnecessary lambda to emit a captured la
                 }
             }
         """
-        ).expect(
-            """
+            )
+            .expect(
+                """
 src/test/test.kt:15: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
     MultipleChildComposableFunction( { lambda() }) {
                                        ~~~~~~
@@ -209,13 +209,13 @@ src/test/test.kt:16: Error: Creating an unnecessary lambda to emit a captured la
         ~~~~~~
 2 errors, 0 warnings
         """
-        )
+            )
     }
 
     @Test
     fun ignoresMultipleExpressions() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -230,13 +230,14 @@ src/test/test.kt:16: Error: Creating an unnecessary lambda to emit a captured la
                 }
             }
         """
-        ).expectClean()
+            )
+            .expectClean()
     }
 
     @Test
     fun ignoresPropertyAssignment() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -247,13 +248,14 @@ src/test/test.kt:16: Error: Creating an unnecessary lambda to emit a captured la
                 lambda()
             }
         """
-        ).expectClean()
+            )
+            .expectClean()
     }
 
     @Test
     fun ignoresDifferentFunctionalTypes_parameters() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -289,13 +291,14 @@ src/test/test.kt:16: Error: Creating an unnecessary lambda to emit a captured la
                 }
             }
         """
-        ).expectClean()
+            )
+            .expectClean()
     }
 
     @Test
     fun ignoresDifferentFunctionalTypes_receiverScopes() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -327,20 +330,21 @@ src/test/test.kt:16: Error: Creating an unnecessary lambda to emit a captured la
                 }
             }
         """
-        ).expect(
-            """
+            )
+            .expect(
+                """
 src/test/SomeScope.kt:24: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
         scopedLambda()
         ~~~~~~~~~~~~
 1 errors, 0 warnings
         """
-        )
+            )
     }
 
     @Test
     fun ignoresMismatchedComposability() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -361,13 +365,14 @@ src/test/SomeScope.kt:24: Error: Creating an unnecessary lambda to emit a captur
                 }
             }
         """
-        ).expectClean()
+            )
+            .expectClean()
     }
 
     @Test
     fun warnsForFunctionsReturningALambda() {
         check(
-            """
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -402,8 +407,9 @@ src/test/SomeScope.kt:24: Error: Creating an unnecessary lambda to emit a captur
                 }
             }
         """
-        ).expect(
-            """
+            )
+            .expect(
+                """
 src/test/test.kt:23: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
         returnsComposableLambda()()
                                  ~
@@ -415,7 +421,6 @@ src/test/test.kt:31: Error: Creating an unnecessary lambda to emit a captured la
                                  ~
 3 errors, 0 warnings
         """
-        )
+            )
     }
 }
-/* ktlint-enable max-line-length */

@@ -26,12 +26,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [CompositionLocalNamingDetector].
- */
+/** Test for [CompositionLocalNamingDetector]. */
 class CompositionLocalNamingDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = CompositionLocalNamingDetector()
 
@@ -39,11 +36,12 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
         mutableListOf(CompositionLocalNamingDetector.CompositionLocalNaming)
 
     // Simplified CompositionLocal.kt stubs
-    private val compositionLocalStub = bytecodeStub(
-        filename = "CompositionLocal.kt",
-        filepath = "androidx/compose/runtime",
-        checksum = 0xeda1836e,
-        """
+    private val compositionLocalStub =
+        bytecodeStub(
+            filename = "CompositionLocal.kt",
+            filepath = "androidx/compose/runtime",
+            checksum = 0xeda1836e,
+            """
             package androidx.compose.runtime
 
             sealed class CompositionLocal<T> constructor(defaultFactory: (() -> T)? = null)
@@ -68,13 +66,13 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
                 defaultFactory: (() -> T)? = null
             ): ProvidableCompositionLocal<T> = StaticProvidableCompositionLocal(defaultFactory)
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uOSSMxLKcrPTKnQS87PLcgvTtUr
         Ks0rycxNFRJyBgtklmTm5/nkJyfmeJdwqXHJ4FKvl5afL8QWklpc4l2ixKDF
         AAAiXiK7cAAAAA==
         """,
-        """
+            """
         androidx/compose/runtime/CompositionLocal.class:
         H4sIAAAAAAAA/5VTS08TURT+7nT6YOQxFMWCqCCofShTiRoUQlQMSZMiCk03
         LMxlZsBL2xkyc9vgxjT+C7f+A1YkLkzD0h9lPHdalKCksjmv+51zvjPnzI+f
@@ -92,7 +90,7 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
         as+JfOEY146i9SsG093obwaJHgNljeN6lNVlE8PDSN/HPOkXhMkQ34ltxEqY
         LOFGCVO4SSZulXAb09tgIWZwZxvJEEMhZkPMhRgOcTdUkXu/AG89zFz4BAAA
         """,
-        """
+            """
         androidx/compose/runtime/CompositionLocalKt.class:
         H4sIAAAAAAAA/51UW08TQRT+ZntfCpSiUIoXhKpclC0gqLSSGAyxoVwiDcbw
         NN0uZHrZJbvbBl4Mf8N/4ZtGE9Nnf5TxzLZELZSavpw5M+eb73x7zpn9+evb
@@ -112,7 +110,7 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
         e12FjhHhOBGOUXjNAy3iOa2viO0+1XjqCL4cHuQwncMMUjk8xKMcHmP2CMzB
         HOaPEHQQcLDg4ImDuIOnDhK/AezqFjcEBwAA
         """,
-        """
+            """
         androidx/compose/runtime/DynamicProvidableCompositionLocal.class:
         H4sIAAAAAAAA/51SXU8TQRQ9sy0tXaGUIljwAxQ0AolbUBNDaxPFEJpUJNLw
         wtN0d6jT7s6a3dkG3vpb/Ac+mfhgGh/9UcY7bYloQkh4mXvumXPP3Lkzv35/
@@ -128,7 +126,7 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
         hy4Z5DFDTo+GFZNYpZg11jkCqTGdwtowPsBjiq9pt0CGsydI1VGsY66O25gn
         iIU67qB0AhZjEUsnyMSYjnE3xr0Y+Rj3Y2T/AJbWL04aBAAA
         """,
-        """
+            """
         androidx/compose/runtime/ProvidableCompositionLocal.class:
         H4sIAAAAAAAA/41SXU9TQRA9e1vacsVSikLBLxBEgcRbURNjK0YxjTUFURpe
         eNr2Lrjt7V6zd2+Db/0t/gOfTHwwjY/+KONsWyKSEHjZmT1z5szszP7+8+Mn
@@ -145,7 +143,7 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
         RnAC9wb2DlbIvqDoFHWRP0CiiukqrlVxHTPkYraKAuYOwCLM48YBUhGyEW5G
         uBVhMsLtCOm/jQDw8EUEAAA=
         """,
-        """
+            """
         androidx/compose/runtime/StaticProvidableCompositionLocal.class:
         H4sIAAAAAAAA/51SXW8SQRQ9s1A+1pZSaiutH60WjW0Tl1ZNVJBEmzQlwUqE
         8MLTsDvFgWXX7M6S+sZv8R/4ZOKDIT76o4x3gMZqQpr0Ze65Z849c+fO/Pr9
@@ -161,13 +159,14 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
         pYlLgvhlcnowqUhhh2JSW6cJxGZ0DIVJvIeHFF/TrjZcaSNWRa6K1SpuYo0g
         1qu4hXwbLMQGNttIhFgKcTvEnRCZEHdDJP8AhWEFiBgEAAA=
         """
-    )
+        )
 
     @Test
     fun noLocalPrefix() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.*
@@ -187,9 +186,9 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            compositionLocalStub
-        )
+                ),
+                compositionLocalStub
+            )
             .run()
             .expect(
                 """
@@ -209,9 +208,10 @@ src/androidx/compose/runtime/foo/Test.kt:16: Warning: CompositionLocal propertie
 
     @Test
     fun prefixedWithLocal() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.*
@@ -228,11 +228,10 @@ src/androidx/compose/runtime/foo/Test.kt:16: Warning: CompositionLocal propertie
                     }
                 }
             """
-            ),
-            compositionLocalStub
-        )
+                ),
+                compositionLocalStub
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

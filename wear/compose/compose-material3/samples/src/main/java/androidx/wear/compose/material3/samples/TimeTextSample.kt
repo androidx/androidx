@@ -29,9 +29,7 @@ import androidx.wear.compose.material3.TimeText
 @Sampled
 @Composable
 fun TimeTextClockOnly() {
-    TimeText {
-        time()
-    }
+    TimeText { time() }
 }
 
 @Sampled

@@ -32,19 +32,18 @@ import androidx.compose.ui.unit.IntSize
 
 /**
  * [LookaheadScope] creates a scope in which all layouts will first determine their destination
- * layout through a lookahead pass, followed by an _approach_ pass to run the measurement
- * and placement approach defined in [approachLayout] or [ApproachLayoutModifierNode], in order to
+ * layout through a lookahead pass, followed by an _approach_ pass to run the measurement and
+ * placement approach defined in [approachLayout] or [ApproachLayoutModifierNode], in order to
  * gradually reach the destination.
  *
- * Note: [LookaheadScope] does not introduce a new [Layout] to the [content] passed in.
- * All the [Layout]s in the [content] will have the same parent as they would without
- * [LookaheadScope].
+ * Note: [LookaheadScope] does not introduce a new [Layout] to the [content] passed in. All the
+ * [Layout]s in the [content] will have the same parent as they would without [LookaheadScope].
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
- * @see ApproachLayoutModifierNode
- * @see approachLayout
  *
  * @param content The child composable to be laid out.
+ * @see ApproachLayoutModifierNode
+ * @see approachLayout
  */
 @UiComposable
 @Composable
@@ -56,14 +55,10 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
             init { isVirtualLookaheadRoot = true }
             set(scope) { scope ->
                 // This internal lambda will be invoked during placement.
-                scope.scopeCoordinates = {
-                    parent!!.innerCoordinator.coordinates
-                }
+                scope.scopeCoordinates = { parent!!.innerCoordinator.coordinates }
             }
         },
-        content = {
-            scope.content()
-        }
+        content = { scope.content() }
     )
 }
 
@@ -72,11 +67,11 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
  * in the lookahead pass. This can be particularly helpful when the destination layout is
  * anticipated to change drastically and would consequently result in visual disruptions.
  *
- * In order to create a smooth approach, an interpolation (often through animations) can be used
- * in [approachMeasure] to interpolate the measurement or placement from a previously recorded size
- * and/or position to the destination/target size and/or position. The destination size is
- * available in [ApproachMeasureScope] as [ApproachMeasureScope.lookaheadSize]. And the target
- * position can also be acquired in [ApproachMeasureScope] during placement by using
+ * In order to create a smooth approach, an interpolation (often through animations) can be used in
+ * [approachMeasure] to interpolate the measurement or placement from a previously recorded size
+ * and/or position to the destination/target size and/or position. The destination size is available
+ * in [ApproachMeasureScope] as [ApproachMeasureScope.lookaheadSize]. And the target position can
+ * also be acquired in [ApproachMeasureScope] during placement by using
  * [LookaheadScope.localLookaheadPositionOf] with the layout's
  * [Placeable.PlacementScope.coordinates]. The sample code below illustrates how that can be
  * achieved.
@@ -97,42 +92,48 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
  * system may skip approach pass until additional approach passes are necessary as indicated by
  * [isMeasurementApproachInProgress] and [isPlacementApproachInProgress].
  *
- * **IMPORTANT**:
- * It is important to be accurate in [isPlacementApproachInProgress] and
+ * **IMPORTANT**: It is important to be accurate in [isPlacementApproachInProgress] and
  * [isMeasurementApproachInProgress]. A prolonged indication of incomplete approach will prevent the
  * system from potentially skipping approach pass when possible.
  *
  * @see ApproachLayoutModifierNode
+ *
  * @sample androidx.compose.ui.samples.approachLayoutSample
  */
 fun Modifier.approachLayout(
     isMeasurementApproachInProgress: (lookaheadSize: IntSize) -> Boolean,
-    isPlacementApproachInProgress: Placeable.PlacementScope.(
-        lookaheadCoordinates: LayoutCoordinates
-    ) -> Boolean = defaultPlacementApproachInProgress,
-    approachMeasure: ApproachMeasureScope.(
-        measurable: Measurable,
-        constraints: Constraints,
-    ) -> MeasureResult,
-): Modifier = this then ApproachLayoutElement(
-    isMeasurementApproachInProgress = isMeasurementApproachInProgress,
-    isPlacementApproachInProgress = isPlacementApproachInProgress,
-    approachMeasure = approachMeasure
-)
+    isPlacementApproachInProgress:
+        Placeable.PlacementScope.(lookaheadCoordinates: LayoutCoordinates) -> Boolean =
+        defaultPlacementApproachInProgress,
+    approachMeasure:
+        ApproachMeasureScope.(
+            measurable: Measurable,
+            constraints: Constraints,
+        ) -> MeasureResult,
+): Modifier =
+    this then
+        ApproachLayoutElement(
+            isMeasurementApproachInProgress = isMeasurementApproachInProgress,
+            isPlacementApproachInProgress = isPlacementApproachInProgress,
+            approachMeasure = approachMeasure
+        )
 
-private val defaultPlacementApproachInProgress: Placeable.PlacementScope.(
-    lookaheadCoordinates: LayoutCoordinates
-) -> Boolean = { false }
+private val defaultPlacementApproachInProgress:
+    Placeable.PlacementScope.(lookaheadCoordinates: LayoutCoordinates) -> Boolean =
+    {
+        false
+    }
 
 private data class ApproachLayoutElement(
-    val approachMeasure: ApproachMeasureScope.(
-        measurable: Measurable,
-        constraints: Constraints,
-    ) -> MeasureResult,
+    val approachMeasure:
+        ApproachMeasureScope.(
+            measurable: Measurable,
+            constraints: Constraints,
+        ) -> MeasureResult,
     val isMeasurementApproachInProgress: (IntSize) -> Boolean,
-    val isPlacementApproachInProgress: Placeable.PlacementScope.(
-        lookaheadCoordinates: LayoutCoordinates
-    ) -> Boolean = defaultPlacementApproachInProgress,
+    val isPlacementApproachInProgress:
+        Placeable.PlacementScope.(lookaheadCoordinates: LayoutCoordinates) -> Boolean =
+        defaultPlacementApproachInProgress,
 ) : ModifierNodeElement<ApproachLayoutModifierNodeImpl>() {
     override fun create() =
         ApproachLayoutModifierNodeImpl(
@@ -156,13 +157,13 @@ private data class ApproachLayoutElement(
 }
 
 private class ApproachLayoutModifierNodeImpl(
-    var measureBlock: ApproachMeasureScope.(
-        measurable: Measurable,
-        constraints: Constraints,
-    ) -> MeasureResult,
+    var measureBlock:
+        ApproachMeasureScope.(
+            measurable: Measurable,
+            constraints: Constraints,
+        ) -> MeasureResult,
     var isMeasurementApproachInProgress: (IntSize) -> Boolean,
-    var isPlacementApproachInProgress:
-    Placeable.PlacementScope.(LayoutCoordinates) -> Boolean,
+    var isPlacementApproachInProgress: Placeable.PlacementScope.(LayoutCoordinates) -> Boolean,
 ) : ApproachLayoutModifierNode, Modifier.Node() {
     override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
         return isMeasurementApproachInProgress.invoke(lookaheadSize)
@@ -184,10 +185,10 @@ private class ApproachLayoutModifierNodeImpl(
 
 /**
  * [LookaheadScope] provides a receiver scope for all (direct and indirect) child layouts in
- * [LookaheadScope]. This receiver scope allows access to [lookaheadScopeCoordinates] from
- * any child's [Placeable.PlacementScope]. It also allows any child to convert
- * [LayoutCoordinates] (which can be retrieved in [Placeable.PlacementScope]) to
- * [LayoutCoordinates] in lookahead coordinate space using [toLookaheadCoordinates].
+ * [LookaheadScope]. This receiver scope allows access to [lookaheadScopeCoordinates] from any
+ * child's [Placeable.PlacementScope]. It also allows any child to convert [LayoutCoordinates]
+ * (which can be retrieved in [Placeable.PlacementScope]) to [LayoutCoordinates] in lookahead
+ * coordinate space using [toLookaheadCoordinates].
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  */
@@ -199,70 +200,45 @@ interface LookaheadScope {
     fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates
 
     /**
-     * Returns the [LayoutCoordinates] of the [LookaheadScope]. This is
-     * only accessible from [Placeable.PlacementScope] (i.e. during placement time).
+     * Returns the [LayoutCoordinates] of the [LookaheadScope]. This is only accessible from
+     * [Placeable.PlacementScope] (i.e. during placement time).
      *
-     * Note: The returned coordinates is **not** coordinates in the lookahead coordinate space.
-     * If the lookahead coordinates of the lookaheadScope is needed, suggest converting the
-     * returned coordinates using [toLookaheadCoordinates].
+     * Note: The returned coordinates is **not** coordinates in the lookahead coordinate space. If
+     * the lookahead coordinates of the lookaheadScope is needed, suggest converting the returned
+     * coordinates using [toLookaheadCoordinates].
      */
     val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
 
     /**
-     * Converts [relativeToSource] in [sourceCoordinates]'s lookahead coordinate space into
-     * local lookahead coordinates. This is a convenient method for 1) converting both [this]
-     * coordinates and [sourceCoordinates] into lookahead space coordinates using
-     * [toLookaheadCoordinates], and 2) invoking [LayoutCoordinates.localPositionOf] with the
-     * converted coordinates.
+     * Converts [relativeToSource] in [sourceCoordinates]'s lookahead coordinate space into local
+     * lookahead coordinates. This is a convenient method for 1) converting both [this] coordinates
+     * and [sourceCoordinates] into lookahead space coordinates using [toLookaheadCoordinates],
+     * and 2) invoking [LayoutCoordinates.localPositionOf] with the converted coordinates.
      *
-     * For layouts where [LayoutCoordinates.introducesFrameOfReference] returns false (placed under
-     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement]) you may use
-     * [positionInLocalLookaheadFrameOfReference] to get their position while excluding the
+     * For layouts where [LayoutCoordinates.introducesMotionFrameOfReference] returns `true` (placed
+     * under [Placeable.PlacementScope.withMotionFrameOfReferencePlacement]) you may pass
+     * [includeMotionFrameOfReference] as `false` to get their position while excluding the
      * additional Offset.
      */
     fun LayoutCoordinates.localLookaheadPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset = Offset.Zero,
-    ): Offset = localLookaheadPositionOf(
-        coordinates = this,
-        sourceCoordinates = sourceCoordinates,
-        relativeToSource = relativeToSource,
-        excludeDirectManipulationOffset = false
-    )
-
-    /**
-     * Similar to [localLookaheadPositionOf], converts [relativeToSource] in [sourceCoordinates]'s
-     * lookahead coordinate space into local lookahead coordinates.
-     *
-     * However, the Offset introduced on [LayoutCoordinates] when their
-     * [LayoutCoordinates.introducesFrameOfReference] property is false, will be excluded from the
-     * calculation.
-     *
-     * Those [LayoutCoordinates] correspond to when they are placed by their parent under
-     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement], which is typically done by
-     * Layouts that change their children positioning without affecting the overall hierarchy, or
-     * they do so in small increments (such as Scroll).
-     */
-    fun LayoutCoordinates.positionInLocalLookaheadFrameOfReference(
-        sourceCoordinates: LayoutCoordinates,
-        relativeToSource: Offset = Offset.Zero,
-    ): Offset = localLookaheadPositionOf(
-        coordinates = this,
-        sourceCoordinates = sourceCoordinates,
-        relativeToSource = relativeToSource,
-        excludeDirectManipulationOffset = true
-    )
+        includeMotionFrameOfReference: Boolean = true,
+    ): Offset =
+        localLookaheadPositionOf(
+            coordinates = this,
+            sourceCoordinates = sourceCoordinates,
+            relativeToSource = relativeToSource,
+            includeMotionFrameOfReference = includeMotionFrameOfReference
+        )
 }
 
-/**
- * Internal implementation to handle [LookaheadScope.localLookaheadPositionOf] and
- * [LookaheadScope.positionInLocalLookaheadFrameOfReference].
- */
+/** Internal implementation to handle [LookaheadScope.localLookaheadPositionOf]. */
 internal fun LookaheadScope.localLookaheadPositionOf(
     coordinates: LayoutCoordinates,
     sourceCoordinates: LayoutCoordinates,
     relativeToSource: Offset,
-    excludeDirectManipulationOffset: Boolean
+    includeMotionFrameOfReference: Boolean
 ): Offset {
     val lookaheadCoords = coordinates.toLookaheadCoordinates()
     val source = sourceCoordinates.toLookaheadCoordinates()
@@ -271,33 +247,26 @@ internal fun LookaheadScope.localLookaheadPositionOf(
         lookaheadCoords.localPositionOf(
             sourceCoordinates = source,
             relativeToSource = relativeToSource,
-            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            includeMotionFrameOfReference = includeMotionFrameOfReference
         )
     } else if (source is LookaheadLayoutCoordinates) {
         // Relative from source, so we take its negative position
         -source.localPositionOf(
             sourceCoordinates = lookaheadCoords,
             relativeToSource = relativeToSource,
-            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            includeMotionFrameOfReference = includeMotionFrameOfReference
         )
     } else {
-        if (excludeDirectManipulationOffset) {
-            lookaheadCoords.positionInLocalFrameOfReference(
-                sourceCoordinates = source,
-                relativeToSource = relativeToSource
-            )
-        } else {
-            lookaheadCoords.localPositionOf(
-                sourceCoordinates = lookaheadCoords,
-                relativeToSource = relativeToSource
-            )
-        }
+        lookaheadCoords.localPositionOf(
+            sourceCoordinates = lookaheadCoords,
+            relativeToSource = relativeToSource,
+            includeMotionFrameOfReference = includeMotionFrameOfReference
+        )
     }
 }
 
-internal class LookaheadScopeImpl(
-    var scopeCoordinates: (() -> LayoutCoordinates)? = null
-) : LookaheadScope {
+internal class LookaheadScopeImpl(var scopeCoordinates: (() -> LayoutCoordinates)? = null) :
+    LookaheadScope {
     override fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates {
         return this as? LookaheadLayoutCoordinates
             ?: (this as NodeCoordinator).let {

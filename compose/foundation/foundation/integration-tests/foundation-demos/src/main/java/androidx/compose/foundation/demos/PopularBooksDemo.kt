@@ -95,15 +95,11 @@ fun PopularBooksDemo() {
                 )
             }
             Divider(color = Color.LightGray, thickness = Dp.Hairline)
-            LazyColumn(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+            LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 val sortedList = PopularBooksList.sortedWith(comparator)
                 items(sortedList, key = { it.title }) {
                     Row(
-                        Modifier.animateItem()
-                            .height(IntrinsicSize.Max),
+                        Modifier.animateItem().height(IntrinsicSize.Max),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
@@ -145,37 +141,33 @@ fun PopularBooksDemo() {
     }
 }
 
-private val TitleComparator = Comparator<Book> { left, right ->
-    left.title.compareTo(right.title)
-}
+private val TitleComparator = Comparator<Book> { left, right -> left.title.compareTo(right.title) }
 
-private val AuthorComparator = Comparator<Book> { left, right ->
-    left.author.compareTo(right.author)
-}
+private val AuthorComparator =
+    Comparator<Book> { left, right -> left.author.compareTo(right.author) }
 
-private val YearComparator = Comparator<Book> { left, right ->
-    right.published.compareTo(left.published)
-}
+private val YearComparator =
+    Comparator<Book> { left, right -> right.published.compareTo(left.published) }
 
-private val SalesComparator = Comparator<Book> { left, right ->
-    right.salesInMillions.compareTo(left.salesInMillions)
-}
+private val SalesComparator =
+    Comparator<Book> { left, right -> right.salesInMillions.compareTo(left.salesInMillions) }
 
-private val PopularBooksList = listOf(
-    Book("The Hobbit", "J. R. R. Tolkien", 1937, 140),
-    Book("Harry Potter and the Philosopher's Stone", "J. K. Rowling", 1997, 120),
-    Book("Dream of the Red Chamber", "Cao Xueqin", 1800, 100),
-    Book("And Then There Were None", "Agatha Christie", 1939, 100),
-    Book("The Little Prince", "Antoine de Saint-Exupéry", 1943, 100),
-    Book("The Lion, the Witch and the Wardrobe", "C. S. Lewis", 1950, 85),
-    Book("The Adventures of Pinocchio", "Carlo Collodi", 1881, 80),
-    Book("The Da Vinci Code", "Dan Brown", 2003, 80),
-    Book("Harry Potter and the Chamber of Secrets", "J. K. Rowling", 1998, 77),
-    Book("The Alchemist", "Paulo Coelho", 1988, 65),
-    Book("Harry Potter and the Prisoner of Azkaban", "J. K. Rowling", 1999, 65),
-    Book("Harry Potter and the Goblet of Fire", "J. K. Rowling", 2000, 65),
-    Book("Harry Potter and the Order of the Phoenix", "J. K. Rowling", 2003, 65)
-)
+private val PopularBooksList =
+    listOf(
+        Book("The Hobbit", "J. R. R. Tolkien", 1937, 140),
+        Book("Harry Potter and the Philosopher's Stone", "J. K. Rowling", 1997, 120),
+        Book("Dream of the Red Chamber", "Cao Xueqin", 1800, 100),
+        Book("And Then There Were None", "Agatha Christie", 1939, 100),
+        Book("The Little Prince", "Antoine de Saint-Exupéry", 1943, 100),
+        Book("The Lion, the Witch and the Wardrobe", "C. S. Lewis", 1950, 85),
+        Book("The Adventures of Pinocchio", "Carlo Collodi", 1881, 80),
+        Book("The Da Vinci Code", "Dan Brown", 2003, 80),
+        Book("Harry Potter and the Chamber of Secrets", "J. K. Rowling", 1998, 77),
+        Book("The Alchemist", "Paulo Coelho", 1988, 65),
+        Book("Harry Potter and the Prisoner of Azkaban", "J. K. Rowling", 1999, 65),
+        Book("Harry Potter and the Goblet of Fire", "J. K. Rowling", 2000, 65),
+        Book("Harry Potter and the Order of the Phoenix", "J. K. Rowling", 2003, 65)
+    )
 
 private class Book(
     val title: String,

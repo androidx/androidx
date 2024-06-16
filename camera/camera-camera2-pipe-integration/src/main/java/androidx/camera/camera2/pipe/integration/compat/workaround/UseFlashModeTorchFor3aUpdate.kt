@@ -39,8 +39,7 @@ interface UseFlashModeTorchFor3aUpdate {
             ): UseFlashModeTorchFor3aUpdate =
                 if (cameraQuirks.quirks.contains(TorchFlashRequiredFor3aUpdateQuirk::class.java))
                     UseFlashModeTorchFor3aUpdateImpl
-                else
-                    NotUseFlashModeTorchFor3aUpdate
+                else NotUseFlashModeTorchFor3aUpdate
         }
     }
 }

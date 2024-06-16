@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.core.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
@@ -72,7 +73,8 @@ interface CameraGraph : AutoCloseable {
      */
     fun stop()
 
-    /** Used exclusively interact with the camera via a [Session] from within an existing suspending
+    /**
+     * Used exclusively interact with the camera via a [Session] from within an existing suspending
      * function. This function will suspend until the internal mutex lock can be acquired and
      * returned. When possible, prefer [useSession] when possible as it will guarantee that the
      * session will be closed.
@@ -110,14 +112,12 @@ interface CameraGraph : AutoCloseable {
      * }
      * ```
      */
-    suspend fun <T> useSession(
-        action: suspend CoroutineScope.(Session) -> T
-    ): T
+    suspend fun <T> useSession(action: suspend CoroutineScope.(Session) -> T): T
 
     /**
-     * Used to exclusively interact with the camera from a normal function with a [Session]
-     * by acquiring a lock to the internal mutex and running the [action] in the provided [scope].
-     * This is similar to [useSession] with the additional guarantee that multiple calls to
+     * Used to exclusively interact with the camera from a normal function with a [Session] by
+     * acquiring a lock to the internal mutex and running the [action] in the provided [scope]. This
+     * is similar to [useSession] with the additional guarantee that multiple calls to
      * [useSessionIn] will be executed in the same order they are invoked in, which is not the case
      * for `scope.launch` or `scope.async`. When possible, prefer using this function when
      * interacting with a [CameraGraph.Session] from non-suspending code. The [action] will always
@@ -167,8 +167,8 @@ interface CameraGraph : AutoCloseable {
      *
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
-     * @param exclusiveStreamGroups A list of [CameraStream] groups where the [CameraStream]s in
-     *   a group aren't expected to used simultaneously.
+     * @param exclusiveStreamGroups A list of [CameraStream] groups where the [CameraStream]s in a
+     *   group aren't expected to used simultaneously.
      * @param input A list of input configurations to support Camera2 Reprocessing.
      * @param sessionTemplate The template id to use when creating the [CaptureRequest] to supply
      *   the default parameters for a [SessionConfiguration] object.
@@ -245,7 +245,6 @@ interface CameraGraph : AutoCloseable {
          * abnormal states (b/162314023), and (potentially) camera device close stalling based on
          * testing, etc. Hence, we're enabling this behavior by default on API level >= R (30) for
          * now.
-         *
          * - Bug(s): b/287020251
          * - API levels: R (30) and above
          */
@@ -259,7 +258,6 @@ interface CameraGraph : AutoCloseable {
          *
          * This flag provides the overrides for you to override the default behavior (CameraPipe
          * would turn on/off the quirk automatically based on device information).
-         *
          * - Bug(s): b/146773463, b/267557892
          * - Device(s): Camera devices on hardware level LEGACY
          * - API levels: All
@@ -267,12 +265,11 @@ interface CameraGraph : AutoCloseable {
         val quirkWaitForRepeatingRequestOnDisconnect: Boolean? = null,
 
         /**
-         * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when
-         * the CameraGraph is stopped or closed. When a CameraGraph is started, the app might
-         * wait for the Surfaces to be released before setting the new Surfaces. This creates a
-         * potential deadlock, and this quirk is aimed to mitigate such behavior by releasing the
-         * Surfaces (finalizing the session) when the graph is stopped or closed.
-         *
+         * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when the
+         * CameraGraph is stopped or closed. When a CameraGraph is started, the app might wait for
+         * the Surfaces to be released before setting the new Surfaces. This creates a potential
+         * deadlock, and this quirk is aimed to mitigate such behavior by releasing the Surfaces
+         * (finalizing the session) when the graph is stopped or closed.
          * - Bug(s): b/277310425
          * - Device(s): All (but behaviors might differ across devices)
          * - API levels: All
@@ -281,10 +278,9 @@ interface CameraGraph : AutoCloseable {
 
         /**
          * A quirk that closes the camera capture session when the CameraGraph is stopped or closed.
-         * This is needed in cases where the app that do not wish to receive further frames, or
-         * in cases where not closing the capture session before closing the camera device might
-         * cause the camera close call itself to hang indefinitely.
-         *
+         * This is needed in cases where the app that do not wish to receive further frames, or in
+         * cases where not closing the capture session before closing the camera device might cause
+         * the camera close call itself to hang indefinitely.
          * - Bug(s): b/277310425, b/277310425
          * - Device(s): Depends on the situation and the use case.
          * - API levels: All
@@ -295,7 +291,6 @@ interface CameraGraph : AutoCloseable {
          * A quirk that closes the camera device when the CameraGraph is closed. This is needed on
          * devices where not closing the camera device before creating a new capture session can
          * lead to crashes.
-         *
          * - Bug(s): b/282871038
          * - Device(s): Exynos7870 platforms.
          * - API levels: All
@@ -308,22 +303,22 @@ interface CameraGraph : AutoCloseable {
             companion object {
                 /**
                  * OFF indicates that the CameraGraph only finalizes capture session under regular
-                 *  conditions, i.e., when the camera device is closed, or when a new capture
-                 *  session is created.
+                 * conditions, i.e., when the camera device is closed, or when a new capture session
+                 * is created.
                  */
                 val OFF = FinalizeSessionOnCloseBehavior(0)
 
                 /**
                  * IMMEDIATE indicates that the CameraGraph will finalize the current session
-                 *  immediately when the CameraGraph is stopped or closed. This should be the
-                 *  default behavior for devices that allows for immediate Surface reuse.
+                 * immediately when the CameraGraph is stopped or closed. This should be the default
+                 * behavior for devices that allows for immediate Surface reuse.
                  */
                 val IMMEDIATE = FinalizeSessionOnCloseBehavior(1)
 
                 /**
                  * TIMEOUT indicates that the CameraGraph will finalize the current session on a 2s
-                 *  timeout when the CameraGraph is stopped or closed. This should only be enabled
-                 *  for devices that require waiting for Surfaces to be released.
+                 * timeout when the CameraGraph is stopped or closed. This should only be enabled
+                 * for devices that require waiting for Surfaces to be released.
                  */
                 val TIMEOUT = FinalizeSessionOnCloseBehavior(2)
             }
@@ -402,9 +397,9 @@ interface CameraGraph : AutoCloseable {
 
         /**
          * Submit the [Request] to the camera. Requests are issued to the Camera, in order, on a
-         * background queue. Each call to submit will issue the [Request] to the camera exactly
-         * once unless the request is invalid, or unless the requests are aborted via [abort].
-         * The same request can be submitted multiple times.
+         * background queue. Each call to submit will issue the [Request] to the camera exactly once
+         * unless the request is invalid, or unless the requests are aborted via [abort]. The same
+         * request can be submitted multiple times.
          */
         fun submit(request: Request)
 
@@ -426,8 +421,8 @@ interface CameraGraph : AutoCloseable {
 
         /**
          * Submit the [Request]s to the camera, and aggregate the results into a list of
-         * [FrameCapture]s, which can be used to wait for the associated [Frame]
-         * using [FrameCapture.awaitFrame].
+         * [FrameCapture]s, which can be used to wait for the associated [Frame] using
+         * [FrameCapture.awaitFrame].
          *
          * Each [FrameCapture] **must** be closed, or it will result in a memory leak.
          */
@@ -443,7 +438,9 @@ interface CameraGraph : AutoCloseable {
         /**
          * Applies the given 3A parameters to the camera device.
          *
-         * @return earliest FrameNumber at which the parameters were successfully applied.
+         * @return A [Deferred] of [Result3A] value which will contain the frame number for which
+         *   these parameters were applied. It may be cancelled with a [CancellationException] if a
+         *   newer request is submitted before completion.
          */
         fun update3A(
             aeMode: AeMode? = null,
@@ -493,13 +490,13 @@ interface CameraGraph : AutoCloseable {
          * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
          *   AF_TRIGGER_START request, this value should not be retained for following requests
          * @param convergedCondition an optional function can be used to identify if the result
-         * frame with correct 3A converge state is received. Returns true to complete the 3A scan
-         * and going to lock the 3A state, otherwise it will continue to receive the frame results
-         * until the [frameLimit] or [timeLimitNs] is reached.
+         *   frame with correct 3A converge state is received. Returns true to complete the 3A scan
+         *   and going to lock the 3A state, otherwise it will continue to receive the frame results
+         *   until the [frameLimit] or [timeLimitNs] is reached.
          * @param lockedCondition an optional function can be used to identify if the result frame
-         * with correct 3A lock states are received. Returns true to complete lock 3A task,
-         * otherwise it will continue to receive the frame results until the [frameLimit]
-         * or [timeLimitNs] is reached.
+         *   with correct 3A lock states are received. Returns true to complete lock 3A task,
+         *   otherwise it will continue to receive the frame results until the [frameLimit] or
+         *   [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
@@ -542,14 +539,13 @@ interface CameraGraph : AutoCloseable {
          * unlocked, it will stay unlocked.
          *
          * @param unlockedCondition an optional function can be used to identify if the result frame
-         * with correct ae, af and awb states are received. Returns true to complete the unlock
-         * 3A task, otherwise it will continue to receive the frame results until the [frameLimit]
-         * or [timeLimitNs] is reached.
+         *   with correct ae, af and awb states are received. Returns true to complete the unlock 3A
+         *   task, otherwise it will continue to receive the frame results until the [frameLimit] or
+         *   [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          *   this operation to complete.
-         *
          * @return [Result3A], which will contain the latest frame number at which the auto-focus,
          *   auto-exposure, auto-white balance were unlocked as per the method arguments.
          */
@@ -571,14 +567,13 @@ interface CameraGraph : AutoCloseable {
          * low light captures or for every capture, respectively.
          *
          * @param lockedCondition an optional function can be used to identify if the result frame
-         * with correct lock states for ae, af and awb is received. Returns true to complete lock
-         * 3A task, otherwise it will continue to receive the frame results until the [frameLimit]
-         * or [timeLimitNs] is reached.
+         *   with correct lock states for ae, af and awb is received. Returns true to complete lock
+         *   3A task, otherwise it will continue to receive the frame results until the [frameLimit]
+         *   or [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          *   this operation to complete.
-         *
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
          *   limit or time limit was reached.
@@ -603,7 +598,6 @@ interface CameraGraph : AutoCloseable {
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          *   this operation to complete.
-         *
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
          *   limit or time limit was reached.
@@ -622,15 +616,15 @@ interface CameraGraph : AutoCloseable {
          * it's normal scan. This method brings focus and exposure back to normal after high quality
          * image captures using [lock3AForCapture] method.
          *
-         * @param cancelAf  Whether to trigger AF cancel, enabled by default.
+         * @param cancelAf Whether to trigger AF cancel, enabled by default.
          */
         suspend fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A>
     }
 }
 
 /**
- * GraphState represents public the public facing state of a [CameraGraph] instance. When created,
- * a [CameraGraph] starts in [GraphStateStopped]. Calling [CameraGraph.start] puts the graph into
+ * GraphState represents public the public facing state of a [CameraGraph] instance. When created, a
+ * [CameraGraph] starts in [GraphStateStopped]. Calling [CameraGraph.start] puts the graph into
  * [GraphStateStarting], and [CameraGraph.stop] puts the graph into [GraphStateStopping]. Remaining
  * states are produced by the underlying camera as a result of these start/stop calls.
  */
@@ -670,9 +664,7 @@ abstract class GraphState internal constructor() {
     }
 }
 
-/**
- * @see [CameraDevice.AUDIO_RESTRICTION_NONE] and other constants.
- */
+/** @see [CameraDevice.AUDIO_RESTRICTION_NONE] and other constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AudioRestrictionMode internal constructor(val value: Int) {

@@ -32,8 +32,8 @@ import kotlinx.metadata.jvm.signature
 
 /**
  * @return the corresponding [KmFunction] for this [PsiMethod], or `null` if there is no
- * corresponding [KmFunction]. This method is only meaningful if this [PsiMethod] represents a
- * method defined in bytecode (most often a [ClsMethodImpl]).
+ *   corresponding [KmFunction]. This method is only meaningful if this [PsiMethod] represents a
+ *   method defined in bytecode (most often a [ClsMethodImpl]).
  */
 fun PsiMethod.toKmFunction(): KmFunction? =
     containingClass!!.getKmDeclarationContainer()?.findKmFunctionForPsiMethod(this)
@@ -43,23 +43,26 @@ fun PsiMethod.toKmFunction(): KmFunction? =
 // we need to manually inspect the annotations and work with Cls* (compiled PSI).
 /**
  * Returns the [KmDeclarationContainer] using the kotlin.Metadata annotation present on this
- * [PsiClass]. Returns null if there is no annotation (not parsing a Kotlin
- * class file), the annotation data is for an unsupported version of Kotlin, or if the metadata
- * represents a synthetic class.
+ * [PsiClass]. Returns null if there is no annotation (not parsing a Kotlin class file), the
+ * annotation data is for an unsupported version of Kotlin, or if the metadata represents a
+ * synthetic class.
  */
 private fun PsiClass.getKmDeclarationContainer(): KmDeclarationContainer? {
-    val classKotlinMetadataPsiAnnotation = annotations.find {
-        // hasQualifiedName() not available on the min version of Lint we compile against
-        it.qualifiedName == KotlinMetadataFqn
-    } ?: return null
+    val classKotlinMetadataPsiAnnotation =
+        annotations.find {
+            // hasQualifiedName() not available on the min version of Lint we compile against
+            it.qualifiedName == KotlinMetadataFqn
+        } ?: return null
 
-    val metadata = try {
-        KotlinClassMetadata.readStrict(classKotlinMetadataPsiAnnotation.toMetadataAnnotation())
-    } catch (e: Exception) {
-        // Don't crash if we are trying to parse metadata from a newer version of Kotlin, than is
-        // supported by the bundled version of kotlinx-metadata-jvm
-        return null
-    }
+    val metadata =
+        try {
+            KotlinClassMetadata.readStrict(classKotlinMetadataPsiAnnotation.toMetadataAnnotation())
+        } catch (e: Exception) {
+            // Don't crash if we are trying to parse metadata from a newer version of Kotlin, than
+            // is
+            // supported by the bundled version of kotlinx-metadata-jvm
+            return null
+        }
 
     return when (metadata) {
         is KotlinClassMetadata.Class -> metadata.kmClass
@@ -71,9 +74,7 @@ private fun PsiClass.getKmDeclarationContainer(): KmDeclarationContainer? {
     }
 }
 
-/**
- * Returns a [Metadata] by parsing the attributes of this @kotlin.Metadata PSI annotation.
- */
+/** Returns a [Metadata] by parsing the attributes of this @kotlin.Metadata PSI annotation. */
 private fun PsiAnnotation.toMetadataAnnotation(): Metadata {
     val attributes = attributes.associate { it.attributeName to it.attributeValue }
 
@@ -84,14 +85,10 @@ private fun PsiAnnotation.toMetadataAnnotation(): Metadata {
         (this as JvmAnnotationConstantValue).constantValue as Int
 
     fun JvmAnnotationAttributeValue.parseStringArray(): Array<String> =
-        (this as JvmAnnotationArrayValue).values.map {
-            it.parseString()
-        }.toTypedArray()
+        (this as JvmAnnotationArrayValue).values.map { it.parseString() }.toTypedArray()
 
     fun JvmAnnotationAttributeValue.parseIntArray(): IntArray =
-        (this as JvmAnnotationArrayValue).values.map {
-            it.parseInt()
-        }.toTypedArray().toIntArray()
+        (this as JvmAnnotationArrayValue).values.map { it.parseInt() }.toTypedArray().toIntArray()
 
     val kind = attributes["k"]?.parseInt()
     val metadataVersion = attributes["mv"]?.parseIntArray()
@@ -101,20 +98,12 @@ private fun PsiAnnotation.toMetadataAnnotation(): Metadata {
     val packageName = attributes["pn"]?.parseString()
     val extraInt = attributes["xi"]?.parseInt()
 
-    return Metadata(
-        kind,
-        metadataVersion,
-        data1,
-        data2,
-        extraString,
-        packageName,
-        extraInt
-    )
+    return Metadata(kind, metadataVersion, data1, data2, extraString, packageName, extraInt)
 }
 
 /**
  * @return the corresponding [KmFunction] in [this] for the given [method], matching by name and
- * signature.
+ *   signature.
  */
 private fun KmDeclarationContainer.findKmFunctionForPsiMethod(method: PsiMethod): KmFunction? {
     // Strip any mangled part of the name in case of value / inline classes
@@ -124,19 +113,17 @@ private fun KmDeclarationContainer.findKmFunctionForPsiMethod(method: PsiMethod)
     // to `kotlin.Unit`, even though in the actual metadata they are still void. Try to match those
     // cases as well
     val unitReturnTypeSuffix = "Lkotlin/Unit;"
-    val expectedSignatureConvertedFromUnitToVoid = if (
-        expectedSignature.endsWith(unitReturnTypeSuffix)
-    ) {
-        expectedSignature.substringBeforeLast(unitReturnTypeSuffix) + "V"
-    } else {
-        expectedSignature
-    }
+    val expectedSignatureConvertedFromUnitToVoid =
+        if (expectedSignature.endsWith(unitReturnTypeSuffix)) {
+            expectedSignature.substringBeforeLast(unitReturnTypeSuffix) + "V"
+        } else {
+            expectedSignature
+        }
 
     return functions.find {
-        it.name == expectedName && (
-            it.signature?.descriptor == expectedSignature ||
-                it.signature?.descriptor == expectedSignatureConvertedFromUnitToVoid
-        )
+        it.name == expectedName &&
+            (it.signature?.descriptor == expectedSignature ||
+                it.signature?.descriptor == expectedSignatureConvertedFromUnitToVoid)
     }
 }
 

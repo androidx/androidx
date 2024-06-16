@@ -20,10 +20,7 @@ import java.io.File
 import java.io.InputStream
 import java.util.concurrent.Callable
 
-/**
- * Implementation of [SupportSQLiteOpenHelper.Factory] that creates
- * [PrePackagedCopyOpenHelper].
- */
+/** Implementation of [SupportSQLiteOpenHelper.Factory] that creates [PrePackagedCopyOpenHelper]. */
 internal class PrePackagedCopyOpenHelperFactory(
     private val mCopyFromAssetPath: String?,
     private val mCopyFromFile: File?,

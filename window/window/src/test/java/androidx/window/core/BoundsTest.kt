@@ -22,8 +22,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Tests for [Bounds] to check the public API and that some methods
- * match [android.graphics.Rect].
+ * Tests for [Bounds] to check the public API and that some methods match [android.graphics.Rect].
  */
 class BoundsTest {
 

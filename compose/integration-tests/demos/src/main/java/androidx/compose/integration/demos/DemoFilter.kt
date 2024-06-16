@@ -45,28 +45,21 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
-/**
- * A scrollable list of [launchableDemos], filtered by [filterText].
- */
+/** A scrollable list of [launchableDemos], filtered by [filterText]. */
 @Composable
 fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Demo) -> Unit) {
-    val filteredDemos = launchableDemos
-        .filter { it.title.contains(filterText, ignoreCase = true) }
-        .sortedBy { it.title }
+    val filteredDemos =
+        launchableDemos
+            .filter { it.title.contains(filterText, ignoreCase = true) }
+            .sortedBy { it.title }
     LazyColumn {
         items(filteredDemos) { demo ->
-            FilteredDemoListItem(
-                demo,
-                filterText = filterText,
-                onNavigate = onNavigate
-            )
+            FilteredDemoListItem(demo, filterText = filterText, onNavigate = onNavigate)
         }
     }
 }
 
-/**
- * [TopAppBar] with a text field allowing filtering all the demos.
- */
+/** [TopAppBar] with a text field allowing filtering all the demos. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterAppBar(
@@ -76,25 +69,13 @@ fun FilterAppBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
-        navigationIcon = {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Filled.Close, null)
-            }
-        },
-        title = {
-            FilterField(
-                filterText,
-                onFilter,
-                Modifier.fillMaxWidth()
-            )
-        },
+        navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.Filled.Close, null) } },
+        title = { FilterField(filterText, onFilter, Modifier.fillMaxWidth()) },
         scrollBehavior = scrollBehavior
     )
 }
 
-/**
- * [TextField] that edits the current [filterText], providing [onFilter] when edited.
- */
+/** [TextField] that edits the current [filterText], providing [onFilter] when edited. */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun FilterField(
@@ -110,7 +91,7 @@ private fun FilterField(
     )
     DisposableEffect(focusRequester) {
         focusRequester.requestFocus()
-        onDispose { }
+        onDispose {}
     }
 }
 
@@ -118,11 +99,7 @@ private fun FilterField(
  * [ListItem] that displays a [demo] and highlights any matches for [filterText] inside [Demo.title]
  */
 @Composable
-private fun FilteredDemoListItem(
-    demo: Demo,
-    filterText: String,
-    onNavigate: (Demo) -> Unit
-) {
+private fun FilteredDemoListItem(demo: Demo, filterText: String, onNavigate: (Demo) -> Unit) {
     val primary = MaterialTheme.colorScheme.primary
     val annotatedString = buildAnnotatedString {
         val title = demo.title
@@ -134,9 +111,7 @@ private fun FilteredDemoListItem(
                 append(title.substring(currentIndex, index))
                 currentIndex = index
             }
-            withStyle(SpanStyle(color = primary)) {
-                append(result.value)
-            }
+            withStyle(SpanStyle(color = primary)) { append(result.value) }
             currentIndex = result.range.last + 1
         }
         if (currentIndex <= title.lastIndex) {
@@ -144,12 +119,9 @@ private fun FilteredDemoListItem(
         }
     }
     key(demo.title) {
-        ListItem(
-            onClick = { onNavigate(demo) }) {
+        ListItem(onClick = { onNavigate(demo) }) {
             Text(
-                modifier = Modifier
-                    .height(56.dp)
-                    .wrapContentSize(Alignment.Center),
+                modifier = Modifier.height(56.dp).wrapContentSize(Alignment.Center),
                 text = annotatedString
             )
         }

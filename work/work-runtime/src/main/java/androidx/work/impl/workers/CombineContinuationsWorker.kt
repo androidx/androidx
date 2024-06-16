@@ -19,12 +19,8 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-/**
- * A [Worker] that helps combine work continuations.
- */
-internal class CombineContinuationsWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+/** A [Worker] that helps combine work continuations. */
+internal class CombineContinuationsWorker(context: Context, workerParams: WorkerParameters) :
+    Worker(context, workerParams) {
     override fun doWork() = Result.success(inputData)
 }

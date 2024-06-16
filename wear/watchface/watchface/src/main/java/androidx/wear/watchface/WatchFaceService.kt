@@ -28,6 +28,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.Process
@@ -1199,12 +1200,11 @@ public abstract class WatchFaceService : WallpaperService() {
         val userStyleFlavors: UserStyleFlavors
     )
 
-    internal class ChoreographerCallback(
-        val watchFaceImpl: WatchFaceImpl
-    ) : Choreographer.FrameCallback {
+    internal class ChoreographerCallback(val watchFaceImpl: WatchFaceImpl) :
+        Choreographer.FrameCallback {
         /**
-         * Whether we already have a frameCallback posted and waiting in the [Choreographer]
-         * queue. This protects us from drawing multiple times in a single frame.
+         * Whether we already have a frameCallback posted and waiting in the [Choreographer] queue.
+         * This protects us from drawing multiple times in a single frame.
          */
         var frameCallbackPending = false
 
@@ -1212,8 +1212,8 @@ public abstract class WatchFaceService : WallpaperService() {
             frameCallbackPending = false
 
             /**
-             * It's possible we went ambient by the time our callback occurred in which case
-             * there's no point drawing.
+             * It's possible we went ambient by the time our callback occurred in which case there's
+             * no point drawing.
              */
             if (watchFaceImpl.renderer.shouldAnimate()) {
                 try {
@@ -1364,6 +1364,8 @@ public abstract class WatchFaceService : WallpaperService() {
         private var lastPreviewImageNeedsUpdateRequest: String? = null
         private var overriddenComplications: HashMap<Int, ComplicationData>? = null
         private val complicationSlotsToClearAfterEditing = HashSet<Int>()
+        private var pauseAnimationDeathRecipient: PauseAnimationDeathRecipient? = null
+        private var privIsVisible = true
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
@@ -1463,7 +1465,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     // succeed.
                     pendingWallpaperInstance =
                         InteractiveInstanceManager
-                            .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance( // ktlint-disable max-line-length
+                            .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(
                                 this
                             )
                 }
@@ -1717,17 +1719,13 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         @AnyThread
         internal fun clearComplicationSlotAfterEditing(slotId: Int) {
-            synchronized(lock) {
-                complicationSlotsToClearAfterEditing.add(slotId)
-            }
+            synchronized(lock) { complicationSlotsToClearAfterEditing.add(slotId) }
         }
 
         /** Forgets any calls to [clearComplicationSlotAfterEditing]. */
         @AnyThread
         internal fun dontClearAnyComplicationSlotsAfterEditing() {
-            synchronized(lock) {
-                complicationSlotsToClearAfterEditing.clear()
-            }
+            synchronized(lock) { complicationSlotsToClearAfterEditing.clear() }
         }
 
         /**
@@ -1758,12 +1756,37 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 complicationSlotsToClearAfterEditing.clear()
 
-                complicationsFlow.update {
-                    overriddenComplications!!
-                }
+                complicationsFlow.update { overriddenComplications!! }
 
                 overriddenComplications = null
             }
+        }
+
+        /** Used to keep track of whether the client has died while animation is paused. */
+        private inner class PauseAnimationDeathRecipient(val binder: IBinder) :
+            IBinder.DeathRecipient {
+            override fun binderDied() {
+                synchronized(lock) {
+                    // Remove the isVisible override. Typically privIsVisible will be true.
+                    mutableWatchState.isVisible.value = privIsVisible
+                    binder.unlinkToDeath(this, 0)
+                    pauseAnimationDeathRecipient = null
+                }
+            }
+        }
+
+        @AnyThread
+        internal fun pauseAnimation(binder: IBinder) {
+            synchronized(lock) {
+                pauseAnimationDeathRecipient = PauseAnimationDeathRecipient(binder)
+                binder.linkToDeath(pauseAnimationDeathRecipient!!, 0)
+                // By overriding visibility to false, we stop animation.
+                mutableWatchState.isVisible.value = false
+            }
+        }
+
+        internal fun unpauseAnimation() {
+            synchronized(lock) { pauseAnimationDeathRecipient?.binderDied() }
         }
 
         @WorkerThread
@@ -2087,7 +2110,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         extra
                     ),
                     resourceOnlyWatchFacePackageName,
-                extra
+                    extra
                 )
                 .toWireFormat()
         }
@@ -2095,16 +2118,16 @@ public abstract class WatchFaceService : WallpaperService() {
         /** This will be called from a binder thread. */
         @OptIn(ComplicationExperimental::class)
         @WorkerThread
-        internal fun
-        getComplicationSlotMetadataWireFormats(): Array<ComplicationSlotMetadataWireFormat> {
+        internal fun getComplicationSlotMetadataWireFormats():
+            Array<ComplicationSlotMetadataWireFormat> {
             val extra = createExtraInternal()
             return createComplicationSlotsManagerInternal(
-                CurrentUserStyleRepository(
-                    createUserStyleSchemaInternal(resourceOnlyWatchFacePackageName, extra)
-                ),
-                resourceOnlyWatchFacePackageName,
-                extra
-            )
+                    CurrentUserStyleRepository(
+                        createUserStyleSchemaInternal(resourceOnlyWatchFacePackageName, extra)
+                    ),
+                    resourceOnlyWatchFacePackageName,
+                    extra
+                )
                 .complicationSlots
                 .map {
                     val systemDataSourceFallbackDefaultType =
@@ -2124,11 +2147,9 @@ public abstract class WatchFaceService : WallpaperService() {
                         it.value.defaultDataSourcePolicy.systemDataSourceFallback,
                         systemDataSourceFallbackDefaultType,
                         it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                            ?.toWireComplicationType()
-                            ?: systemDataSourceFallbackDefaultType,
+                            ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                         it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                            ?.toWireComplicationType()
-                            ?: systemDataSourceFallbackDefaultType,
+                            ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                         it.value.initiallyEnabled,
                         it.value.fixedComplicationDataSource,
                         it.value.configExtras,
@@ -2313,9 +2334,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 val userStyleFlavors: UserStyleFlavors
 
                 try {
-                    extra = TraceEvent("WatchFaceService.createExtra").use {
-                        createExtraInternal()
-                    }
+                    extra = TraceEvent("WatchFaceService.createExtra").use { createExtraInternal() }
                     currentUserStyleRepository =
                         TraceEvent("WatchFaceService.createUserStyleSchema").use {
                             CurrentUserStyleRepository(
@@ -2630,11 +2649,21 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
 
-                mutableWatchState.isVisible.value = visible || forceIsVisibleForTesting()
+                var isVisible = visible
+
+                synchronized(lock) {
+                    privIsVisible = isVisible
+                    // If animation is paused then continue to pretend we're not visible.
+                    if (pauseAnimationDeathRecipient != null) {
+                        isVisible = false
+                    }
+                }
+
+                mutableWatchState.isVisible.value = isVisible || forceIsVisibleForTesting()
                 wslFlow.pendingVisibilityChanged = null
 
                 try {
-                    getWatchFaceImplOrNull()?.onVisibility(visible)
+                    getWatchFaceImplOrNull()?.onVisibility(isVisible)
                 } catch (e: Exception) {
                     Log.e(TAG, "WatchfaceImpl.onVisibility failed", e)
                 }
@@ -3015,6 +3044,8 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("lastComplications=${complicationsFlow.value}")
             writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
             writer.println("Resource only package name $resourceOnlyWatchFacePackageName")
+            writer.println("privIsVisible=$privIsVisible")
+            writer.println("pauseAnimationDeathRecipient=$pauseAnimationDeathRecipient")
 
             synchronized(lock) {
                 writer.println("overriddenComplications=$overriddenComplications")
@@ -3095,9 +3126,8 @@ abstract class StatefulWatchFaceService<Extra> : WatchFaceService() {
      *   to [createComplicationSlotsManager] and [createWatchFace].
      */
     @WorkerThread
-    protected open fun createUserStyleSchema(
-        extra: Extra
-    ): UserStyleSchema = super.createUserStyleSchema()
+    protected open fun createUserStyleSchema(extra: Extra): UserStyleSchema =
+        super.createUserStyleSchema()
 
     override fun createUserStyleSchemaInternal(
         resourceOnlyWatchFacePackageName: String?,
@@ -3516,8 +3546,7 @@ abstract class StatefulWatchFaceRuntimeService<Extra> : WatchFaceService() {
     override fun createUserStyleSchemaInternal(
         resourceOnlyWatchFacePackageName: String?,
         extra: Any?
-    ): UserStyleSchema =
-        createUserStyleSchema(resourceOnlyWatchFacePackageName!!, extra!! as Extra)
+    ): UserStyleSchema = createUserStyleSchema(resourceOnlyWatchFacePackageName!!, extra!! as Extra)
 
     @Suppress("DocumentExceptions") // NB this method isn't expected to be called from user code.
     final override fun createUserStyleSchema(): UserStyleSchema {

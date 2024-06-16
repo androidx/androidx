@@ -27,9 +27,9 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
@@ -50,7 +50,6 @@ import java.util.Set;
  * required to initialize a {@link android.hardware.camera2.CameraCaptureSession} and issue a {@link
  * CaptureRequest}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionConfig {
     public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
@@ -109,6 +108,14 @@ public final class SessionConfig {
         public abstract String getPhysicalCameraId();
 
         /**
+         * Returns the mirror mode.
+         *
+         * @return {@link MirrorMode}
+         */
+        @MirrorMode.Mirror
+        public abstract int getMirrorMode();
+
+        /**
          * Returns the surface group ID. Default value is {@link #SURFACE_GROUP_ID_NONE} meaning
          * it doesn't belong to any surface group. A surface group ID is used to identify which
          * surface group this output surface belongs to. Output streams with the same
@@ -137,6 +144,7 @@ public final class SessionConfig {
                     .setSurface(surface)
                     .setSharedSurfaces(Collections.emptyList())
                     .setPhysicalCameraId(null)
+                    .setMirrorMode(MirrorMode.MIRROR_MODE_UNSPECIFIED)
                     .setSurfaceGroupId(SURFACE_GROUP_ID_NONE)
                     .setDynamicRange(DynamicRange.SDR);
         }
@@ -166,6 +174,14 @@ public final class SessionConfig {
              */
             @NonNull
             public abstract Builder setPhysicalCameraId(@Nullable String cameraId);
+
+            /**
+             * Sets the mirror mode. It specifies mirroring mode for
+             * {@link android.hardware.camera2.params.OutputConfiguration}.
+             * @see android.hardware.camera2.params.OutputConfiguration#setMirrorMode(int)
+             */
+            @NonNull
+            public abstract Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode);
 
             /**
              * Sets the surface group ID. A surface group ID is used to identify which surface group
@@ -643,11 +659,13 @@ public final class SessionConfig {
          * Add a surface to the set that the session repeatedly writes data to.
          *
          * <p>The dynamic range of this surface will default to {@link DynamicRange#SDR}. To
-         * manually set the dynamic range, use {@link #addSurface(DeferrableSurface, DynamicRange)}.
+         * manually set the dynamic range, use
+         * {@link #addSurface(DeferrableSurface, DynamicRange, String, int)}.
          */
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface) {
-            return addSurface(surface, DynamicRange.SDR, null);
+            return addSurface(surface, DynamicRange.SDR, null,
+                    MirrorMode.MIRROR_MODE_UNSPECIFIED);
         }
 
         /**
@@ -657,10 +675,12 @@ public final class SessionConfig {
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface,
                 @NonNull DynamicRange dynamicRange,
-                @Nullable String physicalCameraId) {
+                @Nullable String physicalCameraId,
+                @MirrorMode.Mirror int mirrorMode) {
             OutputConfig outputConfig = OutputConfig.builder(surface)
                     .setPhysicalCameraId(physicalCameraId)
                     .setDynamicRange(dynamicRange)
+                    .setMirrorMode(mirrorMode)
                     .build();
             mOutputConfigs.add(outputConfig);
             mCaptureConfigBuilder.addSurface(surface);

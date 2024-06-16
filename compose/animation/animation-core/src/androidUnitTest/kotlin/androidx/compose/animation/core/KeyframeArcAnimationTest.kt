@@ -41,40 +41,45 @@ class KeyframeArcAnimationTest {
         var linearVector: AnimationVector2D
 
         // Test above, below, linear keyframes
-        val keyframeAnimation = keyframes {
-            durationMillis = timeMillis
+        val keyframeAnimation =
+            keyframes {
+                    durationMillis = timeMillis
 
-            Offset(initialValue, initialValue) at 0 using LinearEasing using ArcAbove
-            Offset(200f, 200f) at 1000 using LinearEasing using ArcBelow
-            Offset(400f, 400f) atFraction 2f / 3f using LinearEasing using ArcLinear
-        }.vectorize(Offset.VectorConverter)
+                    Offset(initialValue, initialValue) at 0 using LinearEasing using ArcAbove
+                    Offset(200f, 200f) at 1000 using LinearEasing using ArcBelow
+                    Offset(400f, 400f) atFraction 2f / 3f using LinearEasing using ArcLinear
+                }
+                .vectorize(Offset.VectorConverter)
 
-        arcVector = keyframeAnimation.getValueFromNanos(
-            (500).toLong() * 1_000_000,
-            createFilledVector(initialValue),
-            createFilledVector(targetValue),
-            createFilledVector(0f)
-        )
+        arcVector =
+            keyframeAnimation.getValueFromNanos(
+                (500).toLong() * 1_000_000,
+                createFilledVector(initialValue),
+                createFilledVector(targetValue),
+                createFilledVector(0f)
+            )
         linearVector = linearValueAt(1f / 6f)
         assertTrue(arcVector[0] > linearVector[0]) // X is higher for ArcAbove (in this scenario)
         assertTrue(arcVector[1] < linearVector[1]) // Y is lower for ArcAbove (in this scenario)
 
-        arcVector = keyframeAnimation.getValueFromNanos(
-            (1500).toLong() * 1_000_000,
-            createFilledVector(initialValue),
-            createFilledVector(targetValue),
-            createFilledVector(0f)
-        )
+        arcVector =
+            keyframeAnimation.getValueFromNanos(
+                (1500).toLong() * 1_000_000,
+                createFilledVector(initialValue),
+                createFilledVector(targetValue),
+                createFilledVector(0f)
+            )
         linearVector = linearValueAt(3f / 6f)
         assertTrue(arcVector[0] < linearVector[0]) // X is lower for ArcBelow
         assertTrue(arcVector[1] > linearVector[1]) // Y is higher for ArcBelow
 
-        arcVector = keyframeAnimation.getValueFromNanos(
-            (2500).toLong() * 1_000_000,
-            createFilledVector(initialValue),
-            createFilledVector(targetValue),
-            createFilledVector(0f)
-        )
+        arcVector =
+            keyframeAnimation.getValueFromNanos(
+                (2500).toLong() * 1_000_000,
+                createFilledVector(initialValue),
+                createFilledVector(targetValue),
+                createFilledVector(0f)
+            )
         linearVector = linearValueAt(5f / 6f)
         assertEquals(linearVector[0], arcVector[0], error) // X is equals for ArcLinear
         assertEquals(linearVector[1], arcVector[1], error) // Y is equals for ArcLinear
@@ -86,44 +91,49 @@ class KeyframeArcAnimationTest {
         var linearVector: AnimationVector2D
 
         // We test different Easing curves using Linear arc mode
-        val keyframeAnimation = keyframes {
-            durationMillis = timeMillis
+        val keyframeAnimation =
+            keyframes {
+                    durationMillis = timeMillis
 
-            Offset.Zero at 0 using EaseInCubic using ArcLinear
-            Offset(200f, 200f) at 1000 using LinearEasing using ArcLinear
-            Offset(400f, 400f) atFraction 2f / 3f using EaseOutCubic using ArcLinear
-        }.vectorize(Offset.VectorConverter)
+                    Offset.Zero at 0 using EaseInCubic using ArcLinear
+                    Offset(200f, 200f) at 1000 using LinearEasing using ArcLinear
+                    Offset(400f, 400f) atFraction 2f / 3f using EaseOutCubic using ArcLinear
+                }
+                .vectorize(Offset.VectorConverter)
 
         // Start with EaseInCubic, which is always a lower value
-        arcVector = keyframeAnimation.getValueFromNanos(
-            (500).toLong() * 1_000_000,
-            createFilledVector(initialValue),
-            createFilledVector(targetValue),
-            createFilledVector(0f)
-        )
+        arcVector =
+            keyframeAnimation.getValueFromNanos(
+                (500).toLong() * 1_000_000,
+                createFilledVector(initialValue),
+                createFilledVector(targetValue),
+                createFilledVector(0f)
+            )
         linearVector = linearValueAt(1f / 6f)
         // X & Y are lower for EaseInCubic
         assertTrue(arcVector[0] < linearVector[0])
         assertTrue(arcVector[1] < linearVector[1])
 
         // Then, LinearEasing, which is always equals
-        arcVector = keyframeAnimation.getValueFromNanos(
-            (1500).toLong() * 1_000_000,
-            createFilledVector(initialValue),
-            createFilledVector(targetValue),
-            createFilledVector(0f)
-        )
+        arcVector =
+            keyframeAnimation.getValueFromNanos(
+                (1500).toLong() * 1_000_000,
+                createFilledVector(initialValue),
+                createFilledVector(targetValue),
+                createFilledVector(0f)
+            )
         linearVector = linearValueAt(3f / 6f)
         assertEquals(linearVector[0], arcVector[0], error) // X is equals with LinearEasing
         assertEquals(linearVector[1], arcVector[1], error) // Y is equals with LinearEasing
 
         // Then, EaseOutCubic, which is always a higher value
-        arcVector = keyframeAnimation.getValueFromNanos(
-            (2500).toLong() * 1_000_000,
-            createFilledVector(initialValue),
-            createFilledVector(targetValue),
-            createFilledVector(0f)
-        )
+        arcVector =
+            keyframeAnimation.getValueFromNanos(
+                (2500).toLong() * 1_000_000,
+                createFilledVector(initialValue),
+                createFilledVector(targetValue),
+                createFilledVector(0f)
+            )
         linearVector = linearValueAt(5f / 6f)
         // X & Y are higher for EaseOutCubic
         assertTrue(arcVector[0] > linearVector[0])

@@ -30,7 +30,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
@@ -65,7 +64,6 @@ import java.util.Map;
  *   <li>High resolution enabled flags
  * </ul>
  */
-@RequiresApi(21)
 public class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
@@ -142,7 +140,7 @@ public class SupportedOutputSizesSorter {
             Size maxResolution = ((ImageOutputConfig) useCaseConfig).getMaxResolution(null);
             int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
             // Applies the high resolution settings onto the resolution candidate list.
-            if (!useCaseConfig.isHigResolutionDisabled(false)) {
+            if (!useCaseConfig.isHighResolutionDisabled(false)) {
                 candidateSizes = applyHighResolutionSettings(candidateSizes,
                         resolutionSelector, useCaseConfig.getInputFormat());
             }

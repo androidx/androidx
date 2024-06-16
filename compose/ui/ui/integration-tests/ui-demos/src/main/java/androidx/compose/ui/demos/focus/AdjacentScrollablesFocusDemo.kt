@@ -41,11 +41,13 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AdjacentScrollablesFocusDemo() {
     Column {
-        Text("""
+        Text(
+            """
         Use the dpad or arrow keys to move focus.
         Every 3rd item in the list is focusable.
         Notice how focus moves through all the items in List 1 before moving to List 2.
-        """.trimIndent()
+        """
+                .trimIndent()
         )
         ScrollableList("List 1")
         ScrollableList("List 2")
@@ -58,17 +60,14 @@ private fun ScrollableList(name: String) {
     Text(text = name)
     var color by remember { mutableStateOf(Color.Black) }
     Column(
-        Modifier
-            .height(200.dp)
+        Modifier.height(200.dp)
             .onFocusChanged { color = if (it.isFocused) Color.Red else Color.Black }
             .focusProperties { canFocus = false }
             .focusable()
             .border(2.dp, color)
             .verticalScroll(rememberScrollState())
     ) {
-        repeat(10) {
-            if (it % 3 == 0) FocusableBox("$it") else NonFocusableBox("$it")
-        }
+        repeat(10) { if (it % 3 == 0) FocusableBox("$it") else NonFocusableBox("$it") }
     }
 }
 
@@ -79,12 +78,13 @@ private fun FocusableBox(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = 50.sp,
         textAlign = TextAlign.Center,
-        modifier = modifier
-            .size(100.dp)
-            .border(2.dp, Color.Black)
-            .onFocusChanged { color = if (it.isFocused) Color.Red else Color.White }
-            .background(color)
-            .focusable()
+        modifier =
+            modifier
+                .size(100.dp)
+                .border(2.dp, Color.Black)
+                .onFocusChanged { color = if (it.isFocused) Color.Red else Color.White }
+                .background(color)
+                .focusable()
     )
 }
 
@@ -94,9 +94,6 @@ private fun NonFocusableBox(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = 50.sp,
         textAlign = TextAlign.Center,
-        modifier = modifier
-            .size(100.dp)
-            .border(2.dp, Color.Black)
-            .background(Color.White)
+        modifier = modifier.size(100.dp).border(2.dp, Color.Black).background(Color.White)
     )
 }

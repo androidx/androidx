@@ -18,9 +18,7 @@ package androidx.room.support
 
 import androidx.sqlite.db.SupportSQLiteProgram
 
-/**
- * A program implementing an [SupportSQLiteProgram] API to record bind arguments.
- */
+/** A program implementing an [SupportSQLiteProgram] API to record bind arguments. */
 internal class QueryInterceptorProgram : SupportSQLiteProgram {
     internal val bindArgsCache = mutableListOf<Any?>()
 

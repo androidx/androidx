@@ -34,10 +34,7 @@ import kotlinx.coroutines.flow.Flow
 fun BackHandler() {
     var text by remember { mutableStateOf("") }
 
-    TextField(
-        value = text,
-        onValueChange = { text = it }
-    )
+    TextField(value = text, onValueChange = { text = it })
 
     BackHandler(text.isNotEmpty()) {
         // handle back event
@@ -49,17 +46,12 @@ fun BackHandler() {
 fun PredictiveBack(callback: SampleCallbackHelper) {
     var text by remember { mutableStateOf("") }
 
-    TextField(
-        value = text,
-        onValueChange = { text = it }
-    )
+    TextField(value = text, onValueChange = { text = it })
 
     PredictiveBackHandler(text.isNotEmpty()) { progress: Flow<BackEventCompat> ->
         callback.preparePop()
         try {
-            progress.collect { backEvent ->
-                callback.updateProgress(backEvent.progress)
-            }
+            progress.collect { backEvent -> callback.updateProgress(backEvent.progress) }
             callback.popBackStack()
         } catch (e: CancellationException) {
             callback.cancelPop()

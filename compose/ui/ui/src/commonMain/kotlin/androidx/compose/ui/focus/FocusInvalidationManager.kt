@@ -24,9 +24,9 @@ import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
- * The [FocusInvalidationManager] allows us to schedule focus related nodes for invalidation.
- * These nodes are invalidated after onApplyChanges. It does this by registering an
- * onApplyChangesListener when nodes are scheduled for invalidation.
+ * The [FocusInvalidationManager] allows us to schedule focus related nodes for invalidation. These
+ * nodes are invalidated after onApplyChanges. It does this by registering an onApplyChangesListener
+ * when nodes are scheduled for invalidation.
  */
 internal class FocusInvalidationManager(
     private val onRequestApplyChangesListener: (() -> Unit) -> Unit,
@@ -51,8 +51,8 @@ internal class FocusInvalidationManager(
 
     fun hasPendingInvalidation(): Boolean {
         return focusTargetNodes.isNotEmpty() ||
-                focusPropertiesNodes.isNotEmpty() ||
-                focusEventNodes.isNotEmpty()
+            focusPropertiesNodes.isNotEmpty() ||
+            focusEventNodes.isNotEmpty()
     }
 
     private fun <T> MutableScatterSet<T>.scheduleInvalidation(node: T) {
@@ -134,8 +134,9 @@ internal class FocusInvalidationManager(
 
             val preInvalidationState = it.focusState
             it.invalidateFocus()
-            if (preInvalidationState != it.focusState ||
-                it in focusTargetsWithInvalidatedFocusEvents
+            if (
+                preInvalidationState != it.focusState ||
+                    it in focusTargetsWithInvalidatedFocusEvents
             ) {
                 it.refreshFocusEventNodes()
             }

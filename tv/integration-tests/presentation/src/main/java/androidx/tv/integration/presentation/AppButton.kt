@@ -50,15 +50,18 @@ fun AppButton(
     var isFocused by remember { mutableStateOf(false) }
 
     Row(
-        modifier = modifier
-            .border(2.dp, if (isFocused) Color.White else Color.Transparent, RoundedCornerShape(50))
-            .padding(4.dp)
-            .background(Color.White.copy(alpha = 0.9f), RoundedCornerShape(50))
-            .padding(top = 5.dp, bottom = 5.dp, start = 10.dp, end = 15.dp)
-            .onFocusChanged {
-                isFocused = it.isFocused
-            }
-            .focusable(),
+        modifier =
+            modifier
+                .border(
+                    2.dp,
+                    if (isFocused) Color.White else Color.Transparent,
+                    RoundedCornerShape(50)
+                )
+                .padding(4.dp)
+                .background(Color.White.copy(alpha = 0.9f), RoundedCornerShape(50))
+                .padding(top = 5.dp, bottom = 5.dp, start = 10.dp, end = 15.dp)
+                .onFocusChanged { isFocused = it.isFocused }
+                .focusable(),
         horizontalArrangement = Arrangement.spacedBy(0.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

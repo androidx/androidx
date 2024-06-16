@@ -57,7 +57,6 @@ import org.junit.runners.model.Statement
  *
  * Note that you can filter captured rules, for example, if you're generating rules for a library,
  * and don't want to record profiles from outside that library:
- *
  * ```
  *     @Test
  *     fun generateLibraryRules() = baselineProfileRule.collect(
@@ -77,27 +76,29 @@ import org.junit.runners.model.Statement
  *     }
  * ```
  *
- * See the [Baseline Profile Guide](https://d.android.com/baseline-profiles) for more information
- * on creating Baseline Profiles.
+ * See the [Baseline Profile Guide](https://d.android.com/baseline-profiles) for more information on
+ * creating Baseline Profiles.
  */
 @RequiresApi(28)
 class BaselineProfileRule : TestRule {
     private lateinit var currentDescription: Description
 
     override fun apply(base: Statement, description: Description): Statement {
-        return RuleChain
-            .outerRule(GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        return RuleChain.outerRule(
+                GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            )
             .around(::applyInternal)
             .apply(base, description)
     }
 
-    private fun applyInternal(base: Statement, description: Description) = object : Statement() {
-        override fun evaluate() {
-            assumeTrue(Arguments.RuleType.BaselineProfile in Arguments.enabledRules)
-            currentDescription = description
-            base.evaluate()
+    private fun applyInternal(base: Statement, description: Description) =
+        object : Statement() {
+            override fun evaluate() {
+                assumeTrue(Arguments.RuleType.BaselineProfile in Arguments.enabledRules)
+                currentDescription = description
+                base.evaluate()
+            }
         }
-    }
 
     /**
      * Collects baseline profiles for a critical user journey, while ensuring that the generated
@@ -107,9 +108,9 @@ class BaselineProfileRule : TestRule {
      * @param maxIterations Maximum number of iterations to run when collecting profiles.
      * @param stableIterations Minimum number of iterations to observe as stable before assuming
      *   stability, and completing profile generation.
-     * @param outputFilePrefix An optional file name prefix used when creating the output
-     *    file with the contents of the human readable baseline profile.
-     *    For example: `outputFilePrefix-baseline-prof.txt`
+     * @param outputFilePrefix An optional file name prefix used when creating the output file with
+     *   the contents of the human readable baseline profile. For example:
+     *   `outputFilePrefix-baseline-prof.txt`
      * @param includeInStartupProfile determines whether the generated profile should be also used
      *   as a startup profile. A startup profile is utilized during the build process in order to
      *   determine which classes are needed in the primary dex to optimize the startup time. This
@@ -118,8 +119,8 @@ class BaselineProfileRule : TestRule {
      *   are also utilized for baseline profiles.
      * @param strictStability Enforce if the generated profile was stable
      * @param filterPredicate Function used to filter individual rules / lines of the baseline
-     *  profile. By default, no filters are applied. Note that this works only when the target
-     *  application's code is not obfuscated.
+     *   profile. By default, no filters are applied. Note that this works only when the target
+     *   application's code is not obfuscated.
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads

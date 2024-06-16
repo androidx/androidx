@@ -69,8 +69,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SwitchTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val defaultSwitchTag = "switch"
 
@@ -87,11 +86,13 @@ class SwitchTest {
             }
         }
 
-        rule.onNodeWithTag("checked")
+        rule
+            .onNodeWithTag("checked")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
             .assertIsEnabled()
             .assertIsOn()
-        rule.onNodeWithTag("unchecked")
+        rule
+            .onNodeWithTag("unchecked")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
             .assertIsEnabled()
             .assertIsOff()
@@ -111,10 +112,7 @@ class SwitchTest {
                 )
             }
         }
-        rule.onNodeWithTag(defaultSwitchTag)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(defaultSwitchTag).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -131,7 +129,8 @@ class SwitchTest {
                 )
             }
         }
-        rule.onNodeWithTag(defaultSwitchTag)
+        rule
+            .onNodeWithTag(defaultSwitchTag)
             .assertIsOff()
             .performClick()
             .assertIsOn()
@@ -150,8 +149,7 @@ class SwitchTest {
                 enabled = false
             )
         }
-        rule.onNodeWithTag(defaultSwitchTag)
-            .assertHasClickAction()
+        rule.onNodeWithTag(defaultSwitchTag).assertHasClickAction()
     }
 
     @Test
@@ -170,12 +168,10 @@ class SwitchTest {
             }
         }
 
-        rule.onNodeWithTag(defaultSwitchTag)
-            .assertHasClickAction()
+        rule.onNodeWithTag(defaultSwitchTag).assertHasClickAction()
 
         // Check not merged into parent
-        rule.onNodeWithTag(parentTag)
-            .assert(isNotFocusable())
+        rule.onNodeWithTag(parentTag).assert(isNotFocusable())
     }
 
     @Test
@@ -183,89 +179,54 @@ class SwitchTest {
         rule.setMaterialContent {
             val (checked, _) = remember { mutableStateOf(false) }
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(defaultSwitchTag)) {
-                Switch(
-                    checked,
-                    null,
-                    modifier = Modifier.semantics { focused = true }
-                )
+                Switch(checked, null, modifier = Modifier.semantics { focused = true })
             }
         }
 
-        rule.onNodeWithTag(defaultSwitchTag)
+        rule
+            .onNodeWithTag(defaultSwitchTag)
             .assertHasNoClickAction()
             .assert(isFocusable()) // Check merged into parent
     }
 
     @Test
     fun switch_materialSizes_whenChecked_minimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = true,
-            clickable = true,
-            minimumTouchTarget = true
-        )
+        materialSizesTestForValue(checked = true, clickable = true, minimumTouchTarget = true)
     }
 
     @Test
     fun switch_materialSizes_whenChecked_withoutMinimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = true,
-            clickable = true,
-            minimumTouchTarget = false
-        )
+        materialSizesTestForValue(checked = true, clickable = true, minimumTouchTarget = false)
     }
 
     @Test
     fun switch_materialSizes_whenUnchecked_minimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = false,
-            clickable = true,
-            minimumTouchTarget = true
-        )
+        materialSizesTestForValue(checked = false, clickable = true, minimumTouchTarget = true)
     }
 
     @Test
     fun switch_materialSizes_whenUnchecked_withoutMinimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = false,
-            clickable = true,
-            minimumTouchTarget = false
-        )
+        materialSizesTestForValue(checked = false, clickable = true, minimumTouchTarget = false)
     }
 
     @Test
     fun switch_materialSizes_whenChecked_notClickable_minimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = true,
-            clickable = false,
-            minimumTouchTarget = true
-        )
+        materialSizesTestForValue(checked = true, clickable = false, minimumTouchTarget = true)
     }
 
     @Test
     fun switch_materialSizes_whenChecked_notClickable_withoutMinimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = true,
-            clickable = false,
-            minimumTouchTarget = false
-        )
+        materialSizesTestForValue(checked = true, clickable = false, minimumTouchTarget = false)
     }
 
     @Test
     fun switch_materialSizes_whenUnchecked_notClickable_minimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = false,
-            clickable = false,
-            minimumTouchTarget = true
-        )
+        materialSizesTestForValue(checked = false, clickable = false, minimumTouchTarget = true)
     }
 
     @Test
     fun switch_materialSizes_whenUnchecked_notClickable_withoutMinimumTouchTarget() {
-        materialSizesTestForValue(
-            checked = false,
-            clickable = false,
-            minimumTouchTarget = false
-        )
+        materialSizesTestForValue(checked = false, clickable = false, minimumTouchTarget = false)
     }
 
     @Test
@@ -283,19 +244,13 @@ class SwitchTest {
             }
         }
 
-        rule.onNodeWithTag(defaultSwitchTag)
-            .performTouchInput { swipeRight() }
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { swipeRight() }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isEqualTo(true)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(true) }
 
-        rule.onNodeWithTag(defaultSwitchTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { swipeLeft() }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isEqualTo(false)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(false) }
     }
 
     @Test
@@ -315,19 +270,13 @@ class SwitchTest {
             }
         }
 
-        rule.onNodeWithTag(defaultSwitchTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { swipeLeft() }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isEqualTo(true)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(true) }
 
-        rule.onNodeWithTag(defaultSwitchTag)
-            .performTouchInput { swipeRight() }
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { swipeRight() }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isEqualTo(false)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(false) }
     }
 
     // regression test for b/191375128
@@ -337,9 +286,7 @@ class SwitchTest {
         var items by mutableStateOf(listOf(1 to false, 2 to true))
         rule.setContent {
             Column {
-                Button(onClick = { screenTwo.value = !screenTwo.value }) {
-                    Text("switch screen")
-                }
+                Button(onClick = { screenTwo.value = !screenTwo.value }) { Text("switch screen") }
                 val holder = rememberSaveableStateHolder()
                 holder.SaveableStateProvider(screenTwo.value) {
                     if (screenTwo.value) {
@@ -355,9 +302,10 @@ class SwitchTest {
                                         modifier = Modifier.testTag(item.first.toString()),
                                         checked = item.second,
                                         onCheckedChange = {
-                                            items = items.toMutableList().also {
-                                                it[index] = item.first to !item.second
-                                            }
+                                            items =
+                                                items.toMutableList().also {
+                                                    it[index] = item.first to !item.second
+                                                }
                                         }
                                     )
                                 }
@@ -369,18 +317,15 @@ class SwitchTest {
         }
         rule.onNodeWithTag("1").assertIsOff()
         rule.onNodeWithTag("2").assertIsOn()
+        rule.runOnIdle { screenTwo.value = true }
         rule.runOnIdle {
-            screenTwo.value = true
+            items =
+                items.toMutableList().also {
+                    it[0] = items[0].first to !items[0].second
+                    it[1] = items[1].first to !items[1].second
+                }
         }
-        rule.runOnIdle {
-            items = items.toMutableList().also {
-                it[0] = items[0].first to !items[0].second
-                it[1] = items[1].first to !items[1].second
-            }
-        }
-        rule.runOnIdle {
-            screenTwo.value = false
-        }
+        rule.runOnIdle { screenTwo.value = false }
         rule.onNodeWithTag("1").assertIsOn()
         rule.onNodeWithTag("2").assertIsOff()
     }
@@ -390,61 +335,72 @@ class SwitchTest {
         checked: Boolean,
         clickable: Boolean,
         minimumTouchTarget: Boolean
-    ) = with(rule.density) {
-        rule.setMaterialContentForSizeAssertions {
-            CompositionLocalProvider(
-                LocalMinimumInteractiveComponentEnforcement provides minimumTouchTarget
-            ) {
-                Switch(
-                    checked = checked,
-                    onCheckedChange = if (clickable) { {} } else null,
-                    enabled = false
-                )
-            }
-        }.run {
-            if (clickable && minimumTouchTarget) {
-                assertIsSquareWithSize(48.dp)
-            } else {
-                // The padding should be 2 DP, but we round to pixels when determining layout
-                val paddingInPixels = 2.dp.roundToPx()
+    ) =
+        with(rule.density) {
+            rule
+                .setMaterialContentForSizeAssertions {
+                    CompositionLocalProvider(
+                        LocalMinimumInteractiveComponentEnforcement provides minimumTouchTarget
+                    ) {
+                        Switch(
+                            checked = checked,
+                            onCheckedChange =
+                                if (clickable) {
+                                    {}
+                                } else null,
+                            enabled = false
+                        )
+                    }
+                }
+                .run {
+                    if (clickable && minimumTouchTarget) {
+                        assertIsSquareWithSize(48.dp)
+                    } else {
+                        // The padding should be 2 DP, but we round to pixels when determining
+                        // layout
+                        val paddingInPixels = 2.dp.roundToPx()
 
-                // Convert back to DP so that we have an exact DP value to work with. We don't
-                // want to multiply the error by two (one for each padding), so we get the exact
-                // padding based on the expected pixels consumed by the padding.
-                val paddingInDp = paddingInPixels.toDp()
-                assertWidthIsEqualTo(34.dp + paddingInDp * 2)
-                assertHeightIsEqualTo(20.dp + paddingInDp * 2)
-            }
+                        // Convert back to DP so that we have an exact DP value to work with. We
+                        // don't
+                        // want to multiply the error by two (one for each padding), so we get the
+                        // exact
+                        // padding based on the expected pixels consumed by the padding.
+                        val paddingInDp = paddingInPixels.toDp()
+                        assertWidthIsEqualTo(34.dp + paddingInDp * 2)
+                        assertHeightIsEqualTo(20.dp + paddingInDp * 2)
+                    }
+                }
         }
-    }
 
     /**
-     * A switch should have a minimum touch target of 48 DP x 48 DP and the reported size
-     * should match that, despite the fact that we force the size to be smaller.
+     * A switch should have a minimum touch target of 48 DP x 48 DP and the reported size should
+     * match that, despite the fact that we force the size to be smaller.
      */
     @Test
-    fun switch_minTouchTargetArea(): Unit = with(rule.density) {
-        var checked by mutableStateOf(false)
-        rule.setMaterialContent {
-            // Box is needed because otherwise the control will be expanded to fill its parent
-            Box(Modifier.fillMaxSize()) {
-                Switch(
-                    modifier = Modifier.align(Alignment.Center)
-                        .testTag(defaultSwitchTag)
-                        .requiredSize(2.dp),
-                    checked = checked,
-                    onCheckedChange = { checked = it }
-                )
+    fun switch_minTouchTargetArea(): Unit =
+        with(rule.density) {
+            var checked by mutableStateOf(false)
+            rule.setMaterialContent {
+                // Box is needed because otherwise the control will be expanded to fill its parent
+                Box(Modifier.fillMaxSize()) {
+                    Switch(
+                        modifier =
+                            Modifier.align(Alignment.Center)
+                                .testTag(defaultSwitchTag)
+                                .requiredSize(2.dp),
+                        checked = checked,
+                        onCheckedChange = { checked = it }
+                    )
+                }
             }
+            rule
+                .onNodeWithTag(defaultSwitchTag)
+                .assertIsOff()
+                .assertWidthIsEqualTo(2.dp)
+                .assertHeightIsEqualTo(2.dp)
+                .assertTouchWidthIsEqualTo(48.dp)
+                .assertTouchHeightIsEqualTo(48.dp)
+                .performTouchInput { click(position = Offset(-1f, -1f)) }
+                .assertIsOn()
         }
-        rule.onNodeWithTag(defaultSwitchTag)
-            .assertIsOff()
-            .assertWidthIsEqualTo(2.dp)
-            .assertHeightIsEqualTo(2.dp)
-            .assertTouchWidthIsEqualTo(48.dp)
-            .assertTouchHeightIsEqualTo(48.dp)
-            .performTouchInput {
-                click(position = Offset(-1f, -1f))
-            }.assertIsOn()
-    }
 }

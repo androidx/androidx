@@ -17,13 +17,16 @@
 package androidx.work
 
 internal inline fun logd(tag: String, block: () -> String) = Logger.get().debug(tag, block())
+
 internal inline fun logd(tag: String, t: Throwable, block: () -> String) =
     Logger.get().debug(tag, block(), t)
 
 internal inline fun logi(tag: String, block: () -> String) = Logger.get().info(tag, block())
+
 internal inline fun logi(tag: String, t: Throwable, block: () -> String) =
     Logger.get().info(tag, block(), t)
 
 internal inline fun loge(tag: String, block: () -> String) = Logger.get().error(tag, block())
+
 internal inline fun loge(tag: String, t: Throwable, block: () -> String) =
     Logger.get().error(tag, block(), t)

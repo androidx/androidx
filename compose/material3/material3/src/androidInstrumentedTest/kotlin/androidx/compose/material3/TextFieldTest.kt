@@ -130,53 +130,47 @@ class TextFieldTest {
     private val TextFieldWidth = 300.dp
     private val TextFieldTag = "textField"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testTextField_setSmallHeight() {
-        rule.setMaterialContentForSizeAssertions {
-            TextField(
-                value = "input",
-                onValueChange = {},
-                modifier = Modifier.height(20.dp)
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions {
+                TextField(value = "input", onValueChange = {}, modifier = Modifier.height(20.dp))
+            }
             .assertHeightIsEqualTo(20.dp)
     }
 
     @Test
     fun testTextField_setSmallWidth() {
-        rule.setMaterialContentForSizeAssertions {
-            TextField(
-                value = "input",
-                onValueChange = {},
-                modifier = Modifier.requiredWidth(40.dp)
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions {
+                TextField(
+                    value = "input",
+                    onValueChange = {},
+                    modifier = Modifier.requiredWidth(40.dp)
+                )
+            }
             .assertWidthIsEqualTo(40.dp)
     }
 
     @Test
     fun testTextField_defaultHeight() {
-        rule.setMaterialContentForSizeAssertions {
-            TextField(
-                value = "",
-                onValueChange = {},
-                textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions {
+                TextField(
+                    value = "",
+                    onValueChange = {},
+                    textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
+                )
+            }
             .assertHeightIsEqualTo(ExpectedDefaultTextFieldHeight)
     }
 
     @Test
     fun testTextField_defaultWidth() {
-        rule.setMaterialContentForSizeAssertions {
-            TextField(
-                value = "input",
-                onValueChange = {}
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions { TextField(value = "input", onValueChange = {}) }
             .assertWidthIsEqualTo(ExpectedDefaultTextFieldWidth)
     }
 
@@ -210,12 +204,8 @@ class TextFieldTest {
         val interactions1 = mutableListOf<Interaction>()
         val interactions2 = mutableListOf<Interaction>()
 
-        scope!!.launch {
-            interactionSource1.interactions.collect { interactions1.add(it) }
-        }
-        scope!!.launch {
-            interactionSource2.interactions.collect { interactions2.add(it) }
-        }
+        scope!!.launch { interactionSource1.interactions.collect { interactions1.add(it) } }
+        scope!!.launch { interactionSource2.interactions.collect { interactions2.add(it) } }
 
         rule.runOnIdle {
             assertThat(interactions1).isEmpty()
@@ -258,18 +248,12 @@ class TextFieldTest {
 
         val interactions = mutableListOf<Interaction>()
 
-        scope!!.launch {
-            interactionSource.interactions.collect { interactions.add(it) }
-        }
+        scope!!.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.runOnIdle {
-            assertThat(interactions).isEmpty()
-        }
+        rule.runOnIdle { assertThat(interactions).isEmpty() }
 
         // Click on (2, 2) which is Surface area and outside input area
-        rule.onNodeWithTag(TextFieldTag).performTouchInput {
-            click(Offset(2f, 2f))
-        }
+        rule.onNodeWithTag(TextFieldTag).performTouchInput { click(Offset(2f, 2f)) }
 
         rule.runOnIdle {
             // Not asserting total size as we have other interactions here too
@@ -285,11 +269,11 @@ class TextFieldTest {
             hostView = LocalView.current
             Box {
                 TextField(
-                    modifier = Modifier
-                        .focusRequester(parentFocusRequester)
-                        .focusTarget()
-                        .focusRequester(focusRequester)
-                        .testTag(TextFieldTag),
+                    modifier =
+                        Modifier.focusRequester(parentFocusRequester)
+                            .focusTarget()
+                            .focusRequester(focusRequester)
+                            .testTag(TextFieldTag),
                     value = "input",
                     onValueChange = {}
                 )
@@ -316,11 +300,11 @@ class TextFieldTest {
             softwareKeyboardController = LocalSoftwareKeyboardController.current
             Box {
                 TextField(
-                    modifier = Modifier
-                        .focusRequester(parentFocusRequester)
-                        .focusTarget()
-                        .focusRequester(focusRequester)
-                        .testTag(TextFieldTag),
+                    modifier =
+                        Modifier.focusRequester(parentFocusRequester)
+                            .focusTarget()
+                            .focusRequester(focusRequester)
+                            .testTag(TextFieldTag),
                     value = "input",
                     onValueChange = {}
                 )
@@ -349,11 +333,9 @@ class TextFieldTest {
                 singleLine = true,
                 label = {
                     Box(
-                        Modifier
-                            .size(MinTextLineHeight)
-                            .onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinTextLineHeight).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -363,9 +345,9 @@ class TextFieldTest {
             // x position is start + padding
             assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // y position is centered
-            assertThat(labelPosition.value?.y).isWithin(1f).of(
-                (ExpectedDefaultTextFieldHeight - MinTextLineHeight).toPx() / 2f
-            )
+            assertThat(labelPosition.value?.y)
+                .isWithin(1f)
+                .of((ExpectedDefaultTextFieldHeight - MinTextLineHeight).toPx() / 2f)
         }
     }
 
@@ -378,11 +360,9 @@ class TextFieldTest {
                 onValueChange = {},
                 label = {
                     Box(
-                        Modifier
-                            .size(MinTextLineHeight)
-                            .onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinTextLineHeight).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -407,11 +387,9 @@ class TextFieldTest {
                 modifier = Modifier.height(height),
                 label = {
                     Box(
-                        Modifier
-                            .size(MinTextLineHeight)
-                            .onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinTextLineHeight).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -435,11 +413,9 @@ class TextFieldTest {
                 onValueChange = {},
                 label = {
                     Box(
-                        Modifier
-                            .size(MinFocusedLabelLineHeight)
-                            .onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinFocusedLabelLineHeight).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -452,9 +428,9 @@ class TextFieldTest {
             // x position is start + padding
             assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // y position is top + (different) padding
-            assertThat(labelPosition.value?.y).isWithin(1f).of(
-                TextFieldWithLabelVerticalPadding.toPx()
-            )
+            assertThat(labelPosition.value?.y)
+                .isWithin(1f)
+                .of(TextFieldWithLabelVerticalPadding.toPx())
         }
     }
 
@@ -467,11 +443,9 @@ class TextFieldTest {
                 onValueChange = {},
                 label = {
                     Box(
-                        Modifier
-                            .size(MinFocusedLabelLineHeight)
-                            .onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinFocusedLabelLineHeight).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -481,9 +455,9 @@ class TextFieldTest {
             // x position is start + padding
             assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // y position is top + (different) padding
-            assertThat(labelPosition.value?.y).isWithin(1f).of(
-                TextFieldWithLabelVerticalPadding.toPx()
-            )
+            assertThat(labelPosition.value?.y)
+                .isWithin(1f)
+                .of(TextFieldWithLabelVerticalPadding.toPx())
         }
     }
 
@@ -498,11 +472,9 @@ class TextFieldTest {
                 label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                 placeholder = {
                     Box(
-                        Modifier
-                            .size(MinTextLineHeight)
-                            .onGloballyPositioned {
-                                placeholderPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinTextLineHeight).onGloballyPositioned {
+                            placeholderPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -515,9 +487,9 @@ class TextFieldTest {
             // x position is start + padding
             assertThat(placeholderPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // y position is top + padding + label height
-            assertThat(placeholderPosition.value?.y).isWithin(1f).of(
-                (TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight).toPx()
-            )
+            assertThat(placeholderPosition.value?.y)
+                .isWithin(1f)
+                .of((TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight).toPx())
         }
     }
 
@@ -531,11 +503,9 @@ class TextFieldTest {
                 onValueChange = {},
                 placeholder = {
                     Box(
-                        Modifier
-                            .size(MinTextLineHeight)
-                            .onGloballyPositioned {
-                                placeholderPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinTextLineHeight).onGloballyPositioned {
+                            placeholderPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -564,10 +534,11 @@ class TextFieldTest {
                 placeholder = {
                     Text(
                         text = "placeholder",
-                        modifier = Modifier.onGloballyPositioned {
-                            placeholderPosition.value = it.positionInRoot()
-                            placeholderSize.value = it.size
-                        }
+                        modifier =
+                            Modifier.onGloballyPositioned {
+                                placeholderPosition.value = it.positionInRoot()
+                                placeholderSize.value = it.size
+                            }
                     )
                 }
             )
@@ -591,8 +562,7 @@ class TextFieldTest {
                 onValueChange = {},
                 placeholder = {
                     Text("placeholder")
-                    assertThat(LocalTextStyle.current)
-                        .isEqualTo(MaterialTheme.typography.bodyLarge)
+                    assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodyLarge)
                 }
             )
         }
@@ -610,10 +580,11 @@ class TextFieldTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 value = text.value,
                 onValueChange = { text.value = it },
-                colors = TextFieldDefaults.colors(
-                    focusedPlaceholderColor = Color.Red,
-                    unfocusedPlaceholderColor = Color.Green,
-                ),
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.Red,
+                        unfocusedPlaceholderColor = Color.Green,
+                    ),
                 placeholder = {
                     Text("Placeholder")
                     assertThat(LocalContentColor.current)
@@ -648,20 +619,16 @@ class TextFieldTest {
                 onValueChange = {},
                 label = {
                     Box(
-                        Modifier
-                            .size(labelSize)
-                            .onGloballyPositioned {
-                                labelPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(labelSize).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
                     )
                 },
                 placeholder = {
                     Box(
-                        Modifier
-                            .size(placeholderSize)
-                            .onGloballyPositioned {
-                                placeholderPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(placeholderSize).onGloballyPositioned {
+                            placeholderPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -678,19 +645,26 @@ class TextFieldTest {
             // label x position is start + padding
             assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // label y position is top + padding, then centered within allocated space
-            assertThat(labelPosition.value?.y).isWithin(1f).of(
-                (TextFieldWithLabelVerticalPadding + (MinFocusedLabelLineHeight - labelSize) / 2)
-                    .toPx()
-            )
+            assertThat(labelPosition.value?.y)
+                .isWithin(1f)
+                .of(
+                    (TextFieldWithLabelVerticalPadding +
+                            (MinFocusedLabelLineHeight - labelSize) / 2)
+                        .toPx()
+                )
 
             // placeholder x position is start + padding
             assertThat(placeholderPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // placeholder y position is top + padding + label height, then centered within
             // allocated space
-            assertThat(placeholderPosition.value?.y).isWithin(1f).of(
-                (TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight +
-                    (MinTextLineHeight - placeholderSize) / 2).toPx()
-            )
+            assertThat(placeholderPosition.value?.y)
+                .isWithin(1f)
+                .of(
+                    (TextFieldWithLabelVerticalPadding +
+                            MinFocusedLabelLineHeight +
+                            (MinTextLineHeight - placeholderSize) / 2)
+                        .toPx()
+                )
         }
     }
 
@@ -739,27 +713,27 @@ class TextFieldTest {
                 // leading
                 assertThat(leadingSize.value).isEqualTo(IntSize(size.roundToPx(), size.roundToPx()))
                 assertThat(leadingPosition.value?.x).isEqualTo(IconPadding.roundToPx().toFloat())
-                assertThat(leadingPosition.value?.y).isEqualTo(
-                    ((textFieldHeight.roundToPx() - leadingSize.value!!.height) / 2f).roundToInt()
-                        .toFloat()
-                )
-                // trailing
-                assertThat(trailingSize.value).isEqualTo(
-                    IntSize(
-                        size.roundToPx(),
-                        size.roundToPx()
+                assertThat(leadingPosition.value?.y)
+                    .isEqualTo(
+                        ((textFieldHeight.roundToPx() - leadingSize.value!!.height) / 2f)
+                            .roundToInt()
+                            .toFloat()
                     )
-                )
-                assertThat(trailingPosition.value?.x).isEqualTo(
-                    (
-                        TextFieldWidth.roundToPx() - IconPadding.roundToPx() -
-                            trailingSize.value!!.width
-                        ).toFloat()
-                )
+                // trailing
+                assertThat(trailingSize.value)
+                    .isEqualTo(IntSize(size.roundToPx(), size.roundToPx()))
+                assertThat(trailingPosition.value?.x)
+                    .isEqualTo(
+                        (TextFieldWidth.roundToPx() -
+                                IconPadding.roundToPx() -
+                                trailingSize.value!!.width)
+                            .toFloat()
+                    )
                 assertThat(trailingPosition.value?.y)
                     .isEqualTo(
                         ((textFieldHeight.roundToPx() - trailingSize.value!!.height) / 2f)
-                            .roundToInt().toFloat()
+                            .roundToInt()
+                            .toFloat()
                     )
             }
         }
@@ -784,10 +758,11 @@ class TextFieldTest {
                     leadingIcon = {
                         IconButton(
                             onClick = {},
-                            modifier = Modifier.onGloballyPositioned {
-                                leadingPosition = it.positionInRoot()
-                                leadingSize = it.size
-                            }
+                            modifier =
+                                Modifier.onGloballyPositioned {
+                                    leadingPosition = it.positionInRoot()
+                                    leadingSize = it.size
+                                }
                         ) {
                             Icon(Icons.Default.Favorite, null)
                         }
@@ -795,10 +770,11 @@ class TextFieldTest {
                     trailingIcon = {
                         IconButton(
                             onClick = {},
-                            modifier = Modifier.onGloballyPositioned {
-                                trailingPosition = it.positionInRoot()
-                                trailingSize = it.size
-                            }
+                            modifier =
+                                Modifier.onGloballyPositioned {
+                                    trailingPosition = it.positionInRoot()
+                                    trailingSize = it.size
+                                }
                         ) {
                             Icon(Icons.Default.Favorite, null)
                         }
@@ -814,21 +790,21 @@ class TextFieldTest {
                 // leading
                 assertThat(leadingSize).isEqualTo(IntSize(size.roundToPx(), size.roundToPx()))
                 assertThat(leadingPosition?.x).isEqualTo(0f)
-                assertThat(leadingPosition?.y).isEqualTo(
-                    ((textFieldHeight.roundToPx() - leadingSize!!.height) / 2f).roundToInt()
-                        .toFloat()
-                )
+                assertThat(leadingPosition?.y)
+                    .isEqualTo(
+                        ((textFieldHeight.roundToPx() - leadingSize!!.height) / 2f)
+                            .roundToInt()
+                            .toFloat()
+                    )
                 // trailing
-                assertThat(trailingSize).isEqualTo(
-                    IntSize(size.roundToPx(), size.roundToPx())
-                )
-                assertThat(trailingPosition?.x).isEqualTo(
-                    (TextFieldWidth.roundToPx() - trailingSize!!.width).toFloat()
-                )
+                assertThat(trailingSize).isEqualTo(IntSize(size.roundToPx(), size.roundToPx()))
+                assertThat(trailingPosition?.x)
+                    .isEqualTo((TextFieldWidth.roundToPx() - trailingSize!!.width).toFloat())
                 assertThat(trailingPosition?.y)
                     .isEqualTo(
                         ((textFieldHeight.roundToPx() - trailingSize!!.height) / 2f)
-                            .roundToInt().toFloat()
+                            .roundToInt()
+                            .toFloat()
                     )
             }
         }
@@ -853,22 +829,18 @@ class TextFieldTest {
                     modifier = Modifier.size(TextFieldWidth, textFieldHeight),
                     leadingIcon = {
                         Box(
-                            Modifier
-                                .size(size)
-                                .onGloballyPositioned {
-                                    leadingPosition = it.positionInRoot()
-                                    leadingSize = it.size
-                                }
+                            Modifier.size(size).onGloballyPositioned {
+                                leadingPosition = it.positionInRoot()
+                                leadingSize = it.size
+                            }
                         )
                     },
                     trailingIcon = {
                         Box(
-                            Modifier
-                                .size(size)
-                                .onGloballyPositioned {
-                                    trailingPosition = it.positionInRoot()
-                                    trailingSize = it.size
-                                }
+                            Modifier.size(size).onGloballyPositioned {
+                                trailingPosition = it.positionInRoot()
+                                trailingSize = it.size
+                            }
                         )
                     }
                 )
@@ -880,21 +852,21 @@ class TextFieldTest {
                 // leading
                 assertThat(leadingSize).isEqualTo(IntSize(size.roundToPx(), size.roundToPx()))
                 assertThat(leadingPosition?.x).isEqualTo(0f)
-                assertThat(leadingPosition?.y).isEqualTo(
-                    ((textFieldHeight.roundToPx() - leadingSize!!.height) / 2f).roundToInt()
-                        .toFloat()
-                )
+                assertThat(leadingPosition?.y)
+                    .isEqualTo(
+                        ((textFieldHeight.roundToPx() - leadingSize!!.height) / 2f)
+                            .roundToInt()
+                            .toFloat()
+                    )
                 // trailing
-                assertThat(trailingSize).isEqualTo(
-                    IntSize(size.roundToPx(), size.roundToPx())
-                )
-                assertThat(trailingPosition?.x).isEqualTo(
-                    (TextFieldWidth.roundToPx() - trailingSize!!.width).toFloat()
-                )
+                assertThat(trailingSize).isEqualTo(IntSize(size.roundToPx(), size.roundToPx()))
+                assertThat(trailingPosition?.x)
+                    .isEqualTo((TextFieldWidth.roundToPx() - trailingSize!!.width).toFloat())
                 assertThat(trailingPosition?.y)
                     .isEqualTo(
                         ((textFieldHeight.roundToPx() - trailingSize!!.height) / 2f)
-                            .roundToInt().toFloat()
+                            .roundToInt()
+                            .toFloat()
                     )
             }
         }
@@ -917,20 +889,16 @@ class TextFieldTest {
                     label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                     prefix = {
                         Box(
-                            Modifier
-                                .size(prefixSize)
-                                .onGloballyPositioned {
-                                    prefixPosition.value = it.positionInRoot()
-                                }
+                            Modifier.size(prefixSize).onGloballyPositioned {
+                                prefixPosition.value = it.positionInRoot()
+                            }
                         )
                     },
                     suffix = {
                         Box(
-                            Modifier
-                                .size(suffixSize)
-                                .onGloballyPositioned {
-                                    suffixPosition.value = it.positionInRoot()
-                                }
+                            Modifier.size(suffixSize).onGloballyPositioned {
+                                suffixPosition.value = it.positionInRoot()
+                            }
                         )
                     }
                 )
@@ -941,17 +909,17 @@ class TextFieldTest {
             with(density) {
                 // prefix
                 assertThat(prefixPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
-                assertThat(prefixPosition.value?.y).isWithin(1f).of(
-                    (TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight).toPx()
-                )
+                assertThat(prefixPosition.value?.y)
+                    .isWithin(1f)
+                    .of((TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight).toPx())
 
                 // suffix
-                assertThat(suffixPosition.value?.x).isWithin(1f).of(
-                    (TextFieldWidth - ExpectedPadding - suffixSize).toPx()
-                )
-                assertThat(suffixPosition.value?.y).isWithin(1f).of(
-                    (TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight).toPx()
-                )
+                assertThat(suffixPosition.value?.x)
+                    .isWithin(1f)
+                    .of((TextFieldWidth - ExpectedPadding - suffixSize).toPx())
+                assertThat(suffixPosition.value?.y)
+                    .isWithin(1f)
+                    .of((TextFieldWithLabelVerticalPadding + MinFocusedLabelLineHeight).toPx())
             }
         }
     }
@@ -972,20 +940,16 @@ class TextFieldTest {
                     modifier = Modifier.width(TextFieldWidth),
                     prefix = {
                         Box(
-                            Modifier
-                                .size(prefixSize)
-                                .onGloballyPositioned {
-                                    prefixPosition.value = it.positionInRoot()
-                                }
+                            Modifier.size(prefixSize).onGloballyPositioned {
+                                prefixPosition.value = it.positionInRoot()
+                            }
                         )
                     },
                     suffix = {
                         Box(
-                            Modifier
-                                .size(suffixSize)
-                                .onGloballyPositioned {
-                                    suffixPosition.value = it.positionInRoot()
-                                }
+                            Modifier.size(suffixSize).onGloballyPositioned {
+                                suffixPosition.value = it.positionInRoot()
+                            }
                         )
                     }
                 )
@@ -999,9 +963,9 @@ class TextFieldTest {
                 assertThat(prefixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
 
                 // suffix
-                assertThat(suffixPosition.value?.x).isWithin(1f).of(
-                    (TextFieldWidth - ExpectedPadding - suffixSize).toPx()
-                )
+                assertThat(suffixPosition.value?.x)
+                    .isWithin(1f)
+                    .of((TextFieldWidth - ExpectedPadding - suffixSize).toPx())
                 assertThat(suffixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
             }
         }
@@ -1023,20 +987,16 @@ class TextFieldTest {
                     modifier = Modifier.width(TextFieldWidth),
                     prefix = {
                         Box(
-                            Modifier
-                                .size(prefixSize)
-                                .onGloballyPositioned {
-                                    prefixPosition.value = it.positionInRoot()
-                                }
+                            Modifier.size(prefixSize).onGloballyPositioned {
+                                prefixPosition.value = it.positionInRoot()
+                            }
                         )
                     },
                     suffix = {
                         Box(
-                            Modifier
-                                .size(suffixSize)
-                                .onGloballyPositioned {
-                                    suffixPosition.value = it.positionInRoot()
-                                }
+                            Modifier.size(suffixSize).onGloballyPositioned {
+                                suffixPosition.value = it.positionInRoot()
+                            }
                         )
                     },
                     leadingIcon = { Icon(Icons.Default.Favorite, null) },
@@ -1050,15 +1010,18 @@ class TextFieldTest {
                 val iconSize = 24.dp // default icon size
 
                 // prefix
-                assertThat(prefixPosition.value?.x).isWithin(1f).of(
-                    (ExpectedPadding + IconPadding + iconSize).toPx()
-                )
+                assertThat(prefixPosition.value?.x)
+                    .isWithin(1f)
+                    .of((ExpectedPadding + IconPadding + iconSize).toPx())
                 assertThat(prefixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
 
                 // suffix
-                assertThat(suffixPosition.value?.x).isWithin(1f).of(
-                    (TextFieldWidth - IconPadding - iconSize - ExpectedPadding - suffixSize).toPx()
-                )
+                assertThat(suffixPosition.value?.x)
+                    .isWithin(1f)
+                    .of(
+                        (TextFieldWidth - IconPadding - iconSize - ExpectedPadding - suffixSize)
+                            .toPx()
+                    )
                 assertThat(suffixPosition.value?.y).isWithin(1f).of(ExpectedPadding.toPx())
             }
         }
@@ -1074,9 +1037,10 @@ class TextFieldTest {
                 label = {
                     Text(
                         text = "label",
-                        modifier = Modifier.onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                        modifier =
+                            Modifier.onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 },
                 trailingIcon = { Icon(Icons.Default.Favorite, null) },
@@ -1086,9 +1050,9 @@ class TextFieldTest {
 
         rule.runOnIdleWithDensity {
             val iconSize = 24.dp // default icon size
-            assertThat(labelPosition.value?.x).isWithin(1f).of(
-                (ExpectedPadding + IconPadding + iconSize).toPx()
-            )
+            assertThat(labelPosition.value?.x)
+                .isWithin(1f)
+                .of((ExpectedPadding + IconPadding + iconSize).toPx())
         }
     }
 
@@ -1102,9 +1066,10 @@ class TextFieldTest {
                 label = {
                     Text(
                         text = "label",
-                        modifier = Modifier.onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                        }
+                        modifier =
+                            Modifier.onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
                     )
                 },
                 trailingIcon = null,
@@ -1164,11 +1129,9 @@ class TextFieldTest {
                 textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
                 supportingText = {
                     Box(
-                        Modifier
-                            .size(MinSupportingTextLineHeight)
-                            .onGloballyPositioned {
-                                supportingPosition.value = it.positionInRoot()
-                            }
+                        Modifier.size(MinSupportingTextLineHeight).onGloballyPositioned {
+                            supportingPosition.value = it.positionInRoot()
+                        }
                     )
                 }
             )
@@ -1176,9 +1139,9 @@ class TextFieldTest {
 
         rule.runOnIdleWithDensity {
             assertThat(supportingPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
-            assertThat(supportingPosition.value?.y).isWithin(1f).of(
-                (ExpectedDefaultTextFieldHeight + SupportingTopPadding).toPx()
-            )
+            assertThat(supportingPosition.value?.y)
+                .isWithin(1f)
+                .of((ExpectedDefaultTextFieldHeight + SupportingTopPadding).toPx())
         }
     }
 
@@ -1190,16 +1153,13 @@ class TextFieldTest {
             TextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.onGloballyPositioned {
-                    tfSize.value = it.size
-                },
+                modifier = Modifier.onGloballyPositioned { tfSize.value = it.size },
                 supportingText = {
                     Text(
-                        text = "Long long long long long long long long long long long long " +
-                            "long long long long long long long long long long long long",
-                        modifier = Modifier.onGloballyPositioned {
-                            supportingSize.value = it.size
-                        }
+                        text =
+                            "Long long long long long long long long long long long long " +
+                                "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned { supportingSize.value = it.size }
                     )
                 }
             )
@@ -1217,17 +1177,14 @@ class TextFieldTest {
             TextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.onGloballyPositioned {
-                    tfSize.value = it.size
-                },
+                modifier = Modifier.onGloballyPositioned { tfSize.value = it.size },
                 supportingText = { Text("Supporting") }
             )
         }
 
         rule.runOnIdleWithDensity {
-            assertThat(tfSize.value!!.height).isGreaterThan(
-                ExpectedDefaultTextFieldHeight.roundToPx()
-            )
+            assertThat(tfSize.value!!.height)
+                .isGreaterThan(ExpectedDefaultTextFieldHeight.roundToPx())
         }
     }
 
@@ -1235,11 +1192,7 @@ class TextFieldTest {
     fun testTextField_supportingText_remainsVisibleWithTallInput() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = buildString {
-                    repeat(200) {
-                        append("line $it\n")
-                    }
-                },
+                value = buildString { repeat(200) { append("line $it\n") } },
                 onValueChange = {},
                 modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
                 supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
@@ -1262,9 +1215,7 @@ class TextFieldTest {
         }
 
         rule.onNodeWithText("Supporting").performClick()
-        rule.runOnIdle {
-            assertThat(focused).isTrue()
-        }
+        rule.runOnIdle { assertThat(focused).isTrue() }
     }
 
     @Test
@@ -1274,8 +1225,7 @@ class TextFieldTest {
                 value = "",
                 onValueChange = {},
                 supportingText = {
-                    assertThat(LocalTextStyle.current)
-                        .isEqualTo(MaterialTheme.typography.bodySmall)
+                    assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodySmall)
                     assertThat(LocalContentColor.current)
                         .isEqualTo(MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -1291,10 +1241,8 @@ class TextFieldTest {
                 onValueChange = {},
                 isError = true,
                 supportingText = {
-                    assertThat(LocalTextStyle.current)
-                        .isEqualTo(MaterialTheme.typography.bodySmall)
-                    assertThat(LocalContentColor.current)
-                        .isEqualTo(MaterialTheme.colorScheme.error)
+                    assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodySmall)
+                    assertThat(LocalContentColor.current).isEqualTo(MaterialTheme.colorScheme.error)
                 }
             )
         }
@@ -1319,10 +1267,8 @@ class TextFieldTest {
                     modifier = Modifier.testTag(TextFieldTag),
                     value = text.value,
                     onValueChange = { text.value = it },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Go,
-                        keyboardType = KeyboardType.Email
-                    )
+                    keyboardOptions =
+                        KeyboardOptions(imeAction = ImeAction.Go, keyboardType = KeyboardType.Email)
                 )
             }
         }
@@ -1333,8 +1279,8 @@ class TextFieldTest {
             @Suppress("NAME_SHADOWING")
             val editorInfo = editorInfo ?: throw AssertionError("Input session never started")
             val expectedOptions = EditorInfo.IME_ACTION_GO
-            val expectedInputType = EditorInfo.TYPE_CLASS_TEXT or
-                EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            val expectedInputType =
+                EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
             assertThat(editorInfo.imeOptions and expectedOptions).isEqualTo(expectedOptions)
             assertThat(editorInfo.inputType and expectedInputType).isEqualTo(expectedInputType)
         }
@@ -1355,7 +1301,8 @@ class TextFieldTest {
             )
         }
 
-        rule.onNodeWithTag(TextFieldTag)
+        rule
+            .onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1380,28 +1327,26 @@ class TextFieldTest {
                     onValueChange = {},
                     label = { Text("label") },
                     shape = RectangleShape,
-                    leadingIcon = {
-                        Icon(Icons.Default.Favorite, null, tint = Color.Transparent)
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Default.Favorite, null, tint = Color.Transparent)
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Blue,
-                        unfocusedContainerColor = Color.Blue,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.Transparent,
-                        unfocusedTextColor = Color.Transparent,
-                        cursorColor = Color.Transparent,
-                        focusedLabelColor = Color.Transparent,
-                        unfocusedLabelColor = Color.Transparent
-                    )
+                    leadingIcon = { Icon(Icons.Default.Favorite, null, tint = Color.Transparent) },
+                    trailingIcon = { Icon(Icons.Default.Favorite, null, tint = Color.Transparent) },
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Blue,
+                            unfocusedContainerColor = Color.Blue,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedTextColor = Color.Transparent,
+                            unfocusedTextColor = Color.Transparent,
+                            cursorColor = Color.Transparent,
+                            focusedLabelColor = Color.Transparent,
+                            unfocusedLabelColor = Color.Transparent
+                        )
                 )
             }
         }
 
-        rule.onNodeWithTag(TextFieldTag)
+        rule
+            .onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1414,7 +1359,8 @@ class TextFieldTest {
 
         rule.onNodeWithTag(TextFieldTag).performClick()
 
-        rule.onNodeWithTag(TextFieldTag)
+        rule
+            .onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1438,11 +1384,13 @@ class TextFieldTest {
                 append(prefix)
                 append(text)
             }
-            val mapping = object : OffsetMapping {
-                override fun originalToTransformed(offset: Int) = offset + prefix.length
-                override fun transformedToOriginal(offset: Int) =
-                    (offset - prefix.length).coerceAtLeast(0)
-            }
+            val mapping =
+                object : OffsetMapping {
+                    override fun originalToTransformed(offset: Int) = offset + prefix.length
+
+                    override fun transformedToOriginal(offset: Int) =
+                        (offset - prefix.length).coerceAtLeast(0)
+                }
             TransformedText(transformed, mapping)
         }
         rule.setMaterialContent(lightColorScheme()) {
@@ -1457,7 +1405,8 @@ class TextFieldTest {
                 colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
             )
         }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), true)
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), true)
             .captureToImage()
             .assertPixels { Color.Red }
     }
@@ -1474,11 +1423,13 @@ class TextFieldTest {
                 append(prefix)
                 append(text)
             }
-            val mapping = object : OffsetMapping {
-                override fun originalToTransformed(offset: Int) = offset + prefix.length
-                override fun transformedToOriginal(offset: Int) =
-                    (offset - prefix.length).coerceAtLeast(0)
-            }
+            val mapping =
+                object : OffsetMapping {
+                    override fun originalToTransformed(offset: Int) = offset + prefix.length
+
+                    override fun transformedToOriginal(offset: Int) =
+                        (offset - prefix.length).coerceAtLeast(0)
+                }
             TransformedText(transformed, mapping)
         }
         // While surface is not used in TextField, setMaterialContent wraps content in a Surface
@@ -1497,32 +1448,26 @@ class TextFieldTest {
                     )
                 },
                 textStyle = TextStyle(color = Color.White),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
+                colors =
+                    TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.White,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
             )
         }
-        rule.onNodeWithTag(TextFieldTag)
-            .captureToImage()
-            .assertPixels {
-                Color.White
-            }
+        rule.onNodeWithTag(TextFieldTag).captureToImage().assertPixels { Color.White }
     }
 
     @Test
     fun testTextField_errorSemantics_defaultMessage() {
         lateinit var errorMessage: String
         rule.setMaterialContent(lightColorScheme()) {
-            TextField(
-                value = "test",
-                onValueChange = {},
-                isError = true
-            )
+            TextField(value = "test", onValueChange = {}, isError = true)
             errorMessage = getString(DefaultErrorMessage)
         }
 
-        rule.onNodeWithText("test")
+        rule
+            .onNodeWithText("test")
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
     }
@@ -1536,20 +1481,23 @@ class TextFieldTest {
             TextField(
                 value = "test",
                 onValueChange = {},
-                modifier = Modifier
-                    .testTag(TextFieldTag)
-                    .semantics { if (isError.value) error(errorMessage) },
+                modifier =
+                    Modifier.testTag(TextFieldTag).semantics {
+                        if (isError.value) error(errorMessage)
+                    },
                 isError = isError.value
             )
             defaultErrorMessage = getString(DefaultErrorMessage)
         }
 
-        rule.onNodeWithTag(TextFieldTag)
+        rule
+            .onNodeWithTag(TextFieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
 
         // Check that default error message is overwritten and not lingering in a child node
-        rule.onNodeWithTag(TextFieldTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TextFieldTag, useUnmergedTree = true)
             .onChildren()
             .fetchSemanticsNodes()
             .forEach { node ->
@@ -1569,11 +1517,7 @@ class TextFieldTest {
                         thickness = 10.dp,
                         modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
-                    TextField(
-                        value = "",
-                        label = { Text(text = "Label") },
-                        onValueChange = {}
-                    )
+                    TextField(value = "", label = { Text(text = "Label") }, onValueChange = {})
                 }
             }
         }
@@ -1632,9 +1576,11 @@ class TextFieldTest {
                     contentColor = LocalContentColor.current
                 },
                 modifier = Modifier.focusRequester(focusRequester),
-                colors = TextFieldDefaults.colors(
-                    unfocusedLabelColor = unfocusedLabelColor, focusedLabelColor = focusedLabelColor
-                )
+                colors =
+                    TextFieldDefaults.colors(
+                        unfocusedLabelColor = unfocusedLabelColor,
+                        focusedLabelColor = focusedLabelColor
+                    )
             )
         }
 
@@ -1643,9 +1589,7 @@ class TextFieldTest {
             assertThat(textStyle.color).isEqualTo(Color.Unspecified)
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         rule.runOnIdle {
             assertThat(contentColor).isEqualTo(focusedLabelColor)
@@ -1674,10 +1618,11 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedLabelColor = unfocusedLabelColor,
-                        focusedLabelColor = focusedLabelColor
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            unfocusedLabelColor = unfocusedLabelColor,
+                            focusedLabelColor = focusedLabelColor
+                        )
                 )
             }
         }
@@ -1687,9 +1632,7 @@ class TextFieldTest {
             assertThat(contentColor).isEqualTo(unfocusedLabelColor)
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         rule.runOnIdle {
             assertThat(textStyle.color).isEqualTo(bodySmallColor)
@@ -1717,17 +1660,16 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedLabelColor = expectedLabelColor,
-                        focusedLabelColor = focusedLabelColor
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            unfocusedLabelColor = expectedLabelColor,
+                            focusedLabelColor = focusedLabelColor
+                        )
                 )
             }
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         // advance to middle of animation
         rule.mainClock.advanceTimeBy(TextFieldAnimationDuration.toLong() / 2)
@@ -1763,10 +1705,11 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedLabelColor = unfocusedLabelColor,
-                        focusedLabelColor = focusedLabelColor
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            unfocusedLabelColor = unfocusedLabelColor,
+                            focusedLabelColor = focusedLabelColor
+                        )
                 )
             }
         }
@@ -1776,9 +1719,7 @@ class TextFieldTest {
             assertThat(contentColor).isEqualTo(unfocusedLabelColor)
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         rule.runOnIdle {
             assertThat(textStyle.color).isEqualTo(bodySmallColor)
@@ -1791,9 +1732,7 @@ class TextFieldTest {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
+            Box(Modifier.onGloballyPositioned { height = it.size.height }) {
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     TextField(
                         value = text.value,
@@ -1814,9 +1753,7 @@ class TextFieldTest {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
+            Box(Modifier.onGloballyPositioned { height = it.size.height }) {
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     TextField(
                         value = text.value,
@@ -1843,17 +1780,12 @@ class TextFieldTest {
         val text = "Long text input. ".repeat(20)
         rule.setMaterialContent(lightColorScheme()) {
             Row {
-                Box(
-                    Modifier
-                        .width(150.dp)
-                        .height(IntrinsicSize.Min)
-                ) {
+                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     TextField(
                         value = text,
                         onValueChange = {},
-                        modifier = Modifier.onGloballyPositioned {
-                            tfHeightIntrinsic = it.size.height
-                        },
+                        modifier =
+                            Modifier.onGloballyPositioned { tfHeightIntrinsic = it.size.height },
                         leadingIcon = { Icon(Icons.Default.Favorite, null) },
                         trailingIcon = { Icon(Icons.Default.Favorite, null) },
                         prefix = { Text("P") },
@@ -1865,9 +1797,8 @@ class TextFieldTest {
                     TextField(
                         value = text,
                         onValueChange = {},
-                        modifier = Modifier.onGloballyPositioned {
-                            tfHeightNoIntrinsic = it.size.height
-                        },
+                        modifier =
+                            Modifier.onGloballyPositioned { tfHeightNoIntrinsic = it.size.height },
                         leadingIcon = { Icon(Icons.Default.Favorite, null) },
                         trailingIcon = { Icon(Icons.Default.Favorite, null) },
                         prefix = { Text("P") },
@@ -1904,33 +1835,23 @@ class TextFieldTest {
             )
         }
 
-        rule.onNodeWithTag(TextFieldTag)
-            .performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
         rule.waitForIdle()
 
-        rule.onNodeWithTag(TextFieldTag)
-            .performTextClearance()
+        rule.onNodeWithTag(TextFieldTag).performTextClearance()
 
-        rule.runOnIdle {
-            assertThat(callbackCounter).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(callbackCounter).isEqualTo(1) }
     }
+
     @Test
     fun testTextFields_noCrashConstraintsInfinity() {
 
         rule.setMaterialContent(lightColorScheme()) {
             Column(
-                modifier = Modifier
-                    .height(IntrinsicSize.Min)
-                    .horizontalScroll(
-                        rememberScrollState()
-                    )
+                modifier =
+                    Modifier.height(IntrinsicSize.Min).horizontalScroll(rememberScrollState())
             ) {
-                TextField(
-                    value = "Cat",
-                    onValueChange = {},
-                    leadingIcon = { Text("Icon") }
-                )
+                TextField(value = "Cat", onValueChange = {}, leadingIcon = { Text("Icon") })
             }
         }
     }

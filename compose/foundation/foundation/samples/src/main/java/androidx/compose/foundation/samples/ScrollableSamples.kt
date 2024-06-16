@@ -17,9 +17,6 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,17 +64,17 @@ fun ScrollableSample() {
     // actual composable state that we will show on UI and update in `Scrollable`
     val offset = remember { mutableStateOf(0f) }
     Box(
-        Modifier
-            .size(150.dp)
+        Modifier.size(150.dp)
             .scrollable(
                 orientation = Orientation.Vertical,
                 // state for Scrollable, describes how consume scroll amount
-                state = rememberScrollableState { delta ->
-                    // use the scroll data and indicate how much this element consumed.
-                    // unconsumed deltas will be propagated to nested scrollables (if present)
-                    offset.value = offset.value + delta // update the state
-                    delta // indicate that we consumed all the pixels available
-                }
+                state =
+                    rememberScrollableState { delta ->
+                        // use the scroll data and indicate how much this element consumed.
+                        // unconsumed deltas will be propagated to nested scrollables (if present)
+                        offset.value = offset.value + delta // update the state
+                        delta // indicate that we consumed all the pixels available
+                    }
             )
             .background(Color.LightGray),
         contentAlignment = Alignment.Center
@@ -107,14 +104,8 @@ fun CanScrollSample() {
             Color.Red
         )
         val items = (1..100).toList()
-        LazyColumn(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth(), state
-        ) {
-            items(items) {
-                Text("Item is $it")
-            }
+        LazyColumn(Modifier.weight(1f).fillMaxWidth(), state) {
+            items(items) { Text("Item is $it") }
         }
         Icon(
             Icons.Filled.KeyboardArrowDown,
@@ -135,57 +126,48 @@ fun CanScrollSample() {
 @Composable
 fun FocusScrollingInLazyRowSample() {
     // a bring into view spec that pivots around the center of the scrollable container
-    val customBringIntoViewSpec = object : BringIntoViewSpec {
-        val customAnimationSpec = tween<Float>(easing = LinearEasing)
-        override val scrollAnimationSpec: AnimationSpec<Float>
-            get() = customAnimationSpec
+    val customBringIntoViewSpec =
+        object : BringIntoViewSpec {
+            override fun calculateScrollDistance(
+                offset: Float,
+                size: Float,
+                containerSize: Float
+            ): Float {
+                val trailingEdgeOfItemRequestingFocus = offset + size
 
-        override fun calculateScrollDistance(
-            offset: Float,
-            size: Float,
-            containerSize: Float
-        ): Float {
-            val trailingEdgeOfItemRequestingFocus = offset + size
+                val sizeOfItemRequestingFocus = abs(trailingEdgeOfItemRequestingFocus - offset)
+                val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
+                val initialTargetForLeadingEdge =
+                    containerSize / 2f - (sizeOfItemRequestingFocus / 2f)
+                val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
 
-            val sizeOfItemRequestingFocus =
-                abs(trailingEdgeOfItemRequestingFocus - offset)
-            val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
-            val initialTargetForLeadingEdge =
-                containerSize / 2f - (sizeOfItemRequestingFocus / 2f)
-            val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
+                val targetForLeadingEdge =
+                    if (
+                        childSmallerThanParent &&
+                            spaceAvailableToShowItem < sizeOfItemRequestingFocus
+                    ) {
+                        containerSize - sizeOfItemRequestingFocus
+                    } else {
+                        initialTargetForLeadingEdge
+                    }
 
-            val targetForLeadingEdge =
-                if (childSmallerThanParent &&
-                    spaceAvailableToShowItem < sizeOfItemRequestingFocus
-                ) {
-                    containerSize - sizeOfItemRequestingFocus
-                } else {
-                    initialTargetForLeadingEdge
-                }
-
-            return offset - targetForLeadingEdge
+                return offset - targetForLeadingEdge
+            }
         }
-    }
 
     // LocalBringIntoViewSpec will apply to all scrollables in the hierarchy.
     CompositionLocalProvider(LocalBringIntoViewSpec provides customBringIntoViewSpec) {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
+        LazyRow(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
             items(100) {
                 var color by remember { mutableStateOf(Color.White) }
                 Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(4.dp)
-                        .background(Color.Gray)
-                        .onFocusChanged {
-                            color = if (it.isFocused) Color.Red else Color.White
-                        }
-                        .border(5.dp, color)
-                        .focusable(),
+                    modifier =
+                        Modifier.size(100.dp)
+                            .padding(4.dp)
+                            .background(Color.Gray)
+                            .onFocusChanged { color = if (it.isFocused) Color.Red else Color.White }
+                            .border(5.dp, color)
+                            .focusable(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = it.toString())

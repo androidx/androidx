@@ -20,35 +20,26 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Optional
 
-/**
- * The [DarwinBenchmarkPlugin] extension.
- */
+/** The [DarwinBenchmarkPlugin] extension. */
 abstract class DarwinBenchmarkPluginExtension {
-    /**
-     * The path to the YAML file that can be used to generate the XCode project.
-     */
+    /** The path to the YAML file that can be used to generate the XCode project. */
     abstract val xcodeGenConfigFile: RegularFileProperty
 
-    /**
-     * The project name as defined in the YAML file.
-     */
+    /** The project name as defined in the YAML file. */
     abstract val xcodeProjectName: Property<String>
 
-    /**
-     * The project scheme as defined in the YAML file that is the unit test target.
-     */
+    /** The project scheme as defined in the YAML file that is the unit test target. */
     abstract val scheme: Property<String>
 
     /**
-     * The benchmark device `id`.
-     * This is typically discovered by using `xcrun xctrace list devices`.
+     * The benchmark device `id`. This is typically discovered by using `xcrun xctrace list
+     * devices`.
      */
     abstract val destination: Property<String>
 
     /**
-     * The reference sha for the source code being benchmarked. This can be useful
-     * when tracking regressions.
+     * The reference sha for the source code being benchmarked. This can be useful when tracking
+     * regressions.
      */
-    @get:Optional
-    abstract val referenceSha: Property<String>
+    @get:Optional abstract val referenceSha: Property<String>
 }

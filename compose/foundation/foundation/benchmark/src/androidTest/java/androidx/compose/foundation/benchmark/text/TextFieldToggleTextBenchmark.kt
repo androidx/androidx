@@ -38,9 +38,7 @@ import org.junit.runners.Parameterized
 
 @SmallTest
 @RunWith(Parameterized::class)
-class TextFieldToggleTextBenchmark(
-    private val textLength: Int
-) {
+class TextFieldToggleTextBenchmark(private val textLength: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0}")
@@ -50,10 +48,7 @@ class TextFieldToggleTextBenchmark(
     private val textBenchmarkRule = TextBenchmarkTestRule()
     private val benchmarkRule = ComposeBenchmarkRule()
 
-    @get:Rule
-    val testRule = RuleChain
-        .outerRule(textBenchmarkRule)
-        .around(benchmarkRule)
+    @get:Rule val testRule = RuleChain.outerRule(textBenchmarkRule).around(benchmarkRule)
 
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
@@ -71,8 +66,8 @@ class TextFieldToggleTextBenchmark(
     }
 
     /**
-     * Measure the time taken to compose a [BasicTextField] composable from scratch with the
-     * given input. This is the time taken to call the [BasicTextField] composable function.
+     * Measure the time taken to compose a [BasicTextField] composable from scratch with the given
+     * input. This is the time taken to call the [BasicTextField] composable function.
      */
     @Test
     fun first_compose() {
@@ -108,8 +103,8 @@ class TextFieldToggleTextBenchmark(
     }
 
     /**
-     * Measure the time taken by layout the [BasicTextField] composable after the layout
-     * constrains changed. This is mainly the time used to re-measure and re-layout the composable.
+     * Measure the time taken by layout the [BasicTextField] composable after the layout constrains
+     * changed. This is mainly the time used to re-measure and re-layout the composable.
      */
     @Test
     fun layout() {
@@ -124,25 +119,19 @@ class TextFieldToggleTextBenchmark(
         benchmarkRule.toggleStateBenchmarkRecompose(caseFactory)
     }
 
-    /**
-     * Measure the time taken to measure the [BasicTextField] composable when text gets toggled.
-     */
+    /** Measure the time taken to measure the [BasicTextField] composable when text gets toggled. */
     @Test
     fun toggleText_measure() {
         benchmarkRule.toggleStateBenchmarkMeasure(caseFactory, assertOneRecomposition = false)
     }
 
-    /**
-     * Measure the time taken to layout the [BasicTextField] composable when text gets toggled.
-     */
+    /** Measure the time taken to layout the [BasicTextField] composable when text gets toggled. */
     @Test
     fun toggleText_layout() {
         benchmarkRule.toggleStateBenchmarkLayout(caseFactory, assertOneRecomposition = false)
     }
 
-    /**
-     * Measure the time taken to draw the [BasicTextField] composable when text gets toggled.
-     */
+    /** Measure the time taken to draw the [BasicTextField] composable when text gets toggled. */
     @Test
     fun toggleText_draw() {
         benchmarkRule.toggleStateBenchmarkDraw(caseFactory)

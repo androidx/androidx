@@ -24,7 +24,6 @@ import android.util.Size;
 import android.util.SizeF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.core.util.Preconditions;
 
@@ -40,7 +39,6 @@ import java.util.Locale;
  *
  * TODO(b/179827713): merge this with {@link ImageUtil}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TransformUtils {
 
     // Normalized space (-1, -1) - (1, 1).

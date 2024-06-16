@@ -87,10 +87,10 @@ internal class Controller3ASetTorchTest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
-                        CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                            CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
+                        )
                 )
             )
         }
@@ -116,10 +116,10 @@ internal class Controller3ASetTorchTest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
-                        CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                            CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF
+                        )
                 )
             )
         }
@@ -147,10 +147,10 @@ internal class Controller3ASetTorchTest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
-                        CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
+                            CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
+                        )
                 )
             )
         }

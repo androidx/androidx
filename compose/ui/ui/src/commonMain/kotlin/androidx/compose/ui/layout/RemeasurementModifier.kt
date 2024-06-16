@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
- * A [Modifier.Element] that provides a [Remeasurement] object associated with the layout node
- * the modifier is applied to.
+ * A [Modifier.Element] that provides a [Remeasurement] object associated with the layout node the
+ * modifier is applied to.
  */
 @JvmDefaultWithCompatibility
 interface RemeasurementModifier : Modifier.Element {
@@ -29,15 +29,15 @@ interface RemeasurementModifier : Modifier.Element {
      * This method is executed when the modifier is attached to the layout node.
      *
      * @param remeasurement [Remeasurement] object associated with the layout node the modifier is
-     * applied to.
+     *   applied to.
      */
     fun onRemeasurementAvailable(remeasurement: Remeasurement)
 }
 
 /**
  * This object is associated with a layout node and allows to execute some extra measure/layout
- * actions which are needed for some complex layouts. In most cases you don't need it as
- * measuring and layout should be correctly working automatically for most cases.
+ * actions which are needed for some complex layouts. In most cases you don't need it as measuring
+ * and layout should be correctly working automatically for most cases.
  */
 interface Remeasurement {
     /**

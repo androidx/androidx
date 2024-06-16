@@ -36,8 +36,8 @@ private const val size = childSize * n
 
 /**
  * This tests if [LinearLayoutManager.findReferenceChild] is able to find zero pixel sized items
- * that are laid out on the edge of RecyclerView. It sets up an RV that fits exactly 4 children
- * in its viewport, with a list of 250 items. On both ends there will be an empty view, so we can
+ * that are laid out on the edge of RecyclerView. It sets up an RV that fits exactly 4 children in
+ * its viewport, with a list of 250 items. On both ends there will be an empty view, so we can
  * easily test with [LinearLayoutManager.mReverseLayout] and [LinearLayoutManager.mStackFromEnd].
  *
  * Two scenarios are tested:
@@ -45,10 +45,10 @@ private const val size = childSize * n
  * 2. The empty view is the second/penultimate item, and we scroll RV by one position.
  *
  * Scenario 2 has one problem: with mStackFromEnd, it is not possible to layout the empty view at
- * the edge using [LinearLayoutManager.scrollToPositionWithOffset], so we first need to scroll
- * far enough that the empty view is out of bounds, and then scroll back to the empty view with
- * [LinearLayoutManager.scrollToPosition]. That positions the empty view on the edge in all cases
- * in scenario 2, regardless of the parameters.
+ * the edge using [LinearLayoutManager.scrollToPositionWithOffset], so we first need to scroll far
+ * enough that the empty view is out of bounds, and then scroll back to the empty view with
+ * [LinearLayoutManager.scrollToPosition]. That positions the empty view on the edge in all cases in
+ * scenario 2, regardless of the parameters.
  *
  * All scenarios are tested with all combinations of horizontal/vertical,
  * stackFromEnd/dontStackFromEnd, reverseLayout/dontReverseLayout and
@@ -90,15 +90,17 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
 
     private val extraLayoutSpace = if (addExtraLayoutSpace) size else 0
 
-    private val itemLayoutParams = RecyclerView.LayoutParams(
-        if (config.mOrientation == HORIZONTAL) childSize else size,
-        if (config.mOrientation == VERTICAL) childSize else size
-    )
+    private val itemLayoutParams =
+        RecyclerView.LayoutParams(
+            if (config.mOrientation == HORIZONTAL) childSize else size,
+            if (config.mOrientation == VERTICAL) childSize else size
+        )
 
-    private val emptyItemLayoutParams = RecyclerView.LayoutParams(
-        if (config.mOrientation == HORIZONTAL) 0 else size,
-        if (config.mOrientation == VERTICAL) 0 else size
-    )
+    private val emptyItemLayoutParams =
+        RecyclerView.LayoutParams(
+            if (config.mOrientation == HORIZONTAL) 0 else size,
+            if (config.mOrientation == VERTICAL) 0 else size
+        )
 
     @Test
     fun test() {
@@ -107,11 +109,12 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
         config.mTestAdapter = MyTestAdapter()
         setupByConfig(config, true, null, RecyclerView.LayoutParams(size, size))
 
-        val targetPosition = if (config.mStackFromEnd) {
-            lastEmptyItemPosition
-        } else {
-            firstEmptyItemPosition
-        }
+        val targetPosition =
+            if (config.mStackFromEnd) {
+                lastEmptyItemPosition
+            } else {
+                firstEmptyItemPosition
+            }
 
         // Given an RV that either didn't scroll, or scrolled to the second view ..
         if (firstEmptyItemPosition > 0) {
@@ -160,8 +163,13 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
             layoutFromEnd: Boolean,
             traverseChildrenInReverseOrder: Boolean
         ): View {
-            val referenceChild = super
-                .findReferenceChild(recycler, state, layoutFromEnd, traverseChildrenInReverseOrder)
+            val referenceChild =
+                super.findReferenceChild(
+                    recycler,
+                    state,
+                    layoutFromEnd,
+                    traverseChildrenInReverseOrder
+                )
             recordedReferenceChildren.add(getPosition(referenceChild))
             return referenceChild
         }
@@ -174,8 +182,7 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
                 val item = mItems[position]
                 getTextViewInHolder(holder).text = null
                 holder.mBoundItem = item
-                holder.itemView.layoutParams =
-                    RecyclerView.LayoutParams(emptyItemLayoutParams)
+                holder.itemView.layoutParams = RecyclerView.LayoutParams(emptyItemLayoutParams)
             } else {
                 super.onBindViewHolder(holder, position)
             }

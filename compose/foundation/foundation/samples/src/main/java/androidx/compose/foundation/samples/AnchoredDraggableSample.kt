@@ -21,14 +21,17 @@ package androidx.compose.foundation.samples
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +49,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -62,34 +69,21 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 private enum class AnchoredDraggableSampleValue {
-    Start, HalfStart, Center, HalfEnd, End
+    Start,
+    HalfStart,
+    Center,
+    HalfEnd,
+    End
 }
 
 @Composable
 @Preview
 fun AnchoredDraggableAnchorsFromCompositionSample() {
     val density = LocalDensity.current
-    val snapAnimationSpec = tween<Float>()
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    val positionalThreshold = { distance: Float -> distance * 0.5f }
-    val velocityThreshold = { with(density) { 125.dp.toPx() } }
-    val state = rememberSaveable(
-        density,
-        saver = AnchoredDraggableState.Saver(
-            snapAnimationSpec,
-            decayAnimationSpec,
-            positionalThreshold,
-            velocityThreshold
-        )
-    ) {
-        AnchoredDraggableState(
-            initialValue = Center,
-            positionalThreshold,
-            velocityThreshold,
-            snapAnimationSpec,
-            decayAnimationSpec
-        )
-    }
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Center)
+        }
     val draggableWidth = 70.dp
     val containerWidthPx = with(density) { draggableWidth.toPx() }
     // Our anchors depend on the density which is obtained from composition, so we update them using
@@ -105,16 +99,17 @@ fun AnchoredDraggableAnchorsFromCompositionSample() {
     }
     Box(Modifier.width(draggableWidth)) {
         Box(
-            Modifier
-                .size(100.dp)
-                .offset {
-                    IntOffset(
-                        x = state
-                            .requireOffset()
-                            .roundToInt(), y = 0
-                    )
-                }
-                .anchoredDraggable(state, Orientation.Horizontal)
+            Modifier.size(100.dp)
+                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
+                .anchoredDraggable(
+                    state,
+                    Orientation.Horizontal,
+                    flingBehavior =
+                        AnchoredDraggableDefaults.flingBehavior(
+                            state,
+                            positionalThreshold = { distance -> distance * 0.25f }
+                        )
+                )
                 .background(Color.Red)
         )
     }
@@ -123,33 +118,14 @@ fun AnchoredDraggableAnchorsFromCompositionSample() {
 @Preview
 @Composable
 fun AnchoredDraggableLayoutDependentAnchorsSample() {
-    val density = LocalDensity.current
-    val snapAnimationSpec = tween<Float>()
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    val positionalThreshold = { distance: Float -> distance * 0.5f }
-    val velocityThreshold = { with(density) { 125.dp.toPx() } }
-    val state = rememberSaveable(
-        density,
-        saver = AnchoredDraggableState.Saver(
-            snapAnimationSpec,
-            decayAnimationSpec,
-            positionalThreshold,
-            velocityThreshold
-        )
-    ) {
-        AnchoredDraggableState(
-            initialValue = Center,
-            positionalThreshold,
-            velocityThreshold,
-            snapAnimationSpec,
-            decayAnimationSpec
-        )
-    }
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Center)
+        }
     val draggableSize = 60.dp
     val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
     Box(
-        Modifier
-            .fillMaxWidth()
+        Modifier.fillMaxWidth()
             // Our anchors depend on this box's size, so we obtain the size from onSizeChanged and
             // use updateAnchors to let the state know about the new anchors
             .onSizeChanged { layoutSize ->
@@ -167,16 +143,9 @@ fun AnchoredDraggableLayoutDependentAnchorsSample() {
             .visualizeDraggableAnchors(state, Orientation.Horizontal)
     ) {
         Box(
-            Modifier
-                .size(draggableSize)
-                .offset {
-                    IntOffset(
-                        x = state
-                            .requireOffset()
-                            .roundToInt(), y = 0
-                    )
-                }
-                .anchoredDraggable(state, Orientation.Horizontal)
+            Modifier.size(draggableSize)
+                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
+                .anchoredDraggable(state = state, orientation = Orientation.Horizontal)
                 .background(Color.Red)
         )
     }
@@ -216,45 +185,41 @@ fun AnchoredDraggableCatchAnimatingWidgetSample() {
     // Attempting to press the box while it is settling to one anchor won't stop the box from
     // animating to that anchor. If you want to catch it while it is animating, you need to press
     // the box and drag it past the touchSlop. This is because startDragImmediately is set to false.
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Start)
+        }
     val density = LocalDensity.current
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    // Setting the duration of the snapAnimationSpec to 3000ms gives more time to attempt to press
-    // or drag the settling box.
-    val snapAnimationSpec = tween<Float>(durationMillis = 3000)
-    val state = AnchoredDraggableState(
-        initialValue = Start,
-        positionalThreshold = { distance: Float -> distance * 0.5f },
-        velocityThreshold = { with(density) { 125.dp.toPx() } },
-        snapAnimationSpec = snapAnimationSpec,
-        decayAnimationSpec = decayAnimationSpec
-    )
-
     val draggableSize = 100.dp
-    val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
+    val draggableSizePx = with(density) { draggableSize.toPx() }
     Box(
-        Modifier
-            .fillMaxWidth()
-            .onSizeChanged { layoutSize ->
-                val dragEndPoint = layoutSize.width - draggableSizePx
-                state.updateAnchors(
-                    DraggableAnchors {
-                        Start at 0f
-                        End at dragEndPoint
-                    }
-                )
-            }
+        Modifier.fillMaxWidth().onSizeChanged { layoutSize ->
+            val dragEndPoint = layoutSize.width - draggableSizePx
+            state.updateAnchors(
+                DraggableAnchors {
+                    Start at 0f
+                    End at dragEndPoint
+                }
+            )
+        }
     ) {
         Box(
-            Modifier
-                .size(draggableSize)
-                .offset {
-                    IntOffset(
-                        x = state
-                            .requireOffset()
-                            .roundToInt(), y = 0
-                    )
-                }
-                .anchoredDraggable(state, Orientation.Horizontal, startDragImmediately = false)
+            Modifier.size(draggableSize)
+                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
+                .anchoredDraggable(
+                    state = state,
+                    orientation = Orientation.Horizontal,
+                    startDragImmediately = false,
+                    flingBehavior =
+                        AnchoredDraggableDefaults.flingBehavior(
+                            state,
+                            positionalThreshold = { with(density) { 56.dp.toPx() } },
+                            // Setting the duration of the snapAnimationSpec to 3000ms gives more
+                            // time
+                            // to attempt to press or drag the settling box.
+                            animationSpec = tween(durationMillis = 3000)
+                        )
+                )
                 .background(Color.Red)
         )
     }
@@ -264,57 +229,29 @@ fun AnchoredDraggableCatchAnimatingWidgetSample() {
 @Preview
 @Composable
 fun AnchoredDraggableWithOverscrollSample() {
-    val density = LocalDensity.current
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Center)
+        }
     val draggableSize = 80.dp
-    val draggableSizePx = with(density) { draggableSize.toPx() }
-
-    val animationSpec = tween<Float>()
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    val positionalThreshold = { distance: Float -> distance * 0.5f }
-    val velocityThreshold = { with(density) { 125.dp.toPx() } }
+    val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
-    val state = rememberSaveable(
-        density,
-        saver = AnchoredDraggableState.Saver(
-            animationSpec,
-            decayAnimationSpec,
-            positionalThreshold,
-            velocityThreshold,
-        )
-    ) {
-        AnchoredDraggableState(
-            initialValue = Center,
-            positionalThreshold,
-            velocityThreshold,
-            animationSpec,
-            decayAnimationSpec,
-        )
-    }
 
     Box(
-        Modifier
-            .fillMaxWidth()
-            .onSizeChanged { layoutSize ->
-                val dragEndPoint = layoutSize.width - draggableSizePx
-                state.updateAnchors(
-                    DraggableAnchors {
-                        Start at 0f
-                        Center at dragEndPoint / 2f
-                        End at dragEndPoint
-                    }
-                )
-            }
+        Modifier.fillMaxWidth().onSizeChanged { layoutSize ->
+            val dragEndPoint = layoutSize.width - draggableSizePx
+            state.updateAnchors(
+                DraggableAnchors {
+                    Start at 0f
+                    Center at dragEndPoint / 2f
+                    End at dragEndPoint
+                }
+            )
+        }
     ) {
         Box(
-            Modifier
-                .size(draggableSize)
-                .offset {
-                    IntOffset(
-                        x = state
-                            .requireOffset()
-                            .roundToInt(), y = 0
-                    )
-                }
+            Modifier.size(draggableSize)
+                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
                 // pass the overscrollEffect to AnchoredDraggable
                 .anchoredDraggable(
                     state,
@@ -329,33 +266,14 @@ fun AnchoredDraggableWithOverscrollSample() {
 
 @Composable
 fun AnchoredDraggableProgressSample() {
-    val density = LocalDensity.current
-    val snapAnimationSpec = tween<Float>()
-    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-    val positionalThreshold = { distance: Float -> distance * 0.5f }
-    val velocityThreshold = { with(density) { 125.dp.toPx() } }
-    val state = rememberSaveable(
-        density,
-        saver = AnchoredDraggableState.Saver(
-            snapAnimationSpec,
-            decayAnimationSpec,
-            positionalThreshold,
-            velocityThreshold
-        )
-    ) {
-        AnchoredDraggableState(
-            initialValue = Center,
-            positionalThreshold,
-            velocityThreshold,
-            snapAnimationSpec,
-            decayAnimationSpec
-        )
-    }
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Center)
+        }
     val draggableSize = 60.dp
     val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
     Column(
-        Modifier
-            .fillMaxWidth()
+        Modifier.fillMaxWidth()
             // Our anchors depend on this box's size, so we obtain the size from onSizeChanged and
             // use updateAnchors to let the state know about the new anchors
             .onSizeChanged { layoutSize ->
@@ -376,22 +294,14 @@ fun AnchoredDraggableProgressSample() {
         val centerToEndProgress by derivedStateOf { state.progress(from = Center, to = End) }
         Box {
             Box(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(draggableSize)
                     .graphicsLayer { alpha = max(centerToStartProgress, centerToEndProgress) }
                     .background(Color.Black)
             )
             Box(
-                Modifier
-                    .size(draggableSize)
-                    .offset {
-                        IntOffset(
-                            x = state
-                                .requireOffset()
-                                .roundToInt(), y = 0
-                        )
-                    }
+                Modifier.size(draggableSize)
+                    .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
                     .anchoredDraggable(state, Orientation.Horizontal)
                     .background(Color.Red)
             )
@@ -399,12 +309,50 @@ fun AnchoredDraggableProgressSample() {
     }
 }
 
+@Preview
+@Composable
+fun DraggableAnchorsSample() {
+    var anchors by remember { mutableStateOf(DraggableAnchors<AnchoredDraggableSampleValue> {}) }
+    var offset by rememberSaveable { mutableFloatStateOf(0f) }
+    val thumbSize = 16.dp
+    val thumbSizePx = with(LocalDensity.current) { thumbSize.toPx() }
+    Box(
+        Modifier.width(100.dp)
+            // Our anchors depend on this box's size, so we obtain the size from onSizeChanged and
+            // use updateAnchors to let the state know about the new anchors
+            .onSizeChanged { layoutSize ->
+                anchors = DraggableAnchors {
+                    Start at 0f
+                    End at layoutSize.width - thumbSizePx
+                }
+            }
+            .border(2.dp, Color.Black)
+    ) {
+        Box(
+            Modifier.size(thumbSize)
+                .offset { IntOffset(x = offset.roundToInt(), y = 0) }
+                .draggable(
+                    state =
+                        rememberDraggableState { delta ->
+                            offset =
+                                (offset + delta).coerceIn(anchors.minAnchor(), anchors.maxAnchor())
+                        },
+                    orientation = Orientation.Horizontal,
+                    onDragStopped = { velocity ->
+                        val closestAnchor = anchors.positionOf(anchors.closestAnchor(offset)!!)
+                        animate(offset, closestAnchor, velocity) { value, _ -> offset = value }
+                    }
+                )
+                .background(Color.Red)
+        )
+    }
+}
+
 /**
  * A [Modifier] that visualizes the anchors attached to an [AnchoredDraggableState] as lines along
  * the cross axis of the layout (start to end for [Orientation.Vertical], top to end for
- * [Orientation.Horizontal]).
- * This is useful to debug components with a complex set of anchors, or for AnchoredDraggable
- * development.
+ * [Orientation.Horizontal]). This is useful to debug components with a complex set of anchors, or
+ * for AnchoredDraggable development.
  *
  * @param state The state whose anchors to visualize
  * @param orientation The orientation of the [anchoredDraggable]
@@ -421,14 +369,16 @@ private fun Modifier.visualizeDraggableAnchors(
 ) = drawWithContent {
     drawContent()
     state.anchors.forEach { _, position ->
-        val startOffset = Offset(
-            x = if (orientation == Orientation.Horizontal) position else 0f,
-            y = if (orientation == Orientation.Vertical) position else 0f
-        )
-        val endOffset = Offset(
-            x = if (orientation == Orientation.Horizontal) startOffset.x else size.height,
-            y = if (orientation == Orientation.Vertical) startOffset.y else size.width
-        )
+        val startOffset =
+            Offset(
+                x = if (orientation == Orientation.Horizontal) position else 0f,
+                y = if (orientation == Orientation.Vertical) position else 0f
+            )
+        val endOffset =
+            Offset(
+                x = if (orientation == Orientation.Horizontal) startOffset.x else size.height,
+                y = if (orientation == Orientation.Vertical) startOffset.y else size.width
+            )
         drawLine(
             color = lineColor,
             start = startOffset,

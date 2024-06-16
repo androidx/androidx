@@ -22,26 +22,21 @@ import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQ
 
 /**
  * QuirkSummary
- * - Bug Id:      159831206, 242509463
- * - Description: Corrupt images generally manifest as completely monochrome JPEGs, sometimes
- *                solid green. On the affected devices, this is easier to reproduce
- *                immediately after rebooting the device. If possible, it is preferred
- *                that CameraX produce JPEGs from some other image format rather than
- *                receiving JPEGs directly from the HAL. This issue happens on Samsung Galaxy S7.
- *                The other issue is that the Exif metadata of the captured images might be
- *                incorrect to cause IOException when using ExifInterface to save the updated
- *                attributes. Capturing the images in YUV format and then compress it to JPEG
- *                output images can produce correct Exif metadata to workaround this issue.
- * - Device(s):   Samsung Galaxy S7 (SM-G930T and SM-G930V variants), Alps k61v1_basic_ref
+ * - Bug Id: 159831206, 242509463
+ * - Description: Corrupt images generally manifest as completely monochrome JPEGs, sometimes solid
+ *   green. On the affected devices, this is easier to reproduce immediately after rebooting the
+ *   device. If possible, it is preferred that CameraX produce JPEGs from some other image format
+ *   rather than receiving JPEGs directly from the HAL. This issue happens on Samsung Galaxy S7. The
+ *   other issue is that the Exif metadata of the captured images might be incorrect to cause
+ *   IOException when using ExifInterface to save the updated attributes. Capturing the images in
+ *   YUV format and then compress it to JPEG output images can produce correct Exif metadata to
+ *   workaround this issue.
+ * - Device(s): Samsung Galaxy S7 (SM-G930T and SM-G930V variants), Alps k61v1_basic_ref
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
 class JpegHalCorruptImageQuirk : SoftwareJpegEncodingPreferredQuirk {
     companion object {
-        private val KNOWN_AFFECTED_DEVICES = listOf(
-            "heroqltevzw",
-            "heroqltetmo",
-            "k61v1_basic_ref"
-        )
+        private val KNOWN_AFFECTED_DEVICES = listOf("heroqltevzw", "heroqltetmo", "k61v1_basic_ref")
 
         fun isEnabled(): Boolean {
             return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.lowercase())

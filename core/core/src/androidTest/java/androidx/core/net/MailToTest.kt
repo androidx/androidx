@@ -25,17 +25,21 @@ import org.junit.runners.Parameterized
 /** Class representing the different ways of parsing a mailto URI */
 sealed class MailToParser {
     abstract fun isMailTo(uri: String): Boolean
+
     abstract fun parse(uri: String): MailTo
+
     override fun toString(): String = this.javaClass.simpleName
 }
 
 object StringMailToParser : MailToParser() {
     override fun isMailTo(uri: String) = MailTo.isMailTo(uri)
+
     override fun parse(uri: String) = MailTo.parse(uri)
 }
 
 object UriMailToParser : MailToParser() {
     override fun isMailTo(uri: String) = MailTo.isMailTo(Uri.parse(uri))
+
     override fun parse(uri: String) = MailTo.parse(Uri.parse(uri))
 }
 

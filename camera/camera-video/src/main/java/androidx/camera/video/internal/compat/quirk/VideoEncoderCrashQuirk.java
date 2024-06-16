@@ -21,7 +21,6 @@ import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.video.Quality;
 
@@ -34,7 +33,6 @@ import androidx.camera.video.Quality;
  *                  others work fine.
  *     Device(s): Positivo Twist 2 Pro (twist 2 pro)
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderCrashQuirk implements VideoQualityQuirk {
     static boolean load() {
         return isPositivoTwist2Pro();

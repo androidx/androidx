@@ -16,9 +16,7 @@
 
 package androidx.glance.testing
 
-/**
- * Provides an entry point into testing exposing methods to find glance nodes
- */
+/** Provides an entry point into testing exposing methods to find glance nodes */
 // Equivalent to "androidx.compose.ui.test.SemanticsNodeInteractionsProvider" from compose.
 interface GlanceNodeAssertionsProvider<R, T : GlanceNode<R>> {
     /**

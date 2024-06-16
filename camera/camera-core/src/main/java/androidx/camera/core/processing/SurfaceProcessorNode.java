@@ -37,7 +37,6 @@ import android.util.Size;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ProcessingException;
@@ -76,7 +75,6 @@ import java.util.concurrent.CancellationException;
  *  connected. For example, when app fails to provide a Surface or when VideoCapture is paused.
  *  One possible optimization is only connecting the upstream when the downstream are available.
  */
-@RequiresApi(api = 21)
 // TODO(b/233627260): remove once implemented.
 @SuppressWarnings("UnusedVariable")
 public class SurfaceProcessorNode implements
@@ -121,8 +119,10 @@ public class SurfaceProcessorNode implements
         for (OutConfig config : input.getOutConfigs()) {
             mOutput.put(config, transformSingleOutput(inputSurface, config));
         }
-        sendSurfaceRequest(inputSurface, mOutput);
+
+        sendSurfaceRequest(inputSurface);
         sendSurfaceOutputs(inputSurface, mOutput);
+        setUpRotationUpdates(inputSurface, mOutput);
         return mOutput;
     }
 
@@ -184,12 +184,9 @@ public class SurfaceProcessorNode implements
     /**
      * Creates {@link SurfaceRequest} and send it to {@link SurfaceProcessor}.
      */
-    private void sendSurfaceRequest(@NonNull SurfaceEdge input,
-            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
-        SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
-        setUpRotationUpdates(surfaceRequest, outputs);
+    private void sendSurfaceRequest(@NonNull SurfaceEdge input) {
         try {
-            mSurfaceProcessor.onInputSurface(surfaceRequest);
+            mSurfaceProcessor.onInputSurface(input.createSurfaceRequest(mCameraInternal));
         } catch (ProcessingException e) {
             Logger.e(TAG, "Failed to send SurfaceRequest to SurfaceProcessor.", e);
         }
@@ -256,13 +253,13 @@ public class SurfaceProcessorNode implements
      * <p>Currently, we only propagates the rotation. When the
      * input edge's rotation changes, we re-calculate the delta and notify the output edge.
      *
-     * @param inputSurfaceRequest {@link SurfaceRequest} of the input edge.
-     * @param outputs             the output edges.
+     * @param inputEdge the input edge.
+     * @param outputs   the output edges.
      */
     void setUpRotationUpdates(
-            @NonNull SurfaceRequest inputSurfaceRequest,
+            @NonNull SurfaceEdge inputEdge,
             @NonNull Map<OutConfig, SurfaceEdge> outputs) {
-        inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
+        inputEdge.addTransformationUpdateListener(info -> {
             for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
                 // To obtain the rotation degrees delta, the rotation performed by the node must be
                 // eliminated.

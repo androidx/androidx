@@ -55,13 +55,12 @@ inline fun <reified T : Record> ReadRecordsRequest(
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
  * @param dataOriginFilter List of [DataOrigin] to read from, or empty for no filter.
  * @param ascendingOrder Whether the [Record] should be returned in ascending or descending order by
- * time. Default is true for ascending.
+ *   time. Default is true for ascending.
  * @param pageSize Maximum number of [Record] within one page. If there's more data remaining (and
- * the next page should be read), the response will contain a [pageToken] to be used in the
- * subsequent read request. Must be positive, default to 1000.
+ *   the next page should be read), the response will contain a [pageToken] to be used in the
+ *   subsequent read request. Must be positive, default to 1000.
  * @param pageToken Continuation token to access the next page, returned in the response to the
- * previous page read request, or `null` for the initial request for the first page.
- *
+ *   previous page read request, or `null` for the initial request for the first page.
  * @see androidx.health.connect.client.response.ReadRecordsResponse
  * @see androidx.health.connect.client.HealthConnectClient.readRecords
  */

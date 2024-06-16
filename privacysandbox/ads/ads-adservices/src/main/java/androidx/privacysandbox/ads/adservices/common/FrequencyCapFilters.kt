@@ -25,21 +25,23 @@ import androidx.annotation.RestrictTo
 /**
  * A container for the ad filters that are based on frequency caps.
  *
- * Frequency caps filters combine an event type with a list of [KeyedFrequencyCap] objects
- * to define a collection of ad filters. If any of these frequency caps are exceeded for a given ad,
- * the ad will be removed from the group of ads submitted to a buyer adtech's bidding function.
+ * Frequency caps filters combine an event type with a list of [KeyedFrequencyCap] objects to define
+ * a collection of ad filters. If any of these frequency caps are exceeded for a given ad, the ad
+ * will be removed from the group of ads submitted to a buyer adtech's bidding function.
  *
  * @param keyedFrequencyCapsForWinEvents The list of frequency caps applied to events which
- * correlate to a win as interpreted by an adtech.
+ *   correlate to a win as interpreted by an adtech.
  * @param keyedFrequencyCapsForImpressionEvents The list of frequency caps applied to events which
- * correlate to an impression as interpreted by an adtech.
+ *   correlate to an impression as interpreted by an adtech.
  * @param keyedFrequencyCapsForViewEvents The list of frequency caps applied to events which
- * correlate to a view as interpreted by an adtech.
+ *   correlate to a view as interpreted by an adtech.
  * @param keyedFrequencyCapsForClickEvents The list of frequency caps applied to events which
- * correlate to a click as interpreted by an adtech.
+ *   correlate to a click as interpreted by an adtech.
  */
 @ExperimentalFeatures.Ext8OptIn
-class FrequencyCapFilters @JvmOverloads public constructor(
+class FrequencyCapFilters
+@JvmOverloads
+public constructor(
     val keyedFrequencyCapsForWinEvents: List<KeyedFrequencyCap> = listOf(),
     val keyedFrequencyCapsForImpressionEvents: List<KeyedFrequencyCap> = listOf(),
     val keyedFrequencyCapsForViewEvents: List<KeyedFrequencyCap> = listOf(),
@@ -80,7 +82,8 @@ class FrequencyCapFilters @JvmOverloads public constructor(
         Companion.AD_EVENT_TYPE_WIN,
         Companion.AD_EVENT_TYPE_VIEW,
         Companion.AD_EVENT_TYPE_CLICK,
-        Companion.AD_EVENT_TYPE_IMPRESSION)
+        Companion.AD_EVENT_TYPE_IMPRESSION
+    )
     annotation class AdEventType
 
     companion object {
@@ -102,9 +105,7 @@ class FrequencyCapFilters @JvmOverloads public constructor(
         public const val AD_EVENT_TYPE_IMPRESSION: Int =
             android.adservices.common.FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION
 
-        /**
-         * Represents the View event type which correlate to a view as interpreted by an adtech.
-         */
+        /** Represents the View event type which correlate to a view as interpreted by an adtech. */
         public const val AD_EVENT_TYPE_VIEW: Int =
             android.adservices.common.FrequencyCapFilters.AD_EVENT_TYPE_VIEW
 
@@ -120,21 +121,23 @@ class FrequencyCapFilters @JvmOverloads public constructor(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     internal fun convertToAdServices(): android.adservices.common.FrequencyCapFilters {
         return android.adservices.common.FrequencyCapFilters.Builder()
-            .setKeyedFrequencyCapsForWinEvents(
-                keyedFrequencyCapsForWinEvents.convertToAdServices())
+            .setKeyedFrequencyCapsForWinEvents(keyedFrequencyCapsForWinEvents.convertToAdServices())
             .setKeyedFrequencyCapsForImpressionEvents(
-                keyedFrequencyCapsForImpressionEvents.convertToAdServices())
+                keyedFrequencyCapsForImpressionEvents.convertToAdServices()
+            )
             .setKeyedFrequencyCapsForViewEvents(
-                keyedFrequencyCapsForViewEvents.convertToAdServices())
+                keyedFrequencyCapsForViewEvents.convertToAdServices()
+            )
             .setKeyedFrequencyCapsForClickEvents(
-                keyedFrequencyCapsForClickEvents.convertToAdServices())
+                keyedFrequencyCapsForClickEvents.convertToAdServices()
+            )
             .build()
     }
 
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     private fun List<KeyedFrequencyCap>.convertToAdServices():
-            MutableList<android.adservices.common.KeyedFrequencyCap> {
+        MutableList<android.adservices.common.KeyedFrequencyCap> {
         val result = mutableListOf<android.adservices.common.KeyedFrequencyCap>()
         for (keyedFrequencyCap in this) {
             result.add(keyedFrequencyCap.convertToAdServices())

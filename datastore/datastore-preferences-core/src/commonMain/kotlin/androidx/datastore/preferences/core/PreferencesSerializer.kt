@@ -27,6 +27,8 @@ import okio.BufferedSource
  */
 expect object PreferencesSerializer : OkioSerializer<Preferences> {
     override val defaultValue: Preferences
+
     override suspend fun readFrom(source: BufferedSource): Preferences
+
     override suspend fun writeTo(t: Preferences, sink: BufferedSink)
 }

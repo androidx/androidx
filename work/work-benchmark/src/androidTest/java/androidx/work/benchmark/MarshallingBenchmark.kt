@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MarshallingBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     lateinit var constraints: Constraints
     lateinit var parcelledConstraints: ParcelableConstraints
@@ -56,29 +55,27 @@ class MarshallingBenchmark {
         //  .addContentUriTrigger requires minSdk 24, but for some reason this @SdkSuppress is only
         //  on Playground builds to get lintDebug to pass.
         @SdkSuppress(minSdkVersion = 24)
-        constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .setRequiresCharging(true)
-            .setRequiresStorageNotLow(true)
-            .addContentUriTrigger(uri, true)
-            .build()
+        constraints =
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .setRequiresCharging(true)
+                .setRequiresStorageNotLow(true)
+                .addContentUriTrigger(uri, true)
+                .build()
 
-        request = OneTimeWorkRequest.Builder(NoOpWorker::class.java)
-            .setInitialDelay(1, TimeUnit.HOURS)
-            .setInputData(
-                Data.Builder()
-                    .put("test", 1L)
-                    .build()
-            )
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-            .build()
+        request =
+            OneTimeWorkRequest.Builder(NoOpWorker::class.java)
+                .setInitialDelay(1, TimeUnit.HOURS)
+                .setInputData(Data.Builder().put("test", 1L).build())
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresBatteryNotLow(true)
+                        .build()
+                )
+                .build()
 
         parcelledConstraints = ParcelableConstraints(constraints)
         parcelledWorkRequest = ParcelableWorkRequest(request)

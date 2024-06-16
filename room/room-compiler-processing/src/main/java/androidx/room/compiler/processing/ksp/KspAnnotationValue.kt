@@ -36,8 +36,8 @@ internal class KspAnnotationValue(
 ) : InternalXAnnotationValue() {
 
     override val name: String
-        get() = valueArgument.name?.asString()
-            ?: error("Value argument $this does not have a name.")
+        get() =
+            valueArgument.name?.asString() ?: error("Value argument $this does not have a name.")
 
     override val value: Any? by lazy { valueProvider.invoke() }
 }
@@ -45,11 +45,16 @@ internal class KspAnnotationValue(
 internal fun KspAnnotation.unwrap(valueType: XType, valueArgument: KSValueArgument): Any? {
     fun unwrap(value: Any?): Any? {
         return when (value) {
+            // Enums in KSP2
+            is KSClassDeclaration -> {
+                KspEnumEntry.create(env, value)
+            }
             is KSType -> {
                 val declaration = value.declaration
                 // Wrap enum entries in enum specific type elements
-                if (declaration is KSClassDeclaration &&
-                    declaration.classKind == ClassKind.ENUM_ENTRY
+                if (
+                    declaration is KSClassDeclaration &&
+                        declaration.classKind == ClassKind.ENUM_ENTRY
                 ) {
                     KspEnumEntry.create(env, declaration)
                 } else {
@@ -70,11 +75,12 @@ internal fun KspAnnotation.unwrap(valueType: XType, valueArgument: KSValueArgume
                 val declaration =
                     env.resolver.getClassDeclarationByName(value::class.java.canonicalName)
                         ?: error("Cannot find KSClassDeclaration for Enum '$value'.")
-                val valueDeclaration = declaration.declarations
-                    .filterIsInstance<KSClassDeclaration>()
-                    .filter { it.classKind == ClassKind.ENUM_ENTRY }
-                    .firstOrNull() { it.simpleName.getShortName() == value.name }
-                    ?: error("Cannot find ENUM_ENTRY '$value' in '$declaration'.")
+                val valueDeclaration =
+                    declaration.declarations
+                        .filterIsInstance<KSClassDeclaration>()
+                        .filter { it.classKind == ClassKind.ENUM_ENTRY }
+                        .firstOrNull() { it.simpleName.getShortName() == value.name }
+                        ?: error("Cannot find ENUM_ENTRY '$value' in '$declaration'.")
                 KspEnumEntry.create(env, valueDeclaration)
             }
             else -> value

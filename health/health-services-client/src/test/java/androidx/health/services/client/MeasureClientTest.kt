@@ -60,34 +60,37 @@ class MeasureClientTest {
     private lateinit var client: ServiceBackedMeasureClient
     private lateinit var service: FakeServiceStub
     private var cleanup: Boolean = false
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    private fun TestScope.advanceMainLooperIdle() =
-        launch { Shadows.shadowOf(Looper.getMainLooper()).idle() }
-    private fun CoroutineScope.advanceMainLooperIdle() =
-        launch { Shadows.shadowOf(Looper.getMainLooper()).idle() }
+    private fun TestScope.advanceMainLooperIdle() = launch {
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun CoroutineScope.advanceMainLooperIdle() = launch {
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+    }
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Application>()
         callback = FakeCallback()
-        client =
-            ServiceBackedMeasureClient(context, ConnectionManager(context, context.mainLooper))
+        client = ServiceBackedMeasureClient(context, ConnectionManager(context, context.mainLooper))
         service = FakeServiceStub()
 
         val packageName = CLIENT_CONFIGURATION.servicePackageName
         val action = CLIENT_CONFIGURATION.bindAction
-        Shadows.shadowOf(context).setComponentNameAndServiceForBindServiceForIntent(
-            Intent().setPackage(packageName).setAction(action),
-            ComponentName(packageName, CLIENT),
-            service
-        )
+        Shadows.shadowOf(context)
+            .setComponentNameAndServiceForBindServiceForIntent(
+                Intent().setPackage(packageName).setAction(action),
+                ComponentName(packageName, CLIENT),
+                service
+            )
         cleanup = true
     }
 
     @After
     fun tearDown() {
-        if (!cleanup)
-            return
+        if (!cleanup) return
         runBlocking {
             launch { client.unregisterMeasureCallback(DataType.HEART_RATE_BPM, callback) }
             advanceMainLooperIdle()
@@ -115,9 +118,7 @@ class MeasureClientTest {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
     fun unregisterCallbackSynchronously_callbackNotRegistered_success() = runTest {
-        val deferred = async {
-            client.unregisterMeasureCallback(DataType.HEART_RATE_BPM, callback)
-        }
+        val deferred = async { client.unregisterMeasureCallback(DataType.HEART_RATE_BPM, callback) }
         advanceMainLooperIdle()
 
         Truth.assertThat(deferred.await()).isNull()

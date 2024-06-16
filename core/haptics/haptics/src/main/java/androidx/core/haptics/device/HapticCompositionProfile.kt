@@ -30,7 +30,9 @@ import java.util.Objects
  * @property supportedPrimitiveTypes A set of [Int] values defined by
  *   [CompositionSignal.PrimitiveAtom.Type] representing composition primitive types supported.
  */
-class HapticCompositionProfile @JvmOverloads constructor(
+class HapticCompositionProfile
+@JvmOverloads
+constructor(
 
     /**
      * Hint for the composition primitives that are supported by the vibrator hardware.
@@ -54,8 +56,8 @@ class HapticCompositionProfile @JvmOverloads constructor(
     /**
      * Whether the device reports the estimated duration for supported composition primitives.
      *
-     * If primitive durations are reported then [getPrimitiveDurationMillis] can be
-     * used for supported primitive types to check individual [PrimitiveAtom] durations within a
+     * If primitive durations are reported then [getPrimitiveDurationMillis] can be used for
+     * supported primitive types to check individual [PrimitiveAtom] durations within a
      * [CompositionSignal].
      */
     val isPrimitiveDurationReported: Boolean
@@ -81,15 +83,11 @@ class HapticCompositionProfile @JvmOverloads constructor(
             supportedPrimitiveTypesHint.filter { availablePrimitives.contains(it) }.toSet()
 
         _primitiveDurationMillisMap =
-            primitiveDurationMillisMapHint?.filter {
-                supportedPrimitiveTypes.contains(it.key)
-            }?.toMap()
+            primitiveDurationMillisMapHint
+                ?.filter { supportedPrimitiveTypes.contains(it.key) }
+                ?.toMap()
 
-        require(
-            _primitiveDurationMillisMap?.let {
-                supportedPrimitiveTypes == it.keys
-            } ?: true
-        ) {
+        require(_primitiveDurationMillisMap?.let { supportedPrimitiveTypes == it.keys } ?: true) {
             "Composition primitive durations should be reported for all supported primitives." +
                 " Device supports primitive types $supportedPrimitiveTypes but got" +
                 " estimated durations for ${_primitiveDurationMillisMap?.keys}."

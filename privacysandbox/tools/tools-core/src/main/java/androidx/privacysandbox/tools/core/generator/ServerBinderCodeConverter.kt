@@ -30,10 +30,8 @@ import com.squareup.kotlinpoet.TypeName
 
 class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverter(api) {
     private val basePackageName = api.getOnlyService().type.packageName
-    private val activityLauncherWrapperClass = ClassName(
-        basePackageName,
-        SdkActivityLauncherWrapperGenerator.className
-    )
+    private val activityLauncherWrapperClass =
+        ClassName(basePackageName, SdkActivityLauncherWrapperGenerator.className)
 
     override fun convertToInterfaceModelCode(
         annotatedInterface: AnnotatedInterface,
@@ -41,11 +39,15 @@ class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverte
     ): CodeBlock {
         if (annotatedInterface.inheritsSandboxedUiAdapter) {
             return CodeBlock.of(
-                "(%L.binder as %T).delegate", expression, annotatedInterface.stubDelegateNameSpec()
+                "(%L.binder as %T).delegate",
+                expression,
+                annotatedInterface.stubDelegateNameSpec()
             )
         }
         return CodeBlock.of(
-            "(%L as %T).delegate", expression, annotatedInterface.stubDelegateNameSpec()
+            "(%L as %T).delegate",
+            expression,
+            annotatedInterface.stubDelegateNameSpec()
         )
     }
 
@@ -61,10 +63,11 @@ class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverte
                         "%stubDelegate:T(%interface:L, %context:N)" +
                         ")",
                     hashMapOf<String, Any>(
-                        "coreLibInfoConverter" to ClassName(
-                            annotatedInterface.type.packageName,
-                            annotatedInterface.coreLibInfoConverterName()
-                        ),
+                        "coreLibInfoConverter" to
+                            ClassName(
+                                annotatedInterface.type.packageName,
+                                annotatedInterface.coreLibInfoConverterName()
+                            ),
                         "toParcelable" to toParcelableMethodName,
                         "interface" to expression,
                         "toCoreLibInfo" to toCoreLibInfoMethod,

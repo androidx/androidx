@@ -66,8 +66,8 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
          * </pre>
          * where APP/COMPONENT is the manifest component for the GlanceAppWidgetReceiver subclass.
          * This only works if the Receiver is exported (or the target device has adb running as
-         * root), and has androidx.glance.appwidget.DEBUG_UPDATE in its intent-filter.
-         * This should only be done for debug builds and disabled for release.
+         * root), and has androidx.glance.appwidget.DEBUG_UPDATE in its intent-filter. This should
+         * only be done for debug builds and disabled for release.
          */
         const val ACTION_DEBUG_UPDATE = "androidx.glance.appwidget.action.DEBUG_UPDATE"
     }
@@ -79,8 +79,8 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
     abstract val glanceAppWidget: GlanceAppWidget
 
     /**
-     * Override [coroutineContext] to provide custom [CoroutineContext] in which to run
-     * update requests.
+     * Override [coroutineContext] to provide custom [CoroutineContext] in which to run update
+     * requests.
      *
      * Note: This does not set the [CoroutineContext] for the GlanceAppWidget, which will always run
      * on the main thread.
@@ -104,8 +104,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
         goAsync(coroutineContext) {
             updateManager(context)
-            appWidgetIds.map { async { glanceAppWidget.update(context, it) } }
-                .awaitAll()
+            appWidgetIds.map { async { glanceAppWidget.update(context, it) } }.awaitAll()
         }
     }
 
@@ -142,17 +141,20 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         runAndLogExceptions {
             when (intent.action) {
-                Intent.ACTION_LOCALE_CHANGED, ACTION_DEBUG_UPDATE -> {
+                Intent.ACTION_LOCALE_CHANGED,
+                ACTION_DEBUG_UPDATE -> {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
-                    val componentName = ComponentName(
-                        context.packageName,
-                        checkNotNull(javaClass.canonicalName) { "no canonical name" }
-                    )
-                    val ids = if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
-                        intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!
-                    } else {
-                        appWidgetManager.getAppWidgetIds(componentName)
-                    }
+                    val componentName =
+                        ComponentName(
+                            context.packageName,
+                            checkNotNull(javaClass.canonicalName) { "no canonical name" }
+                        )
+                    val ids =
+                        if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
+                            intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!
+                        } else {
+                            appWidgetManager.getAppWidgetIds(componentName)
+                        }
                     onUpdate(
                         context,
                         appWidgetManager,
@@ -160,7 +162,8 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                     )
                 }
                 LambdaActionBroadcasts.ActionTriggerLambda -> {
-                    val actionKey = intent.getStringExtra(LambdaActionBroadcasts.ExtraActionKey)
+                    val actionKey =
+                        intent.getStringExtra(LambdaActionBroadcasts.ExtraActionKey)
                             ?: error("Intent is missing ActionKey extra")
                     val id = intent.getIntExtra(LambdaActionBroadcasts.ExtraAppWidgetId, -1)
                     if (id == -1) error("Intent is missing AppWidgetId extra")

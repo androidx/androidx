@@ -121,24 +121,25 @@ internal class CaptureSessionFactoryTest {
                 ),
                 mapOf(stream1.id to surface),
                 captureSessionState =
-                CaptureSessionState(
-                    FakeGraphProcessor(),
-                    sessionFactory,
-                    object : Camera2CaptureSequenceProcessorFactory {
-                        override fun create(
-                            session: CameraCaptureSessionWrapper,
-                            surfaceMap: Map<StreamId, Surface>
-                        ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
-                            FakeCaptureSequenceProcessor()
-                    },
-                    CameraSurfaceManager(),
-                    SystemTimeSource(),
-                    CameraGraph.Flags(
-                        quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
-                        quirkCloseCaptureSessionOnDisconnect = false,
-                    ),
-                    this
-                )
+                    CaptureSessionState(
+                        FakeGraphProcessor(),
+                        sessionFactory,
+                        object : Camera2CaptureSequenceProcessorFactory {
+                            override fun create(
+                                session: CameraCaptureSessionWrapper,
+                                surfaceMap: Map<StreamId, Surface>
+                            ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
+                                FakeCaptureSequenceProcessor()
+                        },
+                        CameraSurfaceManager(),
+                        SystemTimeSource(),
+                        CameraGraph.Flags(
+                            quirkFinalizeSessionOnCloseBehavior =
+                                FinalizeSessionOnCloseBehavior.OFF,
+                            quirkCloseCaptureSessionOnDisconnect = false,
+                        ),
+                        this
+                    )
             )
 
         assertThat(pendingOutputs).isNotNull()
@@ -152,15 +153,18 @@ internal class CaptureSessionFactoryTest {
 @Camera2ControllerScope
 @Component(
     modules =
-    [
-        FakeCameraGraphModule::class,
-        FakeCameraPipeModule::class,
-        Camera2CaptureSessionsModule::class,
-        FakeCamera2Module::class]
+        [
+            FakeCameraGraphModule::class,
+            FakeCameraPipeModule::class,
+            Camera2CaptureSessionsModule::class,
+            FakeCamera2Module::class
+        ]
 )
 internal interface Camera2CaptureSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
+
     fun sessionFactory(): CaptureSessionFactory
+
     fun streamMap(): StreamGraphImpl
 }
 
@@ -170,12 +174,9 @@ class FakeCameraPipeModule(
     private val context: Context,
     private val fakeCamera: RobolectricCameras.FakeCamera
 ) {
-    @Provides
-    fun provideFakeCamera() = fakeCamera
+    @Provides fun provideFakeCamera() = fakeCamera
 
-    @Provides
-    @Singleton
-    fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+    @Provides @Singleton fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
 }
 
 @Module(includes = [SharedCameraGraphModules::class])
@@ -201,33 +202,34 @@ class FakeCamera2Module {
     @Singleton
     internal fun provideFakeCamera2MetadataProvider(
         fakeCamera: RobolectricCameras.FakeCamera
-    ): Camera2MetadataProvider = object : Camera2MetadataProvider {
-        override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
-            return fakeCamera.metadata
-        }
+    ): Camera2MetadataProvider =
+        object : Camera2MetadataProvider {
+            override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
+                return fakeCamera.metadata
+            }
 
-        override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
-            return fakeCamera.metadata
-        }
+            override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
+                return fakeCamera.metadata
+            }
 
-        override fun getCameraExtensionCharacteristics(
-            cameraId: CameraId
-        ): CameraExtensionCharacteristics {
-            TODO("b/299356087 - Add support for fake extension metadata")
-        }
+            override fun getCameraExtensionCharacteristics(
+                cameraId: CameraId
+            ): CameraExtensionCharacteristics {
+                TODO("b/299356087 - Add support for fake extension metadata")
+            }
 
-        override suspend fun getCameraExtensionMetadata(
-            cameraId: CameraId,
-            extension: Int
-        ): CameraExtensionMetadata {
-            TODO("b/299356087 - Add support for fake extension metadata")
-        }
+            override suspend fun getCameraExtensionMetadata(
+                cameraId: CameraId,
+                extension: Int
+            ): CameraExtensionMetadata {
+                TODO("b/299356087 - Add support for fake extension metadata")
+            }
 
-        override fun awaitCameraExtensionMetadata(
-            cameraId: CameraId,
-            extension: Int
-        ): CameraExtensionMetadata {
-            TODO("b/299356087 - Add support for fake extension metadata")
+            override fun awaitCameraExtensionMetadata(
+                cameraId: CameraId,
+                extension: Int
+            ): CameraExtensionMetadata {
+                TODO("b/299356087 - Add support for fake extension metadata")
+            }
         }
-    }
 }

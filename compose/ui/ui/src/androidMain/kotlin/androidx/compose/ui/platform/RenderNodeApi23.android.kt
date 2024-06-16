@@ -30,10 +30,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
 
 /**
- * RenderNode on M-O devices, where RenderNode isn't officially supported. This class uses
- * a hidden android.view.RenderNode API that we have stubs for in the ui-android-stubs module.
- * This implementation has higher performance than the View implementation by both avoiding
- * reflection and using the lower overhead RenderNode instead of Views.
+ * RenderNode on M-O devices, where RenderNode isn't officially supported. This class uses a hidden
+ * android.view.RenderNode API that we have stubs for in the ui-android-stubs module. This
+ * implementation has higher performance than the View implementation by both avoiding reflection
+ * and using the lower overhead RenderNode instead of Views.
  */
 @RequiresApi(Build.VERSION_CODES.M)
 internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRenderNode {
@@ -46,8 +46,7 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
             // This is only to force loading the DisplayListCanvas class and causing the
             // MRenderNode to fail with a NoClassDefFoundError during construction instead of
             // later.
-            @Suppress("UNUSED_VARIABLE")
-            val displayListCanvas: DisplayListCanvas? = null
+            @Suppress("UNUSED_VARIABLE") val displayListCanvas: DisplayListCanvas? = null
 
             // Ensure that we can access properties of the RenderNode. We want to force an
             // exception here if there is a problem accessing any of these so that we can
@@ -81,14 +80,18 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         }
     }
 
-    override val uniqueId: Long get() = 0
+    override val uniqueId: Long
+        get() = 0
 
     override var left: Int = 0
     override var top: Int = 0
     override var right: Int = 0
     override var bottom: Int = 0
-    override val width: Int get() = right - left
-    override val height: Int get() = bottom - top
+    override val width: Int
+        get() = right - left
+
+    override val height: Int
+        get() = bottom - top
 
     // API level 23 does not support RenderEffect so keep the field around for consistency
     // however, it will not be applied to the rendered result. Consumers are encouraged
@@ -232,10 +235,11 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
             internalCompositingStrategy = value
         }
 
-    internal fun getLayerType(): Int = when (internalCompositingStrategy) {
-        CompositingStrategy.Offscreen -> View.LAYER_TYPE_HARDWARE
-        else -> View.LAYER_TYPE_NONE
-    }
+    internal fun getLayerType(): Int =
+        when (internalCompositingStrategy) {
+            CompositingStrategy.Offscreen -> View.LAYER_TYPE_HARDWARE
+            else -> View.LAYER_TYPE_NONE
+        }
 
     internal fun hasOverlappingRendering(): Boolean = renderNode.hasOverlappingRendering()
 
@@ -266,11 +270,7 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         renderNode.offsetTopAndBottom(offset)
     }
 
-    override fun record(
-        canvasHolder: CanvasHolder,
-        clipPath: Path?,
-        drawBlock: (Canvas) -> Unit
-    ) {
+    override fun record(canvasHolder: CanvasHolder, clipPath: Path?, drawBlock: (Canvas) -> Unit) {
         val canvas = renderNode.start(width, height)
         canvasHolder.drawInto(canvas) {
             if (clipPath != null) {

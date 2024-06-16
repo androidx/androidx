@@ -42,17 +42,18 @@ fun ColorSchemeFixedAccentColorSample() {
     )
     val material3LightColors = lightColorScheme()
     val material3DarkColors = darkColorScheme()
-    fun getFixedAccentColors() = FixedAccentColors(
-        primaryFixed = material3LightColors.primaryContainer,
-        onPrimaryFixed = material3LightColors.onPrimaryContainer,
-        secondaryFixed = material3LightColors.secondaryContainer,
-        onSecondaryFixed = material3LightColors.onSecondaryContainer,
-        tertiaryFixed = material3LightColors.tertiaryContainer,
-        onTertiaryFixed = material3LightColors.onTertiaryContainer,
-        primaryFixedDim = material3DarkColors.primary,
-        secondaryFixedDim = material3DarkColors.secondary,
-        tertiaryFixedDim = material3DarkColors.tertiary
-    )
+    fun getFixedAccentColors() =
+        FixedAccentColors(
+            primaryFixed = material3LightColors.primaryContainer,
+            onPrimaryFixed = material3LightColors.onPrimaryContainer,
+            secondaryFixed = material3LightColors.secondaryContainer,
+            onSecondaryFixed = material3LightColors.onSecondaryContainer,
+            tertiaryFixed = material3LightColors.tertiaryContainer,
+            onTertiaryFixed = material3LightColors.onTertiaryContainer,
+            primaryFixedDim = material3DarkColors.primary,
+            secondaryFixedDim = material3DarkColors.secondary,
+            tertiaryFixedDim = material3DarkColors.tertiary
+        )
     val LocalFixedAccentColors = compositionLocalOf { getFixedAccentColors() }
 
     @Composable

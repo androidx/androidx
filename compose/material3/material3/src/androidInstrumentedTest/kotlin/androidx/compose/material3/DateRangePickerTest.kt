@@ -44,26 +44,26 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class DateRangePickerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun state_initWithoutRemember() {
-        val dateRangePickerState = DateRangePickerState(
-            locale = Locale.getDefault(),
-            initialSelectedStartDateMillis = 1649721600000L, // 04/12/2022
-            initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours // 04/13/2022
-        )
+        val dateRangePickerState =
+            DateRangePickerState(
+                locale = Locale.getDefault(),
+                initialSelectedStartDateMillis = 1649721600000L, // 04/12/2022
+                initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours // 04/13/2022
+            )
         with(dateRangePickerState) {
             assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
-            assertThat(displayedMonthMillis).isEqualTo(
-                // Using the JVM Locale.getDefault() for testing purposes only.
-                createCalendarModel(Locale.getDefault()).getMonth(
-                    year = 2022,
-                    month = 4
-                ).startUtcTimeMillis
-            )
+            assertThat(displayedMonthMillis)
+                .isEqualTo(
+                    // Using the JVM Locale.getDefault() for testing purposes only.
+                    createCalendarModel(Locale.getDefault())
+                        .getMonth(year = 2022, month = 4)
+                        .startUtcTimeMillis
+                )
         }
     }
 
@@ -72,23 +72,24 @@ class DateRangePickerTest {
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
             // 04/12/2022
-            dateRangePickerState = rememberDateRangePickerState(
-                // 04/12/2022
-                initialSelectedStartDateMillis = 1649721600000L,
-                // 04/13/2022
-                initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours
-            )
+            dateRangePickerState =
+                rememberDateRangePickerState(
+                    // 04/12/2022
+                    initialSelectedStartDateMillis = 1649721600000L,
+                    // 04/13/2022
+                    initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours
+                )
         }
         with(dateRangePickerState) {
             assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
-            assertThat(displayedMonthMillis).isEqualTo(
-                // Using the JVM Locale.getDefault() for testing purposes only.
-                createCalendarModel(Locale.getDefault()).getMonth(
-                    year = 2022,
-                    month = 4
-                ).startUtcTimeMillis
-            )
+            assertThat(displayedMonthMillis)
+                .isEqualTo(
+                    // Using the JVM Locale.getDefault() for testing purposes only.
+                    createCalendarModel(Locale.getDefault())
+                        .getMonth(year = 2022, month = 4)
+                        .startUtcTimeMillis
+                )
         }
     }
 
@@ -109,12 +110,12 @@ class DateRangePickerTest {
             // timestamp
             assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
-            assertThat(displayedMonthMillis).isEqualTo(
-                createCalendarModel(Locale.getDefault()).getMonth(
-                    year = 2022,
-                    month = 4
-                ).startUtcTimeMillis
-            )
+            assertThat(displayedMonthMillis)
+                .isEqualTo(
+                    createCalendarModel(Locale.getDefault())
+                        .getMonth(year = 2022, month = 4)
+                        .startUtcTimeMillis
+                )
         }
     }
 
@@ -145,13 +146,14 @@ class DateRangePickerTest {
     fun state_initWithEqualStartAndEndDates() {
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
-            dateRangePickerState = rememberDateRangePickerState(
-                // 04/12/2022
-                initialSelectedStartDateMillis = 1649721600000L,
-                // 04/12/2022 + a few added milliseconds to ensure that the state is initialized
-                // with a canonical date.
-                initialSelectedEndDateMillis = 1649721600000L + 1000
-            )
+            dateRangePickerState =
+                rememberDateRangePickerState(
+                    // 04/12/2022
+                    initialSelectedStartDateMillis = 1649721600000L,
+                    // 04/12/2022 + a few added milliseconds to ensure that the state is initialized
+                    // with a canonical date.
+                    initialSelectedEndDateMillis = 1649721600000L + 1000
+                )
         }
         with(dateRangePickerState) {
             // Start and end are expected to be equal.
@@ -197,63 +199,56 @@ class DateRangePickerTest {
             defaultStartSelectionHeadline = getString(Strings.DateRangePickerStartHeadline)
             defaultEndSelectionHeadline = getString(Strings.DateRangePickerEndHeadline)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
-            dateRangePickerState = rememberDateRangePickerState(
-                initialDisplayedMonthMillis = monthInUtcMillis
-            )
+            dateRangePickerState =
+                rememberDateRangePickerState(initialDisplayedMonthMillis = monthInUtcMillis)
             DateRangePicker(state = dateRangePickerState)
         }
 
-        rule.onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true)
-            .assertExists()
-        rule.onNodeWithText(defaultEndSelectionHeadline, useUnmergedTree = true)
-            .assertExists()
+        rule.onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true).assertExists()
+        rule.onNodeWithText(defaultEndSelectionHeadline, useUnmergedTree = true).assertExists()
 
         // First date selection: Select the 10th day of the displayed month.
-        rule.onAllNodes(hasText("10", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("10", substring = true) and hasClickAction())
             .onFirst()
             .assertIsNotSelected()
-        rule.onAllNodes(hasText("10", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("10", substring = true) and hasClickAction())
             .onFirst()
             .performClick()
 
         // Assert the state holds a valid start date.
         rule.runOnIdle {
-            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 1,
-                    dayOfMonth = 10
-                )
-            )
+            assertThat(dateRangePickerState.selectedStartDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 10))
             assertThat(dateRangePickerState.selectedEndDateMillis).isNull()
         }
         // Check that the title holds the start of the selection as a date, and ends with a suffix
         // string.
-        rule.onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true)
+        rule
+            .onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true)
             .assertDoesNotExist()
         rule.onNodeWithText("Jan 10, 2019", useUnmergedTree = true).assertExists()
         rule.onNodeWithText(defaultEndSelectionHeadline, useUnmergedTree = true).assertExists()
-        rule.onAllNodes(hasText("10", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("10", substring = true) and hasClickAction())
             .onFirst()
             .assertIsSelected()
 
         // Second date selection: Select the 14th day of the displayed month.
-        rule.onAllNodes(hasText("14", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("14", substring = true) and hasClickAction())
             .onFirst()
             .assertIsNotSelected()
-        rule.onAllNodes(hasText("14", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("14", substring = true) and hasClickAction())
             .onFirst()
             .performClick()
 
         // Assert the state holds a valid end date.
         rule.runOnIdle {
-            assertThat(dateRangePickerState.selectedEndDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 1,
-                    dayOfMonth = 14
-                )
-            )
+            assertThat(dateRangePickerState.selectedEndDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 14))
         }
         rule.onNodeWithText(defaultEndSelectionHeadline).assertDoesNotExist()
         rule.onNodeWithText("Jan 10, 2019", useUnmergedTree = true).assertExists()
@@ -269,59 +264,49 @@ class DateRangePickerTest {
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 1)
-            dateRangePickerState = rememberDateRangePickerState(
-                initialDisplayedMonthMillis = monthInUtcMillis
-            )
+            dateRangePickerState =
+                rememberDateRangePickerState(initialDisplayedMonthMillis = monthInUtcMillis)
             DateRangePicker(state = dateRangePickerState)
         }
 
         // First date selection: Select the 15th day of the first displayed month in the list.
-        rule.onAllNodes(hasText("15", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("15", substring = true) and hasClickAction())
             .onFirst()
             .performClick()
 
         // Assert the state holds a valid start date.
         rule.runOnIdle {
-            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 3,
-                    dayOfMonth = 15
-                )
-            )
+            assertThat(dateRangePickerState.selectedStartDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 15))
             assertThat(dateRangePickerState.selectedEndDateMillis).isNull()
         }
 
         // Select a second date that is earlier than the first date.
-        rule.onAllNodes(hasText("12", substring = true) and hasClickAction())
+        rule
+            .onAllNodes(hasText("12", substring = true) and hasClickAction())
             .onFirst()
             .performClick()
 
         // Assert the state now holds the second selection as the start date.
         rule.runOnIdle {
-            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 3,
-                    dayOfMonth = 12
-                )
-            )
+            assertThat(dateRangePickerState.selectedStartDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 12))
             assertThat(dateRangePickerState.selectedEndDateMillis).isNull()
         }
     }
 
     /**
-     * Tests that clicking the same date twice creates a single-day range, and that clicking it
-     * a third time resets the end date.
+     * Tests that clicking the same date twice creates a single-day range, and that clicking it a
+     * third time resets the end date.
      */
     @Test
     fun dateSelection_sameDateForStartAndEnd() {
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 1)
-            dateRangePickerState = rememberDateRangePickerState(
-                initialDisplayedMonthMillis = monthInUtcMillis
-            )
+            dateRangePickerState =
+                rememberDateRangePickerState(initialDisplayedMonthMillis = monthInUtcMillis)
             DateRangePicker(state = dateRangePickerState)
         }
 
@@ -333,20 +318,10 @@ class DateRangePickerTest {
 
         // Assert the state holds a valid start and end dates for the same date.
         rule.runOnIdle {
-            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 3,
-                    dayOfMonth = 15
-                )
-            )
-            assertThat(dateRangePickerState.selectedEndDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 3,
-                    dayOfMonth = 15
-                )
-            )
+            assertThat(dateRangePickerState.selectedStartDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 15))
+            assertThat(dateRangePickerState.selectedEndDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 15))
         }
 
         // Click the node again to reset the end date.
@@ -354,13 +329,8 @@ class DateRangePickerTest {
 
         // Assert the state now holds just a start date.
         rule.runOnIdle {
-            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 3,
-                    dayOfMonth = 15
-                )
-            )
+            assertThat(dateRangePickerState.selectedStartDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 15))
             assertThat(dateRangePickerState.selectedEndDateMillis).isNull()
         }
     }
@@ -374,12 +344,13 @@ class DateRangePickerTest {
             defaultStartSelectionHeadline = getString(Strings.DateRangePickerStartHeadline)
             defaultEndSelectionHeadline = getString(Strings.DateRangePickerEndHeadline)
             // 04/12/2022
-            dateRangePickerState = rememberDateRangePickerState(
-                // 04/12/2022
-                initialSelectedStartDateMillis = 1649721600000L + 10000L,
-                // 04/13/2022
-                initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours
-            )
+            dateRangePickerState =
+                rememberDateRangePickerState(
+                    // 04/12/2022
+                    initialSelectedStartDateMillis = 1649721600000L + 10000L,
+                    // 04/13/2022
+                    initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours
+                )
             DateRangePicker(state = dateRangePickerState)
         }
         rule.onNodeWithText("Apr 12, 2022", useUnmergedTree = true).assertExists()
@@ -394,7 +365,8 @@ class DateRangePickerTest {
             assertThat(selectedEndDateMillis).isNull()
             rule.onNodeWithText("Apr 12, 2022", useUnmergedTree = true).assertDoesNotExist()
             rule.onNodeWithText("Apr 13, 2022", useUnmergedTree = true).assertDoesNotExist()
-            rule.onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true)
+            rule
+                .onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true)
                 .assertExists()
             rule.onNodeWithText(defaultEndSelectionHeadline, useUnmergedTree = true).assertExists()
         }
@@ -409,11 +381,8 @@ class DateRangePickerTest {
 
         // Setting the selection to a year that is out of range.
         dateRangePickerState.setSelection(
-            dayInUtcMilliseconds(
-                year = 1999,
-                month = 5,
-                dayOfMonth = 11
-            ), null
+            dayInUtcMilliseconds(year = 1999, month = 5, dayOfMonth = 11),
+            null
         )
     }
 
@@ -426,16 +395,8 @@ class DateRangePickerTest {
 
         // Expecting an exception since the start date is after the end date.
         dateRangePickerState.setSelection(
-            startDateMillis = dayInUtcMilliseconds(
-                year = 2000,
-                month = 10,
-                dayOfMonth = 10
-            ),
-            endDateMillis = dayInUtcMilliseconds(
-                year = 1998,
-                month = 10,
-                dayOfMonth = 10
-            )
+            startDateMillis = dayInUtcMilliseconds(year = 2000, month = 10, dayOfMonth = 10),
+            endDateMillis = dayInUtcMilliseconds(year = 1998, month = 10, dayOfMonth = 10)
         )
     }
 
@@ -443,18 +404,14 @@ class DateRangePickerTest {
     fun state_restoresDatePickerState() {
         val restorationTester = StateRestorationTester(rule)
         var dateRangePickerState: DateRangePickerState? = null
-        restorationTester.setContent {
-            dateRangePickerState = rememberDateRangePickerState()
-        }
+        restorationTester.setContent { dateRangePickerState = rememberDateRangePickerState() }
         // Using the JVM Locale.getDefault() for testing purposes only.
         val calendarModel = createCalendarModel(Locale.getDefault())
         with(dateRangePickerState!!) {
             // 04/12/2022
-            val startDate =
-                calendarModel.getCanonicalDate(1649721600000L)
+            val startDate = calendarModel.getCanonicalDate(1649721600000L)
             // 04/13/2022
-            val endDate =
-                calendarModel.getCanonicalDate(1649721600000L + MillisecondsIn24Hours)
+            val endDate = calendarModel.getCanonicalDate(1649721600000L + MillisecondsIn24Hours)
             val displayedMonth = calendarModel.getMonth(startDate)
             rule.runOnIdle {
                 setSelection(startDate.utcTimeMillis, endDate.utcTimeMillis)
@@ -469,8 +426,7 @@ class DateRangePickerTest {
                 assertThat(selectedStartDateMillis).isEqualTo(startDate.utcTimeMillis)
                 assertThat(selectedEndDateMillis).isEqualTo(endDate.utcTimeMillis)
                 assertThat(displayedMonthMillis).isEqualTo(displayedMonth.startUtcTimeMillis)
-                assertThat(dateRangePickerState!!.selectedStartDateMillis)
-                    .isEqualTo(1649721600000L)
+                assertThat(dateRangePickerState!!.selectedStartDateMillis).isEqualTo(1649721600000L)
                 assertThat(dateRangePickerState!!.selectedEndDateMillis)
                     .isEqualTo(1649721600000L + MillisecondsIn24Hours)
             }

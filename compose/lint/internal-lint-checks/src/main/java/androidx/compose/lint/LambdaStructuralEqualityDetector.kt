@@ -43,60 +43,54 @@ import org.jetbrains.uast.UastBinaryOperator
  * referentially (=== or !==) to avoid this issue.
  */
 class LambdaStructuralEqualityDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableUastTypes() = listOf(
-        UBinaryExpression::class.java,
-        UCallExpression::class.java
-    )
+    override fun getApplicableUastTypes() =
+        listOf(UBinaryExpression::class.java, UCallExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitBinaryExpression(node: UBinaryExpression) {
-            val op = node.operator
-            if (op == UastBinaryOperator.EQUALS ||
-                op == UastBinaryOperator.NOT_EQUALS) {
-                val left = node.leftOperand.sourcePsi as? KtExpression ?: return
-                val right = node.rightOperand.sourcePsi as? KtExpression ?: return
-                if (left.isFunctionType() && right.isFunctionType()) {
-                    val replacement = if (op == UastBinaryOperator.EQUALS) "===" else "!=="
-                    context.report(
-                        ISSUE,
-                        node.operatorIdentifier,
-                        context.getNameLocation(node.operatorIdentifier ?: node),
-                        BriefDescription,
-                        LintFix.create()
-                            .replace()
-                            .name("Change to $replacement")
-                            .text(op.text)
-                            .with(replacement)
-                            .autoFix()
-                            .build()
-                    )
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitBinaryExpression(node: UBinaryExpression) {
+                val op = node.operator
+                if (op == UastBinaryOperator.EQUALS || op == UastBinaryOperator.NOT_EQUALS) {
+                    val left = node.leftOperand.sourcePsi as? KtExpression ?: return
+                    val right = node.rightOperand.sourcePsi as? KtExpression ?: return
+                    if (left.isFunctionType() && right.isFunctionType()) {
+                        val replacement = if (op == UastBinaryOperator.EQUALS) "===" else "!=="
+                        context.report(
+                            ISSUE,
+                            node.operatorIdentifier,
+                            context.getNameLocation(node.operatorIdentifier ?: node),
+                            BriefDescription,
+                            LintFix.create()
+                                .replace()
+                                .name("Change to $replacement")
+                                .text(op.text)
+                                .with(replacement)
+                                .autoFix()
+                                .build()
+                        )
+                    }
+                }
+            }
+
+            override fun visitCallExpression(node: UCallExpression) {
+                if (node.methodName == "equals") {
+                    val left = node.receiver?.sourcePsi as? KtExpression ?: return
+                    val right =
+                        node.valueArguments.firstOrNull()?.sourcePsi as? KtExpression ?: return
+                    if (left.isFunctionType() && right.isFunctionType()) {
+                        context.report(ISSUE, node, context.getNameLocation(node), BriefDescription)
+                    }
                 }
             }
         }
 
-        override fun visitCallExpression(node: UCallExpression) {
-            if (node.methodName == "equals") {
-                val left = node.receiver?.sourcePsi as? KtExpression ?: return
-                val right = node.valueArguments.firstOrNull()?.sourcePsi as? KtExpression ?: return
-                if (left.isFunctionType() && right.isFunctionType()) {
-                    context.report(
-                        ISSUE,
-                        node,
-                        context.getNameLocation(node),
-                        BriefDescription
-                    )
-                }
-            }
-        }
-    }
-
-    private fun KtExpression.isFunctionType(): Boolean = analyze(this) {
-        getKtType()?.isFunctionType == true
-    }
+    private fun KtExpression.isFunctionType(): Boolean =
+        analyze(this) { getKtType()?.isFunctionType == true }
 
     companion object {
-        private const val BriefDescription = "Checking lambdas for structural equality, instead " +
-            "of checking for referential equality"
+        private const val BriefDescription =
+            "Checking lambdas for structural equality, instead " +
+                "of checking for referential equality"
         private const val Explanation =
             "Checking structural equality on lambdas can lead to issues, as function references " +
                 "(::lambda) do not consider their capture scope in their equals implementation. " +
@@ -104,15 +98,18 @@ class LambdaStructuralEqualityDetector : Detector(), SourceCodeScanner {
                 "different references with a different capture scope. Instead, lambdas should be" +
                 "compared referentially (=== or !==) to avoid this issue."
 
-        val ISSUE = Issue.create(
-            "LambdaStructuralEquality",
-            BriefDescription,
-            Explanation,
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                LambdaStructuralEqualityDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ISSUE =
+            Issue.create(
+                "LambdaStructuralEquality",
+                BriefDescription,
+                Explanation,
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(
+                    LambdaStructuralEqualityDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

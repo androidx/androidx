@@ -21,7 +21,7 @@ import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface AuthenticatorResponse {
-  var clientJson: JSONObject
+    var clientJson: JSONObject
 
-  fun json(): JSONObject
+    fun json(): JSONObject
 }

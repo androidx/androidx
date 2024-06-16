@@ -89,16 +89,18 @@ fun ScrollableDemos() {
             }
 
             item {
-                Box(modifier = Modifier
-                    .padding(vertical = 16.dp)
-                    .height(120.dp)
-                    .fillMaxWidth()
-                    .background(
-                        Brush.linearGradient(
-                            colors = RainbowColors,
-                            tileMode = TileMode.Mirror
-                        )
-                    )) {
+                Box(
+                    modifier =
+                        Modifier.padding(vertical = 16.dp)
+                            .height(120.dp)
+                            .fillMaxWidth()
+                            .background(
+                                Brush.linearGradient(
+                                    colors = RainbowColors,
+                                    tileMode = TileMode.Mirror
+                                )
+                            )
+                ) {
                     Text("Left empty for demo purposes", Modifier.align(Alignment.Center))
                 }
             }
@@ -132,14 +134,8 @@ fun ScrollableDemosRtl() {
 fun SingleLineHorizontalScrollableTextField() {
     val layoutDirection = LocalLayoutDirection.current
     val language = if (layoutDirection == LayoutDirection.Ltr) Language.Latin else Language.Hebrew
-    val state = remember(language) {
-        TextFieldState(
-            loremIpsum(
-                wordCount = 100,
-                language = language
-            )
-        )
-    }
+    val state =
+        remember(language) { TextFieldState(loremIpsum(wordCount = 100, language = language)) }
     BasicTextField(
         state = state,
         lineLimits = SingleLine,
@@ -153,15 +149,10 @@ fun SingleLineHorizontalScrollableTextField() {
 fun SingleLineHorizontalScrollableTextFieldWithNewlines() {
     val layoutDirection = LocalLayoutDirection.current
     val language = if (layoutDirection == LayoutDirection.Ltr) Language.Latin else Language.Hebrew
-    val state = remember(language) {
-        TextFieldState(
-            loremIpsum(
-                wordCount = 20,
-                language = language,
-                separator = "\n"
-            )
-        )
-    }
+    val state =
+        remember(language) {
+            TextFieldState(loremIpsum(wordCount = 20, language = language, separator = "\n"))
+        }
     BasicTextField(
         state = state,
         lineLimits = SingleLine,
@@ -174,14 +165,8 @@ fun SingleLineHorizontalScrollableTextFieldWithNewlines() {
 fun MultiLineVerticalScrollableTextField() {
     val layoutDirection = LocalLayoutDirection.current
     val language = if (layoutDirection == LayoutDirection.Ltr) Language.Latin else Language.Hebrew
-    val state = remember(language) {
-        TextFieldState(
-            loremIpsum(
-                wordCount = 200,
-                language = language
-            )
-        )
-    }
+    val state =
+        remember(language) { TextFieldState(loremIpsum(wordCount = 200, language = language)) }
     BasicTextField(
         state = state,
         textStyle = TextStyle(fontSize = 24.sp),
@@ -195,22 +180,14 @@ fun MultiLineVerticalScrollableTextField() {
 fun HoistedHorizontalScroll() {
     val layoutDirection = LocalLayoutDirection.current
     val language = if (layoutDirection == LayoutDirection.Ltr) Language.Latin else Language.Hebrew
-    val state = remember(language) {
-        TextFieldState(
-            loremIpsum(
-                wordCount = 20,
-                language = language
-            )
-        )
-    }
+    val state =
+        remember(language) { TextFieldState(loremIpsum(wordCount = 20, language = language)) }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     Column {
         Slider(
             value = scrollState.value.toFloat(),
-            onValueChange = {
-                coroutineScope.launch { scrollState.scrollTo(it.roundToInt()) }
-            },
+            onValueChange = { coroutineScope.launch { scrollState.scrollTo(it.roundToInt()) } },
             valueRange = 0f..scrollState.maxValue.toFloat()
         )
         BasicTextField(
@@ -228,30 +205,16 @@ fun HoistedHorizontalScroll() {
 fun SharedHoistedScroll() {
     val layoutDirection = LocalLayoutDirection.current
     val language = if (layoutDirection == LayoutDirection.Ltr) Language.Latin else Language.Hebrew
-    val state1 = remember(language) {
-        TextFieldState(
-            loremIpsum(
-                wordCount = 20,
-                language = language
-            )
-        )
-    }
-    val state2 = remember(language) {
-        TextFieldState(
-            loremIpsum(
-                wordCount = 20,
-                language = language
-            )
-        )
-    }
+    val state1 =
+        remember(language) { TextFieldState(loremIpsum(wordCount = 20, language = language)) }
+    val state2 =
+        remember(language) { TextFieldState(loremIpsum(wordCount = 20, language = language)) }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     Column {
         Slider(
             value = scrollState.value.toFloat(),
-            onValueChange = {
-                coroutineScope.launch { scrollState.scrollTo(it.roundToInt()) }
-            },
+            onValueChange = { coroutineScope.launch { scrollState.scrollTo(it.roundToInt()) } },
             valueRange = 0f..scrollState.maxValue.toFloat()
         )
         BasicTextField(
@@ -280,9 +243,9 @@ fun simpleDecoration(): TextFieldDecorator {
             val isDecorated = LocalDecoration.current
             if (isDecorated) {
                 Box(
-                    modifier = Modifier
-                        .border(1.dp, Color.DarkGray, RoundedCornerShape(4.dp))
-                        .padding(8.dp)
+                    modifier =
+                        Modifier.border(1.dp, Color.DarkGray, RoundedCornerShape(4.dp))
+                            .padding(8.dp)
                 ) {
                     it()
                 }

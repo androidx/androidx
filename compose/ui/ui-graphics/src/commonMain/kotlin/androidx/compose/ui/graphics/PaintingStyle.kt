@@ -30,24 +30,23 @@ value class PaintingStyle internal constructor(@Suppress("unused") private val v
     companion object {
 
         /**
-         * Apply the [Paint] to the inside of the shape. For example, when
-         * applied to the [Canvas.drawCircle] call, this results in a disc
-         * of the given size being painted.
+         * Apply the [Paint] to the inside of the shape. For example, when applied to the
+         * [Canvas.drawCircle] call, this results in a disc of the given size being painted.
          */
         val Fill = PaintingStyle(0)
 
         /**
-         * Apply the [Paint] to the edge of the shape. For example, when
-         * applied to the [Canvas.drawCircle] call, this results is a hoop
-         * of the given size being painted. The line drawn on the edge will
-         * be the width given by the [Paint.strokeWidth] property.
+         * Apply the [Paint] to the edge of the shape. For example, when applied to the
+         * [Canvas.drawCircle] call, this results is a hoop of the given size being painted. The
+         * line drawn on the edge will be the width given by the [Paint.strokeWidth] property.
          */
         val Stroke = PaintingStyle(1)
     }
 
-    override fun toString() = when (this) {
-        Fill -> "Fill"
-        Stroke -> "Stroke"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            Fill -> "Fill"
+            Stroke -> "Stroke"
+            else -> "Unknown"
+        }
 }

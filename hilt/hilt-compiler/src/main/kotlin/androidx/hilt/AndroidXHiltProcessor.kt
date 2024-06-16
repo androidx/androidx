@@ -20,12 +20,8 @@ import androidx.hilt.work.WorkerStep
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import javax.lang.model.SourceVersion
 
-/**
- * Annotation processor for the various AndroidX Hilt extensions.
- */
-class AndroidXHiltProcessor : JavacBasicAnnotationProcessor(
-    config = WorkerStep.ENV_CONFIG
-) {
+/** Annotation processor for the various AndroidX Hilt extensions. */
+class AndroidXHiltProcessor : JavacBasicAnnotationProcessor(config = WorkerStep.ENV_CONFIG) {
 
     override fun processingSteps() = listOf(WorkerStep())
 

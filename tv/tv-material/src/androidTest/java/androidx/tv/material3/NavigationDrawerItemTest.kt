@@ -58,15 +58,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(
-    ExperimentalTestApi::class,
-    ExperimentalTvMaterial3Api::class
-)
+@OptIn(ExperimentalTestApi::class, ExperimentalTvMaterial3Api::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavigationDrawerItemTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun navigationDrawerItem_findByTagAndClick() {
@@ -78,7 +74,7 @@ class NavigationDrawerItemTest {
                 NavigationDrawerItem(
                     selected = false,
                     onClick = onClick,
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -86,12 +82,10 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
-            .requestFocus()
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(1)
+        rule.onNodeWithTag(NavigationDrawerItemTag).requestFocus().performKeyInput {
+            pressKey(Key.DirectionCenter)
         }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -110,7 +104,7 @@ class NavigationDrawerItemTest {
                     NavigationDrawerItem(
                         selected = false,
                         onClick = openItemOnClick,
-                        leadingContent = { },
+                        leadingContent = {},
                         modifier = Modifier.testTag(openItemTag),
                     ) {
                         Text(text = "Test Text")
@@ -118,7 +112,7 @@ class NavigationDrawerItemTest {
                     NavigationDrawerItem(
                         selected = false,
                         onClick = closeItemOnClick,
-                        leadingContent = { },
+                        leadingContent = {},
                         modifier = Modifier.testTag(closeItemTag),
                     ) {
                         Text(text = "Test Text")
@@ -127,18 +121,18 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(openItemTag)
-            .requestFocus()
-            .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.onNodeWithTag(openItemTag).requestFocus().performKeyInput {
+            pressKey(Key.DirectionCenter)
+        }
 
         rule.runOnIdle {
             Truth.assertThat(openItemClickCounter).isEqualTo(1)
             Truth.assertThat(closeItemClickCounter).isEqualTo(0)
         }
 
-        rule.onNodeWithTag(closeItemTag)
-            .requestFocus()
-            .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.onNodeWithTag(closeItemTag).requestFocus().performKeyInput {
+            pressKey(Key.DirectionCenter)
+        }
 
         rule.runOnIdle {
             Truth.assertThat(openItemClickCounter).isEqualTo(1)
@@ -155,9 +149,9 @@ class NavigationDrawerItemTest {
             DrawerScope {
                 NavigationDrawerItem(
                     selected = false,
-                    onClick = { },
+                    onClick = {},
                     onLongClick = onLongClick,
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -165,19 +159,17 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemTag)
             .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemTag)
             .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(3)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(3) }
     }
 
     @Test
@@ -190,7 +182,7 @@ class NavigationDrawerItemTest {
                 NavigationDrawerItem(
                     selected = checkedState,
                     onClick = onClick,
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -198,12 +190,10 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
-            .requestFocus()
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        rule.runOnIdle {
-            Truth.assertThat(!checkedState)
+        rule.onNodeWithTag(NavigationDrawerItemTag).requestFocus().performKeyInput {
+            pressKey(Key.DirectionCenter)
         }
+        rule.runOnIdle { Truth.assertThat(!checkedState) }
     }
 
     @Test
@@ -217,22 +207,18 @@ class NavigationDrawerItemTest {
                     onClick = {},
                     trailingContent = {
                         Box(
-                            modifier = Modifier
-                                .size(NavigationDrawerItemDefaults.IconSize)
-                                .background(Color.Red)
-                                .testTag(testTrailingContentTag)
+                            modifier =
+                                Modifier.size(NavigationDrawerItemDefaults.IconSize)
+                                    .background(Color.Red)
+                                    .testTag(testTrailingContentTag)
                         )
                     },
-                    leadingContent = { },
-                    modifier = Modifier
-                        .testTag(NavigationDrawerItemTag)
-                        .border(1.dp, Color.Blue),
+                    leadingContent = {},
+                    modifier = Modifier.testTag(NavigationDrawerItemTag).border(1.dp, Color.Blue),
                 ) {
                     Text(
                         text = "Test Text",
-                        modifier = Modifier
-                            .testTag(NavigationDrawerItemTextTag)
-                            .fillMaxWidth()
+                        modifier = Modifier.testTag(NavigationDrawerItemTextTag).fillMaxWidth()
                     )
                 }
             }
@@ -241,13 +227,14 @@ class NavigationDrawerItemTest {
         rule.waitForIdle()
 
         val itemBounds = rule.onNodeWithTag(NavigationDrawerItemTag).getUnclippedBoundsInRoot()
-        val textBounds = rule.onNodeWithTag(
-            NavigationDrawerItemTextTag,
-            useUnmergedTree = true
-        ).getUnclippedBoundsInRoot()
-        val trailingContentBounds = rule
-            .onNodeWithTag(testTrailingContentTag, useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val textBounds =
+            rule
+                .onNodeWithTag(NavigationDrawerItemTextTag, useUnmergedTree = true)
+                .getUnclippedBoundsInRoot()
+        val trailingContentBounds =
+            rule
+                .onNodeWithTag(testTrailingContentTag, useUnmergedTree = true)
+                .getUnclippedBoundsInRoot()
 
         (itemBounds.bottom - trailingContentBounds.bottom).assertIsEqualTo(
             16.dp,
@@ -274,7 +261,7 @@ class NavigationDrawerItemTest {
                 NavigationDrawerItem(
                     selected = selected,
                     onClick = { selected = !selected },
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -282,7 +269,8 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, false))
@@ -302,7 +290,7 @@ class NavigationDrawerItemTest {
                     selected = selected,
                     onClick = {},
                     onLongClick = { selected = !selected },
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -310,7 +298,8 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
@@ -330,7 +319,7 @@ class NavigationDrawerItemTest {
                     selected = false,
                     onClick = {},
                     enabled = false,
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -338,8 +327,7 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemTag)
-            .assertIsNotEnabled()
+        rule.onNodeWithTag(NavigationDrawerItemTag).assertIsNotEnabled()
     }
 
     @Test
@@ -350,7 +338,7 @@ class NavigationDrawerItemTest {
                 NavigationDrawerItem(
                     selected = false,
                     onClick = { enabled = false },
-                    leadingContent = { },
+                    leadingContent = {},
                     enabled = enabled,
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
@@ -358,7 +346,8 @@ class NavigationDrawerItemTest {
                 }
             }
         }
-        rule.onNodeWithTag(NavigationDrawerItemTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemTag)
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -378,7 +367,7 @@ class NavigationDrawerItemTest {
                 NavigationDrawerItem(
                     selected = false,
                     onClick = {},
-                    leadingContent = { },
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
@@ -395,15 +384,16 @@ class NavigationDrawerItemTest {
             DrawerScope {
                 NavigationDrawerItem(
                     selected = false,
-                    onClick = { },
-                    leadingContent = { },
+                    onClick = {},
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
                 }
             }
         }
-        rule.onNodeWithTag(NavigationDrawerItemTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemTag)
             .assertWidthIsEqualTo(rule.onRoot().getUnclippedBoundsInRoot().width)
     }
 
@@ -413,16 +403,15 @@ class NavigationDrawerItemTest {
             DrawerScope(false) {
                 NavigationDrawerItem(
                     selected = false,
-                    onClick = { },
-                    leadingContent = { },
+                    onClick = {},
+                    leadingContent = {},
                     modifier = Modifier.testTag(NavigationDrawerItemTag),
                 ) {
                     Text(text = "Test Text")
                 }
             }
         }
-        rule.onNodeWithTag(NavigationDrawerItemTag)
-            .assertWidthIsEqualTo(56.dp)
+        rule.onNodeWithTag(NavigationDrawerItemTag).assertWidthIsEqualTo(56.dp)
     }
 }
 
@@ -432,11 +421,7 @@ private fun DrawerScope(
     isActivated: Boolean = true,
     content: @Composable NavigationDrawerScope.() -> Unit
 ) {
-    Box {
-        NavigationDrawerScopeImpl(isActivated).apply {
-            content()
-        }
-    }
+    Box { NavigationDrawerScopeImpl(isActivated).apply { content() } }
 }
 
 private const val NavigationDrawerItemTag = "NavigationDrawerItem"

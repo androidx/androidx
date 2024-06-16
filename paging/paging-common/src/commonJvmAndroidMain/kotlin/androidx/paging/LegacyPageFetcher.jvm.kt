@@ -26,8 +26,7 @@ import kotlinx.coroutines.launch
 
 internal class LegacyPageFetcher<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,
-    @Suppress("DEPRECATION")
-    val config: PagedList.Config,
+    @Suppress("DEPRECATION") val config: PagedList.Config,
     val source: PagingSource<K, V>,
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher,
@@ -37,12 +36,13 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     private val detached = AtomicBoolean(false)
 
     @Suppress("DEPRECATION")
-    var loadStateManager = object : PagedList.LoadStateManager() {
-        override fun onStateChanged(type: LoadType, state: LoadState) {
-            // Don't need to post - PagedList will already have done that
-            pageConsumer.onStateChanged(type, state)
+    var loadStateManager =
+        object : PagedList.LoadStateManager() {
+            override fun onStateChanged(type: LoadType, state: LoadState) {
+                // Don't need to post - PagedList will already have done that
+                pageConsumer.onStateChanged(type, state)
+            }
         }
-    }
 
     val isDetached
         get() = detached.get()
@@ -121,11 +121,12 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
 
         loadStateManager.setState(LoadType.PREPEND, Loading)
 
-        val loadParams = LoadParams.Prepend(
-            key,
-            config.pageSize,
-            config.enablePlaceholders,
-        )
+        val loadParams =
+            LoadParams.Prepend(
+                key,
+                config.pageSize,
+                config.enablePlaceholders,
+            )
         scheduleLoad(LoadType.PREPEND, loadParams)
     }
 
@@ -137,21 +138,18 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         }
 
         loadStateManager.setState(LoadType.APPEND, Loading)
-        val loadParams = LoadParams.Append(
-            key,
-            config.pageSize,
-            config.enablePlaceholders,
-        )
+        val loadParams =
+            LoadParams.Append(
+                key,
+                config.pageSize,
+                config.enablePlaceholders,
+            )
         scheduleLoad(LoadType.APPEND, loadParams)
     }
 
     fun retry() {
-        loadStateManager.startState.run {
-            if (this is LoadState.Error) schedulePrepend()
-        }
-        loadStateManager.endState.run {
-            if (this is LoadState.Error) scheduleAppend()
-        }
+        loadStateManager.startState.run { if (this is LoadState.Error) schedulePrepend() }
+        loadStateManager.endState.run { if (this is LoadState.Error) scheduleAppend() }
     }
 
     fun detach() {
@@ -159,9 +157,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     }
 
     internal interface PageConsumer<V : Any> {
-        /**
-         * @return `true` if we need to fetch more
-         */
+        /** @return `true` if we need to fetch more */
         fun onPageResult(type: LoadType, page: PagingSource.LoadResult.Page<*, V>): Boolean
 
         fun onStateChanged(type: LoadType, state: LoadState)

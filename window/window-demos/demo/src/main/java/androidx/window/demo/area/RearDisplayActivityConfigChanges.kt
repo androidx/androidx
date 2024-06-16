@@ -47,9 +47,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
- * Demo Activity that showcases listening for RearDisplay Status
- * as well as enabling/disabling RearDisplay mode. This Activity
- * implements [WindowAreaSessionCallback] for simplicity.
+ * Demo Activity that showcases listening for RearDisplay Status as well as enabling/disabling
+ * RearDisplay mode. This Activity implements [WindowAreaSessionCallback] for simplicity.
  *
  * This Activity overrides configuration changes for simplicity.
  */
@@ -77,9 +76,10 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
         binding.rearDisplayButton.setOnClickListener {
             if (rearDisplayStatus == WINDOW_AREA_STATUS_ACTIVE) {
                 if (rearDisplaySession == null) {
-                    rearDisplaySession = rearDisplayWindowAreaInfo?.getActiveSession(
-                        OPERATION_TRANSFER_ACTIVITY_TO_AREA
-                    )
+                    rearDisplaySession =
+                        rearDisplayWindowAreaInfo?.getActiveSession(
+                            OPERATION_TRANSFER_ACTIVITY_TO_AREA
+                        )
                 }
                 rearDisplaySession?.close()
             } else {
@@ -88,18 +88,20 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
                         token = token,
                         activity = this,
                         executor = executor,
-                        windowAreaSessionCallback = this)
+                        windowAreaSessionCallback = this
+                    )
                 }
             }
         }
 
         lifecycleScope.launch(Dispatchers.Main) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                windowAreaController
-                    .windowAreaInfos
-                    .map { windowAreaInfoList -> windowAreaInfoList.firstOrNull {
-                        windowAreaInfo -> windowAreaInfo.type == TYPE_REAR_FACING
-                    } }
+                windowAreaController.windowAreaInfos
+                    .map { windowAreaInfoList ->
+                        windowAreaInfoList.firstOrNull { windowAreaInfo ->
+                            windowAreaInfo.type == TYPE_REAR_FACING
+                        }
+                    }
                     .onEach { windowAreaInfo -> rearDisplayWindowAreaInfo = windowAreaInfo }
                     .map(this@RearDisplayActivityConfigChanges::getRearDisplayStatus)
                     .distinctUntilChanged()

@@ -45,9 +45,7 @@ class RoundedCornerShapeTest {
 
         val expectedRadius = CornerRadius(25f)
         val outline = rounded.toOutline() as Outline.Rounded
-        assertThat(outline.roundRect).isEqualTo(
-            RoundRect(size.toRect(), expectedRadius)
-        )
+        assertThat(outline.roundRect).isEqualTo(RoundRect(size.toRect(), expectedRadius))
     }
 
     @Test
@@ -56,23 +54,19 @@ class RoundedCornerShapeTest {
         val radius2 = 22f
         val radius3 = 32f
         val radius4 = 42f
-        val rounded = RoundedCornerShape(
-            radius1,
-            radius2,
-            radius3,
-            radius4
-        )
+        val rounded = RoundedCornerShape(radius1, radius2, radius3, radius4)
 
         val outline = rounded.toOutline() as Outline.Rounded
-        assertThat(outline.roundRect).isEqualTo(
-            RoundRect(
-                size.toRect(),
-                CornerRadius(radius1),
-                CornerRadius(radius2),
-                CornerRadius(radius3),
-                CornerRadius(radius4)
+        assertThat(outline.roundRect)
+            .isEqualTo(
+                RoundRect(
+                    size.toRect(),
+                    CornerRadius(radius1),
+                    CornerRadius(radius2),
+                    CornerRadius(radius3),
+                    CornerRadius(radius4)
+                )
             )
-        )
     }
 
     @Test
@@ -81,141 +75,126 @@ class RoundedCornerShapeTest {
         val radius2 = 22f
         val radius3 = 32f
         val radius4 = 42f
-        val rounded = RoundedCornerShape(
-            radius1,
-            radius2,
-            radius3,
-            radius4
-        )
+        val rounded = RoundedCornerShape(radius1, radius2, radius3, radius4)
 
         val outline = rounded.toOutline(LayoutDirection.Rtl) as Outline.Rounded
-        assertThat(outline.roundRect).isEqualTo(
-            RoundRect(
-                size.toRect(),
-                CornerRadius(radius2),
-                CornerRadius(radius1),
-                CornerRadius(radius4),
-                CornerRadius(radius3)
+        assertThat(outline.roundRect)
+            .isEqualTo(
+                RoundRect(
+                    size.toRect(),
+                    CornerRadius(radius2),
+                    CornerRadius(radius1),
+                    CornerRadius(radius4),
+                    CornerRadius(radius3)
+                )
             )
-        )
     }
 
     @Test
     fun createsRectangleOutlineForZeroSizedCorners() {
-        val rounded = RoundedCornerShape(
-            0.0f,
-            0.0f,
-            0.0f,
-            0.0f
-        )
+        val rounded = RoundedCornerShape(0.0f, 0.0f, 0.0f, 0.0f)
 
-        assertThat(rounded.toOutline())
-            .isEqualTo(Outline.Rectangle(size.toRect()))
+        assertThat(rounded.toOutline()).isEqualTo(Outline.Rectangle(size.toRect()))
     }
 
     @Test
     fun roundedCornerShapesAreEquals() {
-        assertThat(RoundedCornerShape(12.dp))
-            .isEqualTo(RoundedCornerShape(12.dp))
+        assertThat(RoundedCornerShape(12.dp)).isEqualTo(RoundedCornerShape(12.dp))
     }
 
     @Test
     fun roundedCornerUpdateAllCornerSize() {
-        assertThat(
-            RoundedCornerShape(10.0f).copy(
-                CornerSize(
-                    5.dp
-                )
-            )
-        )
+        assertThat(RoundedCornerShape(10.0f).copy(CornerSize(5.dp)))
             .isEqualTo(RoundedCornerShape(5.dp))
     }
 
     @Test
     fun roundedCornerUpdateTwoCornerSizes() {
-        val original = RoundedCornerShape(10.0f)
-            .copy(
-                topStart = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
-            )
+        val original =
+            RoundedCornerShape(10.0f).copy(topStart = CornerSize(3.dp), bottomEnd = CornerSize(50))
 
         assertEquals(CornerSize(3.dp), original.topStart)
         assertEquals(CornerSize(10.0f), original.topEnd)
         assertEquals(CornerSize(50), original.bottomEnd)
         assertEquals(CornerSize(10.0f), original.bottomStart)
         assertThat(
-            RoundedCornerShape(10.0f).copy(
-                topStart = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
+                RoundedCornerShape(10.0f)
+                    .copy(topStart = CornerSize(3.dp), bottomEnd = CornerSize(50))
             )
-        ).isEqualTo(
-            RoundedCornerShape(
-                topStart = CornerSize(3.dp),
-                topEnd = CornerSize(10.0f),
-                bottomEnd = CornerSize(50),
-                bottomStart = CornerSize(10.0f)
+            .isEqualTo(
+                RoundedCornerShape(
+                    topStart = CornerSize(3.dp),
+                    topEnd = CornerSize(10.0f),
+                    bottomEnd = CornerSize(50),
+                    bottomStart = CornerSize(10.0f)
+                )
             )
-        )
     }
 
     @Test
     fun objectsWithTheSameCornersAreEquals() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            RoundedCornerShape(
-                topStart = CornerSize(4.0f),
-                topEnd = CornerSize(3.0f),
-                bottomEnd = CornerSize(3.dp),
-                bottomStart = CornerSize(50)
-            ).equals(
                 RoundedCornerShape(
-                    topStart = CornerSize(4.0f),
-                    topEnd = CornerSize(3.0f),
-                    bottomEnd = CornerSize(3.dp),
-                    bottomStart = CornerSize(50)
-                )
+                        topStart = CornerSize(4.0f),
+                        topEnd = CornerSize(3.0f),
+                        bottomEnd = CornerSize(3.dp),
+                        bottomStart = CornerSize(50)
+                    )
+                    .equals(
+                        RoundedCornerShape(
+                            topStart = CornerSize(4.0f),
+                            topEnd = CornerSize(3.0f),
+                            bottomEnd = CornerSize(3.dp),
+                            bottomStart = CornerSize(50)
+                        )
+                    )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun objectsWithDifferentCornersAreNotEquals() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            RoundedCornerShape(
-                topStart = CornerSize(4.0f),
-                topEnd = CornerSize(3.0f),
-                bottomEnd = CornerSize(3.dp),
-                bottomStart = CornerSize(50)
-            ).equals(
                 RoundedCornerShape(
-                    topStart = CornerSize(4.0f),
-                    topEnd = CornerSize(5.0f),
-                    bottomEnd = CornerSize(3.dp),
-                    bottomStart = CornerSize(50)
-                )
+                        topStart = CornerSize(4.0f),
+                        topEnd = CornerSize(3.0f),
+                        bottomEnd = CornerSize(3.dp),
+                        bottomStart = CornerSize(50)
+                    )
+                    .equals(
+                        RoundedCornerShape(
+                            topStart = CornerSize(4.0f),
+                            topEnd = CornerSize(5.0f),
+                            bottomEnd = CornerSize(3.dp),
+                            bottomStart = CornerSize(50)
+                        )
+                    )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun notEqualsToCutCornersWithTheSameSizes() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            RoundedCornerShape(
-                topStart = CornerSize(4.0f),
-                topEnd = CornerSize(3.0f),
-                bottomEnd = CornerSize(3.dp),
-                bottomStart = CornerSize(50)
-            ).equals(
-                CutCornerShape(
-                    topStart = CornerSize(4.0f),
-                    topEnd = CornerSize(3.0f),
-                    bottomEnd = CornerSize(3.dp),
-                    bottomStart = CornerSize(50)
-                )
+                RoundedCornerShape(
+                        topStart = CornerSize(4.0f),
+                        topEnd = CornerSize(3.0f),
+                        bottomEnd = CornerSize(3.dp),
+                        bottomStart = CornerSize(50)
+                    )
+                    .equals(
+                        CutCornerShape(
+                            topStart = CornerSize(4.0f),
+                            topEnd = CornerSize(3.0f),
+                            bottomEnd = CornerSize(3.dp),
+                            bottomStart = CornerSize(50)
+                        )
+                    )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
@@ -227,12 +206,8 @@ class RoundedCornerShapeTest {
                 bottomEnd = 3.dp,
                 bottomStart = 4.dp
             ),
-            RoundedCornerShape(
-                topStart = 1.dp,
-                topEnd = 2.dp,
-                bottomEnd = 3.dp,
-                bottomStart = 4.dp
-            ).copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
+            RoundedCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 3.dp, bottomStart = 4.dp)
+                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
         )
         assertEquals(
             RoundedCornerShape(
@@ -241,12 +216,8 @@ class RoundedCornerShapeTest {
                 bottomEnd = 5.dp,
                 bottomStart = 6.dp
             ),
-            RoundedCornerShape(
-                topStart = 1.dp,
-                topEnd = 2.dp,
-                bottomEnd = 3.dp,
-                bottomStart = 4.dp
-            ).copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
+            RoundedCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 3.dp, bottomStart = 4.dp)
+                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
         )
     }
 

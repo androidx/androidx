@@ -47,15 +47,14 @@ class FileClassLoaderFactoryTest {
         val sdkDexFiles = extractTestSdkDexFiles()
         val fallback = TestFallbackFactory()
 
-        val fileClassLoaderFactory = FileClassLoaderFactory(
-            StubSdkStorage(result = sdkDexFiles),
-            fallback
-        )
+        val fileClassLoaderFactory =
+            FileClassLoaderFactory(StubSdkStorage(result = sdkDexFiles), fallback)
 
-        val classLoader = fileClassLoaderFactory.createClassLoaderFor(
-            testSdkConfig,
-            javaClass.classLoader!!.parent!!
-        )
+        val classLoader =
+            fileClassLoaderFactory.createClassLoaderFor(
+                testSdkConfig,
+                javaClass.classLoader!!.parent!!
+            )
 
         val loadedEntryPointClass = classLoader.loadClass(testSdkConfig.entryPoint)
         assertThat(loadedEntryPointClass.classLoader).isEqualTo(classLoader)
@@ -66,15 +65,9 @@ class FileClassLoaderFactoryTest {
     @Test
     fun createClassLoaderFor_whenSdkStorageReturnNull_delegateToFallback() {
         val fallback = TestFallbackFactory(testSdkConfig, javaClass.classLoader!!.parent)
-        val fileClassLoaderFactory = FileClassLoaderFactory(
-            StubSdkStorage(result = null),
-            fallback
-        )
+        val fileClassLoaderFactory = FileClassLoaderFactory(StubSdkStorage(result = null), fallback)
 
-        fileClassLoaderFactory.createClassLoaderFor(
-            testSdkConfig,
-            javaClass.classLoader!!.parent!!
-        )
+        fileClassLoaderFactory.createClassLoaderFor(testSdkConfig, javaClass.classLoader!!.parent!!)
 
         assertThat(fallback.loadSdkCalled).isTrue()
     }
@@ -82,28 +75,22 @@ class FileClassLoaderFactoryTest {
     @Test
     fun createClassLoaderFor_whenSdkStorageThrows_delegateToFallback() {
         val fallback = TestFallbackFactory(testSdkConfig, javaClass.classLoader!!.parent)
-        val fileClassLoaderFactory = FileClassLoaderFactory(
-            ThrowingSdkStorage(exception = Exception("Something wrong")),
-            fallback
-        )
+        val fileClassLoaderFactory =
+            FileClassLoaderFactory(
+                ThrowingSdkStorage(exception = Exception("Something wrong")),
+                fallback
+            )
 
-        fileClassLoaderFactory.createClassLoaderFor(
-            testSdkConfig,
-            javaClass.classLoader!!.parent!!
-        )
+        fileClassLoaderFactory.createClassLoaderFor(testSdkConfig, javaClass.classLoader!!.parent!!)
 
         assertThat(fallback.loadSdkCalled).isTrue()
     }
 
-    private class StubSdkStorage(
-        private val result: LocalSdkDexFiles?
-    ) : LocalSdkStorage {
+    private class StubSdkStorage(private val result: LocalSdkDexFiles?) : LocalSdkStorage {
         override fun dexFilesFor(sdkConfig: LocalSdkConfig) = result
     }
 
-    private class ThrowingSdkStorage(
-        private val exception: Exception
-    ) : LocalSdkStorage {
+    private class ThrowingSdkStorage(private val exception: Exception) : LocalSdkStorage {
         override fun dexFilesFor(sdkConfig: LocalSdkConfig): LocalSdkDexFiles? {
             throw exception
         }
@@ -130,10 +117,11 @@ class FileClassLoaderFactoryTest {
     private fun extractTestSdkDexFiles(): LocalSdkDexFiles {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val testStorage = TestLocalSdkStorage(
-            context,
-            rootFolder = File(context.cacheDir, "FileClassLoaderFactoryTest")
-        )
+        val testStorage =
+            TestLocalSdkStorage(
+                context,
+                rootFolder = File(context.cacheDir, "FileClassLoaderFactoryTest")
+            )
 
         return testStorage.dexFilesFor(testSdkConfig)
     }

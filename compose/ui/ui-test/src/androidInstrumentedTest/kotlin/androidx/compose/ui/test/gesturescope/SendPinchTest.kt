@@ -43,17 +43,14 @@ class SendPinchTest {
         private const val TAG = "PINCH"
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Test
     fun pinch() {
         rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                ClickableTestBox(modifier = recorder, tag = TAG)
-            }
+            Box(Modifier.fillMaxSize()) { ClickableTestBox(modifier = recorder, tag = TAG) }
         }
 
         val start0 = Offset(40f, 50f)
@@ -63,9 +60,7 @@ class SendPinchTest {
         val duration = 400L
 
         @Suppress("DEPRECATION")
-        rule.onNodeWithTag(TAG).performGesture {
-            pinch(start0, end0, start1, end1, duration)
-        }
+        rule.onNodeWithTag(TAG).performGesture { pinch(start0, end0, start1, end1, duration) }
 
         rule.runOnIdle {
             recorder.run {

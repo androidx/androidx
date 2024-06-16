@@ -63,13 +63,12 @@ class GetPublicKeyCredentialExceptionTest {
         val expectedDomError: DomError = EncodingError()
         val expectedType =
             GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
-                SEPARATOR + expectedDomError.type
+                SEPARATOR +
+                expectedDomError.type
 
         val exception = createFrom(expectedType, expectedMessage)
 
-        assertThat(exception).isInstanceOf(
-            GetPublicKeyCredentialDomException::class.java
-        )
+        assertThat(exception).isInstanceOf(GetPublicKeyCredentialDomException::class.java)
         assertThat((exception as GetPublicKeyCredentialDomException).domError)
             .isInstanceOf(EncodingError::class.java)
         assertThat(exception.type).isEqualTo(expectedType)
@@ -83,9 +82,7 @@ class GetPublicKeyCredentialExceptionTest {
 
         val exception = createFrom(expectedType, expectedMessage)
 
-        assertThat(exception).isInstanceOf(
-            GetCredentialCustomException::class.java
-        )
+        assertThat(exception).isInstanceOf(GetCredentialCustomException::class.java)
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.message).isEqualTo(expectedMessage)
     }

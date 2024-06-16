@@ -23,34 +23,34 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class AndroidManifestServiceExportedDetectorTest : AbstractLintDetectorTest(
-    useDetector = AndroidManifestServiceExportedDetector(),
-    useIssues = listOf(AndroidManifestServiceExportedDetector.ISSUE),
-) {
+class AndroidManifestServiceExportedDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = AndroidManifestServiceExportedDetector(),
+        useIssues = listOf(AndroidManifestServiceExportedDetector.ISSUE),
+    ) {
 
     @Test
     fun `Detect missing exported=true declaration in service tag`() {
-        val input = arrayOf(
-            manifestSample()
-        )
+        val input = arrayOf(manifestSample())
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingServiceExportedEqualsTrue]
         <service android:name="androidx.core.app.JobIntentService">
         ^
 1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Detect present exported=true declaration in service tag`() {
-        val input = xml(
-            "AndroidManifest.xml",
-            """
+        val input =
+            xml(
+                "AndroidManifest.xml",
+                """
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <service
@@ -58,8 +58,9 @@ AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingSe
             android:exported="true" />
     </application>
 </manifest>
-                """.trimIndent()
-        )
+                """
+                    .trimIndent()
+            )
 
         check(input).expectClean()
     }

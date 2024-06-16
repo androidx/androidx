@@ -27,9 +27,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * Incremental data loader for paging keyed content, where loaded content uses previously loaded
  * items as input to future loads.
  *
- * Implement a DataSource using ItemKeyedDataSource if you need to use data from item `N - 1`
- * to load item `N`. This is common, for example, in uniquely sorted database queries where
- * attributes of the item such just before the next query define how to execute it.
+ * Implement a DataSource using ItemKeyedDataSource if you need to use data from item `N - 1` to
+ * load item `N`. This is common, for example, in uniquely sorted database queries where attributes
+ * of the item such just before the next query define how to execute it.
  *
  * The `InMemoryByItemRepository` in the
  * [PagingWithNetworkSample](https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md)
@@ -42,37 +42,32 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @Deprecated(
     message = "ItemKeyedDataSource is deprecated and has been replaced by PagingSource",
-    replaceWith = ReplaceWith(
-        "PagingSource<Key, Value>",
-        "androidx.paging.PagingSource"
-    )
+    replaceWith = ReplaceWith("PagingSource<Key, Value>", "androidx.paging.PagingSource")
 )
-public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(
-    ITEM_KEYED
-) {
+public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
+    DataSource<Key, Value>(ITEM_KEYED) {
 
     /**
      * Holder object for inputs to [loadInitial].
      *
      * @param Key Type of data used to query [Value] types out of the [DataSource].
-     * @param requestedInitialKey Load items around this key, or at the beginning of the data set
-     * if `null` is passed.
+     * @param requestedInitialKey Load items around this key, or at the beginning of the data set if
+     *   `null` is passed.
      *
      * Note that this key is generally a hint, and may be ignored if you want to always load from
      * the beginning.
+     *
      * @param requestedLoadSize Requested number of items to load.
      *
      * Note that this may be larger than available data.
-     * @param placeholdersEnabled Defines whether placeholders are enabled, and whether the
-     * loaded total count will be ignored.
+     *
+     * @param placeholdersEnabled Defines whether placeholders are enabled, and whether the loaded
+     *   total count will be ignored.
      */
     public open class LoadInitialParams<Key : Any>(
-        @JvmField
-        public val requestedInitialKey: Key?,
-        @JvmField
-        public val requestedLoadSize: Int,
-        @JvmField
-        public val placeholdersEnabled: Boolean
+        @JvmField public val requestedInitialKey: Key?,
+        @JvmField public val requestedLoadSize: Int,
+        @JvmField public val placeholdersEnabled: Boolean
     )
 
     /**
@@ -82,21 +77,19 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * @param key Load items before/after this key.
      *
      * Returned data must begin directly adjacent to this position.
+     *
      * @param requestedLoadSize Requested number of items to load.
      *
      * Returned page can be of this size, but it may be altered if that is easier, e.g. a network
      * data source where the backend defines page size.
      */
     public open class LoadParams<Key : Any>(
-        @JvmField
-        public val key: Key,
-        @JvmField
-        public val requestedLoadSize: Int
+        @JvmField public val key: Key,
+        @JvmField public val requestedLoadSize: Int
     )
 
     /**
-     * Callback for [loadInitial]
-     * to return data and, optionally, position/count information.
+     * Callback for [loadInitial] to return data and, optionally, position/count information.
      *
      * A callback can be called only once, and will throw if called again.
      *
@@ -116,21 +109,21 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
         /**
          * Called to pass initial load state from a DataSource.
          *
-         * Call this method from your DataSource's `loadInitial` function to return data,
-         * and inform how many placeholders should be shown before and after. If counting is cheap
-         * to compute (for example, if a network load returns the information regardless), it's
-         * recommended to pass data back through this method.
+         * Call this method from your DataSource's `loadInitial` function to return data, and inform
+         * how many placeholders should be shown before and after. If counting is cheap to compute
+         * (for example, if a network load returns the information regardless), it's recommended to
+         * pass data back through this method.
          *
          * It is always valid to pass a different amount of data than what is requested. Pass an
          * empty list if there is no more data to load.
          *
-         * @param data List of items loaded from the DataSource. If this is empty, the DataSource
-         * is treated as empty, and no further loads will occur.
-         * @param position Position of the item at the front of the list. If there are `N`
-         * items before the items in data that can be loaded from this DataSource, pass `N`.
+         * @param data List of items loaded from the DataSource. If this is empty, the DataSource is
+         *   treated as empty, and no further loads will occur.
+         * @param position Position of the item at the front of the list. If there are `N` items
+         *   before the items in data that can be loaded from this DataSource, pass `N`.
          * @param totalCount Total number of items that may be returned from this [DataSource].
-         * Includes the number in the initial `data` parameter as well as any items that can be
-         * loaded in front or behind of `data`.
+         *   Includes the number in the initial `data` parameter as well as any items that can be
+         *   loaded in front or behind of `data`.
          */
         public abstract fun onResult(data: List<Value>, position: Int, totalCount: Int)
     }
@@ -167,19 +160,21 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal final override suspend fun load(params: Params<Key>): BaseResult<Value> {
         return when (params.type) {
-            LoadType.REFRESH -> loadInitial(
-                LoadInitialParams(
-                    params.key,
-                    params.initialLoadSize,
-                    params.placeholdersEnabled
+            LoadType.REFRESH ->
+                loadInitial(
+                    LoadInitialParams(
+                        params.key,
+                        params.initialLoadSize,
+                        params.placeholdersEnabled
+                    )
                 )
-            )
             LoadType.PREPEND -> loadBefore(LoadParams(params.key!!, params.pageSize))
             LoadType.APPEND -> loadAfter(LoadParams(params.key!!, params.pageSize))
         }
     }
 
     internal fun List<Value>.getPrevKey() = firstOrNull()?.let { getKey(it) }
+
     internal fun List<Value>.getNextKey() = lastOrNull()?.let { getKey(it) }
 
     @VisibleForTesting
@@ -217,13 +212,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
     private fun CancellableContinuation<BaseResult<Value>>.asCallback() =
         object : ItemKeyedDataSource.LoadCallback<Value>() {
             override fun onResult(data: List<Value>) {
-                resume(
-                    BaseResult(
-                        data,
-                        data.getPrevKey(),
-                        data.getNextKey()
-                    )
-                )
+                resume(BaseResult(data, data.getPrevKey(), data.getNextKey()))
             }
         }
 
@@ -235,9 +224,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
 
     @VisibleForTesting
     internal suspend fun loadAfter(params: LoadParams<Key>): BaseResult<Value> {
-        return suspendCancellableCoroutine { cont ->
-            loadAfter(params, cont.asCallback())
-        }
+        return suspendCancellableCoroutine { cont -> loadAfter(params, cont.asCallback()) }
     }
 
     /**
@@ -248,13 +235,12 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * the callback via the three-parameter [LoadInitialCallback.onResult]. This enables PagedLists
      * presenting data from this source to display placeholders to represent unloaded items.
      *
-     * [LoadInitialParams.requestedInitialKey] and [LoadInitialParams.requestedLoadSize]
-     * are hints, not requirements, so they may be altered or ignored. Note that ignoring the
-     * `requestedInitialKey` can prevent subsequent PagedList/DataSource pairs from
-     * initializing at the same location. If your DataSource never invalidates (for example,
-     * loading from the network without the network ever signalling that old data must be reloaded),
-     * it's fine to ignore the `initialLoadKey` and always start from the beginning of the
-     * data set.
+     * [LoadInitialParams.requestedInitialKey] and [LoadInitialParams.requestedLoadSize] are hints,
+     * not requirements, so they may be altered or ignored. Note that ignoring the
+     * `requestedInitialKey` can prevent subsequent PagedList/DataSource pairs from initializing at
+     * the same location. If your DataSource never invalidates (for example, loading from the
+     * network without the network ever signalling that old data must be reloaded), it's fine to
+     * ignore the `initialLoadKey` and always start from the beginning of the data set.
      *
      * @param params Parameters for initial load, including initial key and requested size.
      * @param callback Callback that receives initial load data.
@@ -309,14 +295,13 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * Return a key associated with the given item.
      *
      * If your ItemKeyedDataSource is loading from a source that is sorted and loaded by a unique
-     * integer ID, you would return `item.getID()` here. This key can then be passed to
-     * [loadBefore] or [loadAfter] to load additional items adjacent to the item passed to this
-     * function.
+     * integer ID, you would return `item.getID()` here. This key can then be passed to [loadBefore]
+     * or [loadAfter] to load additional items adjacent to the item passed to this function.
      *
      * If your key is more complex, such as when you're sorting by name, then resolving collisions
      * with integer ID, you'll need to return both. In such a case you would use a wrapper class,
-     * such as `Pair<String, Integer>` or, in Kotlin,
-     * `data class Key(val name: String, val id: Int)`
+     * such as `Pair<String, Integer>` or, in Kotlin, `data class Key(val name: String, val id:
+     * Int)`
      *
      * @param item Item to get the key from.
      * @return Key associated with given item.

@@ -45,60 +45,64 @@ class BanVisibleForTestingParams : Detector(), Detector.UastScanner {
 
             // Using "declared" to resolve an unspecified value to null, rather than the default,
             // resolve the FQN for the `otherwise` attribute value and abort if it's unspecified.
-            val otherwise = (node.findDeclaredAttributeValue("otherwise") as? UReferenceExpression)
-                ?.resolve()
-                ?.getFqName()
-                ?: return // Unspecified, abort.
+            val otherwise =
+                (node.findDeclaredAttributeValue("otherwise") as? UReferenceExpression)
+                    ?.resolve()
+                    ?.getFqName() ?: return // Unspecified, abort.
 
-            val fixBuilder = when (otherwise) {
-                "androidx.annotation.VisibleForTesting.Companion.PRIVATE",
-                "androidx.annotation.VisibleForTesting.Companion.NONE" -> {
-                    // Extract Kotlin use-site target, if available.
-                    val useSiteTarget = (node.sourcePsi as? KtAnnotationEntry)
-                        ?.useSiteTarget
-                        ?.getAnnotationUseSiteTarget()
-                        ?.renderName
-                        ?.let { "$it:" } ?: ""
+            val fixBuilder =
+                when (otherwise) {
+                    "androidx.annotation.VisibleForTesting.Companion.PRIVATE",
+                    "androidx.annotation.VisibleForTesting.Companion.NONE" -> {
+                        // Extract Kotlin use-site target, if available.
+                        val useSiteTarget =
+                            (node.sourcePsi as? KtAnnotationEntry)
+                                ?.useSiteTarget
+                                ?.getAnnotationUseSiteTarget()
+                                ?.renderName
+                                ?.let { "$it:" } ?: ""
 
-                    fix().name("Remove non-default `otherwise` value")
-                        .replace()
-                        .with("@${useSiteTarget}androidx.annotation.VisibleForTesting")
+                        fix()
+                            .name("Remove non-default `otherwise` value")
+                            .replace()
+                            .with("@${useSiteTarget}androidx.annotation.VisibleForTesting")
+                    }
+                    "androidx.annotation.VisibleForTesting.Companion.PACKAGE_PRIVATE",
+                    "androidx.annotation.VisibleForTesting.Companion.PROTECTED" -> {
+                        fix().name("Remove @VisibleForTesting annotation").replace().with("")
+                    }
+                    else -> {
+                        // This could happen if a new visibility is added in the future, in which
+                        // case
+                        // we'll warn about the non-default usage but we won't attempt a fix.
+                        null
+                    }
                 }
-                "androidx.annotation.VisibleForTesting.Companion.PACKAGE_PRIVATE",
-                "androidx.annotation.VisibleForTesting.Companion.PROTECTED" -> {
-                    fix().name("Remove @VisibleForTesting annotation")
-                        .replace()
-                        .with("")
-                }
-                else -> {
-                    // This could happen if a new visibility is added in the future, in which case
-                    // we'll warn about the non-default usage but we won't attempt a fix.
-                    null
-                }
-            }
 
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getNameLocation(node))
-                .message("Found non-default `otherwise` value for @VisibleForTesting")
-                .scope(node)
+            val incident =
+                Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getNameLocation(node))
+                    .message("Found non-default `otherwise` value for @VisibleForTesting")
+                    .scope(node)
 
-            fixBuilder?.let {
-                incident.fix(it.shortenNames().build())
-            }
+            fixBuilder?.let { incident.fix(it.shortenNames().build()) }
 
             context.report(incident)
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "UsesNonDefaultVisibleForTesting",
-            "Uses non-default @VisibleForTesting visibility",
-            "Use of non-default @VisibleForTesting visibility is not allowed, use the " +
-                "default value instead.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanVisibleForTestingParams::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "UsesNonDefaultVisibleForTesting",
+                "Uses non-default @VisibleForTesting visibility",
+                "Use of non-default @VisibleForTesting visibility is not allowed, use the " +
+                    "default value instead.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(BanVisibleForTestingParams::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

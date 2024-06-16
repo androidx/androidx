@@ -41,53 +41,60 @@ class TrivialStartupPerfettoSdkBenchmark(
     private val compilationMode: CompilationMode,
     private val isPerfettoSdkEnabled: Boolean
 ) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = try {
-        Arguments.perfettoSdkTracingEnableOverride = isPerfettoSdkEnabled
-        assertThat(Arguments.perfettoSdkTracingEnable, `is`(isPerfettoSdkEnabled))
-
+    fun startup() =
         try {
-            val perfettoSdkTraceSection = TraceSectionMetric(
-                "%TrivialStartupTracingActivity.onCreate%" +
-                    " (TrivialStartupTracingActivity.kt:%)",
-                    TraceSectionMetric.Mode.First
-            )
-            benchmarkRule.measureStartup(
-                compilationMode = compilationMode,
-                startupMode = startupMode,
-                iterations = 1, // we are only verifying presence of entries (not the timing data)
-                metrics = listOf(perfettoSdkTraceSection),
-                packageName = "androidx.compose.integration.macrobenchmark.target"
-            ) {
-                action = "androidx.compose.integration.macrobenchmark.target." +
-                    "TRIVIAL_STARTUP_TRACING_ACTIVITY"
+            Arguments.perfettoSdkTracingEnableOverride = isPerfettoSdkEnabled
+            assertThat(Arguments.perfettoSdkTracingEnable, `is`(isPerfettoSdkEnabled))
+
+            try {
+                val perfettoSdkTraceSection =
+                    TraceSectionMetric(
+                        "%TrivialStartupTracingActivity.onCreate%" +
+                            " (TrivialStartupTracingActivity.kt:%)",
+                        TraceSectionMetric.Mode.First
+                    )
+                benchmarkRule.measureStartup(
+                    compilationMode = compilationMode,
+                    startupMode = startupMode,
+                    iterations =
+                        1, // we are only verifying presence of entries (not the timing data)
+                    metrics = listOf(perfettoSdkTraceSection),
+                    packageName = "androidx.compose.integration.macrobenchmark.target"
+                ) {
+                    action =
+                        "androidx.compose.integration.macrobenchmark.target." +
+                            "TRIVIAL_STARTUP_TRACING_ACTIVITY"
+                }
+            } catch (e: IllegalArgumentException) {
+                if (
+                    !isPerfettoSdkEnabled &&
+                        e.message?.contains("Unable to read any metrics during benchmark") == true
+                ) {
+                    // We are relying on the fact that Macrobenchmark will throw an exception when
+                    // it
+                    // cannot find any metrics, and given we are looking for one specific metric
+                    // (a Composable function emitted by Compose Tracing), we are able to tell if
+                    // Compose Tracing is working (enabled) or not, both of which we want to verify
+                    // in
+                    // this test.
+                } else throw e // this is a legitimate failure
             }
-        } catch (e: IllegalArgumentException) {
-            if (!isPerfettoSdkEnabled &&
-                e.message?.contains("Unable to read any metrics during benchmark") == true
-            ) {
-                // We are relying on the fact that Macrobenchmark will throw an exception when it
-                // cannot find any metrics, and given we are looking for one specific metric
-                // (a Composable function emitted by Compose Tracing), we are able to tell if
-                // Compose Tracing is working (enabled) or not, both of which we want to verify in
-                // this test.
-            } else throw e // this is a legitimate failure
+        } finally {
+            Arguments.perfettoSdkTracingEnableOverride = null
         }
-    } finally {
-        Arguments.perfettoSdkTracingEnableOverride = null
-    }
 
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilation={1},perfettoSdk={2}")
         @JvmStatic
-        fun parameters() = listOf(
-            arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* perfettoSdk = */ true),
-            arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* perfettoSdk = */ false),
-            arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* perfettoSdk = */ true),
-            arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* perfettoSdk = */ false),
-        )
+        fun parameters() =
+            listOf(
+                arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* perfettoSdk= */ true),
+                arrayOf(StartupMode.COLD, CompilationMode.DEFAULT, /* perfettoSdk= */ false),
+                arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* perfettoSdk= */ true),
+                arrayOf(StartupMode.WARM, CompilationMode.DEFAULT, /* perfettoSdk= */ false),
+            )
     }
 }

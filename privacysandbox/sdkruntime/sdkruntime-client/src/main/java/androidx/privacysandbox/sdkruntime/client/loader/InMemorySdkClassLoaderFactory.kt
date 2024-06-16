@@ -26,16 +26,12 @@ import dalvik.system.InMemoryDexClassLoader
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 
-/**
- * Loading SDK in memory on API 27+
- * Also support single DEX SDKs on API 26.
- */
+/** Loading SDK in memory on API 27+ Also support single DEX SDKs on API 26. */
 internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFactory {
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
-    private class Api27Impl(
-        private val assetLoader: AssetLoader
-    ) : InMemorySdkClassLoaderFactory() {
+    private class Api27Impl(private val assetLoader: AssetLoader) :
+        InMemorySdkClassLoaderFactory() {
 
         @DoNotInline
         override fun createClassLoaderFor(
@@ -59,9 +55,8 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private class Api26Impl(
-        private val assetLoader: AssetLoader
-    ) : InMemorySdkClassLoaderFactory() {
+    private class Api26Impl(private val assetLoader: AssetLoader) :
+        InMemorySdkClassLoaderFactory() {
 
         @DoNotInline
         override fun createClassLoaderFor(
@@ -100,9 +95,7 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
         }
     }
 
-    private class AssetLoader(
-        private val assetManager: AssetManager
-    ) {
+    private class AssetLoader(private val assetManager: AssetManager) {
         fun load(assetName: String): ByteBuffer {
             return assetManager.open(assetName).use { inputStream ->
                 val byteBuffer = ByteBuffer.allocate(inputStream.available())

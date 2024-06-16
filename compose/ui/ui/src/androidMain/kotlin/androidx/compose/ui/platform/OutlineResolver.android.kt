@@ -30,74 +30,61 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.util.fastRoundToInt
 
-/**
- * Resolves the [AndroidOutline] from the [Outline] of an [androidx.compose.ui.node.OwnedLayer].
- */
+/** Resolves the [AndroidOutline] from the [Outline] of an [androidx.compose.ui.node.OwnedLayer]. */
 internal class OutlineResolver {
 
     /**
-     * Flag to determine if the shape specified on the outline is supported.
-     * On older API levels, concave shapes are not allowed
+     * Flag to determine if the shape specified on the outline is supported. On older API levels,
+     * concave shapes are not allowed
      */
     private var isSupportedOutline = true
 
-    /**
-     * The Android Outline that is used in the layer.
-     */
+    /** The Android Outline that is used in the layer. */
     private val cachedOutline = AndroidOutline().apply { alpha = 1f }
 
-    /**
-     * The [Outline] of the Layer.
-     */
+    /** The [Outline] of the Layer. */
     private var outline: Outline? = null
 
     /**
-     * Asymmetric rounded rectangles need to use a Path. This caches that Path so that
-     * a new one doesn't have to be generated each time.
+     * Asymmetric rounded rectangles need to use a Path. This caches that Path so that a new one
+     * doesn't have to be generated each time.
      */
     // TODO(andreykulikov): Make Outline API reuse the Path when generating.
     private var cachedRrectPath: Path? = null // for temporary allocation in rounded rects
 
     /**
-     * The outline Path when a non-conforming (rect or symmetric rounded rect) Outline
-     * is used. This Path is necessary when [usePathForClip] is true to indicate the
-     * Path to clip in [clipPath].
+     * The outline Path when a non-conforming (rect or symmetric rounded rect) Outline is used. This
+     * Path is necessary when [usePathForClip] is true to indicate the Path to clip in [clipPath].
      */
     private var outlinePath: Path? = null
 
     /**
-     * True when there's been an update that caused a change in the path and the Outline
-     * has to be reevaluated.
+     * True when there's been an update that caused a change in the path and the Outline has to be
+     * reevaluated.
      */
     internal var cacheIsDirty = false
         private set
 
     /**
-     * True when Outline cannot clip the content and the path should be used instead.
-     * This is when an asymmetric rounded rect or general Path is used in the outline.
-     * This is false when a Rect or a symmetric RoundRect is used in the outline.
+     * True when Outline cannot clip the content and the path should be used instead. This is when
+     * an asymmetric rounded rect or general Path is used in the outline. This is false when a Rect
+     * or a symmetric RoundRect is used in the outline.
      */
     private var usePathForClip = false
 
-    /**
-     * Scratch path used for manually clipping in software backed canvases
-     */
+    /** Scratch path used for manually clipping in software backed canvases */
     private var tmpPath: Path? = null
 
-    /**
-     * Scratch [RoundRect] used for manually clipping round rects in software backed canvases
-     */
+    /** Scratch [RoundRect] used for manually clipping round rects in software backed canvases */
     private var tmpRoundRect: RoundRect? = null
 
     /**
-     * Radius value used for symmetric rounded shapes. For rectangular or path based outlines
-     * this value is 0f
+     * Radius value used for symmetric rounded shapes. For rectangular or path based outlines this
+     * value is 0f
      */
     private var roundedCornerRadius: Float = 0f
 
-    /**
-     * Returns the Android Outline to be used in the layer.
-     */
+    /** Returns the Android Outline to be used in the layer. */
     val androidOutline: AndroidOutline?
         get() {
             updateCache()
@@ -105,20 +92,20 @@ internal class OutlineResolver {
         }
 
     /**
-     * Determines if the particular outline shape or path supports clipping.
-     * True for rect or symmetrical round rects.
-     * This method is used to determine if the framework can handle clipping to the outline
-     * for a particular shape. If not, then the clipped path must be applied directly to the canvas.
+     * Determines if the particular outline shape or path supports clipping. True for rect or
+     * symmetrical round rects. This method is used to determine if the framework can handle
+     * clipping to the outline for a particular shape. If not, then the clipped path must be applied
+     * directly to the canvas.
      */
     val outlineClipSupported: Boolean
         get() = !usePathForClip
 
     /**
-     * Returns the path used to manually clip regardless if the layer supports clipping or not.
-     * In some cases (i.e. software rendering) clipping must be done manually.
-     * Consumers should query whether or not the layer will handle clipping with
-     * [outlineClipSupported] first before applying the clip manually.
-     * Or when rendering in software, the clip path provided here must always be clipped manually.
+     * Returns the path used to manually clip regardless if the layer supports clipping or not. In
+     * some cases (i.e. software rendering) clipping must be done manually. Consumers should query
+     * whether or not the layer will handle clipping with [outlineClipSupported] first before
+     * applying the clip manually. Or when rendering in software, the clip path provided here must
+     * always be clipped manually.
      */
     val clipPath: Path?
         get() {
@@ -127,29 +114,24 @@ internal class OutlineResolver {
         }
 
     /**
-     * Returns the top left offset for a rectangular, or rounded rect outline (regardless if it
-     * is symmetric or asymmetric)
-     * For path based outlines this returns [Offset.Zero]
+     * Returns the top left offset for a rectangular, or rounded rect outline (regardless if it is
+     * symmetric or asymmetric) For path based outlines this returns [Offset.Zero]
      */
     private var rectTopLeft: Offset = Offset.Zero
 
     /**
-     * Returns the size for a rectangular, or rounded rect outline (regardless if it
-     * is symmetric or asymmetric)
+     * Returns the size for a rectangular, or rounded rect outline (regardless if it is symmetric or
+     * asymmetric)
      */
     private var rectSize: Size = Size.Zero
 
-    /**
-     * True when we are going to clip or have a non-zero elevation for shadows.
-     */
+    /** True when we are going to clip or have a non-zero elevation for shadows. */
     private var outlineNeeded = false
 
     private var tmpTouchPointPath: Path? = null
     private var tmpOpPath: Path? = null
 
-    /**
-     * Updates the values of the outline. Returns `true` when the shape has changed.
-     */
+    /** Updates the values of the outline. Returns `true` when the shape has changed. */
     fun update(
         outline: Outline?,
         alpha: Float,
@@ -172,9 +154,7 @@ internal class OutlineResolver {
         return outlineChanged
     }
 
-    /**
-     * Returns true if there is a outline and [position] is outside the outline.
-     */
+    /** Returns true if there is a outline and [position] is outside the outline. */
     fun isInOutline(position: Offset): Boolean {
         if (!outlineNeeded) {
             return true
@@ -185,10 +165,9 @@ internal class OutlineResolver {
     }
 
     /**
-     * Manually applies the clip to the provided canvas based on the given outline.
-     * This is used in scenarios where clipping must be applied manually either because
-     * the outline cannot be clipped automatically for specific shapes or if the
-     * layer is being rendered in software
+     * Manually applies the clip to the provided canvas based on the given outline. This is used in
+     * scenarios where clipping must be applied manually either because the outline cannot be
+     * clipped automatically for specific shapes or if the layer is being rendered in software
      */
     fun clipToOutline(canvas: Canvas) {
         // If we have a clip path that means we are clipping to an arbitrary path or
@@ -204,15 +183,18 @@ internal class OutlineResolver {
             if (roundedCornerRadius > 0f) {
                 var roundRectClipPath = tmpPath
                 var roundRect = tmpRoundRect
-                if (roundRectClipPath == null ||
-                    !roundRect.isSameBounds(rectTopLeft, rectSize, roundedCornerRadius)) {
-                    roundRect = RoundRect(
-                        left = rectTopLeft.x,
-                        top = rectTopLeft.y,
-                        right = rectTopLeft.x + rectSize.width,
-                        bottom = rectTopLeft.y + rectSize.height,
-                        cornerRadius = CornerRadius(roundedCornerRadius)
-                    )
+                if (
+                    roundRectClipPath == null ||
+                        !roundRect.isSameBounds(rectTopLeft, rectSize, roundedCornerRadius)
+                ) {
+                    roundRect =
+                        RoundRect(
+                            left = rectTopLeft.x,
+                            top = rectTopLeft.y,
+                            right = rectTopLeft.x + rectSize.width,
+                            bottom = rectTopLeft.y + rectSize.height,
+                            cornerRadius = CornerRadius(roundedCornerRadius)
+                        )
                     if (roundRectClipPath == null) {
                         roundRectClipPath = Path()
                     } else {
@@ -243,8 +225,9 @@ internal class OutlineResolver {
             cacheIsDirty = false
             usePathForClip = false
             val outline = outline
-            if (outline != null && outlineNeeded &&
-                rectSize.width > 0.0f && rectSize.height > 0.0f) {
+            if (
+                outline != null && outlineNeeded && rectSize.width > 0.0f && rectSize.height > 0.0f
+            ) {
                 // Always assume the outline type is supported
                 // The methods to configure the outline will determine/update the flag
                 // if it not supported on the API level

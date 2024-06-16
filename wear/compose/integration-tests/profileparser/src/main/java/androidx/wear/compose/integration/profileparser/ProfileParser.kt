@@ -33,6 +33,7 @@ class ProfileParser {
             println("Output: ${args[2]}")
 
             val input = File(args[0])
+            val parse = args[1].let{ if (it.endsWith("/")) it else "$it/" }
             val output = File(args[2]).printWriter()
 
             val lines = input.useLines {
@@ -40,7 +41,7 @@ class ProfileParser {
                     .toList()
                     .map { it.truncatedAt(';') }
                     .map { it.truncatedAt('$') }
-                    .filter { it.contains(args[1]) }
+                    .filter { it.contains(parse) }
                     .fold(mutableMapOf()) {
                             acc: MutableMap<String, MutableList<String>>, item: String ->
                         // Collect unique keys based on the androidx/xxxx part of the name

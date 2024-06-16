@@ -29,12 +29,9 @@ class BenchmarkStateBenchmark {
     @OptIn(ExperimentalBenchmarkStateApi::class)
     @Test
     fun nothing() {
-        val state = BenchmarkState(
-            warmupCount = 10,
-            repeatCount = 10
-        )
+        val state = BenchmarkState(warmupCount = 10, repeatCount = 10)
         while (state.keepRunning()) {
-           // do nothing
+            // do nothing
         }
         state.getMeasurementTimeNs()
     }

@@ -28,8 +28,8 @@ internal class ProtoOkioSerializer<T : MessageLite>(
     /** The default proto of this type, obtained via {@code T.getDefaultInstance()} */
     override val defaultValue: T,
     /**
-     *  Set the extensionRegistryLite to use when deserializing T. If no extension registry is
-     *  necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
+     * Set the extensionRegistryLite to use when deserializing T. If no extension registry is
+     * necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
      */
     private val extensionRegistryLite: ExtensionRegistryLite =
         ExtensionRegistryLite.getEmptyRegistry()
@@ -37,14 +37,10 @@ internal class ProtoOkioSerializer<T : MessageLite>(
     @Suppress("UNCHECKED_CAST")
     override suspend fun readFrom(source: BufferedSource): T {
         try {
-            return defaultValue.parserForType.parseFrom(
-                source.inputStream(),
-                extensionRegistryLite
-            ) as T
+            return defaultValue.parserForType.parseFrom(source.inputStream(), extensionRegistryLite)
+                as T
         } catch (invalidProtocolBufferException: InvalidProtocolBufferException) {
-            throw CorruptionException(
-                "Cannot read proto.", invalidProtocolBufferException
-            )
+            throw CorruptionException("Cannot read proto.", invalidProtocolBufferException)
         }
     }
 

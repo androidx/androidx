@@ -37,8 +37,6 @@ class FakeCapturePipeline(
         @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int
     ): List<Deferred<Void?>> {
-        return configs.map {
-            CompletableDeferred<Void?>(null).apply { complete(null) }
-        }
+        return configs.map { CompletableDeferred<Void?>(null).apply { complete(null) } }
     }
 }

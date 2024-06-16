@@ -34,29 +34,27 @@ import org.junit.Test
 class MultipleActivitiesFindTest {
 
     @Test
-    fun test() = runAndroidComposeUiTest<Activity1> {
-        activity!!.startNewActivity()
-        waitUntil {
-            onAllNodesWithTag("activity2").isNotEmpty()
-        }
+    fun test() =
+        runAndroidComposeUiTest<Activity1> {
+            activity!!.startNewActivity()
+            waitUntil { onAllNodesWithTag("activity2").isNotEmpty() }
 
-        onNodeWithTag("activity1").assertDoesNotExist()
-        onNodeWithTag("activity2").assertExists()
-    }
+            onNodeWithTag("activity1").assertDoesNotExist()
+            onNodeWithTag("activity2").assertExists()
+        }
 
     private fun SemanticsNodeInteractionCollection.isNotEmpty(): Boolean {
         return fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
     }
 
     class Activity1 : TaggedActivity("activity1")
+
     class Activity2 : TaggedActivity("activity2")
 
     open class TaggedActivity(private val tag: String) : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            setContent {
-                Box(Modifier.testTag(tag))
-            }
+            setContent { Box(Modifier.testTag(tag)) }
         }
 
         fun startNewActivity() {

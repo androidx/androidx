@@ -29,18 +29,16 @@ import org.w3c.dom.Node
 /**
  * Generate the layouts from the templates provided to the task.
  *
- * For each layout template, 18 layouts are created: 9 simple and 9 complex. The simple layouts
- * are there to create non-resizable views, while complex layouts are there to create resizable
- * layouts (i.e. layout with at least one dimension sets explicitly in dip).
+ * For each layout template, 18 layouts are created: 9 simple and 9 complex. The simple layouts are
+ * there to create non-resizable views, while complex layouts are there to create resizable layouts
+ * (i.e. layout with at least one dimension sets explicitly in dip).
  *
  * A layout should be of the form:
- *
  * ```
  * <TargetView prop1="" ... />
  * ```
  *
  * For example, for the row:
- *
  * ```
  * <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
  *     android:orientation="horizontal" />
@@ -51,9 +49,7 @@ import org.w3c.dom.Node
 internal class LayoutGenerator {
 
     private val documentBuilderFactory by lazy {
-        DocumentBuilderFactory.newInstance().apply {
-            isNamespaceAware = true
-        }
+        DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
     }
 
     private val documentBuilder by lazy { documentBuilderFactory.newDocumentBuilder()!! }
@@ -86,24 +82,24 @@ internal class LayoutGenerator {
         outputLayoutDirS.mkdirs()
         outputLayoutDirT.mkdirs()
         outputValueDir.mkdirs()
-        val generatedFiles = generateSizeLayouts(outputLayoutDir) +
-            generateComplexLayouts(outputLayoutDir) +
-            generateChildIds(outputValueDir) +
-            generateContainersChildrenForS(outputLayoutDirS) +
-            generateContainersChildrenBeforeS(outputLayoutDir) +
-            generateRootElements(outputLayoutDir) +
-            generateRootAliases(outputValueDir)
+        val generatedFiles =
+            generateSizeLayouts(outputLayoutDir) +
+                generateComplexLayouts(outputLayoutDir) +
+                generateChildIds(outputValueDir) +
+                generateContainersChildrenForS(outputLayoutDirS) +
+                generateContainersChildrenBeforeS(outputLayoutDir) +
+                generateRootElements(outputLayoutDir) +
+                generateRootAliases(outputValueDir)
         val topLevelLayouts = containerFiles + childrenFiles.filter { isTopLevelLayout(it) }
         return GeneratedFiles(
-            generatedContainers = containerFiles.associateWith {
-                generateContainers(it, outputLayoutDir)
-            },
-            generatedBoxChildren = topLevelLayouts.associateWith {
-                generateBoxChildrenForT(it, outputLayoutDirT)
-            },
-            generatedRowColumnChildren = topLevelLayouts.associateWith {
-                generateRowColumnChildrenForT(it, outputLayoutDirT)
-            },
+            generatedContainers =
+                containerFiles.associateWith { generateContainers(it, outputLayoutDir) },
+            generatedBoxChildren =
+                topLevelLayouts.associateWith { generateBoxChildrenForT(it, outputLayoutDirT) },
+            generatedRowColumnChildren =
+                topLevelLayouts.associateWith {
+                    generateRowColumnChildrenForT(it, outputLayoutDirT)
+                },
             extraFiles = generatedFiles,
         )
     }
@@ -133,13 +129,16 @@ internal class LayoutGenerator {
     private fun generateContainersChildren(
         outputLayoutDir: File,
         containerSizes: List<ValidSize>,
-    ) = ContainerOrientation.values().flatMap { orientation ->
-        generateContainersChildren(
-            outputLayoutDir,
-            containerSizes,
-            orientation,
-        )
-    }.toSet()
+    ) =
+        ContainerOrientation.values()
+            .flatMap { orientation ->
+                generateContainersChildren(
+                    outputLayoutDir,
+                    containerSizes,
+                    orientation,
+                )
+            }
+            .toSet()
 
     private fun generateContainersChildren(
         outputLayoutDir: File,
@@ -149,34 +148,36 @@ internal class LayoutGenerator {
         val widths = sizes + containerOrientation.extraWidths
         val heights = sizes + containerOrientation.extraHeights
         val alignments = containerOrientation.alignments
-        return (0 until MaxChildCount).flatMap { pos ->
-            alignments.map { (horizontalAlignment, verticalAlignment) ->
-                generateRes(
-                    outputLayoutDir,
-                    makeChildResourceName(
-                        pos,
-                        containerOrientation,
-                        horizontalAlignment,
-                        verticalAlignment
-                    )
-                ) {
-                    val root = createElement("merge")
-                    appendChild(root)
-                    forEachInCrossProduct(widths, heights) { width, height ->
-                        val childId = makeIdName(pos, width, height)
-                        root.appendChild(
-                            makeStub(
-                                childId,
-                                width,
-                                height,
-                                horizontalAlignment,
-                                verticalAlignment,
-                            )
+        return (0 until MaxChildCount)
+            .flatMap { pos ->
+                alignments.map { (horizontalAlignment, verticalAlignment) ->
+                    generateRes(
+                        outputLayoutDir,
+                        makeChildResourceName(
+                            pos,
+                            containerOrientation,
+                            horizontalAlignment,
+                            verticalAlignment
                         )
+                    ) {
+                        val root = createElement("merge")
+                        appendChild(root)
+                        forEachInCrossProduct(widths, heights) { width, height ->
+                            val childId = makeIdName(pos, width, height)
+                            root.appendChild(
+                                makeStub(
+                                    childId,
+                                    width,
+                                    height,
+                                    horizontalAlignment,
+                                    verticalAlignment,
+                                )
+                            )
+                        }
                     }
                 }
             }
-        }.toSet()
+            .toSet()
     }
 
     private fun Document.makeStub(
@@ -197,9 +198,10 @@ internal class LayoutGenerator {
                 setNamedItemNS(
                     androidGravity(
                         listOfNotNull(
-                            horizontalAlignment?.resourceName,
-                            verticalAlignment?.resourceName
-                        ).joinToString(separator = "|")
+                                horizontalAlignment?.resourceName,
+                                verticalAlignment?.resourceName
+                            )
+                            .joinToString(separator = "|")
                     )
                 )
             }
@@ -208,16 +210,17 @@ internal class LayoutGenerator {
     private fun generateSizeLayouts(outputLayoutDir: File): Set<File> {
         val stubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
         return mapInCrossProduct(stubSizes, stubSizes) { width, height ->
-            generateRes(outputLayoutDir, "size_${width.resourceName}_${height.resourceName}") {
-                val root = createElement("TextView")
-                appendChild(root)
-                root.attributes.apply {
-                    setNamedItem(androidNamespace)
-                    setNamedItemNS(androidWidth(width))
-                    setNamedItemNS(androidHeight(height))
+                generateRes(outputLayoutDir, "size_${width.resourceName}_${height.resourceName}") {
+                    val root = createElement("TextView")
+                    appendChild(root)
+                    root.attributes.apply {
+                        setNamedItem(androidNamespace)
+                        setNamedItemNS(androidWidth(width))
+                        setNamedItemNS(androidHeight(height))
+                    }
                 }
             }
-        }.toSet()
+            .toSet()
     }
 
     /**
@@ -231,99 +234,96 @@ internal class LayoutGenerator {
      * The skeleton is:
      *
      * <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-     *      android:id="@id/relativeLayout"
-     *      android:layout_height="wrap_content"
-     *      android:layout_width="wrap_content">
-     *   <FrameLayout
-     *       android:id="@id/sizeView"
-     *       android:layout_height="wrap_content"
-     *       android:layout_width="wrap_content">
-     *     <ViewStub
-     *         android:id="@id/sizeViewStub"
-     *         android:layout_height="wrap_content"
-     *         android:layout_width="wrap_content"/>
-     *   </FrameLayout>
-     *   <ViewStub android:id="@id/glanceViewStub"
-     *       android:layout_height="wrap_content"
-     *       android:layout_width="wrap_content"/>
-     * </RelativeLayout>
+     * android:id="@id/relativeLayout" android:layout_height="wrap_content"
+     * android:layout_width="wrap_content"> <FrameLayout android:id="@id/sizeView"
+     * android:layout_height="wrap_content" android:layout_width="wrap_content"> <ViewStub
+     * android:id="@id/sizeViewStub" android:layout_height="wrap_content"
+     * android:layout_width="wrap_content"/> </FrameLayout> <ViewStub
+     * android:id="@id/glanceViewStub" android:layout_height="wrap_content"
+     * android:layout_width="wrap_content"/> </RelativeLayout>
      *
      * With the `sizeView` frame layout only present if either dimension needs to be fixed.
      */
     private fun generateComplexLayouts(outputLayoutDir: File): Set<File> =
         mapConfiguration { width, height ->
-            generateRes(outputLayoutDir, makeComplexResourceName(width, height)) {
-                val root = createElement("RelativeLayout")
-                appendChild(root)
-                root.attributes.apply {
-                    setNamedItemNS(androidId("@id/relativeLayout"))
-                    setNamedItemNS(androidAttr("tag", "glanceComplexLayout"))
-                    setNamedItemNS(androidWidth(width))
-                    setNamedItemNS(androidHeight(height))
-                    if (width == ValidSize.Expand || height == ValidSize.Expand) {
-                        setNamedItemNS(androidWeight(1))
+                generateRes(outputLayoutDir, makeComplexResourceName(width, height)) {
+                    val root = createElement("RelativeLayout")
+                    appendChild(root)
+                    root.attributes.apply {
+                        setNamedItemNS(androidId("@id/relativeLayout"))
+                        setNamedItemNS(androidAttr("tag", "glanceComplexLayout"))
+                        setNamedItemNS(androidWidth(width))
+                        setNamedItemNS(androidHeight(height))
+                        if (width == ValidSize.Expand || height == ValidSize.Expand) {
+                            setNamedItemNS(androidWeight(1))
+                        }
                     }
-                }
 
-                if (width == ValidSize.Fixed || height == ValidSize.Fixed) {
-                    // A sizing view is only required if the width or height are fixed.
-                    val sizeView = createElement("FrameLayout")
-                    root.appendChild(sizeView)
-                    sizeView.attributes.apply {
-                        setNamedItemNS(androidId("@id/sizeView"))
-                        setNamedItemNS(androidAttr("visibility", "invisible"))
-                        setNamedItemNS(androidWidth(ValidSize.Wrap))
-                        setNamedItemNS(androidHeight(ValidSize.Wrap))
+                    if (width == ValidSize.Fixed || height == ValidSize.Fixed) {
+                        // A sizing view is only required if the width or height are fixed.
+                        val sizeView = createElement("FrameLayout")
+                        root.appendChild(sizeView)
+                        sizeView.attributes.apply {
+                            setNamedItemNS(androidId("@id/sizeView"))
+                            setNamedItemNS(androidAttr("visibility", "invisible"))
+                            setNamedItemNS(androidWidth(ValidSize.Wrap))
+                            setNamedItemNS(androidHeight(ValidSize.Wrap))
+                        }
+                        val sizeViewStub = createElement("ViewStub")
+                        sizeView.appendChild(sizeViewStub)
+                        sizeViewStub.attributes.apply {
+                            setNamedItemNS(androidId("@id/sizeViewStub"))
+                            setNamedItemNS(androidWidth(ValidSize.Wrap))
+                            setNamedItemNS(androidHeight(ValidSize.Wrap))
+                        }
                     }
-                    val sizeViewStub = createElement("ViewStub")
-                    sizeView.appendChild(sizeViewStub)
-                    sizeViewStub.attributes.apply {
-                        setNamedItemNS(androidId("@id/sizeViewStub"))
-                        setNamedItemNS(androidWidth(ValidSize.Wrap))
-                        setNamedItemNS(androidHeight(ValidSize.Wrap))
-                    }
-                }
 
-                val glanceViewStub = createElement("ViewStub")
-                root.appendChild(glanceViewStub)
-                glanceViewStub.attributes.apply {
-                    setNamedItemNS(androidId("@id/glanceViewStub"))
-                    when (width) {
-                        ValidSize.Wrap -> setNamedItemNS(androidWidth(ValidSize.Wrap))
-                        ValidSize.Match, ValidSize.Expand -> {
-                            setNamedItemNS(androidWidth(ValidSize.Match))
+                    val glanceViewStub = createElement("ViewStub")
+                    root.appendChild(glanceViewStub)
+                    glanceViewStub.attributes.apply {
+                        setNamedItemNS(androidId("@id/glanceViewStub"))
+                        when (width) {
+                            ValidSize.Wrap -> setNamedItemNS(androidWidth(ValidSize.Wrap))
+                            ValidSize.Match,
+                            ValidSize.Expand -> {
+                                setNamedItemNS(androidWidth(ValidSize.Match))
+                            }
+                            ValidSize.Fixed -> {
+                                // If the view's height is fixed, its height is determined by
+                                // sizeView.
+                                // Use 0dp width for efficiency.
+                                setNamedItemNS(androidWidth(ValidSize.Expand))
+                                setNamedItemNS(androidAttr("layout_alignLeft", "@id/sizeView"))
+                                setNamedItemNS(androidAttr("layout_alignRight", "@id/sizeView"))
+                            }
                         }
-                        ValidSize.Fixed -> {
-                            // If the view's height is fixed, its height is determined by sizeView.
-                            // Use 0dp width for efficiency.
-                            setNamedItemNS(androidWidth(ValidSize.Expand))
-                            setNamedItemNS(androidAttr("layout_alignLeft", "@id/sizeView"))
-                            setNamedItemNS(androidAttr("layout_alignRight", "@id/sizeView"))
-                        }
-                    }
-                    when (height) {
-                        ValidSize.Wrap -> setNamedItemNS(androidHeight(ValidSize.Wrap))
-                        ValidSize.Match, ValidSize.Expand -> {
-                            setNamedItemNS(androidHeight(ValidSize.Match))
-                        }
-                        ValidSize.Fixed -> {
-                            // If the view's height is fixed, its height is determined by sizeView.
-                            // Use 0dp width for efficiency.
-                            setNamedItemNS(androidHeight(ValidSize.Expand))
-                            setNamedItemNS(androidAttr("layout_alignTop", "@id/sizeView"))
-                            setNamedItemNS(androidAttr("layout_alignBottom", "@id/sizeView"))
+                        when (height) {
+                            ValidSize.Wrap -> setNamedItemNS(androidHeight(ValidSize.Wrap))
+                            ValidSize.Match,
+                            ValidSize.Expand -> {
+                                setNamedItemNS(androidHeight(ValidSize.Match))
+                            }
+                            ValidSize.Fixed -> {
+                                // If the view's height is fixed, its height is determined by
+                                // sizeView.
+                                // Use 0dp width for efficiency.
+                                setNamedItemNS(androidHeight(ValidSize.Expand))
+                                setNamedItemNS(androidAttr("layout_alignTop", "@id/sizeView"))
+                                setNamedItemNS(androidAttr("layout_alignBottom", "@id/sizeView"))
+                            }
                         }
                     }
                 }
             }
-        }.toSet()
+            .toSet()
 
     private fun generateRootElements(outputLayoutDir: File): Set<File> =
         mapInCrossProduct(StubSizes, StubSizes) { width, height ->
-            outputLayoutDir.resolveRes(makeRootResourceName(width, height)).also { output ->
-                writeGeneratedLayout(createRootElement(width, height), output)
+                outputLayoutDir.resolveRes(makeRootResourceName(width, height)).also { output ->
+                    writeGeneratedLayout(createRootElement(width, height), output)
+                }
             }
-        }.toSet()
+            .toSet()
 
     private fun createRootElement(width: ValidSize, height: ValidSize) =
         documentBuilder.newDocument().apply {
@@ -359,13 +359,14 @@ internal class LayoutGenerator {
         val alignments = orientation.alignments
         return (0..MaxChildCount).flatMap { numChildren ->
             alignments.map { (horizontalAlignment, verticalAlignment) ->
-                val generated = generateContainer(
-                    document,
-                    numChildren,
-                    orientation,
-                    horizontalAlignment,
-                    verticalAlignment,
-                )
+                val generated =
+                    generateContainer(
+                        document,
+                        numChildren,
+                        orientation,
+                        horizontalAlignment,
+                        verticalAlignment,
+                    )
                 val output =
                     outputLayoutDir.resolveRes(
                         makeContainerResourceName(
@@ -393,21 +394,22 @@ internal class LayoutGenerator {
         containerOrientation: ContainerOrientation,
         horizontalAlignment: HorizontalAlignment?,
         verticalAlignment: VerticalAlignment?,
-    ) = documentBuilder.newDocument().apply {
-        val root = importNode(inputDoc.documentElement, true)
-        appendChild(root)
-        root.attributes.apply {
-            setNamedItemNS(androidWidth(ValidSize.Wrap))
-            setNamedItemNS(androidHeight(ValidSize.Wrap))
-        }
-        for (pos in 0 until numberChildren) {
-            root.appendChild(
-                createElement("include").apply {
-                    attributes.apply {
-                        setNamedItem(
-                            attribute(
-                                "layout",
-                                "@layout/${
+    ) =
+        documentBuilder.newDocument().apply {
+            val root = importNode(inputDoc.documentElement, true)
+            appendChild(root)
+            root.attributes.apply {
+                setNamedItemNS(androidWidth(ValidSize.Wrap))
+                setNamedItemNS(androidHeight(ValidSize.Wrap))
+            }
+            for (pos in 0 until numberChildren) {
+                root.appendChild(
+                    createElement("include").apply {
+                        attributes.apply {
+                            setNamedItem(
+                                attribute(
+                                    "layout",
+                                    "@layout/${
                                     makeChildResourceName(
                                         pos,
                                         containerOrientation,
@@ -415,55 +417,55 @@ internal class LayoutGenerator {
                                         verticalAlignment
                                     )
                                 }"
+                                )
                             )
-                        )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
-    }
 
     private fun generateBoxChildrenForT(
         file: File,
         outputLayoutDir: File,
     ): List<BoxChildProperties> =
-        crossProduct(
-            HorizontalAlignment.values().toList(),
-            VerticalAlignment.values().toList()
-        ).map { (horizontalAlignment, verticalAlignment) ->
-            val generated = generateAlignedLayout(
-                parseLayoutTemplate(file),
-                horizontalAlignment,
-                verticalAlignment,
-            )
-            val output = outputLayoutDir.resolveRes(
-                makeBoxChildResourceName(file, horizontalAlignment, verticalAlignment)
-            )
-            writeGeneratedLayout(generated, output)
-            BoxChildProperties(output, horizontalAlignment, verticalAlignment)
-        }
+        crossProduct(HorizontalAlignment.values().toList(), VerticalAlignment.values().toList())
+            .map { (horizontalAlignment, verticalAlignment) ->
+                val generated =
+                    generateAlignedLayout(
+                        parseLayoutTemplate(file),
+                        horizontalAlignment,
+                        verticalAlignment,
+                    )
+                val output =
+                    outputLayoutDir.resolveRes(
+                        makeBoxChildResourceName(file, horizontalAlignment, verticalAlignment)
+                    )
+                writeGeneratedLayout(generated, output)
+                BoxChildProperties(output, horizontalAlignment, verticalAlignment)
+            }
 
     private fun generateRowColumnChildrenForT(
         file: File,
         outputLayoutDir: File,
     ): List<RowColumnChildProperties> =
         listOf(
-            Pair(ValidSize.Expand, ValidSize.Wrap),
-            Pair(ValidSize.Wrap, ValidSize.Expand),
-        ).map { (width, height) ->
-            val generated = generateSimpleLayout(parseLayoutTemplate(file), width, height)
-            val output = outputLayoutDir.resolveRes(
-                makeRowColumnChildResourceName(file, width, height)
+                Pair(ValidSize.Expand, ValidSize.Wrap),
+                Pair(ValidSize.Wrap, ValidSize.Expand),
             )
-            writeGeneratedLayout(generated, output)
-            RowColumnChildProperties(output, width, height)
-        }
+            .map { (width, height) ->
+                val generated = generateSimpleLayout(parseLayoutTemplate(file), width, height)
+                val output =
+                    outputLayoutDir.resolveRes(makeRowColumnChildResourceName(file, width, height))
+                writeGeneratedLayout(generated, output)
+                RowColumnChildProperties(output, width, height)
+            }
 
     /**
      * Generate a simple layout.
      *
-     * A simple layout only contains the view itself, set up for a given width and height.
-     * On Android R-, simple layouts are non-resizable.
+     * A simple layout only contains the view itself, set up for a given width and height. On
+     * Android R-, simple layouts are non-resizable.
      */
     private fun generateSimpleLayout(
         document: Document,
@@ -489,23 +491,22 @@ internal class LayoutGenerator {
     }
 
     /**
-     * This function is used to generate FrameLayout children with "layout_gravity" set for
-     * Android T+. We can ignore size here since it is set programmatically for T+.
+     * This function is used to generate FrameLayout children with "layout_gravity" set for Android
+     * T+. We can ignore size here since it is set programmatically for T+.
      */
     private fun generateAlignedLayout(
         document: Document,
         horizontalAlignment: HorizontalAlignment,
         verticalAlignment: VerticalAlignment,
-    ) = generateSimpleLayout(document, ValidSize.Wrap, ValidSize.Wrap).apply {
-        documentElement.attributes.setNamedItemNS(
-            androidGravity(
-                listOfNotNull(
-                    horizontalAlignment.resourceName,
-                    verticalAlignment.resourceName
-                ).joinToString(separator = "|")
+    ) =
+        generateSimpleLayout(document, ValidSize.Wrap, ValidSize.Wrap).apply {
+            documentElement.attributes.setNamedItemNS(
+                androidGravity(
+                    listOfNotNull(horizontalAlignment.resourceName, verticalAlignment.resourceName)
+                        .joinToString(separator = "|")
+                )
             )
-        )
-    }
+        }
 
     private fun generateRootAliases(outputValueDir: File) =
         generateRes(outputValueDir, "layouts") {
@@ -516,13 +517,16 @@ internal class LayoutGenerator {
             repeat(RootLayoutAliasCount) { aliasIndex ->
                 sizes.forEachIndexed() { index, (width, height) ->
                     val fullIndex = aliasIndex * numStubs + index
-                    val alias = createElement("item").apply {
-                        attributes.apply {
-                            setNamedItem(attribute("name", makeRootAliasResourceName(fullIndex)))
-                            setNamedItem(attribute("type", "layout"))
+                    val alias =
+                        createElement("item").apply {
+                            attributes.apply {
+                                setNamedItem(
+                                    attribute("name", makeRootAliasResourceName(fullIndex))
+                                )
+                                setNamedItem(attribute("type", "layout"))
+                            }
+                            textContent = "@layout/${makeRootResourceName(width, height)}"
                         }
-                        textContent = "@layout/${makeRootResourceName(width, height)}"
-                    }
                     root.appendChild(alias)
                 }
             }
@@ -550,8 +554,8 @@ internal class LayoutGenerator {
 private const val MaxChildCount = 10
 
 /**
- * Number of aliases for the root view.
- * As pre-S we need four aliases per position, effectively 4 times that number will be generated.
+ * Number of aliases for the root view. As pre-S we need four aliases per position, effectively 4
+ * times that number will be generated.
  */
 internal const val RootLayoutAliasCount = 100
 
@@ -606,16 +610,17 @@ internal enum class ContainerOrientation(
 }
 
 internal val ContainerOrientation.alignments: List<Pair<HorizontalAlignment?, VerticalAlignment?>>
-    get() = when (this) {
-        ContainerOrientation.None -> {
-            crossProduct(
-                HorizontalAlignment.values().toList(),
-                VerticalAlignment.values().toList()
-            )
+    get() =
+        when (this) {
+            ContainerOrientation.None -> {
+                crossProduct(
+                    HorizontalAlignment.values().toList(),
+                    VerticalAlignment.values().toList()
+                )
+            }
+            ContainerOrientation.Horizontal -> VerticalAlignment.values().map { null to it }
+            ContainerOrientation.Vertical -> HorizontalAlignment.values().map { it to null }
         }
-        ContainerOrientation.Horizontal -> VerticalAlignment.values().map { null to it }
-        ContainerOrientation.Vertical -> HorizontalAlignment.values().map { it to null }
-    }
 
 internal enum class HorizontalAlignment(
     val resourceName: String,
@@ -644,15 +649,11 @@ private val AndroidNS = "http://schemas.android.com/apk/res/android"
 private val AppNS = "http://schemas.android.com/apk/res-auto"
 
 internal fun Document.androidAttr(name: String, value: String) =
-    createAttributeNS(AndroidNS, "android:$name").apply {
-        textContent = value
-    }
+    createAttributeNS(AndroidNS, "android:$name").apply { textContent = value }
 
-internal fun Node.androidAttr(name: String): Node? =
-    attributes.getNamedItemNS(AndroidNS, name)
+internal fun Node.androidAttr(name: String): Node? = attributes.getNamedItemNS(AndroidNS, name)
 
-internal fun Node.appAttr(name: String): Node? =
-    attributes.getNamedItemNS(AppNS, name)
+internal fun Node.appAttr(name: String): Node? = attributes.getNamedItemNS(AppNS, name)
 
 internal fun Document.attribute(name: String, value: String): Node? =
     createAttribute(name).apply { textContent = value }
@@ -672,10 +673,7 @@ internal fun Document.androidWeight(value: Int) = androidAttr("layout_weight", v
 
 internal fun Document.androidGravity(value: String) = androidAttr("layout_gravity", value)
 
-internal fun Document.androidLayoutDirection(value: String) =
-    androidAttr("layoutDirection", value)
+internal fun Document.androidLayoutDirection(value: String) = androidAttr("layoutDirection", value)
 
 internal val Document.androidNamespace
-    get() = createAttribute("xmlns:android").apply {
-        textContent = AndroidNS
-    }
+    get() = createAttribute("xmlns:android").apply { textContent = AndroidNS }

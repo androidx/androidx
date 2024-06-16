@@ -19,9 +19,12 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.Metadata
 
 /**
- * A [Change] with [Metadata.id] of deleted [Record]. For privacy, only unique identifiers of
- * the deletion are returned. Clients holding copies of data should keep a copy of
- * [Metadata.id] along with its contents, if deletion propagation is desired.
+ * A [Change] with [Metadata.id] of deleted [Record]. For privacy, only unique identifiers of the
+ * deletion are returned.
+ *
+ * <p>Clients holding copies of data from Health Connect should keep a copy of [Metadata.id] along
+ * with its contents. When receiving a [DeletionChange], use [Metadata.id] to delete copy of the
+ * data, if one exists.
  *
  * @property recordId [Metadata.id] of deleted [Record].
  */

@@ -22,9 +22,7 @@ import androidx.room.migration.bundle.BaseEntityBundle
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.util.SchemaDiffResult
 
-/**
- * Stores the changes detected in a database schema between the old and new versions.
- */
+/** Stores the changes detected in a database schema between the old and new versions. */
 data class AutoMigration(
     val from: Int,
     val to: Int,
@@ -42,8 +40,8 @@ data class AutoMigration(
     }
 
     /**
-     * Stores the table name and the relevant field bundle of a column that was added to a
-     * database in a newer version.
+     * Stores the table name and the relevant field bundle of a column that was added to a database
+     * in a newer version.
      */
     data class AddedColumn(val tableName: String, val fieldBundle: FieldBundle)
 
@@ -57,27 +55,22 @@ data class AutoMigration(
         val newColumnName: String
     )
 
-    /**
-     * Stores the table name and the column name of a column that was deleted from the database.
-     */
+    /** Stores the table name and the column name of a column that was deleted from the database. */
     data class DeletedColumn(val tableName: String, val columnName: String)
 
-    /**
-     * Stores the table that was added to a database in a newer version.
-     */
+    /** Stores the table that was added to a database in a newer version. */
     data class AddedTable(val entityBundle: BaseEntityBundle)
 
     /**
-     * Stores the table that contains a change in the primary key, foreign key(s) or index(es)
-     * in a newer version, as well as any complex changes and renames on the column-level.
+     * Stores the table that contains a change in the primary key, foreign key(s) or index(es) in a
+     * newer version, as well as any complex changes and renames on the column-level.
      *
      * As it is possible to have a table with only simple (non-complex) changes, which will be
-     * categorized as "AddedColumn" or "DeletedColumn" changes, all other
-     * changes at the table level are categorized as "complex" changes, using the category
-     * "ComplexChangedTable".
+     * categorized as "AddedColumn" or "DeletedColumn" changes, all other changes at the table level
+     * are categorized as "complex" changes, using the category "ComplexChangedTable".
      *
-     * The renamed columns map contains a mapping from the NEW name of the column to the OLD name
-     * of the column.
+     * The renamed columns map contains a mapping from the NEW name of the column to the OLD name of
+     * the column.
      */
     data class ComplexChangedTable(
         val tableName: String,
@@ -88,16 +81,14 @@ data class AutoMigration(
     )
 
     /**
-     * Stores the original name and the new name of a table that was renamed in the
-     * new version of the database.
+     * Stores the original name and the new name of a table that was renamed in the new version of
+     * the database.
      *
      * This container will only be used for tables that got renamed, but do not have any complex
      * changes on it, both on the table and column level.
      */
     data class RenamedTable(val originalTableName: String, val newTableName: String)
 
-    /**
-     * Stores the name of the table that was deleted from the database.
-     */
+    /** Stores the name of the table that was deleted from the database. */
     data class DeletedTable(val deletedTableName: String)
 }

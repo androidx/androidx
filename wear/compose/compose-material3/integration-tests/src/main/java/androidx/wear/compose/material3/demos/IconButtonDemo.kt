@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -37,88 +39,62 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FilledIconButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.wear.compose.material3.samples.IconButtonSample
+import androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedIconButtonSample
 import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun IconButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Icon button")
-            }
-        }
+        item { ListHeader { Text("Icon button") } }
         item {
             Row {
                 IconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
-                    StandardIcon(ButtonDefaults.IconSize)
-                }
+                IconButton(onClick = {}, enabled = false) { StandardIcon(ButtonDefaults.IconSize) }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled Tonal")
-            }
-        }
+        item { ListHeader { Text("Filled Tonal") } }
         item {
             Row {
                 FilledTonalIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                FilledTonalIconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
+                FilledTonalIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled")
-            }
-        }
+        item { ListHeader { Text("Filled") } }
         item {
             Row {
                 FilledIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                FilledIconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
+                FilledIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Outlined")
-            }
-        }
+        item { ListHeader { Text("Outlined") } }
         item {
             Row {
                 OutlinedIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                OutlinedIconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
+                OutlinedIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
+        item { ListHeader { Text("With onLongClick") } }
         item {
-            ListHeader {
-                Text("Sizes")
+            IconButtonWithOnLongClickSample {
+                Toast.makeText(context, "onLongClick triggered", Toast.LENGTH_SHORT).show()
             }
         }
+        item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${IconButtonDefaults.LargeButtonSize.value.toInt()}dp")
@@ -154,7 +130,8 @@ fun IconButtonDemo() {
 private fun IconButtonWithSize(size: Dp) {
     FilledTonalIconButton(
         modifier = Modifier.touchTargetAwareSize(size),
-        onClick = { /* Do something */ }) {
+        onClick = { /* Do something */ }
+    ) {
         StandardIcon(IconButtonDefaults.iconSizeFor(size))
     }
 }

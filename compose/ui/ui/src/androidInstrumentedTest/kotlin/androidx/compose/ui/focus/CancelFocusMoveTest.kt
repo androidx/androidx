@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
@@ -43,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class CancelFocusMoveTest(param: Param) {
@@ -72,9 +74,7 @@ class CancelFocusMoveTest(param: Param) {
                 }
                 Row {
                     Box(Modifier.testFocusable(4))
-                    Box(Modifier.testFocusable(5)) {
-                        Box(Modifier.testFocusable(7))
-                    }
+                    Box(Modifier.testFocusable(5)) { Box(Modifier.testFocusable(7)) }
                     Box(Modifier.testFocusable(6))
                 }
                 Row {
@@ -109,9 +109,9 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { left = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { left = FocusRequester.Cancel }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -157,9 +157,9 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { right = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { right = FocusRequester.Cancel }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -205,9 +205,8 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { up = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { up = FocusRequester.Cancel }.testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -253,9 +252,9 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { down = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { down = FocusRequester.Cancel }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -301,9 +300,9 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { next = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { next = FocusRequester.Cancel }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -349,9 +348,9 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { previous = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { previous = FocusRequester.Cancel }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -397,12 +396,12 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties {
-                                next = FocusRequester.Cancel
-                                previous = FocusRequester.Cancel
-                            }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties {
+                                    next = FocusRequester.Cancel
+                                    previous = FocusRequester.Cancel
+                                }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -422,7 +421,8 @@ class CancelFocusMoveTest(param: Param) {
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Next, Previous -> {
+                Next,
+                Previous -> {
                     assertThat(success).isFalse()
                     assertThat(focusState[initialFocusedItem]).isTrue()
                 }
@@ -448,12 +448,12 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties {
-                                left = FocusRequester.Cancel
-                                right = FocusRequester.Cancel
-                            }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties {
+                                    left = FocusRequester.Cancel
+                                    right = FocusRequester.Cancel
+                                }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -473,7 +473,8 @@ class CancelFocusMoveTest(param: Param) {
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Right -> {
+                Left,
+                Right -> {
                     assertThat(success).isFalse()
                     assertThat(focusState[initialFocusedItem]).isTrue()
                 }
@@ -499,16 +500,16 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties {
-                                left = FocusRequester.Cancel
-                                right = FocusRequester.Cancel
-                                up = FocusRequester.Cancel
-                                down = FocusRequester.Cancel
-                                previous = FocusRequester.Cancel
-                                next = FocusRequester.Cancel
-                            }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties {
+                                    left = FocusRequester.Cancel
+                                    right = FocusRequester.Cancel
+                                    up = FocusRequester.Cancel
+                                    down = FocusRequester.Cancel
+                                    previous = FocusRequester.Cancel
+                                    next = FocusRequester.Cancel
+                                }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -529,7 +530,8 @@ class CancelFocusMoveTest(param: Param) {
         rule.runOnIdle {
             when (focusDirection) {
                 // TODO(b/183746982): remove this after we add custom Enter and Exit.
-                Enter, Exit -> {
+                Enter,
+                Exit -> {
                     assertThat(success).isTrue()
                     assertThat(focusState[defaultFocusMoveResult]).isTrue()
                 }
@@ -555,10 +557,10 @@ class CancelFocusMoveTest(param: Param) {
                 Row {
                     Box(Modifier.testFocusable(4))
                     Box(
-                        modifier = Modifier
-                            .focusProperties { right = FocusRequester.Default }
-                            .focusProperties { right = FocusRequester.Cancel }
-                            .testFocusable(5)
+                        modifier =
+                            Modifier.focusProperties { right = FocusRequester.Default }
+                                .focusProperties { right = FocusRequester.Cancel }
+                                .testFocusable(5)
                     ) {
                         Box(Modifier.testFocusable(7))
                     }
@@ -589,11 +591,11 @@ class CancelFocusMoveTest(param: Param) {
     }
 
     @Composable
-    fun Modifier.testFocusable(index: Int, size: Dp = 10.dp) = this
-        .size(size)
-        .focusRequester(focusRequester[index])
-        .onFocusChanged { focusState[index] = it.isFocused }
-        .focusable()
+    fun Modifier.testFocusable(index: Int, size: Dp = 10.dp) =
+        this.size(size)
+            .focusRequester(focusRequester[index])
+            .onFocusChanged { focusState[index] = it.isFocused }
+            .focusable()
 
     private fun ComposeContentTestRule.setContentWithInitialFocus(
         composable: @Composable () -> Unit
@@ -606,13 +608,16 @@ class CancelFocusMoveTest(param: Param) {
     }
 
     private val defaultFocusMoveResult: Int
-        get() = when (focusDirection) {
-            Left, Previous -> 4
-            Right -> 6
-            Up -> 2
-            Down -> 9
-            Enter, Next -> 7
-            Exit -> 0
-            else -> error("")
-        }
+        get() =
+            when (focusDirection) {
+                Left,
+                Previous -> 4
+                Right -> 6
+                Up -> 2
+                Down -> 9
+                Enter,
+                Next -> 7
+                Exit -> 0
+                else -> error("")
+            }
 }

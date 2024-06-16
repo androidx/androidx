@@ -57,21 +57,20 @@ class PreviewViewFragmentTest(
     private val cameraConfig: CameraXConfig
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    var useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(cameraConfig)
-    )
+    var useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
     @get:Rule
     var storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    @get:Rule
-    var audioPermissionRule = GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
+    @get:Rule var audioPermissionRule = GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private var scenario: FragmentScenario<PreviewViewFragment>? = null
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -207,13 +206,8 @@ class PreviewViewFragmentTest(
         // Resume the fragment
         scenario!!.moveToState(Lifecycle.State.RESUMED)
         instrumentation.runOnMainSync {
-            Truth.assertThat(
-                getPreviewView(
-                    scenario!!
-                ).scaleType
-            ).isEqualTo(
-                PreviewView.ScaleType.FIT_END
-            )
+            Truth.assertThat(getPreviewView(scenario!!).scaleType)
+                .isEqualTo(PreviewView.ScaleType.FIT_END)
         }
     }
 
@@ -230,19 +224,16 @@ class PreviewViewFragmentTest(
         // Resume the fragment
         scenario!!.moveToState(Lifecycle.State.RESUMED)
         instrumentation.runOnMainSync {
-            Truth.assertThat(
-                getPreviewView(
-                    scenario!!
-                ).implementationMode
-            ).isEqualTo(
-                PreviewView.ImplementationMode.COMPATIBLE
-            )
+            Truth.assertThat(getPreviewView(scenario!!).implementationMode)
+                .isEqualTo(PreviewView.ImplementationMode.COMPATIBLE)
         }
     }
 
     private fun createScenario(): FragmentScenario<PreviewViewFragment> {
         return FragmentScenario.launchInContainer(
-            PreviewViewFragment::class.java, null, R.style.AppTheme,
+            PreviewViewFragment::class.java,
+            null,
+            R.style.AppTheme,
             FragmentFactory()
         )
     }
@@ -268,11 +259,12 @@ class PreviewViewFragmentTest(
         val latch = CountDownLatch(PREVIEW_UPDATE_COUNT)
         fragment.get().setPreviewUpdatingLatch(latch)
         val isPreviewUpdating: Boolean
-        isPreviewUpdating = try {
-            latch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
-        } catch (e: InterruptedException) {
-            false
-        }
+        isPreviewUpdating =
+            try {
+                latch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
+            } catch (e: InterruptedException) {
+                false
+            }
         if (shouldPreviewUpdate) {
             Truth.assertThat(isPreviewUpdating).isTrue()
         } else {
@@ -296,9 +288,10 @@ class PreviewViewFragmentTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 }

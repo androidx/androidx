@@ -16,20 +16,24 @@
 
 package androidx.binarycompatibilityvalidator
 
-class Cursor private constructor(
-    private val lines: List<String>,
-    rowIndex: Int = 0,
-    private var columnIndex: Int = 0
-) {
+class Cursor
+private constructor(private val lines: List<String>, rowIndex: Int = 0, columnIndex: Int = 0) {
     constructor(text: String) : this(text.split("\n"))
+
     var rowIndex: Int = rowIndex
         private set
+
+    var columnIndex: Int = columnIndex
+        private set
+
     val currentLine: String
         get() = lines[rowIndex].slice(columnIndex until lines[rowIndex].length)
+
     fun hasNextRow() = rowIndex < (lines.size - 1)
 
-    /** Check if we have passed the last line  in [lines] and there is nothing left to parse **/
+    /** Check if we have passed the last line in [lines] and there is nothing left to parse */
     fun isFinished() = rowIndex >= lines.size
+
     fun nextLine() {
         rowIndex++
         columnIndex = 0

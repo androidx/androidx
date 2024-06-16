@@ -26,15 +26,13 @@ import androidx.core.haptics.device.HapticDeviceProfile
  * composing this with generic haptic signal extensions, including other fallback chains.
  *
  * @sample androidx.core.haptics.samples.HapticFallbackChainOfSignals
+ *
  * @see HapticDeviceProfile
  */
 class FallbackChainSignal(
 
-    /**
-     * The ordered list of haptic signals that defines the fallback chain.
-     */
+    /** The ordered list of haptic signals that defines the fallback chain. */
     val signals: List<ResolvableSignal>,
-
 ) : ResolvableSignal {
 
     companion object {
@@ -50,9 +48,8 @@ class FallbackChainSignal(
     }
 
     override fun resolve(deviceProfile: HapticDeviceProfile): HapticSignal? =
-        signals.asSequence().mapNotNull {
-            it.resolve(deviceProfile)
-        }.firstOrNull {
-            deviceProfile.supports(it)
-        }
+        signals
+            .asSequence()
+            .mapNotNull { it.resolve(deviceProfile) }
+            .firstOrNull { deviceProfile.supports(it) }
 }

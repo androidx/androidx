@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.video
 
 import android.net.Uri
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN
 import com.google.common.truth.Truth.assertThat
@@ -45,10 +42,7 @@ class VideoRecordEventTest {
 
     @Test
     fun canCreateStart() {
-        val event = VideoRecordEvent.start(
-            TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE
-        )
+        val event = VideoRecordEvent.start(TEST_OUTPUT_OPTION, TEST_RECORDING_STATE)
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Start::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
@@ -57,11 +51,8 @@ class VideoRecordEventTest {
 
     @Test
     fun canCreateFinalize() {
-        val event = VideoRecordEvent.finalize(
-            TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE,
-            TEST_OUTPUT_RESULT
-        )
+        val event =
+            VideoRecordEvent.finalize(TEST_OUTPUT_OPTION, TEST_RECORDING_STATE, TEST_OUTPUT_RESULT)
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
@@ -76,13 +67,14 @@ class VideoRecordEventTest {
     fun canCreateFinalizeWithError() {
         val error = ERROR_UNKNOWN
         val cause = RuntimeException()
-        val event = VideoRecordEvent.finalizeWithError(
-            TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE,
-            TEST_OUTPUT_RESULT,
-            error,
-            cause
-        )
+        val event =
+            VideoRecordEvent.finalizeWithError(
+                TEST_OUTPUT_OPTION,
+                TEST_RECORDING_STATE,
+                TEST_OUTPUT_RESULT,
+                error,
+                cause
+            )
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
@@ -108,10 +100,7 @@ class VideoRecordEventTest {
 
     @Test
     fun canCreateStatus() {
-        val event = VideoRecordEvent.status(
-            TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE
-        )
+        val event = VideoRecordEvent.status(TEST_OUTPUT_OPTION, TEST_RECORDING_STATE)
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Status::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
@@ -120,10 +109,7 @@ class VideoRecordEventTest {
 
     @Test
     fun canCreatePause() {
-        val event = VideoRecordEvent.pause(
-            TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE
-        )
+        val event = VideoRecordEvent.pause(TEST_OUTPUT_OPTION, TEST_RECORDING_STATE)
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Pause::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
@@ -132,10 +118,7 @@ class VideoRecordEventTest {
 
     @Test
     fun canCreateResume() {
-        val event = VideoRecordEvent.resume(
-            TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE
-        )
+        val event = VideoRecordEvent.resume(TEST_OUTPUT_OPTION, TEST_RECORDING_STATE)
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Resume::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)

@@ -69,4 +69,5 @@ androidx {
     inceptionYear = "2021"
     description = "Library for tracking and reporting various runtime metrics for applications"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

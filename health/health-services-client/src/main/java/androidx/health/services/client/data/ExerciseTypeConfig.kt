@@ -25,22 +25,25 @@ import androidx.health.services.client.proto.DataProto
  * subclasses, depending on their needs. Currently available types are: [GolfExerciseTypeConfig].
  */
 abstract class ExerciseTypeConfig internal constructor() {
-  internal abstract fun toProto(): DataProto.ExerciseTypeConfig
-  companion object {
-    internal fun fromProto(proto: DataProto.ExerciseTypeConfig): ExerciseTypeConfig {
-      if (proto.hasGolfShotTrackingPlaceInfo()) {
-        return GolfExerciseTypeConfig(
-          GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
-            .fromProto(proto.golfShotTrackingPlaceInfo)
-        )
-      } else {
-        val emptyExerciseTypeConfig = object : ExerciseTypeConfig() {
-          override fun toProto(): DataProto.ExerciseTypeConfig {
-            return DataProto.ExerciseTypeConfig.getDefaultInstance()
-          }
+    internal abstract fun toProto(): DataProto.ExerciseTypeConfig
+
+    companion object {
+        internal fun fromProto(proto: DataProto.ExerciseTypeConfig): ExerciseTypeConfig {
+            if (proto.hasGolfShotTrackingPlaceInfo()) {
+                return GolfExerciseTypeConfig(
+                    GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.fromProto(
+                        proto.golfShotTrackingPlaceInfo
+                    )
+                )
+            } else {
+                val emptyExerciseTypeConfig =
+                    object : ExerciseTypeConfig() {
+                        override fun toProto(): DataProto.ExerciseTypeConfig {
+                            return DataProto.ExerciseTypeConfig.getDefaultInstance()
+                        }
+                    }
+                return emptyExerciseTypeConfig
+            }
         }
-        return emptyExerciseTypeConfig
-      }
     }
-  }
 }

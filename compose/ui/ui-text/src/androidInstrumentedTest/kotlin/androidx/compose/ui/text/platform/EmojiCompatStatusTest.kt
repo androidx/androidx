@@ -127,10 +127,7 @@ class EmojiCompatStatusTest {
         // there's too many async actors to do anything reasonable and non-flaky here. tie up the
         // test thread until main posts the value
         runBlocking {
-            withTimeout(1000) {
-                while (!value)
-                    delay(0)
-            }
+            withTimeout(1000) { while (!value) delay(0) }
             assertThat(value).isTrue()
         }
     }

@@ -23,18 +23,15 @@ import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
 
-/**
- * An adapter for [WindowAreaController] to provide callback APIs.
- */
+/** An adapter for [WindowAreaController] to provide callback APIs. */
 @ExperimentalWindowApi
-class WindowAreaControllerCallbackAdapter private constructor(
+class WindowAreaControllerCallbackAdapter
+private constructor(
     private val controller: WindowAreaController,
     private val callbackToFlowAdapter: CallbackToFlowAdapter
 ) : WindowAreaController by controller {
 
-    constructor(
-        controller: WindowAreaController
-    ) : this(controller, CallbackToFlowAdapter())
+    constructor(controller: WindowAreaController) : this(controller, CallbackToFlowAdapter())
 
     /**
      * Registers a listener that is interested in the current list of [WindowAreaInfo] available to

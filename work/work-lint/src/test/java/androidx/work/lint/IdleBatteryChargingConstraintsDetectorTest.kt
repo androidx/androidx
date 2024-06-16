@@ -24,9 +24,10 @@ import org.junit.Test
 class IdleBatteryChargingConstraintsDetectorTest {
     @Test
     fun testWarnWithIdleCharging() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import androidx.work.Constraints
@@ -39,30 +40,31 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            CONSTRAINTS,
-            customApplication
-        ).issues(IdleBatteryChargingConstraintsDetector.ISSUE)
+        lint()
+            .files(CONSTRAINTS, customApplication)
+            .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:8: Warning: Constraints may not be met for some devices [IdleBatteryChargingConstraints]
                         builder.setRequiresDeviceIdle(true)
                         ^
                 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testWarnWithIdleCharging2() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import androidx.work.Constraints
@@ -75,30 +77,31 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            CONSTRAINTS,
-            customApplication
-        ).issues(IdleBatteryChargingConstraintsDetector.ISSUE)
+        lint()
+            .files(CONSTRAINTS, customApplication)
+            .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:8: Warning: Constraints may not be met for some devices [IdleBatteryChargingConstraints]
                         builder.setRequiresCharging(true)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun noWarningsWhenIdleOnly() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import androidx.work.Constraints
@@ -110,21 +113,23 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            CONSTRAINTS,
-            customApplication
-        ).issues(IdleBatteryChargingConstraintsDetector.ISSUE)
+        lint()
+            .files(CONSTRAINTS, customApplication)
+            .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun noWarningsWhenChargingOnly() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import androidx.work.Constraints
@@ -136,21 +141,23 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            CONSTRAINTS,
-            customApplication
-        ).issues(IdleBatteryChargingConstraintsDetector.ISSUE)
+        lint()
+            .files(CONSTRAINTS, customApplication)
+            .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun noWarningsWhenSeparateConstraints() {
-        val customApplication = kotlin(
-            "com/example/App.kt",
-            """
+        val customApplication =
+            kotlin(
+                    "com/example/App.kt",
+                    """
             package com.example
 
             import androidx.work.Constraints
@@ -165,12 +172,13 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            CONSTRAINTS,
-            customApplication
-        ).issues(IdleBatteryChargingConstraintsDetector.ISSUE)
+        lint()
+            .files(CONSTRAINTS, customApplication)
+            .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
             .expectClean()
     }

@@ -181,11 +181,11 @@ class ItemKeyedDataSourceTest {
     @Test
     fun loadBefore() {
         val dataSource = ItemDataSource()
-        @Suppress("UNCHECKED_CAST")
-        val callback = mock<ItemKeyedDataSource.LoadCallback<Item>>()
+        @Suppress("UNCHECKED_CAST") val callback = mock<ItemKeyedDataSource.LoadCallback<Item>>()
 
         dataSource.loadBefore(
-            ItemKeyedDataSource.LoadParams(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5), callback
+            ItemKeyedDataSource.LoadParams(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5),
+            callback
         )
 
         @Suppress("UNCHECKED_CAST")
@@ -246,9 +246,8 @@ class ItemKeyedDataSourceTest {
         }
 
         private fun findFirstIndexAfter(key: Key): Int {
-            return items.indices.firstOrNull {
-                KEY_COMPARATOR.compare(key, getKey(items[it])) < 0
-            } ?: items.size
+            return items.indices.firstOrNull { KEY_COMPARATOR.compare(key, getKey(items[it])) < 0 }
+                ?: items.size
         }
 
         private fun findFirstIndexBefore(key: Key): Int {
@@ -262,30 +261,34 @@ class ItemKeyedDataSourceTest {
         invalidateDataSource: Boolean = false,
         callbackInvoker: (callback: ItemKeyedDataSource.LoadInitialCallback<String>) -> Unit
     ) {
-        val dataSource = object : ItemKeyedDataSource<String, String>() {
-            override fun getKey(item: String): String {
-                return ""
-            }
-
-            override fun loadInitial(
-                params: LoadInitialParams<String>,
-                callback: LoadInitialCallback<String>
-            ) {
-                if (invalidateDataSource) {
-                    // invalidate data source so it's invalid when onResult() called
-                    invalidate()
+        val dataSource =
+            object : ItemKeyedDataSource<String, String>() {
+                override fun getKey(item: String): String {
+                    return ""
                 }
-                callbackInvoker(callback)
-            }
 
-            override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String>) {
-                fail("loadAfter not expected")
-            }
+                override fun loadInitial(
+                    params: LoadInitialParams<String>,
+                    callback: LoadInitialCallback<String>
+                ) {
+                    if (invalidateDataSource) {
+                        // invalidate data source so it's invalid when onResult() called
+                        invalidate()
+                    }
+                    callbackInvoker(callback)
+                }
 
-            override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String>) {
-                fail("loadBefore not expected")
+                override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String>) {
+                    fail("loadAfter not expected")
+                }
+
+                override fun loadBefore(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String>
+                ) {
+                    fail("loadBefore not expected")
+                }
             }
-        }
 
         @Suppress("DEPRECATION")
         PagedList.Builder(dataSource, 10)
@@ -432,13 +435,9 @@ class ItemKeyedDataSourceTest {
         val loadInitialCallback = mock<ItemKeyedDataSource.LoadInitialCallback<DecoratedItem>>()
         val initKey = orig.getKey(ITEMS_BY_NAME_ID.first())
         val initParams = ItemKeyedDataSource.LoadInitialParams(initKey, 10, false)
-        wrapper.loadInitial(
-            initParams,
-            loadInitialCallback
-        )
-        verify(loadInitialCallback).onResult(
-            ITEMS_BY_NAME_ID.subList(0, 10).map { DecoratedItem(it) }
-        )
+        wrapper.loadInitial(initParams, loadInitialCallback)
+        verify(loadInitialCallback)
+            .onResult(ITEMS_BY_NAME_ID.subList(0, 10).map { DecoratedItem(it) })
 
         val key = orig.getKey(ITEMS_BY_NAME_ID[20])
         @Suppress("UNCHECKED_CAST")
@@ -460,9 +459,7 @@ class ItemKeyedDataSourceTest {
     }
 
     @Test
-    fun testManualWrappedDataSource() = verifyWrappedDataSource {
-        DecoratedWrapperDataSource(it)
-    }
+    fun testManualWrappedDataSource() = verifyWrappedDataSource { DecoratedWrapperDataSource(it) }
 
     @Test
     fun testListConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
@@ -496,14 +493,16 @@ class ItemKeyedDataSourceTest {
         private val ITEM_COMPARATOR = compareBy<Item> { it.name }.thenByDescending { it.id }
         private val KEY_COMPARATOR = compareBy<Key> { it.name }.thenByDescending { it.id }
 
-        private val ITEMS_BY_NAME_ID = List(100) {
-            val names = Array(10) { index -> "f" + ('a' + index) }
-            Item(
-                names[it % 10],
-                it,
-                Random.nextDouble(1000.0),
-                Random.nextInt(200).toString() + " fake st."
-            )
-        }.sortedWith(ITEM_COMPARATOR)
+        private val ITEMS_BY_NAME_ID =
+            List(100) {
+                    val names = Array(10) { index -> "f" + ('a' + index) }
+                    Item(
+                        names[it % 10],
+                        it,
+                        Random.nextDouble(1000.0),
+                        Random.nextInt(200).toString() + " fake st."
+                    )
+                }
+                .sortedWith(ITEM_COMPARATOR)
     }
 }

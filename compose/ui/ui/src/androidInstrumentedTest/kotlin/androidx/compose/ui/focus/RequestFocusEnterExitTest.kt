@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RequestFocusEnterExitTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val source = FocusRequester()
     private val destination = FocusRequester()
@@ -68,9 +67,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -91,11 +88,16 @@ class RequestFocusEnterExitTest {
             Box(Modifier.focusTarget(grandParent)) {
                 Box(Modifier.focusTarget(parent1)) {
                     Box(
-                        Modifier
-                            .focusRequester(source)
+                        Modifier.focusRequester(source)
                             .focusProperties {
-                                enter = { child1.enter = counter++; Default }
-                                exit = { child1.exit = counter++; Cancel }
+                                enter = {
+                                    child1.enter = counter++
+                                    Default
+                                }
+                                exit = {
+                                    child1.exit = counter++
+                                    Cancel
+                                }
                             }
                             .focusTarget()
                     )
@@ -113,9 +115,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -135,10 +135,15 @@ class RequestFocusEnterExitTest {
         rule.setFocusableContent {
             Box(Modifier.focusTarget(grandParent)) {
                 Box(
-                    Modifier
-                        .focusProperties {
-                            enter = { parent1.enter = counter++; Default }
-                            exit = { parent1.exit = counter++; Cancel }
+                    Modifier.focusProperties {
+                            enter = {
+                                parent1.enter = counter++
+                                Default
+                            }
+                            exit = {
+                                parent1.exit = counter++
+                                Cancel
+                            }
                         }
                         .focusTarget()
                 ) {
@@ -157,9 +162,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -178,10 +181,15 @@ class RequestFocusEnterExitTest {
         // Arrange.
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusProperties {
-                        enter = { grandParent.enter = counter++; Default }
-                        exit = { grandParent.exit = counter++; Cancel }
+                Modifier.focusProperties {
+                        enter = {
+                            grandParent.enter = counter++
+                            Default
+                        }
+                        exit = {
+                            grandParent.exit = counter++
+                            Cancel
+                        }
                     }
                     .focusTarget()
             ) {
@@ -201,9 +209,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -223,10 +229,15 @@ class RequestFocusEnterExitTest {
         var init = true
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusProperties {
-                        enter = { grandParent.enter = counter++; if (init) Default else Cancel }
-                        exit = { grandParent.exit = counter++; Default }
+                Modifier.focusProperties {
+                        enter = {
+                            grandParent.enter = counter++
+                            if (init) Default else Cancel
+                        }
+                        exit = {
+                            grandParent.exit = counter++
+                            Default
+                        }
                     }
                     .focusTarget()
             ) {
@@ -247,9 +258,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -273,10 +282,15 @@ class RequestFocusEnterExitTest {
                     Box(Modifier.focusTarget(child2))
                 }
                 Box(
-                    Modifier
-                        .focusProperties {
-                            enter = { parent2.enter = counter++; Cancel }
-                            exit = { parent2.exit = counter++; Default }
+                    Modifier.focusProperties {
+                            enter = {
+                                parent2.enter = counter++
+                                Cancel
+                            }
+                            exit = {
+                                parent2.exit = counter++
+                                Default
+                            }
                         }
                         .focusTarget()
                 ) {
@@ -291,9 +305,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -319,11 +331,16 @@ class RequestFocusEnterExitTest {
                 Box(Modifier.focusTarget(parent2)) {
                     Box(Modifier.focusTarget(child3))
                     Box(
-                        Modifier
-                            .focusRequester(destination)
+                        Modifier.focusRequester(destination)
                             .focusProperties {
-                                enter = { child4.enter = counter++; Cancel }
-                                exit = { child4.exit = counter++; Default }
+                                enter = {
+                                    child4.enter = counter++
+                                    Cancel
+                                }
+                                exit = {
+                                    child4.exit = counter++
+                                    Default
+                                }
                             }
                             .focusTarget()
                     )
@@ -336,9 +353,7 @@ class RequestFocusEnterExitTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            destination.requestFocus()
-        }
+        rule.runOnIdle { destination.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -351,8 +366,10 @@ class RequestFocusEnterExitTest {
             assertThat(child4.enterExit).isEqualTo("0, 0")
         }
     }
+
     private class EnterExitCounter(var enter: Int = 0, var exit: Int = 0) {
-        val enterExit: String get() = "$enter, $exit"
+        val enterExit: String
+            get() = "$enter, $exit"
 
         fun reset() {
             enter = 0
@@ -360,12 +377,18 @@ class RequestFocusEnterExitTest {
         }
     }
 
-    private fun Modifier.focusTarget(enterExitCounter: EnterExitCounter): Modifier = this
-        .focusProperties {
-            enter = { enterExitCounter.enter = counter++; Default }
-            exit = { enterExitCounter.exit = counter++; Default }
-        }
-        .focusTarget()
+    private fun Modifier.focusTarget(enterExitCounter: EnterExitCounter): Modifier =
+        this.focusProperties {
+                enter = {
+                    enterExitCounter.enter = counter++
+                    Default
+                }
+                exit = {
+                    enterExitCounter.exit = counter++
+                    Default
+                }
+            }
+            .focusTarget()
 
     private fun resetCounters() {
         counter = 1

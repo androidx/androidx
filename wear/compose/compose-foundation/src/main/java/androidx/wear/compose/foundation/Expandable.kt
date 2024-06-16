@@ -41,9 +41,11 @@ import kotlinx.coroutines.launch
  * Create and [remember] an [ExpandableState]
  *
  * Example of an expandable list:
+ *
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
  *
  * Example of an expandable text:
+ *
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
  *
  * @param initiallyExpanded The initial value of the state.
@@ -58,21 +60,21 @@ public fun rememberExpandableState(
 ): ExpandableState {
     val scope = rememberCoroutineScope()
     return rememberSaveable(
-        saver = ExpandableState.saver(
-            expandAnimationSpec = expandAnimationSpec,
-            collapseAnimationSpec = collapseAnimationSpec,
-        )
+        saver =
+            ExpandableState.saver(
+                expandAnimationSpec = expandAnimationSpec,
+                collapseAnimationSpec = collapseAnimationSpec,
+            )
     ) {
         ExpandableState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
     }
 }
 
 /**
- * Create and [remember] a mapping from keys to [ExpandableState]s
- * [ExpandableState]s can be requested by key, and we will created with the parameters given here
- * when a mapping didn't exist before.
- * This is mainly useful when you want to have a variable number of expandables, that can change at
- * runtime (for example, elements on a ScalingLazyColumn)
+ * Create and [remember] a mapping from keys to [ExpandableState]s [ExpandableState]s can be
+ * requested by key, and we will created with the parameters given here when a mapping didn't exist
+ * before. This is mainly useful when you want to have a variable number of expandables, that can
+ * change at runtime (for example, elements on a ScalingLazyColumn)
  *
  * @param initiallyExpanded A function to compute the initial state given the key.
  * @param expandAnimationSpec The [AnimationSpec] to use when showing the extra information.
@@ -95,16 +97,17 @@ public fun <T> rememberExpandableStateMapping(
  * Adds a series of items, that will be expanded/collapsed according to the [ExpandableState]
  *
  * Example of an expandable list:
+ *
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
  *
  * @param state The [ExpandableState] connected to these items.
  * @param count The number of items
- * @param key a factory of stable and unique keys representing the item. Using the same key
- * for multiple items in the list is not allowed. Type of the key should be saveable
- * via Bundle on Android. If null is passed the position in the list will represent the key.
- * When you specify the key the scroll position will be maintained based on the key, which
- * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * @param key a factory of stable and unique keys representing the item. Using the same key for
+ *   multiple items in the list is not allowed. Type of the key should be saveable via Bundle on
+ *   Android. If null is passed the position in the list will represent the key. When you specify
+ *   the key the scroll position will be maintained based on the key, which means if you add/remove
+ *   items before the current visible item the item with the given key will be kept as the first
+ *   visible one.
  * @param itemContent the content displayed by a single item
  */
 public fun ScalingLazyListScope.expandableItems(
@@ -116,8 +119,7 @@ public fun ScalingLazyListScope.expandableItems(
     repeat(count) { itemIndex ->
         // Animations for each item start in inverse order, the first item animates last.
         val animationStart = count - 1 - itemIndex
-        val animationProgress =
-            (state.expandProgress * count - animationStart).coerceIn(0f, 1f)
+        val animationProgress = (state.expandProgress * count - animationStart).coerceIn(0f, 1f)
         if (animationProgress > 0) {
             item(key = key?.invoke(itemIndex)) {
                 Layout(
@@ -140,18 +142,18 @@ public fun ScalingLazyListScope.expandableItems(
  * Adds a single item, that will be expanded/collapsed according to the [ExpandableState].
  *
  * Example of an expandable text:
+ *
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
  *
  * The item should support two levels of information display (for example, a text showing a few
  * lines in the collapsed state, and more in the expanded state)
  *
  * @param state The [ExpandableState] connected to this item.
- * @param key A stable and unique key representing the item. Using the same key
- * for multiple items in the list is not allowed. Type of the key should be saveable
- * via Bundle on Android. If null is passed the position in the list will represent the key.
- * When you specify the key the scroll position will be maintained based on the key, which
- * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * @param key A stable and unique key representing the item. Using the same key for multiple items
+ *   in the list is not allowed. Type of the key should be saveable via Bundle on Android. If null
+ *   is passed the position in the list will represent the key. When you specify the key the scroll
+ *   position will be maintained based on the key, which means if you add/remove items before the
+ *   current visible item the item with the given key will be kept as the first visible one.
  * @param content the content displayed by the item, according to its expanded/collapsed state.
  */
 public fun ScalingLazyListScope.expandableItem(
@@ -165,15 +167,15 @@ public fun ScalingLazyListScope.expandableItem(
  * out when the corresponding expandables are expanded.
  *
  * Example of an expandable text:
+ *
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
  *
  * @param state The [ExpandableState] to connect this button to.
- * @param key A stable and unique key representing the item. Using the same key
- * for multiple items in the list is not allowed. Type of the key should be saveable
- * via Bundle on Android. If null is passed the position in the list will represent the key.
- * When you specify the key the scroll position will be maintained based on the key, which
- * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * @param key A stable and unique key representing the item. Using the same key for multiple items
+ *   in the list is not allowed. Type of the key should be saveable via Bundle on Android. If null
+ *   is passed the position in the list will represent the key. When you specify the key the scroll
+ *   position will be maintained based on the key, which means if you add/remove items before the
+ *   current visible item the item with the given key will be kept as the first visible one.
  * @param content the content displayed, this should usually be a CompactChip or OutlineCompactChip.
  */
 public fun ScalingLazyListScope.expandableButton(
@@ -227,7 +229,8 @@ private fun ScalingLazyListScope.expandableItemImpl(
  * It's used to control the showing/hiding of extra information either directly or connecting it
  * with something like a button.
  */
-public class ExpandableState internal constructor(
+public class ExpandableState
+internal constructor(
     initiallyExpanded: Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,
@@ -236,10 +239,9 @@ public class ExpandableState internal constructor(
     private val _expandProgress = Animatable(if (initiallyExpanded) 1f else 0f)
 
     /**
-     * While in the middle of the animation, this represents the progress from 0f (collapsed) to
-     * 1f (expanded), or the other way around.
-     * If no animation is running, it's either 0f if the extra content is not showing, or 1f if
-     * the extra content is showing.
+     * While in the middle of the animation, this represents the progress from 0f (collapsed) to 1f
+     * (expanded), or the other way around. If no animation is running, it's either 0f if the extra
+     * content is not showing, or 1f if the extra content is showing.
      */
     val expandProgress
         get() = _expandProgress.value
@@ -252,8 +254,7 @@ public class ExpandableState internal constructor(
      * Modifying this value triggers a change to show/hide the extra information.
      */
     var expanded
-        @JvmName("isExpanded")
-        get() = _expandProgress.targetValue == 1f
+        @JvmName("isExpanded") get() = _expandProgress.targetValue == 1f
         set(newValue) {
             if (expanded != newValue) {
                 coroutineScope.launch {
@@ -267,9 +268,7 @@ public class ExpandableState internal constructor(
         }
 
     companion object {
-        /**
-         * The default [Saver] implementation for [ExpandableState].
-         */
+        /** The default [Saver] implementation for [ExpandableState]. */
         @Composable
         fun saver(
             expandAnimationSpec: AnimationSpec<Float>,
@@ -292,11 +291,12 @@ public class ExpandableState internal constructor(
 }
 
 /**
- * A class that maps from keys of the given type to [ExpandableState].
- * An instance can be created and remembered with [rememberExpandableStateMapping]
+ * A class that maps from keys of the given type to [ExpandableState]. An instance can be created
+ * and remembered with [rememberExpandableStateMapping]
  */
 @ExperimentalWearFoundationApi
-public class ExpandableStateMapping<T> internal constructor(
+public class ExpandableStateMapping<T>
+internal constructor(
     private val initiallyExpanded: (key: T) -> Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,
@@ -307,27 +307,26 @@ public class ExpandableStateMapping<T> internal constructor(
 
     /**
      * Returns the [ExpandableState] for the given key if the value is present and not null.
-     * Otherwise, creates a new one, puts it into the map under the given key and returns it.
-     * The parameters used to create the new [ExpandableState] are the ones passed to
+     * Otherwise, creates a new one, puts it into the map under the given key and returns it. The
+     * parameters used to create the new [ExpandableState] are the ones passed to
      * [rememberExpandableStateMapping]
      */
-    public fun getOrPutNew(key: T) = states.getOrPut(key) {
-        ExpandableState(initiallyExpanded(key), coroutineScope,
-            expandAnimationSpec, collapseAnimationSpec)
-    }
+    public fun getOrPutNew(key: T) =
+        states.getOrPut(key) {
+            ExpandableState(
+                initiallyExpanded(key),
+                coroutineScope,
+                expandAnimationSpec,
+                collapseAnimationSpec
+            )
+        }
 }
 
-/**
- * Contains the default values used by Expandable components.
- */
+/** Contains the default values used by Expandable components. */
 public object ExpandableItemsDefaults {
-    /**
-     * Default animation used to show extra information.
-     */
+    /** Default animation used to show extra information. */
     val expandAnimationSpec: AnimationSpec<Float> = TweenSpec(1000)
 
-    /**
-     * Default animation used to hide extra information.
-     */
+    /** Default animation used to hide extra information. */
     val collapseAnimationSpec: AnimationSpec<Float> = TweenSpec(1000)
 }

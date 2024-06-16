@@ -29,15 +29,18 @@ internal class TransactionExecutor(private val executor: Executor) : Executor {
     private val tasks = ArrayDeque<Runnable>()
     private var active: Runnable? = null
     private val syncLock = Any()
+
     override fun execute(command: Runnable) {
         synchronized(syncLock) {
-            tasks.offer(Runnable {
-                try {
-                    command.run()
-                } finally {
-                    scheduleNext()
+            tasks.offer(
+                Runnable {
+                    try {
+                        command.run()
+                    } finally {
+                        scheduleNext()
+                    }
                 }
-            })
+            )
             if (active == null) {
                 scheduleNext()
             }

@@ -23,37 +23,29 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [GattCharacteristic]
- */
+/** Test cases for [GattCharacteristic] */
 @RunWith(JUnit4::class)
 class GattCharacteristicTest {
 
     @Test
     fun constructorWithFwkInstance() {
-        val propertiesMap = mapOf(
-            FwkCharacteristic.PROPERTY_BROADCAST to
-                GattCharacteristic.PROPERTY_BROADCAST,
-            FwkCharacteristic.PROPERTY_EXTENDED_PROPS to
-                GattCharacteristic.PROPERTY_EXTENDED_PROPS,
-            FwkCharacteristic.PROPERTY_INDICATE to
-                GattCharacteristic.PROPERTY_INDICATE,
-            FwkCharacteristic.PROPERTY_NOTIFY
-                to GattCharacteristic.PROPERTY_NOTIFY,
-            FwkCharacteristic.PROPERTY_READ
-                to GattCharacteristic.PROPERTY_READ,
-            FwkCharacteristic.PROPERTY_SIGNED_WRITE
-                to GattCharacteristic.PROPERTY_SIGNED_WRITE,
-            FwkCharacteristic.PROPERTY_WRITE
-                to GattCharacteristic.PROPERTY_WRITE,
-            FwkCharacteristic.PROPERTY_WRITE_NO_RESPONSE
-                to GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
-        )
+        val propertiesMap =
+            mapOf(
+                FwkCharacteristic.PROPERTY_BROADCAST to GattCharacteristic.PROPERTY_BROADCAST,
+                FwkCharacteristic.PROPERTY_EXTENDED_PROPS to
+                    GattCharacteristic.PROPERTY_EXTENDED_PROPS,
+                FwkCharacteristic.PROPERTY_INDICATE to GattCharacteristic.PROPERTY_INDICATE,
+                FwkCharacteristic.PROPERTY_NOTIFY to GattCharacteristic.PROPERTY_NOTIFY,
+                FwkCharacteristic.PROPERTY_READ to GattCharacteristic.PROPERTY_READ,
+                FwkCharacteristic.PROPERTY_SIGNED_WRITE to GattCharacteristic.PROPERTY_SIGNED_WRITE,
+                FwkCharacteristic.PROPERTY_WRITE to GattCharacteristic.PROPERTY_WRITE,
+                FwkCharacteristic.PROPERTY_WRITE_NO_RESPONSE to
+                    GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
+            )
 
         propertiesMap.forEach {
             val charUuid = UUID.randomUUID()
-            val fwkGattCharacteristic = FwkCharacteristic(charUuid, it.key,
-                /*permissions=*/0)
+            val fwkGattCharacteristic = FwkCharacteristic(charUuid, it.key, /* permissions= */ 0)
             val gattCharacteristic = GattCharacteristic(fwkGattCharacteristic)
 
             assertThat(gattCharacteristic.uuid).isEqualTo(fwkGattCharacteristic.uuid)
@@ -75,10 +67,16 @@ class GattCharacteristicTest {
 
     @Test
     fun subscriableCharacteristicHasCccd() {
-        val notifyCharacteristic = GattCharacteristic(UUID.randomUUID(),
-            GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_NOTIFY)
-        val indicateCharacteristic = GattCharacteristic(UUID.randomUUID(),
-            GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_INDICATE)
+        val notifyCharacteristic =
+            GattCharacteristic(
+                UUID.randomUUID(),
+                GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_NOTIFY
+            )
+        val indicateCharacteristic =
+            GattCharacteristic(
+                UUID.randomUUID(),
+                GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_INDICATE
+            )
 
         assertThat(notifyCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
             .isNotNull()

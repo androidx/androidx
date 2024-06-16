@@ -33,28 +33,25 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ResourceRemappingTest {
 
-    @field:Rule
-    @JvmField
-    val temporaryFolder = TemporaryFolder()
+    @field:Rule @JvmField val temporaryFolder = TemporaryFolder()
 
     @Test
     fun apply_whenNonNullConfig_updatePackageId() {
-        val classLoader = compileAndLoad(
-            Source.java(
-                "RPackage", """
+        val classLoader =
+            compileAndLoad(
+                Source.java(
+                    "RPackage",
+                    """
                    public class RPackage {
                         public static int packageId = 0;
                    }
                 """
+                )
             )
-        )
 
         ResourceRemapping.apply(
             classLoader,
-            ResourceRemappingConfig(
-                rPackageClassName = "RPackage",
-                packageId = 0x2A
-            )
+            ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 0x2A)
         )
 
         val rPackageClass = classLoader.loadClass("RPackage")
@@ -66,51 +63,48 @@ class ResourceRemappingTest {
 
     @Test
     fun apply_whenNullConfig_doesntThrow() {
-        val classLoader = compileAndLoad(
-            Source.java(
-                "AnotherClass", """
+        val classLoader =
+            compileAndLoad(
+                Source.java(
+                    "AnotherClass",
+                    """
                    public class AnotherClass {
                    }
                 """
+                )
             )
-        )
 
-        ResourceRemapping.apply(
-            classLoader,
-            remappingConfig = null
-        )
+        ResourceRemapping.apply(classLoader, remappingConfig = null)
     }
 
     @Test
     fun apply_whenNoRPackageClass_throwsClassNotFoundException() {
-        val source = Source.java(
-            "AnotherClass", """
+        val source =
+            Source.java(
+                "AnotherClass",
+                """
                 public class AnotherClass {
                 }
                 """
-        )
+            )
 
-        val config = ResourceRemappingConfig(
-            rPackageClassName = "RPackage",
-            packageId = 42
-        )
+        val config = ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 42)
 
         assertThrows(ClassNotFoundException::class, source, config)
     }
 
     @Test
     fun apply_whenNoPackageIdField_throwsNoSuchFieldException() {
-        val source = Source.java(
-            "RPackage", """
+        val source =
+            Source.java(
+                "RPackage",
+                """
                    public class RPackage {
                    }
                 """
-        )
+            )
 
-        val config = ResourceRemappingConfig(
-            rPackageClassName = "RPackage",
-            packageId = 42
-        )
+        val config = ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 42)
 
         assertThrows(NoSuchFieldException::class, source, config)
     }
@@ -121,28 +115,22 @@ class ResourceRemappingTest {
         config: ResourceRemappingConfig
     ) {
         val classLoader = compileAndLoad(source)
-        assertThrows(expectedThrowable.java) {
-            ResourceRemapping.apply(
-                classLoader,
-                config
-            )
-        }
+        assertThrows(expectedThrowable.java) { ResourceRemapping.apply(classLoader, config) }
     }
 
     private fun compileAndLoad(source: Source): ClassLoader {
-        val compilationResult = compile(
-            temporaryFolder.root,
-            TestCompilationArguments(
-                sources = listOf(source),
+        val compilationResult =
+            compile(
+                temporaryFolder.root,
+                TestCompilationArguments(
+                    sources = listOf(source),
+                )
             )
-        )
 
         assertThat(compilationResult.success).isTrue()
 
         return URLClassLoader.newInstance(
-            compilationResult.outputClasspath.map {
-                it.toURI().toURL()
-            }.toTypedArray(),
+            compilationResult.outputClasspath.map { it.toURI().toURL() }.toTypedArray(),
             /* parent = */ null
         )
     }

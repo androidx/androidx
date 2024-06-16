@@ -133,11 +133,12 @@ class ImageValidationActivity : AppCompatActivity() {
         setResult(requestCode, result)
 
         val extensionModeString = TestResults.getExtensionModeStringFromId(testType, extensionMode)
-        supportActionBar?.title = if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
-            resources.getString(R.string.camerax_extensions_validator)
-        } else {
-            resources.getString(R.string.camera2_extensions_validator)
-        }
+        supportActionBar?.title =
+            if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
+                resources.getString(R.string.camerax_extensions_validator)
+            } else {
+                resources.getString(R.string.camera2_extensions_validator)
+            }
 
         supportActionBar!!.subtitle =
             "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}][$extensionModeString]"
@@ -145,8 +146,15 @@ class ImageValidationActivity : AppCompatActivity() {
         photoImageView = findViewById(R.id.photo_image_view)
 
         photoImageView.addOnLayoutChangeListener {
-                _: View?, left: Int, top: Int, right: Int, bottom: Int,
-                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int ->
+            _: View?,
+            left: Int,
+            top: Int,
+            right: Int,
+            bottom: Int,
+            oldLeft: Int,
+            oldTop: Int,
+            oldRight: Int,
+            oldBottom: Int ->
             if (imageUris.isEmpty()) {
                 return@addOnLayoutChangeListener
             }
@@ -159,13 +167,15 @@ class ImageValidationActivity : AppCompatActivity() {
 
         viewPager = findViewById(R.id.photo_view_pager)
         viewPager.adapter = PhotoPagerAdapter(this)
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                currentIndex = position
-                tryShowCaptureResults()
+        viewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    currentIndex = position
+                    tryShowCaptureResults()
+                }
             }
-        })
+        )
 
         setupButtonControls()
         setupGestureControls()
@@ -196,10 +206,11 @@ class ImageValidationActivity : AppCompatActivity() {
         val errorCode = data?.getIntExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_NONE)
 
         // Returns with error
-        if (errorCode == ERROR_CODE_BIND_TO_LIFECYCLE_FAILED ||
-            errorCode == ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT ||
-            errorCode == ERROR_CODE_TAKE_PICTURE_FAILED ||
-            errorCode == ERROR_CODE_SAVE_IMAGE_FAILED
+        if (
+            errorCode == ERROR_CODE_BIND_TO_LIFECYCLE_FAILED ||
+                errorCode == ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT ||
+                errorCode == ERROR_CODE_TAKE_PICTURE_FAILED ||
+                errorCode == ERROR_CODE_SAVE_IMAGE_FAILED
         ) {
             Log.e(TAG, "Failed to take a picture with error code: $errorCode")
             testResults.updateTestResultAndSave(
@@ -264,25 +275,28 @@ class ImageValidationActivity : AppCompatActivity() {
             "${imageUris[viewPager.currentItem].lastPathSegment}" +
                 "[${formatter.format(Calendar.getInstance().time)}].jpg"
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, savedFileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/ExtensionsValidation")
-        }
+        val contentValues =
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, savedFileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/ExtensionsValidation")
+            }
 
-        val outputUri = copyTempFileToOutputLocation(
-            contentResolver,
-            imageUris[viewPager.currentItem],
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
+        val outputUri =
+            copyTempFileToOutputLocation(
+                contentResolver,
+                imageUris[viewPager.currentItem],
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
 
         if (outputUri != null) {
             Toast.makeText(
-                this,
-                "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",
-                Toast.LENGTH_LONG
-            ).show()
+                    this,
+                    "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",
+                    Toast.LENGTH_LONG
+                )
+                .show()
         } else {
             Toast.makeText(this, "Failed to export the CSV file!", Toast.LENGTH_LONG).show()
         }
@@ -319,9 +333,11 @@ class ImageValidationActivity : AppCompatActivity() {
 
     private fun startImageCaptureActivity(testType: String, cameraId: String, mode: Int) {
         val intent =
-            if (Build.VERSION.SDK_INT >= 31 &&
-                (testType == TEST_TYPE_CAMERA2_EXTENSION ||
-                    testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY))
+            if (
+                Build.VERSION.SDK_INT >= 31 &&
+                    (testType == TEST_TYPE_CAMERA2_EXTENSION ||
+                        testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY)
+            )
                 Intent(this, Camera2ExtensionsActivity::class.java)
             else Intent(this, ImageCaptureActivity::class.java)
 
@@ -439,19 +455,20 @@ class ImageValidationActivity : AppCompatActivity() {
         if (scaledBitmapWidth * currentScale > photoImageView.width) {
             val maxTranslationX = (scaledBitmapWidth * currentScale - photoImageView.width) / 2
 
-            translationX = if (newTranslationX >= 0) {
-                if (maxTranslationX - newTranslationX >= 0) {
-                    newTranslationX
+            translationX =
+                if (newTranslationX >= 0) {
+                    if (maxTranslationX - newTranslationX >= 0) {
+                        newTranslationX
+                    } else {
+                        maxTranslationX
+                    }
                 } else {
-                    maxTranslationX
+                    if (maxTranslationX + newTranslationX >= 0) {
+                        newTranslationX
+                    } else {
+                        -maxTranslationX
+                    }
                 }
-            } else {
-                if (maxTranslationX + newTranslationX >= 0) {
-                    newTranslationX
-                } else {
-                    -maxTranslationX
-                }
-            }
             photoImageView.translationX = translationX
         }
 
@@ -460,19 +477,20 @@ class ImageValidationActivity : AppCompatActivity() {
         if (scaledBitmapHeight * currentScale > photoImageView.height) {
             val maxTranslationY = (scaledBitmapHeight * currentScale - photoImageView.height) / 2
 
-            translationY = if (newTranslationY >= 0) {
-                if (maxTranslationY - newTranslationY >= 0) {
-                    newTranslationY
+            translationY =
+                if (newTranslationY >= 0) {
+                    if (maxTranslationY - newTranslationY >= 0) {
+                        newTranslationY
+                    } else {
+                        maxTranslationY
+                    }
                 } else {
-                    maxTranslationY
+                    if (maxTranslationY + newTranslationY >= 0) {
+                        newTranslationY
+                    } else {
+                        -maxTranslationY
+                    }
                 }
-            } else {
-                if (maxTranslationY + newTranslationY >= 0) {
-                    newTranslationY
-                } else {
-                    -maxTranslationY
-                }
-            }
             photoImageView.translationY = translationY
         }
     }
@@ -487,18 +505,20 @@ class ImageValidationActivity : AppCompatActivity() {
     }
 
     internal fun updatePhotoImageView() {
-        val bitmap = decodeImageToBitmap(
-            this@ImageValidationActivity.contentResolver,
-            imageUris[viewPager.currentItem],
-            imageRotationDegrees[viewPager.currentItem]
-        )
+        val bitmap =
+            decodeImageToBitmap(
+                this@ImageValidationActivity.contentResolver,
+                imageUris[viewPager.currentItem],
+                imageRotationDegrees[viewPager.currentItem]
+            )
 
         photoImageView.setImageBitmap(bitmap)
         updateScaledBitmapDims(bitmap.width, bitmap.height)
 
         // Updates the index and file name to the subtitle
-        supportActionBar!!.subtitle = "[${viewPager.currentItem + 1}/${imageUris.size}]" +
-            "${imageUris[viewPager.currentItem].lastPathSegment}"
+        supportActionBar!!.subtitle =
+            "[${viewPager.currentItem + 1}/${imageUris.size}]" +
+                "${imageUris[viewPager.currentItem].lastPathSegment}"
     }
 
     private fun updateScaledBitmapDims(width: Int, height: Int) {

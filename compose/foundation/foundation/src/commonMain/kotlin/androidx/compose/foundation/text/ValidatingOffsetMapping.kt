@@ -23,11 +23,12 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import kotlin.math.min
 
-internal val ValidatingEmptyOffsetMappingIdentity: OffsetMapping = ValidatingOffsetMapping(
-    delegate = OffsetMapping.Identity,
-    originalLength = 0,
-    transformedLength = 0
-)
+internal val ValidatingEmptyOffsetMappingIdentity: OffsetMapping =
+    ValidatingOffsetMapping(
+        delegate = OffsetMapping.Identity,
+        originalLength = 0,
+        transformedLength = 0
+    )
 
 internal fun VisualTransformation.filterWithValidation(text: AnnotatedString): TransformedText {
     val delegate = filter(text)
@@ -49,7 +50,6 @@ internal fun VisualTransformation.filterWithValidation(text: AnnotatedString): T
 
 /**
  * Assuming TransformedText is a pure mapping this will validate:
- *
  * 1. The first limit characters map to a valid transformed offset
  * 2. The first limit characters of transformed map to valid original offsets
  * 3. The last position for both transformed and original (catching off by 1)

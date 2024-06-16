@@ -36,8 +36,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NightModeDefaultOnlyTestCase {
-    @get:Rule
-    val rule = NightModeActivityTestRule(NightModeActivity::class.java)
+    @get:Rule val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
     @Test
     fun testNightModeChangeWhenInBackground() {
@@ -46,18 +45,16 @@ class NightModeDefaultOnlyTestCase {
         assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO, firstActivity)
 
         // Start a new Activity, so that the original Activity goes into the background
-        val intent = Intent(firstActivity, AppCompatActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+        val intent =
+            Intent(firstActivity, AppCompatActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         val secondActivity = instrumentation.startActivitySync(intent) as AppCompatActivity
         assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO, secondActivity)
 
         // Now change the DayNight mode on the foreground activity
-        val recreatedSecond = setNightModeAndWaitForRecreate(
-            secondActivity,
-            MODE_NIGHT_YES,
-            NightSetMode.DEFAULT
-        )
+        val recreatedSecond =
+            setNightModeAndWaitForRecreate(secondActivity, MODE_NIGHT_YES, NightSetMode.DEFAULT)
 
         // Now finish the foreground activity and wait until it is destroyed,
         // allowing the recreated activity to come to the foreground

@@ -26,8 +26,8 @@ import java.util.zip.ZipFile
  * - knowing the right location to place the binaries
  * - knowing how to extract the binaries from an AAR or APK, including choosing the right build
  *   variant for the device (e.g. arm64-v8a) from the archive
- * - knowing how to handle device IO permissions, e.g. to allow a Benchmark app place
- *   the Perfetto binaries in a location accessible by the benchmarked app (we use `shell` for this)
+ * - knowing how to handle device IO permissions, e.g. to allow a Benchmark app place the Perfetto
+ *   binaries in a location accessible by the benchmarked app (we use `shell` for this)
  */
 internal class PerfettoSdkSideloader(private val packageName: String) {
 
@@ -37,12 +37,11 @@ internal class PerfettoSdkSideloader(private val packageName: String) {
      *
      * @param sourceZipFile either an AAR or an APK containing `libtracing_perfetto.so`
      * @param shellCommandExecutor function capable of executing adb shell commands (used to
-     * determine the device ABI)
-     * @param tempDirectory a directory directly accessible to the process (used for extraction
-     * of the binaries from the zip)
-     * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from
-     * the [tempDirectory] and an app accessible folder
-     *
+     *   determine the device ABI)
+     * @param tempDirectory a directory directly accessible to the process (used for extraction of
+     *   the binaries from the zip)
+     * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from the
+     *   [tempDirectory] and an app accessible folder
      * @return location where the library file was sideloaded to
      */
     fun sideloadFromZipFile(
@@ -61,7 +60,6 @@ internal class PerfettoSdkSideloader(private val packageName: String) {
      *
      * @param libFile `libtracing_perfetto.so` file
      * @param moveLibFileToAppDir a function moving the [libFile] to an app accessible folder
-     *
      * @return location where the library file was sideloaded to
      */
     private fun sideloadSoFile(libFile: File, moveLibFileToAppDir: FileMover): File {
@@ -70,32 +68,25 @@ internal class PerfettoSdkSideloader(private val packageName: String) {
         return dstFile
     }
 
-    private fun extractPerfettoBinaryFromZip(
-        sourceZip: File,
-        outputDir: File,
-        abi: String
-    ): File {
+    private fun extractPerfettoBinaryFromZip(sourceZip: File, outputDir: File, abi: String): File {
         val outputFile = outputDir.resolve(libFileName)
         val rxLibPathInsideZip = Regex(".*(lib|jni)/[^/]*$abi[^/]*/$libFileName")
         val zipFile = ZipFile(sourceZip)
-        val entry = zipFile
-            .entries()
-            .asSequence()
-            .firstOrNull { it.name.matches(rxLibPathInsideZip) }
-            ?: throw IllegalStateException(
-                "Unable to locate $libFileName required to enable Perfetto SDK. " +
-                    "Tried inside ${sourceZip.absolutePath}."
-            )
+        val entry =
+            zipFile.entries().asSequence().firstOrNull { it.name.matches(rxLibPathInsideZip) }
+                ?: throw IllegalStateException(
+                    "Unable to locate $libFileName required to enable Perfetto SDK. " +
+                        "Tried inside ${sourceZip.absolutePath}."
+                )
         zipFile.getInputStream(entry).use { inputStream ->
-            outputFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
-            }
+            outputFile.outputStream().use { outputStream -> inputStream.copyTo(outputStream) }
         }
         return outputFile
     }
 
     private fun getDeviceAbi(executeShellCommand: ShellCommandExecutor): String =
-        executeShellCommand("getprop ro.product.cpu.abilist").split(",")
+        executeShellCommand("getprop ro.product.cpu.abilist")
+            .split(",")
             .plus(executeShellCommand("getprop ro.product.cpu.abi"))
             .first()
             .trim()

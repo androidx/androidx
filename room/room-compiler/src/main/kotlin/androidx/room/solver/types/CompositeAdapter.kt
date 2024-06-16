@@ -20,8 +20,8 @@ import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 
 /**
- * A column adapter that uses a type converter to do the conversion. The type converter may be
- * a composite one.
+ * A column adapter that uses a type converter to do the conversion. The type converter may be a
+ * composite one.
  */
 class CompositeAdapter(
     out: XType,

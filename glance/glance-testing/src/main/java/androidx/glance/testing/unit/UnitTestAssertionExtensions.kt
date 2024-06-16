@@ -36,10 +36,7 @@ internal typealias UnitTestAssertion = GlanceNodeAssertion<MappedNode, GlanceMap
  * @param text value to match.
  * @param ignoreCase whether to perform case insensitive matching
  */
-fun UnitTestAssertion.assertHasText(
-    text: String,
-    ignoreCase: Boolean = false
-): UnitTestAssertion {
+fun UnitTestAssertion.assertHasText(text: String, ignoreCase: Boolean = false): UnitTestAssertion {
     return assert(hasText(text, ignoreCase))
 }
 
@@ -60,7 +57,7 @@ fun UnitTestAssertion.assertHasTextEqualTo(
  * Asserts that a given node is annotated by the given test tag.
  *
  * @param testTag value to match against the free form string specified in the `testTag` semantics
- *                modifier on the Glance composable nodes.
+ *   modifier on the Glance composable nodes.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
@@ -72,10 +69,8 @@ fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
  *
  * @param value value that should be matched as a substring of the node's content description.
  * @param ignoreCase whether case should be ignored. Defaults to case sensitive.
- *
- * @see SemanticsProperties.ContentDescription
- *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
+ * @see SemanticsProperties.ContentDescription
  */
 fun UnitTestAssertion.assertHasContentDescription(
     value: String,
@@ -89,10 +84,8 @@ fun UnitTestAssertion.assertHasContentDescription(
  *
  * @param value value that should be matched to be equal to the node's content description.
  * @param ignoreCase whether case should be ignored. Defaults to case sensitive.
- *
- * @see SemanticsProperties.ContentDescription
- *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
+ * @see SemanticsProperties.ContentDescription
  */
 fun UnitTestAssertion.assertHasContentDescriptionEqualTo(
     value: String,
@@ -123,11 +116,11 @@ fun UnitTestAssertion.assertHasClickAction(): UnitTestAssertion {
  * Asserts that a given node has a clickable set with action that starts an activity.
  *
  * @param activityClass class of the activity that is expected to have been passed in the
- *                      `actionStartActivity` method call
+ *   `actionStartActivity` method call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                      in the `actionStartActivity` method call
+ *   in the `actionStartActivity` method call
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
- *                        expected to have been passed in the `actionStartActivity` method call
+ *   expected to have been passed in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 @PublishedApi // See b/316353540; a reified version of this is available in the public api.
@@ -142,12 +135,12 @@ internal fun <T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
 /**
  * Asserts that a given node has a clickable set with action that starts an activity.
  *
- * @param T class of the activity that is expected to have been passed in the
- *          `actionStartActivity` method call
+ * @param T class of the activity that is expected to have been passed in the `actionStartActivity`
+ *   method call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                      in the `actionStartActivity` method call
+ *   in the `actionStartActivity` method call
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
- *                        expected to have been passed in the `actionStartActivity` method call
+ *   expected to have been passed in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
@@ -161,9 +154,9 @@ inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickA
  * Asserts that a given node has a clickable set with action that starts an activity.
  *
  * @param componentName component of the activity that is expected to have been passed in the
- *                      `actionStartActivity` method call
+ *   `actionStartActivity` method call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                      in the `actionStartActivity` method call
+ *   in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasStartActivityClickAction(

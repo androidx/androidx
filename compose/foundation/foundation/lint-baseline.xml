@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method genericClickableWithoutGesture has parameter currentKeyPressInteractions with type Map&lt;Key, Press>: replace with LongObjectMap"
-        errorLine1="    currentKeyPressInteractions: MutableMap&lt;Key, PressInteraction.Press>,"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
-    </issue>
+<issues format="6" by="lint 8.6.0-alpha03" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-alpha03)" variant="all" version="8.6.0-alpha03">
 
     <issue
         id="PrimitiveInCollection"
@@ -22,8 +13,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
-        errorLine2="        ^">
+        errorLine1="            val pinnedItems ="
+        errorLine2="            ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
     </issue>
@@ -130,7 +121,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field previousDefaultSpans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="    /**"
+        errorLine1="    /** List of 1x1 spans if we do not have custom spans. */"
         errorLine2="    ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
@@ -193,8 +184,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
-        errorLine2="        ^">
+        errorLine1="            val pinnedItems ="
+        errorLine2="            ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt"/>
     </issue>
@@ -220,7 +211,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of getHeaderIndexes: replace with IntList"
-        errorLine1="    val headerIndexes: List&lt;Int> get() = _headerIndexes ?: emptyList()"
+        errorLine1="    val headerIndexes: List&lt;Int>"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
@@ -228,9 +219,9 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable varb332e573 with type List&lt;Integer>: replace with IntList"
-        errorLine1="    val headerIndexes: List&lt;Int> get() = _headerIndexes ?: emptyList()"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="variable varb332e6bb with type List&lt;Integer>: replace with IntList"
+        errorLine1="        get() = _headerIndexes ?: emptyList()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
     </issue>
@@ -238,17 +229,17 @@
     <issue
         id="PrimitiveInCollection"
         message="variable headersIndexes with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also {"
-        errorLine2="        ^">
+        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also { _headerIndexes = it }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
-        message="variable varb3338ae4 with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also {"
-        errorLine2="                             ^">
+        message="variable varb333823e with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also { _headerIndexes = it }"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
     </issue>
@@ -337,8 +328,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
-        errorLine2="        ^">
+        errorLine1="            val pinnedItems ="
+        errorLine2="            ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasurePolicy.kt"/>
     </issue>
@@ -400,8 +391,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable pinnedPages with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices("
-        errorLine2="        ^">
+        errorLine1="            val pinnedPages ="
+        errorLine2="            ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasurePolicy.kt"/>
     </issue>

@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.text.input
 
-/**
- * An interface of listening IME events.
- */
+/** An interface of listening IME events. */
 @Deprecated(
     "This function is not being used by any APIs. API is now deprecated and will be removed"
 )
@@ -28,14 +26,12 @@ interface InputEventCallback {
      *
      * @param editCommands The list of edit commands.
      */
-    @Suppress("CallbackMethodName")
-    fun onEditCommands(editCommands: List<EditCommand>)
+    @Suppress("CallbackMethodName") fun onEditCommands(editCommands: List<EditCommand>)
 
     /**
      * Called when IME triggered IME action.
      *
      * @param imeAction An IME action.
      */
-    @Suppress("CallbackMethodName")
-    fun onImeAction(imeAction: ImeAction)
+    @Suppress("CallbackMethodName") fun onImeAction(imeAction: ImeAction)
 }

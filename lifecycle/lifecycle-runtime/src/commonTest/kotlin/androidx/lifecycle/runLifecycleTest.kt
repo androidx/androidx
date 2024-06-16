@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestResult
 
 /**
- * Runs provided [block] in an environment suitable for testing [Lifecycle].
- * It must provide a [Dispatchers.Main] which is able to dispatch coroutines.
+ * Runs provided [block] in an environment suitable for testing [Lifecycle]. It must provide a
+ * [Dispatchers.Main] which is able to dispatch coroutines.
  */
 expect fun runLifecycleTest(block: suspend CoroutineScope.() -> Unit): TestResult

@@ -87,9 +87,8 @@ constructor(
             }
 
             // Streams must be preview and/or video for high speed sessions
-            val allStreamsValidForHighSpeedOperatingMode = this.streamGraph.outputs.all {
-                it.isValidForHighSpeedOperatingMode()
-            }
+            val allStreamsValidForHighSpeedOperatingMode =
+                this.streamGraph.outputs.all { it.isValidForHighSpeedOperatingMode() }
 
             require(allStreamsValidForHighSpeedOperatingMode) {
                 "HIGH_SPEED CameraGraph must only contain Preview and/or Video " +
@@ -98,9 +97,7 @@ constructor(
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            require(graphConfig.input == null) {
-                "Reprocessing not supported under Android M"
-            }
+            require(graphConfig.input == null) { "Reprocessing not supported under Android M" }
         }
         if (graphConfig.input != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             require(graphConfig.input.isNotEmpty()) {
@@ -165,33 +162,39 @@ constructor(
 
     override suspend fun <T> useSession(
         action: suspend CoroutineScope.(CameraGraph.Session) -> T
-    ): T = acquireSession().use {
-        // Wrap the block in a coroutineScope to ensure all operations are completed before
-        // releasing the lock.
-        coroutineScope { action(it) }
-    }
+    ): T =
+        acquireSession().use {
+            // Wrap the block in a coroutineScope to ensure all operations are completed before
+            // releasing the lock.
+            coroutineScope { action(it) }
+        }
 
     override fun <T> useSessionIn(
         scope: CoroutineScope,
         action: suspend CoroutineScope.(CameraGraph.Session) -> T
-    ): Deferred<T> = scope.async(start = CoroutineStart.UNDISPATCHED) {
-        ensureActive() // Exit early if the parent scope has been canceled.
+    ): Deferred<T> =
+        scope.async(start = CoroutineStart.UNDISPATCHED) {
+            ensureActive() // Exit early if the parent scope has been canceled.
 
-        // It is very important to acquire *and* suspend here. Invoking a coroutine using
-        // UNDISPATCHED will execute on the current thread until the suspension point, and this will
-        // force the execution to switch to the provided scope after ensuring the lock is acquired
-        // or in the queue. This guarantees exclusion, ordering, and execution within the correct
-        // scope.
-        val token = sessionMutex.acquireTokenAndSuspend()
+            // It is very important to acquire *and* suspend here. Invoking a coroutine using
+            // UNDISPATCHED will execute on the current thread until the suspension point, and this
+            // will
+            // force the execution to switch to the provided scope after ensuring the lock is
+            // acquired
+            // or in the queue. This guarantees exclusion, ordering, and execution within the
+            // correct
+            // scope.
+            val token = sessionMutex.acquireTokenAndSuspend()
 
-        // Create and use the session.
-        createSessionFromToken(token).use {
-            // Wrap the block in a coroutineScope to ensure all operations are completed before
-            // exiting and releasing the lock. The lock can be released early if the calling action
-            // decided to call session.close() early.
-            coroutineScope { action(it) }
+            // Create and use the session.
+            createSessionFromToken(token).use {
+                // Wrap the block in a coroutineScope to ensure all operations are completed before
+                // exiting and releasing the lock. The lock can be released early if the calling
+                // action
+                // decided to call session.close() early.
+                coroutineScope { action(it) }
+            }
         }
-    }
 
     private fun createSessionFromToken(token: Token) =
         CameraGraphSessionImpl(token, graphProcessor, controller3A, frameCaptureQueue)

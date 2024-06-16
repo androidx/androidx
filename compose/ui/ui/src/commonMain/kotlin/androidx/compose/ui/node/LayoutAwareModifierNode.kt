@@ -30,15 +30,18 @@ import androidx.compose.ui.unit.IntSize
  * [androidx.compose.ui.layout.OnPlacedModifier]
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
+ *
  * @sample androidx.compose.ui.samples.OnPlaced
+ *
  * @sample androidx.compose.ui.samples.LayoutAwareModifierNodeSample
  */
 interface LayoutAwareModifierNode : DelegatableNode {
     /**
-     * [onPlaced] is called after the parent [LayoutModifier] and parent layout has
-     * been placed and before child [LayoutModifier] is placed. This allows child
-     * [LayoutModifier] to adjust its own placement based on where the parent is.
+     * [onPlaced] is called after the parent [LayoutModifier] and parent layout has been placed and
+     * before child [LayoutModifier] is placed. This allows child [LayoutModifier] to adjust its own
+     * placement based on where the parent is.
      *
      * If you only need to access the current [LayoutCoordinates] at a single point in time from
      * outside this method, use [currentLayoutCoordinates].
@@ -46,8 +49,8 @@ interface LayoutAwareModifierNode : DelegatableNode {
     fun onPlaced(coordinates: LayoutCoordinates) {}
 
     /**
-     * This method is called when the layout content is remeasured. The
-     * most common usage is [onSizeChanged].
+     * This method is called when the layout content is remeasured. The most common usage is
+     * [onSizeChanged].
      */
     fun onRemeasured(size: IntSize) {}
 }

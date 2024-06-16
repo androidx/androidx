@@ -65,18 +65,18 @@ class PreviewViewStreamStateTest(
     private lateinit var cameraProvider: ProcessCameraProvider
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(cameraConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
     @get:Rule
     val activityRule: ActivityScenarioRule<FakeActivity> =
         ActivityScenarioRule(FakeActivity::class.java)
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @Before
     fun setUp() {
@@ -186,14 +186,13 @@ class PreviewViewStreamStateTest(
     private fun assertStreamState(expectStreamState: PreviewView.StreamState) {
         val latchForState = CountDownLatch(1)
 
-        val observer = Observer<PreviewView.StreamState> { streamState ->
-            if (streamState == expectStreamState) {
-                latchForState.countDown()
+        val observer =
+            Observer<PreviewView.StreamState> { streamState ->
+                if (streamState == expectStreamState) {
+                    latchForState.countDown()
+                }
             }
-        }
-        instrumentation.runOnMainSync {
-            previewView.previewStreamState.observeForever(observer)
-        }
+        instrumentation.runOnMainSync { previewView.previewStreamState.observeForever(observer) }
 
         try {
             assertThat(latchForState.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
@@ -207,28 +206,29 @@ class PreviewViewStreamStateTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0},{1}")
-        fun data() = listOf(
-            arrayOf(
-                PreviewView.ImplementationMode.COMPATIBLE,
-                Camera2Config::class.simpleName,
-                Camera2Config.defaultConfig()
-            ),
-            arrayOf(
-                PreviewView.ImplementationMode.COMPATIBLE,
-                CameraPipeConfig::class.simpleName,
-                CameraPipeConfig.defaultConfig()
-            ),
-            arrayOf(
-                PreviewView.ImplementationMode.PERFORMANCE,
-                Camera2Config::class.simpleName,
-                Camera2Config.defaultConfig()
-            ),
-            arrayOf(
-                PreviewView.ImplementationMode.PERFORMANCE,
-                CameraPipeConfig::class.simpleName,
-                CameraPipeConfig.defaultConfig()
+        fun data() =
+            listOf(
+                arrayOf(
+                    PreviewView.ImplementationMode.COMPATIBLE,
+                    Camera2Config::class.simpleName,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    PreviewView.ImplementationMode.COMPATIBLE,
+                    CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig.defaultConfig()
+                ),
+                arrayOf(
+                    PreviewView.ImplementationMode.PERFORMANCE,
+                    Camera2Config::class.simpleName,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    PreviewView.ImplementationMode.PERFORMANCE,
+                    CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig.defaultConfig()
+                )
             )
-        )
 
         @BeforeClass
         @JvmStatic

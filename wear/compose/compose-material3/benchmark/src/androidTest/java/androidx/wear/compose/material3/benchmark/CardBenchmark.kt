@@ -21,10 +21,12 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.filters.MediumTest
+import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TitleCard
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,13 +37,10 @@ import org.junit.runners.Parameterized
 class CardBenchmark(private val type: CardType) {
 
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = CardType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = CardType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val cardTestCaseFactory = { CardTestCase(type) }
 
@@ -56,8 +55,22 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
     @Composable
     override fun MeasuredContent() {
         when (type) {
-            CardType.Card ->
-                Card(onClick = { /* do something */ }) { Text("Card") }
+            CardType.Card -> Card(onClick = { /* do something */ }) { Text("Card") }
+            CardType.AppCard ->
+                AppCard(
+                    onClick = { /* do something */ },
+                    appName = { Text("App name") },
+                    title = { Text("Card title") },
+                ) {
+                    Text("App Card")
+                }
+            CardType.TitleCard ->
+                TitleCard(
+                    onClick = { /* do something */ },
+                    title = { Text("Title card") },
+                ) {
+                    Text("Title Card")
+                }
             CardType.OutlinedCard ->
                 OutlinedCard(onClick = { /* do something */ }) { Text("Outlined Card") }
         }
@@ -65,12 +78,13 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class CardType {
-    Card, OutlinedCard
+    Card,
+    AppCard,
+    TitleCard,
+    OutlinedCard
 }

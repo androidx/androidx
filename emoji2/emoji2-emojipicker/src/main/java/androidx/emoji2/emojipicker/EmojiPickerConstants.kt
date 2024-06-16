@@ -16,7 +16,7 @@
 
 package androidx.emoji2.emojipicker
 
-/** A utility class to hold various constants used by the Emoji Picker library.  */
+/** A utility class to hold various constants used by the Emoji Picker library. */
 internal object EmojiPickerConstants {
 
     // The default number of body columns.

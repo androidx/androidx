@@ -55,10 +55,11 @@ class XExecutableElementTest {
     @Test
     fun basic() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "foo.bar.Baz",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "foo.bar.Baz",
+                        """
                 package foo.bar;
                 public class Baz {
                     public Baz(String param1) {}
@@ -67,9 +68,10 @@ class XExecutableElementTest {
                         return "";
                     }
                 }
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getDeclaredMethodByJvmName("foo").let { method ->
@@ -104,42 +106,44 @@ class XExecutableElementTest {
 
     @Test
     fun isVarArgs() {
-        val subject = Source.java(
-            "foo.bar.Baz",
-            """
+        val subject =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             interface Baz {
                 void method(String... inputs);
                 void methodPrimitive(int... inputs);
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(subject)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(subject)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getMethodByJvmName("method").let { method ->
                 assertThat(method.isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(
-                        String::class.asClassName().copy(nullable = true)
-                    ).copy(nullable = true)
-                )
+                assertThat(method.parameters.single().type.asTypeName())
+                    .isEqualTo(
+                        XTypeName.getArrayName(String::class.asClassName().copy(nullable = true))
+                            .copy(nullable = true)
+                    )
             }
             element.getMethodByJvmName("methodPrimitive").let { method ->
                 assertThat(method.isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(XTypeName.PRIMITIVE_INT).copy(nullable = true)
-                )
+                assertThat(method.parameters.single().type.asTypeName())
+                    .isEqualTo(
+                        XTypeName.getArrayName(XTypeName.PRIMITIVE_INT).copy(nullable = true)
+                    )
             }
         }
     }
 
     @Test
     fun isVarArgs_kotlin() {
-        val subject = Source.kotlin(
-            "Subject.kt",
-            """
+        val subject =
+            Source.kotlin(
+                "Subject.kt",
+                """
             interface Subject {
                 fun method(vararg inputs: String)
                 suspend fun suspendMethod(vararg inputs: String)
@@ -147,35 +151,35 @@ class XExecutableElementTest {
                 fun methodPrimitive(vararg inputs: Int)
                 fun String.extFun(vararg inputs: String)
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(subject)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(subject)) {
             val element = it.processingEnv.requireTypeElement("Subject")
 
             element.getMethodByJvmName("method").let { method ->
                 assertThat(method.isVarArgs()).isTrue()
                 assertThat(method.parameters).hasSize(1)
                 assertThat(method.parameters.single().isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(
-                        XTypeName.getProducerExtendsName(String::class.asClassName()))
-                )
+                assertThat(method.parameters.single().type.asTypeName())
+                    .isEqualTo(
+                        XTypeName.getArrayName(
+                            XTypeName.getProducerExtendsName(String::class.asClassName())
+                        )
+                    )
             }
 
             element.getMethodByJvmName("suspendMethod").let { suspendMethod ->
                 assertThat(suspendMethod.isVarArgs()).isFalse()
                 assertThat(suspendMethod.parameters).hasSize(2)
-                assertThat(
-                    suspendMethod.parameters.first { it.name == "inputs" }.isVarArgs()
-                ).isTrue()
-                assertThat(
-                    suspendMethod.parameters.first { it.name == "inputs" }.type.asTypeName()
-                ).isEqualTo(
-                    XTypeName.getArrayName(
-                        XTypeName.getProducerExtendsName(String::class.asClassName()))
-                )
+                assertThat(suspendMethod.parameters.first { it.name == "inputs" }.isVarArgs())
+                    .isTrue()
+                assertThat(suspendMethod.parameters.first { it.name == "inputs" }.type.asTypeName())
+                    .isEqualTo(
+                        XTypeName.getArrayName(
+                            XTypeName.getProducerExtendsName(String::class.asClassName())
+                        )
+                    )
             }
 
             element.getMethodByJvmName("extFun").let { extFun ->
@@ -184,30 +188,31 @@ class XExecutableElementTest {
                 // kapt messed with parameter names, sometimes the synthetic parameter can use the
                 // second parameter's name.
                 assertThat(extFun.parameters.get(1).isVarArgs()).isTrue()
-                assertThat(extFun.parameters.get(1).type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(
-                        XTypeName.getProducerExtendsName(String::class.asClassName()))
-                )
+                assertThat(extFun.parameters.get(1).type.asTypeName())
+                    .isEqualTo(
+                        XTypeName.getArrayName(
+                            XTypeName.getProducerExtendsName(String::class.asClassName())
+                        )
+                    )
             }
 
             element.getMethodByJvmName("method2").let { method2 ->
                 assertThat(method2.isVarArgs()).isFalse()
                 assertThat(method2.parameters).hasSize(2)
-                assertThat(method2.parameters.first { it.name == "inputs" }.isVarArgs())
-                    .isTrue()
+                assertThat(method2.parameters.first { it.name == "inputs" }.isVarArgs()).isTrue()
                 assertThat(method2.parameters.first { it.name == "inputs" }.type.asTypeName())
                     .isEqualTo(
                         XTypeName.getArrayName(
-                            XTypeName.getProducerExtendsName(String::class.asClassName()))
+                            XTypeName.getProducerExtendsName(String::class.asClassName())
+                        )
                     )
             }
             element.getMethodByJvmName("methodPrimitive").let { method ->
                 assertThat(method.isVarArgs()).isTrue()
                 assertThat(method.parameters).hasSize(1)
                 assertThat(method.parameters.single().isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(XTypeName.PRIMITIVE_INT)
-                )
+                assertThat(method.parameters.single().type.asTypeName())
+                    .isEqualTo(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             }
         }
     }
@@ -223,9 +228,10 @@ class XExecutableElementTest {
     }
 
     private fun kotlinDefaultImpl(preCompiled: Boolean) {
-        val subject = Source.kotlin(
-            "Baz.kt",
-            """
+        val subject =
+            Source.kotlin(
+                "Baz.kt",
+                """
             package foo.bar
 
             interface Base {
@@ -242,17 +248,16 @@ class XExecutableElementTest {
             }
 
             interface Sub : Base
-            """.trimIndent()
-        )
-        val (sources, classpath) = if (preCompiled) {
-            emptyList<Source>() to compileFiles(listOf(subject))
-        } else {
-            listOf(subject) to emptyList<File>()
-        }
-        runProcessorTest(
-            sources = sources,
-            classpath = classpath
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        val (sources, classpath) =
+            if (preCompiled) {
+                emptyList<Source>() to compileFiles(listOf(subject))
+            } else {
+                listOf(subject) to emptyList<File>()
+            }
+        runProcessorTest(sources = sources, classpath = classpath) { invocation ->
             listOf("Base", "Sub").forEach { className ->
                 val element = invocation.processingEnv.requireTypeElement("foo.bar.$className")
                 element.getMethodByJvmName("noDefault").let { method ->
@@ -261,17 +266,19 @@ class XExecutableElementTest {
                 element.getMethodByJvmName("withDefault").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isTrue()
                 }
-                element.getAllMethods().first {
-                    it.jvmName == "nameMatch" && it.parameters.isEmpty()
-                }.let { nameMatchWithoutDefault ->
-                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
-                }
+                element
+                    .getAllMethods()
+                    .first { it.jvmName == "nameMatch" && it.parameters.isEmpty() }
+                    .let { nameMatchWithoutDefault ->
+                        assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
+                    }
 
-                element.getAllMethods().first {
-                    it.jvmName == "nameMatch" && it.parameters.size == 1
-                }.let { nameMatchWithoutDefault ->
-                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
-                }
+                element
+                    .getAllMethods()
+                    .first { it.jvmName == "nameMatch" && it.parameters.size == 1 }
+                    .let { nameMatchWithoutDefault ->
+                        assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
+                    }
 
                 element.getMethodByJvmName("withDefaultWithParams").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isTrue()
@@ -295,9 +302,10 @@ class XExecutableElementTest {
     }
 
     private fun kotlinDefaultImpl_typeParams(preCompiled: Boolean) {
-        val subject = Source.kotlin(
-            "Baz.kt",
-            """
+        val subject =
+            Source.kotlin(
+                "Baz.kt",
+                """
             package foo.bar
 
             interface Base<T1, T2> {
@@ -328,17 +336,16 @@ class XExecutableElementTest {
 
             interface Sub2 : Base2<Int, String, Number, Number, Long>
 
-            """.trimIndent()
-        )
-        val (sources, classpath) = if (preCompiled) {
-            emptyList<Source>() to compileFiles(listOf(subject))
-        } else {
-            listOf(subject) to emptyList<File>()
-        }
-        runProcessorTest(
-            sources = sources,
-            classpath = classpath
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        val (sources, classpath) =
+            if (preCompiled) {
+                emptyList<Source>() to compileFiles(listOf(subject))
+            } else {
+                listOf(subject) to emptyList<File>()
+            }
+        runProcessorTest(sources = sources, classpath = classpath) { invocation ->
             listOf("Base", "Sub").forEach { className ->
                 val element = invocation.processingEnv.requireTypeElement("foo.bar.$className")
                 element.getMethodByJvmName("noDefault").let { method ->
@@ -347,17 +354,19 @@ class XExecutableElementTest {
                 element.getMethodByJvmName("withDefault_noArg").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isTrue()
                 }
-                element.getAllMethods().first {
-                    it.jvmName == "nameMatch" && it.parameters.isEmpty()
-                }.let { nameMatchWithoutDefault ->
-                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
-                }
+                element
+                    .getAllMethods()
+                    .first { it.jvmName == "nameMatch" && it.parameters.isEmpty() }
+                    .let { nameMatchWithoutDefault ->
+                        assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
+                    }
 
-                element.getAllMethods().first {
-                    it.jvmName == "nameMatch" && it.parameters.size == 1
-                }.let { nameMatchWithoutDefault ->
-                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
-                }
+                element
+                    .getAllMethods()
+                    .first { it.jvmName == "nameMatch" && it.parameters.size == 1 }
+                    .let { nameMatchWithoutDefault ->
+                        assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
+                    }
 
                 element.getMethodByJvmName("withDefaultWithParams").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isTrue()
@@ -385,19 +394,19 @@ class XExecutableElementTest {
 
     @Test
     fun suspendMethod() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Subject {
                 suspend fun noArg():Unit = TODO()
                 suspend fun intReturn(): Int = TODO()
                 suspend fun twoParams(param1:String, param2:Int): Pair<String, Int> = TODO()
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             subject.getMethodByJvmName("noArg").let { method ->
                 assertThat(method.parameters).hasSize(1)
@@ -405,60 +414,60 @@ class XExecutableElementTest {
                 assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 assertThat(method.returnType.nullability).isEqualTo(XNullability.NULLABLE)
                 method.executableType.parameterTypes.last().let { cont ->
-                    assertThat(cont.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            CONTINUATION_JCLASS_NAME,
-                            WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
+                    assertThat(cont.typeName)
+                        .isEqualTo(
+                            ParameterizedTypeName.get(
+                                CONTINUATION_JCLASS_NAME,
+                                WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
+                            )
                         )
-                    )
                     assertThat(cont.nullability).isEqualTo(XNullability.NONNULL)
                 }
             }
             subject.getMethodByJvmName("intReturn").let { method ->
                 assertThat(method.parameters).hasSize(1)
                 method.parameters.last().let { cont ->
-                    assertThat(cont.type.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            CONTINUATION_JCLASS_NAME,
-                            WildcardTypeName.supertypeOf(Integer::class.java)
+                    assertThat(cont.type.typeName)
+                        .isEqualTo(
+                            ParameterizedTypeName.get(
+                                CONTINUATION_JCLASS_NAME,
+                                WildcardTypeName.supertypeOf(Integer::class.java)
+                            )
                         )
-                    )
                     assertThat(cont.enclosingElement).isEqualTo(method)
                 }
                 assertThat(method.isSuspendFunction()).isTrue()
                 assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 method.executableType.parameterTypes.last().let { cont ->
-                    assertThat(cont.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            CONTINUATION_JCLASS_NAME,
-                            WildcardTypeName.supertypeOf(Integer::class.java)
+                    assertThat(cont.typeName)
+                        .isEqualTo(
+                            ParameterizedTypeName.get(
+                                CONTINUATION_JCLASS_NAME,
+                                WildcardTypeName.supertypeOf(Integer::class.java)
+                            )
                         )
-                    )
                 }
             }
             subject.getMethodByJvmName("twoParams").let { method ->
                 assertThat(method.parameters).hasSize(3)
-                assertThat(method.parameters[0].type.typeName).isEqualTo(
-                    String::class.typeName()
-                )
-                assertThat(method.parameters[1].type.typeName).isEqualTo(
-                    TypeName.INT
-                )
+                assertThat(method.parameters[0].type.typeName).isEqualTo(String::class.typeName())
+                assertThat(method.parameters[1].type.typeName).isEqualTo(TypeName.INT)
                 assertThat(method.isSuspendFunction()).isTrue()
                 assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 method.executableType.parameterTypes.last().let { cont ->
-                    assertThat(cont.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            CONTINUATION_JCLASS_NAME,
-                            WildcardTypeName.supertypeOf(
-                                ParameterizedTypeName.get(
-                                    Pair::class.className(),
-                                    String::class.typeName(),
-                                    Integer::class.typeName()
+                    assertThat(cont.typeName)
+                        .isEqualTo(
+                            ParameterizedTypeName.get(
+                                CONTINUATION_JCLASS_NAME,
+                                WildcardTypeName.supertypeOf(
+                                    ParameterizedTypeName.get(
+                                        Pair::class.className(),
+                                        String::class.typeName(),
+                                        Integer::class.typeName()
+                                    )
                                 )
                             )
                         )
-                    )
                 }
             }
         }
@@ -466,9 +475,10 @@ class XExecutableElementTest {
 
     @Test
     fun kotlinProperties() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             data class MyDataClass(val x:String, var y:String, private val z:String) {
                 val prop1: String = ""
                 var prop2: String = ""
@@ -484,41 +494,53 @@ class XExecutableElementTest {
                     private set
                 internal var prop8: String
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
-            val methodNames = klass.getAllMethods().map {
-                it.jvmName
-            }.toList()
-            assertThat(methodNames).containsNoneIn(
-                listOf(
-                    "setX", "setProp1", "setProp3", "setZ", "setProp4", "getProp4", "setProp7"
+            val methodNames = klass.getAllMethods().map { it.jvmName }.toList()
+            assertThat(methodNames)
+                .containsNoneIn(
+                    listOf(
+                        "setX",
+                        "setProp1",
+                        "setProp3",
+                        "setZ",
+                        "setProp4",
+                        "getProp4",
+                        "setProp7"
+                    )
                 )
-            )
-            listOf("getX", "getProp1", "getProp2", "getProp3", "getProp5", "getProp6",
-                "getProp8\$main").forEach {
-                klass.getMethodByJvmName(it).let { method ->
-                    assertThat(method.returnType.asTypeName())
-                        .isEqualTo(String::class.asClassName())
-                    assertThat(method.parameters).isEmpty()
-                    assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
+            listOf(
+                    "getX",
+                    "getProp1",
+                    "getProp2",
+                    "getProp3",
+                    "getProp5",
+                    "getProp6",
+                    "getProp8\$main"
+                )
+                .forEach {
+                    klass.getMethodByJvmName(it).let { method ->
+                        assertThat(method.returnType.asTypeName())
+                            .isEqualTo(String::class.asClassName())
+                        assertThat(method.parameters).isEmpty()
+                        assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
+                    }
                 }
-            }
             listOf("setY", "setProp2", "setProp8\$main").forEach {
                 klass.getMethodByJvmName(it).let { method ->
                     assertThat(method.returnType.asTypeName().java).isEqualTo(JTypeName.VOID)
                     if (invocation.isKsp) {
                         assertThat(method.returnType.asTypeName().kotlin).isEqualTo(UNIT)
                     }
-                    assertThat(method.parameters.first().type.asTypeName()).isEqualTo(
-                        String::class.asClassName()
-                    )
+                    assertThat(method.parameters.first().type.asTypeName())
+                        .isEqualTo(String::class.asClassName())
                     assertThat(method.parameters.first().isKotlinPropertyParam()).isTrue()
                     assertThat(method.isPublic()).isTrue()
-                    assertThat(method.parameters.first().type.nullability).isEqualTo(
-                        XNullability.NONNULL
-                    )
+                    assertThat(method.parameters.first().type.nullability)
+                        .isEqualTo(XNullability.NONNULL)
                 }
             }
             listOf("getProp5", "getProp7").forEach {
@@ -540,16 +562,18 @@ class XExecutableElementTest {
 
     @Test
     fun parametersAsMemberOf() {
-        val source = Source.kotlin(
-            "Foo.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Foo.kt",
+                """
             open class Base<T> {
                 fun foo(t:T, nullableT:T?): List<T?> = TODO()
             }
             class Subject : Base<String>()
             class NullableSubject: Base<String?>()
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(source)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             val subject = invocation.processingEnv.requireType("Subject")
@@ -586,9 +610,10 @@ class XExecutableElementTest {
 
     @Test
     fun kotlinPropertyOverrides() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             interface MyInterface {
                 val x:Int
                 var y:Int
@@ -597,11 +622,13 @@ class XExecutableElementTest {
                 override var x: Int = 1
                 override var y: Int = 1
             }
-            """.trimIndent()
-        )
-        val javaSrc = Source.java(
-            "JavaImpl",
             """
+                    .trimIndent()
+            )
+        val javaSrc =
+            Source.java(
+                "JavaImpl",
+                """
             class JavaImpl implements MyInterface {
                 public int getX() {
                     return 1;
@@ -612,8 +639,9 @@ class XExecutableElementTest {
                 public void setY(int value) {
                 }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src, javaSrc)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("MyInterface")
             val impl = invocation.processingEnv.requireTypeElement("MyImpl")
@@ -627,91 +655,100 @@ class XExecutableElementTest {
             ): Boolean {
                 val overrider = owner.getMethodByJvmName(ownerMethodName)
                 val overridden = base.getMethodByJvmName(baseMethodName)
-                return overrider.overrides(
-                    overridden, owner
-                )
+                return overrider.overrides(overridden, owner)
             }
             listOf(impl, javaImpl).forEach { subject ->
                 listOf("getY", "getX", "setY").forEach { methodName ->
-                    assertWithMessage("${subject.asClassName().canonicalName}:$methodName").that(
-                        overrides(
-                            owner = subject,
-                            ownerMethodName = methodName,
-                            base = base
-                        )
-                    ).isTrue()
+                    assertWithMessage("${subject.asClassName().canonicalName}:$methodName")
+                        .that(overrides(owner = subject, ownerMethodName = methodName, base = base))
+                        .isTrue()
                 }
 
-                assertWithMessage(subject.asClassName().canonicalName).that(
-                    overrides(
-                        owner = subject,
-                        ownerMethodName = "getY",
-                        base = base,
-                        baseMethodName = "getX"
+                assertWithMessage(subject.asClassName().canonicalName)
+                    .that(
+                        overrides(
+                            owner = subject,
+                            ownerMethodName = "getY",
+                            base = base,
+                            baseMethodName = "getX"
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
 
-                assertWithMessage(subject.asClassName().canonicalName).that(
-                    overrides(
-                        owner = subject,
-                        ownerMethodName = "getY",
-                        base = subject,
-                        baseMethodName = "getX"
+                assertWithMessage(subject.asClassName().canonicalName)
+                    .that(
+                        overrides(
+                            owner = subject,
+                            ownerMethodName = "getY",
+                            base = subject,
+                            baseMethodName = "getX"
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
 
-                assertWithMessage(subject.asClassName().canonicalName).that(
-                    overrides(
-                        owner = base,
-                        ownerMethodName = "getX",
-                        base = subject,
-                        baseMethodName = "getX"
+                assertWithMessage(subject.asClassName().canonicalName)
+                    .that(
+                        overrides(
+                            owner = base,
+                            ownerMethodName = "getX",
+                            base = subject,
+                            baseMethodName = "getX"
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
 
-                assertWithMessage(subject.asClassName().canonicalName).that(
-                    overrides(
-                        owner = subject,
-                        ownerMethodName = "setY",
-                        base = base,
-                        baseMethodName = "getY"
+                assertWithMessage(subject.asClassName().canonicalName)
+                    .that(
+                        overrides(
+                            owner = subject,
+                            ownerMethodName = "setY",
+                            base = base,
+                            baseMethodName = "getY"
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
 
-                assertWithMessage(subject.asClassName().canonicalName).that(
-                    overrides(
-                        owner = subject,
-                        ownerMethodName = "setY",
-                        base = subject,
-                        baseMethodName = "setY"
+                assertWithMessage(subject.asClassName().canonicalName)
+                    .that(
+                        overrides(
+                            owner = subject,
+                            ownerMethodName = "setY",
+                            base = subject,
+                            baseMethodName = "setY"
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
             }
         }
     }
 
     @Test
     fun isAbstract() {
-        val javaInterface = Source.java(
-            "JavaInterface",
-            """
+        val javaInterface =
+            Source.java(
+                "JavaInterface",
+                """
             interface JavaInterface {
                 void interfaceMethod();
             }
-            """.trimIndent()
-        )
-        val javaAbstractClass = Source.java(
-            "JavaAbstractClass",
             """
+                    .trimIndent()
+            )
+        val javaAbstractClass =
+            Source.java(
+                "JavaAbstractClass",
+                """
             abstract class JavaAbstractClass {
                 abstract void abstractMethod();
                 void nonAbstractMethod() {}
             }
-            """.trimIndent()
-        )
-        val kotlinSource = Source.kotlin(
-            "kotlin.kt",
             """
+                    .trimIndent()
+            )
+        val kotlinSource =
+            Source.kotlin(
+                "kotlin.kt",
+                """
             interface KotlinInterface {
                 fun interfaceMethod(): Unit
             }
@@ -719,11 +756,11 @@ class XExecutableElementTest {
                 abstract fun abstractMethod(): Unit
                 fun nonAbstractMethod() {}
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(javaInterface, javaAbstractClass, kotlinSource)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(javaInterface, javaAbstractClass, kotlinSource)) {
+            invocation ->
             listOf("JavaInterface", "KotlinInterface").forEach { qName ->
                 invocation.processingEnv.requireTypeElement(qName).let {
                     assertThat(it.getMethodByJvmName("interfaceMethod").isAbstract()).isTrue()
@@ -741,18 +778,21 @@ class XExecutableElementTest {
 
     @Test
     fun javaMethodOverridesKotlinProperty() {
-        val myInterface = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val myInterface =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             interface MyInterface {
                 val x:Int
                 var y:Int
             }
-            """.trimIndent()
-        )
-        val javaImpl = Source.java(
-            "JavaImpl",
             """
+                    .trimIndent()
+            )
+        val javaImpl =
+            Source.java(
+                "JavaImpl",
+                """
             class JavaImpl implements MyInterface {
                 public int getX() {
                     return 1;
@@ -763,38 +803,37 @@ class XExecutableElementTest {
                 public void setY(int value) {
                 }
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(myInterface, javaImpl)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(myInterface, javaImpl)) { invocation ->
             val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
-            assertThat(
-                elm.getMethodByJvmName("getX").returnType.asTypeName()
-            ).isEqualTo(XTypeName.PRIMITIVE_INT)
-            assertThat(
-                elm.getMethodByJvmName("getY").returnType.asTypeName()
-            ).isEqualTo(XTypeName.PRIMITIVE_INT)
-            assertThat(
-                elm.getMethodByJvmName("setY").parameters.first().type.asTypeName()
-            ).isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(elm.getMethodByJvmName("getX").returnType.asTypeName())
+                .isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(elm.getMethodByJvmName("getY").returnType.asTypeName())
+                .isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(elm.getMethodByJvmName("setY").parameters.first().type.asTypeName())
+                .isEqualTo(XTypeName.PRIMITIVE_INT)
         }
     }
 
     @Test
     fun javaMethodOverridesKotlinProperty_generic() {
-        val myInterface = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val myInterface =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             interface MyInterface<T> {
                 val x:T
                 var y:T
             }
-            """.trimIndent()
-        )
-        val javaImpl = Source.java(
-            "JavaImpl",
             """
+                    .trimIndent()
+            )
+        val javaImpl =
+            Source.java(
+                "JavaImpl",
+                """
             class JavaImpl implements MyInterface<Integer> {
                 public Integer getX() {
                     return 1;
@@ -805,29 +844,26 @@ class XExecutableElementTest {
                 public void setY(Integer value) {
                 }
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(myInterface, javaImpl)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(myInterface, javaImpl)) { invocation ->
             val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
-            assertThat(
-                elm.getMethodByJvmName("getX").returnType.asTypeName()
-            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
-            assertThat(
-                elm.getMethodByJvmName("getY").returnType.asTypeName()
-            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
-            assertThat(
-                elm.getMethodByJvmName("setY").parameters.first().type.asTypeName()
-            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
+            assertThat(elm.getMethodByJvmName("getX").returnType.asTypeName())
+                .isEqualTo(Int::class.asClassName().copy(nullable = true))
+            assertThat(elm.getMethodByJvmName("getY").returnType.asTypeName())
+                .isEqualTo(Int::class.asClassName().copy(nullable = true))
+            assertThat(elm.getMethodByJvmName("setY").parameters.first().type.asTypeName())
+                .isEqualTo(Int::class.asClassName().copy(nullable = true))
         }
     }
 
     @Test
     fun defaultMethodParameters() {
-        fun buildSource(pkg: String) = Source.kotlin(
-            "Foo.kt",
-            """
+        fun buildSource(pkg: String) =
+            Source.kotlin(
+                "Foo.kt",
+                """
             package $pkg
             class Subject {
                 var prop:Int = 1
@@ -843,83 +879,99 @@ class XExecutableElementTest {
                     z:String = "foo"
                 ) {}
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         fun XExecutableElement.defaults() = parameters.map { it.hasDefaultValue }
         runProcessorTest(
             sources = listOf(buildSource(pkg = "app")),
             classpath = compileFiles(listOf(buildSource(pkg = "lib")))
         ) { invocation ->
-            listOf("app", "lib").map {
-                invocation.processingEnv.requireTypeElement("$it.Subject")
-            }.forEach { subject ->
-                subject.getMethodByJvmName("method1").let { method ->
-                    assertWithMessage(method.fallbackLocationText)
-                        .that(method.defaults()).containsExactly(true, false).inOrder()
-                }
-                subject.getMethodByJvmName("method2").let { method ->
-                    assertWithMessage(method.fallbackLocationText)
-                        .that(method.defaults()).containsExactly(false, true).inOrder()
-                }
-                subject.getMethodByJvmName("varargMethod1").let { method ->
-                    assertWithMessage(method.fallbackLocationText)
-                        .that(method.defaults()).containsExactly(true, false).inOrder()
-                }
-                subject.getMethodByJvmName("varargMethod2").let { method ->
-                    assertWithMessage(method.fallbackLocationText)
-                        .that(method.defaults()).containsExactly(false, true).inOrder()
-                }
-                subject.getMethodByJvmName("suspendMethod").let { method ->
-                    assertWithMessage(method.fallbackLocationText)
-                        .that(method.defaults()).containsExactly(false)
-                }
-                subject.getMethodByJvmName("setProp").let { method ->
-                    assertWithMessage(method.fallbackLocationText)
-                        .that(method.defaults()).containsExactly(false)
-                }
-                val jvmOverloadedMethodCount = subject.getDeclaredMethods().count {
-                    it.jvmName == "jvmOverloadsMethod"
-                }
-                if (invocation.isKsp) {
-                    assertWithMessage(subject.fallbackLocationText)
-                        .that(jvmOverloadedMethodCount).isEqualTo(1)
-                    subject.getMethodByJvmName("jvmOverloadsMethod").let { method ->
+            listOf("app", "lib")
+                .map { invocation.processingEnv.requireTypeElement("$it.Subject") }
+                .forEach { subject ->
+                    subject.getMethodByJvmName("method1").let { method ->
                         assertWithMessage(method.fallbackLocationText)
                             .that(method.defaults())
-                            .containsExactly(false, true, true).inOrder()
+                            .containsExactly(true, false)
+                            .inOrder()
                     }
-                } else {
-                    assertWithMessage(subject.fallbackLocationText)
-                        .that(jvmOverloadedMethodCount).isEqualTo(3)
-                    val actuals = subject.getDeclaredMethods().filter {
-                        it.jvmName == "jvmOverloadsMethod"
-                    }.associateBy(
-                        keySelector = { it.parameters.size },
-                        valueTransform = { it.defaults() }
-                    )
-                    // JVM overloads is not part of the java stub or metadata, hence we cannot
-                    // detect it
-                    assertWithMessage(subject.fallbackLocationText)
-                        .that(actuals)
-                        .containsExactlyEntriesIn(
-                            mapOf(
-                                1 to listOf(false),
-                                2 to listOf(false, false),
-                                3 to listOf(false, true, true)
+                    subject.getMethodByJvmName("method2").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(false, true)
+                            .inOrder()
+                    }
+                    subject.getMethodByJvmName("varargMethod1").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(true, false)
+                            .inOrder()
+                    }
+                    subject.getMethodByJvmName("varargMethod2").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(false, true)
+                            .inOrder()
+                    }
+                    subject.getMethodByJvmName("suspendMethod").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(false)
+                    }
+                    subject.getMethodByJvmName("setProp").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(false)
+                    }
+                    val jvmOverloadedMethodCount =
+                        subject.getDeclaredMethods().count { it.jvmName == "jvmOverloadsMethod" }
+                    if (invocation.isKsp) {
+                        assertWithMessage(subject.fallbackLocationText)
+                            .that(jvmOverloadedMethodCount)
+                            .isEqualTo(1)
+                        subject.getMethodByJvmName("jvmOverloadsMethod").let { method ->
+                            assertWithMessage(method.fallbackLocationText)
+                                .that(method.defaults())
+                                .containsExactly(false, true, true)
+                                .inOrder()
+                        }
+                    } else {
+                        assertWithMessage(subject.fallbackLocationText)
+                            .that(jvmOverloadedMethodCount)
+                            .isEqualTo(3)
+                        val actuals =
+                            subject
+                                .getDeclaredMethods()
+                                .filter { it.jvmName == "jvmOverloadsMethod" }
+                                .associateBy(
+                                    keySelector = { it.parameters.size },
+                                    valueTransform = { it.defaults() }
+                                )
+                        // JVM overloads is not part of the java stub or metadata, hence we cannot
+                        // detect it
+                        assertWithMessage(subject.fallbackLocationText)
+                            .that(actuals)
+                            .containsExactlyEntriesIn(
+                                mapOf(
+                                    1 to listOf(false),
+                                    2 to listOf(false, false),
+                                    3 to listOf(false, true, true)
+                                )
                             )
-                        )
+                    }
                 }
-            }
         }
     }
 
     @Test
     fun thrownTypes() {
-        fun buildSources(pkg: String) = listOf(
-            Source.java(
-                "$pkg.JavaSubject",
-                """
+        fun buildSources(pkg: String) =
+            listOf(
+                Source.java(
+                    "$pkg.JavaSubject",
+                    """
                 package $pkg;
                 import java.io.*;
                 public class JavaSubject {
@@ -928,11 +980,12 @@ class XExecutableElementTest {
                     public void multipleThrows() throws IOException, IllegalStateException {
                     }
                 }
-                """.trimIndent()
-            ),
-            Source.kotlin(
-                "KotlinSubject.kt",
                 """
+                        .trimIndent()
+                ),
+                Source.kotlin(
+                    "KotlinSubject.kt",
+                    """
                 package $pkg
                 import java.io.*
                 public class KotlinSubject {
@@ -944,11 +997,12 @@ class XExecutableElementTest {
                     fun multipleThrows() {
                     }
                 }
-                """.trimIndent()
-            ),
-            Source.kotlin(
-                "AccessorThrows.kt",
                 """
+                        .trimIndent()
+                ),
+                Source.kotlin(
+                    "AccessorThrows.kt",
+                    """
                 package $pkg
                 import java.io.*
                 public class KotlinAccessors {
@@ -960,9 +1014,10 @@ class XExecutableElementTest {
                     @set:Throws(IllegalStateException::class, IllegalArgumentException::class)
                     var bothThrows: Int = 3
                 }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
         runProcessorTest(
             sources = buildSources("app"),
             classpath = compileFiles(sources = buildSources("lib"))
@@ -970,11 +1025,12 @@ class XExecutableElementTest {
             fun collectExceptions(subject: XTypeElement): List<Pair<String, Set<XTypeName>>> {
                 return (subject.getConstructors() + subject.getDeclaredMethods()).mapNotNull {
                     val throwTypes = it.thrownTypes
-                    val name = if (it is XMethodElement) {
-                        it.jvmName
-                    } else {
-                        "<init>"
-                    }
+                    val name =
+                        if (it is XMethodElement) {
+                            it.jvmName
+                        } else {
+                            "<init>"
+                        }
                     if (throwTypes.isEmpty()) {
                         null
                     } else {
@@ -985,43 +1041,36 @@ class XExecutableElementTest {
             listOf("app", "lib").forEach { pkg ->
                 val expectedConstructor =
                     "<init>" to setOf(IllegalArgumentException::class.asClassName())
-                val expectedMethod = "multipleThrows" to setOf(
-                    IOException::class.asClassName(),
-                    IllegalStateException::class.asClassName()
-                )
+                val expectedMethod =
+                    "multipleThrows" to
+                        setOf(
+                            IOException::class.asClassName(),
+                            IllegalStateException::class.asClassName()
+                        )
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject").let { subject ->
-                    assertWithMessage(subject.qualifiedName).that(
-                        collectExceptions(subject)
-                    ).containsExactly(
-                        expectedConstructor, expectedMethod
-                    )
+                    assertWithMessage(subject.qualifiedName)
+                        .that(collectExceptions(subject))
+                        .containsExactly(expectedConstructor, expectedMethod)
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.JavaSubject").let { subject ->
-                    assertWithMessage(subject.qualifiedName).that(
-                        collectExceptions(subject)
-                    ).containsExactly(
-                        expectedConstructor,
-                        expectedMethod
-                    )
+                    assertWithMessage(subject.qualifiedName)
+                        .that(collectExceptions(subject))
+                        .containsExactly(expectedConstructor, expectedMethod)
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinAccessors").let { subject ->
-                    assertWithMessage(subject.qualifiedName).that(
-                        collectExceptions(subject)
-                    ).containsExactly(
-                        "getGetterThrows" to setOf(
-                            IllegalArgumentException::class.asClassName()
-                        ),
-                        "setSetterThrows" to setOf(
-                            IllegalStateException::class.asClassName()
-                        ),
-                        "getBothThrows" to setOf(
-                            IOException::class.asClassName()
-                        ),
-                        "setBothThrows" to setOf(
-                            IllegalStateException::class.asClassName(),
-                            IllegalArgumentException::class.asClassName()
-                        ),
-                    )
+                    assertWithMessage(subject.qualifiedName)
+                        .that(collectExceptions(subject))
+                        .containsExactly(
+                            "getGetterThrows" to
+                                setOf(IllegalArgumentException::class.asClassName()),
+                            "setSetterThrows" to setOf(IllegalStateException::class.asClassName()),
+                            "getBothThrows" to setOf(IOException::class.asClassName()),
+                            "setBothThrows" to
+                                setOf(
+                                    IllegalStateException::class.asClassName(),
+                                    IllegalArgumentException::class.asClassName()
+                                ),
+                        )
                 }
             }
         }
@@ -1029,9 +1078,10 @@ class XExecutableElementTest {
 
     @Test
     fun extensionFun() {
-        fun buildSource(pkg: String) = Source.kotlin(
-            "Foo.kt",
-            """
+        fun buildSource(pkg: String) =
+            Source.kotlin(
+                "Foo.kt",
+                """
             package $pkg
             annotation class MyAnnotation
             abstract class Foo<T> {
@@ -1047,8 +1097,9 @@ class XExecutableElementTest {
             class FooImpl : Foo<Int>() {
                 override fun Int.ext7(): String = TODO()
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
             sources = listOf(buildSource(pkg = "app")),
             classpath = compileFiles(listOf(buildSource(pkg = "lib")))
@@ -1071,24 +1122,27 @@ class XExecutableElementTest {
                     assertThat(method.parameters[1].name).isEqualTo("inputParam")
                 }
                 element.getDeclaredMethodByJvmName("ext3").let { method ->
-                    assertThat(method.parameters[0].type.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            ClassName.get(pkg, "Foo"),
-                            String::class.typeName()
+                    assertThat(method.parameters[0].type.typeName)
+                        .isEqualTo(
+                            ParameterizedTypeName.get(
+                                ClassName.get(pkg, "Foo"),
+                                String::class.typeName()
+                            )
                         )
-                    )
                 }
                 element.getDeclaredMethodByJvmName("ext4").let { method ->
-                    assertThat(method.parameters[0].type.asTypeName().java).isEqualTo(
-                        JParameterizedTypeName.get(
-                            JClassName.get(pkg, "Foo"),
-                            JTypeVariableName.get("T")
+                    assertThat(method.parameters[0].type.asTypeName().java)
+                        .isEqualTo(
+                            JParameterizedTypeName.get(
+                                JClassName.get(pkg, "Foo"),
+                                JTypeVariableName.get("T")
+                            )
                         )
-                    )
                     if (invocation.isKsp) {
-                        assertThat(method.parameters[0].type.asTypeName().kotlin).isEqualTo(
-                            KClassName(pkg, "Foo").parameterizedBy(KTypeVariableName("T"))
-                        )
+                        assertThat(method.parameters[0].type.asTypeName().kotlin)
+                            .isEqualTo(
+                                KClassName(pkg, "Foo").parameterizedBy(KTypeVariableName("T"))
+                            )
                     }
                 }
                 element.getDeclaredMethodByJvmName("ext5").let { method ->
@@ -1102,12 +1156,13 @@ class XExecutableElementTest {
                     assertThat(method.parameters[0].type.asTypeName())
                         .isEqualTo(String::class.asClassName())
                     assertThat(method.parameters[1].isContinuationParam()).isTrue()
-                    assertThat(method.parameters[1].type.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            ClassName.get("kotlin.coroutines", "Continuation"),
-                            WildcardTypeName.supertypeOf(String::class.typeName())
+                    assertThat(method.parameters[1].type.typeName)
+                        .isEqualTo(
+                            ParameterizedTypeName.get(
+                                ClassName.get("kotlin.coroutines", "Continuation"),
+                                WildcardTypeName.supertypeOf(String::class.typeName())
+                            )
                         )
-                    )
                 }
                 // Verify overridden Foo.ext7() asMemberOf FooImpl
                 element.getDeclaredMethodByJvmName("ext7").let { method ->
@@ -1146,9 +1201,10 @@ class XExecutableElementTest {
     // see b/160258066
     @Test
     public fun genericToPrimitiveOverrides() {
-        val source = Source.kotlin(
-            "Foo.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Foo.kt",
+                """
             interface Base<Key> {
                 fun getKey(id: Key): Unit
                 fun getKeyOverridden(id: Key): Unit
@@ -1173,26 +1229,29 @@ class XExecutableElementTest {
                 override fun returnKeyOverridden(): Item
                 override fun getAndReturnKeyOverridden(key: Item): Item
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(source)) { invocation ->
-            val objectMethodNames = invocation.processingEnv.requireTypeElement(TypeName.OBJECT)
-                .getAllNonPrivateInstanceMethods().map { it.jvmName }.toSet()
+            val objectMethodNames =
+                invocation.processingEnv
+                    .requireTypeElement(TypeName.OBJECT)
+                    .getAllNonPrivateInstanceMethods()
+                    .map { it.jvmName }
+                    .toSet()
 
             fun XTypeElement.methodsSignature(): String {
                 return getAllNonPrivateInstanceMethods()
                     .filterNot { it.jvmName in objectMethodNames }
-                    .sortedBy {
-                        it.jvmName
-                    }.joinToString("\n") { methodElement ->
+                    .sortedBy { it.jvmName }
+                    .joinToString("\n") { methodElement ->
                         buildString {
                             append(methodElement.jvmName)
                             append("(")
                             val enclosingType = this@methodsSignature.type
                             val paramTypes = methodElement.asMemberOf(enclosingType).parameterTypes
-                            val paramsSignature = paramTypes.joinToString(",") {
-                                it.typeName.toString()
-                            }
+                            val paramsSignature =
+                                paramTypes.joinToString(",") { it.typeName.toString() }
                             append(paramsSignature)
                             append("):")
                             val returnType = methodElement.asMemberOf(enclosingType).returnType
@@ -1203,10 +1262,9 @@ class XExecutableElementTest {
 
             val nonNullOverride =
                 invocation.processingEnv.requireTypeElement("NonNullPrimitiveOverride")
-            assertThat(
-                nonNullOverride.methodsSignature()
-            ).isEqualTo(
-                """
+            assertThat(nonNullOverride.methodsSignature())
+                .isEqualTo(
+                    """
                 getAndReturnKey(java.lang.Integer):java.lang.Integer
                 getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
                 getAndReturnKeyOverridden(int):java.lang.Integer
@@ -1215,44 +1273,46 @@ class XExecutableElementTest {
                 getKeyOverridden(int):void
                 returnKey():java.lang.Integer
                 returnKeyOverridden():java.lang.Integer
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
             val nullableOverride =
                 invocation.processingEnv.requireTypeElement("NullablePrimitiveOverride")
-            assertThat(
-                nullableOverride.methodsSignature()
-            ).isEqualTo(
-                """
+            assertThat(nullableOverride.methodsSignature())
+                .isEqualTo(
+                    """
                 getAndReturnKey(java.lang.Integer):java.lang.Integer
                 getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
                 getKey(java.lang.Integer):void
                 getKeyOverridden(java.lang.Integer):void
                 returnKey():java.lang.Integer
                 returnKeyOverridden():java.lang.Integer
-                """.trimIndent()
-            )
-            val classOverride = invocation.processingEnv.requireTypeElement("ClassOverride")
-            assertThat(
-                classOverride.methodsSignature()
-            ).isEqualTo(
                 """
+                        .trimIndent()
+                )
+            val classOverride = invocation.processingEnv.requireTypeElement("ClassOverride")
+            assertThat(classOverride.methodsSignature())
+                .isEqualTo(
+                    """
                 getAndReturnKey(Item):Item
                 getAndReturnKeyOverridden(Item):Item
                 getKey(Item):void
                 getKeyOverridden(Item):void
                 returnKey():Item
                 returnKeyOverridden():Item
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
     @Test
     fun name() {
-        fun buildSources(pkg: String) = listOf(
-            Source.kotlin(
-                "KotlinSource.kt",
-                """
+        fun buildSources(pkg: String) =
+            listOf(
+                Source.kotlin(
+                    "KotlinSource.kt",
+                    """
             package $pkg;
             @JvmInline
             value class ValueClass(val value: String)
@@ -1271,66 +1331,65 @@ class XExecutableElementTest {
                 internal fun internalValueReceivingFun(param: ValueClass) { TODO() }
                 internal fun internalValueReturningFun(): ValueClass { TODO() }
             }
-            """.trimIndent()
+            """
+                        .trimIndent()
+                )
             )
-        )
 
         val sources = buildSources("app")
         val classpath = compileFiles(buildSources("lib"))
-        runProcessorTest(
-            sources = sources,
-            classpath = classpath
-        ) { invocation ->
+        runProcessorTest(sources = sources, classpath = classpath) { invocation ->
             // we use this to remove the hash added by the compiler for function names that don't
             // have valid JVM names
             // regex: match 7 characters after -
             val removeHashRegex = """(?<=-)(.{7})""".toRegex()
 
-            fun XTypeElement.collectNameJvmNamePairs() = getDeclaredMethods().map {
-                it.name to removeHashRegex.replace(it.jvmName, "HASH")
-            }
+            fun XTypeElement.collectNameJvmNamePairs() =
+                getDeclaredMethods().map { it.name to removeHashRegex.replace(it.jvmName, "HASH") }
             listOf("app", "lib").forEach { pkg ->
-                val kotlinSubject = invocation.processingEnv
-                    .requireTypeElement("$pkg.KotlinSubject")
-                val validJvmProperties = listOf(
-                    "getInternalClassProperty" to "getInternalClassProperty\$main",
-                    "getInternalProperty" to "getInternalProperty\$main",
-                    "getProperty" to "getProperty",
-                    "internalFun" to "internalFun\$main",
-                    "jvmNameFun" to "jvmNameForFun",
-                    "normalFun" to "normalFun",
-                    "setInternalClassProperty" to "setInternalClassProperty\$main",
-                    "setInternalProperty" to "setInternalProperty\$main",
-                    "setProperty" to "setProperty",
-                )
+                val kotlinSubject =
+                    invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject")
+                val validJvmProperties =
+                    listOf(
+                        "getInternalClassProperty" to "getInternalClassProperty\$main",
+                        "getInternalProperty" to "getInternalProperty\$main",
+                        "getProperty" to "getProperty",
+                        "internalFun" to "internalFun\$main",
+                        "jvmNameFun" to "jvmNameForFun",
+                        "normalFun" to "normalFun",
+                        "setInternalClassProperty" to "setInternalClassProperty\$main",
+                        "setInternalProperty" to "setInternalProperty\$main",
+                        "setProperty" to "setProperty",
+                    )
                 // these won't show up in KAPT stubs as they don't have valid jvm names
-                val nonJvmProperties = listOf(
-                    "getValueClassProperty" to "getValueClassProperty-HASH",
-                    "internalValueReceivingFun" to "internalValueReceivingFun-HASH\$main",
-                    "internalValueReturningFun" to "internalValueReturningFun-HASH\$main",
-                    "setValueClassProperty" to "setValueClassProperty-HASH",
-                    "valueReceivingFun" to "valueReceivingFun-HASH",
-                    "valueReturningFun" to "valueReturningFun-HASH",
-                )
-                val expected = if (invocation.isKsp || pkg == "lib") {
-                    validJvmProperties + nonJvmProperties
-                } else {
-                    validJvmProperties
-                }
+                val nonJvmProperties =
+                    listOf(
+                        "getValueClassProperty" to "getValueClassProperty-HASH",
+                        "internalValueReceivingFun" to "internalValueReceivingFun-HASH\$main",
+                        "internalValueReturningFun" to "internalValueReturningFun-HASH\$main",
+                        "setValueClassProperty" to "setValueClassProperty-HASH",
+                        "valueReceivingFun" to "valueReceivingFun-HASH",
+                        "valueReturningFun" to "valueReturningFun-HASH",
+                    )
+                val expected =
+                    if (invocation.isKsp || pkg == "lib") {
+                        validJvmProperties + nonJvmProperties
+                    } else {
+                        validJvmProperties
+                    }
                 assertWithMessage("declarations in $pkg")
                     .that(kotlinSubject.collectNameJvmNamePairs())
-                    .containsExactlyElementsIn(
-                        expected
-                    )
+                    .containsExactlyElementsIn(expected)
             }
         }
     }
 
     @Test
     public fun genericTypeAliases() {
-        val source = Source.kotlin(
-            "Foo.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Foo.kt",
+                """
             abstract class Foo {
                 abstract fun hashSet(param: HashSet<Char>): HashSet<String>
                 abstract fun myType(param: MyType<Float>): MyType<Double>
@@ -1338,8 +1397,9 @@ class XExecutableElementTest {
             }
             typealias MyTypeAlias<T> = MyType<T>
             class MyType<T>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(source)) { invocation ->
             fun XTypeElement.jMethodSignatures(): String {
                 return getDeclaredMethods()
@@ -1357,30 +1417,34 @@ class XExecutableElementTest {
             }
 
             val foo = invocation.processingEnv.requireTypeElement("Foo")
-            assertThat(foo.jMethodSignatures()).isEqualTo(
-                """
+            assertThat(foo.jMethodSignatures())
+                .isEqualTo(
+                    """
                 hashSet(java.util.HashSet<java.lang.Character>):java.util.HashSet<java.lang.String>
                 myType(MyType<java.lang.Float>):MyType<java.lang.Double>
                 myTypeAlias(MyType<java.lang.Integer>):MyType<java.lang.Long>
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
     @Test
     fun testMethodWithParameterizedSyntheticReceiver() {
         runProcessorTest(
-            sources = listOf(
-                Source.kotlin(
-                    "Usage.kt",
-                    """
+            sources =
+                listOf(
+                    Source.kotlin(
+                        "Usage.kt",
+                        """
                     class Usage {
                       fun <T> Foo<T>.method(param: Foo<String>): Foo<T> = this
                     }
                     class Foo<T>
-                    """.trimIndent()
-                ),
-            )
+                    """
+                            .trimIndent()
+                    ),
+                )
         ) { invocation ->
             val usage = invocation.processingEnv.requireTypeElement("Usage")
             val method = usage.getDeclaredMethodByJvmName("method")
@@ -1411,25 +1475,31 @@ class XExecutableElementTest {
         @TestParameter hasParametersFlag: Boolean,
         @TestParameter hasDebugFlag: Boolean
     ) {
-        val javaSource = Source.java(
-            "foo.bar.Baz",
-            """
+        val javaSource =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             public abstract class Baz {
                 void jf(String param1) {}
                 abstract void jaf(String param1);
                 native void jnf(String param1);
             }
-            """.trimIndent())
-        val kotlinSource = Source.kotlin(
-            "foo.bar.Baz.kt",
             """
+                    .trimIndent()
+            )
+        val kotlinSource =
+            Source.kotlin(
+                "foo.bar.Baz.kt",
+                """
             package foo.bar
             abstract class Baz {
                 fun kf(param1: String): Unit = TODO()
                 abstract fun kaf(param1: String): Unit
             }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
 
         val sources: List<Source> =
             if (isPrecompiled) {
@@ -1463,11 +1533,12 @@ class XExecutableElementTest {
             }
         runProcessorTest(sources = sources, classpath = classes) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            val funNames = if (isJava) {
-                listOf("jf", "jaf", "jnf")
-            } else {
-                listOf("kf", "kaf")
-            }
+            val funNames =
+                if (isJava) {
+                    listOf("jf", "jaf", "jnf")
+                } else {
+                    listOf("kf", "kaf")
+                }
             funNames.forEach { funName ->
                 val function = element.getDeclaredMethodByJvmName(funName)
                 val isAbstract = function.isAbstract()
@@ -1515,9 +1586,10 @@ class XExecutableElementTest {
 
     @Test
     fun receiverParameterNames(@TestParameter isPrecompiled: Boolean) {
-        val kotlinSource = Source.kotlin(
-            "foo.bar.Subject.kt",
-            """
+        val kotlinSource =
+            Source.kotlin(
+                "foo.bar.Subject.kt",
+                """
             package foo.bar
             abstract class Subject {
                 fun Bar.method(): Unit = TODO()
@@ -1530,76 +1602,86 @@ class XExecutableElementTest {
                 fun Bar.methodWithJvmNameAndParam(name: String): Unit = TODO()
             }
             class Bar
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
-            sources = if (isPrecompiled) {
-                emptyList()
-            } else {
-                listOf(kotlinSource)
-            },
-            classpath = if (isPrecompiled) {
-                compileFiles(listOf(kotlinSource))
-            } else {
-                emptyList()
-            }
+            sources =
+                if (isPrecompiled) {
+                    emptyList()
+                } else {
+                    listOf(kotlinSource)
+                },
+            classpath =
+                if (isPrecompiled) {
+                    compileFiles(listOf(kotlinSource))
+                } else {
+                    emptyList()
+                }
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
 
             // Assert on the method and parameter names of each declared method.
             assertThat(
-                subject.getDeclaredMethods().map { method ->
-                    "${method.name}(${method.parameters.joinToString(", ") { it.name }})"
-                }
-            ).containsExactly(
-                "method(\$this\$method)",
-                "methodWithParam(\$this\$methodWithParam, name)",
-                "abstractMethod(\$this\$abstractMethod)",
-                "abstractMethodWithParam(\$this\$abstractMethodWithParam, name)",
-                "methodWithJvmName(\$this\$methodWithJvmName)",
-                "methodWithJvmNameAndParam(\$this\$methodWithJvmNameAndParam, name)",
-            ).inOrder()
+                    subject.getDeclaredMethods().map { method ->
+                        "${method.name}(${method.parameters.joinToString(", ") { it.name }})"
+                    }
+                )
+                .containsExactly(
+                    "method(\$this\$method)",
+                    "methodWithParam(\$this\$methodWithParam, name)",
+                    "abstractMethod(\$this\$abstractMethod)",
+                    "abstractMethodWithParam(\$this\$abstractMethodWithParam, name)",
+                    "methodWithJvmName(\$this\$methodWithJvmName)",
+                    "methodWithJvmNameAndParam(\$this\$methodWithJvmNameAndParam, name)",
+                )
+                .inOrder()
         }
     }
 
     @Test
     fun javaKeywordNames(@TestParameter isPrecompiled: Boolean) {
-        val kotlinSource = Source.kotlin(
-            "foo.bar.Subject.kt",
-            """
+        val kotlinSource =
+            Source.kotlin(
+                "foo.bar.Subject.kt",
+                """
             package test
             abstract class Subject(long: Long) {
                 fun method(int: Int): Unit = TODO()
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
-            sources = if (isPrecompiled) {
-                emptyList()
-            } else {
-                listOf(kotlinSource)
-            },
-            classpath = if (isPrecompiled) {
-                compileFiles(listOf(kotlinSource))
-            } else {
-                emptyList()
-            }
+            sources =
+                if (isPrecompiled) {
+                    emptyList()
+                } else {
+                    listOf(kotlinSource)
+                },
+            classpath =
+                if (isPrecompiled) {
+                    compileFiles(listOf(kotlinSource))
+                } else {
+                    emptyList()
+                }
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("test.Subject")
             val method = subject.getDeclaredMethods().single()
-            assertThat(
-                "${method.name}(${method.parameters.joinToString(", ") { it.name }})"
-            ).isEqualTo("method(int)")
-            assertThat(
-                "${method.name}(${method.parameters.joinToString(", ") { it.jvmName }})"
-            ).isEqualTo("method(p0)")
+            assertThat("${method.name}(${method.parameters.joinToString(", ") { it.name }})")
+                .isEqualTo("method(int)")
+            assertThat("${method.name}(${method.parameters.joinToString(", ") { it.jvmName }})")
+                .isEqualTo("method(p0)")
 
             val constructor = subject.findPrimaryConstructor()!!
             assertThat(
-                "${constructor.name}(${constructor.parameters.joinToString(", ") { it.name }})"
-            ).isEqualTo("<init>(long)")
+                    "${constructor.name}(${constructor.parameters.joinToString(", ") { it.name }})"
+                )
+                .isEqualTo("<init>(long)")
             assertThat(
-                "${constructor.name}(${constructor.parameters.joinToString(", ") { it.jvmName }})"
-            ).isEqualTo("<init>(p0)")
+                    "${constructor.name}(${constructor.parameters.joinToString(", ") { it.jvmName }})"
+                )
+                .isEqualTo("<init>(p0)")
         }
     }
 }

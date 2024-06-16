@@ -24,16 +24,18 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanConcurrentHashMapTest : AbstractLintDetectorTest(
-    useDetector = BanConcurrentHashMap(),
-    useIssues = listOf(BanConcurrentHashMap.ISSUE),
-) {
+class BanConcurrentHashMapTest :
+    AbstractLintDetectorTest(
+        useDetector = BanConcurrentHashMap(),
+        useIssues = listOf(BanConcurrentHashMap.ISSUE),
+    ) {
 
     @Test
     fun `Detection of ConcurrentHashMap import in Java sources`() {
-        val input = java(
-            "src/androidx/ConcurrentHashMapImportJava.java",
-            """
+        val input =
+            java(
+                "src/androidx/ConcurrentHashMapImportJava.java",
+                """
                 import androidx.annotation.NonNull;
                 import java.util.Map;
                 import java.util.concurrent.ConcurrentHashMap;
@@ -45,26 +47,28 @@ class BanConcurrentHashMapTest : AbstractLintDetectorTest(
                         return new ConcurrentHashMap<>();
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ConcurrentHashMapImportJava.java:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
 import java.util.concurrent.ConcurrentHashMap;
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Detection of ConcurrentHashMap fully-qualified usage in Java sources`() {
-        val input = java(
-            "src/androidx/ConcurrentHashMapUsageJava.java",
-            """
+        val input =
+            java(
+                "src/androidx/ConcurrentHashMapUsageJava.java",
+                """
                 import androidx.annotation.NonNull;
                 import java.util.Map;
 
@@ -75,11 +79,12 @@ import java.util.concurrent.ConcurrentHashMap;
                         return new java.util.concurrent.ConcurrentHashMap<>();
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ConcurrentHashMapUsageJava.java:5: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
     private final Map<?, ?> mMap = new java.util.concurrent.ConcurrentHashMap<>();
                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,17 +92,18 @@ src/androidx/ConcurrentHashMapUsageJava.java:8: Error: Detected ConcurrentHashMa
         return new java.util.concurrent.ConcurrentHashMap<>();
                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Detection of ConcurrentHashMap import in Kotlin sources`() {
-        val input = kotlin(
-            "src/androidx/ConcurrentHashMapImportKotlin.kt",
-            """
+        val input =
+            kotlin(
+                "src/androidx/ConcurrentHashMapImportKotlin.kt",
+                """
                 package androidx
 
                 import java.util.concurrent.ConcurrentHashMap
@@ -109,23 +115,21 @@ src/androidx/ConcurrentHashMapUsageJava.java:8: Error: Detected ConcurrentHashMa
                         return ConcurrentHashMap()
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ConcurrentHashMapImportKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
 import java.util.concurrent.ConcurrentHashMap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         lint()
-            .files(
-                *stubs,
-                input
-            )
+            .files(*stubs, input)
             // This fails in IMPORT_ALIAS mode because changing the import line changes the error.
             // It fails in FULLY_QUALIFIED mode because more errors occur when the fully-qualified
             // class is used. These cases are tested separately.
@@ -136,9 +140,10 @@ import java.util.concurrent.ConcurrentHashMap
 
     @Test
     fun `Detection of ConcurrentHashMap fully-qualified usage in Kotlin sources`() {
-        val input = kotlin(
-            "src/androidx/ConcurrentHashMapUsageKotlin.kt",
-            """
+        val input =
+            kotlin(
+                "src/androidx/ConcurrentHashMapUsageKotlin.kt",
+                """
                 package androidx
 
                 class ConcurrentHashMapUsageKotlin {
@@ -148,11 +153,12 @@ import java.util.concurrent.ConcurrentHashMap
                         return java.util.concurrent.ConcurrentHashMap()
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ConcurrentHashMapUsageKotlin.kt:4: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
     private val mMap: Map<*, *> = java.util.concurrent.ConcurrentHashMap<Any, Any>()
                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,23 +166,18 @@ src/androidx/ConcurrentHashMapUsageKotlin.kt:7: Error: Detected ConcurrentHashMa
         return java.util.concurrent.ConcurrentHashMap()
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        lint()
-            .files(
-                *stubs,
-                input
-            )
-            .run()
-            .expect(expected)
+        lint().files(*stubs, input).run().expect(expected)
     }
 
     @Test
     fun `Detection of ConcurrentHashMap import alias in Kotlin sources`() {
-        val input = kotlin(
-            "src/androidx/ConcurrentHashMapUsageAliasKotlin.kt",
-            """
+        val input =
+            kotlin(
+                "src/androidx/ConcurrentHashMapUsageAliasKotlin.kt",
+                """
                 package androidx
 
                 import java.util.concurrent.ConcurrentHashMap as NewClassName
@@ -188,23 +189,21 @@ src/androidx/ConcurrentHashMapUsageKotlin.kt:7: Error: Detected ConcurrentHashMa
                         return NewClassName()
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ConcurrentHashMapUsageAliasKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
 import java.util.concurrent.ConcurrentHashMap as NewClassName
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         lint()
-            .files(
-                *stubs,
-                input
-            )
+            .files(*stubs, input)
             // In FULLY_QUALIFIED test mode, more errors occur when the fully-qualified class is
             // used. This case is tested separately.
             .skipTestModes(TestMode.FULLY_QUALIFIED)

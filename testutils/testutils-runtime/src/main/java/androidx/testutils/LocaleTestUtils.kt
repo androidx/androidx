@@ -28,7 +28,8 @@ import java.util.Locale
 /**
  * Utility class to save and restore the locale of the system.
  *
- * Inspired by [com.android.dialer.util.LocaleTestUtils](https://android.googlesource.com/platform/packages/apps/Dialer/+/94b10b530c0fc297e2974e57e094c500d3ee6003/tests/src/com/android/dialer/util/LocaleTestUtils.java)
+ * Inspired by
+ * [com.android.dialer.util.LocaleTestUtils](https://android.googlesource.com/platform/packages/apps/Dialer/+/94b10b530c0fc297e2974e57e094c500d3ee6003/tests/src/com/android/dialer/util/LocaleTestUtils.java)
  *
  * This can be used for tests that assume to be run in a certain locale, e.g., because they check
  * against strings in a particular language or require an assumption on how the system will behave
@@ -60,9 +61,9 @@ import java.util.Locale
  *
  * This class is not thread-safe. Usually its methods should be invoked only from the test thread.
  *
- * @property mContext the context on which to alter the locale
  * @constructor Create a new instance that can be used to set and reset the locale for the given
- * context.
+ *   context.
+ * @property mContext the context on which to alter the locale
  */
 class LocaleTestUtils(private val mContext: Context) {
     companion object {
@@ -81,7 +82,7 @@ class LocaleTestUtils(private val mContext: Context) {
      * Set the locale to the given value and saves the previous value.
      *
      * @param lang the language to which the locale should be set, in the same format as
-     * Locale.toString()
+     *   Locale.toString()
      * @throws IllegalStateException if the locale was already set
      */
     fun setLocale(lang: String) {
@@ -92,8 +93,7 @@ class LocaleTestUtils(private val mContext: Context) {
             }
             if (!canSave) {
                 throw IllegalStateException(
-                    "can't set locale after isLocaleChangedAndLock() is " +
-                        "called"
+                    "can't set locale after isLocaleChangedAndLock() is " + "called"
                 )
             }
             this.locale = locale
@@ -132,9 +132,7 @@ class LocaleTestUtils(private val mContext: Context) {
         }
     }
 
-    /**
-     * Returns if the locale has been changed.
-     */
+    /** Returns if the locale has been changed. */
     fun isLocaleChanged(): Boolean {
         synchronized(this) {
             return saved
@@ -157,14 +155,13 @@ class LocaleTestUtils(private val mContext: Context) {
         }
     }
 
-    /**
-     * Finds the best matching Locale on the system for the given language
-     */
+    /** Finds the best matching Locale on the system for the given language */
     private fun findLocale(lang: String): Locale {
         // Build list of prefixes ("ar_SA_xx_foo_bar" -> ["ar", "ar_SA", "ar_SA_xx", etc..])
-        val prefixes = lang.split("_").fold(mutableListOf<String>()) { prefixes, elem ->
-            prefixes.also { it.add(if (it.isEmpty()) elem else "${it.last()}_$elem") }
-        }
+        val prefixes =
+            lang.split("_").fold(mutableListOf<String>()) { prefixes, elem ->
+                prefixes.also { it.add(if (it.isEmpty()) elem else "${it.last()}_$elem") }
+            }
 
         // Build lists of matches per prefix
         val matches = List<MutableList<Locale>>(prefixes.size) { mutableListOf() }
@@ -200,11 +197,9 @@ class LocaleTestUtils(private val mContext: Context) {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ->
                 newConfig.setLocales(locales.unwrap() as LocaleList)
-
             else -> newConfig.setLocale(locales.get(0))
         }
-        @Suppress("DEPRECATION")
-        resources.updateConfiguration(newConfig, resources.displayMetrics)
+        @Suppress("DEPRECATION") resources.updateConfiguration(newConfig, resources.displayMetrics)
         return savedLocales
     }
 }

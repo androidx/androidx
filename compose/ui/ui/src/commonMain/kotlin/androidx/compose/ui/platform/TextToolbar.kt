@@ -19,16 +19,15 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
-/**
- * Interface for text-related toolbar.
- */
+/** Interface for text-related toolbar. */
 @JvmDefaultWithCompatibility
 interface TextToolbar {
     /**
      * Show the floating toolbar(post-M) or primary toolbar(pre-M) for copying, cutting and pasting
      * text.
-     * @param rect region of interest. The selected region around which the floating toolbar
-     * should show. This rect is in global coordinates system.
+     *
+     * @param rect region of interest. The selected region around which the floating toolbar should
+     *   show. This rect is in global coordinates system.
      * @param onCopyRequested callback to copy text into ClipBoardManager.
      * @param onPasteRequested callback to get text from ClipBoardManager and paste it.
      * @param onCutRequested callback to cut text and copy the text into ClipBoardManager.
@@ -41,9 +40,7 @@ interface TextToolbar {
         onSelectAllRequested: (() -> Unit)? = null
     )
 
-    /**
-     * Hide the floating toolbar(post-M) or primary toolbar(pre-M).
-     */
+    /** Hide the floating toolbar(post-M) or primary toolbar(pre-M). */
     fun hide()
 
     /**

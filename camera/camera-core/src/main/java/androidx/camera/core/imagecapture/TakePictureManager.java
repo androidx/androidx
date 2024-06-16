@@ -25,13 +25,11 @@ import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageCapture;
@@ -64,7 +62,6 @@ import java.util.List;
  *
  * <p>The thread safety is guaranteed by using the main thread.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class TakePictureManager implements OnImageCloseListener, TakePictureRequest.RetryControl {
 
     private static final String TAG = "TakePictureManager";

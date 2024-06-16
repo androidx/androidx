@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
@@ -40,7 +39,6 @@ import java.util.Map;
  * #close()} been called then it is permanently closed so a new session has to be created for
  * capturing images.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CaptureSessionInterface {
     /**
      * Opens the capture session.
@@ -136,4 +134,12 @@ interface CaptureSessionInterface {
      *                         associated streams
      */
     void setStreamUseCaseMap(@NonNull Map<DeferrableSurface, Long> streamUseCaseMap);
+
+    /**
+     * Checks if the capture session has been successfully opened or is in the process of being
+     * opened.
+     *
+     * @return true if the capture session is in an open state; otherwise, false.
+     */
+    boolean isInOpenState();
 }

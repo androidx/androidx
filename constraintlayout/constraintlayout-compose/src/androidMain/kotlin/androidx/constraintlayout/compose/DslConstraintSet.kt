@@ -18,18 +18,14 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.runtime.Immutable
 
-/**
- * [ConstraintSet] implementation used in the kotlin DSL.
- */
+/** [ConstraintSet] implementation used in the kotlin DSL. */
 @Immutable
-internal class DslConstraintSet constructor(
-    val description: ConstraintSetScope.() -> Unit,
-    extendFrom: ConstraintSet? = null
-) : DerivedConstraintSet {
+internal class DslConstraintSet
+constructor(val description: ConstraintSetScope.() -> Unit, extendFrom: ConstraintSet? = null) :
+    DerivedConstraintSet {
     internal val scope: ConstraintSetScope =
-        ConstraintSetScope(
-            extendFrom = (extendFrom as? DslConstraintSet)?.scope?.containerObject
-        ).apply(description)
+        ConstraintSetScope(extendFrom = (extendFrom as? DslConstraintSet)?.scope?.containerObject)
+            .apply(description)
 
     override val extendFrom: ConstraintSet? = null // Not needed
 

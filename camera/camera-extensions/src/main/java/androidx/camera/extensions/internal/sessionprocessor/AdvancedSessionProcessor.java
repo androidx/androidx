@@ -40,7 +40,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -76,7 +75,6 @@ import java.util.Objects;
 /**
  * A {@link SessionProcessor} based on OEMs' {@link SessionProcessorImpl}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AdvancedSessionProcessor extends SessionProcessorBase {
     private static final String TAG = "AdvancedSessionProcessor";
     @NonNull

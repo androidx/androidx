@@ -32,28 +32,25 @@ class EnsureInitializerMetadataTest {
     @Test
     fun testFailureWhenNoMetadataIsProvided() {
         lint()
-            .files(
-                INITIALIZER,
-                TEST_INITIALIZER
-            )
+            .files(INITIALIZER, TEST_INITIALIZER)
             .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/TestInitializer.kt:5: Error: Every Initializer needs to be accompanied by a corresponding <meta-data> entry in the AndroidManifest.xml file. [EnsureInitializerMetadata]
                 class TestInitializer: Initializer<Unit> {
                 ^
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testSuccessWhenMetadataIsProvided() {
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -70,14 +67,11 @@ class EnsureInitializerMetadataTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
         lint()
-            .files(
-                INITIALIZER,
-                TEST_INITIALIZER,
-                manifest
-            )
+            .files(INITIALIZER, TEST_INITIALIZER, manifest)
             .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()
@@ -85,8 +79,9 @@ class EnsureInitializerMetadataTest {
 
     @Test
     fun testSuccessWhenInCompleteMetadataIsProvided() {
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -103,15 +98,11 @@ class EnsureInitializerMetadataTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
         lint()
-            .files(
-                INITIALIZER,
-                TEST_INITIALIZER_WITH_DEPENDENCIES,
-                TEST_INITIALIZER_2,
-                manifest
-            )
+            .files(INITIALIZER, TEST_INITIALIZER_WITH_DEPENDENCIES, TEST_INITIALIZER_2, manifest)
             .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()
@@ -119,8 +110,9 @@ class EnsureInitializerMetadataTest {
 
     @Test
     fun testSuccessWhenMetadataIsProvidedWithStringResourceName() {
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                    """
                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
@@ -137,14 +129,11 @@ class EnsureInitializerMetadataTest {
                   </application>
                 </manifest>
         """
-        ).indented()
+                )
+                .indented()
 
         lint()
-            .files(
-                INITIALIZER,
-                TEST_INITIALIZER,
-                manifest
-            )
+            .files(INITIALIZER, TEST_INITIALIZER, manifest)
             .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()

@@ -24,6 +24,7 @@ import androidx.glance.GlanceId
 
 class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
+
     companion object {
         var ignoreBroadcasts = false
     }
@@ -46,15 +47,11 @@ object TestGlanceAppWidget : GlanceAppWidget() {
 
     override var sizeMode: SizeMode = SizeMode.Single
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) {
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
         try {
-            onProvideGlance?.invoke(this)
-                ?: provideContent(uiDefinition)
+            onProvideGlance?.invoke(this) ?: provideContent(uiDefinition)
         } finally {
-          onProvideGlance = null
+            onProvideGlance = null
         }
     }
 
@@ -74,7 +71,7 @@ object TestGlanceAppWidget : GlanceAppWidget() {
         onDeleteBlock?.apply { this(glanceId) }
     }
 
-    var uiDefinition: @Composable () -> Unit = { }
+    var uiDefinition: @Composable () -> Unit = {}
 
     inline fun withErrorLayout(layout: Int, block: () -> Unit) {
         val previousErrorLayout = errorUiLayout

@@ -55,36 +55,35 @@ import androidx.wear.compose.materialcore.isRoundDevice
 import kotlinx.coroutines.delay
 
 /**
- * [Alert] lays out the content for an opinionated, alert screen.
- * This overload offers 5 slots for title, negative button, positive button, optional icon and
- * optional content. The buttons are shown side-by-side below the icon, text and content.
- * [Alert] is scrollable by default if the content is taller than the viewport.
+ * [Alert] lays out the content for an opinionated, alert screen. This overload offers 5 slots for
+ * title, negative button, positive button, optional icon and optional content. The buttons are
+ * shown side-by-side below the icon, text and content. [Alert] is scrollable by default if the
+ * content is taller than the viewport.
  *
- * [Alert] can be used as a destination in a navigation graph
- * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
- * displayed on top of other content, use [Dialog].
+ * [Alert] can be used as a destination in a navigation graph e.g. using SwipeDismissableNavHost.
+ * However, for a conventional fullscreen dialog, displayed on top of other content, use [Dialog].
  *
  * Example of an [Alert] with an icon, title, body text and buttons:
+ *
  * @sample androidx.wear.compose.material.samples.AlertWithButtons
  *
- * @param title A slot for displaying the title of the dialog,
- * expected to be one or two lines of text.
- * @param negativeButton A slot for a [Button] indicating negative sentiment (e.g. No).
- * Clicking the button must remove the dialog from the composition hierarchy.
- * @param positiveButton A slot for a [Button] indicating positive sentiment (e.g. Yes).
- * Clicking the button must remove the dialog from the composition hierarchy.
+ * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
+ *   text.
+ * @param negativeButton A slot for a [Button] indicating negative sentiment (e.g. No). Clicking the
+ *   button must remove the dialog from the composition hierarchy.
+ * @param positiveButton A slot for a [Button] indicating positive sentiment (e.g. Yes). Clicking
+ *   the button must remove the dialog from the composition hierarchy.
  * @param modifier Modifier to be applied to the dialog content.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
- * e.g. by the [PositionIndicator] passed to [Scaffold].
+ *   e.g. by the [PositionIndicator] passed to [Scaffold].
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param contentColor [Color] representing the color for [content].
  * @param titleColor [Color] representing the color for [title].
- * @param iconColor Icon [Color] that defaults to [contentColor],
- * unless specifically overridden.
- * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
- * to add spacing between items and specify the arrangement of the items when we have not enough
- * of them to fill the whole minimum size.
+ * @param iconColor Icon [Color] that defaults to [contentColor], unless specifically overridden.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us to
+ *   add spacing between items and specify the arrangement of the items when we have not enough of
+ *   them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for additional content, expected to be 2-3 lines of text.
  */
@@ -112,19 +111,13 @@ public fun Alert(
         backgroundColor = backgroundColor,
     ) {
         if (icon != null) {
-            item {
-                DialogIconHeader(iconColor, content = icon)
-            }
+            item { DialogIconHeader(iconColor, content = icon) }
         }
 
-        item {
-            DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title)
-        }
+        item { DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title) }
 
         if (content != null) {
-            item {
-                DialogBody(contentColor, content)
-            }
+            item { DialogBody(contentColor, content) }
         }
 
         // Buttons
@@ -141,36 +134,35 @@ public fun Alert(
 }
 
 /**
- * [Alert] lays out the content for an opinionated, alert screen.
- * This overload offers 5 slots for title, negative button, positive button, optional icon and
- * optional content. The buttons are shown side-by-side below the icon, text and content.
- * [Alert] is scrollable by default if the content is taller than the viewport.
+ * [Alert] lays out the content for an opinionated, alert screen. This overload offers 5 slots for
+ * title, negative button, positive button, optional icon and optional content. The buttons are
+ * shown side-by-side below the icon, text and content. [Alert] is scrollable by default if the
+ * content is taller than the viewport.
  *
- * [Alert] can be used as a destination in a navigation graph
- * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
- * displayed on top of other content, use [Dialog].
+ * [Alert] can be used as a destination in a navigation graph e.g. using SwipeDismissableNavHost.
+ * However, for a conventional fullscreen dialog, displayed on top of other content, use [Dialog].
  *
  * Example of an [Alert] with an icon, title, body text and buttons:
+ *
  * @sample androidx.wear.compose.material.samples.AlertWithButtons
  *
- * @param title A slot for displaying the title of the dialog,
- * expected to be one or two lines of text.
- * @param negativeButton A slot for a [Button] indicating negative sentiment (e.g. No).
- * Clicking the button must remove the dialog from the composition hierarchy.
- * @param positiveButton A slot for a [Button] indicating positive sentiment (e.g. Yes).
- * Clicking the button must remove the dialog from the composition hierarchy.
+ * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
+ *   text.
+ * @param negativeButton A slot for a [Button] indicating negative sentiment (e.g. No). Clicking the
+ *   button must remove the dialog from the composition hierarchy.
+ * @param positiveButton A slot for a [Button] indicating positive sentiment (e.g. Yes). Clicking
+ *   the button must remove the dialog from the composition hierarchy.
  * @param modifier Modifier to be applied to the dialog content.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
- * e.g. by the [PositionIndicator] passed to [Scaffold].
+ *   e.g. by the [PositionIndicator] passed to [Scaffold].
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param contentColor [Color] representing the color for [content].
  * @param titleColor [Color] representing the color for [title].
- * @param iconColor Icon [Color] that defaults to [contentColor],
- * unless specifically overridden.
- * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
- * to add spacing between items and specify the arrangement of the items when we have not enough
- * of them to fill the whole minimum size.
+ * @param iconColor Icon [Color] that defaults to [contentColor], unless specifically overridden.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us to
+ *   add spacing between items and specify the arrangement of the items when we have not enough of
+ *   them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for additional content, expected to be 2-3 lines of text.
  */
@@ -178,7 +170,8 @@ public fun Alert(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState from " +
-        "wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+        "wear.compose.foundation.lazy package",
+    level = DeprecationLevel.HIDDEN
 )
 @Composable
 public fun Alert(
@@ -214,9 +207,7 @@ public fun Alert(
     )
 }
 
-/**
- * @VisibleForTesting
- */
+/** @VisibleForTesting */
 @Suppress("DEPRECATION")
 @Deprecated("Used only for testing")
 @Composable
@@ -244,19 +235,13 @@ internal fun AlertWithMaterialSlc(
         backgroundColor = backgroundColor,
     ) {
         if (icon != null) {
-            item {
-                DialogIconHeader(iconColor, content = icon)
-            }
+            item { DialogIconHeader(iconColor, content = icon) }
         }
 
-        item {
-            DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title)
-        }
+        item { DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title) }
 
         if (content != null) {
-            item {
-                DialogBody(contentColor, content)
-            }
+            item { DialogBody(contentColor, content) }
         }
 
         // Buttons
@@ -273,32 +258,32 @@ internal fun AlertWithMaterialSlc(
 }
 
 /**
- * [Alert] lays out the content for an opinionated, alert screen.
- * This overload offers 4 slots for title, optional icon, optional message text and
- * a content slot expected to be one or more vertically stacked [Chip]s or [ToggleChip]s.
- * [Alert] is scrollable by default if the content is taller than the viewport.
+ * [Alert] lays out the content for an opinionated, alert screen. This overload offers 4 slots for
+ * title, optional icon, optional message text and a content slot expected to be one or more
+ * vertically stacked [Chip]s or [ToggleChip]s. [Alert] is scrollable by default if the content is
+ * taller than the viewport.
  *
- * [Alert] can be used as a destination in a navigation graph
- * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
- * displayed on top of other content, use [Dialog].
+ * [Alert] can be used as a destination in a navigation graph e.g. using SwipeDismissableNavHost.
+ * However, for a conventional fullscreen dialog, displayed on top of other content, use [Dialog].
  *
  * Example of an [Alert] with an icon, title, message text and chips:
+ *
  * @sample androidx.wear.compose.material.samples.AlertWithChips
  *
- * @param title A slot for displaying the title of the dialog,
- * expected to be one or two lines of text.
+ * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
+ *   text.
  * @param modifier Modifier to be applied to the dialog.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param message Optional slot for additional message content, expected to be 2-3 lines of text.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
- * e.g. by the [PositionIndicator] passed to [Scaffold].
+ *   e.g. by the [PositionIndicator] passed to [Scaffold].
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param titleColor [Color] representing the color for [title].
  * @param messageColor [Color] representing the color for [message].
  * @param iconColor [Color] representing the color for [icon].
- * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
- * to add spacing between items and specify the arrangement of the items when we have not enough
- * of them to fill the whole minimum size.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us to
+ *   add spacing between items and specify the arrangement of the items when we have not enough of
+ *   them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for one or more spaced [Chip]s, stacked vertically.
  */
@@ -325,19 +310,13 @@ public fun Alert(
         backgroundColor = backgroundColor,
     ) {
         if (icon != null) {
-            item {
-                DialogIconHeader(iconColor, content = icon)
-            }
+            item { DialogIconHeader(iconColor, content = icon) }
         }
 
-        item {
-            DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title)
-        }
+        item { DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title) }
 
         if (message != null) {
-            item {
-                DialogBody(messageColor, message)
-            }
+            item { DialogBody(messageColor, message) }
         }
 
         content()
@@ -345,32 +324,32 @@ public fun Alert(
 }
 
 /**
- * [Alert] lays out the content for an opinionated, alert screen.
- * This overload offers 4 slots for title, optional icon, optional message text and
- * a content slot expected to be one or more vertically stacked [Chip]s or [ToggleChip]s.
- * [Alert] is scrollable by default if the content is taller than the viewport.
+ * [Alert] lays out the content for an opinionated, alert screen. This overload offers 4 slots for
+ * title, optional icon, optional message text and a content slot expected to be one or more
+ * vertically stacked [Chip]s or [ToggleChip]s. [Alert] is scrollable by default if the content is
+ * taller than the viewport.
  *
- * [Alert] can be used as a destination in a navigation graph
- * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
- * displayed on top of other content, use [Dialog].
+ * [Alert] can be used as a destination in a navigation graph e.g. using SwipeDismissableNavHost.
+ * However, for a conventional fullscreen dialog, displayed on top of other content, use [Dialog].
  *
  * Example of an [Alert] with an icon, title, message text and chips:
+ *
  * @sample androidx.wear.compose.material.samples.AlertWithChips
  *
- * @param title A slot for displaying the title of the dialog,
- * expected to be one or two lines of text.
+ * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
+ *   text.
  * @param modifier Modifier to be applied to the dialog.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param message Optional slot for additional message content, expected to be 2-3 lines of text.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
- * e.g. by the [PositionIndicator] passed to [Scaffold].
+ *   e.g. by the [PositionIndicator] passed to [Scaffold].
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param titleColor [Color] representing the color for [title].
  * @param messageColor [Color] representing the color for [message].
  * @param iconColor [Color] representing the color for [icon].
- * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
- * to add spacing between items and specify the arrangement of the items when we have not enough
- * of them to fill the whole minimum size.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us to
+ *   add spacing between items and specify the arrangement of the items when we have not enough of
+ *   them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for one or more spaced [Chip]s, stacked vertically.
  */
@@ -378,7 +357,8 @@ public fun Alert(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState and ScalingLazyListScope " +
-        "from wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+        "from wear.compose.foundation.lazy package",
+    level = DeprecationLevel.HIDDEN
 )
 @Composable
 public fun Alert(
@@ -412,9 +392,7 @@ public fun Alert(
     )
 }
 
-/**
- * @VisibleForTesting
- */
+/** @VisibleForTesting */
 @Suppress("DEPRECATION")
 @Deprecated("Used only for testing")
 @Composable
@@ -441,19 +419,13 @@ internal fun AlertWithMaterialSlc(
         backgroundColor = backgroundColor,
     ) {
         if (icon != null) {
-            item {
-                DialogIconHeader(iconColor, content = icon)
-            }
+            item { DialogIconHeader(iconColor, content = icon) }
         }
 
-        item {
-            DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title)
-        }
+        item { DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title) }
 
         if (message != null) {
-            item {
-                DialogBody(messageColor, message)
-            }
+            item { DialogBody(messageColor, message) }
         }
 
         content()
@@ -461,32 +433,33 @@ internal fun AlertWithMaterialSlc(
 }
 
 /**
- * [Confirmation] lays out the content for an opinionated confirmation screen that
- * displays a message to the user for [durationMillis]. It has a slot for an icon or image
- * (which could be animated).
+ * [Confirmation] lays out the content for an opinionated confirmation screen that displays a
+ * message to the user for [durationMillis]. It has a slot for an icon or image (which could be
+ * animated).
  *
- * [Confirmation] can be used as a destination in a navigation graph
- * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
- * displayed on top of other content, use [Dialog].
+ * [Confirmation] can be used as a destination in a navigation graph e.g. using
+ * SwipeDismissableNavHost. However, for a conventional fullscreen dialog, displayed on top of other
+ * content, use [Dialog].
  *
  * Example of a [Confirmation] with animation:
+ *
  * @sample androidx.wear.compose.material.samples.ConfirmationWithAnimation
  *
  * @param onTimeout Event invoked when the dialog has been shown for [durationMillis].
  * @param modifier Modifier to be applied to the dialog.
  * @param icon An optional slot for displaying an icon or image.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
- * e.g. by the [PositionIndicator] passed to [Scaffold].
- * @param durationMillis The number of milliseconds for which the dialog is displayed,
- * must be positive. Suggested values are [DialogDefaults.ShortDurationMillis],
- * [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
+ *   e.g. by the [PositionIndicator] passed to [Scaffold].
+ * @param durationMillis The number of milliseconds for which the dialog is displayed, must be
+ *   positive. Suggested values are [DialogDefaults.ShortDurationMillis],
+ *   [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
  * @param backgroundColor [Color] representing the background color for this dialog.
  * @param contentColor [Color] representing the color for [content].
- * @param iconColor Icon [Color] that defaults to the [contentColor],
- * unless specifically overridden.
- * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
- * to add spacing between items and specify the arrangement of the items when we have not enough
- * of them to fill the whole minimum size.
+ * @param iconColor Icon [Color] that defaults to the [contentColor], unless specifically
+ *   overridden.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us to
+ *   add spacing between items and specify the arrangement of the items when we have not enough of
+ *   them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for the dialog title, expected to be one line of text.
  */
@@ -521,9 +494,7 @@ public fun Confirmation(
         backgroundColor = backgroundColor,
     ) {
         if (icon != null) {
-            item {
-                DialogIconHeader(iconColor, content = icon)
-            }
+            item { DialogIconHeader(iconColor, content = icon) }
         }
 
         item {
@@ -537,40 +508,42 @@ public fun Confirmation(
 }
 
 /**
- * [Confirmation] lays out the content for an opinionated confirmation screen that
- * displays a message to the user for [durationMillis]. It has a slot for an icon or image
- * (which could be animated).
+ * [Confirmation] lays out the content for an opinionated confirmation screen that displays a
+ * message to the user for [durationMillis]. It has a slot for an icon or image (which could be
+ * animated).
  *
- * [Confirmation] can be used as a destination in a navigation graph
- * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
- * displayed on top of other content, use [Dialog].
+ * [Confirmation] can be used as a destination in a navigation graph e.g. using
+ * SwipeDismissableNavHost. However, for a conventional fullscreen dialog, displayed on top of other
+ * content, use [Dialog].
  *
  * Example of a [Confirmation] with animation:
+ *
  * @sample androidx.wear.compose.material.samples.ConfirmationWithAnimation
  *
  * @param onTimeout Event invoked when the dialog has been shown for [durationMillis].
  * @param modifier Modifier to be applied to the dialog.
  * @param icon An optional slot for displaying an icon or image.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
- * e.g. by the [PositionIndicator] passed to [Scaffold].
- * @param durationMillis The number of milliseconds for which the dialog is displayed,
- * must be positive. Suggested values are [DialogDefaults.ShortDurationMillis],
- * [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
+ *   e.g. by the [PositionIndicator] passed to [Scaffold].
+ * @param durationMillis The number of milliseconds for which the dialog is displayed, must be
+ *   positive. Suggested values are [DialogDefaults.ShortDurationMillis],
+ *   [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
  * @param backgroundColor [Color] representing the background color for this dialog.
  * @param contentColor [Color] representing the color for [content].
- * @param iconColor Icon [Color] that defaults to the [contentColor],
- * unless specifically overridden.
- * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
- * to add spacing between items and specify the arrangement of the items when we have not enough
- * of them to fill the whole minimum size.
+ * @param iconColor Icon [Color] that defaults to the [contentColor], unless specifically
+ *   overridden.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us to
+ *   add spacing between items and specify the arrangement of the items when we have not enough of
+ *   them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for the dialog title, expected to be one line of text.
  */
 @Suppress("DEPRECATION")
 @Deprecated(
-        "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState from " +
-        "wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+        "wear.compose.foundation.lazy package",
+    level = DeprecationLevel.HIDDEN
 )
 @Composable
 public fun Confirmation(
@@ -602,9 +575,7 @@ public fun Confirmation(
     )
 }
 
-/**
- * @VisibleForTesting
- */
+/** @VisibleForTesting */
 @Suppress("DEPRECATION")
 @Deprecated("Used only for testing")
 @Composable
@@ -639,9 +610,7 @@ internal fun ConfirmationWithMaterialSlc(
         backgroundColor = backgroundColor,
     ) {
         if (icon != null) {
-            item {
-                DialogIconHeader(iconColor, content = icon)
-            }
+            item { DialogIconHeader(iconColor, content = icon) }
         }
 
         item {
@@ -654,88 +623,56 @@ internal fun ConfirmationWithMaterialSlc(
     }
 }
 
-/**
- * Contains the default values used by [Alert] and [Confirmation].
- */
+/** Contains the default values used by [Alert] and [Confirmation]. */
 public object DialogDefaults {
-    /**
-     * Creates the recommended vertical arrangement for [Alert] dialog content.
-     */
-    public val AlertVerticalArrangement =
-        Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
+    /** Creates the recommended vertical arrangement for [Alert] dialog content. */
+    public val AlertVerticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
 
-    /**
-     * Creates the recommended vertical arrangement for [Confirmation] dialog content.
-     */
+    /** Creates the recommended vertical arrangement for [Confirmation] dialog content. */
     public val ConfirmationVerticalArrangement =
         Arrangement.spacedBy(space = 8.dp, alignment = Alignment.CenterVertically)
 
-    /**
-     * The padding to apply around the contents.
-     */
+    /** The padding to apply around the contents. */
     public val ContentPadding = PaddingValues(horizontal = 10.dp)
 
-    /**
-     * Short duration for showing [Confirmation].
-     */
+    /** Short duration for showing [Confirmation]. */
     public val ShortDurationMillis = 4000L
 
-    /**
-     * Long duration for showing [Confirmation].
-     */
+    /** Long duration for showing [Confirmation]. */
     public val LongDurationMillis = 10000L
 
-    /**
-     * Show [Confirmation] indefinitely (supports swipe-to-dismiss).
-     */
+    /** Show [Confirmation] indefinitely (supports swipe-to-dismiss). */
     public val IndefiniteDurationMillis = Long.MAX_VALUE
 
-    /**
-     * Spacing between [Button]s.
-     */
+    /** Spacing between [Button]s. */
     internal val ButtonSpacing = 12.dp
 
-    /**
-     * Spacing below [Icon].
-     */
+    /** Spacing below [Icon]. */
     internal val IconSpacing = 4.dp
 
-    /**
-     * Padding around body content.
-     */
+    /** Padding around body content. */
     internal val BodyPadding
-        @Composable get() =
-            if (isRoundDevice())
-                PaddingValues(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 12.dp)
-            else
-                PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 12.dp)
+        @Composable
+        get() =
+            if (isRoundDevice()) PaddingValues(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 12.dp)
+            else PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 12.dp)
 
-    /**
-     * Padding around title text.
-     */
+    /** Padding around title text. */
     internal val TitlePadding
-        @Composable get() =
+        @Composable
+        get() =
             if (isRoundDevice())
-                PaddingValues(
-                    start = 14.dp,
-                    end = 14.dp,
-                    top = 0.dp,
-                    bottom = 8.dp
-                )
-            else
-                PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 8.dp)
+                PaddingValues(start = 14.dp, end = 14.dp, top = 0.dp, bottom = 8.dp)
+            else PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 8.dp)
 
-    /**
-     * Bottom padding for title text.
-     */
+    /** Bottom padding for title text. */
     internal val TitleBottomPadding
-        @Composable get() =
-            PaddingValues(start = 0.dp, end = 0.dp, top = 0.dp, bottom = 16.dp)
+        @Composable get() = PaddingValues(start = 0.dp, end = 0.dp, top = 0.dp, bottom = 16.dp)
 }
 
 /**
- * Common Wear Material dialog implementation that offers a single content slot,
- * fills the screen and is scrollable by default if the content is taller than the viewport.
+ * Common Wear Material dialog implementation that offers a single content slot, fills the screen
+ * and is scrollable by default if the content is taller than the viewport.
  */
 @Composable
 private fun DialogImpl(
@@ -752,16 +689,14 @@ private fun DialogImpl(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor),
+        modifier = modifier.fillMaxSize().background(backgroundColor),
         content = content
     )
 }
 
 /**
- * Common Wear Material dialog implementation that offers a single content slot,
- * fills the screen and is scrollable by default if the content is taller than the viewport.
+ * Common Wear Material dialog implementation that offers a single content slot, fills the screen
+ * and is scrollable by default if the content is taller than the viewport.
  */
 @Suppress("DEPRECATION")
 @Deprecated(
@@ -783,36 +718,26 @@ private fun MaterialDialogImpl(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor),
+        modifier = modifier.fillMaxSize().background(backgroundColor),
         content = content
     )
 }
 
 /**
- * [DialogIconHeader] displays an icon at the top of the dialog
- * followed by the recommended spacing.
+ * [DialogIconHeader] displays an icon at the top of the dialog followed by the recommended spacing.
  *
  * @param iconColor [Color] in which to tint the icon.
  * @param content Slot for an icon.
  */
 @Composable
-private fun DialogIconHeader(
-    iconColor: Color,
-    content: @Composable ColumnScope.() -> Unit
-) {
+private fun DialogIconHeader(iconColor: Color, content: @Composable ColumnScope.() -> Unit) {
     CompositionLocalProvider(LocalContentColor provides iconColor) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             content()
-            Spacer(
-                Modifier
-                    .fillMaxWidth()
-                    .height(DialogDefaults.IconSpacing)
-            )
+            Spacer(Modifier.fillMaxWidth().height(DialogDefaults.IconSpacing))
         }
     }
 }
@@ -840,21 +765,13 @@ private fun DialogTitle(
     }
 }
 
-/**
- * [DialogBody] displays the body content in a dialog with recommended padding.
- */
+/** [DialogBody] displays the body content in a dialog with recommended padding. */
 @Composable
-private fun DialogBody(
-    bodyColor: Color,
-    content: @Composable ColumnScope.() -> Unit
-) {
+private fun DialogBody(bodyColor: Color, content: @Composable ColumnScope.() -> Unit) {
     CompositionLocalProvider(
         LocalContentColor provides bodyColor,
         LocalTextStyle provides MaterialTheme.typography.body2
     ) {
-        Column(
-            modifier = Modifier.padding(DialogDefaults.BodyPadding),
-            content = content
-        )
+        Column(modifier = Modifier.padding(DialogDefaults.BodyPadding), content = content)
     }
 }

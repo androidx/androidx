@@ -23,8 +23,7 @@ import android.location.Location
 /**
  * Returns the latitude of this [Location].
  *
- * This method allows to use destructuring declarations when working with [Location],
- * for example:
+ * This method allows to use destructuring declarations when working with [Location], for example:
  * ```
  * val (lat, lon) = myLocation
  * ```
@@ -34,8 +33,7 @@ public inline operator fun Location.component1(): Double = this.latitude
 /**
  * Returns the longitude of this [Location].
  *
- * This method allows to use destructuring declarations when working with [Location],
- * for example:
+ * This method allows to use destructuring declarations when working with [Location], for example:
  * ```
  * val (lat, lon) = myLocation
  * ```

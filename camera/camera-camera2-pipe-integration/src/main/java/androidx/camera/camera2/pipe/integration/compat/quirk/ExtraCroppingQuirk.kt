@@ -25,30 +25,26 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType
 /**
  * Quirk that requires specific resolutions as the workaround.
  *
- * QuirkSummary
- * Bug Id: 190203334
- * Description: The symptom of these devices is that the output of one or many streams,
- * including PRIV, JPEG and/or YUV, can have an unintended 25% crop, and the
- * cropped image is stretched to fill the Surface, which results in a distorted
- * output. The streams can also have an unintended 25% double crop, in which
- * case the stretched image will not be distorted, but the FOV is smaller than
- * it should be. The behavior is inconsistent in a way that the extra cropping
- * depends on the resolution of the streams. The existence of the issue also
- * depends on API level and/or build number. See discussion in
- * go/samsung-camera-distortion.
- * Device(s): Samsung Galaxy Tab A (2016) SM-T580, Samsung Galaxy J7 (2016) SM-J710MN,
- * Samsung Galaxy A3 (2017) SM-A320FL, Samsung Galaxy J5 Prime SM-G570M,
- * Samsung Galaxy J7 Prime SM-G610F, Samsung Galaxy J7 Prime SM-G610M
+ * QuirkSummary Bug Id: 190203334 Description: The symptom of these devices is that the output of
+ * one or many streams, including PRIV, JPEG and/or YUV, can have an unintended 25% crop, and the
+ * cropped image is stretched to fill the Surface, which results in a distorted output. The streams
+ * can also have an unintended 25% double crop, in which case the stretched image will not be
+ * distorted, but the FOV is smaller than it should be. The behavior is inconsistent in a way that
+ * the extra cropping depends on the resolution of the streams. The existence of the issue also
+ * depends on API level and/or build number. See discussion in go/samsung-camera-distortion.
+ * Device(s): Samsung Galaxy Tab A (2016) SM-T580, Samsung Galaxy J7 (2016) SM-J710MN, Samsung
+ * Galaxy A3 (2017) SM-A320FL, Samsung Galaxy J5 Prime SM-G570M, Samsung Galaxy J7 Prime SM-G610F,
+ * Samsung Galaxy J7 Prime SM-G610M
  */
 class ExtraCroppingQuirk : Quirk {
     /**
      * Get a verified resolution that is guaranteed to work.
      *
-     *  The selected resolution have been manually tested by CameraX team. It is known to
-     * work for the given device/stream.
+     * The selected resolution have been manually tested by CameraX team. It is known to work for
+     * the given device/stream.
      *
      * @return null if no resolution provided, in which case the calling code should fallback to
-     * user provided target resolution.
+     *   user provided target resolution.
      */
     fun getVerifiedResolution(configType: ConfigType): Size? {
         return if (isSamsungDistortion) {
@@ -77,15 +73,14 @@ class ExtraCroppingQuirk : Quirk {
             return isSamsungDistortion
         }
 
-        /**
-         * Checks for device model with Samsung output distortion bug (b/190203334).
-         */
+        /** Checks for device model with Samsung output distortion bug (b/190203334). */
         internal val isSamsungDistortion: Boolean
             get() {
-                val isDeviceModelContained = ("samsung".equals(Build.BRAND, ignoreCase = true) &&
-                    SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.containsKey(
-                        Build.MODEL.uppercase()
-                    ))
+                val isDeviceModelContained =
+                    ("samsung".equals(Build.BRAND, ignoreCase = true) &&
+                        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.containsKey(
+                            Build.MODEL.uppercase()
+                        ))
                 if (!isDeviceModelContained) {
                     return false
                 }

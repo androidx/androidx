@@ -22,5 +22,4 @@ import android.net.ConnectivityManager
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-@DoNotInline
-fun ConnectivityManager.getActiveNetworkCompat() = activeNetwork
+@DoNotInline fun ConnectivityManager.getActiveNetworkCompat() = activeNetwork

@@ -24,29 +24,31 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 
-/**
- * Creates anonymous classes for RoomTypeNames#SHARED_SQLITE_STMT.
- */
+/** Creates anonymous classes for RoomTypeNames#SHARED_SQLITE_STMT. */
 class PreparedStatementWriter(val queryWriter: QueryWriter) {
     fun createAnonymous(typeWriter: TypeWriter, dbProperty: XPropertySpec): XTypeSpec {
         val scope = CodeGenScope(typeWriter)
-        return XTypeSpec.anonymousClassBuilder(scope.language, "%N", dbProperty).apply {
-            superclass(RoomTypeNames.SHARED_SQLITE_STMT)
-            addFunction(
-                XFunSpec.builder(
-                    language = scope.language,
-                    name = "createQuery",
-                    visibility = VisibilityModifier.PUBLIC,
-                    isOverride = true
-                ).apply {
-                    returns(CommonTypeNames.STRING)
-                    val queryName = scope.getTmpVar("_query")
-                    val queryGenScope = scope.fork()
-                    queryWriter.prepareQuery(queryName, queryGenScope)
-                    addCode(queryGenScope.generate())
-                    addStatement("return %L", queryName)
-                }.build()
-            )
-        }.build()
+        return XTypeSpec.anonymousClassBuilder(scope.language, "%N", dbProperty)
+            .apply {
+                superclass(RoomTypeNames.SHARED_SQLITE_STMT)
+                addFunction(
+                    XFunSpec.builder(
+                            language = scope.language,
+                            name = "createQuery",
+                            visibility = VisibilityModifier.PUBLIC,
+                            isOverride = true
+                        )
+                        .apply {
+                            returns(CommonTypeNames.STRING)
+                            val queryName = scope.getTmpVar("_query")
+                            val queryGenScope = scope.fork()
+                            queryWriter.prepareQuery(queryName, queryGenScope)
+                            addCode(queryGenScope.generate())
+                            addStatement("return %L", queryName)
+                        }
+                        .build()
+                )
+            }
+            .build()
     }
 }

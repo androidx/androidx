@@ -33,6 +33,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -53,40 +54,37 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 
-/**
- * Sample AppWidget to showcase the ripples.
- * Note: Rounded corners are supported in S+
- */
+/** Sample AppWidget to showcase the ripples. Note: Rounded corners are supported in S+ */
 class RippleAppWidget : GlanceAppWidget() {
     private val columnBgColorsA = listOf(Color(0xffA2BDF2), Color(0xff5087EF))
     private val columnBgColorsB = listOf(Color(0xFFBD789C), Color(0xFF880E4F))
     private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         RippleDemoContent()
     }
 
     @Composable
     private fun RippleDemoContent() {
-        @Suppress("AutoboxingStateCreation")
-        var count by remember { mutableStateOf(0) }
+        @Suppress("AutoboxingStateCreation") var count by remember { mutableStateOf(0) }
         var type by remember { mutableStateOf(ContentScale.Fit) }
         var columnBgColors by remember { mutableStateOf(columnBgColorsA) }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = GlanceModifier.fillMaxSize().padding(8.dp)
-                .cornerRadius(20.dp)
-                .background(ColorProvider(day = columnBgColors[0], night = columnBgColors[1]))
-                .clickable {
-                    columnBgColors = when (columnBgColors[0]) {
-                        columnBgColorsA[0] -> columnBgColorsB
-                        else -> columnBgColorsA
+            modifier =
+                GlanceModifier.fillMaxSize()
+                    .padding(8.dp)
+                    .cornerRadius(R.dimen.corner_radius)
+                    .appWidgetBackground()
+                    .background(ColorProvider(day = columnBgColors[0], night = columnBgColors[1]))
+                    .clickable {
+                        columnBgColors =
+                            when (columnBgColors[0]) {
+                                columnBgColorsA[0] -> columnBgColorsB
+                                else -> columnBgColorsA
+                            }
                     }
-                }
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -98,22 +96,26 @@ class RippleAppWidget : GlanceAppWidget() {
                     provider = ImageProvider(R.drawable.ic_color_reset),
                     contentDescription = "Remove background color",
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.secondary),
-                    modifier = GlanceModifier
-                        .padding(5.dp)
-                        .cornerRadius(24.dp) // To get a rounded ripple
-                        .clickable {
-                            columnBgColors = listOf(Color.Transparent, Color.Transparent)
-                        }
+                    modifier =
+                        GlanceModifier.padding(5.dp)
+                            .cornerRadius(24.dp) // To get a rounded ripple
+                            .clickable {
+                                columnBgColors = listOf(Color.Transparent, Color.Transparent)
+                            }
                 )
             }
             // A drawable image with rounded corners and a click modifier.
-            OutlinedButtonUsingImage(text = "Toggle content scale", onClick = {
-                type = when (type) {
-                    ContentScale.Crop -> ContentScale.FillBounds
-                    ContentScale.FillBounds -> ContentScale.Fit
-                    else -> ContentScale.Crop
+            OutlinedButtonUsingImage(
+                text = "Toggle content scale",
+                onClick = {
+                    type =
+                        when (type) {
+                            ContentScale.Crop -> ContentScale.FillBounds
+                            ContentScale.FillBounds -> ContentScale.Fit
+                            else -> ContentScale.Crop
+                        }
                 }
-            })
+            )
             Spacer(GlanceModifier.size(5.dp))
             Text(
                 text = "Image in a clickable box with rounded corners",
@@ -128,17 +130,18 @@ class RippleAppWidget : GlanceAppWidget() {
             RoundedImageInClickableBox(contentScale = type, onClick = { count++ })
         }
     }
+
     @Composable
     private fun ImageInClickableBoxWithRoundedCorners(
         contentScale: ContentScale,
         onClick: () -> Unit
     ) {
         Box(
-            modifier = GlanceModifier
-                .height(100.dp)
-                .background(ColorProvider(day = boxColors[0], night = boxColors[1]))
-                .cornerRadius(25.dp)
-                .clickable(onClick)
+            modifier =
+                GlanceModifier.height(100.dp)
+                    .background(ColorProvider(day = boxColors[0], night = boxColors[1]))
+                    .cornerRadius(25.dp)
+                    .clickable(onClick)
         ) {
             Image(
                 provider = ImageProvider(R.drawable.compose),
@@ -152,10 +155,10 @@ class RippleAppWidget : GlanceAppWidget() {
     @Composable
     private fun RoundedImageInClickableBox(contentScale: ContentScale, onClick: () -> Unit) {
         Box(
-            modifier = GlanceModifier
-                .height(100.dp)
-                .background(ColorProvider(day = boxColors[0], night = boxColors[1]))
-                .clickable(onClick)
+            modifier =
+                GlanceModifier.height(100.dp)
+                    .background(ColorProvider(day = boxColors[0], night = boxColors[1]))
+                    .clickable(onClick)
         ) {
             Image(
                 provider = ImageProvider(R.drawable.compose),

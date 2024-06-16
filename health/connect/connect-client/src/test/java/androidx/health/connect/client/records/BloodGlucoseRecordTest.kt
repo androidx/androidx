@@ -26,8 +26,7 @@ class BloodGlucoseRecordTest {
 
     @Test
     fun relationToMealEnums_existInMapping() {
-        val allEnums =
-            getAllIntDefEnums<BloodGlucoseRecord>("""RELATION_TO_MEAL.*(?<!UNKNOWN)$""")
+        val allEnums = getAllIntDefEnums<BloodGlucoseRecord>("""RELATION_TO_MEAL.*(?<!UNKNOWN)$""")
 
         assertThat(BloodGlucoseRecord.RELATION_TO_MEAL_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

@@ -75,9 +75,8 @@ class AudioRecordCompatibilityTest {
     }
 
     @get:Rule
-    var audioPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        Manifest.permission.RECORD_AUDIO
-    )
+    var audioPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
 
     private val sampleRate = DEFAULT_SAMPLE_RATE
     private val bufferSizeInBytes = DEFAULT_BUFFER_SIZE_IN_BYTE

@@ -1,4 +1,5 @@
 package androidx.emoji2.emojipicker
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -35,9 +36,13 @@ internal class EmojiPickerPopupViewController(
     private val emojiPickerPopupView: EmojiPickerPopupView,
     private val clickedEmojiView: View
 ) {
-    private val popupWindow: PopupWindow = PopupWindow(
-        emojiPickerPopupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-        /* focusable= */ false)
+    private val popupWindow: PopupWindow =
+        PopupWindow(
+            emojiPickerPopupView,
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.WRAP_CONTENT,
+            /* focusable= */ false
+        )
 
     fun show() {
         popupWindow.apply {
@@ -47,8 +52,7 @@ internal class EmojiPickerPopupViewController(
             val x =
                 location[0] + clickedEmojiView.width / 2f -
                     emojiPickerPopupView.getPopupViewWidth() / 2f
-            val y =
-                location[1] - emojiPickerPopupView.getPopupViewHeight()
+            val y = location[1] - emojiPickerPopupView.getPopupViewHeight()
             // Set background drawable so that the popup window is dismissed properly when clicking
             // outside / scrolling for API < 23.
             setBackgroundDrawable(context.getDrawable(R.drawable.popup_view_rounded_background))
@@ -60,16 +64,14 @@ internal class EmojiPickerPopupViewController(
                     .getDimensionPixelSize(R.dimen.emoji_picker_popup_view_elevation)
                     .toFloat()
             try {
-                showAtLocation(
-                    clickedEmojiView,
-                    Gravity.NO_GRAVITY,
-                    x.roundToInt(),
-                    y
-                )
+                showAtLocation(clickedEmojiView, Gravity.NO_GRAVITY, x.roundToInt(), y)
             } catch (e: WindowManager.BadTokenException) {
                 Toast.makeText(
-                    context, "Don't use EmojiPickerView inside a Popup",
-                    Toast.LENGTH_LONG).show()
+                        context,
+                        "Don't use EmojiPickerView inside a Popup",
+                        Toast.LENGTH_LONG
+                    )
+                    .show()
             }
         }
     }

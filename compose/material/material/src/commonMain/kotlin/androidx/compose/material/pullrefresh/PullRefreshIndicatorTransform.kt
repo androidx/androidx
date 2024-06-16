@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.fastCoerceIn
 
 /**
- * A modifier for translating the position and scaling the size of a pull-to-refresh indicator
- * based on the given [PullRefreshState].
+ * A modifier for translating the position and scaling the size of a pull-to-refresh indicator based
+ * on the given [PullRefreshState].
  *
  * @sample androidx.compose.material.samples.PullRefreshIndicatorTransformSample
  *
@@ -46,23 +46,23 @@ fun Modifier.pullRefreshIndicatorTransform(
     // for the other dimensions to allow for more room for elevation / arbitrary indicators - we
     // only ever really want to clip at the top edge.
     drawWithContent {
-        clipRect(
-            top = 0f,
-            left = -Float.MAX_VALUE,
-            right = Float.MAX_VALUE,
-            bottom = Float.MAX_VALUE
-        ) {
-            this@drawWithContent.drawContent()
+            clipRect(
+                top = 0f,
+                left = -Float.MAX_VALUE,
+                right = Float.MAX_VALUE,
+                bottom = Float.MAX_VALUE
+            ) {
+                this@drawWithContent.drawContent()
+            }
         }
-    }
-    .graphicsLayer {
-        translationY = state.position - size.height
+        .graphicsLayer {
+            translationY = state.position - size.height
 
-        if (scale && !state.refreshing) {
-            val scaleFraction = LinearOutSlowInEasing
-                .transform(state.position / state.threshold)
-                .fastCoerceIn(0f, 1f)
-            scaleX = scaleFraction
-            scaleY = scaleFraction
+            if (scale && !state.refreshing) {
+                val scaleFraction =
+                    LinearOutSlowInEasing.transform(state.position / state.threshold)
+                        .fastCoerceIn(0f, 1f)
+                scaleX = scaleFraction
+                scaleY = scaleFraction
+            }
         }
-    }

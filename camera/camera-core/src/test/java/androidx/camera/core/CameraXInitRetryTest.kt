@@ -16,6 +16,7 @@
 
 package androidx.camera.core
 
+import android.companion.virtual.VirtualDeviceManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.CameraFactory.Provider
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.utils.ContextUtilTest
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
@@ -63,9 +65,13 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowPackageManager
 import org.robolectric.shadows.ShadowSystemClock
+import org.robolectric.shadows.ShadowVirtualDeviceManager
+import org.robolectric.versioning.AndroidVersions
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -103,18 +109,18 @@ class CameraXInitRetryTest {
             executionStateMutableList.add(executionState)
             return@RetryPolicy DEFAULT.onRetryDecisionRequested(executionState)
         }
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(
-                cameraFactory = createFakeCameraFactory(
-                    frontCamera = true,
-                    backCamera = true
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = true, backCamera = true)
+                    )
                 )
-            )
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy(policy)
-        }
+                .apply {
+                    setCameraExecutor(handlerExecutor)
+                    setSchedulerHandler(handler)
+                    setCameraProviderInitRetryPolicy(policy)
+                }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
@@ -131,14 +137,15 @@ class CameraXInitRetryTest {
     @Test
     fun verifyInitSucceedsUsingDefaultRetryPolicy_OneCameraScenario() = runTest {
         // Arrange.
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(
-                cameraFactory = createFakeCameraFactory(
-                    frontCamera = true,
-                    backCamera = false
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = true, backCamera = false)
+                    )
                 )
-            )
-        ).setSchedulerHandler(handler).setCameraExecutor(handlerExecutor)
+                .setSchedulerHandler(handler)
+                .setCameraExecutor(handlerExecutor)
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
@@ -156,23 +163,23 @@ class CameraXInitRetryTest {
     @Test
     fun verifyInitFailureUsingDefaultRetryPolicy_NoCameraScenario() = runTest {
         // Arrange. Set up a simulated environment that no accessible cameras.
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(
-                cameraFactory = createFakeCameraFactory(
-                    frontCamera = false,
-                    backCamera = false
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = false, backCamera = false)
+                    )
                 )
-            )
-        ).setSchedulerHandler(handler).setCameraExecutor(handlerExecutor)
+                .setSchedulerHandler(handler)
+                .setCameraExecutor(handlerExecutor)
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        val throwableSubject = assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        val throwableSubject =
+            assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         throwableSubject.hasCauseThat().isInstanceOf(CameraUnavailableException::class.java)
@@ -184,30 +191,28 @@ class CameraXInitRetryTest {
     fun verifyImmediateFailureWithOptionNEVER() = runTest {
         // Arrange. Set up a simulated environment that no accessible cameras.
         var callCount = 0
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(
-                cameraFactory = createFakeCameraFactory(
-                    frontCamera = false,
-                    backCamera = false
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = false, backCamera = false)
+                    )
                 )
-            )
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy { executionState ->
-                callCount++
-                NEVER.onRetryDecisionRequested(executionState)
-            }
-        }
+                .apply {
+                    setCameraExecutor(handlerExecutor)
+                    setSchedulerHandler(handler)
+                    setCameraProviderInitRetryPolicy { executionState ->
+                        callCount++
+                        NEVER.onRetryDecisionRequested(executionState)
+                    }
+                }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         assertThat(cameraX.isInitialized).isFalse()
@@ -218,30 +223,28 @@ class CameraXInitRetryTest {
     fun verifyImmediateFailureWithOptionRetryConfigNotRetry() = runTest {
         // Arrange. Set up a simulated environment that no accessible cameras.
         var callCount = 0
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(
-                cameraFactory = createFakeCameraFactory(
-                    frontCamera = false,
-                    backCamera = false
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = false, backCamera = false)
+                    )
                 )
-            )
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy {
-                callCount++
-                RetryConfig.Builder().setShouldRetry(false).build()
-            }
-        }
+                .apply {
+                    setCameraExecutor(handlerExecutor)
+                    setSchedulerHandler(handler)
+                    setCameraProviderInitRetryPolicy {
+                        callCount++
+                        RetryConfig.Builder().setShouldRetry(false).build()
+                    }
+                }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         assertThat(cameraX.isInitialized).isFalse()
@@ -251,22 +254,20 @@ class CameraXInitRetryTest {
     @Test
     fun verifyInitFails_RetryCameraUnavailableMode_NoCameraScenario() = runTest {
         // Arrange. Set up a simulated environment that no accessible cameras.
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig()
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy(RETRY_UNAVAILABLE_CAMERA)
-        }
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(createCameraXConfig()).apply {
+                setCameraExecutor(handlerExecutor)
+                setSchedulerHandler(handler)
+                setCameraProviderInitRetryPolicy(RETRY_UNAVAILABLE_CAMERA)
+            }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        val throwableSubject = assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        val throwableSubject =
+            assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         throwableSubject.hasCauseThat().isInstanceOf(CameraUnavailableException::class.java)
@@ -277,34 +278,33 @@ class CameraXInitRetryTest {
     fun verifyExecTimeNotExceedTimeout_RetryCamUnavailable_NoCameraScenario() = runTest {
         // Arrange. Set up a simulated environment that no accessible cameras.
         var executedTime = 0L
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig()
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy { executionState: ExecutionState ->
-                RETRY_UNAVAILABLE_CAMERA.onRetryDecisionRequested(executionState).also {
-                    executedTime = executionState.executedTimeInMillis
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(createCameraXConfig()).apply {
+                setCameraExecutor(handlerExecutor)
+                setSchedulerHandler(handler)
+                setCameraProviderInitRetryPolicy { executionState: ExecutionState ->
+                    RETRY_UNAVAILABLE_CAMERA.onRetryDecisionRequested(executionState).also {
+                        executedTime = executionState.executedTimeInMillis
+                    }
                 }
             }
-        }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        val throwableSubject = assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        val throwableSubject =
+            assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         throwableSubject.hasCauseThat().isInstanceOf(CameraUnavailableException::class.java)
         assertThat(cameraX.isInitialized).isFalse()
-        assertThat(abs(DEFAULT_RETRY_TIMEOUT_IN_MILLIS - executedTime)).isLessThan(
-            RetryConfig.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
-            // Allow the tolerance for retry delay + 100ms potential processing time variations.
-        )
+        assertThat(abs(DEFAULT_RETRY_TIMEOUT_IN_MILLIS - executedTime))
+            .isLessThan(
+                RetryConfig.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
+                // Allow the tolerance for retry delay + 100ms potential processing time variations.
+            )
     }
 
     @Test
@@ -312,10 +312,7 @@ class CameraXInitRetryTest {
         testTimeoutAdjustment(RETRY_UNAVAILABLE_CAMERA)
     }
 
-    @Test
-    fun testTimeoutAdjustment_DefaultMode() = runTest {
-        testTimeoutAdjustment(DEFAULT)
-    }
+    @Test fun testTimeoutAdjustment_DefaultMode() = runTest { testTimeoutAdjustment(DEFAULT) }
 
     @Test
     fun testTimeoutAdjustment_CustomRetryPolicyMode() = runTest {
@@ -333,33 +330,31 @@ class CameraXInitRetryTest {
         val testCustomTimeout = 10000L
         val customTimeoutPolicy =
             RetryPolicy.Builder(policy).setTimeoutInMillis(testCustomTimeout).build()
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig()
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy { executionState ->
-                customTimeoutPolicy.onRetryDecisionRequested(executionState).also {
-                    executedTime = executionState.executedTimeInMillis
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(createCameraXConfig()).apply {
+                setCameraExecutor(handlerExecutor)
+                setSchedulerHandler(handler)
+                setCameraProviderInitRetryPolicy { executionState ->
+                    customTimeoutPolicy.onRetryDecisionRequested(executionState).also {
+                        executedTime = executionState.executedTimeInMillis
+                    }
                 }
             }
-        }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert. Verify that initialization persists with retries until the total execution
         // time exhausts the allotted timeout.
-        assertThat(abs(testCustomTimeout - executedTime)).isLessThan(
-            RetryConfig.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
-            // Allow the tolerance for retry delay + 100ms potential processing time variations.
-        )
+        assertThat(abs(testCustomTimeout - executedTime))
+            .isLessThan(
+                RetryConfig.DEFAULT_DELAY_RETRY.retryDelayInMillis + 100
+                // Allow the tolerance for retry delay + 100ms potential processing time variations.
+            )
     }
 
     @Test
@@ -367,67 +362,68 @@ class CameraXInitRetryTest {
         val desiredDelayTime = 900L
 
         assertThat(
-            RetryConfig.Builder().setRetryDelayInMillis(desiredDelayTime)
-                .build().retryDelayInMillis
-        ).isEqualTo(
-            desiredDelayTime
-        )
+                RetryConfig.Builder()
+                    .setRetryDelayInMillis(desiredDelayTime)
+                    .build()
+                    .retryDelayInMillis
+            )
+            .isEqualTo(desiredDelayTime)
     }
 
     @Test
     fun verifyExecTimeNotExceedTimeout_CustomizedRetryPolicyOverrideGetTimeout_NoCameraScenario() =
         runTest {
-        // Arrange. Set up a simulated environment that no accessible cameras.
-        val timeoutInMs = 10000L
-        val executionStateMutableList = mutableListOf<ExecutionState>()
-        val policy = object : RetryPolicy {
-            override fun onRetryDecisionRequested(executionState: ExecutionState): RetryConfig {
-                if (executionState.getExecutedTimeInMillis() < timeoutInMillis) {
-                    executionStateMutableList.add(executionState)
+            // Arrange. Set up a simulated environment that no accessible cameras.
+            val timeoutInMs = 10000L
+            val executionStateMutableList = mutableListOf<ExecutionState>()
+            val policy =
+                object : RetryPolicy {
+                    override fun onRetryDecisionRequested(
+                        executionState: ExecutionState
+                    ): RetryConfig {
+                        if (executionState.getExecutedTimeInMillis() < timeoutInMillis) {
+                            executionStateMutableList.add(executionState)
+                        }
+
+                        return RetryConfig.DEFAULT_DELAY_RETRY
+                    }
+
+                    override fun getTimeoutInMillis(): Long {
+                        return timeoutInMs
+                    }
+                }
+            val configBuilder: CameraXConfig.Builder =
+                CameraXConfig.Builder.fromConfig(createCameraXConfig()).apply {
+                    setCameraExecutor(handlerExecutor)
+                    setSchedulerHandler(handler)
+                    setCameraProviderInitRetryPolicy(policy)
                 }
 
-                return RetryConfig.DEFAULT_DELAY_RETRY
-            }
+            // Simulate the system time increases.
+            repeatingJob = simulateSystemTimeIncrease()
 
-            override fun getTimeoutInMillis(): Long {
-                return timeoutInMs
-            }
+            // Act.
+            val cameraX = CameraX(context) { configBuilder.build() }
+            assertThrows<InitializationException> { cameraX.initializeFuture.await() }
+
+            // Assert. Confirm that initialization did not succeed.
+            assertThat(cameraX.isInitialized).isFalse()
+
+            // Assert. Verify that retry attempts occurred in sequential order.
+            val numAttemptList =
+                executionStateMutableList.map { executionState -> executionState.numOfAttempts }
+            assertThat(numAttemptList).isInOrder()
+
+            // Assert. Ensure all errors encountered were specifically due to camera unavailability.
+            val statusList =
+                executionStateMutableList.map { executionState -> executionState.status }.toSet()
+            assertThat(statusList)
+                .containsExactlyElementsIn(listOf(ExecutionState.STATUS_CAMERA_UNAVAILABLE))
+
+            // Assert. Verify that the total execution time did not surpass the timeout limit.
+            assertThat(executionStateMutableList.last().executedTimeInMillis)
+                .isLessThan(timeoutInMs)
         }
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig()
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy(policy)
-        }
-
-        // Simulate the system time increases.
-        repeatingJob = simulateSystemTimeIncrease()
-
-        // Act.
-        val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
-
-        // Assert. Confirm that initialization did not succeed.
-        assertThat(cameraX.isInitialized).isFalse()
-
-        // Assert. Verify that retry attempts occurred in sequential order.
-        val numAttemptList =
-            executionStateMutableList.map { executionState -> executionState.numOfAttempts }
-        assertThat(numAttemptList).isInOrder()
-
-        // Assert. Ensure all errors encountered were specifically due to camera unavailability.
-        val statusList =
-            executionStateMutableList.map { executionState -> executionState.status }.toSet()
-        assertThat(statusList).containsExactlyElementsIn(
-            listOf(ExecutionState.STATUS_CAMERA_UNAVAILABLE)
-        )
-
-        // Assert. Verify that the total execution time did not surpass the timeout limit.
-        assertThat(executionStateMutableList.last().executedTimeInMillis).isLessThan(timeoutInMs)
-    }
 
     @Test
     fun verifyExecTimeNotExceedTimeout_CustomizedRetryPolicy_NoCameraScenario() = runTest {
@@ -437,27 +433,24 @@ class CameraXInitRetryTest {
         val policy = RetryPolicy { executionState ->
             if (executionState.getExecutedTimeInMillis() < timeoutInMs) {
                 executionStateMutableList.add(executionState)
-                return@RetryPolicy RetryConfig.DEFAULT_DELAY_RETRY;
+                return@RetryPolicy RetryConfig.DEFAULT_DELAY_RETRY
             }
 
             return@RetryPolicy RetryConfig.NOT_RETRY
         }
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig()
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy(policy)
-        }
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(createCameraXConfig()).apply {
+                setCameraExecutor(handlerExecutor)
+                setSchedulerHandler(handler)
+                setCameraProviderInitRetryPolicy(policy)
+            }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert. Confirm that initialization did not succeed.
         assertThat(cameraX.isInitialized).isFalse()
@@ -470,9 +463,8 @@ class CameraXInitRetryTest {
         // Assert. Ensure all errors encountered were specifically due to camera unavailability.
         val statusList =
             executionStateMutableList.map { executionState -> executionState.status }.toSet()
-        assertThat(statusList).containsExactlyElementsIn(
-            listOf(ExecutionState.STATUS_CAMERA_UNAVAILABLE)
-        )
+        assertThat(statusList)
+            .containsExactlyElementsIn(listOf(ExecutionState.STATUS_CAMERA_UNAVAILABLE))
 
         // Assert. Verify that the total execution time did not surpass the timeout limit.
         assertThat(executionStateMutableList.last().executedTimeInMillis).isLessThan(timeoutInMs)
@@ -486,27 +478,24 @@ class CameraXInitRetryTest {
         val policy = RetryPolicy { executionState: ExecutionState ->
             executionStateMutableList.add(executionState)
             if (executionState.numOfAttempts < maxAttempts) {
-                return@RetryPolicy RetryConfig.DEFAULT_DELAY_RETRY;
+                return@RetryPolicy RetryConfig.DEFAULT_DELAY_RETRY
             }
 
             return@RetryPolicy RetryConfig.NOT_RETRY
         }
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig()
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy(policy)
-        }
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(createCameraXConfig()).apply {
+                setCameraExecutor(handlerExecutor)
+                setSchedulerHandler(handler)
+                setCameraProviderInitRetryPolicy(policy)
+            }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert. Confirm that initialization did not succeed.
         assertThat(cameraX.isInitialized).isFalse()
@@ -522,22 +511,22 @@ class CameraXInitRetryTest {
             resultList.add(executionState)
             RETRY_UNAVAILABLE_CAMERA.onRetryDecisionRequested(executionState)
         }
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(surfaceManager = null, useCaseConfigFactory = null)
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy(policy)
-        }
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(surfaceManager = null, useCaseConfigFactory = null)
+                )
+                .apply {
+                    setCameraExecutor(handlerExecutor)
+                    setSchedulerHandler(handler)
+                    setCameraProviderInitRetryPolicy(policy)
+                }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         assertThat(resultList.size).isEqualTo(1)
@@ -549,48 +538,128 @@ class CameraXInitRetryTest {
         // Arrange. Create a CameraFactory simulation that throws RuntimeException on all API usage.
         val testException = RuntimeException("test")
         val executionStateMutableList = mutableListOf<ExecutionState>()
-        val configBuilder: CameraXConfig.Builder = CameraXConfig.Builder.fromConfig(
-            createCameraXConfig(
-                cameraFactory = object : CameraFactory {
-                    override fun getCamera(cameraId: String): CameraInternal {
-                        throw testException
-                    }
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            object : CameraFactory {
+                                override fun getCamera(cameraId: String): CameraInternal {
+                                    throw testException
+                                }
 
-                    override fun getAvailableCameraIds(): MutableSet<String> {
-                        throw testException
-                    }
+                                override fun getAvailableCameraIds(): MutableSet<String> {
+                                    throw testException
+                                }
 
-                    override fun getCameraCoordinator(): CameraCoordinator {
-                        throw testException
-                    }
+                                override fun getCameraCoordinator(): CameraCoordinator {
+                                    throw testException
+                                }
 
-                    override fun getCameraManager(): Any? {
-                        throw testException
+                                override fun getCameraManager(): Any? {
+                                    throw testException
+                                }
+                            }
+                    )
+                )
+                .apply {
+                    setCameraExecutor(handlerExecutor)
+                    setSchedulerHandler(handler)
+                    setCameraProviderInitRetryPolicy { executionState: ExecutionState ->
+                        executionStateMutableList.add(executionState)
+                        RetryConfig.NOT_RETRY
                     }
-                })
-        ).apply {
-            setCameraExecutor(handlerExecutor)
-            setSchedulerHandler(handler)
-            setCameraProviderInitRetryPolicy { executionState: ExecutionState ->
-                executionStateMutableList.add(executionState)
-                RetryConfig.NOT_RETRY
-            }
-        }
+                }
 
         // Simulate the system time increases.
         repeatingJob = simulateSystemTimeIncrease()
 
         // Act.
         val cameraX = CameraX(context) { configBuilder.build() }
-        assertThrows<InitializationException> {
-            cameraX.initializeFuture.await()
-        }
+        assertThrows<InitializationException> { cameraX.initializeFuture.await() }
 
         // Assert.
         assertThat(executionStateMutableList.size).isEqualTo(1)
-        assertThat(executionStateMutableList.last().status).isEqualTo(
-            ExecutionState.STATUS_UNKNOWN_ERROR
-        )
+        assertThat(executionStateMutableList.last().status)
+            .isEqualTo(ExecutionState.STATUS_UNKNOWN_ERROR)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, shadows = [TestShadowVDM::class])
+    fun testIgnoreVirtualCameraValidation_WithAvailableDevices() = runTest {
+        // Arrange.
+        var callCount = 0
+        val context =
+            ContextUtilTest.FakeContext(
+                "non-application",
+                baseContext = context,
+                deviceId = TEST_VDM_DEVICE_ID,
+            )
+
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = true, backCamera = false)
+                    )
+                )
+                .setSchedulerHandler(handler)
+                .setCameraExecutor(handlerExecutor)
+                .setCameraProviderInitRetryPolicy {
+                    callCount++
+                    RetryConfig.Builder().setShouldRetry(false).build()
+                }
+
+        // Simulate the system time increases.
+        repeatingJob = simulateSystemTimeIncrease()
+
+        // Act.
+        val cameraX = CameraX(context) { configBuilder.build() }
+        cameraX.initializeFuture.await()
+
+        // Assert.
+        assertThat(cameraX.isInitialized).isTrue()
+        assertThat(callCount).isEqualTo(0)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, shadows = [TestShadowVDM::class])
+    fun testInitFailVirtualCameraValidation_NoAvailableDevices() = runTest {
+        // Arrange. Set up a simulated environment that no accessible cameras.
+        var callCount = 0
+        val configBuilder: CameraXConfig.Builder =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = false, backCamera = false)
+                    )
+                )
+                .setSchedulerHandler(handler)
+                .setCameraExecutor(handlerExecutor)
+                .setCameraProviderInitRetryPolicy {
+                    callCount++
+                    RetryConfig.Builder().setShouldRetry(false).build()
+                }
+
+        val context =
+            ContextUtilTest.FakeContext(
+                "non-application",
+                baseContext = context,
+                deviceId = TEST_VDM_DEVICE_ID,
+            )
+
+        // Simulate the system time increases.
+        repeatingJob = simulateSystemTimeIncrease()
+
+        // Act.
+        val cameraX = CameraX(context) { configBuilder.build() }
+        val throwableSubject =
+            assertThrows<InitializationException> { cameraX.initializeFuture.await() }
+
+        // Assert.
+        throwableSubject.hasCauseThat().isInstanceOf(CameraUnavailableException::class.java)
+        assertThat(cameraX.isInitialized).isFalse()
+        assertThat(callCount).isGreaterThan(0)
+        cameraX.shutdown().get()
     }
 
     private fun createCameraXConfig(
@@ -602,14 +671,15 @@ class CameraXInitRetryTest {
             Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector?, _: Long ->
                 cameraFactory
             }
-        return CameraXConfig.Builder().setCameraFactoryProvider(cameraFactoryProvider).apply {
-            surfaceManager?.let {
-                setDeviceSurfaceManagerProvider { _: Context?, _: Any?, _: Set<String?>? -> it }
+        return CameraXConfig.Builder()
+            .setCameraFactoryProvider(cameraFactoryProvider)
+            .apply {
+                surfaceManager?.let {
+                    setDeviceSurfaceManagerProvider { _: Context?, _: Any?, _: Set<String?>? -> it }
+                }
+                useCaseConfigFactory?.let { setUseCaseConfigFactoryProvider { _: Context? -> it } }
             }
-            useCaseConfigFactory?.let {
-                setUseCaseConfigFactoryProvider { _: Context? -> it }
-            }
-        }.build()
+            .build()
     }
 
     private fun createFakeCameraFactory(
@@ -620,11 +690,9 @@ class CameraXInitRetryTest {
             if (backCamera) {
                 cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0) {
                     FakeCamera(
-                        CAMERA_ID_0, null,
-                        FakeCameraInfoInternal(
-                            CAMERA_ID_0, 0,
-                            CameraSelector.LENS_FACING_BACK
-                        )
+                        CAMERA_ID_0,
+                        null,
+                        FakeCameraInfoInternal(CAMERA_ID_0, 0, CameraSelector.LENS_FACING_BACK)
                     )
                 }
             }
@@ -633,10 +701,7 @@ class CameraXInitRetryTest {
                     FakeCamera(
                         CAMERA_ID_1,
                         null,
-                        FakeCameraInfoInternal(
-                            CAMERA_ID_1, 0,
-                            CameraSelector.LENS_FACING_FRONT
-                        )
+                        FakeCameraInfoInternal(CAMERA_ID_1, 0, CameraSelector.LENS_FACING_FRONT)
                     )
                 }
             }
@@ -657,9 +722,25 @@ class CameraXInitRetryTest {
         }
     }
 
+    @Implements(
+        value = VirtualDeviceManager::class,
+        minSdk = AndroidVersions.U.SDK_INT,
+        isInAndroidSdk = false
+    )
+    class TestShadowVDM : ShadowVirtualDeviceManager() {
+        @Implementation
+        override fun isValidVirtualDeviceId(deviceId: Int): Boolean {
+            if (deviceId == TEST_VDM_DEVICE_ID) {
+                return true
+            }
+            return super.isValidVirtualDeviceId(deviceId)
+        }
+    }
+
     companion object {
         private const val CAMERA_ID_0 = "0"
         private const val CAMERA_ID_1 = "1"
         private const val FAKE_INIT_PROCESS_TIME_MS = 33L
+        private const val TEST_VDM_DEVICE_ID = 2
     }
 }

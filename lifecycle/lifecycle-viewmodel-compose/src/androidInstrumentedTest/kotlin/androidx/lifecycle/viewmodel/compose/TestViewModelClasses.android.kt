@@ -21,12 +21,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
-public val viewModelClasses: Array<Class<out ViewModel>> = arrayOf(
-    SimpleViewModel::class.java,
-    ApplicationViewModel::class.java,
-    SavedStateHandleViewModel::class.java,
-    SavedStateHandleAndApplicationViewModel::class.java
-)
+public val viewModelClasses: Array<Class<out ViewModel>> =
+    arrayOf(
+        SimpleViewModel::class.java,
+        ApplicationViewModel::class.java,
+        SavedStateHandleViewModel::class.java,
+        SavedStateHandleAndApplicationViewModel::class.java
+    )
 
 public class SimpleViewModel : ViewModel()
 

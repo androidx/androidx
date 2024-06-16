@@ -21,17 +21,8 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
 import kotlin.math.cbrt
 
-/**
- * Implementation of the CIE L*a*b* color space. Its PCS is CIE XYZ
- * with a white point of D50.
- */
-internal class Lab(
-    name: String,
-    id: Int
-) : ColorSpace(
-    name,
-    ColorModel.Lab, id
-) {
+/** Implementation of the CIE L*a*b* color space. Its PCS is CIE XYZ with a white point of D50. */
+internal class Lab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, id) {
 
     override val isWideGamut: Boolean
         get() = true

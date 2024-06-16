@@ -42,21 +42,21 @@ import androidx.room.vo.InsertOrUpsertShortcutMethod
 import kotlin.reflect.KClass
 import org.junit.Test
 
-/**
- * Base test class for insert and upsert methods.
- */
-abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsertShortcutMethod>(
+/** Base test class for insert and upsert methods. */
+abstract class InsertOrUpsertShortcutMethodProcessorTest<out T : InsertOrUpsertShortcutMethod>(
     val annotation: KClass<out Annotation>
 ) {
     companion object {
-        const val DAO_PREFIX = """
+        const val DAO_PREFIX =
+            """
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
                 @Dao
                 abstract class MyClass {
                 """
-        const val DAO_PREFIX_KT = """
+        const val DAO_PREFIX_KT =
+            """
                 package foo.bar
                 import androidx.room.*
                 import java.util.*
@@ -88,9 +88,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.parameters.size).isEqualTo(0)
             assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
             assertThat(insertionUpsertion.entities.size).isEqualTo(0)
-            invocation.assertCompilationResult {
-                hasErrorContaining(noParamsError())
-            }
+            invocation.assertCompilationResult { hasErrorContaining(noParamsError()) }
         }
     }
 
@@ -106,9 +104,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             assertThat(insertionUpsertion.entities.size).isEqualTo(0)
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
-                )
+                hasErrorContaining(ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER)
             }
         }
     }
@@ -123,19 +119,15 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 abstract public long foo(User user);
                 """
         ) { insertionUpsertion, _ ->
-
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("foo")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
 
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.asTypeName())
-                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+            assertThat(param.type.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
 
-            assertThat(param.pojoType?.asTypeName())
-                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+            assertThat(param.pojoType?.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
 
-            assertThat(insertionUpsertion.entities["user"]?.isPartialEntity)
-                .isEqualTo(false)
+            assertThat(insertionUpsertion.entities["user"]?.isPartialEntity).isEqualTo(false)
 
             assertThat(insertionUpsertion.entities["user"]?.pojo?.typeName)
                 .isEqualTo(XClassName.get("foo.bar", "User"))
@@ -171,25 +163,19 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
             insertionUpsertion.parameters.forEach {
-                assertThat(it.type.asTypeName())
-                    .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                assertThat(it.type.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
                 assertThat(it.pojoType?.asTypeName())
                     .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
             }
-            assertThat(insertionUpsertion.entities.size)
-                .isEqualTo(2)
+            assertThat(insertionUpsertion.entities.size).isEqualTo(2)
 
-            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName)
-                .isEqualTo(USER_TYPE_NAME)
+            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["u2"]?.pojo?.typeName)
-                .isEqualTo(USER_TYPE_NAME)
+            assertThat(insertionUpsertion.entities["u2"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.parameters.map { it.name })
-                .isEqualTo(listOf("u1", "u2"))
+            assertThat(insertionUpsertion.parameters.map { it.name }).isEqualTo(listOf("u1", "u2"))
 
-            assertThat(insertionUpsertion.returnType.asTypeName())
-                .isEqualTo(XTypeName.UNIT_VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
         }
     }
 
@@ -222,12 +208,12 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(param.type.asTypeName())
                 .isEqualTo(
                     CommonTypeNames.MUTABLE_LIST.parametrizedBy(
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                            USER_TYPE_NAME.copy(nullable = true)
+                        )
+                        .copy(nullable = true)
                 )
 
-            assertThat(param.pojoType?.asTypeName())
-                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+            assertThat(param.pojoType?.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
@@ -237,8 +223,9 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.returnType.asTypeName())
                 .isEqualTo(
                     CommonTypeNames.MUTABLE_LIST.parametrizedBy(
-                        XTypeName.BOXED_LONG.copy(nullable = true)
-                    ).copy(nullable = true)
+                            XTypeName.BOXED_LONG.copy(nullable = true)
+                        )
+                        .copy(nullable = true)
                 )
         }
     }
@@ -274,9 +261,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    XTypeName.getArrayName(
-                        COMMON.USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    XTypeName.getArrayName(COMMON.USER_TYPE_NAME.copy(nullable = true))
+                        .copy(nullable = true)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -284,8 +270,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.asTypeName())
-                .isEqualTo(XTypeName.UNIT_VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
         }
     }
 
@@ -317,8 +302,9 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(param.type.asTypeName())
                 .isEqualTo(
                     CommonTypeNames.MUTABLE_SET.parametrizedBy(
-                        COMMON.USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                            COMMON.USER_TYPE_NAME.copy(nullable = true)
+                        )
+                        .copy(nullable = true)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -361,9 +347,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    CommonTypeNames.QUEUE.parametrizedBy(
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    CommonTypeNames.QUEUE.parametrizedBy(USER_TYPE_NAME.copy(nullable = true))
+                        .copy(nullable = true)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -388,9 +373,9 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    Iterable::class.asMutableClassName().parametrizedBy(
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    Iterable::class.asMutableClassName()
+                        .parametrizedBy(USER_TYPE_NAME.copy(nullable = true))
+                        .copy(nullable = true)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -416,10 +401,12 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    XClassName.get("foo.bar", "MyClass", "MyList").parametrizedBy(
-                        CommonTypeNames.STRING.copy(nullable = true),
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    XClassName.get("foo.bar", "MyClass", "MyList")
+                        .parametrizedBy(
+                            CommonTypeNames.STRING.copy(nullable = true),
+                            USER_TYPE_NAME.copy(nullable = true)
+                        )
+                        .copy(nullable = true)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -460,12 +447,14 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         ) { insertionUpsertion, _ ->
             assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
             assertThat(
-                insertionUpsertion.parameters[0].type.asTypeName().toString(CodeLanguage.JAVA)
-            ).isEqualTo("foo.bar.User")
+                    insertionUpsertion.parameters[0].type.asTypeName().toString(CodeLanguage.JAVA)
+                )
+                .isEqualTo("foo.bar.User")
 
             assertThat(
-                insertionUpsertion.parameters[1].type.asTypeName().toString(CodeLanguage.JAVA)
-            ).isEqualTo("foo.bar.Book")
+                    insertionUpsertion.parameters[1].type.asTypeName().toString(CodeLanguage.JAVA)
+                )
+                .isEqualTo("foo.bar.Book")
 
             assertThat(insertionUpsertion.parameters.map { it.name }).isEqualTo(listOf("u1", "b1"))
 
@@ -473,29 +462,28 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(2)
 
-            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName)
-                .isEqualTo(USER_TYPE_NAME)
+            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName)
-                .isEqualTo(BOOK_TYPE_NAME)
+            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName).isEqualTo(BOOK_TYPE_NAME)
         }
     }
 
     @Test
     fun multipleParamCompletable() {
         listOf(
-            RxJava2TypeNames.COMPLETABLE.canonicalName,
-            RxJava3TypeNames.COMPLETABLE.canonicalName
-        ).forEach { type ->
-            singleInsertUpsertShortcutMethodKotlin(
-                """
+                RxJava2TypeNames.COMPLETABLE.canonicalName,
+                RxJava3TypeNames.COMPLETABLE.canonicalName
+            )
+            .forEach { type ->
+                singleInsertUpsertShortcutMethodKotlin(
+                    """
                 @${annotation.java.canonicalName}
                 abstract fun bookUserCompletable(user: User, book: Book): $type
                 """
-            ) { insertionUpsertion, _ ->
-                assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
+                ) { insertionUpsertion, _ ->
+                    assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
+                }
             }
-        }
     }
 
     @Test
@@ -517,169 +505,171 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     @Test
     fun invalidReturnType() {
         listOf(
-            "int",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<String>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<String>",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<User>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<User>"
-        ).forEach { type ->
-            singleInsertUpsertShortcutMethod(
-                """
+                "int",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<String>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<String>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<User>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<User>"
+            )
+            .forEach { type ->
+                singleInsertUpsertShortcutMethod(
+                    """
                 @${annotation.java.canonicalName}
                 abstract public $type foo(User user);
                 """
-            ) { insertionUpsertion, invocation ->
+                ) { insertionUpsertion, invocation ->
+                    assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
 
-                assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
-
-                invocation.assertCompilationResult {
-                    hasErrorContaining(noAdapter())
+                    invocation.assertCompilationResult { hasErrorContaining(noAdapter()) }
                 }
             }
-        }
     }
 
     @Test
     fun mismatchedReturnType() {
         listOf(
-            "long[]",
-            "Long[]",
-            "List<Long>",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>"
-        ).forEach { type ->
-            singleInsertUpsertShortcutMethod(
-                """
+                "long[]",
+                "Long[]",
+                "List<Long>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>"
+            )
+            .forEach { type ->
+                singleInsertUpsertShortcutMethod(
+                    """
                 @${annotation.java.canonicalName}
                 abstract public $type foo(User user);
                 """
-            ) { insertionUpsertion, invocation ->
+                ) { insertionUpsertion, invocation ->
+                    assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
 
-                assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
-
-                invocation.assertCompilationResult {
-                    hasErrorContaining(singleParamAndMultiReturnMismatchError())
+                    invocation.assertCompilationResult {
+                        hasErrorContaining(singleParamAndMultiReturnMismatchError())
+                    }
                 }
             }
-        }
     }
 
     @Test
     fun mismatchedReturnType2() {
         listOf(
-            "long",
-            "Long",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
-        ).forEach { type ->
-            singleInsertUpsertShortcutMethod(
-                """
+                "long",
+                "Long",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
+            )
+            .forEach { type ->
+                singleInsertUpsertShortcutMethod(
+                    """
                 @${annotation.java.canonicalName}
                 abstract public $type foo(User... user);
                 """
-            ) { insertionUpsertion, invocation ->
-                assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
+                ) { insertionUpsertion, invocation ->
+                    assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
 
-                invocation.assertCompilationResult {
-                    hasErrorContaining(multiParamAndSingleReturnMismatchError())
+                    invocation.assertCompilationResult {
+                        hasErrorContaining(multiParamAndSingleReturnMismatchError())
+                    }
                 }
             }
-        }
     }
 
     @Test
     fun mismatchedReturnType3() {
         listOf(
-            "long",
-            "Long",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
-        ).forEach { type ->
-            singleInsertUpsertShortcutMethod(
-                """
+                "long",
+                "Long",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
+            )
+            .forEach { type ->
+                singleInsertUpsertShortcutMethod(
+                    """
                 @${annotation.java.canonicalName}
                 abstract public $type foo(User user1, User user2);
                 """
-            ) { insertionUpsertion, invocation ->
-                assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
+                ) { insertionUpsertion, invocation ->
+                    assertThat(insertionUpsertion.methodBinder?.adapter).isNull()
 
-                invocation.assertCompilationResult {
-                    hasErrorContaining(noAdapter())
+                    invocation.assertCompilationResult { hasErrorContaining(noAdapter()) }
                 }
             }
-        }
     }
 
     @Test
     fun validReturnTypes() {
         listOf(
-            Pair("void", InsertOrUpsertMethodAdapter.ReturnInfo.VOID),
-            Pair("long", InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID),
-            Pair("long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY),
-            Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX),
-            Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST),
-            Pair(
-                RxJava2TypeNames.COMPLETABLE.canonicalName,
-                InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
-            ),
-            Pair(
-                "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
-            ),
-            Pair(
-                "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
-            ),
-            Pair(
-                "${RxJava2TypeNames.MAYBE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
-            ),
-            Pair(
-                "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
-            ),
-            Pair(
-                RxJava3TypeNames.COMPLETABLE.canonicalName,
-                InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
-            ),
-            Pair(
-                "${RxJava3TypeNames.SINGLE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
-            ),
-            Pair(
-                "${RxJava3TypeNames.SINGLE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
-            ),
-            Pair(
-                "${RxJava3TypeNames.MAYBE.canonicalName}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
-            ),
-            Pair(
-                "${RxJava3TypeNames.MAYBE.canonicalName}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
-            )
-        ).forEach { pair ->
-            val dots = if (pair.second in setOf(
-                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST,
-                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY,
-                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX
+                Pair("void", InsertOrUpsertMethodAdapter.ReturnInfo.VOID),
+                Pair("long", InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID),
+                Pair("long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY),
+                Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX),
+                Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST),
+                Pair(
+                    RxJava2TypeNames.COMPLETABLE.canonicalName,
+                    InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
+                ),
+                Pair(
+                    "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
+                ),
+                Pair(
+                    "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
+                ),
+                Pair(
+                    "${RxJava2TypeNames.MAYBE.canonicalName}<Long>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
+                ),
+                Pair(
+                    "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
+                ),
+                Pair(
+                    RxJava3TypeNames.COMPLETABLE.canonicalName,
+                    InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
+                ),
+                Pair(
+                    "${RxJava3TypeNames.SINGLE.canonicalName}<Long>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
+                ),
+                Pair(
+                    "${RxJava3TypeNames.SINGLE.canonicalName}<List<Long>>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
+                ),
+                Pair(
+                    "${RxJava3TypeNames.MAYBE.canonicalName}<Long>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
+                ),
+                Pair(
+                    "${RxJava3TypeNames.MAYBE.canonicalName}<List<Long>>",
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
                 )
-            ) {
-                "..."
-            } else {
-                ""
-            }
-            singleInsertUpsertShortcutMethod(
-                """
+            )
+            .forEach { pair ->
+                val dots =
+                    if (
+                        pair.second in
+                            setOf(
+                                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST,
+                                InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY,
+                                InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX
+                            )
+                    ) {
+                        "..."
+                    } else {
+                        ""
+                    }
+                singleInsertUpsertShortcutMethod(
+                    """
                 @${annotation.java.canonicalName}
                 abstract public ${pair.first} foo(User$dots user);
                 """
-            ) { insertionUpsertion, _ ->
-                assertThat(insertionUpsertion.methodBinder?.adapter).isNotNull()
+                ) { insertionUpsertion, _ ->
+                    assertThat(insertionUpsertion.methodBinder?.adapter).isNotNull()
+                }
             }
-        }
     }
 
     abstract fun noAdapter(): String
@@ -690,9 +680,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntitySingle() {
-        val usernameSource = Source.java(
-            "foo.bar.Username",
-            """
+        val usernameSource =
+            Source.java(
+                "foo.bar.Username",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -703,7 +694,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 int age;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -716,16 +707,14 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             val param = insertionUpsertion.parameters.first()
 
-            assertThat(param.type.asTypeName())
-                .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
+            assertThat(param.type.asTypeName()).isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
 
             assertThat(param.pojoType?.asTypeName())
                 .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["username"]?.isPartialEntity)
-                .isEqualTo(true)
+            assertThat(insertionUpsertion.entities["username"]?.isPartialEntity).isEqualTo(true)
 
             assertThat(insertionUpsertion.entities["username"]?.entityTypeName)
                 .isEqualTo(USER_TYPE_NAME)
@@ -748,9 +737,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityTwo() {
-        val usernameSource = Source.java(
-            "foo.bar.Username",
-            """
+        val usernameSource =
+            Source.java(
+                "foo.bar.Username",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -761,7 +751,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 int age;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -774,9 +764,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityMissingRequiredColumn() {
-        val usernameSource = Source.java(
-            "foo.bar.Username",
-            """
+        val usernameSource =
+            Source.java(
+                "foo.bar.Username",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -785,7 +776,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String name;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -806,9 +797,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityColumnDefaultValue() {
-        val petNameSource = Source.java(
-            "foo.bar.PetName",
-            """
+        val petNameSource =
+            Source.java(
+                "foo.bar.PetName",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -817,10 +809,11 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String string;
             }
             """
-        )
-        val petSource = Source.java(
-            "foo.bar.Pet",
-            """
+            )
+        val petSource =
+            Source.java(
+                "foo.bar.Pet",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -833,7 +826,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 int age;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = Pet.class)
@@ -846,9 +839,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityMissingPrimaryKey() {
-        val petNameSource = Source.java(
-            "foo.bar.PetName",
-            """
+        val petNameSource =
+            Source.java(
+                "foo.bar.PetName",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -857,10 +851,11 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String string;
             }
             """
-        )
-        val petSource = Source.java(
-            "foo.bar.Pet",
-            """
+            )
+        val petSource =
+            Source.java(
+                "foo.bar.Pet",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -871,7 +866,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String name;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = Pet.class)
@@ -880,22 +875,19 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             additionalSources = listOf(petNameSource, petSource)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(missingPrimaryKey(
-                    "foo.bar.PetName",
-                    listOf("petId"))
-                )
+                hasErrorContaining(missingPrimaryKey("foo.bar.PetName", listOf("petId")))
             }
         }
     }
 
-    abstract fun missingPrimaryKey(partialEntityName: String, primaryKeyName: List<String>):
-        String
+    abstract fun missingPrimaryKey(partialEntityName: String, primaryKeyName: List<String>): String
 
     @Test
     fun targetEntityAutoGeneratedPrimaryKey() {
-        val petNameSource = Source.java(
-            "foo.bar.PetName",
-            """
+        val petNameSource =
+            Source.java(
+                "foo.bar.PetName",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -904,10 +896,11 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String string;
             }
             """
-        )
-        val petSource = Source.java(
-            "foo.bar.Pet",
-            """
+            )
+        val petSource =
+            Source.java(
+                "foo.bar.Pet",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -918,7 +911,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String name;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = Pet.class)
@@ -931,9 +924,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityExtraColumn() {
-        val usernameSource = Source.java(
-            "foo.bar.Username",
-            """
+        val usernameSource =
+            Source.java(
+                "foo.bar.Username",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -943,7 +937,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 long extraField;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -952,18 +946,17 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             additionalSources = listOf(usernameSource)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.cannotFindAsEntityField("foo.bar.User")
-                )
+                hasErrorContaining(ProcessorErrors.cannotFindAsEntityField("foo.bar.User"))
             }
         }
     }
 
     @Test
     fun targetEntityExtraColumnIgnored() {
-        val usernameSource = Source.java(
-            "foo.bar.Username",
-            """
+        val usernameSource =
+            Source.java(
+                "foo.bar.Username",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -976,7 +969,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 long extraField;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -989,9 +982,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityWithEmbedded() {
-        val usernameSource = Source.java(
-            "foo.bar.Username",
-            """
+        val usernameSource =
+            Source.java(
+                "foo.bar.Username",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -1003,10 +997,11 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 int age;
             }
             """
-        )
-        val fullnameSource = Source.java(
-            "foo.bar.Fullname",
-            """
+            )
+        val fullnameSource =
+            Source.java(
+                "foo.bar.Fullname",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -1016,7 +1011,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 String lastName;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -1029,9 +1024,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
     @Test
     fun targetEntityWithRelation() {
-        val userPetsSource = Source.java(
-            "foo.bar.UserPets",
-            """
+        val userPetsSource =
+            Source.java(
+                "foo.bar.UserPets",
+                """
             package foo.bar;
             import androidx.room.*;
             import java.util.List;
@@ -1042,10 +1038,11 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 List<Pet> pets;
             }
             """
-        )
-        val petSource = Source.java(
-            "foo.bar.Pet",
-            """
+            )
+        val petSource =
+            Source.java(
+                "foo.bar.Pet",
+                """
             package foo.bar;
             import androidx.room.*;
 
@@ -1056,7 +1053,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 int ownerId;
             }
             """
-        )
+            )
         singleInsertUpsertShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
@@ -1065,9 +1062,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             additionalSources = listOf(userPetsSource, petSource)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
             }
         }
     }
@@ -1075,34 +1070,35 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
-            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
-            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
-            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
-            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
-            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
-        ).forEach { type ->
-            singleInsertUpsertShortcutMethodKotlin(
-                """
+                "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+                "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+                "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+                "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+                "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+                "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+                "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+                "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+                "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+                "${KotlinTypeNames.FLOW.canonicalName}<Int>"
+            )
+            .forEach { type ->
+                singleInsertUpsertShortcutMethodKotlin(
+                    """
                 @${annotation.java.canonicalName}
                 abstract suspend fun foo(user: User): $type
                 """
-            ) { _, invocation ->
-                invocation.assertCompilationResult {
-                    val rawTypeName = type.substringBefore("<")
-                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                ) { _, invocation ->
+                    invocation.assertCompilationResult {
+                        val rawTypeName = type.substringBefore("<")
+                        hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                    }
                 }
             }
-        }
     }
 
     @Test
@@ -1113,9 +1109,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 abstract fun foo(user: User): ListenableFuture<Void>
                 """
         ) { _, invocation ->
-            invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
-            }
+            invocation.assertCompilationResult { hasErrorContaining(ProcessorErrors.NONNULL_VOID) }
         }
     }
 
@@ -1130,36 +1124,42 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         additionalSources: List<Source> = emptyList(),
         handler: (T, XTestInvocation) -> Unit
     ) {
-        val inputSource = Source.java(
-            "foo.bar.MyClass",
-            DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-        )
-        val commonSources = listOf(
-            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
-            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
-            COMMON.RX3_MAYBE, COMMON.RX3_SINGLE
-        )
+        val inputSource =
+            Source.java("foo.bar.MyClass", DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX)
+        val commonSources =
+            listOf(
+                COMMON.USER,
+                COMMON.BOOK,
+                COMMON.NOT_AN_ENTITY,
+                COMMON.RX2_COMPLETABLE,
+                COMMON.RX2_MAYBE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX3_COMPLETABLE,
+                COMMON.RX3_MAYBE,
+                COMMON.RX3_SINGLE
+            )
 
         runProcessorTest(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
-            val (owner, methods) = invocation.roundEnv
-                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map {
-                    Pair(
-                        it,
-                        it.getAllMethods().filter {
-                            it.hasAnnotation(annotation)
-                        }.toList()
-                    )
-                }.first { it.second.isNotEmpty() }
-            val processed = process(
-                baseContext = invocation.context,
-                containing = owner.type,
-                executableElement = methods.first()
-            )
+            val (owner, methods) =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map {
+                        Pair(
+                            it,
+                            it.getAllMethods().filter { it.hasAnnotation(annotation) }.toList()
+                        )
+                    }
+                    .first { it.second.isNotEmpty() }
+            val processed =
+                process(
+                    baseContext = invocation.context,
+                    containing = owner.type,
+                    executableElement = methods.first()
+                )
             handler(processed, invocation)
         }
     }
@@ -1169,38 +1169,52 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         additionalSources: List<Source> = emptyList(),
         handler: (T, XTestInvocation) -> Unit
     ) {
-        val inputSource = Source.kotlin(
-            "MyClass.kt",
-            DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX
-        )
-        val commonSources = listOf(
-            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
-            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
-            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
-            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
-            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
-        )
+        val inputSource =
+            Source.kotlin("MyClass.kt", DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX)
+        val commonSources =
+            listOf(
+                COMMON.USER,
+                COMMON.BOOK,
+                COMMON.NOT_AN_ENTITY,
+                COMMON.RX2_COMPLETABLE,
+                COMMON.RX2_MAYBE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX2_FLOWABLE,
+                COMMON.RX2_OBSERVABLE,
+                COMMON.RX3_COMPLETABLE,
+                COMMON.RX3_MAYBE,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
+                COMMON.PUBLISHER,
+                COMMON.FLOW,
+                COMMON.GUAVA_ROOM
+            )
 
         runProcessorTest(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
-            val (owner, methods) = invocation.roundEnv
-                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map {
-                    Pair(
-                        it,
-                        it.getAllMethods().filter {
-                            it.hasAnnotation(annotation)
-                        }.toList()
-                    )
-                }.first { it.second.isNotEmpty() }
-            val processed = process(
-                baseContext = invocation.context,
-                containing = owner.type,
-                executableElement = methods.first()
-            )
+            val (owner, methods) =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map {
+                        Pair(
+                            it,
+                            it.getAllMethods().filter { it.hasAnnotation(annotation) }.toList()
+                        )
+                    }
+                    .first { it.second.isNotEmpty() }
+            val processed =
+                process(
+                    baseContext = invocation.context,
+                    containing = owner.type,
+                    executableElement = methods.first()
+                )
             handler(processed, invocation)
         }
     }

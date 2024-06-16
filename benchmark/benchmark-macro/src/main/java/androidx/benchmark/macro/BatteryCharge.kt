@@ -35,12 +35,15 @@ object BatteryCharge {
          * @throws AssertionError if `throwOnMissingMetrics == true` and charge is too low.
          */
         if (throwOnMissingMetrics) {
-            throw AssertionError("""
+            throw AssertionError(
+                """
                 ERROR: Device has low battery (${DeviceInfo.initialBatteryPercent})
                 When battery is low during a test that involves disconnecting the charge, devices
                 risk running out of power during the test. Wait for your battery to charge to at
                 least $MIN_BATTERY_PERCENT%.  Currently at ${DeviceInfo.initialBatteryPercent}%.
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
         }
 
         return false

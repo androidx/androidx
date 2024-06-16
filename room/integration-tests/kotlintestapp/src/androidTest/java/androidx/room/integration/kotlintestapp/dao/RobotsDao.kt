@@ -27,20 +27,14 @@ import java.util.UUID
 
 @Dao
 interface RobotsDao {
-    @Insert
-    fun putHivemind(hivemind: Hivemind)
+    @Insert fun putHivemind(hivemind: Hivemind)
 
-    @Insert
-    fun putRobot(robot: Robot)
+    @Insert fun putRobot(robot: Robot)
 
-    @Query("SELECT * FROM Hivemind")
-    @Transaction
-    fun getCluster(): List<Cluster>
+    @Query("SELECT * FROM Hivemind") @Transaction fun getCluster(): List<Cluster>
 
     @Query("SELECT * FROM Robot WHERE mHiveId = :hiveId")
     fun getHiveRobots(hiveId: UUID?): List<Robot>
 
-    @Query("SELECT * FROM Robot")
-    @Transaction
-    fun robotsWithHivemind(): List<RobotAndHivemind>
+    @Query("SELECT * FROM Robot") @Transaction fun robotsWithHivemind(): List<RobotAndHivemind>
 }

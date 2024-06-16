@@ -194,9 +194,8 @@ class HealthConnectClientImplTest {
                 async {
                     val e = assertFailsWith(RemoteException::class) { healthConnectClient.method() }
                     // Assert that we've wrapped the exception to expose a useful stack.
-                    assertThat(e.stackTrace.map { it.className }.toSet()).contains(
-                        HealthConnectClientImpl::class.qualifiedName
-                    )
+                    assertThat(e.stackTrace.map { it.className }.toSet())
+                        .contains(HealthConnectClientImpl::class.qualifiedName)
                 }
             )
         }
@@ -280,7 +279,7 @@ class HealthConnectClientImplTest {
                         endTime = Instant.ofEpochMilli(5678L),
                         endZoneOffset = null,
                         metadata =
-                        Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
+                            Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                     )
                 )
             )
@@ -461,10 +460,10 @@ class HealthConnectClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                    Metadata(
-                        id = "testUid",
-                        recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
-                    )
+                        Metadata(
+                            id = "testUid",
+                            recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
+                        )
                 )
             )
     }

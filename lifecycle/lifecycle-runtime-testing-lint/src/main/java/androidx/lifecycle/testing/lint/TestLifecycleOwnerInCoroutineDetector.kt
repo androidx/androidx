@@ -36,32 +36,32 @@ import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
-/**
- * [Detector] that checks TestLifecycleOwner usage when run from within a coroutine
- */
+/** [Detector] that checks TestLifecycleOwner usage when run from within a coroutine */
 class TestLifecycleOwnerInCoroutineDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames() = listOf(RunTest.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!(method.isInPackageName(RunTestPackageName)))
-            return
+        if (!(method.isInPackageName(RunTestPackageName))) return
 
         // The RunTest lambda
-        val testBody = node.valueArguments.find {
-            node.getParameterForArgument(it)?.name == "testBody"
-        } ?: return
+        val testBody =
+            node.valueArguments.find { node.getParameterForArgument(it)?.name == "testBody" }
+                ?: return
 
         var setsCurrentState = false
 
-        testBody.accept(object : AbstractUastVisitor() {
-            override fun visitBinaryExpression(node: UBinaryExpression): Boolean {
-                val resolvedLeft = node.leftOperand.tryResolve() as? PsiField ?: return false
-                val resolvedRight = node.rightOperand.tryResolve() as? PsiField ?: return false
-                setsCurrentState = resolvedLeft.name == CurrentState.shortName &&
-                    isLifecycleState(resolvedRight.name)
-                return setsCurrentState
+        testBody.accept(
+            object : AbstractUastVisitor() {
+                override fun visitBinaryExpression(node: UBinaryExpression): Boolean {
+                    val resolvedLeft = node.leftOperand.tryResolve() as? PsiField ?: return false
+                    val resolvedRight = node.rightOperand.tryResolve() as? PsiField ?: return false
+                    setsCurrentState =
+                        resolvedLeft.name == CurrentState.shortName &&
+                            isLifecycleState(resolvedRight.name)
+                    return setsCurrentState
+                }
             }
-        })
+        )
 
         if (setsCurrentState) {
             context.report(
@@ -79,23 +79,27 @@ class TestLifecycleOwnerInCoroutineDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "TestLifecycleOwnerInCoroutine",
-            briefDescription = "Use the suspending function setCurrentState(), rather than " +
-                "directly accessing the currentState property.",
-            explanation = """When using TestLifecycleOwner, one of the main use cases is to change \
+        val ISSUE =
+            Issue.create(
+                id = "TestLifecycleOwnerInCoroutine",
+                briefDescription =
+                    "Use the suspending function setCurrentState(), rather than " +
+                        "directly accessing the currentState property.",
+                explanation =
+                    """When using TestLifecycleOwner, one of the main use cases is to change \
                 the currentState property. Under the hood, we do this using runBlocking to keep \
                 it thread-safe. However, when using TestLifecycleOwner from the context of a \
                 coroutine (like runTest), this will cause the setter to hang, since coroutines \
                 should remain asynchronous.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                TestLifecycleOwnerInCoroutineDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        TestLifecycleOwnerInCoroutineDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                    ),
+                androidSpecific = true
+            )
     }
 }
 

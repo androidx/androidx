@@ -29,9 +29,10 @@ import org.junit.Test
 
 class OnClickXmlDetectorTest {
     companion object {
-        val layoutWithCoreClick = LintDetectorTest.xml(
-            "layout/view_with_click.xml",
-            """
+        val layoutWithCoreClick =
+            LintDetectorTest.xml(
+                    "layout/view_with_click.xml",
+                    """
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -45,11 +46,14 @@ class OnClickXmlDetectorTest {
         android:text="Click!" />
 </LinearLayout>
         """
-        ).indented().within("res")
+                )
+                .indented()
+                .within("res")
 
-        val layoutWithDataBindingClick = LintDetectorTest.xml(
-            "layout/view_with_click.xml",
-            """
+        val layoutWithDataBindingClick =
+            LintDetectorTest.xml(
+                    "layout/view_with_click.xml",
+                    """
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -63,12 +67,15 @@ class OnClickXmlDetectorTest {
         android:text="Click!" />
 </LinearLayout>
         """
-        ).indented().within("res")
+                )
+                .indented()
+                .within("res")
 
         @Suppress("RedundantVisibilityModifier")
-        val activityWithClick = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val activityWithClick =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.os.Bundle
@@ -86,14 +93,17 @@ class OnClickXmlDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
     }
 
     @Test
     fun testCoreOnClickApi14() {
         // Manifest that sets min sdk to 14
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                     package="com.example">
@@ -108,18 +118,21 @@ class OnClickXmlDetectorTest {
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         // We expect the android:onClick to be flagged on pre-24 min SDK
-        /* ktlint-disable max-line-length */
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.COLOR_STATE_LIST,
-            manifest,
-            layoutWithCoreClick,
-            activityWithClick
-        ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
+
+        lint()
+            .files(
+                Stubs.APPCOMPAT_ACTIVITY,
+                Stubs.COLOR_STATE_LIST,
+                manifest,
+                layoutWithCoreClick,
+                activityWithClick
+            )
+            .issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
             .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expect(
@@ -128,16 +141,17 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
         android:onClick="myButtonClick"
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testCoreOnClickApi23() {
         // Manifest that sets min sdk to 23
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                     package="com.example">
@@ -152,17 +166,20 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         // We expect the android:onClick to not be flagged on 24+ min SDK
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.COLOR_STATE_LIST,
-            manifest,
-            layoutWithCoreClick,
-            activityWithClick
-        ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
+        lint()
+            .files(
+                Stubs.APPCOMPAT_ACTIVITY,
+                Stubs.COLOR_STATE_LIST,
+                manifest,
+                layoutWithCoreClick,
+                activityWithClick
+            )
+            .issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
             .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expectClean()
@@ -171,8 +188,9 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
     @Test
     fun testDataBindingOnClickApi14() {
         // Manifest that sets min sdk to 14
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                     package="com.example">
@@ -187,18 +205,21 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         // We expect the android:onClick that uses databinding syntax to not be flagged, even
         // on min SDK 14
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.COLOR_STATE_LIST,
-            manifest,
-            layoutWithDataBindingClick,
-            activityWithClick
-        ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
+        lint()
+            .files(
+                Stubs.APPCOMPAT_ACTIVITY,
+                Stubs.COLOR_STATE_LIST,
+                manifest,
+                layoutWithDataBindingClick,
+                activityWithClick
+            )
+            .issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
             .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expectClean()

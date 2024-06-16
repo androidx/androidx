@@ -19,7 +19,6 @@ package androidx.camera.camera2
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
-import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.atomicfu.atomic
@@ -30,7 +29,6 @@ import kotlinx.atomicfu.atomic
  *
  * <p>The camera must be explicitly opened and closed, and once closed it cannot be reopened.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AsyncCameraDevice(
     private val cameraManager: CameraManager,
     private val camId: String,
@@ -43,27 +41,31 @@ internal class AsyncCameraDevice(
         CallbackToFutureAdapter.getFuture { openCompleter ->
             if (!closed.value) {
                 try {
-                    cameraManager.openCamera(camId, object : CameraDevice.StateCallback() {
-                        override fun onOpened(cameraDevice: CameraDevice) {
-                            if (!openCompleter.set(cameraDevice)) {
+                    cameraManager.openCamera(
+                        camId,
+                        object : CameraDevice.StateCallback() {
+                            override fun onOpened(cameraDevice: CameraDevice) {
+                                if (!openCompleter.set(cameraDevice)) {
+                                    cameraDevice.close()
+                                }
+                            }
+
+                            override fun onDisconnected(cameraDevice: CameraDevice) {
+                                openCompleter.setException(RuntimeException("Camera disconnected"))
                                 cameraDevice.close()
                             }
-                        }
 
-                        override fun onDisconnected(cameraDevice: CameraDevice) {
-                            openCompleter.setException(RuntimeException("Camera disconnected"))
-                            cameraDevice.close()
-                        }
+                            override fun onError(cameraDevice: CameraDevice, i: Int) {
+                                openCompleter.setException(RuntimeException("Camera error: $i"))
+                                cameraDevice.close()
+                            }
 
-                        override fun onError(cameraDevice: CameraDevice, i: Int) {
-                            openCompleter.setException(RuntimeException("Camera error: $i"))
-                            cameraDevice.close()
-                        }
-
-                        override fun onClosed(camera: CameraDevice) {
-                            closeCompleter.set(null)
-                        }
-                    }, cameraHandler)
+                            override fun onClosed(camera: CameraDevice) {
+                                closeCompleter.set(null)
+                            }
+                        },
+                        cameraHandler
+                    )
                 } catch (ex: Exception) {
                     openCompleter.setException(RuntimeException("Unable to open camera", ex))
                     closeCompleter.set(null)
@@ -76,17 +78,18 @@ internal class AsyncCameraDevice(
     }
 
     private lateinit var closeCompleter: CallbackToFutureAdapter.Completer<Any?>
-    private val closeFuture: ListenableFuture<Any?> = CallbackToFutureAdapter.getFuture {
-        closeCompleter = it
-        "close"
-    }
+    private val closeFuture: ListenableFuture<Any?> =
+        CallbackToFutureAdapter.getFuture {
+            closeCompleter = it
+            "close"
+        }
 
     /**
      * Opens the camera device.
      *
      * <p>When the camera opens successfully, the returned [ListenableFuture] will also complete
-     * successfully. If the camera fails to open or the camera is closed, a the future may fail,
-     * in which case the camera doesn't need to be closed with [closeAsync].
+     * successfully. If the camera fails to open or the camera is closed, a the future may fail, in
+     * which case the camera doesn't need to be closed with [closeAsync].
      *
      * <p>Cancelling this future will attempt to close the camera once it is opened. If cancellation
      * is successful, the camera doesn't need to be closed with [closeAsync].
@@ -101,13 +104,13 @@ internal class AsyncCameraDevice(
      *
      * <p>If the camera is already closed or encountered an error, this will be a no-op.
      *
-     * <p>The returned future will complete successfully once an open camera is closed or the
-     * camera cannot be opened.
+     * <p>The returned future will complete successfully once an open camera is closed or the camera
+     * cannot be opened.
      *
      * <p>The camera should always be closed if the camera was successfully opened.
      *
-     * <p>Calling close while the camera is opening is equivalent to attempting to cancel the
-     * future returned by [openAsync].
+     * <p>Calling close while the camera is opening is equivalent to attempting to cancel the future
+     * returned by [openAsync].
      */
     fun closeAsync(): ListenableFuture<Any?> {
         if (!closed.getAndSet(true)) {

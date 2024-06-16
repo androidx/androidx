@@ -47,17 +47,17 @@ import androidx.compose.ui.semantics.semantics
  * @param modifier the [Modifier] to be applied to this button.
  * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
  * @param shape Defines the Button's shape.
  * @param colors Color to be used for background and content of the Button
  * @param border Defines a border around the Button.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this button. You can use this to change the button's appearance
- * or preview the button in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
+ *   preview the button in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param content the content of the button, typically an [Icon]
  */
 @NonRestartableComposable
@@ -76,9 +76,8 @@ fun IconButton(
     content: @Composable BoxScope.() -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .semantics { role = Role.Button }
-            .size(IconButtonDefaults.MediumButtonSize),
+        modifier =
+            modifier.semantics { role = Role.Button }.size(IconButtonDefaults.MediumButtonSize),
         onClick = onClick,
         onLongClick = onLongClick,
         enabled = enabled,
@@ -104,9 +103,8 @@ fun IconButton(
  * compact button is required, such as in a toolbar or image list.
  *
  * [content] should typically be an [Icon]. If using a custom icon, note that the typical size for
- * the internal icon is 24 x 24 dp.
- * This icon button has an overall minimum touch target size of 48 x 48dp, to meet accessibility
- * guidelines.
+ * the internal icon is 24 x 24 dp. This icon button has an overall minimum touch target size of 48
+ * x 48dp, to meet accessibility guidelines.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
@@ -116,17 +114,17 @@ fun IconButton(
  * @param modifier the [Modifier] to be applied to this button.
  * @param onLongClick called when this card is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
  * @param scale Defines size of the Button relative to its original size
  * @param glow Shadow to be shown behind the Button.
  * @param shape Defines the Button's shape.
  * @param colors Color to be used for background and content of the Button
  * @param border Defines a border around the Button.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this button. You can use this to change the button's appearance
- * or preview the button in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
+ *   preview the button in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param content the content of the button, typically an [Icon]
  */
 @NonRestartableComposable
@@ -145,9 +143,10 @@ fun OutlinedIconButton(
     content: @Composable BoxScope.() -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .semantics { role = Role.Button }
-            .size(OutlinedIconButtonDefaults.MediumButtonSize),
+        modifier =
+            modifier
+                .semantics { role = Role.Button }
+                .size(OutlinedIconButtonDefaults.MediumButtonSize),
         onClick = onClick,
         onLongClick = onLongClick,
         enabled = enabled,

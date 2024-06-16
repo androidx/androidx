@@ -22,6 +22,7 @@ import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.util.Preconditions;
@@ -45,20 +46,20 @@ public class PaginatedView extends AbstractPaginatedView {
     /** Maps the current child views to pages. */
     private final SparseArray<PageView> mPageViews = new SparseArray<>();
 
-    public PaginatedView(Context context) {
+    public PaginatedView(@NonNull Context context) {
         super(context);
     }
 
-    public PaginatedView(Context context, AttributeSet attrs) {
+    public PaginatedView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public PaginatedView(Context context, AttributeSet attrs, int defStyle) {
+    public PaginatedView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
     /** Instantiate a page of this pageView into a child pageView. */
-    public void addView(PageView pageView) {
+    public void addView(@NonNull PageView pageView) {
         int pageNum = pageView.getPageNum();
         Preconditions.checkState(pageNum < getModel().getSize(),
                 "Can't add pageView for unknown page");
@@ -103,6 +104,7 @@ public class PaginatedView extends AbstractPaginatedView {
      * <p>The list is backed by this view and will likely change soon, so is only suitable for
      * immediate iteration.
      */
+    @NonNull
     public List<PageMosaicView> getChildViews() {
         return new AbstractList<PageMosaicView>() {
 

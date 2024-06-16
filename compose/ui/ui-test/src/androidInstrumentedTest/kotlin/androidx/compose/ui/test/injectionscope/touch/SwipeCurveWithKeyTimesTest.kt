@@ -42,9 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Test for [TouchInjectionScope.swipe] along a curve with key times
- */
+/** Test for [TouchInjectionScope.swipe] along a curve with key times */
 @MediumTest
 @RunWith(Parameterized::class)
 class SwipeCurveWithKeyTimesTest(private val config: TestConfig) {
@@ -56,32 +54,31 @@ class SwipeCurveWithKeyTimesTest(private val config: TestConfig) {
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> = listOf(
-            TestConfig(emptyList()),
-            TestConfig(listOf(0)),
-            TestConfig(listOf(1)),
-            TestConfig(listOf(50)),
-            TestConfig(listOf(51)),
-            TestConfig(listOf(duration - 1)),
-            TestConfig(listOf(duration)),
-            TestConfig(listOf(33, 66)),
-            TestConfig(listOf(45, 46, 47)),
-            TestConfig(listOf(45, 55, 65)),
-        )
+        fun createTestSet(): List<TestConfig> =
+            listOf(
+                TestConfig(emptyList()),
+                TestConfig(listOf(0)),
+                TestConfig(listOf(1)),
+                TestConfig(listOf(50)),
+                TestConfig(listOf(51)),
+                TestConfig(listOf(duration - 1)),
+                TestConfig(listOf(duration)),
+                TestConfig(listOf(33, 66)),
+                TestConfig(listOf(45, 46, 47)),
+                TestConfig(listOf(45, 55, 65)),
+            )
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = SinglePointerInputRecorder()
+
     private fun curve(t: Long) = Offset(t + 10f, t + 10f)
 
     @Before
     fun setContent() {
         rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                ClickableTestBox(modifier = recorder, tag = tag)
-            }
+            Box(Modifier.fillMaxSize()) { ClickableTestBox(modifier = recorder, tag = tag) }
         }
     }
 
@@ -110,12 +107,10 @@ class SwipeCurveWithKeyTimesTest(private val config: TestConfig) {
                 downEvents.areSampledFromCurve(::curve)
 
                 // All events between two key times are evenly spaced in time
-                (listOf(0L) + config.keyTimes + listOf(duration)).distinct()
-                    .zipWithNext { a, b ->
-                        downEvents.filter { (it.timestamp - t0) in a..b }
-                    }.forEach {
-                        it.hasSameTimeBetweenEvents()
-                    }
+                (listOf(0L) + config.keyTimes + listOf(duration))
+                    .distinct()
+                    .zipWithNext { a, b -> downEvents.filter { (it.timestamp - t0) in a..b } }
+                    .forEach { it.hasSameTimeBetweenEvents() }
             }
         }
     }

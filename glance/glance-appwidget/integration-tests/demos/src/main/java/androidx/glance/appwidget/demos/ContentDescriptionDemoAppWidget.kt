@@ -66,11 +66,11 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
 
         GlanceTheme {
             Column(
-                modifier = GlanceModifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .appWidgetBackground()
-                    .background(GlanceTheme.colors.surface)
+                modifier =
+                    GlanceModifier.fillMaxSize()
+                        .padding(16.dp)
+                        .appWidgetBackground()
+                        .background(GlanceTheme.colors.surface)
             ) {
                 CheckBox(
                     text = "Set top-level content description per-item",
@@ -123,10 +123,10 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
         isLastItem: Boolean,
         setTopLevelContentDescription: Boolean
     ) {
-        var modifier = GlanceModifier
-            .padding(8.dp)
-            .background(GlanceTheme.colors.background)
-            .clickable(actionStartActivity<ListClickDestinationActivity>())
+        var modifier =
+            GlanceModifier.padding(8.dp)
+                .background(GlanceTheme.colors.background)
+                .clickable(actionStartActivity<ListClickDestinationActivity>())
 
         // For this UI, in Glance, the top-level Column and the CircleIconButton will be the two
         // navigable items seen when using accessibility services like talkback. Individual text
@@ -146,33 +146,33 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
         // the text inside; as merge semantics is not supported in Glance. Similar to #1, on
         // navigating to the CircleIconButton, its content description will be read out.
         if (setTopLevelContentDescription) {
-            modifier = modifier.semantics {
-                contentDescription =
-                    "This is an explicit content description set on the container of ${book.title}"
-            }
+            modifier =
+                modifier.semantics {
+                    contentDescription =
+                        "This is an explicit content description set on the container of ${book.title}"
+                }
         }
 
         Column(modifier = modifier) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
-                BookDetails(
-                    book = book,
-                    modifier = GlanceModifier.padding(5.dp).defaultWeight()
-                )
+                BookDetails(book = book, modifier = GlanceModifier.padding(5.dp).defaultWeight())
                 HorizontalSpacer()
                 CircleIconButton(
-                    imageProvider = if (isInWishList) {
-                        ImageProvider(R.drawable.baseline_check_24)
-                    } else {
-                        ImageProvider(R.drawable.baseline_add_24)
-                    },
+                    imageProvider =
+                        if (isInWishList) {
+                            ImageProvider(R.drawable.baseline_check_24)
+                        } else {
+                            ImageProvider(R.drawable.baseline_add_24)
+                        },
                     backgroundColor = GlanceTheme.colors.secondary,
                     contentColor = GlanceTheme.colors.onSecondary,
                     // On navigating to this icon button, this content description will be read out.
-                    contentDescription = if (isInWishList) {
-                        "Remove from wish list"
-                    } else {
-                        "Add to wish list"
-                    },
+                    contentDescription =
+                        if (isInWishList) {
+                            "Remove from wish list"
+                        } else {
+                            "Add to wish list"
+                        },
                     onClick = toggleWishList,
                 )
             }
@@ -183,10 +183,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
     }
 
     @Composable
-    fun BookDetails(
-        modifier: GlanceModifier,
-        book: Book
-    ) {
+    fun BookDetails(modifier: GlanceModifier, book: Book) {
         Column(modifier) {
             Text(
                 // If top-level container doesn't have an explicit content description set, this
@@ -207,14 +204,15 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
                     // This won't be read as the text composable has a contentDescription is set.
                     text = book.genre,
                     style = TextStyle(color = GlanceTheme.colors.onTertiary),
-                    modifier = GlanceModifier
-                        .padding(5.dp)
-                        .cornerRadius(16.dp)
-                        .background(GlanceTheme.colors.tertiary)
-                        // If top-level container doesn't have a explicit content description set,
-                        // this contentDescription will be included in content read out by the
-                        // screen reader.
-                        .semantics { contentDescription = "The genre is ${book.genre}" }
+                    modifier =
+                        GlanceModifier.padding(5.dp)
+                            .cornerRadius(16.dp)
+                            .background(GlanceTheme.colors.tertiary)
+                            // If top-level container doesn't have a explicit content description
+                            // set,
+                            // this contentDescription will be included in content read out by the
+                            // screen reader.
+                            .semantics { contentDescription = "The genre is ${book.genre}" }
                 )
             }
         }
@@ -223,9 +221,10 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
     @Composable
     fun ListSeparator() {
         Spacer(
-            modifier = GlanceModifier.height(1.dp)
-                .fillMaxWidth()
-                .background(GlanceTheme.colors.onBackground)
+            modifier =
+                GlanceModifier.height(1.dp)
+                    .fillMaxWidth()
+                    .background(GlanceTheme.colors.onBackground)
         )
     }
 
@@ -242,10 +241,11 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
     companion object {
         data class Book(val id: String, val title: String, val author: String, val genre: String)
 
-        val DEMO_BOOKS = listOf(
-            Book("1", "Book 1", "John Doe", "Thriller"),
-            Book("2", "Book 2", "Jane Doe", "Adventure")
-        )
+        val DEMO_BOOKS =
+            listOf(
+                Book("1", "Book 1", "John Doe", "Thriller"),
+                Book("2", "Book 2", "Jane Doe", "Adventure")
+            )
     }
 }
 

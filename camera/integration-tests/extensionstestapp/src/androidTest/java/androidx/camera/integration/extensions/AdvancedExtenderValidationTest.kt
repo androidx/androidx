@@ -42,9 +42,8 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 28)
 class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
-    private val validation = AdvancedExtenderValidation(
-        config.cameraXConfig, config.cameraId, config.extensionMode
-    )
+    private val validation =
+        AdvancedExtenderValidation(config.cameraXConfig, config.cameraId, config.extensionMode)
 
     companion object {
         @JvmStatic
@@ -54,20 +53,18 @@ class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
     }
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(config.cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(config.cameraXConfig)
+        )
 
-    @Before
-    fun setUp() = validation.setUp()
+    @Before fun setUp() = validation.setUp()
 
-    @After
-    fun tearDown() = validation.tearDown()
+    @After fun tearDown() = validation.tearDown()
 
     @Test
     fun getSupportedPreviewOutputResolutions_returnValidData() =

@@ -36,8 +36,7 @@ interface UseTorchAsFlash {
             fun provideUseTorchAsFlash(cameraQuirks: CameraQuirks): UseTorchAsFlash =
                 if (cameraQuirks.quirks.contains(UseTorchAsFlashQuirk::class.java))
                     UseTorchAsFlashImpl
-                else
-                    NotUseTorchAsFlash
+                else NotUseTorchAsFlash
         }
     }
 }

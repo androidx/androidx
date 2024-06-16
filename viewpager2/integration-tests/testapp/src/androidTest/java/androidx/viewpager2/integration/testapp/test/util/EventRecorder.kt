@@ -29,32 +29,26 @@ sealed class OnPageChangeCallbackEvent {
     ) : OnPageChangeCallbackEvent()
 
     data class OnPageSelectedEvent(val position: Int) : OnPageChangeCallbackEvent()
+
     data class OnPageScrollStateChangedEvent(val state: Int) : OnPageChangeCallbackEvent()
 }
 
 class EventRecorder : ViewPager2.OnPageChangeCallback() {
     private val events = mutableListOf<OnPageChangeCallbackEvent>()
-    val allEvents: List<OnPageChangeCallbackEvent> get() = events
+    val allEvents: List<OnPageChangeCallbackEvent>
+        get() = events
 
-    override fun onPageScrolled(
-        position: Int,
-        positionOffset: Float,
-        positionOffsetPixels: Int
-    ) {
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
         synchronized(events) {
             events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
     }
 
     override fun onPageSelected(position: Int) {
-        synchronized(events) {
-            events.add(OnPageSelectedEvent(position))
-        }
+        synchronized(events) { events.add(OnPageSelectedEvent(position)) }
     }
 
     override fun onPageScrollStateChanged(state: Int) {
-        synchronized(events) {
-            events.add(OnPageScrollStateChangedEvent(state))
-        }
+        synchronized(events) { events.add(OnPageScrollStateChangedEvent(state)) }
     }
 }

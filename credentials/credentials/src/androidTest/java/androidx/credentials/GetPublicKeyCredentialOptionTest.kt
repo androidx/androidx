@@ -37,7 +37,9 @@ class GetPublicKeyCredentialOptionTest {
         Assert.assertThrows(
             "Expected empty Json to throw error",
             IllegalArgumentException::class.java
-        ) { GetPublicKeyCredentialOption("") }
+        ) {
+            GetPublicKeyCredentialOption("")
+        }
     }
 
     @Test
@@ -58,17 +60,15 @@ class GetPublicKeyCredentialOptionTest {
         val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(TEST_REQUEST_JSON)
 
         assertThat(getPublicKeyCredentialOption.typePriorityHint)
-            .isEqualTo(EXPECTED_PASSKEY_PRIORITY);
+            .isEqualTo(EXPECTED_PASSKEY_PRIORITY)
     }
 
     @Test
     fun getter_frameworkProperties_success() {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val expectedAutoSelectAllowed = true
-        val expectedAllowedProviders: Set<ComponentName> = setOf(
-            ComponentName("pkg", "cls"),
-            ComponentName("pkg2", "cls2")
-        )
+        val expectedAllowedProviders: Set<ComponentName> =
+            setOf(ComponentName("pkg", "cls"), ComponentName("pkg2", "cls2"))
         val clientDataHash = "hash".toByteArray()
         val expectedData = Bundle()
         val expectedPriorityInt = EXPECTED_PASSKEY_PRIORITY
@@ -81,16 +81,21 @@ class GetPublicKeyCredentialOptionTest {
             requestJsonExpected
         )
         expectedData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, expectedPriorityInt)
-        expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash)
+        expectedData.putByteArray(
+            GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+            clientDataHash
+        )
         expectedData.putBoolean(
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
             expectedAutoSelectAllowed
         )
 
-        val option = GetPublicKeyCredentialOption(
-            requestJsonExpected, clientDataHash, expectedAllowedProviders
-        )
+        val option =
+            GetPublicKeyCredentialOption(
+                requestJsonExpected,
+                clientDataHash,
+                expectedAllowedProviders
+            )
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.requestData, expectedData)).isTrue()
@@ -104,13 +109,14 @@ class GetPublicKeyCredentialOptionTest {
     @Test
     fun frameworkConversion_success() {
         val clientDataHash = "hash".toByteArray()
-        val expectedAllowedProviders: Set<ComponentName> = ImmutableSet.of(
-            ComponentName("pkg", "cls"),
-            ComponentName("pkg2", "cls2")
-        )
-        val option = GetPublicKeyCredentialOption(
-            TEST_REQUEST_JSON, clientDataHash, expectedAllowedProviders
-        )
+        val expectedAllowedProviders: Set<ComponentName> =
+            ImmutableSet.of(ComponentName("pkg", "cls"), ComponentName("pkg2", "cls2"))
+        val option =
+            GetPublicKeyCredentialOption(
+                TEST_REQUEST_JSON,
+                clientDataHash,
+                expectedAllowedProviders
+            )
         // Add additional data to the request data and candidate query data to make sure
         // they persist after the conversion
         // Add additional data to the request data and candidate query data to make sure
@@ -124,14 +130,16 @@ class GetPublicKeyCredentialOptionTest {
         val customCandidateQueryDataValue = true
         candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
 
-        val convertedOption = createFrom(
-            option.type, requestData, candidateQueryData,
-            option.isSystemProviderRequired, option.allowedProviders
-        )
+        val convertedOption =
+            createFrom(
+                option.type,
+                requestData,
+                candidateQueryData,
+                option.isSystemProviderRequired,
+                option.allowedProviders
+            )
 
-        assertThat(convertedOption).isInstanceOf(
-            GetPublicKeyCredentialOption::class.java
-        )
+        assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOption::class.java)
         val convertedSubclassOption = convertedOption as GetPublicKeyCredentialOption
         assertThat(convertedSubclassOption.requestJson).isEqualTo(option.requestJson)
         assertThat(convertedSubclassOption.allowedProviders)

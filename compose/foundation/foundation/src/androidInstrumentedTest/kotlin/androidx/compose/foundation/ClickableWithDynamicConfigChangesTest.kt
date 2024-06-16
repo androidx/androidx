@@ -58,24 +58,16 @@ class ClickableWithDynamicConfigChangesTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .clickable {
-                            ++counter
-                        }
+                    modifier = Modifier.testTag("myClickable").clickable { ++counter }
                 )
             }
         }
 
         rule.onNodeWithTag("myClickable").performClick()
 
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
 
-        rule.runOnUiThread {
-            grandParent.removeView(parentComposeView)
-        }
+        rule.runOnUiThread { grandParent.removeView(parentComposeView) }
 
         rule.runOnUiThread {
             (rule as? AndroidComposeTestRule<*, *>)?.cancelAndRecreateRecomposer()
@@ -86,14 +78,10 @@ class ClickableWithDynamicConfigChangesTest {
             parentComposeView.setParentCompositionContext(null)
         }
 
-        rule.runOnUiThread {
-            grandParent.addView(parentComposeView)
-        }
+        rule.runOnUiThread { grandParent.addView(parentComposeView) }
 
         rule.onNodeWithTag("myClickable").performClick()
 
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(2) }
     }
 }

@@ -67,9 +67,10 @@ class ExistingActivityLifecycleTest(
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -78,28 +79,23 @@ class ExistingActivityLifecycleTest(
             Manifest.permission.RECORD_AUDIO
         )
 
-    @get:Rule
-    val repeatRule = RepeatRule()
+    @get:Rule val repeatRule = RepeatRule()
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
-    private val launchIntent = Intent(
-        ApplicationProvider.getApplicationContext(),
-        CameraXActivity::class.java
-    ).apply {
-        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
-        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
-    }
+    private val launchIntent =
+        Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
+            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
+        }
 
     @Before
     fun setup() {
-        Assume.assumeFalse(
-            "Ignore Cuttlefish",
-            Build.MODEL.contains("Cuttlefish")
-        )
+        Assume.assumeFalse("Ignore Cuttlefish", Build.MODEL.contains("Cuttlefish"))
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
@@ -219,11 +215,7 @@ class ExistingActivityLifecycleTest(
     @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterToggleCameraAndStopResume() = runBlocking {
         // check have front camera
-        Assume.assumeTrue(
-            CameraUtil.hasCameraWithLensFacing(
-                CameraSelector.LENS_FACING_FRONT
-            )
-        )
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
 
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
@@ -231,8 +223,7 @@ class ExistingActivityLifecycleTest(
                 waitForViewfinderIdle()
 
                 // Switch camera.
-                onView(withId(R.id.direction_toggle))
-                    .perform(ViewActions.click())
+                onView(withId(R.id.direction_toggle)).perform(ViewActions.click())
 
                 // Check front camera is now idle
                 withActivity { resetViewIdlingResource() }
@@ -253,11 +244,7 @@ class ExistingActivityLifecycleTest(
     @RepeatRule.Repeat(times = 5)
     fun checkImageCaptureAfterToggleCameraAndStopResume() = runBlocking {
         // check have front camera
-        Assume.assumeTrue(
-            CameraUtil.hasCameraWithLensFacing(
-                CameraSelector.LENS_FACING_FRONT
-            )
-        )
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
 
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use {
@@ -267,8 +254,7 @@ class ExistingActivityLifecycleTest(
                 waitForViewfinderIdle()
 
                 // Act. Switch camera.
-                onView(withId(R.id.direction_toggle))
-                    .perform(ViewActions.click())
+                onView(withId(R.id.direction_toggle)).perform(ViewActions.click())
 
                 // Assert.
                 takePictureAndWaitForImageSavedIdle()
@@ -341,39 +327,32 @@ class ExistingActivityLifecycleTest(
     private fun rotateDeviceLeftAndWait() {
         // Create an ActivityMonitor to explicitly wait for the activity to be recreated after
         // rotating the device.
-        val monitor =
-            Instrumentation.ActivityMonitor(CameraXActivity::class.java.name, null, false)
+        val monitor = Instrumentation.ActivityMonitor(CameraXActivity::class.java.name, null, false)
         InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
         device.setOrientationLeft()
         // Wait for the rotation to complete
-        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
-            monitor,
-            ROTATE_TIMEOUT_MS
-        )
+        InstrumentationRegistry.getInstrumentation()
+            .waitForMonitorWithTimeout(monitor, ROTATE_TIMEOUT_MS)
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
     @Test
     fun checkPreviewUpdatedWithNewInstance() {
-        ActivityScenario.launchActivityForResult<CameraXActivity>(
-            launchIntent
-        ).use { firstActivity ->
+        ActivityScenario.launchActivityForResult<CameraXActivity>(launchIntent).use { firstActivity
+            ->
             // Arrange. Check the 1st activity Preview.
             firstActivity.waitForViewfinderIdle()
 
             // Act. Make the 1st Activity stopped and create new Activity.
             device.pressHome()
             device.waitForIdle(HOME_TIMEOUT_MS)
-            val secondActivity = CoreAppTestUtil.launchActivity(
-                InstrumentationRegistry.getInstrumentation(),
-                CameraXActivity::class.java,
-                Intent(
-                    ApplicationProvider.getApplicationContext(),
-                    CameraXActivity::class.java
-                ).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )!!
+            val secondActivity =
+                CoreAppTestUtil.launchActivity(
+                    InstrumentationRegistry.getInstrumentation(),
+                    CameraXActivity::class.java,
+                    Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
+                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                )!!
 
             // Assert. Verify the preview of the New activity start successfully.
             try {
@@ -398,15 +377,16 @@ class ExistingActivityLifecycleTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(
-                Camera2Config::class.simpleName,
-                CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
-            ),
-            arrayOf(
-                CameraPipeConfig::class.simpleName,
-                CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
+        fun data() =
+            listOf(
+                arrayOf(
+                    Camera2Config::class.simpleName,
+                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+                ),
+                arrayOf(
+                    CameraPipeConfig::class.simpleName,
+                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
+                )
             )
-        )
     }
 }

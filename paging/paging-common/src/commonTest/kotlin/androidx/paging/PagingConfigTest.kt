@@ -35,22 +35,14 @@ class PagingConfigTest {
     @Test
     fun requirePlaceholdersOrPrefetch() {
         assertFailsWith<IllegalArgumentException> {
-            PagingConfig(
-                pageSize = 10,
-                enablePlaceholders = false,
-                prefetchDistance = 0
-            )
+            PagingConfig(pageSize = 10, enablePlaceholders = false, prefetchDistance = 0)
         }
     }
 
     @Test
     fun prefetchWindowMustFitInMaxSize() {
         assertFailsWith<IllegalArgumentException> {
-            PagingConfig(
-                pageSize = 3,
-                prefetchDistance = 4,
-                maxSize = 10
-            )
+            PagingConfig(pageSize = 3, prefetchDistance = 4, maxSize = 10)
         }
     }
 }

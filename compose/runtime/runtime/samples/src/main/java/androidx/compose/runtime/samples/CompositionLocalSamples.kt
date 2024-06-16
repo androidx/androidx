@@ -33,9 +33,7 @@ fun createCompositionLocal() {
 fun compositionLocalProvider() {
     @Composable
     fun App(user: User) {
-        CompositionLocalProvider(ActiveUser provides user) {
-            SomeScreen()
-        }
+        CompositionLocalProvider(ActiveUser provides user) { SomeScreen() }
     }
 }
 
@@ -55,9 +53,7 @@ fun compositionLocalProvidedComputed() {
     @Composable
     fun App() {
         CompositionLocalProvider(
-            LocalLargerValue providesComputed {
-                LocalValue.currentValue + 10
-            }
+            LocalLargerValue providesComputed { LocalValue.currentValue + 10 }
         ) {
             SomeScreen()
         }
@@ -68,9 +64,7 @@ fun compositionLocalProvidedComputed() {
 fun compositionLocalComputedAfterProvidingLocal() {
     val LocalValue = compositionLocalOf { 10 }
     val LocalLargerValue = compositionLocalOf { 12 }
-    val LocalComputedValue = compositionLocalWithComputedDefaultOf {
-        LocalValue.currentValue + 4
-    }
+    val LocalComputedValue = compositionLocalWithComputedDefaultOf { LocalValue.currentValue + 4 }
 
     // In this example `LocalLargerValue` needs to be re-provided
     // whenever `LocalValue` is provided to keep its value larger
@@ -89,24 +83,18 @@ fun compositionLocalComputedAfterProvidingLocal() {
         val largerValue = LocalLargerValue.current
         // Value is computed to be 14
         val computedValue = LocalComputedValue.current
-        CompositionLocalProvider(
-            LocalValue provides 20
-        ) {
+        CompositionLocalProvider(LocalValue provides 20) {
             // Value is 20 provided above
             val nestedValue = LocalValue.current
             // Value is still 12 as an updated value was not re-provided
             val nestedLargerValue = LocalLargerValue.current
             // Values is computed to be 24; LocalValue.current + 4
             val nestedComputedValue = LocalComputedValue.current
-            CompositionLocalProvider(
-                LocalLargerValue provides LocalValue.current + 2
-            ) {
+            CompositionLocalProvider(LocalLargerValue provides LocalValue.current + 2) {
                 // Value is 22 provided above
                 val newLargerValue = LocalLargerValue.current
 
-                CompositionLocalProvider(
-                    LocalValue provides 50
-                ) {
+                CompositionLocalProvider(LocalValue provides 50) {
                     // Value is now 50 provided above
                     val finalValue = LocalValue.current
                     // Value is still 22

@@ -32,10 +32,7 @@ import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalComposeUiApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(
-    manifest = Config.NONE,
-    minSdk = 26
-)
+@Config(manifest = Config.NONE, minSdk = 26)
 class AndroidPopulateViewStructureTest {
     private val autofillTree = AutofillTree()
     private lateinit var androidAutofill: AndroidAutofill
@@ -66,11 +63,12 @@ class AndroidPopulateViewStructureTest {
     @Test
     fun populateViewStructure_oneChild() {
         // Arrange.
-        val autofillNode = AutofillNode(
-            onFill = {},
-            autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
+        val autofillNode =
+            AutofillNode(
+                onFill = {},
+                autofillTypes = listOf(AutofillType.PersonFullName),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
         autofillTree += autofillNode
 
         // Act.
@@ -78,36 +76,39 @@ class AndroidPopulateViewStructureTest {
         androidAutofill.populateViewStructure(viewStructure)
 
         // Assert.
-        assertThat(viewStructure).isEqualTo(
-            FakeAndroidViewStructure().apply {
-                children.add(
-                    FakeAndroidViewStructure().apply {
-                        virtualId = autofillNode.id
-                        packageName = currentPackage
-                        setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                        setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
-                        setDimens(0, 0, 0, 0, 0, 0)
-                    }
-                )
-            }
-        )
+        assertThat(viewStructure)
+            .isEqualTo(
+                FakeAndroidViewStructure().apply {
+                    children.add(
+                        FakeAndroidViewStructure().apply {
+                            virtualId = autofillNode.id
+                            packageName = currentPackage
+                            setAutofillType(View.AUTOFILL_TYPE_TEXT)
+                            setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
+                            setDimens(0, 0, 0, 0, 0, 0)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
     fun populateViewStructure_twoChildren() {
         // Arrange.
-        val nameAutofillNode = AutofillNode(
-            onFill = {},
-            autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
+        val nameAutofillNode =
+            AutofillNode(
+                onFill = {},
+                autofillTypes = listOf(AutofillType.PersonFullName),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
         autofillTree += nameAutofillNode
 
-        val emailAutofillNode = AutofillNode(
-            onFill = {},
-            autofillTypes = listOf(AutofillType.EmailAddress),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
+        val emailAutofillNode =
+            AutofillNode(
+                onFill = {},
+                autofillTypes = listOf(AutofillType.EmailAddress),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
         autofillTree += emailAutofillNode
 
         // Act.
@@ -115,27 +116,28 @@ class AndroidPopulateViewStructureTest {
         androidAutofill.populateViewStructure(viewStructure)
 
         // Assert.
-        assertThat(viewStructure).isEqualTo(
-            FakeAndroidViewStructure().apply {
-                children.add(
-                    FakeAndroidViewStructure().apply {
-                        virtualId = nameAutofillNode.id
-                        packageName = currentPackage
-                        setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                        setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
-                        setDimens(0, 0, 0, 0, 0, 0)
-                    }
-                )
-                children.add(
-                    FakeAndroidViewStructure().apply {
-                        virtualId = emailAutofillNode.id
-                        packageName = currentPackage
-                        setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                        setAutofillHints(arrayOf(View.AUTOFILL_HINT_EMAIL_ADDRESS))
-                        setDimens(0, 0, 0, 0, 0, 0)
-                    }
-                )
-            }
-        )
+        assertThat(viewStructure)
+            .isEqualTo(
+                FakeAndroidViewStructure().apply {
+                    children.add(
+                        FakeAndroidViewStructure().apply {
+                            virtualId = nameAutofillNode.id
+                            packageName = currentPackage
+                            setAutofillType(View.AUTOFILL_TYPE_TEXT)
+                            setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
+                            setDimens(0, 0, 0, 0, 0, 0)
+                        }
+                    )
+                    children.add(
+                        FakeAndroidViewStructure().apply {
+                            virtualId = emailAutofillNode.id
+                            packageName = currentPackage
+                            setAutofillType(View.AUTOFILL_TYPE_TEXT)
+                            setAutofillHints(arrayOf(View.AUTOFILL_HINT_EMAIL_ADDRESS))
+                            setDimens(0, 0, 0, 0, 0, 0)
+                        }
+                    )
+                }
+            )
     }
 }

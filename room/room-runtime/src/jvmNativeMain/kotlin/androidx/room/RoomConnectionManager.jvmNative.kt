@@ -31,10 +31,7 @@ internal actual class RoomConnectionManager(
     private val connectionPool: ConnectionPool =
         if (configuration.name == null) {
             // An in-memory database must use a single connection pool.
-            newSingleConnectionPool(
-                driver = DriverWrapper(sqliteDriver),
-                fileName = ":memory:"
-            )
+            newSingleConnectionPool(driver = DriverWrapper(sqliteDriver), fileName = ":memory:")
         } else {
             newConnectionPool(
                 driver = DriverWrapper(sqliteDriver),
@@ -44,10 +41,8 @@ internal actual class RoomConnectionManager(
             )
         }
 
-    override suspend fun <R> useConnection(
-        isReadOnly: Boolean,
-        block: suspend (Transactor) -> R
-    ) = connectionPool.useConnection(isReadOnly, block)
+    override suspend fun <R> useConnection(isReadOnly: Boolean, block: suspend (Transactor) -> R) =
+        connectionPool.useConnection(isReadOnly, block)
 
     fun close() {
         connectionPool.close()

@@ -101,39 +101,30 @@ class DynamicRangesCompatTest {
     @Test
     fun canProduceConcurrentDynamicRangeConstraints() {
         val hlg10ConstrainedWrapped = DynamicRangesCompat.toDynamicRangesCompat(HLG10_CONSTRAINED)
-        assertThat(
-            hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR)
-        ).containsExactly(SDR)
-        assertThat(
-            hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                HLG_10_BIT
-            )
-        ).containsExactly(HLG_10_BIT)
+        assertThat(hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR))
+            .containsExactly(SDR)
+        assertThat(hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(HLG_10_BIT))
+            .containsExactly(HLG_10_BIT)
 
         val hlg10SdrConstrainedWrapped =
             DynamicRangesCompat.toDynamicRangesCompat(HLG10_SDR_CONSTRAINED)
-        assertThat(
-            hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR)
-        ).containsExactly(SDR, HLG_10_BIT)
-        assertThat(
-            hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                HLG_10_BIT
-            )
-        ).containsExactly(HLG_10_BIT, SDR)
+        assertThat(hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR))
+            .containsExactly(SDR, HLG_10_BIT)
+        assertThat(hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(HLG_10_BIT))
+            .containsExactly(HLG_10_BIT, SDR)
 
         val hlg10Hdr10ConstrainedWrapped =
             DynamicRangesCompat.toDynamicRangesCompat(HLG10_HDR10_CONSTRAINED)
+        assertThat(hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR))
+            .containsExactly(SDR)
         assertThat(
-            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR)
-        ).containsExactly(SDR)
-        assertThat(
-            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                HLG_10_BIT
+                hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(HLG_10_BIT)
             )
-        ).containsExactly(HLG_10_BIT, HDR10_10_BIT)
+            .containsExactly(HLG_10_BIT, HDR10_10_BIT)
         assertThat(
-            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(HDR10_10_BIT)
-        ).containsExactly(HDR10_10_BIT, HLG_10_BIT)
+                hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(HDR10_10_BIT)
+            )
+            .containsExactly(HDR10_10_BIT, HLG_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -142,18 +133,15 @@ class DynamicRangesCompatTest {
         val dynamicRangesCompat =
             DynamicRangesCompat.toDynamicRangesCompat(DOLBY_VISION_10B_UNCONSTRAINED_SLOW)
         assertThat(dynamicRangesCompat?.isExtraLatencyPresent(SDR)).isFalse()
-        assertThat(
-            dynamicRangesCompat?.isExtraLatencyPresent(DOLBY_VISION_10_BIT)
-        ).isTrue()
+        assertThat(dynamicRangesCompat?.isExtraLatencyPresent(DOLBY_VISION_10_BIT)).isTrue()
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun canProduceDynamicRangeWithoutConstraints() {
         val dynamicRangesCompat = DynamicRangesCompat.toDynamicRangesCompat(HLG10_UNCONSTRAINED)
-        assertThat(
-            dynamicRangesCompat?.getDynamicRangeCaptureRequestConstraints(HLG_10_BIT)
-        ).isEmpty()
+        assertThat(dynamicRangesCompat?.getDynamicRangeCaptureRequestConstraints(HLG_10_BIT))
+            .isEmpty()
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -170,9 +158,8 @@ class DynamicRangesCompatTest {
     @Test
     fun canProduceDynamicRangesCompatFromCharacteristics() {
         val characteristics = newCameraCharacteristicsCompat()
-        Shadow.extract<ShadowCameraCharacteristics>(
-            characteristics.toCameraCharacteristics()
-        ).addDynamicRangeProfiles(HLG10_CONSTRAINED)
+        Shadow.extract<ShadowCameraCharacteristics>(characteristics.toCameraCharacteristics())
+            .addDynamicRangeProfiles(HLG10_CONSTRAINED)
 
         val dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(characteristics)
 
@@ -186,9 +173,8 @@ class DynamicRangesCompatTest {
         val dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(characteristics)
 
         assertThat(dynamicRangesCompat.supportedDynamicRanges).containsExactly(SDR)
-        assertThat(
-            dynamicRangesCompat.getDynamicRangeCaptureRequestConstraints(SDR)
-        ).containsExactly(SDR)
+        assertThat(dynamicRangesCompat.getDynamicRangeCaptureRequestConstraints(SDR))
+            .containsExactly(SDR)
     }
 
     @Test
@@ -196,9 +182,8 @@ class DynamicRangesCompatTest {
         val characteristics = newCameraCharacteristicsCompat()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Shadow.extract<ShadowCameraCharacteristics>(
-                characteristics.toCameraCharacteristics()
-            ).addDynamicRangeProfiles(DOLBY_VISION_8B_UNCONSTRAINED)
+            Shadow.extract<ShadowCameraCharacteristics>(characteristics.toCameraCharacteristics())
+                .addDynamicRangeProfiles(DOLBY_VISION_8B_UNCONSTRAINED)
         }
 
         val dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(characteristics)
@@ -206,9 +191,8 @@ class DynamicRangesCompatTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             assertThat(dynamicRangesCompat.supportedDynamicRanges).containsExactly(SDR)
         } else {
-            assertThat(dynamicRangesCompat.supportedDynamicRanges).containsExactly(
-                SDR, DOLBY_VISION_8_BIT
-            )
+            assertThat(dynamicRangesCompat.supportedDynamicRanges)
+                .containsExactly(SDR, DOLBY_VISION_8_BIT)
         }
 
         assertThrows(IllegalArgumentException::class.java) {
@@ -225,9 +209,8 @@ class DynamicRangesCompatTest {
         val characteristics = newCameraCharacteristicsCompat()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Shadow.extract<ShadowCameraCharacteristics>(
-                characteristics.toCameraCharacteristics()
-            ).addDynamicRangeProfiles(HLG10_CONSTRAINED)
+            Shadow.extract<ShadowCameraCharacteristics>(characteristics.toCameraCharacteristics())
+                .addDynamicRangeProfiles(HLG10_CONSTRAINED)
         }
 
         val dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(characteristics)
@@ -240,9 +223,8 @@ class DynamicRangesCompatTest {
         val characteristics = newCameraCharacteristicsCompat()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Shadow.extract<ShadowCameraCharacteristics>(
-                characteristics.toCameraCharacteristics()
-            ).addDynamicRangeProfiles(HLG10_CONSTRAINED)
+            Shadow.extract<ShadowCameraCharacteristics>(characteristics.toCameraCharacteristics())
+                .addDynamicRangeProfiles(HLG10_CONSTRAINED)
         }
 
         val dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(characteristics)
@@ -254,7 +236,6 @@ class DynamicRangesCompatTest {
 
 private const val CAMERA_ID = "0"
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun newCameraCharacteristicsCompat(): CameraCharacteristicsCompat {
     return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
         ShadowCameraCharacteristics.newCameraCharacteristics(),
@@ -266,8 +247,5 @@ fun newCameraCharacteristicsCompat(): CameraCharacteristicsCompat {
 fun ShadowCameraCharacteristics.addDynamicRangeProfiles(
     dynamicRangeProfiles: DynamicRangeProfiles
 ) {
-    set(
-        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES,
-        dynamicRangeProfiles
-    )
+    set(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES, dynamicRangeProfiles)
 }

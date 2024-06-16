@@ -47,58 +47,55 @@ import kotlinx.coroutines.test.runTest
 class SimpleChannelFlowTest {
     val testScope = TestScope(UnconfinedTestDispatcher())
 
-    @Test
-    fun basic_ChannelFlow() = basic(Impl.ChannelFlow)
+    @Test fun basic_ChannelFlow() = basic(Impl.ChannelFlow)
 
-    @Test
-    fun basic_SimpleChannelFlow() = basic(Impl.SimpleChannelFlow)
+    @Test fun basic_SimpleChannelFlow() = basic(Impl.SimpleChannelFlow)
 
     private fun basic(impl: Impl) {
-        val channelFlow = createFlow<Int>(impl) {
-            send(1)
-            send(2)
-        }
+        val channelFlow =
+            createFlow<Int>(impl) {
+                send(1)
+                send(2)
+            }
         testScope.runTest {
             val items = channelFlow.toList()
             assertThat(items).containsExactly(1, 2)
         }
     }
 
-    @Test
-    fun emitWithLaunch_ChannelFlow() = emitWithLaunch(Impl.ChannelFlow)
+    @Test fun emitWithLaunch_ChannelFlow() = emitWithLaunch(Impl.ChannelFlow)
 
-    @Test
-    fun emitWithLaunch_SimpleChannelFlow() = emitWithLaunch(Impl.SimpleChannelFlow)
+    @Test fun emitWithLaunch_SimpleChannelFlow() = emitWithLaunch(Impl.SimpleChannelFlow)
 
     private fun emitWithLaunch(impl: Impl) {
-        val channelFlow = createFlow<Int>(impl) {
-            launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
-                send(1)
-                delay(100)
-                send(2)
+        val channelFlow =
+            createFlow<Int>(impl) {
+                launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
+                    send(1)
+                    delay(100)
+                    send(2)
+                }
+                send(3)
             }
-            send(3)
-        }
         testScope.runTest {
             val items = channelFlow.toList()
             assertThat(items).containsExactly(1, 3, 2).inOrder()
         }
     }
 
-    @Test
-    fun closedByCollector_ChannelFlow() = closedByCollector(Impl.ChannelFlow)
+    @Test fun closedByCollector_ChannelFlow() = closedByCollector(Impl.ChannelFlow)
 
-    @Test
-    fun closedByCollector_SimpleChannelFlow() = closedByCollector(Impl.SimpleChannelFlow)
+    @Test fun closedByCollector_SimpleChannelFlow() = closedByCollector(Impl.SimpleChannelFlow)
 
     private fun closedByCollector(impl: Impl) {
         val emittedValues = mutableListOf<Int>()
-        val channelFlow = createFlow<Int>(impl) {
-            repeat(10) {
-                send(it)
-                emittedValues.add(it)
+        val channelFlow =
+            createFlow<Int>(impl) {
+                repeat(10) {
+                    send(it)
+                    emittedValues.add(it)
+                }
             }
-        }
         testScope.runTest {
             assertThat(channelFlow.take(4).toList()).containsExactly(0, 1, 2, 3)
             assertThat(emittedValues).containsExactlyElementsIn((0..9).toList())
@@ -114,12 +111,13 @@ class SimpleChannelFlowTest {
 
     private fun closedByCollector_noBuffer(impl: Impl) {
         val emittedValues = mutableListOf<Int>()
-        val channelFlow = createFlow<Int>(impl) {
-            repeat(10) {
-                send(it)
-                emittedValues.add(it)
+        val channelFlow =
+            createFlow<Int>(impl) {
+                repeat(10) {
+                    send(it)
+                    emittedValues.add(it)
+                }
             }
-        }
         testScope.runTest {
             assertThat(channelFlow.buffer(0).take(4).toList()).containsExactly(0, 1, 2, 3)
             when (impl) {
@@ -134,132 +132,118 @@ class SimpleChannelFlowTest {
         }
     }
 
-    @Test
-    fun awaitClose_ChannelFlow() = awaitClose(Impl.ChannelFlow)
+    @Test fun awaitClose_ChannelFlow() = awaitClose(Impl.ChannelFlow)
 
-    @Test
-    fun awaitClose_SimpleChannelFlow() = awaitClose(Impl.SimpleChannelFlow)
+    @Test fun awaitClose_SimpleChannelFlow() = awaitClose(Impl.SimpleChannelFlow)
 
     private fun awaitClose(impl: Impl) {
         val lastDispatched = CompletableDeferred<Int>()
-        val channelFlow = createFlow<Int>(impl) {
-            var dispatched = -1
-            launch {
-                repeat(10) {
-                    dispatched = it
-                    send(it)
-                    delay(100)
+        val channelFlow =
+            createFlow<Int>(impl) {
+                var dispatched = -1
+                launch {
+                    repeat(10) {
+                        dispatched = it
+                        send(it)
+                        delay(100)
+                    }
+                }
+                awaitClose {
+                    assertThat(lastDispatched.isActive).isTrue()
+                    lastDispatched.complete(dispatched)
                 }
             }
-            awaitClose {
-                assertThat(lastDispatched.isActive).isTrue()
-                lastDispatched.complete(dispatched)
-            }
-        }
         testScope.runTest {
             channelFlow.takeWhile { it < 3 }.toList()
             assertThat(lastDispatched.await()).isEqualTo(3)
         }
     }
 
-    @Test
-    fun scopeGetsCancelled_ChannelFlow() = scopeGetsCancelled(Impl.ChannelFlow)
+    @Test fun scopeGetsCancelled_ChannelFlow() = scopeGetsCancelled(Impl.ChannelFlow)
 
-    @Test
-    fun scopeGetsCancelled_SimpleChannelFlow() = scopeGetsCancelled(Impl.SimpleChannelFlow)
+    @Test fun scopeGetsCancelled_SimpleChannelFlow() = scopeGetsCancelled(Impl.SimpleChannelFlow)
 
     private fun scopeGetsCancelled(impl: Impl) {
         var producerException: Throwable? = null
         val dispatched = mutableListOf<Int>()
-        val channelFlow = createFlow<Int>(impl) {
-            try {
-                repeat(20) {
-                    send(it)
-                    dispatched.add(it)
-                    delay(100)
+        val channelFlow =
+            createFlow<Int>(impl) {
+                try {
+                    repeat(20) {
+                        send(it)
+                        dispatched.add(it)
+                        delay(100)
+                    }
+                } catch (th: Throwable) {
+                    producerException = th
+                    throw th
                 }
-            } catch (th: Throwable) {
-                producerException = th
-                throw th
             }
-        }
         testScope.runTest {
-            val collection = launch {
-                channelFlow.toList()
-            }
+            val collection = launch { channelFlow.toList() }
             advanceTimeBy(250)
             collection.cancel(CancellationException("test message"))
             collection.join()
             assertThat(dispatched).containsExactly(0, 1, 2)
-            assertThat(producerException).hasMessageThat()
-                .contains("test message")
+            assertThat(producerException).hasMessageThat().contains("test message")
         }
     }
 
-    @Test
-    fun collectorThrows_ChannelFlow() = collectorThrows(Impl.ChannelFlow)
+    @Test fun collectorThrows_ChannelFlow() = collectorThrows(Impl.ChannelFlow)
 
-    @Test
-    fun collectorThrows_SimpleChannelFlow() = collectorThrows(Impl.SimpleChannelFlow)
+    @Test fun collectorThrows_SimpleChannelFlow() = collectorThrows(Impl.SimpleChannelFlow)
 
     private fun collectorThrows(impl: Impl) {
         var producerException: Throwable? = null
-        val channelFlow = createFlow<Int>(impl) {
-            try {
-                send(1)
-                delay(1000)
-                fail("should not arrive here")
-            } catch (th: Throwable) {
-                producerException = th
-                throw th
-            }
-        }
-        testScope.runTest {
-            runCatching {
-                channelFlow.collect {
-                    throw IllegalArgumentException("expected failure")
-                }
-            }
-        }
-        assertThat(producerException).hasMessageThat()
-            .contains("consumer had failed")
-    }
-
-    @Test
-    fun upstreamThrows_ChannelFlow() = upstreamThrows(Impl.ChannelFlow)
-
-    @Test
-    fun upstreamThrows_SimpleChannelFlow() = upstreamThrows(Impl.SimpleChannelFlow)
-
-    private fun upstreamThrows(impl: Impl) {
-        var producerException: Throwable? = null
-        val upstream = flow<Int> {
-            emit(5)
-            delay(100)
-            emit(13)
-        }
-        val combinedFlow = upstream.flatMapLatest { upstreamValue ->
+        val channelFlow =
             createFlow<Int>(impl) {
                 try {
-                    send(upstreamValue)
-                    delay(2000)
-                    send(upstreamValue * 2)
+                    send(1)
+                    delay(1000)
+                    fail("should not arrive here")
                 } catch (th: Throwable) {
-                    if (producerException == null) {
-                        producerException = th
-                    }
+                    producerException = th
                     throw th
                 }
             }
-        }
         testScope.runTest {
-            assertThat(
-                combinedFlow.toList()
-            ).containsExactly(
-                5, 13, 26
-            )
+            runCatching {
+                channelFlow.collect { throw IllegalArgumentException("expected failure") }
+            }
         }
-        assertThat(producerException).hasMessageThat()
+        assertThat(producerException).hasMessageThat().contains("consumer had failed")
+    }
+
+    @Test fun upstreamThrows_ChannelFlow() = upstreamThrows(Impl.ChannelFlow)
+
+    @Test fun upstreamThrows_SimpleChannelFlow() = upstreamThrows(Impl.SimpleChannelFlow)
+
+    private fun upstreamThrows(impl: Impl) {
+        var producerException: Throwable? = null
+        val upstream =
+            flow<Int> {
+                emit(5)
+                delay(100)
+                emit(13)
+            }
+        val combinedFlow =
+            upstream.flatMapLatest { upstreamValue ->
+                createFlow<Int>(impl) {
+                    try {
+                        send(upstreamValue)
+                        delay(2000)
+                        send(upstreamValue * 2)
+                    } catch (th: Throwable) {
+                        if (producerException == null) {
+                            producerException = th
+                        }
+                        throw th
+                    }
+                }
+            }
+        testScope.runTest { assertThat(combinedFlow.toList()).containsExactly(5, 13, 26) }
+        assertThat(producerException)
+            .hasMessageThat()
             .contains("Child of the scoped flow was cancelled")
     }
 
@@ -272,14 +256,13 @@ class SimpleChannelFlowTest {
         cancelingChannelClosesTheFlow(Impl.SimpleChannelFlow)
 
     private fun cancelingChannelClosesTheFlow(impl: Impl) {
-        val flow = createFlow<Int>(impl) {
-            send(1)
-            close()
-            awaitCancellation()
-        }
-        testScope.runTest {
-            assertThat(flow.toList()).containsExactly(1)
-        }
+        val flow =
+            createFlow<Int>(impl) {
+                send(1)
+                close()
+                awaitCancellation()
+            }
+        testScope.runTest { assertThat(flow.toList()).containsExactly(1) }
     }
 
     private fun <T> createFlow(
@@ -287,12 +270,9 @@ class SimpleChannelFlowTest {
         block: suspend TestProducerScope<T>.() -> Unit
     ): Flow<T> {
         return when (impl) {
-            Impl.ChannelFlow -> channelFlow {
-                ChannelFlowTestProducerScope(this).block()
-            }
-            Impl.SimpleChannelFlow -> simpleChannelFlow {
-                SimpleChannelFlowTestProducerScope(this).block()
-            }
+            Impl.ChannelFlow -> channelFlow { ChannelFlowTestProducerScope(this).block() }
+            Impl.SimpleChannelFlow ->
+                simpleChannelFlow { SimpleChannelFlowTestProducerScope(this).block() }
         }
     }
 
@@ -310,9 +290,8 @@ class SimpleChannelFlowTest {
         }
     }
 
-    class ChannelFlowTestProducerScope<T>(
-        private val delegate: ProducerScope<T>
-    ) : TestProducerScope<T>, CoroutineScope by delegate, SendChannel<T> by delegate {
+    class ChannelFlowTestProducerScope<T>(private val delegate: ProducerScope<T>) :
+        TestProducerScope<T>, CoroutineScope by delegate, SendChannel<T> by delegate {
         override suspend fun awaitClose(block: () -> Unit) {
             delegate.awaitClose(block)
         }

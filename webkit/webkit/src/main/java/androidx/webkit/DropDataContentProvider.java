@@ -35,7 +35,7 @@ import java.io.FileNotFoundException;
  * WebView provides partial support for Android
  * <a href="https://developer.android.com/develop/ui/views/touch-and-input/drag-drop">
  * Drag and Drop</a> allowing images, text and links to be dragged out of a WebView.
- *
+ * <p>
  * The content provider is required to make the images drag work, to enable, you should add this
  * class to your manifest, for example:
  *

@@ -41,54 +41,34 @@ fun isolatedGlanceComposableTestSamples() {
     class TestSample {
         @Test
         fun statusContent_statusFalse_outputsPending() = runGlanceAppWidgetUnitTest {
-            provideComposable {
-                StatusRow(
-                    status = false
-                )
-            }
+            provideComposable { StatusRow(status = false) }
 
-            onNode(hasTestTag("status-text"))
-                .assert(hasText("Pending"))
+            onNode(hasTestTag("status-text")).assert(hasText("Pending"))
         }
 
         @Test
         fun statusContent_statusTrue_outputsFinished() = runGlanceAppWidgetUnitTest {
-            provideComposable {
-                StatusRow(
-                    status = true
-                )
-            }
+            provideComposable { StatusRow(status = true) }
 
-            onNode(hasTestTag("status-text"))
-                .assert(hasText("Finished"))
+            onNode(hasTestTag("status-text")).assert(hasText("Finished"))
         }
 
         @Test
         fun header_smallSize_showsShortHeaderText() = runGlanceAppWidgetUnitTest {
             setAppWidgetSize(DpSize(width = 50.dp, height = 100.dp))
 
-            provideComposable {
-                StatusRow(
-                    status = false
-                )
-            }
+            provideComposable { StatusRow(status = false) }
 
-            onNode(hasTestTag("header-text"))
-                .assert(hasText("MyApp"))
+            onNode(hasTestTag("header-text")).assert(hasText("MyApp"))
         }
 
         @Test
         fun header_largeSize_showsLongHeaderText() = runGlanceAppWidgetUnitTest {
             setAppWidgetSize(DpSize(width = 150.dp, height = 100.dp))
 
-            provideComposable {
-                StatusRow(
-                    status = false
-                )
-            }
+            provideComposable { StatusRow(status = false) }
 
-            onNode(hasTestTag("header-text"))
-                .assert(hasText("MyApp (Last order)"))
+            onNode(hasTestTag("header-text")).assert(hasText("MyApp (Last order)"))
         }
 
         @Composable
@@ -105,11 +85,12 @@ fun isolatedGlanceComposableTestSamples() {
             val width = LocalSize.current.width
             Row(modifier = GlanceModifier.fillMaxSize()) {
                 Text(
-                    text = if (width > 50.dp) {
-                        "MyApp (Last order)"
-                    } else {
-                        "MyApp"
-                    },
+                    text =
+                        if (width > 50.dp) {
+                            "MyApp (Last order)"
+                        } else {
+                            "MyApp"
+                        },
                     modifier = GlanceModifier.semantics { testTag = "header-text" }
                 )
             }
@@ -123,11 +104,12 @@ fun isolatedGlanceComposableTestSamples() {
                 )
                 Spacer(modifier = GlanceModifier.width(10.dp))
                 Text(
-                    text = if (status) {
-                        "Pending"
-                    } else {
-                        "Finished"
-                    },
+                    text =
+                        if (status) {
+                            "Pending"
+                        } else {
+                            "Finished"
+                        },
                     modifier = GlanceModifier.semantics { testTag = "status-text" }
                 )
             }

@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 
@@ -35,7 +34,6 @@ import androidx.camera.core.impl.Quirk;
  *                  crash on LEGACY devices.
  *     Device(s): Devices in LEGACY camera hardware level.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ConfigureSurfaceToSecondarySessionFailQuirk implements Quirk {
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {

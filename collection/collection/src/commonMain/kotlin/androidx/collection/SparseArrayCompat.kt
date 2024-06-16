@@ -26,46 +26,40 @@ import kotlin.math.min
 private val DELETED = Any()
 
 /**
- * SparseArrays map integers to Objects. Unlike a normal array of Objects,
- * there can be gaps in the indices. It is intended to be more memory efficient
- * than using a HashMap to map Integers to Objects, both because it avoids
- * auto-boxing keys and its data structure doesn't rely on an extra entry object
- * for each mapping.
+ * SparseArrays map integers to Objects. Unlike a normal array of Objects, there can be gaps in the
+ * indices. It is intended to be more memory efficient than using a HashMap to map Integers to
+ * Objects, both because it avoids auto-boxing keys and its data structure doesn't rely on an extra
+ * entry object for each mapping.
  *
- * Note that this container keeps its mappings in an array data structure,
- * using a binary search to find keys. The implementation is not intended to be appropriate for
- * data structures
- * that may contain large numbers of items. It is generally slower than a traditional
- * HashMap, since lookups require a binary search and adds and removes require inserting
- * and deleting entries in the array. For containers holding up to hundreds of items,
- * the performance difference is not significant, less than 50%.
+ * Note that this container keeps its mappings in an array data structure, using a binary search to
+ * find keys. The implementation is not intended to be appropriate for data structures that may
+ * contain large numbers of items. It is generally slower than a traditional HashMap, since lookups
+ * require a binary search and adds and removes require inserting and deleting entries in the array.
+ * For containers holding up to hundreds of items, the performance difference is not significant,
+ * less than 50%.
  *
- * To help with performance, the container includes an optimization when removing
- * keys: instead of compacting its array immediately, it leaves the removed entry marked
- * as deleted. The entry can then be re-used for the same key, or compacted later in
- * a single garbage collection step of all removed entries. This garbage collection will
- * need to be performed at any time the array needs to be grown or the map size or
- * entry values are retrieved.
+ * To help with performance, the container includes an optimization when removing keys: instead of
+ * compacting its array immediately, it leaves the removed entry marked as deleted. The entry can
+ * then be re-used for the same key, or compacted later in a single garbage collection step of all
+ * removed entries. This garbage collection will need to be performed at any time the array needs to
+ * be grown or the map size or entry values are retrieved.
  *
- * It is possible to iterate over the items in this container using [keyAt] and [valueAt].
- * Iterating over the keys using [keyAt] with ascending values of the index will return the
- * keys in ascending order, or the values corresponding to the keys in ascending
- * order in the case of [valueAt].
- *
- * @constructor Creates a new SparseArray containing no mappings that will not require any
- * additional memory allocation to store the specified number of mappings. If you supply an initial
- * capacity of 0, the sparse array will be initialized with a light-weight representation not
- * requiring any additional array allocations.
+ * It is possible to iterate over the items in this container using [keyAt] and [valueAt]. Iterating
+ * over the keys using [keyAt] with ascending values of the index will return the keys in ascending
+ * order, or the values corresponding to the keys in ascending order in the case of [valueAt].
  *
  * @param initialCapacity initial capacity of the array. The array will not require any additional
- * memory allocation to store the specified number of mappings. If you supply an initialCapacity of
- * 0, the sparse array will be initialized with a light-weight representation not requiring any
- * additional array allocations. Default initialCapacity is 10.
+ *   memory allocation to store the specified number of mappings. If you supply an initialCapacity
+ *   of 0, the sparse array will be initialized with a light-weight representation not requiring any
+ *   additional array allocations. Default initialCapacity is 10.
+ * @constructor Creates a new SparseArray containing no mappings that will not require any
+ *   additional memory allocation to store the specified number of mappings. If you supply an
+ *   initial capacity of 0, the sparse array will be initialized with a light-weight representation
+ *   not requiring any additional array allocations.
  */
 public expect open class SparseArrayCompat<E>
-@JvmOverloads public constructor(
-    initialCapacity: Int = 10
-) {
+@JvmOverloads
+public constructor(initialCapacity: Int = 10) {
     @JvmSynthetic // Hide from Java callers.
     @JvmField
     internal var garbage: Boolean
@@ -88,18 +82,17 @@ public expect open class SparseArrayCompat<E>
     public open operator fun get(key: Int): E?
 
     /**
-     * Gets the Object mapped from the specified [key], or [defaultValue] if no such mapping
-     * has been made.
+     * Gets the Object mapped from the specified [key], or [defaultValue] if no such mapping has
+     * been made.
      */
     public open fun get(key: Int, defaultValue: E): E
 
-    /**
-     * Removes the mapping from the specified key, if there was any.
-     */
+    /** Removes the mapping from the specified key, if there was any. */
     public open fun remove(key: Int): Unit
 
     /**
      * Remove an existing key from the array map only if it is currently mapped to [value].
+     *
      * @param key The key of the mapping to remove.
      * @param value The value expected to be mapped to the key.
      * @return Returns `true` if the mapping was removed.
@@ -107,9 +100,7 @@ public expect open class SparseArrayCompat<E>
     // Note: value is Any? here for source compatibility.
     public open fun remove(key: Int, value: Any?): Boolean
 
-    /**
-     * Removes the mapping at the specified index.
-     */
+    /** Removes the mapping at the specified index. */
     public open fun removeAt(index: Int): Unit
 
     /**
@@ -122,6 +113,7 @@ public expect open class SparseArrayCompat<E>
 
     /**
      * Replace the mapping for [key] only if it is already mapped to a value.
+     *
      * @param key The key of the mapping to replace.
      * @param value The value to store for the given key.
      * @return Returns the previous mapped value or `null`.
@@ -154,28 +146,27 @@ public expect open class SparseArrayCompat<E>
     /**
      * Add a new value to the array map only if the key does not already have a value or it is
      * mapped to `null`.
+     *
      * @param key The key under which to store the value.
      * @param value The value to store for the given key.
-     * @return Returns the value that was stored for the given key, or `null` if there
-     * was no such key.
+     * @return Returns the value that was stored for the given key, or `null` if there was no such
+     *   key.
      */
     public open fun putIfAbsent(key: Int, value: E): E?
 
-    /**
-     * Returns the number of key-value mappings that this SparseArray currently stores.
-     */
+    /** Returns the number of key-value mappings that this SparseArray currently stores. */
     public open fun size(): Int
 
     /**
      * Return true if [size] is 0.
+     *
      * @return true if [size] is 0.
      */
     public open fun isEmpty(): Boolean
 
     /**
-     * Given an index in the range `0...size()-1`, returns
-     * the key from the [index]th key-value mapping that this
-     * SparseArray stores.
+     * Given an index in the range `0...size()-1`, returns the key from the [index]th key-value
+     * mapping that this SparseArray stores.
      */
     public open fun keyAt(index: Int): Int
 
@@ -197,7 +188,7 @@ public expect open class SparseArrayCompat<E>
      *
      * @param key the key to search for
      * @return the index for which [keyAt] would return the specified [key], or a negative number if
-     * the specified [key] is not mapped
+     *   the specified [key] is not mapped
      */
     public open fun indexOfKey(key: Int): Int
 
@@ -219,14 +210,12 @@ public expect open class SparseArrayCompat<E>
     /** Returns true if the specified value is mapped from any key. */
     public open fun containsValue(value: E): Boolean
 
-    /**
-     * Removes all key-value mappings from this SparseArray.
-     */
+    /** Removes all key-value mappings from this SparseArray. */
     public open fun clear(): Unit
 
     /**
-     * Puts a key/value pair into the array, optimizing for the case where
-     * the key is greater than all existing keys in the array.
+     * Puts a key/value pair into the array, optimizing for the case where the key is greater than
+     * all existing keys in the array.
      */
     public open fun append(key: Int, value: E): Unit
 
@@ -303,8 +292,7 @@ internal inline fun <E> SparseArrayCompat<E>.commonRemoveAtRange(index: Int, siz
 internal inline fun <E> SparseArrayCompat<E>.commonReplace(key: Int, value: E): E? {
     val index = indexOfKey(key)
     if (index >= 0) {
-        @Suppress("UNCHECKED_CAST")
-        val oldValue = values[index] as E
+        @Suppress("UNCHECKED_CAST") val oldValue = values[index] as E
         values[index] = value
         return oldValue
     }
@@ -372,18 +360,8 @@ internal inline fun <E> SparseArrayCompat<E>.commonPut(key: Int, value: E) {
             values = values.copyOf(newSize = n)
         }
         if (size - i != 0) {
-            keys.copyInto(
-                keys,
-                destinationOffset = i + 1,
-                startIndex = i,
-                endIndex = size
-            )
-            values.copyInto(
-                values,
-                destinationOffset = i + 1,
-                startIndex = i,
-                endIndex = size
-            )
+            keys.copyInto(keys, destinationOffset = i + 1, startIndex = i, endIndex = size)
+            values.copyInto(values, destinationOffset = i + 1, startIndex = i, endIndex = size)
         }
         keys[i] = key
         values[i] = value
@@ -434,8 +412,7 @@ internal inline fun <E> SparseArrayCompat<E>.commonValueAt(index: Int): E {
 
     // TODO(b/219834506): Check for OOB and throw instead of potentially casting a null value to
     //  a non-null type.
-    @Suppress("UNCHECKED_CAST")
-    return values[index] as E
+    @Suppress("UNCHECKED_CAST") return values[index] as E
 }
 
 @Suppress("NOTHING_TO_INLINE")

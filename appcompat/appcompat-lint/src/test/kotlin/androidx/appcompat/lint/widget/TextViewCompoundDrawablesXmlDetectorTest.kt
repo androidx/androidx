@@ -24,9 +24,10 @@ import org.junit.Test
 class TextViewCompoundDrawablesXmlDetectorTest {
     @Test
     fun testUsingAppCompoundDrawableAttributes() {
-        val layout = LintDetectorTest.xml(
-            "layout-v23/text_view.xml",
-            """
+        val layout =
+            LintDetectorTest.xml(
+                    "layout-v23/text_view.xml",
+                    """
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -46,12 +47,14 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         app:drawableTintMode="src_in" />
 </LinearLayout>
         """
-        ).indented().within("res")
+                )
+                .indented()
+                .within("res")
 
         // We expect the definition of the text view to not be flagged
-        lint().files(
-            layout
-        ).issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
+        lint()
+            .files(layout)
+            .issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
             .run()
             .expectClean()
     }
@@ -69,9 +72,10 @@ class TextViewCompoundDrawablesXmlDetectorTest {
     ) {
         val originalAttrDefinition = "android:$androidAttrName=\"$attrValue\""
 
-        val layout = LintDetectorTest.xml(
-            "layout-v23/text_view.xml",
-            """
+        val layout =
+            LintDetectorTest.xml(
+                    "layout-v23/text_view.xml",
+                    """
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -83,7 +87,9 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         $originalAttrDefinition />
 </LinearLayout>
         """
-        ).indented().within("res")
+                )
+                .indented()
+                .within("res")
 
         // The highlight part (~~~~~) that marks the problematic part of the XML is
         // dynamic in length, dependning on the attribute name and value
@@ -92,10 +98,10 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         // We expect the definition of the text view to be flagged since it is using
         // android: namespaced compound drawables attributes. We also expect a matching
         // fix to replace the matching attributes to the app: namespace, retaining the same values
-        /* ktlint-disable max-line-length */
-        lint().files(
-            layout
-        ).issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
+
+        lint()
+            .files(layout)
+            .issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
             .run()
             .expect(
                 """
@@ -103,7 +109,8 @@ res/layout-v23/text_view.xml:9: Warning: Use app:$appAttrName instead of android
         $originalAttrDefinition />
         $highlight
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -113,15 +120,16 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
 @@ -10 +11
 -         android:$androidAttrName="$attrValue" />
 +         app:$appAttrName="$attrValue" />
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableStartAttribute() {
         verifyCompoundDrawableLintPass(
-            "drawableStart", "drawableStartCompat",
+            "drawableStart",
+            "drawableStartCompat",
             "@android:drawable/ic_delete"
         )
     }
@@ -129,7 +137,8 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
     @Test
     fun testUsingAndroidCompoundDrawableLeftAttribute() {
         verifyCompoundDrawableLintPass(
-            "drawableLeft", "drawableLeftCompat",
+            "drawableLeft",
+            "drawableLeftCompat",
             "@android:drawable/ic_delete"
         )
     }
@@ -137,7 +146,8 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
     @Test
     fun testUsingAndroidCompoundDrawableEndAttribute() {
         verifyCompoundDrawableLintPass(
-            "drawableEnd", "drawableEndCompat",
+            "drawableEnd",
+            "drawableEndCompat",
             "@android:drawable/ic_delete"
         )
     }
@@ -145,7 +155,8 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
     @Test
     fun testUsingAndroidCompoundDrawableRightAttribute() {
         verifyCompoundDrawableLintPass(
-            "drawableRight", "drawableRightCompat",
+            "drawableRight",
+            "drawableRightCompat",
             "@android:drawable/ic_delete"
         )
     }
@@ -153,7 +164,8 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
     @Test
     fun testUsingAndroidCompoundDrawableTopAttribute() {
         verifyCompoundDrawableLintPass(
-            "drawableTop", "drawableTopCompat",
+            "drawableTop",
+            "drawableTopCompat",
             "@android:drawable/ic_delete"
         )
     }
@@ -161,7 +173,8 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
     @Test
     fun testUsingAndroidCompoundDrawableBottomAttribute() {
         verifyCompoundDrawableLintPass(
-            "drawableBottom", "drawableBottomCompat",
+            "drawableBottom",
+            "drawableBottomCompat",
             "@android:drawable/ic_delete"
         )
     }

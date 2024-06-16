@@ -33,12 +33,8 @@ import androidx.core.haptics.VibrationEffectWrapper
 import androidx.core.haptics.VibrationWrapper
 import androidx.core.haptics.VibratorWrapper
 
-/**
- * [VibratorWrapper] implementation backed by a real [Vibrator] service.
- */
-internal class VibratorWrapperImpl(
-    private val vibrator: Vibrator
-) : VibratorWrapper {
+/** [VibratorWrapper] implementation backed by a real [Vibrator] service. */
+internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWrapper {
 
     override fun hasVibrator(): Boolean = ApiImpl.hasVibrator(vibrator)
 
@@ -92,7 +88,6 @@ internal class VibratorWrapperImpl(
                     Api26Impl.vibrate(vibrator, vibration, attrs)
                 }
             }
-
             is PatternVibrationWrapper -> {
                 if (Build.VERSION.SDK_INT >= 21) {
                     check(attrs is AudioAttributesWrapper) {
@@ -165,13 +160,16 @@ internal class VibratorWrapperImpl(
             vibrator: Vibrator,
             effects: IntArray,
         ): Array<VibratorWrapper.EffectSupport> {
-            return vibrator.areEffectsSupported(*effects).map {
-                when (it) {
-                    Vibrator.VIBRATION_EFFECT_SUPPORT_YES -> VibratorWrapper.EffectSupport.YES
-                    Vibrator.VIBRATION_EFFECT_SUPPORT_NO -> VibratorWrapper.EffectSupport.NO
-                    else -> VibratorWrapper.EffectSupport.UNKNOWN
+            return vibrator
+                .areEffectsSupported(*effects)
+                .map {
+                    when (it) {
+                        Vibrator.VIBRATION_EFFECT_SUPPORT_YES -> VibratorWrapper.EffectSupport.YES
+                        Vibrator.VIBRATION_EFFECT_SUPPORT_NO -> VibratorWrapper.EffectSupport.NO
+                        else -> VibratorWrapper.EffectSupport.UNKNOWN
+                    }
                 }
-            }.toTypedArray()
+                .toTypedArray()
         }
 
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
@@ -235,8 +233,7 @@ internal class VibratorWrapperImpl(
     /** Version-specific static inner class. */
     private object ApiImpl {
 
-        @JvmStatic
-        fun hasVibrator(vibrator: Vibrator) = vibrator.hasVibrator()
+        @JvmStatic fun hasVibrator(vibrator: Vibrator) = vibrator.hasVibrator()
 
         @JvmStatic
         @Suppress("DEPRECATION") // ApkVariant for compatibility

@@ -63,9 +63,7 @@ open class ActivityScenarioResetRule<A : Activity>(
 ) : ExternalResource() {
     override fun before() {
         super.before()
-        scenario.onActivity {
-            predicate.invoke(it)
-        }
+        scenario.onActivity { predicate.invoke(it) }
         // reset has likely modified activity state, so allow state (e.g. layout/measure) to resolve
         scenario.onActivity {}
     }

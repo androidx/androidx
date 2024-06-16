@@ -37,9 +37,7 @@ class MigrationTest {
     @Test
     fun testMigrationExtension() {
         var calledWithDb: SupportSQLiteDatabase? = null
-        val migration = Migration(10, 20) {
-            calledWithDb = it
-        }
+        val migration = Migration(10, 20) { calledWithDb = it }
         val db = FakeDB()
         migration.migrate(db)
         assertThat(migration.startVersion).isEqualTo(10)
@@ -88,7 +86,9 @@ private class FakeDB : SupportSQLiteDatabase {
     }
 
     override val isDbLockedByCurrentThread: Boolean
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 
     override fun yieldIfContendedSafely(): Boolean {
         throw UnsupportedOperationException()
@@ -99,18 +99,29 @@ private class FakeDB : SupportSQLiteDatabase {
     }
 
     override var version: Int
-        get() { throw UnsupportedOperationException() }
-        set(_) { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
+        set(_) {
+            throw UnsupportedOperationException()
+        }
 
     override val maximumSize: Long
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
+
     override fun setMaximumSize(numBytes: Long): Long {
         throw UnsupportedOperationException()
     }
 
     override var pageSize: Long
-        get() { throw UnsupportedOperationException() }
-        set(_) { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
+        set(_) {
+            throw UnsupportedOperationException()
+        }
 
     override fun query(query: String): Cursor {
         throw UnsupportedOperationException()
@@ -124,10 +135,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun query(
-        query: SupportSQLiteQuery,
-        cancellationSignal: CancellationSignal?
-    ): Cursor {
+    override fun query(query: SupportSQLiteQuery, cancellationSignal: CancellationSignal?): Cursor {
         throw UnsupportedOperationException()
     }
 
@@ -158,17 +166,23 @@ private class FakeDB : SupportSQLiteDatabase {
     }
 
     override val isReadOnly: Boolean
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 
     override val isOpen: Boolean
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 
     override fun needUpgrade(newVersion: Int): Boolean {
         throw UnsupportedOperationException()
     }
 
     override val path: String
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 
     override fun setLocale(locale: Locale) {
         throw UnsupportedOperationException()
@@ -191,11 +205,17 @@ private class FakeDB : SupportSQLiteDatabase {
     }
 
     override val isWriteAheadLoggingEnabled: Boolean
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 
     override val attachedDbs: MutableList<Pair<String, String>>
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 
     override val isDatabaseIntegrityOk: Boolean
-        get() { throw UnsupportedOperationException() }
+        get() {
+            throw UnsupportedOperationException()
+        }
 }

@@ -42,8 +42,8 @@ import org.junit.runner.RunWith
 
 /**
  * This test class verifies the [CallControlCallback] functionality is working as intended when
- * adding a VoIP call.  Each test should add a call via [CallsManager.addCall] but should be
- * manipulated via the [androidx.core.telecom.utils.MockInCallService].  The MockInCallService will
+ * adding a VoIP call. Each test should add a call via [CallsManager.addCall] but should be
+ * manipulated via the [androidx.core.telecom.utils.MockInCallService]. The MockInCallService will
  * create a [CallControlCallback] request before changing the call state.
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.O)
@@ -61,13 +61,15 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         Utils.resetUtils()
     }
 
-    /***********************************************************************************************
-     *                           V2 APIs (Android U and above) tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * V2 APIs (Android U and above) tests
+     * *******************************************************************************************
+     */
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it via
-     * an InCallService that requires the [CallControlCallback.onAnswer] to accept the request. The
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it via an
+     * InCallService that requires the [CallControlCallback.onAnswer] to accept the request. The
      * call should use the *V2 platform APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -154,8 +156,8 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     }
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and hold it via
-     * an InCallService that requires the [CallControlCallback.onSetInactive] to accept the request.
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and hold it via an
+     * InCallService that requires the [CallControlCallback.onSetInactive] to accept the request.
      * The call should use the *V2 platform APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -167,9 +169,9 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     }
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and un-hold it via
-     * an InCallService that requires the [CallControlCallback.onSetActive] to accept the request.
-     * The call should use the *V2 platform APIs* under the hood.
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and un-hold it via an
+     * InCallService that requires the [CallControlCallback.onSetActive] to accept the request. The
+     * call should use the *V2 platform APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
@@ -179,14 +181,16 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         verifyUnholdCall()
     }
 
-    /***********************************************************************************************
-     *                           Backwards Compatibility Layer tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Backwards Compatibility Layer tests
+     * *******************************************************************************************
+     */
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it via
-     * an InCallService that requires the [CallControlCallback.onAnswer] to accept the request.
-     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it via an
+     * InCallService that requires the [CallControlCallback.onAnswer] to accept the request. The
+     * call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
      * APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
@@ -279,8 +283,8 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     }
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and hold it via
-     * an InCallService that requires the [CallControlCallback.onSetInactive] to accept the request.
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and hold it via an
+     * InCallService that requires the [CallControlCallback.onSetInactive] to accept the request.
      * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
      * APIs* under the hood.
      */
@@ -293,9 +297,9 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     }
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and un-hold it via
-     * an InCallService that requires the [CallControlCallback.onSetActive] to accept the request.
-     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and un-hold it via an
+     * InCallService that requires the [CallControlCallback.onSetActive] to accept the request. The
+     * call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
      * APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
@@ -306,10 +310,11 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         verifyUnholdCall()
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
-
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
     @Suppress("deprecation")
     private fun verifyAnswerCall() {
         assertFalse(TestUtils.mOnAnswerCallbackCalled)

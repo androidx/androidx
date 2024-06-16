@@ -55,9 +55,7 @@ import org.junit.runners.Parameterized
 
 private const val DEFAULT_BACK_CAMERA_ID = "0"
 
-/**
- * Stress tests to verify that Preview and ImageCapture can work well when switching cameras.
- */
+/** Stress tests to verify that Preview and ImageCapture can work well when switching cameras. */
 @LargeTest
 @RunWith(Parameterized::class)
 class SwitchCameraStressTest(
@@ -68,29 +66,26 @@ class SwitchCameraStressTest(
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = configName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(active = configName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
 
     @get:Rule
-    val permissionRule = GrantPermissionRule.grant(
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.RECORD_AUDIO,
-    )
+    val permissionRule =
+        GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private var startingExtensionMode: Int = extensionMode
 
     companion object {
-        @ClassRule
-        @JvmField
-        val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "cameraXConfig = {0}, extensionMode = {2}")
         @JvmStatic
@@ -122,17 +117,20 @@ class SwitchCameraStressTest(
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
-        val extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
+        val extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
+                    10000, TimeUnit.MILLISECONDS]
 
-        val isBackCameraSupported = extensionsManager.isExtensionAvailable(
-            CameraSelector.DEFAULT_BACK_CAMERA, extensionMode
-        )
-        val isFrontCameraSupported = extensionsManager.isExtensionAvailable(
-            CameraSelector.DEFAULT_FRONT_CAMERA, extensionMode
-        )
+        val isBackCameraSupported =
+            extensionsManager.isExtensionAvailable(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                extensionMode
+            )
+        val isFrontCameraSupported =
+            extensionsManager.isExtensionAvailable(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                extensionMode
+            )
 
         // Checks whether the extension mode can be supported first before launching the activity.
         // Only runs the test when at least one of the back or front cameras support the target
@@ -140,10 +138,11 @@ class SwitchCameraStressTest(
         assumeTrue(isBackCameraSupported || isFrontCameraSupported)
 
         if (!isBackCameraSupported) {
-            startingExtensionMode = CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(
-                extensionsManager,
-                DEFAULT_BACK_CAMERA_ID
-            )
+            startingExtensionMode =
+                CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(
+                    extensionsManager,
+                    DEFAULT_BACK_CAMERA_ID
+                )
         }
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
@@ -163,14 +162,14 @@ class SwitchCameraStressTest(
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         cameraProvider.shutdownAsync()
 
-        val extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
+        val extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
+                    10000, TimeUnit.MILLISECONDS]
         extensionsManager.shutdown()
 
         if (isTestStarted) {
-            // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+            // Unfreeze rotation so the device can choose the orientation via its own policy. Be
+            // nice
             // to other tests :)
             device.unfreezeRotation()
             device.pressHome()
@@ -180,10 +179,8 @@ class SwitchCameraStressTest(
 
     @Test
     fun switchCameraTenTimes_canCaptureImageInEachTime() {
-        val activityScenario = launchCameraExtensionsActivity(
-            DEFAULT_BACK_CAMERA_ID,
-            startingExtensionMode
-        )
+        val activityScenario =
+            launchCameraExtensionsActivity(DEFAULT_BACK_CAMERA_ID, startingExtensionMode)
 
         with(activityScenario) {
             use {
@@ -208,10 +205,8 @@ class SwitchCameraStressTest(
 
     @Test
     fun canCaptureImage_afterSwitchCameraTenTimes() {
-        val activityScenario = launchCameraExtensionsActivity(
-            DEFAULT_BACK_CAMERA_ID,
-            startingExtensionMode
-        )
+        val activityScenario =
+            launchCameraExtensionsActivity(DEFAULT_BACK_CAMERA_ID, startingExtensionMode)
 
         with(activityScenario) {
             use {

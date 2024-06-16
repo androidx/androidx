@@ -20,19 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
- * Remove the root modifier nodes as they are not relevant from the perspective of the tests.
- * There are 5 nodes: FocusTargetNode, FocusPropertiesNode, KeyInputNode, RotaryInputNode,
- * SemanticsNode and DragAndDropNode.
+ * Remove the root modifier nodes as they are not relevant from the perspective of the tests. There
+ * are 5 nodes: FocusTargetNode, FocusPropertiesNode, KeyInputNode, RotaryInputNode, SemanticsNode
+ * and DragAndDropNode.
  */
 internal fun <T> List<T>.trimRootModifierNodes(): List<T> = dropLast(6)
 
 internal fun Modifier.elementOf(node: Modifier.Node): Modifier {
     return this.then(ElementOf { node })
 }
-private data class ElementOf<T : Modifier.Node>(
-    val factory: () -> T
-) : ModifierNodeElement<T>() {
+
+private data class ElementOf<T : Modifier.Node>(val factory: () -> T) : ModifierNodeElement<T>() {
     override fun create(): T = factory()
+
     override fun update(node: T) {}
-    override fun InspectorInfo.inspectableProperties() { name = "testNode" }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "testNode"
+    }
 }

@@ -18,7 +18,6 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ReadableConfig;
 
 import java.util.concurrent.Executor;
@@ -26,7 +25,6 @@ import java.util.concurrent.Executor;
 /**
  * Configuration containing IO related options.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface IoConfig extends ReadableConfig {
 
     // Option Declarations:

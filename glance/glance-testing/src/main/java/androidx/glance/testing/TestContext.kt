@@ -18,8 +18,8 @@ package androidx.glance.testing
 import androidx.annotation.RestrictTo
 
 /**
- * A context object that holds glance node tree being inspected as well as any state cached
- * across the chain of assertions.
+ * A context object that holds glance node tree being inspected as well as any state cached across
+ * the chain of assertions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestContext<R, T : GlanceNode<R>> {
@@ -32,8 +32,7 @@ class TestContext<R, T : GlanceNode<R>> {
      * root glance node).
      */
     private fun getAllNodes(): List<GlanceNode<R>> {
-        val rootGlanceNode =
-            checkNotNull(rootGlanceNode) { "No root GlanceNode found." }
+        val rootGlanceNode = checkNotNull(rootGlanceNode) { "No root GlanceNode found." }
         if (this.allNodes.isEmpty()) {
             val allNodes = mutableListOf<GlanceNode<R>>()
 

@@ -62,8 +62,7 @@ class BinderAdapterDelegateTest {
         const val SURFACE_VIEW_RES = "androidx.privacysandbox.ui.provider.test:id/surface_view"
     }
 
-    @get:Rule
-    val activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
+    @get:Rule val activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
 
     private val transferTouchFocusLatch = CountDownLatch(1)
 
@@ -77,7 +76,11 @@ class BinderAdapterDelegateTest {
             val surfaceView = activity.findViewById<SurfaceView>(R.id.surface_view)
             val surfaceControlViewHost =
                 GestureTransferringSurfaceControlViewHost(
-                    activity, activity.display!!, Binder(), transferTouchFocusLatch)
+                    activity,
+                    activity.display!!,
+                    Binder(),
+                    transferTouchFocusLatch
+                )
             val touchFocusTransferringView =
                 TouchFocusTransferringView(context, surfaceControlViewHost)
             touchFocusTransferringView.addView(TestView(context))

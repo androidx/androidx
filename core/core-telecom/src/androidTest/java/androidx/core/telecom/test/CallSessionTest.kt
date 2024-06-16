@@ -20,16 +20,17 @@ import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallEndpoint
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -40,7 +41,7 @@ import org.junit.runner.RunWith
 
 /**
  * This test class should be used to test behavior in the
- * [androidx.core.telecom.internal.CallSession] object.  All transactional calls are wrapped in a
+ * [androidx.core.telecom.internal.CallSession] object. All transactional calls are wrapped in a
  * [androidx.core.telecom.internal.CallSession] object.
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE /* api=34 */)
@@ -49,9 +50,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CallSessionTest : BaseTelecomTest() {
 
-    /**
-     * verify the CallEvent CompletableDeferred objects complete after endpoints are echoed.
-     */
+    /** verify the CallEvent CompletableDeferred objects complete after endpoints are echoed. */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
     @Test
@@ -59,7 +58,7 @@ class CallSessionTest : BaseTelecomTest() {
         setUpV2Test()
         runBlocking {
             val callChannels = CallChannels()
-            val callEvents = initCallEvents(callChannels, coroutineContext)
+            val callEvents = initCallEvents(coroutineContext, callChannels)
 
             assertFalse(callEvents.getIsAvailableEndpointsSet().isCompleted)
             assertFalse(callEvents.getIsCurrentEndpointSet().isCompleted)
@@ -74,8 +73,8 @@ class CallSessionTest : BaseTelecomTest() {
     }
 
     /**
-     * verify the call channels are receivable given the new CompletableDeferred object logic
-     * in the CallEvent callbacks.
+     * verify the call channels are receivable given the new CompletableDeferred object logic in the
+     * CallEvent callbacks.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
@@ -84,7 +83,7 @@ class CallSessionTest : BaseTelecomTest() {
         setUpV2Test()
         runBlocking {
             val callChannels = CallChannels()
-            val callEvents = initCallEvents(callChannels, coroutineContext)
+            val callEvents = initCallEvents(coroutineContext, callChannels)
 
             callEvents.onCallEndpointChanged(getCurrentEndpoint())
             callEvents.onAvailableCallEndpointsChanged(getAvailableEndpoint())
@@ -98,17 +97,31 @@ class CallSessionTest : BaseTelecomTest() {
         }
     }
 
-    private fun initCallEvents(callChannels: CallChannels, coroutineContext: CoroutineContext):
-        CallSession.CallEventCallbackImpl {
-        return CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
-            VoipExtensionManager(mContext, coroutineContext, callChannels, mutableListOf())
+    private fun initCallEvents(
+        coroutineContext: CoroutineContext,
+        callChannels: CallChannels
+    ): CallSession {
+        return CallSession(
+            coroutineContext,
+            TestUtils.INCOMING_CALL_ATTRIBUTES,
+            TestUtils.mOnAnswerLambda,
+            TestUtils.mOnDisconnectLambda,
+            TestUtils.mOnSetActiveLambda,
+            TestUtils.mOnSetInActiveLambda,
+            callChannels,
+            { _, _ -> },
+            CompletableDeferred(Unit)
         )
     }
 
     fun getCurrentEndpoint(): CallEndpoint {
-        return CallEndpoint("EARPIECE", CallEndpoint.TYPE_EARPIECE,
-            ParcelUuid.fromString(UUID.randomUUID().toString()))
+        return CallEndpoint(
+            "EARPIECE",
+            CallEndpoint.TYPE_EARPIECE,
+            ParcelUuid.fromString(UUID.randomUUID().toString())
+        )
     }
+
     fun getAvailableEndpoint(): List<CallEndpoint> {
         val endpoints = mutableListOf<CallEndpoint>()
         endpoints.add(getCurrentEndpoint())

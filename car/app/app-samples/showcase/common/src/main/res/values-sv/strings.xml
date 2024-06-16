@@ -83,8 +83,8 @@
     <string name="phone" msgid="2504766809811627577">"Telefon"</string>
     <string name="fail_start_nav" msgid="6921321606009212189">"Det gick inte att starta navigeringen"</string>
     <string name="fail_start_dialer" msgid="1471602619507306261">"Det gick inte att starta uppringningsfunktionen"</string>
-    <string name="car_hardware_demo_title" msgid="3679106197233262689">"Maskinvarudemo för bilar"</string>
-    <string name="car_hardware_info" msgid="1244783247616395012">"Maskinvaruinformation om bilar"</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"Hårdvarudemo för bilar"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"Hårdvaruinformation om bilar"</string>
     <string name="model_info" msgid="494224423025683030">"Modellinformation"</string>
     <string name="no_model_permission" msgid="5333629877014978947">"Ingen behörighet till modell."</string>
     <string name="manufacturer_unavailable" msgid="4978995415869838056">"Tillverkaren är inte tillgänglig"</string>
@@ -209,7 +209,7 @@
     <string name="accelerometer" msgid="2084026313768299185">"Accelerometer"</string>
     <string name="gyroscope" msgid="3428075828014504651">"Gyroskop"</string>
     <string name="compass" msgid="7037367764762441245">"Kompass"</string>
-    <string name="car_hardware_location" msgid="5826128477363068617">"Maskinvaruplats för bilar"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"Hårdvaruplats för bilar"</string>
     <string name="non_actionable" msgid="8999757911111188784">"Icke-handlingsbar"</string>
     <string name="second_item" msgid="5245792503030812493">"Det andra objektet"</string>
     <string name="third_item" msgid="334088179008716411">"Det tredje objektet"</string>

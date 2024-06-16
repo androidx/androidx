@@ -41,13 +41,13 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 31)
 class Camera2ExtensionsOpenCloseStressTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     companion object {
-        @ClassRule
-        @JvmField val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
@@ -61,6 +61,7 @@ class Camera2ExtensionsOpenCloseStressTest(private val config: CameraIdExtension
     fun setUp() {
         assumeTrue(Camera2ExtensionsTestUtil.isTargetDeviceExcludedForExtensionsTest())
     }
+
     @Test
     fun openCloseExtensionSession(): Unit = runBlocking {
         val (cameraId, extensionMode) = config
@@ -69,11 +70,6 @@ class Camera2ExtensionsOpenCloseStressTest(private val config: CameraIdExtension
         }
 
         // Test if preview frame can update and it can take a picture after the stress test.
-        assertCanOpenExtensionsSession(
-            cameraManager,
-            cameraId,
-            extensionMode,
-            verifyOutput = true
-        )
+        assertCanOpenExtensionsSession(cameraManager, cameraId, extensionMode, verifyOutput = true)
     }
 }

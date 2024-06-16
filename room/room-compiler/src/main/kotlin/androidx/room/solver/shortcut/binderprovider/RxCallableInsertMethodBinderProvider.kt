@@ -24,13 +24,10 @@ import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Provider for Rx Callable binders.
- */
-open class RxCallableInsertMethodBinderProvider internal constructor(
-    val context: Context,
-    private val rxType: RxType
-) : InsertOrUpsertMethodBinderProvider {
+/** Provider for Rx Callable binders. */
+open class RxCallableInsertMethodBinderProvider
+internal constructor(val context: Context, private val rxType: RxType) :
+    InsertOrUpsertMethodBinderProvider {
 
     /**
      * [Single] and [Maybe] are generics but [Completable] is not so each implementation of this
@@ -57,32 +54,30 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
     }
 
     companion object {
-        fun getAll(context: Context) = listOf(
-            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX2_SINGLE),
-            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX2_MAYBE),
-            RxCompletableInsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
-            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX3_SINGLE),
-            RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX3_MAYBE),
-            RxCompletableInsertMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
-        )
+        fun getAll(context: Context) =
+            listOf(
+                RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX2_SINGLE),
+                RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX2_MAYBE),
+                RxCompletableInsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
+                RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX3_SINGLE),
+                RxSingleOrMaybeInsertMethodBinderProvider(context, RxType.RX3_MAYBE),
+                RxCompletableInsertMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
+            )
     }
 }
 
-private class RxCompletableInsertMethodBinderProvider(
-    context: Context,
-    rxType: RxType
-) : RxCallableInsertMethodBinderProvider(context, rxType) {
+private class RxCompletableInsertMethodBinderProvider(context: Context, rxType: RxType) :
+    RxCallableInsertMethodBinderProvider(context, rxType) {
 
     private val completableType: XRawType? by lazy {
         context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
     /**
-     * Since Completable is not a generic, the supported return type should be Void (nullable).
-     * Like this, the generated Callable.call method will return Void.
+     * Since Completable is not a generic, the supported return type should be Void (nullable). Like
+     * this, the generated Callable.call method will return Void.
      */
-    override fun extractTypeArg(declared: XType): XType =
-        context.COMMON_TYPES.VOID.makeNullable()
+    override fun extractTypeArg(declared: XType): XType = context.COMMON_TYPES.VOID.makeNullable()
 
     override fun matches(declared: XType): Boolean = isCompletable(declared)
 
@@ -94,14 +89,10 @@ private class RxCompletableInsertMethodBinderProvider(
     }
 }
 
-private class RxSingleOrMaybeInsertMethodBinderProvider(
-    context: Context,
-    rxType: RxType
-) : RxCallableInsertMethodBinderProvider(context, rxType) {
+private class RxSingleOrMaybeInsertMethodBinderProvider(context: Context, rxType: RxType) :
+    RxCallableInsertMethodBinderProvider(context, rxType) {
 
-    /**
-     * Since Maybe can have null values, the Callable returned must allow for null values.
-     */
+    /** Since Maybe can have null values, the Callable returned must allow for null values. */
     override fun extractTypeArg(declared: XType): XType =
         declared.typeArguments.first().makeNullable()
 }

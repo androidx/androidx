@@ -22,12 +22,9 @@ import java.util.Date
 
 @Entity
 class Pet(
-    @PrimaryKey
-    var mPetId: Int,
+    @PrimaryKey var mPetId: Int,
     var mUserId: Int,
-
-    @ColumnInfo(name = "mPetName")
-    var mName: String?,
+    @ColumnInfo(name = "mPetName") var mName: String?,
     var mAdoptionDate: Date?,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -37,8 +34,8 @@ class Pet(
         if (mPetId != pet.mPetId) return false
         if (mUserId != pet.mUserId) return false
         if (if (mName != null) mName != pet.mName else pet.mName != null) return false
-        return if (mAdoptionDate != null) mAdoptionDate == pet.mAdoptionDate else
-            pet.mAdoptionDate == null
+        return if (mAdoptionDate != null) mAdoptionDate == pet.mAdoptionDate
+        else pet.mAdoptionDate == null
     }
 
     override fun hashCode(): Int {
@@ -51,10 +48,15 @@ class Pet(
 
     override fun toString(): String {
         return ("Pet{" +
-            "mPetId=" + mPetId +
-            ", mUserId=" + mUserId +
-            ", mName='" + mName + '\'' +
-            ", mAdoptionDate=" + mAdoptionDate +
+            "mPetId=" +
+            mPetId +
+            ", mUserId=" +
+            mUserId +
+            ", mName='" +
+            mName +
+            '\'' +
+            ", mAdoptionDate=" +
+            mAdoptionDate +
             '}')
     }
 }

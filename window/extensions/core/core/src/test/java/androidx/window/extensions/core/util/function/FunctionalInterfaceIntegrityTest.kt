@@ -23,12 +23,12 @@ import org.junit.Test
 /** Verifies the integrity of functional interface defined in extensions core. */
 class FunctionalInterfaceIntegrityTest {
     /**
-     * Verifies that [Consumer] has exactly one method to prevent compatibility issue if we add
-     * more methods to [Consumer]
+     * Verifies that [Consumer] has exactly one method to prevent compatibility issue if we add more
+     * methods to [Consumer]
      */
     @Test
     fun testConsumerHasOnlyOneMethod() {
-        val testConsumer = Consumer<Int> { }
+        val testConsumer = Consumer<Int> {}
         val consumerClass = testConsumer.javaClass
         assertTrue(Consumer::class.java.isInstance(testConsumer))
         assertEquals(1, consumerClass.declaredMethods.size)
@@ -47,8 +47,8 @@ class FunctionalInterfaceIntegrityTest {
     }
 
     /**
-     * Verifies that [Function] has exactly one method to prevent compatibility issue if we add
-     * more methods to [Function]
+     * Verifies that [Function] has exactly one method to prevent compatibility issue if we add more
+     * methods to [Function]
      */
     @Test
     fun testFunctionHasOnlyOneMethod() {

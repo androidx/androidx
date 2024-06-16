@@ -144,10 +144,13 @@ private fun SpannableString.setSpanStyle(
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 // TODO(b/214587005): Check for async here and uncache
-                val typeface = fontFamilyResolver.resolve(
-                    fontFamily = spanStyle.fontFamily,
-                    fontSynthesis = spanStyle.fontSynthesis ?: FontSynthesis.All
-                ).value as Typeface
+                val typeface =
+                    fontFamilyResolver
+                        .resolve(
+                            fontFamily = spanStyle.fontFamily,
+                            fontSynthesis = spanStyle.fontSynthesis ?: FontSynthesis.All
+                        )
+                        .value as Typeface
                 setSpan(
                     Api28Impl.createTypefaceSpan(typeface),
                     start,
@@ -163,20 +166,10 @@ private fun SpannableString.setSpanStyle(
         // should remove the underline and lineThrough effect on the given range. Here we didn't
         // remove any previously applied spans yet.
         if (TextDecoration.Underline in spanStyle.textDecoration) {
-            setSpan(
-                UnderlineSpan(),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         if (TextDecoration.LineThrough in spanStyle.textDecoration) {
-            setSpan(
-                StrikethroughSpan(),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            setSpan(StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
@@ -196,8 +189,7 @@ private fun SpannableString.setSpanStyle(
 
 @RequiresApi(28)
 private object Api28Impl {
-    @DoNotInline
-    fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
+    @DoNotInline fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
 }
 
 private fun AnnotatedString.Range<LinkAnnotation>.toUrlLink() =

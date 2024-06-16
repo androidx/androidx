@@ -44,87 +44,76 @@ sealed class ImageVectorTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        Box(
-            Modifier.testTag(testTag)
-                .size(24.dp)
-                .paint(getPainter())
-        )
+        Box(Modifier.testTag(testTag).size(24.dp).paint(getPainter()))
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        Box {
-            content()
-        }
+        Box { content() }
     }
 
-    @Composable
-    abstract fun getPainter(): Painter
+    @Composable abstract fun getPainter(): Painter
 
     abstract val testTag: String
 }
 
-/**
- * Test case that loads and parses a vector asset from an XML file.
- */
+/** Test case that loads and parses a vector asset from an XML file. */
 class XmlVectorTestCase : ImageVectorTestCase() {
     // TODO: should switch to async loading here, and force that to be run synchronously
     @Composable
-    override fun getPainter() = painterResource(
-        androidx.compose.ui.graphics.benchmark.R.drawable.ic_baseline_menu_24
-    )
+    override fun getPainter() =
+        painterResource(androidx.compose.ui.graphics.benchmark.R.drawable.ic_baseline_menu_24)
 
     override val testTag = "Xml"
 }
 
-/**
- * Test case that creates a vector asset purely from code.
- */
+/** Test case that creates a vector asset purely from code. */
 class ProgrammaticVectorTestCase : ImageVectorTestCase() {
 
-    /**
-     * Returns a clone of ic_baseline_menu_24 built purely in code
-     */
+    /** Returns a clone of ic_baseline_menu_24 built purely in code */
     @Composable
-    override fun getPainter() = rememberVectorPainter(
-        ImageVector.Builder(
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
-        ).apply {
-            addPath(
-                PathData {
-                    moveTo(3f, 18f)
-                    horizontalLineToRelative(18f)
-                    verticalLineToRelative(-2f)
-                    lineTo(3f, 16f)
-                    verticalLineToRelative(2f)
-                    close()
-                    moveTo(3f, 13f)
-                    horizontalLineToRelative(18f)
-                    verticalLineToRelative(-2f)
-                    lineTo(3f, 11f)
-                    verticalLineToRelative(2f)
-                    close()
-                    moveTo(3f, 6f)
-                    verticalLineToRelative(2f)
-                    horizontalLineToRelative(18f)
-                    lineTo(21f, 6f)
-                    lineTo(3f, 6f)
-                    close()
-                },
-                fill = SolidColor(Color.Black),
-                fillAlpha = 1f,
-                stroke = null,
-                strokeAlpha = 1f,
-                strokeLineWidth = 1f,
-                strokeLineCap = StrokeCap.Butt,
-                strokeLineJoin = StrokeJoin.Bevel,
-                strokeLineMiter = 1f
-            )
-        }.build()
-    )
+    override fun getPainter() =
+        rememberVectorPainter(
+            ImageVector.Builder(
+                    defaultWidth = 24.dp,
+                    defaultHeight = 24.dp,
+                    viewportWidth = 24f,
+                    viewportHeight = 24f
+                )
+                .apply {
+                    addPath(
+                        PathData {
+                            moveTo(3f, 18f)
+                            horizontalLineToRelative(18f)
+                            verticalLineToRelative(-2f)
+                            lineTo(3f, 16f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveTo(3f, 13f)
+                            horizontalLineToRelative(18f)
+                            verticalLineToRelative(-2f)
+                            lineTo(3f, 11f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveTo(3f, 6f)
+                            verticalLineToRelative(2f)
+                            horizontalLineToRelative(18f)
+                            lineTo(21f, 6f)
+                            lineTo(3f, 6f)
+                            close()
+                        },
+                        fill = SolidColor(Color.Black),
+                        fillAlpha = 1f,
+                        stroke = null,
+                        strokeAlpha = 1f,
+                        strokeLineWidth = 1f,
+                        strokeLineCap = StrokeCap.Butt,
+                        strokeLineJoin = StrokeJoin.Bevel,
+                        strokeLineMiter = 1f
+                    )
+                }
+                .build()
+        )
 
     override val testTag = "Vector"
 }

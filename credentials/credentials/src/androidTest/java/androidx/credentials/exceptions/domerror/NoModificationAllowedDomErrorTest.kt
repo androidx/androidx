@@ -34,7 +34,8 @@ class NoModificationAllowedDomErrorTest {
     @Test
     fun getter_success() {
         val error = NoModificationAllowedError()
-        val expectedType = NoModificationAllowedError
+        val expectedType =
+            NoModificationAllowedError
                 .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NO_MODIFICATION_ALLOWED_ERROR
         Truth.assertThat(error.type).isEqualTo(expectedType)
     }

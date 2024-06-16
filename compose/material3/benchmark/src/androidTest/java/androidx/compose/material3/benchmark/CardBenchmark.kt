@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CardBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val cardTestCaseFactory = { CardTestCase() }
     private val clickableCardTestCaseFactory = { ClickableCardTestCase() }
@@ -85,14 +84,12 @@ internal class CardTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        Card(modifier = Modifier.size(200.dp)) { }
+        Card(modifier = Modifier.size(200.dp)) {}
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
@@ -100,13 +97,11 @@ internal class ClickableCardTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        Card(onClick = {}, modifier = Modifier.size(200.dp)) { }
+        Card(onClick = {}, modifier = Modifier.size(200.dp)) {}
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

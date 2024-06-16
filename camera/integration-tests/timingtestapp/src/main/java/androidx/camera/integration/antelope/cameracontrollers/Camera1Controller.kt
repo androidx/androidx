@@ -49,27 +49,25 @@ fun camera1OpenCamera(activity: MainActivity, params: CameraParams, testConfig: 
 
         logd("Camera1Switch Open camera: " + testConfig.switchTestCurrentCamera.toInt())
 
-        if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        if (
+            (testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
+                (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
         )
             camera1 = Camera.open(testConfig.switchTestCurrentCamera.toInt())
-        else
-            camera1 = Camera.open(testConfig.camera.toInt())
+        else camera1 = Camera.open(testConfig.camera.toInt())
 
         params.timer.openEnd = System.currentTimeMillis()
 
         // Due to the synchronous nature of Camera1, set up Camera1 specific parameters here
         val camera1Params: Camera.Parameters? = camera1?.parameters
         params.cam1AFSupported =
-            camera1Params?.supportedFocusModes?.contains(Camera.Parameters.FOCUS_MODE_AUTO)
-            ?: false
+            camera1Params?.supportedFocusModes?.contains(Camera.Parameters.FOCUS_MODE_AUTO) ?: false
 
         when (testConfig.currentRunningTest) {
             TestType.INIT -> {
                 // Camera opened, we're done
                 testEnded(activity, params, testConfig)
             }
-
             else -> {
                 startCamera1Preview(activity, params, testConfig)
             }
@@ -105,14 +103,12 @@ fun startCamera1Preview(activity: MainActivity, params: CameraParams, testConfig
 
     if (ImageCaptureSize.MIN == testConfig.imageCaptureSize)
         camera1Params?.setPictureSize(params.cam1MinSize.width, params.cam1MinSize.height)
-    else
-        camera1Params?.setPictureSize(params.cam1MaxSize.width, params.cam1MaxSize.height)
+    else camera1Params?.setPictureSize(params.cam1MaxSize.width, params.cam1MaxSize.height)
 
     if (params.cam1AFSupported) {
         if (FocusMode.CONTINUOUS == testConfig.focusMode)
             camera1Params?.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-        else
-            camera1Params?.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
+        else camera1Params?.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
     } else {
         camera1Params?.focusMode = Camera.Parameters.FOCUS_MODE_FIXED
     }
@@ -133,8 +129,8 @@ fun startCamera1Preview(activity: MainActivity, params: CameraParams, testConfig
             testConfig.testFinished = true
             closePreviewAndCamera(activity, params, testConfig)
         }
-
-        TestType.SWITCH_CAMERA, TestType.MULTI_SWITCH -> {
+        TestType.SWITCH_CAMERA,
+        TestType.MULTI_SWITCH -> {
             logd("Camera1Switch preview running:")
             if (testConfig.switchTestCurrentCamera == testConfig.switchTestCameras.get(0)) {
                 if (testConfig.testFinished) {
@@ -159,11 +155,9 @@ fun startCamera1Preview(activity: MainActivity, params: CameraParams, testConfig
                 closePreviewAndCamera(activity, params, testConfig)
             }
         }
-
         TestType.NONE -> {
             closeAllCameras(activity, testConfig)
         }
-
         else -> {
             camera1TakePicturePrep(activity, params, testConfig)
         }
@@ -178,7 +172,8 @@ fun camera1TakePicturePrep(activity: MainActivity, params: CameraParams, testCon
     if (params.timer.isFirstPhoto) {
         logd(
             "camera1TakePicturePrep: 1st photo in multi-chain test. Pausing for " +
-                PrefHelper.getPreviewBuffer(activity) + "ms to let preview run."
+                PrefHelper.getPreviewBuffer(activity) +
+                "ms to let preview run."
         )
         params.timer.previewFillStart = System.currentTimeMillis()
         Thread.sleep(PrefHelper.getPreviewBuffer(activity))
@@ -188,9 +183,7 @@ fun camera1TakePicturePrep(activity: MainActivity, params: CameraParams, testCon
 
     params.timer.captureStart = System.currentTimeMillis()
 
-    if (params.cam1AFSupported &&
-        FocusMode.AUTO == testConfig.focusMode
-    ) {
+    if (params.cam1AFSupported && FocusMode.AUTO == testConfig.focusMode) {
         MainActivity.logd("camera1TakePicturePrep: starting autofocus.")
         params.timer.autofocusStart = System.currentTimeMillis()
         camera1?.autoFocus(Camera1AutofocusCallback(activity, params, testConfig))
@@ -199,9 +192,7 @@ fun camera1TakePicturePrep(activity: MainActivity, params: CameraParams, testCon
     }
 }
 
-/**
- * Initiate the capture request
- */
+/** Initiate the capture request */
 fun camera1TakePicture(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
     val camera1JpegCallback = Camera1PictureCallback(activity, params, testConfig)
 
@@ -213,12 +204,9 @@ fun camera1TakePicture(activity: MainActivity, params: CameraParams, testConfig:
     }
 }
 
-/**
- * Close preview stream and camera device. If this is a switch test, begin the next step
- */
+/** Close preview stream and camera device. If this is a switch test, begin the next step */
 fun camera1CloseCamera(activity: MainActivity, params: CameraParams?, testConfig: TestConfig) {
-    if (params == null)
-        return
+    if (params == null) return
 
     if (params.isPreviewing) {
         params.timer.previewCloseStart = System.currentTimeMillis()
@@ -241,7 +229,8 @@ fun camera1CloseCamera(activity: MainActivity, params: CameraParams?, testConfig
     }
 
     when (testConfig.currentRunningTest) {
-        TestType.SWITCH_CAMERA, TestType.MULTI_SWITCH -> {
+        TestType.SWITCH_CAMERA,
+        TestType.MULTI_SWITCH -> {
             logd("Camera1Switch Close camera")
             // First camera closed, now start the second
             if (testConfig.switchTestCurrentCamera == testConfig.switchTestCameras.get(0)) {
@@ -264,10 +253,9 @@ fun camera1CloseCamera(activity: MainActivity, params: CameraParams?, testConfig
     }
 }
 
-/**
- * Auto-focus is complete, record the elapsed time and request the capture
- */
-class Camera1AutofocusCallback internal constructor(
+/** Auto-focus is complete, record the elapsed time and request the capture */
+class Camera1AutofocusCallback
+internal constructor(
     internal val activity: MainActivity,
     internal val params: CameraParams,
     internal val testConfig: TestConfig
@@ -284,7 +272,8 @@ class Camera1AutofocusCallback internal constructor(
  * Image capture has completed. Record the time taken, synchronously write file to disk and measure
  * the time required. This test run is finished, call to finalize test or continue the test run.
  */
-class Camera1PictureCallback internal constructor(
+class Camera1PictureCallback
+internal constructor(
     internal val activity: MainActivity,
     internal val params: CameraParams,
     internal val testConfig: TestConfig
@@ -304,8 +293,7 @@ class Camera1PictureCallback internal constructor(
         params.timer.imageReaderEnd = System.currentTimeMillis()
         params.timer.imageSaveStart = System.currentTimeMillis()
 
-        if (null != bytes)
-            writeFile(activity, bytes)
+        if (null != bytes) writeFile(activity, bytes)
 
         params.timer.imageSaveEnd = System.currentTimeMillis()
 

@@ -109,4 +109,5 @@ androidx {
             "library providing a consistent and reliable camera foundation that enables great " +
             "camera driven experiences across all of Android."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

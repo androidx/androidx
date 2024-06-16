@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraMetadata : Metadata, UnsafeWrapper {
     operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
+
     fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
 
     val camera: CameraId
@@ -48,8 +49,11 @@ interface CameraMetadata : Metadata, UnsafeWrapper {
     val supportedExtensions: Set<Int>
 
     suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
+
     fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata
+
     suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata
+
     fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata
 
     companion object {

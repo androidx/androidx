@@ -56,12 +56,13 @@ class TextInputServiceAndroidEmojiTest {
         val inputMethodManager = mock<InputMethodManager>()
         // Choreographer must be retrieved on main thread.
         val choreographer = Espresso.onIdle { Choreographer.getInstance() }
-        val textInputService = TextInputServiceAndroid(
-            view,
-            positionCalculator,
-            inputMethodManager,
-            inputCommandProcessorExecutor = choreographer.asExecutor()
-        )
+        val textInputService =
+            TextInputServiceAndroid(
+                view,
+                positionCalculator,
+                inputMethodManager,
+                inputCommandProcessorExecutor = choreographer.asExecutor()
+            )
 
         textInputService.startInput(TextFieldValue(""), ImeOptions.Default, {}, {})
 

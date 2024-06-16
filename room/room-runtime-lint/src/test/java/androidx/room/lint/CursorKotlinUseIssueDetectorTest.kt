@@ -24,37 +24,42 @@ import org.junit.Test
 class CursorKotlinUseIssueDetectorTest {
     @Test
     fun cursorUseIssueDetectorTest() {
-        TestLintTask.lint().files(
-            kotlin(
-                "com/example/Foo.kt",
-                """
+        TestLintTask.lint()
+            .files(
+                kotlin(
+                        "com/example/Foo.kt",
+                        """
                 package com.example
                 import android.database.Cursor
                 fun foo(c: Cursor) {
                     c.use {
                     }
                 }
-            """.trimIndent()
-            ).within("src")
-        ).issues(CursorKotlinUseIssueDetector.ISSUE)
+            """
+                            .trimIndent()
+                    )
+                    .within("src")
+            )
+            .issues(CursorKotlinUseIssueDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
             src/com/example/Foo.kt:4: Error: Usage of kotlin.io.use() with Cursor requires API 16. [CursorKotlinUse]
                 c.use {
                 ^
             1 errors, 0 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun cursorUseIssueDetectorTest_notKotlinUse() {
-        TestLintTask.lint().files(
-            kotlin(
-                "com/example/Foo.kt",
-                """
+        TestLintTask.lint()
+            .files(
+                kotlin(
+                        "com/example/Foo.kt",
+                        """
                 package com.example
                 import android.database.Cursor
                 fun foo(c: Cursor) {
@@ -64,39 +69,47 @@ class CursorKotlinUseIssueDetectorTest {
                 fun <R> Cursor.use(block: (Cursor) -> R): R {
                     return block(this)
                 }
-            """.trimIndent()
-            ).within("src")
-        ).issues(CursorKotlinUseIssueDetector.ISSUE)
+            """
+                            .trimIndent()
+                    )
+                    .within("src")
+            )
+            .issues(CursorKotlinUseIssueDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun cursorUseIssueDetectorTest_minSdkGreaterThan15() {
-        TestLintTask.lint().files(
-            manifest().minSdk(18),
-            kotlin(
-                "com/example/Foo.kt",
-                """
+        TestLintTask.lint()
+            .files(
+                manifest().minSdk(18),
+                kotlin(
+                        "com/example/Foo.kt",
+                        """
                 package com.example
                 import android.database.Cursor
                 fun foo(c: Cursor) {
                     c.use {
                     }
                 }
-            """.trimIndent()
-            ).within("src"),
-        ).issues(CursorKotlinUseIssueDetector.ISSUE)
+            """
+                            .trimIndent()
+                    )
+                    .within("src"),
+            )
+            .issues(CursorKotlinUseIssueDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun cursorUseIssueDetectorTest_versionChecked() {
-        TestLintTask.lint().files(
-            kotlin(
-                "com/example/Foo.kt",
-                """
+        TestLintTask.lint()
+            .files(
+                kotlin(
+                        "com/example/Foo.kt",
+                        """
                 package com.example
                 import android.database.Cursor
                 import android.os.Build
@@ -105,9 +118,12 @@ class CursorKotlinUseIssueDetectorTest {
                     c.use { }
                   }
                 }
-            """.trimIndent()
-            ).within("src"),
-        ).issues(CursorKotlinUseIssueDetector.ISSUE)
+            """
+                            .trimIndent()
+                    )
+                    .within("src"),
+            )
+            .issues(CursorKotlinUseIssueDetector.ISSUE)
             .run()
             .expectClean()
     }

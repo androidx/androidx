@@ -16,28 +16,22 @@
 package androidx.lifecycle.viewmodel
 
 /**
- * Simple map-like object that passed in [ViewModelProvider.Factory.create]
- * to provide an additional information to a factory.
+ * Simple map-like object that passed in [ViewModelProvider.Factory.create] to provide an additional
+ * information to a factory.
  *
  * It allows making `Factory` implementations stateless, which makes an injection of factories
- * easier because  don't require all information be available at construction time.
+ * easier because don't require all information be available at construction time.
  */
 public abstract class CreationExtras internal constructor() {
     internal val map: MutableMap<Key<*>, Any?> = mutableMapOf()
 
-    /**
-     * Key for the elements of [CreationExtras]. [T] is a type of an element with this key.
-     */
+    /** Key for the elements of [CreationExtras]. [T] is a type of an element with this key. */
     public interface Key<T>
 
-    /**
-     * Returns an element associated with the given [key]
-     */
+    /** Returns an element associated with the given [key] */
     public abstract operator fun <T> get(key: Key<T>): T?
 
-    /**
-     * Empty [CreationExtras]
-     */
+    /** Empty [CreationExtras] */
     public object Empty : CreationExtras() {
         override fun <T> get(key: Key<T>): T? = null
     }
@@ -53,15 +47,13 @@ public class MutableCreationExtras(initialExtras: CreationExtras = Empty) : Crea
     init {
         map.putAll(initialExtras.map)
     }
-    /**
-     * Associates the given [key] with [t]
-     */
+
+    /** Associates the given [key] with [t] */
     public operator fun <T> set(key: Key<T>, t: T) {
         map[key] = t
     }
 
     public override fun <T> get(key: Key<T>): T? {
-        @Suppress("UNCHECKED_CAST")
-        return map[key] as T?
+        @Suppress("UNCHECKED_CAST") return map[key] as T?
     }
 }

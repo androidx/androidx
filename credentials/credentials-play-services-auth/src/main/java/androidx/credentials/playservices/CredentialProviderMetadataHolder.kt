@@ -23,8 +23,8 @@ import android.os.IBinder
 import androidx.annotation.RestrictTo
 
 /**
- * Metadata holder service for the purpose of defining the class that implements
- * the [androidx.credentials.CredentialProvider] interface
+ * Metadata holder service for the purpose of defining the class that implements the
+ * [androidx.credentials.CredentialProvider] interface
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class CredentialProviderMetadataHolder : Service() {
@@ -32,8 +32,8 @@ class CredentialProviderMetadataHolder : Service() {
     private val binder = LocalBinder()
 
     /**
-     * Class used for the client Binder. Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
+     * Class used for the client Binder. Because we know this service always runs in the same
+     * process as its clients, we don't need to deal with IPC.
      */
     inner class LocalBinder : Binder() {
         // Return this instance of CredentialProviderMetadataHolder so clients

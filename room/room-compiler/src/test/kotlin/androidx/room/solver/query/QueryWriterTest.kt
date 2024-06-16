@@ -36,7 +36,8 @@ import testCodeGenScope
 @RunWith(JUnit4::class)
 class QueryWriterTest {
     companion object {
-        const val DAO_PREFIX = """
+        const val DAO_PREFIX =
+            """
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
@@ -58,12 +59,14 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim()).isEqualTo(
-                """
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 final java.lang.String _sql = "SELECT id FROM users";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 0);
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
@@ -84,15 +87,18 @@ class QueryWriterTest {
                 } else {
                   _stmt.bindString(_argIndex, name);
                 }
-                """.trimIndent()
-            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
+                    .trimIndent()
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
                 |final $QUERY _stmt = $QUERY.acquire(_sql, 1);
                 |int _argIndex = 1;
                 |$expectedStringBind
-                """.trimMargin()
-            )
+                """
+                        .trimMargin()
+                )
         }
     }
 
@@ -106,16 +112,18 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim()).isEqualTo(
-                """
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 2);
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, id1);
                 _argIndex = 2;
                 _stmt.bindLong(_argIndex, id2);
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
@@ -129,8 +137,9 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim()).isEqualTo(
-                """
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 final java.lang.StringBuilder _stringBuilder = new java.lang.StringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE id IN(");
                 final int _inputSize = ids == null ? 1 : ids.length;
@@ -151,12 +160,14 @@ class QueryWriterTest {
                 }
                 _argIndex = 1 + _inputSize;
                 _stmt.bindLong(_argIndex, time);
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
-    val collectionOut = """
+    val collectionOut =
+        """
         final java.lang.StringBuilder _stringBuilder = new java.lang.StringBuilder();
         _stringBuilder.append("SELECT id FROM users WHERE id IN(");
         final int _inputSize = ids == null ? 1 : ids.size();
@@ -181,7 +192,8 @@ class QueryWriterTest {
         }
         _argIndex = 1 + _inputSize;
         _stmt.bindLong(_argIndex, time);
-    """.trimIndent()
+    """
+            .trimIndent()
 
     @Test
     fun aLongAndIntegerList() {
@@ -235,16 +247,18 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim()).isEqualTo(
-                """
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 2);
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, age);
                 _argIndex = 2;
                 _stmt.bindLong(_argIndex, age);
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
@@ -258,8 +272,9 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim()).isEqualTo(
-                """
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 final java.lang.StringBuilder _stringBuilder = new java.lang.StringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE age > ");
                 _stringBuilder.append("?");
@@ -285,8 +300,9 @@ class QueryWriterTest {
                     _argIndex++;
                   }
                 }
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
@@ -300,8 +316,9 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim()).isEqualTo(
-                """
+            assertThat(scope.generate().toString().trim())
+                .isEqualTo(
+                    """
                 final java.lang.StringBuilder _stringBuilder = new java.lang.StringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE age IN (");
                 final int _inputSize = ages == null ? 1 : ages.length;
@@ -335,38 +352,33 @@ class QueryWriterTest {
                     _argIndex++;
                   }
                 }
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
         }
     }
 
-    fun singleQueryMethod(
-        vararg input: String,
-        handler: (Boolean, QueryWriter) -> Unit
-    ) {
-        val source = Source.java(
-            "foo.bar.MyClass",
-            DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-        )
-        runProcessorTest(
-            sources = listOf(source)
-        ) { invocation ->
-            val (owner, methods) = invocation.roundEnv
-                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map {
-                    Pair(
-                        it,
-                        it.getAllMethods().filter {
-                            it.hasAnnotation(Query::class)
-                        }.toList()
-                    )
-                }.first { it.second.isNotEmpty() }
-            val parser = QueryMethodProcessor(
-                baseContext = invocation.context,
-                containing = owner.type,
-                executableElement = methods.first()
-            )
+    fun singleQueryMethod(vararg input: String, handler: (Boolean, QueryWriter) -> Unit) {
+        val source =
+            Source.java("foo.bar.MyClass", DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX)
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val (owner, methods) =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map {
+                        Pair(
+                            it,
+                            it.getAllMethods().filter { it.hasAnnotation(Query::class) }.toList()
+                        )
+                    }
+                    .first { it.second.isNotEmpty() }
+            val parser =
+                QueryMethodProcessor(
+                    baseContext = invocation.context,
+                    containing = owner.type,
+                    executableElement = methods.first()
+                )
             val method = parser.process()
             handler(invocation.isKsp, QueryWriter(method))
         }

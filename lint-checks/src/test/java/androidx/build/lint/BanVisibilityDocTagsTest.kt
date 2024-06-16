@@ -21,17 +21,20 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanVisibilityDocTagsTest : AbstractLintDetectorTest(
-    useDetector = BanVisibilityDocTags(),
-    useIssues = listOf(
-        BanVisibilityDocTags.HIDE_ISSUE,
-        BanVisibilityDocTags.SUPPRESS_ISSUE,
-        BanVisibilityDocTags.REMOVED_ISSUE,
-    ),
-) {
+class BanVisibilityDocTagsTest :
+    AbstractLintDetectorTest(
+        useDetector = BanVisibilityDocTags(),
+        useIssues =
+            listOf(
+                BanVisibilityDocTags.HIDE_ISSUE,
+                BanVisibilityDocTags.SUPPRESS_ISSUE,
+                BanVisibilityDocTags.REMOVED_ISSUE,
+            ),
+    ) {
 
-    private val fileWithHideInJavadoc = java(
-        """
+    private val fileWithHideInJavadoc =
+        java(
+            """
 /**
  * @hide
  */
@@ -47,15 +50,16 @@ public class HideClass {
      */
     public static void hide() {}
 }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun `Detection of Hide tag in Javadoc`() {
         val input = arrayOf(fileWithHideInJavadoc)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/HideClass.java:4: Error: @hide is not allowed in documentation [BanHideTag]
 public class HideClass {
              ~~~~~~~~~
@@ -66,14 +70,15 @@ src/HideClass.java:14: Error: @hide is not allowed in documentation [BanHideTag]
     public static void hide() {}
                        ~~~~
 3 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
-    private val fileWithSuppressInKdoc = kotlin(
-        """
+    private val fileWithSuppressInKdoc =
+        kotlin(
+            """
 /**
  * @suppress
  */
@@ -88,15 +93,16 @@ public class SuppressClass {
     */
     public val suppressedProperty = 1
 }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun `Detection of Suppress tag in Kdoc`() {
         val input = arrayOf(fileWithSuppressInKdoc)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/SuppressClass.kt:4: Error: @suppress is not allowed in documentation [BanSuppressTag]
 public class SuppressClass {
              ~~~~~~~~~~~~~
@@ -107,17 +113,18 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
     public val suppressedProperty = 1
                ~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Detection of removed tag`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                     class Foo {
                         /**
                           * A previously useful function.
@@ -125,10 +132,11 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                           **/
                         fun foo() = Unit
                     }
-                """.trimIndent()
-            ),
-            java(
                 """
+                        .trimIndent()
+                ),
+                java(
+                    """
                     /**
                       * Bar class
                       * @removed don't use this
@@ -137,11 +145,13 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                         /** @removed */
                         public void bar() {}
                     }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
 
-        val expected = """
+        val expected =
+            """
             src/Bar.java:5: Error: @removed is not allowed in documentation [BanRemovedTag]
             public class Bar {
                          ~~~
@@ -152,7 +162,8 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                 fun foo() = Unit
                     ~~~
             3 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }

@@ -67,13 +67,13 @@ class TextFieldDelegateTest {
     private lateinit var textLayoutResultProxy: TextLayoutResultProxy
     private lateinit var textLayoutResult: TextLayoutResult
 
-    /**
-     * Test implementation of offset map which doubles the offset in transformed text.
-     */
-    private val skippingOffsetMap = object : OffsetMapping {
-        override fun originalToTransformed(offset: Int): Int = offset * 2
-        override fun transformedToOriginal(offset: Int): Int = offset / 2
-    }
+    /** Test implementation of offset map which doubles the offset in transformed text. */
+    private val skippingOffsetMap =
+        object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = offset * 2
+
+            override fun transformedToOriginal(offset: Int): Int = offset / 2
+        }
 
     @Before
     fun setup() {
@@ -106,73 +106,68 @@ class TextFieldDelegateTest {
             onValueChange
         )
 
-        verify(onValueChange, times(1)).invoke(
-            eq(TextFieldValue(text = editorState.text, selection = TextRange(offset)))
-        )
+        verify(onValueChange, times(1))
+            .invoke(eq(TextFieldValue(text = editorState.text, selection = TextRange(offset))))
     }
 
     @Test
     fun on_focus() {
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
-        val imeOptions = ImeOptions(
-            singleLine = true,
-            capitalization = KeyboardCapitalization.Sentences,
-            keyboardType = KeyboardType.Phone,
-            imeAction = ImeAction.Search
-        )
+        val imeOptions =
+            ImeOptions(
+                singleLine = true,
+                capitalization = KeyboardCapitalization.Sentences,
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Search
+            )
 
         val textInputSession: TextInputSession = mock()
         whenever(
-            textInputService.startInput(
-                eq(editorState),
+                textInputService.startInput(
+                    eq(editorState),
+                    eq(imeOptions),
+                    any(),
+                    eq(onEditorActionPerformed)
+                )
+            )
+            .thenReturn(textInputSession)
+
+        val actual =
+            TextFieldDelegate.onFocus(
+                textInputService = textInputService,
+                value = editorState,
+                editProcessor = processor,
+                imeOptions = imeOptions,
+                onValueChange = onValueChange,
+                onImeActionPerformed = onEditorActionPerformed
+            )
+        verify(textInputService)
+            .startInput(
+                eq(TextFieldValue(text = editorState.text, selection = editorState.selection)),
                 eq(imeOptions),
                 any(),
                 eq(onEditorActionPerformed)
             )
-        ).thenReturn(textInputSession)
-
-        val actual = TextFieldDelegate.onFocus(
-            textInputService = textInputService,
-            value = editorState,
-            editProcessor = processor,
-            imeOptions = imeOptions,
-            onValueChange = onValueChange,
-            onImeActionPerformed = onEditorActionPerformed
-        )
-        verify(textInputService).startInput(
-            eq(
-                TextFieldValue(
-                    text = editorState.text,
-                    selection = editorState.selection
-                )
-            ),
-            eq(imeOptions),
-            any(),
-            eq(onEditorActionPerformed)
-        )
 
         assertThat(actual).isEqualTo(textInputSession)
     }
 
     @Test
     fun on_blur_with_hiding() {
-        val editorState = TextFieldValue(
-            text = "Hello, World",
-            selection = TextRange(1),
-            composition = TextRange(3, 5)
-        )
+        val editorState =
+            TextFieldValue(
+                text = "Hello, World",
+                selection = TextRange(1),
+                composition = TextRange(3, 5)
+            )
         whenever(processor.toTextFieldValue()).thenReturn(editorState)
 
         val textInputSession = mock<TextInputSession>()
 
         TextFieldDelegate.onBlur(textInputSession, processor, onValueChange)
 
-        inOrder(textInputSession) {
-            verify(textInputSession).dispose()
-        }
-        verify(onValueChange, times(1)).invoke(
-            eq(editorState.copy(composition = null))
-        )
+        inOrder(textInputSession) { verify(textInputSession).dispose() }
+        verify(onValueChange, times(1)).invoke(eq(editorState.copy(composition = null)))
     }
 
     @Test
@@ -191,16 +186,14 @@ class TextFieldDelegateTest {
             onValueChange
         )
 
-        verify(onValueChange, times(1)).invoke(
-            eq(TextFieldValue(text = editorState.text, selection = TextRange(offset / 2)))
-        )
+        verify(onValueChange, times(1))
+            .invoke(eq(TextFieldValue(text = editorState.text, selection = TextRange(offset / 2))))
     }
 
     @Test
     fun use_identity_mapping_if_none_visual_transformation() {
-        val transformedText = VisualTransformation.None.filter(
-            AnnotatedString(text = "Hello, World")
-        )
+        val transformedText =
+            VisualTransformation.None.filter(AnnotatedString(text = "Hello, World"))
         val visualText = transformedText.text
         val offsetMapping = transformedText.offsetMapping
 
@@ -214,86 +207,110 @@ class TextFieldDelegateTest {
 
     @Test
     fun apply_composition_decoration() {
-        val identityOffsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offset
-            override fun transformedToOriginal(offset: Int): Int = offset
-        }
+        val identityOffsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offset
 
-        val input = TransformedText(
-            text = AnnotatedString.Builder().apply {
-                pushStyle(SpanStyle(color = Color.Red))
-                append("Hello, World")
-            }.toAnnotatedString(),
-            offsetMapping = identityOffsetMapping
-        )
+                override fun transformedToOriginal(offset: Int): Int = offset
+            }
 
-        val result = TextFieldDelegate.applyCompositionDecoration(
-            compositionRange = TextRange(3, 6),
-            transformed = input
-        )
+        val input =
+            TransformedText(
+                text =
+                    AnnotatedString.Builder()
+                        .apply {
+                            pushStyle(SpanStyle(color = Color.Red))
+                            append("Hello, World")
+                        }
+                        .toAnnotatedString(),
+                offsetMapping = identityOffsetMapping
+            )
+
+        val result =
+            TextFieldDelegate.applyCompositionDecoration(
+                compositionRange = TextRange(3, 6),
+                transformed = input
+            )
 
         assertThat(result.text.text).isEqualTo(input.text.text)
         assertThat(result.text.spanStyles.size).isEqualTo(2)
-        assertThat(result.text.spanStyles).contains(
-            AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
-        )
+        assertThat(result.text.spanStyles)
+            .contains(
+                AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
+            )
     }
 
     @Test
     fun applyCompositionDecoration_negativeRange_isAppliedReversed() {
         // condition can be reached on Samsung Android 9 w/ Samsung keyboard
         // b/299583698
-        val identityOffsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offset
-            override fun transformedToOriginal(offset: Int): Int = offset
-        }
+        val identityOffsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offset
 
-        val input = TransformedText(
-            text = AnnotatedString.Builder().apply {
-                pushStyle(SpanStyle(color = Color.Red))
-                append("Hello, World")
-            }.toAnnotatedString(),
-            offsetMapping = identityOffsetMapping
-        )
+                override fun transformedToOriginal(offset: Int): Int = offset
+            }
 
-        val result = TextFieldDelegate.applyCompositionDecoration(
-            compositionRange = TextRange(3, 0),
-            transformed = input
-        )
-        assertThat(result.text.spanStyles).contains(
-            AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 0, 3)
-        )
+        val input =
+            TransformedText(
+                text =
+                    AnnotatedString.Builder()
+                        .apply {
+                            pushStyle(SpanStyle(color = Color.Red))
+                            append("Hello, World")
+                        }
+                        .toAnnotatedString(),
+                offsetMapping = identityOffsetMapping
+            )
+
+        val result =
+            TextFieldDelegate.applyCompositionDecoration(
+                compositionRange = TextRange(3, 0),
+                transformed = input
+            )
+        assertThat(result.text.spanStyles)
+            .contains(
+                AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 0, 3)
+            )
     }
 
     @Test
     fun apply_composition_decoration_with_offsetmap() {
         val offsetAmount = 5
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offsetAmount + offset
-            override fun transformedToOriginal(offset: Int): Int = offset - offsetAmount
-        }
+        val offsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offsetAmount + offset
 
-        val input = TransformedText(
-            text = AnnotatedString.Builder().apply {
-                append(" ".repeat(offsetAmount))
-                append("Hello World")
-            }.toAnnotatedString(),
-            offsetMapping = offsetMapping
-        )
+                override fun transformedToOriginal(offset: Int): Int = offset - offsetAmount
+            }
+
+        val input =
+            TransformedText(
+                text =
+                    AnnotatedString.Builder()
+                        .apply {
+                            append(" ".repeat(offsetAmount))
+                            append("Hello World")
+                        }
+                        .toAnnotatedString(),
+                offsetMapping = offsetMapping
+            )
 
         val range = TextRange(0, 2)
-        val result = TextFieldDelegate.applyCompositionDecoration(
-            compositionRange = range,
-            transformed = input
-        )
+        val result =
+            TextFieldDelegate.applyCompositionDecoration(
+                compositionRange = range,
+                transformed = input
+            )
 
         assertThat(result.text.spanStyles.size).isEqualTo(1)
-        assertThat(result.text.spanStyles).contains(
-            AnnotatedString.Range(
-                SpanStyle(textDecoration = TextDecoration.Underline),
-                range.start + offsetAmount,
-                range.end + offsetAmount
+        assertThat(result.text.spanStyles)
+            .contains(
+                AnnotatedString.Range(
+                    SpanStyle(textDecoration = TextDecoration.Underline),
+                    range.start + offsetAmount,
+                    range.end + offsetAmount
+                )
             )
-        )
     }
 }

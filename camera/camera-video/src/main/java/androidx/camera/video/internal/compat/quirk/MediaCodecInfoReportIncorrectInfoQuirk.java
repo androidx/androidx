@@ -28,7 +28,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
@@ -92,7 +91,6 @@ import java.util.Set;
  *                Samsung Galaxy A03 Core, Vivo Y75, Realme C11 2021, Redmi 12, Realme GT neo5 SE,
  *                Realme C35, Vivo Y22, Motorola Moto E20
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     static boolean load() {

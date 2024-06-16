@@ -24,18 +24,19 @@ import androidx.credentials.internal.FrameworkClassParsingException
 /**
  * A request to save the user password credential with their password provider.
  *
- * @property id the user id associated with the password
- * @property password the password
  * @param id the user id associated with the password
  * @param password the password
  * @param origin the origin of a different application if the request is being made on behalf of
- * that application (Note: for API level >=34, setting a non-null value for this parameter will
- * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ *   that application (Note: for API level >=34, setting a non-null value for this parameter will
+ *   throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
  * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available credential creation offering instead of falling back to
- * discovering remote options, and false (default) otherwise
+ *   immediately when there is no available credential creation offering instead of falling back to
+ *   discovering remote options, and false (default) otherwise
+ * @property id the user id associated with the password
+ * @property password the password
  */
-class CreatePasswordRequest private constructor(
+class CreatePasswordRequest
+private constructor(
     val id: String,
     val password: String,
     isAutoSelectAllowed: Boolean,
@@ -44,41 +45,44 @@ class CreatePasswordRequest private constructor(
     preferImmediatelyAvailableCredentials: Boolean,
     credentialData: Bundle = toCredentialDataBundle(id, password),
     candidateQueryData: Bundle = toCandidateDataBundle(),
-) : CreateCredentialRequest(
-    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    credentialData = credentialData,
-    candidateQueryData = candidateQueryData,
-    isSystemProviderRequired = false,
-    isAutoSelectAllowed,
-    displayInfo,
-    origin,
-    preferImmediatelyAvailableCredentials,
-) {
+) :
+    CreateCredentialRequest(
+        type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+        credentialData = credentialData,
+        candidateQueryData = candidateQueryData,
+        isSystemProviderRequired = false,
+        isAutoSelectAllowed,
+        displayInfo,
+        origin,
+        preferImmediatelyAvailableCredentials,
+    ) {
 
     /**
-     * Constructs a [CreatePasswordRequest] to save the user password credential with their
-     * password provider.
+     * Constructs a [CreatePasswordRequest] to save the user password credential with their password
+     * provider.
      *
      * @param id the user id associated with the password
      * @param password the password
      * @param origin the origin of a different application if the request is being made on behalf of
-     * that application (Note: for API level >=34, setting a non-null value for this parameter will
-     * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+     *   that application (Note: for API level >=34, setting a non-null value for this parameter
+     *   will throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not
+     *   present)
      * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
-     * immediately when there is no available password saving option instead of falling back
-     * to discovering remote options, and false (default) otherwise
-     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is
-     * the only one available to the user (note that there is a chance that the credential provider
-     * does not support auto-select even if you turn this bit on); not recommended to be true for
-     * password request type to ensure that the user will always get a confirmation dialog even if
-     * the password saving provider does not offer any UI
+     *   immediately when there is no available password saving option instead of falling back to
+     *   discovering remote options, and false (default) otherwise
+     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is the
+     *   only one available to the user (note that there is a chance that the credential provider
+     *   does not support auto-select even if you turn this bit on); not recommended to be true for
+     *   password request type to ensure that the user will always get a confirmation dialog even if
+     *   the password saving provider does not offer any UI
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
      * @throws SecurityException if [origin] is set but
-     * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
+     *   android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
-    @JvmOverloads constructor(
+    @JvmOverloads
+    constructor(
         id: String,
         password: String,
         origin: String? = null,
@@ -90,35 +94,37 @@ class CreatePasswordRequest private constructor(
         isAutoSelectAllowed = isAutoSelectAllowed,
         displayInfo = DisplayInfo(id, null),
         origin = origin,
-        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials)
+        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
+    )
 
     /**
-     * Constructs a [CreatePasswordRequest] to save the user password credential with their
-     * password provider.
+     * Constructs a [CreatePasswordRequest] to save the user password credential with their password
+     * provider.
      *
      * @param id the user id associated with the password
      * @param password the password
      * @param origin the origin of a different application if the request is being made on behalf of
-     * that application (Note: for API level >=34, setting a non-null value for this parameter will
-     * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+     *   that application (Note: for API level >=34, setting a non-null value for this parameter
+     *   will throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not
+     *   present)
      * @param preferDefaultProvider the preferred default provider component name to prioritize in
-     * the selection UI flows (Note: your app must have the permission
-     * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
-     * would not take effect; also this bit may not take effect for Android API level 33 and below,
-     * depending on the pre-34 provider(s) you have chosen)
+     *   the selection UI flows (Note: your app must have the permission
+     *   android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it would
+     *   not take effect; also this bit may not take effect for Android API level 33 and below,
+     *   depending on the pre-34 provider(s) you have chosen)
      * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
-     * immediately when there is no available passkey registration offering instead of falling back
-     * to discovering remote options, and false (preferably) otherwise
-     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is
-     * the only one available to the user (note that there is a chance that the credential provider
-     * does not support auto-select even if you turn this bit on); not recommended to be true for
-     * password request type to ensure that the user will always get a confirmation dialog even if
-     * the password saving provider does not offer any UI
+     *   immediately when there is no available passkey registration offering instead of falling
+     *   back to discovering remote options, and false (preferably) otherwise
+     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is the
+     *   only one available to the user (note that there is a chance that the credential provider
+     *   does not support auto-select even if you turn this bit on); not recommended to be true for
+     *   password request type to ensure that the user will always get a confirmation dialog even if
+     *   the password saving provider does not offer any UI
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
      * @throws SecurityException if [origin] is set but
-     * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
+     *   android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
     constructor(
         id: String,
@@ -131,11 +137,12 @@ class CreatePasswordRequest private constructor(
         id = id,
         password = password,
         isAutoSelectAllowed = isAutoSelectAllowed,
-        displayInfo = DisplayInfo(
-            userId = id,
-            userDisplayName = null,
-            preferDefaultProvider = preferDefaultProvider,
-        ),
+        displayInfo =
+            DisplayInfo(
+                userId = id,
+                userDisplayName = null,
+                preferDefaultProvider = preferDefaultProvider,
+            ),
         origin = origin,
         preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
     )
@@ -174,15 +181,15 @@ class CreatePasswordRequest private constructor(
             try {
                 val id = data.getString(BUNDLE_KEY_ID)!!
                 val password = data.getString(BUNDLE_KEY_PASSWORD)!!
-                val displayInfo = try {
-                    DisplayInfo.createFrom(data)
-                } catch (e: IllegalArgumentException) {
-                    DisplayInfo(id, null)
-                }
+                val displayInfo =
+                    try {
+                        DisplayInfo.createFrom(data)
+                    } catch (e: IllegalArgumentException) {
+                        DisplayInfo(id, null)
+                    }
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
-                val isAutoSelectAllowed =
-                    data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                val isAutoSelectAllowed = data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
                 return CreatePasswordRequest(
                     id = id,
                     password = password,

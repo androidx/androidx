@@ -26,14 +26,11 @@ import androidx.annotation.RequiresExtension
  * Class holding source registration parameters.
  *
  * @param registrationUri URI that the Attribution Reporting API sends a request to in order to
- * obtain source registration parameters.
+ *   obtain source registration parameters.
  * @param debugKeyAllowed Used by the browser to indicate whether the debug key obtained from the
- * registration URI is allowed to be used.
+ *   registration URI is allowed to be used.
  */
-class WebSourceParams public constructor(
-    val registrationUri: Uri,
-    val debugKeyAllowed: Boolean
-    ) {
+class WebSourceParams public constructor(val registrationUri: Uri, val debugKeyAllowed: Boolean) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -63,10 +60,11 @@ class WebSourceParams public constructor(
         ): List<android.adservices.measurement.WebSourceParams> {
             var result = mutableListOf<android.adservices.measurement.WebSourceParams>()
             for (param in request) {
-                result.add(android.adservices.measurement.WebSourceParams
-                    .Builder(param.registrationUri)
-                    .setDebugKeyAllowed(param.debugKeyAllowed)
-                    .build())
+                result.add(
+                    android.adservices.measurement.WebSourceParams.Builder(param.registrationUri)
+                        .setDebugKeyAllowed(param.debugKeyAllowed)
+                        .build()
+                )
             }
             return result
         }

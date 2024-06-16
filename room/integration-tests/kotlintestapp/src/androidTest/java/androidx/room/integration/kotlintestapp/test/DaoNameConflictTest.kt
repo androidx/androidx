@@ -37,12 +37,15 @@ import org.junit.runner.RunWith
 @SmallTest
 class DaoNameConflictTest {
     private lateinit var mDb: ConflictDatabase
+
     @Before
     fun init() {
-        mDb = inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            ConflictDatabase::class.java
-        ).build()
+        mDb =
+            inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    ConflictDatabase::class.java
+                )
+                .build()
     }
 
     @After
@@ -56,23 +59,17 @@ class DaoNameConflictTest {
         mDb.item1Dao().insert(item1)
         val item2 = Item2(2, "b")
         mDb.item2Dao().insert(item2)
-        MatcherAssert.assertThat(
-            mDb.item1Dao().get(), CoreMatchers.`is`(item1)
-        )
-        MatcherAssert.assertThat(
-            mDb.item2Dao().get(), CoreMatchers.`is`(item2)
-        )
+        MatcherAssert.assertThat(mDb.item1Dao().get(), CoreMatchers.`is`(item1))
+        MatcherAssert.assertThat(mDb.item2Dao().get(), CoreMatchers.`is`(item2))
     }
 
     @Entity
     class Item1(@field:PrimaryKey var id: Int, var name: String?) {
         @Dao
         interface Store {
-            @Query("SELECT * FROM Item1 LIMIT 1")
-            fun get(): Item1
+            @Query("SELECT * FROM Item1 LIMIT 1") fun get(): Item1
 
-            @Insert
-            fun insert(vararg items: Item1)
+            @Insert fun insert(vararg items: Item1)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -94,11 +91,9 @@ class DaoNameConflictTest {
     class Item2(@field:PrimaryKey var id: Int, var name: String?) {
         @Dao
         interface Store {
-            @Query("SELECT * FROM Item2 LIMIT 1")
-            fun get(): Item2
+            @Query("SELECT * FROM Item2 LIMIT 1") fun get(): Item2
 
-            @Insert
-            fun insert(vararg items: Item2)
+            @Insert fun insert(vararg items: Item2)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -119,6 +114,7 @@ class DaoNameConflictTest {
     @Database(version = 1, exportSchema = false, entities = [Item1::class, Item2::class])
     abstract class ConflictDatabase : RoomDatabase() {
         abstract fun item1Dao(): Item1.Store
+
         abstract fun item2Dao(): Item2.Store
     }
 }

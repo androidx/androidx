@@ -39,27 +39,20 @@ import org.junit.Test
 
 class LazyPagingItemsPreviewTest {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<PreviewActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<PreviewActivity>()
 
     @Test
     fun pagingPreviewTest() {
-        composeTestRule.setContent {
-            PagingPreview()
-        }
+        composeTestRule.setContent { PagingPreview() }
         for (i in 0..9) {
-            composeTestRule.onNodeWithTag("$i")
-                .assertIsDisplayed()
+            composeTestRule.onNodeWithTag("$i").assertIsDisplayed()
         }
     }
 
     @Test
     fun emptyPreview() {
-        composeTestRule.setContent {
-            EmptyPreview()
-        }
-        composeTestRule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        composeTestRule.setContent { EmptyPreview() }
+        composeTestRule.onNodeWithTag("0").assertDoesNotExist()
     }
 }
 

@@ -28,39 +28,44 @@ import com.android.tools.lint.detector.api.Severity
 
 @Suppress("UnstableApiUsage")
 class GradleDebugConfigurationDetector : Detector(), GradleScanner {
-    private val supportedConfigurations = setOf(
-        "implementation",
-        "api",
-        "compileOnly",
-        "runtimeOnly",
-        "annotationProcessor",
-        "lintChecks",
-        "lintPublish",
-    ).map { it.lowercase() }
+    private val supportedConfigurations =
+        setOf(
+                "implementation",
+                "api",
+                "compileOnly",
+                "runtimeOnly",
+                "annotationProcessor",
+                "lintChecks",
+                "lintPublish",
+            )
+            .map { it.lowercase() }
 
-    private val blockPrefixes = setOf(
-        "android",
-        "test"
-    )
+    private val blockPrefixes = setOf("android", "test")
 
     private val TargetConfigutation = "debugImplementation".lowercase()
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "TestManifestGradleConfiguration",
-            briefDescription = "The ui-test-manifest library should be included using the " +
-                "debugImplementation configuration.",
-            explanation = "The androidx.compose.ui:ui-test-manifest dependency is needed for " +
-                "launching a Compose host, such as with createComposeRule. " +
-                "However, it only needs to be present in testing configurations " +
-                "therefore use this dependency with the debugImplementation configuration",
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                GradleDebugConfigurationDetector::class.java, Scope.GRADLE_SCOPE
-            ),
-            androidSpecific = true
-        ).addMoreInfo("https://developer.android.com/jetpack/compose/testing#setup")
+        val ISSUE =
+            Issue.create(
+                    id = "TestManifestGradleConfiguration",
+                    briefDescription =
+                        "The ui-test-manifest library should be included using the " +
+                            "debugImplementation configuration.",
+                    explanation =
+                        "The androidx.compose.ui:ui-test-manifest dependency is needed for " +
+                            "launching a Compose host, such as with createComposeRule. " +
+                            "However, it only needs to be present in testing configurations " +
+                            "therefore use this dependency with the debugImplementation configuration",
+                    category = Category.CORRECTNESS,
+                    severity = Severity.WARNING,
+                    implementation =
+                        Implementation(
+                            GradleDebugConfigurationDetector::class.java,
+                            Scope.GRADLE_SCOPE
+                        ),
+                    androidSpecific = true
+                )
+                .addMoreInfo("https://developer.android.com/jetpack/compose/testing#setup")
     }
 
     override fun checkDslPropertyAssignment(
@@ -86,30 +91,25 @@ class GradleDebugConfigurationDetector : Detector(), GradleScanner {
         if (cleanedProperty.contains(TargetConfigutation)) return
 
         // 3) Only throw the error if we start with the blocked configs
-        if (blockPrefixes.any { cleanedProperty.startsWith(it) } || supportedConfigurations.any {
-                cleanedProperty.startsWith(
-                    it
-                )
-            }) {
-            val incident = Incident(context)
+        if (
+            blockPrefixes.any { cleanedProperty.startsWith(it) } ||
+                supportedConfigurations.any { cleanedProperty.startsWith(it) }
+        ) {
+            val incident =
+                Incident(context)
                     .issue(ISSUE)
                     .location(context.getLocation(statementCookie))
                     .message("Please use debugImplementation.")
-                    .fix(
-                        fix().replace()
-                            .text(property)
-                            .with("debugImplementation")
-                            .build()
-                    )
+                    .fix(fix().replace().text(property).with("debugImplementation").build())
             context.report(incident)
         }
     }
 
     private fun getStringLiteralValue(value: String): String {
-        if (value.length > 2 && (
-                value.startsWith("'") && value.endsWith("'") ||
-                    value.startsWith("\"") && value.endsWith("\"")
-                )
+        if (
+            value.length > 2 &&
+                (value.startsWith("'") && value.endsWith("'") ||
+                    value.startsWith("\"") && value.endsWith("\""))
         ) {
             return value.substring(1, value.length - 1)
         }

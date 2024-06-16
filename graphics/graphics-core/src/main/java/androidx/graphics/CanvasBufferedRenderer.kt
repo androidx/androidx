@@ -36,30 +36,30 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Creates an instance of a hardware-accelerated renderer. This is used to render a scene built
- * from [RenderNode]s to an output [HardwareBuffer]. There can be as many
- * [CanvasBufferedRenderer] instances as desired.
+ * Creates an instance of a hardware-accelerated renderer. This is used to render a scene built from
+ * [RenderNode]s to an output [HardwareBuffer]. There can be as many [CanvasBufferedRenderer]
+ * instances as desired.
  *
  * Resources & lifecycle
  *
- * All [CanvasBufferedRenderer] instances share a common render
- * thread. Therefore [CanvasBufferedRenderer] will share common resources and GPU utilization
- * with hardware accelerated rendering initiated by the UI thread of an application.
- * The render thread contains the GPU context & resources necessary to do GPU-accelerated
- * rendering. As such, the first [CanvasBufferedRenderer] created comes with the cost of also
- * creating the associated GPU contexts, however each incremental [CanvasBufferedRenderer]
- * thereafter is fairly cheap.
+ * All [CanvasBufferedRenderer] instances share a common render thread. Therefore
+ * [CanvasBufferedRenderer] will share common resources and GPU utilization with hardware
+ * accelerated rendering initiated by the UI thread of an application. The render thread contains
+ * the GPU context & resources necessary to do GPU-accelerated rendering. As such, the first
+ * [CanvasBufferedRenderer] created comes with the cost of also creating the associated GPU
+ * contexts, however each incremental [CanvasBufferedRenderer] thereafter is fairly cheap.
  *
  * This is useful in situations where a scene built with [RenderNode]
  * [SurfaceControlCompat.Transaction.setBuffer].
  *
- * [CanvasBufferedRenderer] can optionally persist contents before each draw invocation so
- * previous contents in the [HardwareBuffer] target will be preserved across renders. This is
- * determined by the argument provided to
- * [CanvasBufferedRenderer.RenderRequest.preserveContents] which is set to `false` by default.
-*/
+ * [CanvasBufferedRenderer] can optionally persist contents before each draw invocation so previous
+ * contents in the [HardwareBuffer] target will be preserved across renders. This is determined by
+ * the argument provided to [CanvasBufferedRenderer.RenderRequest.preserveContents] which is set to
+ * `false` by default.
+ */
 @RequiresApi(Build.VERSION_CODES.Q)
-class CanvasBufferedRenderer internal constructor(
+class CanvasBufferedRenderer
+internal constructor(
     width: Int,
     height: Int,
     private val mFormat: Int,
@@ -68,26 +68,14 @@ class CanvasBufferedRenderer internal constructor(
     useImpl: Int = DEFAULT_IMPL,
 ) : AutoCloseable {
 
-    private val mImpl: Impl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-        useImpl == DEFAULT_IMPL
-    ) {
-        CanvasBufferedRendererV34(
-            width,
-            height,
-            mFormat,
-            mUsage,
-            mMaxBuffers
-        )
-    } else {
-        CanvasBufferedRendererV29(
-            width,
-            height,
-            mFormat,
-            mUsage,
-            mMaxBuffers,
-            useImpl
-        )
-    }
+    private val mImpl: Impl =
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && useImpl == DEFAULT_IMPL
+        ) {
+            CanvasBufferedRendererV34(width, height, mFormat, mUsage, mMaxBuffers)
+        } else {
+            CanvasBufferedRendererV29(width, height, mFormat, mUsage, mMaxBuffers, useImpl)
+        }
 
     private val mRenderRequest = RenderRequest()
 
@@ -115,8 +103,8 @@ class CanvasBufferedRenderer internal constructor(
         get() = mUsage
 
     /**
-     * Releases the resources associated with this [CanvasBufferedRenderer] instance.
-     * **Note** this does not call [HardwareBuffer.close] on the provided [HardwareBuffer] instance.
+     * Releases the resources associated with this [CanvasBufferedRenderer] instance. **Note** this
+     * does not call [HardwareBuffer.close] on the provided [HardwareBuffer] instance.
      */
     override fun close() {
         mImpl.close()
@@ -130,8 +118,8 @@ class CanvasBufferedRenderer internal constructor(
         get() = mImpl.isClosed()
 
     /**
-     * Returns a [RenderRequest] that can be used to render into the provided HardwareBuffer.
-     * This is used to synchronize the RenderNode content provided by [setContentRoot].
+     * Returns a [RenderRequest] that can be used to render into the provided HardwareBuffer. This
+     * is used to synchronize the RenderNode content provided by [setContentRoot].
      */
     fun obtainRenderRequest(): RenderRequest {
         mRenderRequest.reset()
@@ -149,8 +137,8 @@ class CanvasBufferedRenderer internal constructor(
     }
 
     /**
-     * Configures the ambient & spot shadow alphas. This is the alpha used when the shadow has
-     * max alpha, and ramps down from the values provided to zero.
+     * Configures the ambient & spot shadow alphas. This is the alpha used when the shadow has max
+     * alpha, and ramps down from the values provided to zero.
      *
      * These values are typically provided by the current theme, see R.attr.spotShadowAlpha and
      * R.attr.ambientShadowAlpha.
@@ -169,22 +157,18 @@ class CanvasBufferedRenderer internal constructor(
      * shape of shadows rendered by [RenderNode] Z & elevation.
      *
      * The light source should be setup both as part of initial configuration, and whenever the
-     * window moves to ensure the light source stays anchored in display space instead of in
-     * window space.
+     * window moves to ensure the light source stays anchored in display space instead of in window
+     * space.
      *
      * This must be set at least once along with [setLightSourceAlpha] before shadows will work.
      */
-    fun setLightSourceGeometry(
-        lightX: Float,
-        lightY: Float,
-        lightZ: Float,
-        lightRadius: Float
-    ) {
+    fun setLightSourceGeometry(lightX: Float, lightY: Float, lightZ: Float, lightRadius: Float) {
         mImpl.setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
     }
 
     /**
      * Builder used to construct a [CanvasBufferedRenderer] instance.
+     *
      * @param width Width of the buffers created by the [CanvasBufferedRenderer] instance
      * @param height Height of the buffers created by the [CanvasBufferedRenderer] instance
      */
@@ -199,23 +183,22 @@ class CanvasBufferedRenderer internal constructor(
             if (width <= 0 || height <= 0) {
                 throw IllegalArgumentException(
                     "Invalid dimensions provided, width and height must be > 0. " +
-                    "width: $width height: $height"
+                        "width: $width height: $height"
                 )
             }
         }
 
         /**
          * Specify the buffer format of the underlying buffers being rendered into by the created
-         * [CanvasBufferedRenderer]. The set of valid formats is implementation-specific.
-         * The particular valid combinations for a given Android version and implementation should
-         * be documented by that version.
+         * [CanvasBufferedRenderer]. The set of valid formats is implementation-specific. The
+         * particular valid combinations for a given Android version and implementation should be
+         * documented by that version.
          *
          * [HardwareBuffer.RGBA_8888] and [HardwareBuffer.RGBX_8888] are guaranteed to be supported.
          * However, consumers are recommended to query the desired [HardwareBuffer] configuration
          * using [HardwareBuffer.isSupported].
          *
          * @param format Pixel format of the buffers to be rendered into. The default is RGBA_8888.
-         *
          * @return The builder instance
          */
         fun setBufferFormat(@HardwareBufferFormat format: Int): Builder {
@@ -225,17 +208,16 @@ class CanvasBufferedRenderer internal constructor(
 
         /**
          * Specify the maximum number of buffers used within the swap chain of the
-         * [CanvasBufferedRenderer].
-         * If 1 is specified, then the created [CanvasBufferedRenderer] is running in
-         * "single buffer mode". In this case consumption of the buffer content would need to be
-         * coordinated with the [SyncFenceCompat] returned by the callback of [RenderRequest.drawAsync].
-         * @see CanvasBufferedRenderer.RenderRequest.drawAsync
+         * [CanvasBufferedRenderer]. If 1 is specified, then the created [CanvasBufferedRenderer] is
+         * running in "single buffer mode". In this case consumption of the buffer content would
+         * need to be coordinated with the [SyncFenceCompat] returned by the callback of
+         * [RenderRequest.drawAsync].
          *
          * @param numBuffers The number of buffers within the swap chain to be consumed by the
-         * created [CanvasBufferedRenderer]. This must be greater than zero. The default
-         * number of buffers used is 3.
-         *
+         *   created [CanvasBufferedRenderer]. This must be greater than zero. The default number of
+         *   buffers used is 3.
          * @return The builder instance
+         * @see CanvasBufferedRenderer.RenderRequest.drawAsync
          */
         fun setMaxBuffers(@IntRange(from = 1, to = 64) numBuffers: Int): Builder {
             require(numBuffers > 0) { "Must have at least 1 buffer" }
@@ -248,12 +230,10 @@ class CanvasBufferedRenderer internal constructor(
          * created by the [CanvasBufferedRenderer].
          *
          * @param usageFlags Usage flags to be configured on the created [HardwareBuffer] instances
-         * that the [CanvasBufferedRenderer] will render into. Must be one of
-         * [HardwareBufferUsage]. Note that the provided flags here are combined with the following
-         * mandatory default flags,
-         * [HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE], [HardwareBuffer.USAGE_GPU_COLOR_OUTPUT] and
-         * [HardwareBuffer.USAGE_COMPOSER_OVERLAY]
-         *
+         *   that the [CanvasBufferedRenderer] will render into. Must be one of
+         *   [HardwareBufferUsage]. Note that the provided flags here are combined with the
+         *   following mandatory default flags, [HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE],
+         *   [HardwareBuffer.USAGE_GPU_COLOR_OUTPUT] and [HardwareBuffer.USAGE_COMPOSER_OVERLAY]
          * @return The builder instance
          */
         fun setUsageFlags(@HardwareBufferUsage usageFlags: Long): Builder {
@@ -263,8 +243,8 @@ class CanvasBufferedRenderer internal constructor(
 
         /**
          * Internal test method use to verify alternative implementations of
-         * HardwareBufferRenderer.Impl as well as internal algorithms for
-         * persisting rendered content
+         * HardwareBufferRenderer.Impl as well as internal algorithms for persisting rendered
+         * content
          */
         internal fun setImpl(impl: Int): Builder {
             mImpl = impl
@@ -272,8 +252,8 @@ class CanvasBufferedRenderer internal constructor(
         }
 
         /**
-         * Create the [CanvasBufferedRenderer] with the specified parameters on
-         * this [Builder] instance.
+         * Create the [CanvasBufferedRenderer] with the specified parameters on this [Builder]
+         * instance.
          *
          * @return The newly created [CanvasBufferedRenderer] instance.
          */
@@ -291,8 +271,8 @@ class CanvasBufferedRenderer internal constructor(
 
     /**
      * Sets the parameters that can be used to control a render request for a
-     * [CanvasBufferedRenderer]. This is not thread-safe and must not be held on to for longer
-     * than a single request.
+     * [CanvasBufferedRenderer]. This is not thread-safe and must not be held on to for longer than
+     * a single request.
      */
     inner class RenderRequest internal constructor() {
 
@@ -316,12 +296,12 @@ class CanvasBufferedRenderer internal constructor(
         }
 
         /**
-         * Syncs the [RenderNode] tree to the render thread and requests content to be drawn.
-         * This [RenderRequest] instance should no longer be used after calling this method.
-         * The system internally may reuse instances of [RenderRequest] to reduce allocation churn.
+         * Syncs the [RenderNode] tree to the render thread and requests content to be drawn. This
+         * [RenderRequest] instance should no longer be used after calling this method. The system
+         * internally may reuse instances of [RenderRequest] to reduce allocation churn.
          *
          * @throws IllegalStateException if this method is invoked after the
-         * [CanvasBufferedRenderer] has been closed.
+         *   [CanvasBufferedRenderer] has been closed.
          */
         fun drawAsync(executor: Executor, callback: Consumer<RenderResult>) {
             if (isClosed) {
@@ -332,15 +312,15 @@ class CanvasBufferedRenderer internal constructor(
 
         /**
          * Syncs the [RenderNode] tree to the render thread and requests content to be drawn
-         * synchronously.
-         * This [RenderRequest] instance should no longer be used after calling this method.
-         * The system internally may reuse instances of [RenderRequest] to reduce allocation churn.
+         * synchronously. This [RenderRequest] instance should no longer be used after calling this
+         * method. The system internally may reuse instances of [RenderRequest] to reduce allocation
+         * churn.
          *
          * @param waitForFence Optional flag to determine if the [SyncFenceCompat] is also waited
-         * upon before returning as a convenience in order to enable callers to consume the
-         * [HardwareBuffer] returned in the [RenderResult] immediately after this method returns.
-         * Passing `false` here on Android T and below is a no-op as the graphics rendering pipeline
-         * internally blocks on the fence before returning.
+         *   upon before returning as a convenience in order to enable callers to consume the
+         *   [HardwareBuffer] returned in the [RenderResult] immediately after this method returns.
+         *   Passing `false` here on Android T and below is a no-op as the graphics rendering
+         *   pipeline internally blocks on the fence before returning.
          */
         suspend fun draw(waitForFence: Boolean = true): RenderResult {
             check(!isClosed) { "Attempt to draw after renderer has been closed" }
@@ -359,17 +339,17 @@ class CanvasBufferedRenderer internal constructor(
         }
 
         /**
-         * Specifies a transform to be applied before content is rendered. This is useful
-         * for pre-rotating content for the current display orientation to increase performance
-         * of displaying the associated buffer. This transformation will also adjust the light
-         * source position for the specified rotation.
-         * @see SurfaceControl.Transaction#setBufferTransform(SurfaceControl, int)
+         * Specifies a transform to be applied before content is rendered. This is useful for
+         * pre-rotating content for the current display orientation to increase performance of
+         * displaying the associated buffer. This transformation will also adjust the light source
+         * position for the specified rotation.
          *
          * @throws IllegalArgumentException if [bufferTransform] is not one of:
-         * [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
-         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
-         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180], or
-         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270]
+         *   [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
+         *   [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
+         *   [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180], or
+         *   [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270]
+         * @see SurfaceControl.Transaction#setBufferTransform(SurfaceControl, int)
          */
         fun setBufferTransform(@BufferTransform bufferTransform: Int): RenderRequest {
             val validTransform =
@@ -382,7 +362,8 @@ class CanvasBufferedRenderer internal constructor(
             } else {
                 throw IllegalArgumentException(
                     "Invalid transform provided, must be one of the " +
-                        "SurfaceControlCompat.BufferTransform values received: " + bufferTransform
+                        "SurfaceControlCompat.BufferTransform values received: " +
+                        bufferTransform
                 )
             }
             return this
@@ -414,9 +395,9 @@ class CanvasBufferedRenderer internal constructor(
          *
          * For low latency use cases (ex applications that support drawing with a stylus), setting
          * this value to true alongside single buffered rendering by configuring
-         * [CanvasBufferedRenderer.Builder.setMaxBuffers] to 1 allows for reduced latency by allowing
-         * consumers to only render the deltas across frames as the previous content would be
-         * persisted.
+         * [CanvasBufferedRenderer.Builder.setMaxBuffers] to 1 allows for reduced latency by
+         * allowing consumers to only render the deltas across frames as the previous content would
+         * be persisted.
          *
          * The default setting is false.
          */
@@ -437,7 +418,7 @@ class CanvasBufferedRenderer internal constructor(
      *
      * @param hardwareBuffer [HardwareBuffer] to return back to the allocation pool
      * @param fence Optional [SyncFenceCompat] that should be waited upon before the buffer is
-     * reused.
+     *   reused.
      */
     @JvmOverloads
     fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat? = null) {
@@ -445,8 +426,8 @@ class CanvasBufferedRenderer internal constructor(
     }
 
     /**
-     * Class that contains data regarding the result of the render request. Consumers are to wait
-     * on the provided [SyncFenceCompat] if it is non null before consuming the [HardwareBuffer]
+     * Class that contains data regarding the result of the render request. Consumers are to wait on
+     * the provided [SyncFenceCompat] if it is non null before consuming the [HardwareBuffer]
      * provided to as well as verify that the status returned by [RenderResult.status] returns
      * [RenderResult.SUCCESS].
      *
@@ -469,25 +450,25 @@ class CanvasBufferedRenderer internal constructor(
     ) {
 
         /**
-         * [HardwareBuffer] that contains the result of the render request.
-         * Consumers should be sure to block on the [SyncFenceCompat] instance
-         * provided in [fence] if it is non-null before consuming the contents of this buffer.
-         * If [fence] returns null then this [HardwareBuffer] can be consumed immediately.
+         * [HardwareBuffer] that contains the result of the render request. Consumers should be sure
+         * to block on the [SyncFenceCompat] instance provided in [fence] if it is non-null before
+         * consuming the contents of this buffer. If [fence] returns null then this [HardwareBuffer]
+         * can be consumed immediately.
          */
         val hardwareBuffer: HardwareBuffer
             get() = buffer
 
         /**
-         * Optional fence that should be waited upon before consuming [hardwareBuffer].
-         * On Android U and above, requests to render will return sooner and include this fence
-         * as a way to signal that the result of the render request is reflected in the contents
-         * of the buffer. This is done to reduce latency and provide opportunities for other systems
-         * to block on the fence on the behalf of the application.
-         * For example, [SurfaceControlCompat.Transaction.setBuffer] can be invoked with
+         * Optional fence that should be waited upon before consuming [hardwareBuffer]. On Android U
+         * and above, requests to render will return sooner and include this fence as a way to
+         * signal that the result of the render request is reflected in the contents of the buffer.
+         * This is done to reduce latency and provide opportunities for other systems to block on
+         * the fence on the behalf of the application. For example,
+         * [SurfaceControlCompat.Transaction.setBuffer] can be invoked with
          * [RenderResult.hardwareBuffer] and [RenderResult.fence] respectively without the
-         * application having to explicitly block on this fence.
-         * For older Android versions, the rendering pipeline will automatically block on this fence
-         * and this value will return null.
+         * application having to explicitly block on this fence. For older Android versions, the
+         * rendering pipeline will automatically block on this fence and this value will return
+         * null.
          */
         val fence: SyncFenceCompat?
             get() = mFence
@@ -500,14 +481,10 @@ class CanvasBufferedRenderer internal constructor(
             get() = mStatus
 
         companion object {
-            /**
-             * Render request was completed successfully
-             */
+            /** Render request was completed successfully */
             const val SUCCESS = 0
 
-            /**
-             * Render request failed with an unknown error
-             */
+            /** Render request failed with an unknown error */
             const val ERROR_UNKNOWN = 1
         }
     }
@@ -518,11 +495,7 @@ class CanvasBufferedRenderer internal constructor(
 
         fun isClosed(): Boolean
 
-        fun draw(
-            request: RenderRequest,
-            executor: Executor,
-            callback: Consumer<RenderResult>
-        )
+        fun draw(request: RenderRequest, executor: Executor, callback: Consumer<RenderResult>)
 
         fun releaseBuffer(hardwareBuffer: HardwareBuffer, syncFence: SyncFenceCompat?)
 
@@ -533,12 +506,7 @@ class CanvasBufferedRenderer internal constructor(
             spotShadowAlpha: Float,
         )
 
-        fun setLightSourceGeometry(
-            lightX: Float,
-            lightY: Float,
-            lightZ: Float,
-            lightRadius: Float
-        )
+        fun setLightSourceGeometry(lightX: Float, lightY: Float, lightZ: Float, lightRadius: Float)
     }
 
     internal companion object {
@@ -546,20 +514,20 @@ class CanvasBufferedRenderer internal constructor(
         val DefaultColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
 
         /**
-         * Test flag to use the optimal implementation for the corresponding
-         * Android platform version
+         * Test flag to use the optimal implementation for the corresponding Android platform
+         * version
          */
         internal const val DEFAULT_IMPL = 0
 
         /**
-         * Test flag used to verify the V29 implementation that leverages the
-         * redraw strategy on devices that do not persist contents of opaque renders
+         * Test flag used to verify the V29 implementation that leverages the redraw strategy on
+         * devices that do not persist contents of opaque renders
          */
         internal const val USE_V29_IMPL_WITH_REDRAW = 1
 
         /**
-         * Test flag used to verify the V29 implementation that leverages the default
-         * single buffered restoration strategy
+         * Test flag used to verify the V29 implementation that leverages the default single
+         * buffered restoration strategy
          */
         internal const val USE_V29_IMPL_WITH_SINGLE_BUFFER = 2
     }

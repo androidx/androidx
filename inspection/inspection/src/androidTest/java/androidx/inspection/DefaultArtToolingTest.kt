@@ -49,8 +49,7 @@ class DefaultArtToolingTest {
 
     // TODO: "add more testcases similar ArtToolingTest in studio codebase"
 
-    @get:Rule
-    val rule = JvmtiRule()
+    @get:Rule val rule = JvmtiRule()
 
     class Target {
         var v1 = 1
@@ -143,11 +142,13 @@ class DefaultArtToolingTest {
             doubleArgs = args
         }
         tooling.registerExitHook(
-            Target::class.java, Method1Signature,
+            Target::class.java,
+            Method1Signature,
             ArtTooling.ExitHook<Int> { result ->
                 doubleResult = result
                 result
-            })
+            }
+        )
 
         val target = Target()
         target.method(5, "Android")
@@ -262,10 +263,12 @@ class DefaultArtToolingTest {
 
     private fun <T> registerExitHook(tooling: ArtTooling, signature: String) {
         tooling.registerExitHook(
-            Target::class.java, signature,
+            Target::class.java,
+            signature,
             ArtTooling.ExitHook<T> { result ->
                 lastResult = result
                 result
-            })
+            }
+        )
     }
 }

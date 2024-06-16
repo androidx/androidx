@@ -67,23 +67,24 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(mContext)
         setContentView(mParent)
 
-        val cameraManager = ApplicationProvider.getApplicationContext<Context>().getSystemService(
-            Context.CAMERA_SERVICE
-        ) as CameraManager
+        val cameraManager =
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val cameraIds = cameraManager.cameraIdList
         Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
         val cameraId = cameraIds[0]
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        mSurfaceRequest = ViewfinderSurfaceRequest.Builder(ANY_SIZE)
-            .populateFromCharacteristics(characteristics)
-            .build()
+        mSurfaceRequest =
+            ViewfinderSurfaceRequest.Builder(ANY_SIZE)
+                .populateFromCharacteristics(characteristics)
+                .build()
         mImplementation = SurfaceViewImplementation(mParent, ViewfinderTransformation())
     }
 
     @After
     fun tearDown() {
         if (::mSurfaceRequest.isInitialized) {
-            mSurfaceRequest.markSurfaceSafeToRelease();
+            mSurfaceRequest.markSurfaceSafeToRelease()
         }
     }
 
@@ -91,12 +92,10 @@ class SurfaceViewImplementationTest {
     fun surfaceProvidedSuccessfully() {
         CoreAppTestUtil.checkKeyguard(mContext)
 
-        mInstrumentation.runOnMainSync {
-            mImplementation.onSurfaceRequested(mSurfaceRequest)
-        }
+        mInstrumentation.runOnMainSync { mImplementation.onSurfaceRequested(mSurfaceRequest) }
 
         mSurfaceRequest.getSurfaceAsync().get(1000, TimeUnit.MILLISECONDS)
-        mSurfaceRequest.markSurfaceSafeToRelease();
+        mSurfaceRequest.markSurfaceSafeToRelease()
     }
 
     @Throws(Throwable::class)

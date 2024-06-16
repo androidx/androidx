@@ -30,46 +30,35 @@ open class BluetoothException(
     cause: Throwable? = null
 ) : CancellationException(message) {
     companion object {
-        /**
-         * Error code indicating that Bluetooth is not enabled.
-         */
+        /** Error code indicating that Bluetooth is not enabled. */
         const val BLUETOOTH_NOT_ENABLED = BluetoothStatusCodes.ERROR_BLUETOOTH_NOT_ENABLED
 
         /**
-         * Error code indicating that the API call was initiated by neither
-         * the system nor the active user.
+         * Error code indicating that the API call was initiated by neither the system nor the
+         * active user.
          */
         const val BLUETOOTH_NOT_ALLOWED = BluetoothStatusCodes.ERROR_BLUETOOTH_NOT_ALLOWED
 
-        /**
-         * Error code indicating that the Bluetooth Device specified is not bonded.
-         */
+        /** Error code indicating that the Bluetooth Device specified is not bonded. */
         const val DEVICE_NOT_BONDED = BluetoothStatusCodes.ERROR_DEVICE_NOT_BONDED
 
         /**
-         * Error code indicating that the Bluetooth Device specified is not connected,
-         * but is bonded.
+         * Error code indicating that the Bluetooth Device specified is not connected, but is
+         * bonded.
          */
         const val DEVICE_NOT_CONNECTED = 4
 
-        /**
-         * Indicates that the feature is not supported.
-         */
+        /** Indicates that the feature is not supported. */
         const val FEATURE_NOT_SUPPORTED = BluetoothStatusCodes.FEATURE_NOT_SUPPORTED
 
-        /**
-         * Indicates that the feature status is not configured yet.
-         */
+        /** Indicates that the feature status is not configured yet. */
         const val FEATURE_NOT_CONFIGURED = BluetoothStatusCodes.FEATURE_NOT_CONFIGURED
 
-        /**
-         * Indicates that an unknown error has occurred.
-         */
+        /** Indicates that an unknown error has occurred. */
         const val ERROR_UNKNOWN = Int.MAX_VALUE
     }
+
     init {
-        cause?.let {
-            this.initCause(it)
-        }
+        cause?.let { this.initCause(it) }
     }
 }

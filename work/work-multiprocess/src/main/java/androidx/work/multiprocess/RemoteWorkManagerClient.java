@@ -43,6 +43,7 @@ import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.multiprocess.ServiceBinding.Session;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
 import androidx.work.multiprocess.parcelable.ParcelableForegroundRequestInfo;
 import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
@@ -79,7 +80,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     public static final Function<byte[], Void> sVoidMapper = input -> null;
 
     // Synthetic access
-    Session<IWorkManagerImpl> mSession;
+    ServiceBinding.Session<IWorkManagerImpl> mSession;
 
     final Context mContext;
     final WorkManagerImpl mWorkManager;
@@ -339,7 +340,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      * @return The current {@link Session} in use by {@link RemoteWorkManagerClient}.
      */
     @Nullable
-    Session<IWorkManagerImpl> getCurrentSession() {
+    ServiceBinding.Session<IWorkManagerImpl> getCurrentSession() {
         return mSession;
     }
 
@@ -398,15 +399,14 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             mSessionIndex += 1;
             ListenableFuture<IWorkManagerImpl> resultFuture;
             if (mSession == null) {
-                mSession = ServiceBindingKt.bindToService(mContext, intent,
+                mSession = ServiceBinding.bindToService(mContext, intent,
                         IWorkManagerImpl.Stub::asInterface, TAG);
                 // reading future right away, because `this::cleanUp` will synchronously
                 // set mSession to null.
-                resultFuture = mSession.getConnectedFuture();
-                mSession.getDisconnectedFuture()
-                        .addListener(this::cleanUp, DirectExecutor.INSTANCE);
+                resultFuture = mSession.mConnectedFuture;
+                mSession.mDisconnectedFuture.addListener(this::cleanUp, DirectExecutor.INSTANCE);
             } else {
-                resultFuture = mSession.getConnectedFuture();
+                resultFuture = mSession.mConnectedFuture;
             }
             // Reset session tracker.
             mRunnableScheduler.cancel(mSessionTracker);

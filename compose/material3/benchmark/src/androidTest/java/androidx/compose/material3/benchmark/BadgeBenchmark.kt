@@ -31,40 +31,39 @@ import org.junit.Rule
 import org.junit.Test
 
 class BadgeBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
-    fun BadgeFirstPixel() { benchmarkRule.benchmarkToFirstPixel { BadgeTestCase() } }
+    fun BadgeFirstPixel() {
+        benchmarkRule.benchmarkToFirstPixel { BadgeTestCase() }
+    }
 
     @Test
-    fun BadgedBoxFirstPixel() { benchmarkRule.benchmarkToFirstPixel { BadgedBoxTestCase() } }
+    fun BadgedBoxFirstPixel() {
+        benchmarkRule.benchmarkToFirstPixel { BadgedBoxTestCase() }
+    }
 }
 
 private class BadgedBoxTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        BadgedBox(
-            badge = { Spacer(Modifier.size(10.dp)) }
-        ) { Spacer(Modifier.size(24.dp)) }
+        BadgedBox(badge = { Spacer(Modifier.size(10.dp)) }) { Spacer(Modifier.size(24.dp)) }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 private class BadgeTestCase : LayeredComposeTestCase() {
     @Composable
-    override fun MeasuredContent() { Badge() }
+    override fun MeasuredContent() {
+        Badge()
+    }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

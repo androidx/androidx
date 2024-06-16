@@ -45,34 +45,39 @@ internal enum class SoftInputMode(val flagValue: Int, val summary: String) {
     ),
 }
 
-/**
- * Setting that determines which soft input mode the demo activity's window is configured with.
- */
+/** Setting that determines which soft input mode the demo activity's window is configured with. */
 internal object SoftInputModeSetting : DemoSetting<SoftInputMode> {
     private const val Key = "softInputMode"
 
-    override fun createPreference(context: Context) = DropDownPreference(context).apply {
-        title = "Soft input mode"
-        key = Key
-        SoftInputMode.values().map { it.name }.toTypedArray().also {
-            entries = it
-            entryValues = it
-        }
-        summaryProvider = SummaryProvider<DropDownPreference> {
-            val mode = SoftInputMode.valueOf(value)
-            """
+    override fun createPreference(context: Context) =
+        DropDownPreference(context).apply {
+            title = "Soft input mode"
+            key = Key
+            SoftInputMode.values()
+                .map { it.name }
+                .toTypedArray()
+                .also {
+                    entries = it
+                    entryValues = it
+                }
+            summaryProvider =
+                SummaryProvider<DropDownPreference> {
+                    val mode = SoftInputMode.valueOf(value)
+                    """
                 ${mode.name}
                 ${mode.summary}
-            """.trimIndent()
+            """
+                        .trimIndent()
+                }
+            setDefaultValue(AdjustPan.name)
         }
-        setDefaultValue(AdjustPan.name)
-    }
 
     @Composable
-    fun asState() = preferenceAsState(Key) {
-        val value = getString(Key, AdjustPan.name) ?: AdjustPan.name
-        SoftInputMode.valueOf(value)
-    }
+    fun asState() =
+        preferenceAsState(Key) {
+            val value = getString(Key, AdjustPan.name) ?: AdjustPan.name
+            SoftInputMode.valueOf(value)
+        }
 }
 
 /**
@@ -91,9 +96,7 @@ internal fun SoftInputModeEffect(mode: SoftInputMode, window: Window) {
             // cleared, so wait until the second frame to set it. This is super hacky but no real
             // app should need to dynamically change its soft input mode like we do.
             withFrameMillis {}
-            snapshotFlow { updatedMode }.collect { mode ->
-                window.setSoftInputMode(mode.flagValue)
-            }
+            snapshotFlow { updatedMode }.collect { mode -> window.setSoftInputMode(mode.flagValue) }
         }
     }
 }

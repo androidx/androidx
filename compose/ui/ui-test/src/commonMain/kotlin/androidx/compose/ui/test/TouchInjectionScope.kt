@@ -29,8 +29,8 @@ import kotlin.math.roundToLong
 /**
  * The receiver scope of the touch input injection lambda from [performTouchInput].
  *
- * The functions in [TouchInjectionScope] can roughly be divided into two groups: full gestures
- * and individual touch events. The individual touch events are: [down], [move] and friends, [up],
+ * The functions in [TouchInjectionScope] can roughly be divided into two groups: full gestures and
+ * individual touch events. The individual touch events are: [down], [move] and friends, [up],
  * [cancel] and [advanceEventTime]. Full gestures are all the other functions, like
  * [click][TouchInjectionScope.click], [doubleClick][TouchInjectionScope.doubleClick],
  * [swipe][TouchInjectionScope.swipe], etc. These are built on top of the individual events and
@@ -38,41 +38,43 @@ import kotlin.math.roundToLong
  *
  * A touch gesture is started with a [down] event, followed by a sequence of [move] events and
  * finally an [up] event, optionally combined with more sets of [down] and [up] events for
- * multi-touch gestures. Most methods accept a pointerId to specify which pointer (finger) the
- * event applies to. Movement can be expressed absolutely with [moveTo] and [updatePointerTo], or
- * relative to the current pointer position with [moveBy] and [updatePointerBy]. The `moveTo/By`
- * methods enqueue an event immediately, while the `updatePointerTo/By` methods don't. This
- * allows you to update the position of multiple pointers in a single [move] event for
- * multi-touch gestures. Touch gestures can be cancelled with [cancel]. All events, regardless
- * the method used, will always contain the current position of _all_ pointers.
+ * multi-touch gestures. Most methods accept a pointerId to specify which pointer (finger) the event
+ * applies to. Movement can be expressed absolutely with [moveTo] and [updatePointerTo], or relative
+ * to the current pointer position with [moveBy] and [updatePointerBy]. The `moveTo/By` methods
+ * enqueue an event immediately, while the `updatePointerTo/By` methods don't. This allows you to
+ * update the position of multiple pointers in a single [move] event for multi-touch gestures. Touch
+ * gestures can be cancelled with [cancel]. All events, regardless the method used, will always
+ * contain the current position of _all_ pointers.
  *
- * The entire event injection state is shared between all `perform.*Input` methods, meaning you
- * can continue an unfinished touch gesture in a subsequent invocation of [performTouchInput] or
+ * The entire event injection state is shared between all `perform.*Input` methods, meaning you can
+ * continue an unfinished touch gesture in a subsequent invocation of [performTouchInput] or
  * [performMultiModalInput]. Note however that while the pointer positions are retained across
- * invocation of `perform.*Input` methods, they are always manipulated in the current node's
- * local coordinate system. That means that two subsequent invocations of [performTouchInput] on
- * different nodes will report a different [currentPosition], even though it is actually the same
- * position on the screen.
+ * invocation of `perform.*Input` methods, they are always manipulated in the current node's local
+ * coordinate system. That means that two subsequent invocations of [performTouchInput] on different
+ * nodes will report a different [currentPosition], even though it is actually the same position on
+ * the screen.
  *
  * All events sent by these methods are batched together and sent as a whole after
- * [performTouchInput] has executed its code block. Because gestures don't have to be defined all
- * in the same [performTouchInput] block, keep in mind that while the gesture is not complete,
- * all code you execute in between these blocks will be executed while imaginary fingers are
- * actively touching the screen. The events sent as part of the same batch will not be interrupted
- * by recomposition, however, if a gesture spans multiple [performTouchInput] blocks it is
- * important to remember that recomposition, layout and drawing could take place during the
- * gesture, which may lead to events being injected into a moving target. As pointer positions are
- * manipulated in the current node's local coordinate system, this could lead to issues caused by
- * the fact that part of the gesture will take effect before the rest of the events have been
- * enqueued.
+ * [performTouchInput] has executed its code block. Because gestures don't have to be defined all in
+ * the same [performTouchInput] block, keep in mind that while the gesture is not complete, all code
+ * you execute in between these blocks will be executed while imaginary fingers are actively
+ * touching the screen. The events sent as part of the same batch will not be interrupted by
+ * recomposition, however, if a gesture spans multiple [performTouchInput] blocks it is important to
+ * remember that recomposition, layout and drawing could take place during the gesture, which may
+ * lead to events being injected into a moving target. As pointer positions are manipulated in the
+ * current node's local coordinate system, this could lead to issues caused by the fact that part of
+ * the gesture will take effect before the rest of the events have been enqueued.
  *
  * Example of performing a click:
+ *
  * @sample androidx.compose.ui.test.samples.touchInputClick
  *
  * Example of performing a swipe up:
+ *
  * @sample androidx.compose.ui.test.samples.touchInputSwipeUp
  *
  * Example of performing an L-shaped gesture:
+ *
  * @sample androidx.compose.ui.test.samples.touchInputLShapedGesture
  *
  * @see InjectionScope
@@ -81,19 +83,19 @@ import kotlin.math.roundToLong
 interface TouchInjectionScope : InjectionScope {
     /**
      * Returns the current position of the given [pointerId]. The default [pointerId] is 0. The
-     * position is returned in the local coordinate system of the node with which we're
-     * interacting. (0, 0) is the top left corner of the node.
+     * position is returned in the local coordinate system of the node with which we're interacting.
+     * (0, 0) is the top left corner of the node.
      */
     fun currentPosition(pointerId: Int = 0): Offset?
 
     /**
-     * Sends a down event for the pointer with the given [pointerId] at [position] on the
-     * associated node. The [position] is in the node's local coordinate system, where (0, 0) is
-     * the top left corner of the node.
+     * Sends a down event for the pointer with the given [pointerId] at [position] on the associated
+     * node. The [position] is in the node's local coordinate system, where (0, 0) is the top left
+     * corner of the node.
      *
-     * If no pointers are down yet, this will start a new touch gesture. If a gesture is already
-     * in progress, this event is sent at the same timestamp as the last event. If the given
-     * pointer is already down, an [IllegalArgumentException] will be thrown.
+     * If no pointers are down yet, this will start a new touch gesture. If a gesture is already in
+     * progress, this event is sent at the same timestamp as the last event. If the given pointer is
+     * already down, an [IllegalArgumentException] will be thrown.
      *
      * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
      * @param position The position of the down event, in the node's local coordinate system
@@ -102,12 +104,12 @@ interface TouchInjectionScope : InjectionScope {
 
     /**
      * Sends a down event for the default pointer at [position] on the associated node. The
-     * [position] is in the node's local coordinate system, where (0, 0) is the top left corner
-     * of the node. The default pointer has `pointerId = 0`.
+     * [position] is in the node's local coordinate system, where (0, 0) is the top left corner of
+     * the node. The default pointer has `pointerId = 0`.
      *
-     * If no pointers are down yet, this will start a new touch gesture. If a gesture is already
-     * in progress, this event is sent at the same timestamp as the last event. If the default
-     * pointer is already down, an [IllegalArgumentException] will be thrown.
+     * If no pointers are down yet, this will start a new touch gesture. If a gesture is already in
+     * progress, this event is sent at the same timestamp as the last event. If the default pointer
+     * is already down, an [IllegalArgumentException] will be thrown.
      *
      * @param position The position of the down event, in the node's local coordinate system
      */
@@ -116,17 +118,16 @@ interface TouchInjectionScope : InjectionScope {
     }
 
     /**
-     * Sends a move event [delayMillis] after the last sent event on the associated node, with
-     * the position of the pointer with the given [pointerId] updated to [position]. The
-     * [position] is in the node's local coordinate system, where (0, 0) is the top left corner
-     * of the node.
+     * Sends a move event [delayMillis] after the last sent event on the associated node, with the
+     * position of the pointer with the given [pointerId] updated to [position]. The [position] is
+     * in the node's local coordinate system, where (0, 0) is the top left corner of the node.
      *
      * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
      *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param position The new position of the pointer, in the node's local coordinate system
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     fun moveTo(pointerId: Int, position: Offset, delayMillis: Long = eventPeriodMillis) {
         updatePointerTo(pointerId, position)
@@ -134,16 +135,16 @@ interface TouchInjectionScope : InjectionScope {
     }
 
     /**
-     * Sends a move event [delayMillis] after the last sent event on the associated node, with
-     * the position of the default pointer updated to [position]. The [position] is in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node. The default
-     * pointer has `pointerId = 0`.
+     * Sends a move event [delayMillis] after the last sent event on the associated node, with the
+     * position of the default pointer updated to [position]. The [position] is in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node. The default pointer has
+     * `pointerId = 0`.
      *
      * If the default pointer is not yet down, an [IllegalArgumentException] will be thrown.
      *
      * @param position The new position of the pointer, in the node's local coordinate system
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     fun moveTo(position: Offset, delayMillis: Long = eventPeriodMillis) {
         moveTo(0, position, delayMillis)
@@ -151,9 +152,8 @@ interface TouchInjectionScope : InjectionScope {
 
     /**
      * Updates the position of the pointer with the given [pointerId] to the given [position], but
-     * does not send a move event. The move event can be sent with [move]. The [position] is in
-     * the node's local coordinate system, where (0.px, 0.px) is the top left corner of the
-     * node.
+     * does not send a move event. The move event can be sent with [move]. The [position] is in the
+     * node's local coordinate system, where (0.px, 0.px) is the top left corner of the node.
      *
      * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
      *
@@ -163,17 +163,17 @@ interface TouchInjectionScope : InjectionScope {
     fun updatePointerTo(pointerId: Int, position: Offset)
 
     /**
-     * Sends a move event [delayMillis] after the last sent event on the associated node, with
-     * the position of the pointer with the given [pointerId] moved by the given [delta].
+     * Sends a move event [delayMillis] after the last sent event on the associated node, with the
+     * position of the pointer with the given [pointerId] moved by the given [delta].
      *
      * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
      *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param delta The position for this move event, relative to the current position of the
-     * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
-     * x-position, and subtract 10.px from the pointer's y-position.
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
+     *   x-position, and subtract 10.px from the pointer's y-position.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     fun moveBy(pointerId: Int, delta: Offset, delayMillis: Long = eventPeriodMillis) {
         updatePointerBy(pointerId, delta)
@@ -181,54 +181,55 @@ interface TouchInjectionScope : InjectionScope {
     }
 
     /**
-     * Sends a move event [delayMillis] after the last sent event on the associated node, with
-     * the position of the default pointer moved by the given [delta]. The default pointer has
+     * Sends a move event [delayMillis] after the last sent event on the associated node, with the
+     * position of the default pointer moved by the given [delta]. The default pointer has
      * `pointerId = 0`.
      *
      * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
      *
      * @param delta The position for this move event, relative to the current position of the
-     * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
-     * x-position, and subtract 10.px from the pointer's y-position.
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
+     *   x-position, and subtract 10.px from the pointer's y-position.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     fun moveBy(delta: Offset, delayMillis: Long = eventPeriodMillis) {
         moveBy(0, delta, delayMillis)
     }
 
     /**
-     * Updates the position of the pointer with the given [pointerId] by the given [delta], but
-     * does not send a move event. The move event can be sent with [move].
+     * Updates the position of the pointer with the given [pointerId] by the given [delta], but does
+     * not send a move event. The move event can be sent with [move].
      *
      * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
      *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param delta The position for this move event, relative to the last sent position of the
-     * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
-     * x-position, and subtract 10.px from the pointer's y-position.
+     *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
+     *   x-position, and subtract 10.px from the pointer's y-position.
      */
     fun updatePointerBy(pointerId: Int, delta: Offset) {
         // Ignore currentPosition of null here, let updatePointerTo generate the error
         val currentPosition = currentPosition(pointerId) ?: Offset.Zero
 
-        val position = if (currentPosition.isValid() && delta.isValid()) {
-            currentPosition + delta
-        } else {
-            // Allows invalid position to still pass back through Compose (for testing)
-            Offset.Unspecified
-        }
+        val position =
+            if (currentPosition.isValid() && delta.isValid()) {
+                currentPosition + delta
+            } else {
+                // Allows invalid position to still pass back through Compose (for testing)
+                Offset.Unspecified
+            }
 
         updatePointerTo(pointerId, position)
     }
 
     /**
      * Sends a move event [delayMillis] after the last sent event without updating any of the
-     * pointer positions. This can be useful when batching movement of multiple pointers
-     * together, which can be done with [updatePointerTo] and [updatePointerBy].
+     * pointer positions. This can be useful when batching movement of multiple pointers together,
+     * which can be done with [updatePointerTo] and [updatePointerBy].
      *
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     fun move(delayMillis: Long = eventPeriodMillis)
 
@@ -241,13 +242,13 @@ interface TouchInjectionScope : InjectionScope {
      * @sample androidx.compose.ui.test.samples.touchInputMultiTouchWithHistory
      *
      * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
-     * the time the actual event is sent. For example, -10L means 10ms earlier.
+     *   the time the actual event is sent. For example, -10L means 10ms earlier.
      * @param historicalCoordinates Coordinates of each historical event, in the same coordinate
-     * space as [moveTo]. The outer list must have the same size as the number of pointers in the
-     * event, and each inner list must have the same size as [relativeHistoricalTimes]. The `i`th
-     * pointer is assigned the `i`th history, with the pointers sorted on ascending pointerId.
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     *   space as [moveTo]. The outer list must have the same size as the number of pointers in the
+     *   event, and each inner list must have the same size as [relativeHistoricalTimes]. The `i`th
+     *   pointer is assigned the `i`th history, with the pointers sorted on ascending pointerId.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     @ExperimentalTestApi
     fun moveWithHistoryMultiPointer(
@@ -266,22 +267,23 @@ interface TouchInjectionScope : InjectionScope {
      * pointer.
      *
      * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
-     * the time the actual event is sent. For example, -10L means 10ms earlier.
+     *   the time the actual event is sent. For example, -10L means 10ms earlier.
      * @param historicalCoordinates Coordinates of each historical event, in the same coordinate
-     * space as [moveTo]. The list must have the same size as [relativeHistoricalTimes].
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     *   space as [moveTo]. The list must have the same size as [relativeHistoricalTimes].
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     @ExperimentalTestApi
     fun moveWithHistory(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<Offset>,
         delayMillis: Long = eventPeriodMillis
-    ) = moveWithHistoryMultiPointer(
-        relativeHistoricalTimes,
-        listOf(historicalCoordinates),
-        delayMillis
-    )
+    ) =
+        moveWithHistoryMultiPointer(
+            relativeHistoricalTimes,
+            listOf(historicalCoordinates),
+            delayMillis
+        )
 
     /**
      * Sends an up event for the pointer with the given [pointerId], or the default pointer if
@@ -292,19 +294,20 @@ interface TouchInjectionScope : InjectionScope {
     fun up(pointerId: Int = 0)
 
     /**
-     * Sends a cancel event [delayMillis] after the last sent event to cancel the current
-     * gesture. The cancel event contains the current position of all active pointers.
+     * Sends a cancel event [delayMillis] after the last sent event to cancel the current gesture.
+     * The cancel event contains the current position of all active pointers.
      *
-     * @param delayMillis The time between the last sent event and this event.
-     * [eventPeriodMillis] by default.
+     * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
+     *   by default.
      */
     fun cancel(delayMillis: Long = eventPeriodMillis)
 }
 
-internal class TouchInjectionScopeImpl(
-    private val baseScope: MultiModalInjectionScopeImpl
-) : TouchInjectionScope, InjectionScope by baseScope {
-    private val inputDispatcher get() = baseScope.inputDispatcher
+internal class TouchInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
+    TouchInjectionScope, InjectionScope by baseScope {
+    private val inputDispatcher
+        get() = baseScope.inputDispatcher
+
     private fun localToRoot(position: Offset) = baseScope.localToRoot(position)
 
     override fun currentPosition(pointerId: Int): Offset? {
@@ -361,12 +364,12 @@ internal class TouchInjectionScopeImpl(
 /**
  * Performs a click gesture (aka a tap) on the associated node.
  *
- * The click is done at the given [position], or in the [center] if the [position] is omitted.
- * The [position] is in the node's local coordinate system, where (0, 0) is the top left corner
- * of the node.
+ * The click is done at the given [position], or in the [center] if the [position] is omitted. The
+ * [position] is in the node's local coordinate system, where (0, 0) is the top left corner of the
+ * node.
  *
- * @param position The position where to click, in the node's local coordinate system. If
- * omitted, the [center] of the node will be used.
+ * @param position The position where to click, in the node's local coordinate system. If omitted,
+ *   the [center] of the node will be used.
  */
 fun TouchInjectionScope.click(position: Offset = center) {
     down(position)
@@ -377,13 +380,13 @@ fun TouchInjectionScope.click(position: Offset = center) {
 /**
  * Performs a long click gesture (aka a long press) on the associated node.
  *
- * The long click is done at the given [position], or in the [center] if the [position] is
- * omitted. By default, the [durationMillis] of the press is 100ms longer than the minimum
- * required duration for a long press. The [position] is in the node's local coordinate system,
- * where (0, 0) is the top left corner of the node.
+ * The long click is done at the given [position], or in the [center] if the [position] is omitted.
+ * By default, the [durationMillis] of the press is 100ms longer than the minimum required duration
+ * for a long press. The [position] is in the node's local coordinate system, where (0, 0) is the
+ * top left corner of the node.
  *
  * @param position The position of the long click, in the node's local coordinate system. If
- * omitted, the [center] of the node will be used.
+ *   omitted, the [center] of the node will be used.
  * @param durationMillis The time between the down and the up event
  */
 fun TouchInjectionScope.longClick(
@@ -403,15 +406,15 @@ private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
 /**
  * Performs a double click gesture (aka a double tap) on the associated node.
  *
- * The double click is done at the given [position] or in the [center] if the [position] is
- * omitted. By default, the [delayMillis] between the first and the second click is half way in
- * between the minimum and maximum required delay for a double click. The [position] is in the
- * node's local coordinate system, where (0, 0) is the top left corner of the node.
+ * The double click is done at the given [position] or in the [center] if the [position] is omitted.
+ * By default, the [delayMillis] between the first and the second click is half way in between the
+ * minimum and maximum required delay for a double click. The [position] is in the node's local
+ * coordinate system, where (0, 0) is the top left corner of the node.
  *
- * @param position The position of the double click, in the node's local coordinate system.
- * If omitted, the [center] position will be used.
+ * @param position The position of the double click, in the node's local coordinate system. If
+ *   omitted, the [center] position will be used.
  * @param delayMillis The time between the up event of the first click and the down event of the
- * second click
+ *   second click
  */
 fun TouchInjectionScope.doubleClick(
     position: Offset = center,
@@ -433,24 +436,17 @@ fun TouchInjectionScope.doubleClick(
 /**
  * Performs a swipe gesture on the associated node.
  *
- * The motion events are linearly interpolated between [start] and [end]. The coordinates are in
- * the node's local coordinate system, where (0, 0) is the top left corner of the node. The
- * default duration is 200 milliseconds.
+ * The motion events are linearly interpolated between [start] and [end]. The coordinates are in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node. The default
+ * duration is 200 milliseconds.
  *
  * @param start The start position of the gesture, in the node's local coordinate system
  * @param end The end position of the gesture, in the node's local coordinate system
  * @param durationMillis The duration of the gesture
  */
-fun TouchInjectionScope.swipe(
-    start: Offset,
-    end: Offset,
-    durationMillis: Long = 200
-) {
+fun TouchInjectionScope.swipe(start: Offset, end: Offset, durationMillis: Long = 200) {
     val durationFloat = durationMillis.toFloat()
-    swipe(
-        curve = { lerp(start, end, it / durationFloat) },
-        durationMillis = durationMillis
-    )
+    swipe(curve = { lerp(start, end, it / durationFloat) }, durationMillis = durationMillis)
 }
 
 /**
@@ -459,39 +455,38 @@ fun TouchInjectionScope.swipe(
  * The swipe follows the [curve] from 0 till [durationMillis]. Will force sampling of an event at
  * all times defined in [keyTimes]. The time between events is kept as close to
  * [eventPeriodMillis][InjectionScope.eventPeriodMillis] as possible, given the constraints. The
- * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of
- * the node. The default duration is 200 milliseconds.
+ * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of the
+ * node. The default duration is 200 milliseconds.
  *
  * @param curve The function that defines the position of the gesture over time
  * @param durationMillis The duration of the gesture
- * @param keyTimes An optional list of timestamps in milliseconds at which a move event must
- * be sampled
+ * @param keyTimes An optional list of timestamps in milliseconds at which a move event must be
+ *   sampled
  */
 fun TouchInjectionScope.swipe(
     curve: (Long) -> Offset,
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
-    @OptIn(ExperimentalTestApi::class)
-    multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
+    @OptIn(ExperimentalTestApi::class) multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
 }
 
 /**
  * Performs a multi touch swipe gesture on the associated node.
  *
- * Each pointer follows [curves]&#91;i] from 0 till [durationMillis]. Sampling of an event is
- * forced at all times defined in [keyTimes]. The time between events is kept as close to
+ * Each pointer follows [curves]&#91;i] from 0 till [durationMillis]. Sampling of an event is forced
+ * at all times defined in [keyTimes]. The time between events is kept as close to
  * [eventPeriodMillis][InjectionScope.eventPeriodMillis] as possible, given the constraints. The
- * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of
- * the node. The default duration is 200 milliseconds.
+ * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of the
+ * node. The default duration is 200 milliseconds.
  *
- * Will stay experimental until support has been added to start and end each pointer at
- * different times.
+ * Will stay experimental until support has been added to start and end each pointer at different
+ * times.
  *
  * @param curves The functions that define the position of the gesture over time
  * @param durationMillis The duration of the gesture
- * @param keyTimes An optional list of timestamps in milliseconds at which a move event must
- * be sampled
+ * @param keyTimes An optional list of timestamps in milliseconds at which a move event must be
+ *   sampled
  */
 @ExperimentalTestApi
 fun TouchInjectionScope.multiTouchSwipe(
@@ -503,9 +498,7 @@ fun TouchInjectionScope.multiTouchSwipe(
     val endTime = durationMillis
 
     // Validate input
-    require(durationMillis >= 1) {
-        "duration must be at least 1 millisecond, not $durationMillis"
-    }
+    require(durationMillis >= 1) { "duration must be at least 1 millisecond, not $durationMillis" }
     val validRange = startTime..endTime
     require(keyTimes.all { it in validRange }) {
         "keyTimes contains timestamps out of range [$startTime..$endTime]: $keyTimes"
@@ -515,9 +508,7 @@ fun TouchInjectionScope.multiTouchSwipe(
     }
 
     // Send down events
-    curves.forEachIndexed { i, curve ->
-        down(i, curve(startTime))
-    }
+    curves.forEachIndexed { i, curve -> down(i, curve(startTime)) }
 
     // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
     var currTime = startTime
@@ -534,15 +525,13 @@ fun TouchInjectionScope.multiTouchSwipe(
     }
 
     // And end with up events
-    repeat(curves.size) {
-        up(it)
-    }
+    repeat(curves.size) { up(it) }
 }
 
 /**
- * Generates move events between `f([t0])` and `f([tN])` during the time window `(t0, tN]`, for
- * each `f` in [fs], following the curves defined by each `f`. The number of events sent
- * (#numEvents) is such that the time between each event is as close to
+ * Generates move events between `f([t0])` and `f([tN])` during the time window `(t0, tN]`, for each
+ * `f` in [fs], following the curves defined by each `f`. The number of events sent (#numEvents) is
+ * such that the time between each event is as close to
  * [eventPeriodMillis][InputDispatcher.eventPeriodMillis] as possible, but at least 1. The first
  * event is sent at time `downTime + (tN - t0) / #numEvents`, the last event is sent at time tN.
  *
@@ -564,9 +553,7 @@ private fun TouchInjectionScope.sendMultiTouchSwipeSegment(
     while (step++ < steps) {
         val progress = step / steps.toFloat()
         val t = lerp(t0, tN, progress)
-        fs.forEachIndexed { i, f ->
-            updatePointerTo(i, f(t))
-        }
+        fs.forEachIndexed { i, f -> updatePointerTo(i, f(t)) }
         move(t - tPrev)
         tPrev = t
     }
@@ -576,8 +563,8 @@ private fun TouchInjectionScope.sendMultiTouchSwipeSegment(
  * Performs a pinch gesture on the associated node.
  *
  * For each pair of start and end [Offset]s, the motion events are linearly interpolated. The
- * coordinates are in the node's local coordinate system where (0, 0) is the top left corner of
- * the node. The default duration is 400 milliseconds.
+ * coordinates are in the node's local coordinate system where (0, 0) is the top left corner of the
+ * node. The default duration is 400 milliseconds.
  *
  * @param start0 The start position of the first gesture in the node's local coordinate system
  * @param end0 The end position of the first gesture in the node's local coordinate system
@@ -606,29 +593,28 @@ fun TouchInjectionScope.pinch(
 /**
  * Performs a swipe gesture on the associated node such that it ends with the given [endVelocity].
  *
- * The swipe will go through [start] at t=0 and through [end] at t=[durationMillis]. In between,
- * the swipe will go monotonically from [start] and [end], but not strictly. Due to imprecision,
- * no guarantees can be made for the actual velocity at the end of the gesture, but generally it
- * is within 0.1 of the desired velocity.
+ * The swipe will go through [start] at t=0 and through [end] at t=[durationMillis]. In between, the
+ * swipe will go monotonically from [start] and [end], but not strictly. Due to imprecision, no
+ * guarantees can be made for the actual velocity at the end of the gesture, but generally it is
+ * within 0.1 of the desired velocity.
  *
  * When a swipe cannot be created that results in the desired velocity (because the input is too
  * restrictive), an exception will be thrown with suggestions to fix the input.
  *
- * The coordinates are in the node's local coordinate system, where (0, 0) is the top left corner
- * of the node. The default duration is calculated such that a feasible swipe can be created that
- * ends in the given velocity.
+ * The coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of
+ * the node. The default duration is calculated such that a feasible swipe can be created that ends
+ * in the given velocity.
  *
  * @param start The start position of the gesture, in the node's local coordinate system
  * @param end The end position of the gesture, in the node's local coordinate system
  * @param endVelocity The velocity of the gesture at the moment it ends in px/second. Must be
- * positive.
+ *   positive.
  * @param durationMillis The duration of the gesture in milliseconds. Must be long enough that at
- * least 3 input events are generated, which happens with a duration of 40ms or more. If omitted,
- * a duration is calculated such that a valid swipe with velocity can be created.
- *
+ *   least 3 input events are generated, which happens with a duration of 40ms or more. If omitted,
+ *   a duration is calculated such that a valid swipe with velocity can be created.
  * @throws IllegalArgumentException When no swipe can be generated that will result in the desired
- * velocity. The error message will suggest changes to the input parameters such that a swipe
- * will become feasible.
+ *   velocity. The error message will suggest changes to the input parameters such that a swipe will
+ *   become feasible.
  */
 fun TouchInjectionScope.swipeWithVelocity(
     start: Offset,
@@ -637,9 +623,7 @@ fun TouchInjectionScope.swipeWithVelocity(
     endVelocity: Float,
     durationMillis: Long = VelocityPathFinder.calculateDefaultDuration(start, end, endVelocity)
 ) {
-    require(endVelocity >= 0f) {
-        "Velocity cannot be $endVelocity, it must be positive"
-    }
+    require(endVelocity >= 0f) { "Velocity cannot be $endVelocity, it must be positive" }
     require(eventPeriodMillis < 40) {
         "InputDispatcher.eventPeriod must be smaller than 40ms in order to generate velocities"
     }
@@ -650,9 +634,7 @@ fun TouchInjectionScope.swipeWithVelocity(
     }
 
     val pathFinder = VelocityPathFinder(start, end, endVelocity, durationMillis)
-    val swipeFunction: (Long) -> Offset = {
-        pathFinder.calculateOffsetForTime(it)
-    }
+    val swipeFunction: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
     swipe(swipeFunction, durationMillis)
 }
 
@@ -661,9 +643,9 @@ fun TouchInjectionScope.swipeWithVelocity(
  * [endY], taking [durationMillis] milliseconds.
  *
  * @param startY The y-coordinate of the start of the swipe. Must be greater than or equal to the
- * [endY]. By default the [bottom] of the node.
- * @param endY The y-coordinate of the end of the swipe. Must be less than or equal to the
- * [startY]. By default the [top] of the node.
+ *   [endY]. By default the [bottom] of the node.
+ * @param endY The y-coordinate of the end of the swipe. Must be less than or equal to the [startY].
+ *   By default the [top] of the node.
  * @param durationMillis The duration of the swipe. By default 200 milliseconds.
  */
 fun TouchInjectionScope.swipeUp(
@@ -671,9 +653,7 @@ fun TouchInjectionScope.swipeUp(
     endY: Float = top,
     durationMillis: Long = 200
 ) {
-    require(startY >= endY) {
-        "startY=$startY needs to be greater than or equal to endY=$endY"
-    }
+    require(startY >= endY) { "startY=$startY needs to be greater than or equal to endY=$endY" }
     val start = Offset(centerX, startY)
     val end = Offset(centerX, endY)
     swipe(start, end, durationMillis)
@@ -684,9 +664,9 @@ fun TouchInjectionScope.swipeUp(
  * [endY], taking [durationMillis] milliseconds.
  *
  * @param startY The y-coordinate of the start of the swipe. Must be less than or equal to the
- * [endY]. By default the [top] of the node.
+ *   [endY]. By default the [top] of the node.
  * @param endY The y-coordinate of the end of the swipe. Must be greater than or equal to the
- * [startY]. By default the [bottom] of the node.
+ *   [startY]. By default the [bottom] of the node.
  * @param durationMillis The duration of the swipe. By default 200 milliseconds.
  */
 fun TouchInjectionScope.swipeDown(
@@ -694,9 +674,7 @@ fun TouchInjectionScope.swipeDown(
     endY: Float = bottom,
     durationMillis: Long = 200
 ) {
-    require(startY <= endY) {
-        "startY=$startY needs to be less than or equal to endY=$endY"
-    }
+    require(startY <= endY) { "startY=$startY needs to be less than or equal to endY=$endY" }
     val start = Offset(centerX, startY)
     val end = Offset(centerX, endY)
     swipe(start, end, durationMillis)
@@ -707,9 +685,9 @@ fun TouchInjectionScope.swipeDown(
  * [endX], taking [durationMillis] milliseconds.
  *
  * @param startX The x-coordinate of the start of the swipe. Must be greater than or equal to the
- * [endX]. By default the [right] of the node.
- * @param endX The x-coordinate of the end of the swipe. Must be less than or equal to the
- * [startX]. By default the [left] of the node.
+ *   [endX]. By default the [right] of the node.
+ * @param endX The x-coordinate of the end of the swipe. Must be less than or equal to the [startX].
+ *   By default the [left] of the node.
  * @param durationMillis The duration of the swipe. By default 200 milliseconds.
  */
 fun TouchInjectionScope.swipeLeft(
@@ -717,22 +695,20 @@ fun TouchInjectionScope.swipeLeft(
     endX: Float = left,
     durationMillis: Long = 200
 ) {
-    require(startX >= endX) {
-        "startX=$startX needs to be greater than or equal to endX=$endX"
-    }
+    require(startX >= endX) { "startX=$startX needs to be greater than or equal to endX=$endX" }
     val start = Offset(startX, centerY)
     val end = Offset(endX, centerY)
     swipe(start, end, durationMillis)
 }
 
 /**
- * Performs a swipe right gesture along `y = [centerY]` of the associated node, from [startX]
- * till [endX], taking [durationMillis] milliseconds.
+ * Performs a swipe right gesture along `y = [centerY]` of the associated node, from [startX] till
+ * [endX], taking [durationMillis] milliseconds.
  *
  * @param startX The x-coordinate of the start of the swipe. Must be less than or equal to the
- * [endX]. By default the [left] of the node.
+ *   [endX]. By default the [left] of the node.
  * @param endX The x-coordinate of the end of the swipe. Must be greater than or equal to the
- * [startX]. By default the [right] of the node.
+ *   [startX]. By default the [right] of the node.
  * @param durationMillis The duration of the swipe. By default 200 milliseconds.
  */
 fun TouchInjectionScope.swipeRight(
@@ -740,9 +716,7 @@ fun TouchInjectionScope.swipeRight(
     endX: Float = right,
     durationMillis: Long = 200
 ) {
-    require(startX <= endX) {
-        "startX=$startX needs to be less than or equal to endX=$endX"
-    }
+    require(startX <= endX) { "startX=$startX needs to be less than or equal to endX=$endX" }
     val start = Offset(startX, centerY)
     val end = Offset(endX, centerY)
     swipe(start, end, durationMillis)

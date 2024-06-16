@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -31,7 +30,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  * <p> Used with {@link ImageAnalysis}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
 
     @Nullable

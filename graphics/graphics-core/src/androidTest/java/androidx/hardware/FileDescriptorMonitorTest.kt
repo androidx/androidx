@@ -34,9 +34,7 @@ class FileDescriptorMonitorTest {
     fun testStartMonitoringInvokesCallback() {
         val monitor = FileDescriptorMonitor(scheduleMillis = 10)
         val cleanupLatch = CountDownLatch(1)
-        monitor.addCleanupCallback {
-            cleanupLatch.countDown()
-        }
+        monitor.addCleanupCallback { cleanupLatch.countDown() }
         monitor.startMonitoring()
         try {
             assertTrue(cleanupLatch.await(3000, TimeUnit.MILLISECONDS))
@@ -69,11 +67,12 @@ class FileDescriptorMonitorTest {
     @Test
     fun testStopMonitoringTearsDownExecutorAfterPendingRequest() {
         val testHandlerThreadExecutor = HandlerThreadExecutor("test")
-        val monitor = FileDescriptorMonitor(
-            testHandlerThreadExecutor,
-            scheduleMillis = 200,
-            manageExecutor = true
-        )
+        val monitor =
+            FileDescriptorMonitor(
+                testHandlerThreadExecutor,
+                scheduleMillis = 200,
+                manageExecutor = true
+            )
         val latch = CountDownLatch(1)
         monitor.addCleanupCallback { latch.countDown() }
         monitor.startMonitoring()
@@ -96,9 +95,7 @@ class FileDescriptorMonitorTest {
     fun testCancelPendingDoesNotInvokeCleanupTask() {
         val monitor = FileDescriptorMonitor(scheduleMillis = 500)
         val countDownLatch = CountDownLatch(1)
-        monitor.addCleanupCallback {
-            countDownLatch.countDown()
-        }
+        monitor.addCleanupCallback { countDownLatch.countDown() }
         monitor.startMonitoring()
         monitor.stopMonitoring(true)
         assertFalse(countDownLatch.await(1000, TimeUnit.MILLISECONDS))
@@ -108,9 +105,7 @@ class FileDescriptorMonitorTest {
     fun testCancelPendingInvokesInFlightCleanupTask() {
         val monitor = FileDescriptorMonitor(scheduleMillis = 500)
         val countDownLatch = CountDownLatch(1)
-        monitor.addCleanupCallback {
-            countDownLatch.countDown()
-        }
+        monitor.addCleanupCallback { countDownLatch.countDown() }
         monitor.startMonitoring()
         monitor.stopMonitoring(false)
         assertTrue(countDownLatch.await(1000, TimeUnit.MILLISECONDS))

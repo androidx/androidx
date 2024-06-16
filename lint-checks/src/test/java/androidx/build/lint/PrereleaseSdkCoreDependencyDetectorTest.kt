@@ -21,21 +21,24 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class PrereleaseSdkCoreDependencyDetectorTest : AbstractLintDetectorTest(
-    useDetector = PrereleaseSdkCoreDependencyDetector(),
-    useIssues = listOf(PrereleaseSdkCoreDependencyDetector.ISSUE),
-    stubs = arrayOf(
-        Stubs.BuildCompat,
-        Stubs.ChecksSdkIntAtLeast,
-        Stubs.JetpackRequiresOptIn,
-        Stubs.RestrictTo
-    )
-) {
+class PrereleaseSdkCoreDependencyDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = PrereleaseSdkCoreDependencyDetector(),
+        useIssues = listOf(PrereleaseSdkCoreDependencyDetector.ISSUE),
+        stubs =
+            arrayOf(
+                Stubs.BuildCompat,
+                Stubs.ChecksSdkIntAtLeast,
+                Stubs.JetpackRequiresOptIn,
+                Stubs.RestrictTo
+            )
+    ) {
     @Test
     fun `Versioned dependency with isAtLeastU is flagged`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                     package androidx.test
 
                     import androidx.core.os.BuildCompat
@@ -43,32 +46,37 @@ class PrereleaseSdkCoreDependencyDetectorTest : AbstractLintDetectorTest(
                     fun callIsAtLeastU() {
                         return BuildCompat.isAtLeastU()
                     }
-                """.trimIndent()
-            ),
-            gradle("""
+                """
+                        .trimIndent()
+                ),
+                gradle(
+                    """
                 dependencies {
                     implementation("androidx.core:core:1.9.0")
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/main/kotlin/androidx/test/test.kt:6: Error: Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core [PrereleaseSdkCoreDependency]
                 return BuildCompat.isAtLeastU()
                        ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Tip-of-tree dependency with isAtLeastU is not flagged`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                     package androidx.test
 
                     import androidx.core.os.BuildCompat
@@ -76,23 +84,28 @@ class PrereleaseSdkCoreDependencyDetectorTest : AbstractLintDetectorTest(
                     fun callIsAtLeastU() {
                         return BuildCompat.isAtLeastU()
                     }
-                """.trimIndent()
-            ),
-            gradle("""
+                """
+                        .trimIndent()
+                ),
+                gradle(
+                    """
                 dependencies {
                     implementation(project(":core:core"))
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Versioned dependency with isAtLeastSv2 is flagged`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                     package androidx.test
 
                     import androidx.core.os.BuildCompat
@@ -100,32 +113,37 @@ class PrereleaseSdkCoreDependencyDetectorTest : AbstractLintDetectorTest(
                     fun callIsAtLeastSv2() {
                         return BuildCompat.isAtLeastSv2()
                     }
-                """.trimIndent()
-            ),
-            gradle("""
+                """
+                        .trimIndent()
+                ),
+                gradle(
+                    """
                 dependencies {
                     implementation("androidx.core:core:1.9.0")
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/main/kotlin/androidx/test/test.kt:6: Error: Prelease SDK check isAtLeastSv2 cannot be called as this project has a versioned dependency on androidx.core:core [PrereleaseSdkCoreDependency]
                 return BuildCompat.isAtLeastSv2()
                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Versioned dependency with non-annotated isAtLeastN is not flagged`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                     package androidx.test
 
                     import androidx.core.os.BuildCompat
@@ -133,14 +151,18 @@ class PrereleaseSdkCoreDependencyDetectorTest : AbstractLintDetectorTest(
                     fun callIsAtLeastN() {
                         return BuildCompat.isAtLeastN()
                     }
-                """.trimIndent()
-            ),
-            gradle("""
+                """
+                        .trimIndent()
+                ),
+                gradle(
+                    """
                 dependencies {
                     implementation("androidx.core:core:1.9.0")
                 }
-            """.trimIndent()),
-        )
+            """
+                        .trimIndent()
+                ),
+            )
 
         check(*input).expectClean()
     }

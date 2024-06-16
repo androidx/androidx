@@ -40,59 +40,64 @@ private const val NoActiveChild = "ActiveParent must have a focusedChild"
 internal fun FocusTargetNode.oneDimensionalFocusSearch(
     direction: FocusDirection,
     onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (direction) {
-    Next -> forwardFocusSearch(onFound)
-    Previous -> backwardFocusSearch(onFound)
-    else -> error(InvalidFocusDirection)
-}
-
-private fun FocusTargetNode.forwardFocusSearch(
-    onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (focusState) {
-    ActiveParent -> {
-        val focusedChild = activeChild ?: error(NoActiveChild)
-        focusedChild.forwardFocusSearch(onFound) ||
-            generateAndSearchChildren(focusedChild, Next, onFound)
+): Boolean =
+    when (direction) {
+        Next -> forwardFocusSearch(onFound)
+        Previous -> backwardFocusSearch(onFound)
+        else -> error(InvalidFocusDirection)
     }
-    Active, Captured -> pickChildForForwardSearch(onFound)
-    Inactive -> if (fetchFocusProperties().canFocus) {
-        onFound.invoke(this)
-    } else {
-        pickChildForForwardSearch(onFound)
-    }
-}
 
-private fun FocusTargetNode.backwardFocusSearch(
-    onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (focusState) {
-    ActiveParent -> {
-        val focusedChild = activeChild ?: error(NoActiveChild)
-
-        // Unlike forwardFocusSearch, backwardFocusSearch visits the children before the parent.
-        when (focusedChild.focusState) {
-            ActiveParent -> focusedChild.backwardFocusSearch(onFound) ||
-                generateAndSearchChildren(focusedChild, Previous, onFound) ||
-                (focusedChild.fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
-
-            // Since this item "is focused", it means we already visited all its children.
-            // So just search among its siblings.
-            Active, Captured -> generateAndSearchChildren(focusedChild, Previous, onFound)
-
-            Inactive -> error(NoActiveChild)
+private fun FocusTargetNode.forwardFocusSearch(onFound: (FocusTargetNode) -> Boolean): Boolean =
+    when (focusState) {
+        ActiveParent -> {
+            val focusedChild = activeChild ?: error(NoActiveChild)
+            focusedChild.forwardFocusSearch(onFound) ||
+                generateAndSearchChildren(focusedChild, Next, onFound)
         }
+        Active,
+        Captured -> pickChildForForwardSearch(onFound)
+        Inactive ->
+            if (fetchFocusProperties().canFocus) {
+                onFound.invoke(this)
+            } else {
+                pickChildForForwardSearch(onFound)
+            }
     }
-    // BackwardFocusSearch is invoked at the root, and so it searches among siblings of the
-    // ActiveParent for a child that is focused. If we encounter an active node (instead of an
-    // ActiveParent) or a deactivated node (instead of a deactivated parent), it indicates
-    // that the hierarchy does not have focus. ie. this is the initial focus state.
-    // So we pick one of the children as the result.
-    Active, Captured -> pickChildForBackwardSearch(onFound)
 
-    // If we encounter an inactive node, we attempt to pick one of its children before picking
-    // this node (backward search visits the children before the parent).
-    Inactive -> pickChildForBackwardSearch(onFound) ||
-        if (fetchFocusProperties().canFocus) onFound.invoke(this) else false
-}
+private fun FocusTargetNode.backwardFocusSearch(onFound: (FocusTargetNode) -> Boolean): Boolean =
+    when (focusState) {
+        ActiveParent -> {
+            val focusedChild = activeChild ?: error(NoActiveChild)
+
+            // Unlike forwardFocusSearch, backwardFocusSearch visits the children before the parent.
+            when (focusedChild.focusState) {
+                ActiveParent ->
+                    focusedChild.backwardFocusSearch(onFound) ||
+                        generateAndSearchChildren(focusedChild, Previous, onFound) ||
+                        (focusedChild.fetchFocusProperties().canFocus &&
+                            onFound.invoke(focusedChild))
+
+                // Since this item "is focused", it means we already visited all its children.
+                // So just search among its siblings.
+                Active,
+                Captured -> generateAndSearchChildren(focusedChild, Previous, onFound)
+                Inactive -> error(NoActiveChild)
+            }
+        }
+        // BackwardFocusSearch is invoked at the root, and so it searches among siblings of the
+        // ActiveParent for a child that is focused. If we encounter an active node (instead of an
+        // ActiveParent) or a deactivated node (instead of a deactivated parent), it indicates
+        // that the hierarchy does not have focus. ie. this is the initial focus state.
+        // So we pick one of the children as the result.
+        Active,
+        Captured -> pickChildForBackwardSearch(onFound)
+
+        // If we encounter an inactive node, we attempt to pick one of its children before picking
+        // this node (backward search visits the children before the parent).
+        Inactive ->
+            pickChildForBackwardSearch(onFound) ||
+                if (fetchFocusProperties().canFocus) onFound.invoke(this) else false
+    }
 
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
@@ -125,17 +130,19 @@ private fun FocusTargetNode.searchChildren(
     check(focusState == ActiveParent) {
         "This function should only be used within a parent that has focus."
     }
-    val children = MutableVector<FocusTargetNode>().apply {
-        visitChildren(Nodes.FocusTarget) { add(it) }
-    }
+    val children =
+        MutableVector<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
     children.sortWith(FocusableChildrenComparator)
     when (direction) {
-        Next -> children.forEachItemAfter(focusedItem) { child ->
-            if (child.isEligibleForFocusSearch && child.forwardFocusSearch(onFound)) return true
-        }
-        Previous -> children.forEachItemBefore(focusedItem) { child ->
-            if (child.isEligibleForFocusSearch && child.backwardFocusSearch(onFound)) return true
-        }
+        Next ->
+            children.forEachItemAfter(focusedItem) { child ->
+                if (child.isEligibleForFocusSearch && child.forwardFocusSearch(onFound)) return true
+            }
+        Previous ->
+            children.forEachItemBefore(focusedItem) { child ->
+                if (child.isEligibleForFocusSearch && child.backwardFocusSearch(onFound))
+                    return true
+            }
         else -> error(InvalidFocusDirection)
     }
 
@@ -151,9 +158,8 @@ private fun FocusTargetNode.searchChildren(
 private fun FocusTargetNode.pickChildForForwardSearch(
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    val children = MutableVector<FocusTargetNode>().apply {
-        visitChildren(Nodes.FocusTarget) { add(it) }
-    }
+    val children =
+        MutableVector<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
     children.sortWith(FocusableChildrenComparator)
     return children.any { it.isEligibleForFocusSearch && it.forwardFocusSearch(onFound) }
 }
@@ -161,9 +167,8 @@ private fun FocusTargetNode.pickChildForForwardSearch(
 private fun FocusTargetNode.pickChildForBackwardSearch(
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    val children = MutableVector<FocusTargetNode>().apply {
-        visitChildren(Nodes.FocusTarget) { add(it) }
-    }
+    val children =
+        MutableVector<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
     children.sortWith(FocusableChildrenComparator)
     children.forEachReversed {
         if (it.isEligibleForFocusSearch && it.backwardFocusSearch(onFound)) {
@@ -208,9 +213,9 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
 /**
  * We use this comparator to sort the focus modifiers in place order.
  *
- * We want to visit the nodes in placement order instead of composition order.
- * This is because components like LazyList reuse nodes without re-composing them, but it always
- * re-places nodes that are reused.
+ * We want to visit the nodes in placement order instead of composition order. This is because
+ * components like LazyList reuse nodes without re-composing them, but it always re-places nodes
+ * that are reused.
  *
  * Instead of sorting the items, we could just look for the next largest place order index in linear
  * time. However if the next item is deactivated, not eligible for focus search or none of its
@@ -219,10 +224,7 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
  * the items makes the next focus search more efficient.
  */
 private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
-    override fun compare(
-        focusTarget1: FocusTargetNode,
-        focusTarget2: FocusTargetNode
-    ): Int {
+    override fun compare(focusTarget1: FocusTargetNode, focusTarget2: FocusTargetNode): Int {
         // Ignore focus modifiers that won't be considered during focus search.
         if (!focusTarget1.isEligibleForFocusSearch || !focusTarget2.isEligibleForFocusSearch) {
             if (focusTarget1.isEligibleForFocusSearch) return -1

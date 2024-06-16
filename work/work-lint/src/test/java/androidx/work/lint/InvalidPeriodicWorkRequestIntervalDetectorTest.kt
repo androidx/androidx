@@ -25,20 +25,24 @@ import org.junit.Test
 class InvalidPeriodicWorkRequestIntervalDetectorTest {
     @Test
     fun testWithInvalidDurationTimeUnits() {
-        val worker = kotlin(
-            "com/example/TestWorker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/TestWorker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
             """
-        ).indented().within("src")
-        /* ktlint-disable max-line-length */
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+                )
+                .indented()
+                .within("src")
+
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.PeriodicWorkRequest
@@ -51,13 +55,12 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
-        lint().files(
-            LISTENABLE_WORKER,
-            PERIODIC_WORK_REQUEST,
-            worker,
-            snippet
-        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+                )
+                .indented()
+                .within("src")
+        lint()
+            .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
+            .issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -65,28 +68,31 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                         val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, 15L, TimeUnit.MILLISECONDS)
                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testWithValidDurationTimeUnits() {
-        val worker = kotlin(
-            "com/example/TestWorker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/TestWorker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        /* ktlint-disable max-line-length */
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.PeriodicWorkRequest
@@ -100,35 +106,37 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
-        /* ktlint-enable max-line-length */
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            LISTENABLE_WORKER,
-            PERIODIC_WORK_REQUEST,
-            worker,
-            snippet
-        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+        lint()
+            .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
+            .issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun testWithInvalidDurationTypeStaticImport() {
-        val worker = kotlin(
-            "com/example/TestWorker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/TestWorker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
             """
-        ).indented().within("src")
-        /* ktlint-disable max-line-length */
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+                )
+                .indented()
+                .within("src")
+
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.PeriodicWorkRequest
@@ -141,14 +149,13 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            LISTENABLE_WORKER,
-            PERIODIC_WORK_REQUEST,
-            worker,
-            snippet
-        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+        lint()
+            .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
+            .issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -156,27 +163,31 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                         val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, ofNanos(10L))
                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testWithInvalidDurationType() {
-        val worker = kotlin(
-            "com/example/TestWorker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/TestWorker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
             """
-        ).indented().within("src")
-        /* ktlint-disable max-line-length */
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+                )
+                .indented()
+                .within("src")
+
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.PeriodicWorkRequest
@@ -189,14 +200,13 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            LISTENABLE_WORKER,
-            PERIODIC_WORK_REQUEST,
-            worker,
-            snippet
-        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+        lint()
+            .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
+            .issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -204,16 +214,17 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                         val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, Duration.ofSeconds(10L))
                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testWithValidDurationType() {
-        val worker = kotlin(
-            "com/example/TestWorker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/TestWorker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
@@ -222,11 +233,14 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.PeriodicWorkRequest
@@ -240,23 +254,23 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            LISTENABLE_WORKER,
-            PERIODIC_WORK_REQUEST,
-            worker,
-            snippet
-        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+        lint()
+            .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
+            .issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
     fun testWithPeriodicRequestHelper() {
-        val worker = kotlin(
-            "com/example/TestWorker.kt",
-            """
+        val worker =
+            kotlin(
+                    "com/example/TestWorker.kt",
+                    """
             package com.example
 
             import androidx.work.ListenableWorker
@@ -265,11 +279,14 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.PeriodicWorkRequest
@@ -283,14 +300,13 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            LISTENABLE_WORKER,
-            PERIODIC_WORK_REQUEST,
-            worker,
-            snippet
-        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+        lint()
+            .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
+            .issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
             .run()
             .expectClean()
     }

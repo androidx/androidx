@@ -17,18 +17,17 @@
 package androidx.graphics.shapes
 
 /**
- * This class holds information about a corner (rounded or not) or an edge of a given
- * polygon. The features of a Polygon can be used to manipulate the shape with more context
- * of what the shape actually is, rather than simply manipulating the raw curves and lines
- * which describe it.
+ * This class holds information about a corner (rounded or not) or an edge of a given polygon. The
+ * features of a Polygon can be used to manipulate the shape with more context of what the shape
+ * actually is, rather than simply manipulating the raw curves and lines which describe it.
  */
 internal abstract class Feature(val cubics: List<Cubic>) {
     internal abstract fun transformed(f: PointTransformer): Feature
 
     /**
-     * Edges have only a list of the cubic curves which make up the edge. Edges lie between
-     * corners and have no vertex or concavity; the curves are simply straight lines (represented
-     * by Cubic curves).
+     * Edges have only a list of the cubic curves which make up the edge. Edges lie between corners
+     * and have no vertex or concavity; the curves are simply straight lines (represented by Cubic
+     * curves).
      */
     internal class Edge(cubics: List<Cubic>) : Feature(cubics) {
         override fun transformed(f: PointTransformer) =
@@ -46,11 +45,11 @@ internal abstract class Feature(val cubics: List<Cubic>) {
     }
 
     /**
-     * Corners contain the list of cubic curves which describe how the corner is rounded (or
-     * not), plus the vertex at the corner (which the cubics may or may not pass through, depending
-     * on whether the corner is rounded) and a flag indicating whether the corner is convex.
-     * A regular polygon has all convex corners, while a star polygon generally (but not
-     * necessarily) has both convex (outer) and concave (inner) corners.
+     * Corners contain the list of cubic curves which describe how the corner is rounded (or not),
+     * plus the vertex at the corner (which the cubics may or may not pass through, depending on
+     * whether the corner is rounded) and a flag indicating whether the corner is convex. A regular
+     * polygon has all convex corners, while a star polygon generally (but not necessarily) has both
+     * convex (outer) and concave (inner) corners.
      */
     internal class Corner(
         cubics: List<Cubic>,

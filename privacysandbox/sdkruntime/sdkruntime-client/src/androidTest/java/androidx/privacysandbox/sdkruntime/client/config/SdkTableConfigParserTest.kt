@@ -32,7 +32,8 @@ class SdkTableConfigParserTest {
 
     @Test
     fun parse_skipUnknownTagsAndReturnSetWithSdkTableEntries() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <package-name>sdk1</package-name>
@@ -49,7 +50,8 @@ class SdkTableConfigParserTest {
                     <compat-config-path>config2.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
         val result = tryParse(xml)
 
@@ -70,10 +72,12 @@ class SdkTableConfigParserTest {
 
     @Test
     fun parse_whenEmptyTable_returnsEmptyMap() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
         val result = tryParse(xml)
 
@@ -82,24 +86,25 @@ class SdkTableConfigParserTest {
 
     @Test
     fun parse_whenNoPackageName_throwsException() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <compat-config-path>config1.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        assertThrows<XmlPullParserException> {
-            tryParse(xml)
-        }.hasMessageThat().isEqualTo(
-            "No package-name tag found"
-        )
+        assertThrows<XmlPullParserException> { tryParse(xml) }
+            .hasMessageThat()
+            .isEqualTo("No package-name tag found")
     }
 
     @Test
     fun parse_whenMultiplePackageNames_throwsException() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <package-name>sdk1</package-name>
@@ -107,18 +112,18 @@ class SdkTableConfigParserTest {
                     <compat-config-path>config1.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        assertThrows<XmlPullParserException> {
-            tryParse(xml)
-        }.hasMessageThat().isEqualTo(
-            "Duplicate package-name tag found"
-        )
+        assertThrows<XmlPullParserException> { tryParse(xml) }
+            .hasMessageThat()
+            .isEqualTo("Duplicate package-name tag found")
     }
 
     @Test
     fun parse_whenMultipleVersionMajor_throwsException() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <package-name>sdk1</package-name>
@@ -127,35 +132,35 @@ class SdkTableConfigParserTest {
                     <compat-config-path>config1.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        assertThrows<XmlPullParserException> {
-            tryParse(xml)
-        }.hasMessageThat().isEqualTo(
-            "Duplicate version-major tag found"
-        )
+        assertThrows<XmlPullParserException> { tryParse(xml) }
+            .hasMessageThat()
+            .isEqualTo("Duplicate version-major tag found")
     }
 
     @Test
     fun parse_whenNoConfigPath_throwsException() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <package-name>sdk1</package-name>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        assertThrows<XmlPullParserException> {
-            tryParse(xml)
-        }.hasMessageThat().isEqualTo(
-            "No compat-config-path tag found"
-        )
+        assertThrows<XmlPullParserException> { tryParse(xml) }
+            .hasMessageThat()
+            .isEqualTo("No compat-config-path tag found")
     }
 
     @Test
     fun parse_whenMultipleConfigPaths_throwsException() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <package-name>sdk1</package-name>
@@ -163,18 +168,18 @@ class SdkTableConfigParserTest {
                     <compat-config-path>config2.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        assertThrows<XmlPullParserException> {
-            tryParse(xml)
-        }.hasMessageThat().isEqualTo(
-            "Duplicate compat-config-path tag found"
-        )
+        assertThrows<XmlPullParserException> { tryParse(xml) }
+            .hasMessageThat()
+            .isEqualTo("Duplicate compat-config-path tag found")
     }
 
     @Test
     fun parse_whenDuplicatePackageName_throwsException() {
-        val xml = """
+        val xml =
+            """
             <runtime-enabled-sdk-table>
                 <runtime-enabled-sdk>
                     <package-name>sdk1</package-name>
@@ -185,13 +190,12 @@ class SdkTableConfigParserTest {
                     <compat-config-path>config2.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        assertThrows<XmlPullParserException> {
-            tryParse(xml)
-        }.hasMessageThat().isEqualTo(
-            "Duplicate entry for sdk1 found"
-        )
+        assertThrows<XmlPullParserException> { tryParse(xml) }
+            .hasMessageThat()
+            .isEqualTo("Duplicate entry for sdk1 found")
     }
 
     private fun tryParse(xml: String): Set<SdkTableEntry> {

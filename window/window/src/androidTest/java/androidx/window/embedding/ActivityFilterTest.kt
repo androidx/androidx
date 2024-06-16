@@ -27,16 +27,15 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-/**
- * Integration test for [ActivityFilter] to test construction from [ComponentName].
- */
+/** Integration test for [ActivityFilter] to test construction from [ComponentName]. */
 class ActivityFilterTest {
 
     private val intent = Intent()
-    private val activity = mock<Activity> {
-        on { intent } doReturn intent
-        on { componentName } doReturn COMPONENT_2
-    }
+    private val activity =
+        mock<Activity> {
+            on { intent } doReturn intent
+            on { componentName } doReturn COMPONENT_2
+        }
 
     @Before
     fun setUp() {
@@ -56,21 +55,26 @@ class ActivityFilterTest {
         val filter = ActivityFilter(COMPONENT_1, null /* intentAction */)
 
         assertWithMessage("#matchActivity must be true because intent.component matches")
-            .that(filter.matchesActivity(activity)).isTrue()
+            .that(filter.matchesActivity(activity))
+            .isTrue()
         assertWithMessage("#matchIntent must be true because intent.component matches")
-            .that(filter.matchesIntent(intent)).isTrue()
+            .that(filter.matchesIntent(intent))
+            .isTrue()
 
         intent.component = COMPONENT_2
 
         assertWithMessage("#matchActivity must be false because component mismatches")
-            .that(filter.matchesActivity(activity)).isFalse()
+            .that(filter.matchesActivity(activity))
+            .isFalse()
         assertWithMessage("#matchesIntent must be false because component mismatches")
-            .that(filter.matchesIntent(intent)).isFalse()
+            .that(filter.matchesIntent(intent))
+            .isFalse()
 
         doReturn(COMPONENT_1).whenever(activity).componentName
 
         assertWithMessage("#matchActivity must be true because activity.componentName matches")
-            .that(filter.matchesActivity(activity)).isTrue()
+            .that(filter.matchesActivity(activity))
+            .isTrue()
     }
 
     @Test
@@ -78,16 +82,20 @@ class ActivityFilterTest {
         val filter = ActivityFilter(COMPONENT_1, ACTION)
 
         assertWithMessage("#matchActivity must be false because intent has no action")
-            .that(filter.matchesActivity(activity)).isFalse()
+            .that(filter.matchesActivity(activity))
+            .isFalse()
         assertWithMessage("#matchesIntent must be false because intent has no action")
-            .that(filter.matchesIntent(intent)).isFalse()
+            .that(filter.matchesIntent(intent))
+            .isFalse()
 
         intent.action = ACTION
 
         assertWithMessage("#matchActivity must be true because intent matches")
-            .that(filter.matchesActivity(activity)).isTrue()
+            .that(filter.matchesActivity(activity))
+            .isTrue()
         assertWithMessage("#matchesIntent must be true because intent matches")
-            .that(filter.matchesIntent(intent)).isTrue()
+            .that(filter.matchesIntent(intent))
+            .isTrue()
     }
 
     @Test
@@ -95,29 +103,35 @@ class ActivityFilterTest {
         val filter = ActivityFilter(WILDCARD, ACTION)
 
         assertWithMessage("#matchActivity must be false because intent has no action")
-            .that(filter.matchesActivity(activity)).isFalse()
+            .that(filter.matchesActivity(activity))
+            .isFalse()
         assertWithMessage("#matchesIntent must be false because intent has no action")
-            .that(filter.matchesIntent(intent)).isFalse()
+            .that(filter.matchesIntent(intent))
+            .isFalse()
 
         intent.action = ACTION
 
         assertWithMessage("#matchActivity must be true because intent.action matches")
-            .that(filter.matchesActivity(activity)).isTrue()
+            .that(filter.matchesActivity(activity))
+            .isTrue()
         assertWithMessage("#matchesIntent must be true because intent.action matches")
-            .that(filter.matchesIntent(intent)).isTrue()
+            .that(filter.matchesIntent(intent))
+            .isTrue()
 
         intent.component = null
 
         assertWithMessage(
-            "#matchActivity must be true because intent.action matches regardless " +
-                "of null component"
-        )
-            .that(filter.matchesActivity(activity)).isTrue()
+                "#matchActivity must be true because intent.action matches regardless " +
+                    "of null component"
+            )
+            .that(filter.matchesActivity(activity))
+            .isTrue()
         assertWithMessage(
-            "#matchesIntent must be true because intent.action matches regardless " +
-                "of null component"
-        )
-            .that(filter.matchesIntent(intent)).isTrue()
+                "#matchesIntent must be true because intent.action matches regardless " +
+                    "of null component"
+            )
+            .that(filter.matchesIntent(intent))
+            .isTrue()
     }
 
     @Test
@@ -128,9 +142,11 @@ class ActivityFilterTest {
         intent.`package` = WILDCARD.packageName
 
         assertWithMessage("#matchActivity must be true because intent.package matches")
-            .that(filter.matchesActivity(activity)).isTrue()
+            .that(filter.matchesActivity(activity))
+            .isTrue()
         assertWithMessage("#matchesIntent must be true because intent.package matches")
-            .that(filter.matchesIntent(intent)).isTrue()
+            .that(filter.matchesIntent(intent))
+            .isTrue()
     }
 
     @Test
@@ -140,9 +156,11 @@ class ActivityFilterTest {
         intent.component = null
 
         assertWithMessage("#matchActivity must be true because rule is wildcard to match all")
-            .that(filter.matchesActivity(activity)).isTrue()
+            .that(filter.matchesActivity(activity))
+            .isTrue()
         assertWithMessage("#matchesIntent must be true because rule is wildcard to match all")
-            .that(filter.matchesIntent(intent)).isTrue()
+            .that(filter.matchesIntent(intent))
+            .isTrue()
     }
 
     companion object {

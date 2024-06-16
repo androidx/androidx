@@ -64,9 +64,7 @@ import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastRoundToInt
 
-/**
- * Node that implements Text for [AnnotatedString] or [onTextLayout] parameters.
- */
+/** Node that implements Text for [AnnotatedString] or [onTextLayout] parameters. */
 internal class TextAnnotatedStringNode(
     private var text: AnnotatedString,
     private var style: TextStyle,
@@ -89,16 +87,17 @@ internal class TextAnnotatedStringNode(
     private val layoutCache: MultiParagraphLayoutCache
         get() {
             if (_layoutCache == null) {
-                _layoutCache = MultiParagraphLayoutCache(
-                    text,
-                    style,
-                    fontFamilyResolver,
-                    overflow,
-                    softWrap,
-                    maxLines,
-                    minLines,
-                    placeholders
-                )
+                _layoutCache =
+                    MultiParagraphLayoutCache(
+                        text,
+                        style,
+                        fontFamilyResolver,
+                        overflow,
+                        softWrap,
+                        maxLines,
+                        minLines,
+                        placeholders
+                    )
             }
             return _layoutCache!!
         }
@@ -120,9 +119,7 @@ internal class TextAnnotatedStringNode(
         return layoutCache.also { it.density = density }
     }
 
-    /**
-     * Element has draw parameters to update
-     */
+    /** Element has draw parameters to update */
     fun updateDraw(color: ColorProducer?, style: TextStyle): Boolean {
         var changed = false
         if (color != this.overrideColor) {
@@ -133,9 +130,7 @@ internal class TextAnnotatedStringNode(
         return changed
     }
 
-    /**
-     * Element has text parameters to update
-     */
+    /** Element has text parameters to update */
     internal fun updateText(text: AnnotatedString): Boolean {
         val charDiff = this.text.text != text.text
         val spanDiff = this.text.spanStyles != text.spanStyles
@@ -152,9 +147,7 @@ internal class TextAnnotatedStringNode(
         return anyDiff
     }
 
-    /**
-     * Element has layout parameters to update
-     */
+    /** Element has layout parameters to update */
     fun updateLayoutRelatedArgs(
         style: TextStyle,
         placeholders: List<AnnotatedString.Range<Placeholder>>?,
@@ -202,9 +195,7 @@ internal class TextAnnotatedStringNode(
         return changed
     }
 
-    /**
-     * Element has callback parameters to update
-     */
+    /** Element has callback parameters to update */
     fun updateCallbacks(
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
@@ -235,9 +226,7 @@ internal class TextAnnotatedStringNode(
         return changed
     }
 
-    /**
-     * Do appropriate invalidate calls based on the results of update above.
-     */
+    /** Do appropriate invalidate calls based on the results of update above. */
     fun doInvalidations(
         drawChanged: Boolean,
         textChanged: Boolean,
@@ -306,16 +295,17 @@ internal class TextAnnotatedStringNode(
             ) ?: return false
         } else {
             val newTextSubstitution = TextSubstitutionValue(text, updatedText)
-            val substitutionLayoutCache = MultiParagraphLayoutCache(
-                updatedText,
-                style,
-                fontFamilyResolver,
-                overflow,
-                softWrap,
-                maxLines,
-                minLines,
-                placeholders
-            )
+            val substitutionLayoutCache =
+                MultiParagraphLayoutCache(
+                    updatedText,
+                    style,
+                    fontFamilyResolver,
+                    overflow,
+                    softWrap,
+                    maxLines,
+                    minLines,
+                    placeholders
+                )
             substitutionLayoutCache.density = layoutCache.density
             newTextSubstitution.layoutCache = substitutionLayoutCache
             textSubstitution = newTextSubstitution
@@ -323,9 +313,7 @@ internal class TextAnnotatedStringNode(
         return true
     }
 
-    /**
-     * Call whenever text substitution changes state
-     */
+    /** Call whenever text substitution changes state */
     private fun invalidateForTranslate() {
         invalidateSemantics()
         invalidateMeasurement()
@@ -341,24 +329,27 @@ internal class TextAnnotatedStringNode(
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
                 val inputLayout = layoutCache.layoutOrNull
-                val layout = inputLayout?.copy(
-                    layoutInput = TextLayoutInput(
-                        text = inputLayout.layoutInput.text,
-                        style = this@TextAnnotatedStringNode.style.merge(
-                            color = overrideColor?.invoke() ?: Color.Unspecified
-                        ),
-                        placeholders = inputLayout.layoutInput.placeholders,
-                        maxLines = inputLayout.layoutInput.maxLines,
-                        softWrap = inputLayout.layoutInput.softWrap,
-                        overflow = inputLayout.layoutInput.overflow,
-                        density = inputLayout.layoutInput.density,
-                        layoutDirection = inputLayout.layoutInput.layoutDirection,
-                        fontFamilyResolver = inputLayout.layoutInput.fontFamilyResolver,
-                        constraints = inputLayout.layoutInput.constraints
-                    )
-                )?.also {
-                    textLayoutResult.add(it)
-                }
+                val layout =
+                    inputLayout
+                        ?.copy(
+                            layoutInput =
+                                TextLayoutInput(
+                                    text = inputLayout.layoutInput.text,
+                                    style =
+                                        this@TextAnnotatedStringNode.style.merge(
+                                            color = overrideColor?.invoke() ?: Color.Unspecified
+                                        ),
+                                    placeholders = inputLayout.layoutInput.placeholders,
+                                    maxLines = inputLayout.layoutInput.maxLines,
+                                    softWrap = inputLayout.layoutInput.softWrap,
+                                    overflow = inputLayout.layoutInput.overflow,
+                                    density = inputLayout.layoutInput.density,
+                                    layoutDirection = inputLayout.layoutInput.layoutDirection,
+                                    fontFamilyResolver = inputLayout.layoutInput.fontFamilyResolver,
+                                    constraints = inputLayout.layoutInput.constraints
+                                )
+                        )
+                        ?.also { textLayoutResult.add(it) }
                 layout != null
             }
             semanticsTextLayoutResult = localSemanticsTextLayoutResult
@@ -411,9 +402,7 @@ internal class TextAnnotatedStringNode(
         return measureScope.measure(measurable, constraints)
     }
 
-    /**
-     * Text layout is performed here.
-     */
+    /** Text layout is performed here. */
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -431,8 +420,7 @@ internal class TextAnnotatedStringNode(
             onTextLayout?.invoke(textLayoutResult)
             selectionController?.updateTextLayout(textLayoutResult)
 
-            @Suppress("PrimitiveInCollection")
-            val cache = baselineCache ?: LinkedHashMap(2)
+            @Suppress("PrimitiveInCollection") val cache = baselineCache ?: LinkedHashMap(2)
             cache[FirstBaseline] = textLayoutResult.firstBaseline.fastRoundToInt()
             cache[LastBaseline] = textLayoutResult.lastBaseline.fastRoundToInt()
             baselineCache = cache
@@ -442,20 +430,17 @@ internal class TextAnnotatedStringNode(
         onPlaceholderLayout?.invoke(textLayoutResult.placeholderRects)
 
         // then allow children to measure _inside_ our final box, with the above placeholders
-        val placeable = measurable.measure(
-            fitPrioritizingWidth(
-                minWidth = textLayoutResult.size.width,
-                maxWidth = textLayoutResult.size.width,
-                minHeight = textLayoutResult.size.height,
-                maxHeight = textLayoutResult.size.height
+        val placeable =
+            measurable.measure(
+                fitPrioritizingWidth(
+                    minWidth = textLayoutResult.size.width,
+                    maxWidth = textLayoutResult.size.width,
+                    minHeight = textLayoutResult.size.height,
+                    maxHeight = textLayoutResult.size.height
+                )
             )
-        )
 
-        return layout(
-            textLayoutResult.size.width,
-            textLayoutResult.size.height,
-            baselineCache!!
-        ) {
+        return layout(textLayoutResult.size.width, textLayoutResult.size.height, baselineCache!!) {
             placeable.place(0, 0)
         }
     }
@@ -510,11 +495,10 @@ internal class TextAnnotatedStringNode(
         width: Int
     ): Int = getLayoutCache(this).intrinsicHeight(width, layoutDirection)
 
-    fun drawNonExtension(
-        contentDrawScope: ContentDrawScope
-    ) {
+    fun drawNonExtension(contentDrawScope: ContentDrawScope) {
         return contentDrawScope.draw()
     }
+
     override fun ContentDrawScope.draw() {
         if (!isAttached) {
             // no-up for !isAttached. The node will invalidate when attaching again.
@@ -551,13 +535,14 @@ internal class TextAnnotatedStringNode(
                     )
                 } else {
                     val overrideColorVal = overrideColor?.invoke() ?: Color.Unspecified
-                    val color = if (overrideColorVal.isSpecified) {
-                        overrideColorVal
-                    } else if (style.color.isSpecified) {
-                        style.color
-                    } else {
-                        Color.Black
-                    }
+                    val color =
+                        if (overrideColorVal.isSpecified) {
+                            overrideColorVal
+                        } else if (style.color.isSpecified) {
+                            style.color
+                        } else {
+                            Color.Black
+                        }
                     localParagraph.paint(
                         canvas = canvas,
                         color = color,
@@ -573,11 +558,12 @@ internal class TextAnnotatedStringNode(
             }
 
             // draw inline content and links indication
-            val hasLinks = if (textSubstitution?.isShowingSubstitution == true) {
-                false
-            } else {
-                text.hasLinks()
-            }
+            val hasLinks =
+                if (textSubstitution?.isShowingSubstitution == true) {
+                    false
+                } else {
+                    text.hasLinks()
+                }
             if (hasLinks || !placeholders.isNullOrEmpty()) {
                 drawContent()
             }

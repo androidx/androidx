@@ -20,22 +20,15 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information for an [androidx.room.Entity] field.
- */
+/** Data class that holds the schema information for an [androidx.room.Entity] field. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FieldBundle(
-    @SerialName("fieldPath")
-    val fieldPath: String,
-    @SerialName("columnName")
-    val columnName: String,
-    @SerialName("affinity")
-    val affinity: String,
-    @SerialName("notNull")
-    val isNonNull: Boolean = false,
-    @SerialName("defaultValue")
-    val defaultValue: String? = null,
+    @SerialName("fieldPath") val fieldPath: String,
+    @SerialName("columnName") val columnName: String,
+    @SerialName("affinity") val affinity: String,
+    @SerialName("notNull") val isNonNull: Boolean = false,
+    @SerialName("defaultValue") val defaultValue: String? = null,
 ) : SchemaEquality<FieldBundle> {
 
     override fun isSchemaEqual(other: FieldBundle): Boolean {

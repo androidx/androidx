@@ -22,53 +22,29 @@ import kotlin.test.Test
 class PrimaryKeyBundleTest {
     @Test
     fun schemaEquality_same_equal() {
-        val bundle = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("foo", "bar")
-        )
-        val other = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("foo", "bar")
-        )
+        val bundle = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("foo", "bar"))
+        val other = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("foo", "bar"))
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffAutoGen_notEqual() {
-        val bundle = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("foo", "bar")
-        )
-        val other = PrimaryKeyBundle(
-            isAutoGenerate = false,
-            columnNames = listOf("foo", "bar")
-        )
+        val bundle = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("foo", "bar"))
+        val other = PrimaryKeyBundle(isAutoGenerate = false, columnNames = listOf("foo", "bar"))
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffColumns_notEqual() {
-        val bundle = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("foo", "baz")
-        )
-        val other = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("foo", "bar")
-        )
+        val bundle = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("foo", "baz"))
+        val other = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("foo", "bar"))
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffColumnOrder_notEqual() {
-        val bundle = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("foo", "bar")
-        )
-        val other = PrimaryKeyBundle(
-            isAutoGenerate = true,
-            columnNames = listOf("bar", "foo")
-        )
+        val bundle = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("foo", "bar"))
+        val other = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("bar", "foo"))
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 }

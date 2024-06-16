@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,8 +57,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MenuTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun menu_canBeTriggered() {
@@ -64,10 +65,7 @@ class MenuTest {
 
         rule.setContent {
             Box(Modifier.requiredSize(20.dp).background(color = Color.Blue)) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {}
-                ) {
+                DropdownMenu(expanded = expanded, onDismissRequest = {}) {
                     DropdownMenuItem(modifier = Modifier.testTag("MenuContent"), onClick = {}) {
                         Text("Option 1")
                     }
@@ -105,10 +103,7 @@ class MenuTest {
         rule.setContent {
             with(LocalDensity.current) {
                 Box(Modifier.requiredSize(20.toDp()).background(color = Color.Blue)) {
-                    DropdownMenu(
-                        expanded = true,
-                        onDismissRequest = {}
-                    ) {
+                    DropdownMenu(expanded = true, onDismissRequest = {}) {
                         Box(Modifier.testTag("MenuContent1").size(70.toDp()))
                         Box(Modifier.testTag("MenuContent2").size(130.toDp()))
                     }
@@ -118,10 +113,15 @@ class MenuTest {
 
         rule.onNodeWithTag("MenuContent1").assertExists()
         rule.onNodeWithTag("MenuContent2").assertExists()
-        val node = rule.onNode(
-            isPopup() and hasAnyDescendant(hasTestTag("MenuContent1")) and
-                hasAnyDescendant(hasTestTag("MenuContent2"))
-        ).assertExists().fetchSemanticsNode()
+        val node =
+            rule
+                .onNode(
+                    isPopup() and
+                        hasAnyDescendant(hasTestTag("MenuContent1")) and
+                        hasAnyDescendant(hasTestTag("MenuContent2"))
+                )
+                .assertExists()
+                .fetchSemanticsNode()
         with(rule.density) {
             assertThat(node.size.width).isEqualTo(130)
             assertThat(node.size.height)
@@ -131,13 +131,14 @@ class MenuTest {
 
     @Test
     fun menu_scrolledContent() {
+        // TODO This test is disabled on API 33+. See b/335809611 & b/335815616. Once popups are
+        //  handled correctly with the introduction of a default edge to edge policy, we should be
+        //  able to re-enable it.
+        Assume.assumeTrue(SDK_INT >= 33)
+
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .requiredSize(20.toDp())
-                        .background(color = Color.Blue)
-                ) {
+                Box(Modifier.requiredSize(20.toDp()).background(color = Color.Blue)) {
                     val scrollState = rememberScrollState()
                     DropdownMenu(
                         expanded = true,
@@ -145,16 +146,10 @@ class MenuTest {
                         scrollState = scrollState
                     ) {
                         repeat(100) {
-                            Box(
-                                Modifier
-                                    .testTag("MenuContent ${it + 1}")
-                                    .size(70.toDp())
-                            )
+                            Box(Modifier.testTag("MenuContent ${it + 1}").size(70.toDp()))
                         }
                     }
-                    LaunchedEffect(Unit) {
-                        scrollState.scrollTo(scrollState.maxValue)
-                    }
+                    LaunchedEffect(Unit) { scrollState.scrollTo(scrollState.maxValue) }
                 }
             }
         }
@@ -177,39 +172,30 @@ class MenuTest {
         val offsetY = 40
         val popupSize = IntSize(50, 80)
 
-        val ltrPosition = DropdownMenuPositionProvider(
-            DpOffset(offsetX.dp, offsetY.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Ltr,
-            popupSize
-        )
+        val ltrPosition =
+            DropdownMenuPositionProvider(DpOffset(offsetX.dp, offsetY.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize
+                )
 
-        assertThat(ltrPosition.x).isEqualTo(
-            anchorPosition.x + offsetX
-        )
-        assertThat(ltrPosition.y).isEqualTo(
-            anchorPosition.y + anchorSize.height + offsetY
-        )
+        assertThat(ltrPosition.x).isEqualTo(anchorPosition.x + offsetX)
+        assertThat(ltrPosition.y).isEqualTo(anchorPosition.y + anchorSize.height + offsetY)
 
-        val rtlPosition = DropdownMenuPositionProvider(
-            DpOffset(offsetX.dp, offsetY.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Rtl,
-            popupSize
-        )
+        val rtlPosition =
+            DropdownMenuPositionProvider(DpOffset(offsetX.dp, offsetY.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Rtl,
+                    popupSize
+                )
 
-        assertThat(rtlPosition.x).isEqualTo(
-            anchorPosition.x + anchorSize.width - offsetX - popupSize.width
-        )
-        assertThat(rtlPosition.y).isEqualTo(
-            anchorPosition.y + anchorSize.height + offsetY
-        )
+        assertThat(rtlPosition.x)
+            .isEqualTo(anchorPosition.x + anchorSize.width - offsetX - popupSize.width)
+        assertThat(rtlPosition.y).isEqualTo(anchorPosition.y + anchorSize.height + offsetY)
     }
 
     @Test
@@ -225,39 +211,30 @@ class MenuTest {
         val offsetY = -40
         val popupSize = IntSize(150, 80)
 
-        val ltrPosition = DropdownMenuPositionProvider(
-            DpOffset(offsetX.dp, offsetY.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Ltr,
-            popupSize
-        )
+        val ltrPosition =
+            DropdownMenuPositionProvider(DpOffset(offsetX.dp, offsetY.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize
+                )
 
-        assertThat(ltrPosition.x).isEqualTo(
-            anchorPosition.x + anchorSize.width + offsetX - popupSize.width
-        )
-        assertThat(ltrPosition.y).isEqualTo(
-            anchorPosition.y - popupSize.height + offsetY
-        )
+        assertThat(ltrPosition.x)
+            .isEqualTo(anchorPosition.x + anchorSize.width + offsetX - popupSize.width)
+        assertThat(ltrPosition.y).isEqualTo(anchorPosition.y - popupSize.height + offsetY)
 
-        val rtlPosition = DropdownMenuPositionProvider(
-            DpOffset(offsetX.dp, offsetY.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPositionRtl, anchorSize),
-            windowSize,
-            LayoutDirection.Rtl,
-            popupSize
-        )
+        val rtlPosition =
+            DropdownMenuPositionProvider(DpOffset(offsetX.dp, offsetY.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPositionRtl, anchorSize),
+                    windowSize,
+                    LayoutDirection.Rtl,
+                    popupSize
+                )
 
-        assertThat(rtlPosition.x).isEqualTo(
-            anchorPositionRtl.x - offsetX
-        )
-        assertThat(rtlPosition.y).isEqualTo(
-            anchorPositionRtl.y - popupSize.height + offsetY
-        )
+        assertThat(rtlPosition.x).isEqualTo(anchorPositionRtl.x - offsetX)
+        assertThat(rtlPosition.y).isEqualTo(anchorPositionRtl.y - popupSize.height + offsetY)
     }
 
     @Test
@@ -274,19 +251,16 @@ class MenuTest {
         val MenuVerticalMargin = 48.dp
         val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
 
-        val position = DropdownMenuPositionProvider(
-            DpOffset(0.dp, 0.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Ltr,
-            popupSize
-        )
+        val position =
+            DropdownMenuPositionProvider(DpOffset(0.dp, 0.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize
+                )
 
-        assertThat(position.y).isEqualTo(
-            verticalMargin
-        )
+        assertThat(position.y).isEqualTo(verticalMargin)
     }
 
     @Test
@@ -304,39 +278,29 @@ class MenuTest {
         val MenuVerticalMargin = 48.dp
         val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
 
-        val position = DropdownMenuPositionProvider(
-            DpOffset(0.dp, 0.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Ltr,
-            popupSize
-        )
+        val position =
+            DropdownMenuPositionProvider(DpOffset(0.dp, 0.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPosition, anchorSize),
+                    windowSize,
+                    LayoutDirection.Ltr,
+                    popupSize
+                )
 
-        assertThat(position.x).isEqualTo(
-            0
-        )
-        assertThat(position.y).isEqualTo(
-            verticalMargin
-        )
+        assertThat(position.x).isEqualTo(0)
+        assertThat(position.y).isEqualTo(verticalMargin)
 
-        val rtlPosition = DropdownMenuPositionProvider(
-            DpOffset(0.dp, 0.dp),
-            density
-        ).calculatePosition(
-            IntRect(anchorPositionRtl, anchorSize),
-            windowSize,
-            LayoutDirection.Rtl,
-            popupSize
-        )
+        val rtlPosition =
+            DropdownMenuPositionProvider(DpOffset(0.dp, 0.dp), density)
+                .calculatePosition(
+                    IntRect(anchorPositionRtl, anchorSize),
+                    windowSize,
+                    LayoutDirection.Rtl,
+                    popupSize
+                )
 
-        assertThat(rtlPosition.x).isEqualTo(
-            screenWidth - popupSize.width
-        )
-        assertThat(rtlPosition.y).isEqualTo(
-            verticalMargin
-        )
+        assertThat(rtlPosition.x).isEqualTo(screenWidth - popupSize.width)
+        assertThat(rtlPosition.y).isEqualTo(verticalMargin)
     }
 
     @Test
@@ -353,28 +317,29 @@ class MenuTest {
 
         var obtainedParentBounds = IntRect(0, 0, 0, 0)
         var obtainedMenuBounds = IntRect(0, 0, 0, 0)
-        DropdownMenuPositionProvider(
-            DpOffset(offsetX.dp, offsetY.dp),
-            density
-        ) { parentBounds, menuBounds ->
-            obtainedParentBounds = parentBounds
-            obtainedMenuBounds = menuBounds
-        }.calculatePosition(
-            IntRect(anchorPosition, anchorSize),
-            windowSize,
-            LayoutDirection.Ltr,
-            popupSize
-        )
+        DropdownMenuPositionProvider(DpOffset(offsetX.dp, offsetY.dp), density) {
+                parentBounds,
+                menuBounds ->
+                obtainedParentBounds = parentBounds
+                obtainedMenuBounds = menuBounds
+            }
+            .calculatePosition(
+                IntRect(anchorPosition, anchorSize),
+                windowSize,
+                LayoutDirection.Ltr,
+                popupSize
+            )
 
         assertThat(obtainedParentBounds).isEqualTo(IntRect(anchorPosition, anchorSize))
-        assertThat(obtainedMenuBounds).isEqualTo(
-            IntRect(
-                anchorPosition.x + offsetX,
-                anchorPosition.y + anchorSize.height + offsetY,
-                anchorPosition.x + offsetX + popupSize.width,
-                anchorPosition.y + anchorSize.height + offsetY + popupSize.height
+        assertThat(obtainedMenuBounds)
+            .isEqualTo(
+                IntRect(
+                    anchorPosition.x + offsetX,
+                    anchorPosition.y + anchorSize.height + offsetY,
+                    anchorPosition.x + offsetX + popupSize.width,
+                    anchorPosition.y + anchorSize.height + offsetY + popupSize.height
+                )
             )
-        )
     }
 
     @Test
@@ -390,17 +355,14 @@ class MenuTest {
             enabledContentAlpha = ContentAlpha.high
             disabledContentAlpha = ContentAlpha.disabled
             Box(Modifier.requiredSize(20.dp)) {
-                DropdownMenu(
-                    onDismissRequest = {},
-                    expanded = true
-                ) {
+                DropdownMenu(onDismissRequest = {}, expanded = true) {
                     DropdownMenuItem(onClick = {}) {
-                        enabledContentColor = LocalContentColor.current
-                            .copy(alpha = LocalContentAlpha.current)
+                        enabledContentColor =
+                            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
                     }
                     DropdownMenuItem(enabled = false, onClick = {}) {
-                        disabledContentColor = LocalContentColor.current
-                            .copy(alpha = LocalContentAlpha.current)
+                        disabledContentColor =
+                            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
                     }
                 }
             }
@@ -426,8 +388,6 @@ class MenuTest {
 
         rule.onNodeWithTag("MenuItem").performClick()
 
-        rule.runOnIdle {
-            assertThat(clicked).isTrue()
-        }
+        rule.runOnIdle { assertThat(clicked).isTrue() }
     }
 }

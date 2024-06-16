@@ -19,8 +19,9 @@ package androidx.glance.appwidget
 import android.annotation.SuppressLint
 import android.widget.RemoteViews
 
-/** Representation of a fixed list of items to be displayed in a RemoteViews collection.  */
-internal class RemoteCollectionItems private constructor(
+/** Representation of a fixed list of items to be displayed in a RemoteViews collection. */
+internal class RemoteCollectionItems
+private constructor(
     private val ids: LongArray,
     private val views: Array<RemoteViews>,
     private val hasStableIds: Boolean,
@@ -39,8 +40,8 @@ internal class RemoteCollectionItems private constructor(
     }
 
     /**
-     * Returns the id for [position]. See [hasStableIds] for whether this id should be
-     * considered meaningful across collection updates.
+     * Returns the id for [position]. See [hasStableIds] for whether this id should be considered
+     * meaningful across collection updates.
      *
      * @return Id for the position.
      */
@@ -89,7 +90,7 @@ internal class RemoteCollectionItems private constructor(
          * Adds a [RemoteViews] to the collection.
          *
          * @param id Id to associate with the row. Use [.setHasStableIds] to indicate that ids are
-         * stable across changes to the collection.
+         *   stable across changes to the collection.
          * @param view RemoteViews to display for the row.
          */
         // Covered by getItemId, getItemView, getItemCount.
@@ -111,13 +112,13 @@ internal class RemoteCollectionItems private constructor(
         }
 
         /**
-         * Sets the view type count for the collection when used in an adapter. This can be set
-         * to the maximum number of different layout ids that will be used by RemoteViews in
-         * this collection.
+         * Sets the view type count for the collection when used in an adapter. This can be set to
+         * the maximum number of different layout ids that will be used by RemoteViews in this
+         * collection.
          *
-         * If this value is not set, then a value will be inferred from the provided items. As
-         * a result, the adapter may need to be recreated when the list is updated with
-         * previously unseen RemoteViews layouts for new items.
+         * If this value is not set, then a value will be inferred from the provided items. As a
+         * result, the adapter may need to be recreated when the list is updated with previously
+         * unseen RemoteViews layouts for new items.
          *
          * @see android.widget.Adapter.getViewTypeCount
          */
@@ -126,7 +127,7 @@ internal class RemoteCollectionItems private constructor(
             return this
         }
 
-        /** Creates the [RemoteCollectionItems] defined by this builder.  */
+        /** Creates the [RemoteCollectionItems] defined by this builder. */
         fun build(): RemoteCollectionItems {
             if (viewTypeCount < 1) {
                 // If a view type count wasn't specified, set it to be the number of distinct
@@ -143,11 +144,12 @@ internal class RemoteCollectionItems private constructor(
     }
 
     companion object {
-        val Empty = RemoteCollectionItems(
-            ids = longArrayOf(),
-            views = emptyArray(),
-            hasStableIds = false,
-            _viewTypeCount = 1
-        )
+        val Empty =
+            RemoteCollectionItems(
+                ids = longArrayOf(),
+                views = emptyArray(),
+                hasStableIds = false,
+                _viewTypeCount = 1
+            )
     }
 }

@@ -21,10 +21,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.widget.FrameLayout
 
-public class TestView(
-    context: Context,
-    attrs: AttributeSet
-) : FrameLayout(context, attrs) {
+public class TestView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
 
     public var doOnDraw: (() -> Unit) = {}
 

@@ -91,17 +91,11 @@ class SnapshotStateObserverTestsCommon {
         try {
             stateObserver.start()
 
-            stateObserver.observeReads(strStage1, onChangeStage1) {
-                stage1Model.value
-            }
+            stateObserver.observeReads(strStage1, onChangeStage1) { stage1Model.value }
 
-            stateObserver.observeReads(strStage2, onChangeStage2) {
-                stage2Model.value
-            }
+            stateObserver.observeReads(strStage2, onChangeStage2) { stage2Model.value }
 
-            stateObserver.observeReads(strStage3, onChangeStage3) {
-                stage3Model.value
-            }
+            stateObserver.observeReads(strStage3, onChangeStage3) { stage3Model.value }
 
             Snapshot.notifyObjectsInitialized()
 
@@ -228,9 +222,7 @@ class SnapshotStateObserverTestsCommon {
 
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { changes++ }) {
-                stateObserver.withNoObservations {
-                    state.value
-                }
+                stateObserver.withNoObservations { state.value }
             }
         }
 
@@ -244,9 +236,7 @@ class SnapshotStateObserverTestsCommon {
 
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { changes++ }) {
-                Snapshot.withoutReadObservation {
-                    state.value
-                }
+                Snapshot.withoutReadObservation { state.value }
             }
         }
 
@@ -260,9 +250,7 @@ class SnapshotStateObserverTestsCommon {
 
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { changes++ }) {
-                Snapshot.withoutReadObservation {
-                    state.value
-                }
+                Snapshot.withoutReadObservation { state.value }
                 state.value
             }
         }
@@ -279,9 +267,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { _ -> changes++ }) {
                 stateObserver.withNoObservations {
-                    stateObserver.withNoObservations {
-                        state.value
-                    }
+                    stateObserver.withNoObservations { state.value }
                     state.value
                 }
             }
@@ -298,9 +284,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { changes++ }) {
                 Snapshot.withoutReadObservation {
-                    Snapshot.withoutReadObservation {
-                        state.value
-                    }
+                    Snapshot.withoutReadObservation { state.value }
                     state.value
                 }
             }
@@ -315,9 +299,7 @@ class SnapshotStateObserverTestsCommon {
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
-            stateObserver.observeReads(data, { _ -> changes++ }) {
-                state.value
-            }
+            stateObserver.observeReads(data, { _ -> changes++ }) { state.value }
         }
 
         assertEquals(1, changes)
@@ -333,9 +315,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { _ -> changes1++ }) {
                 stateObserver.withNoObservations {
-                    stateObserver.observeReads(data, { _ -> changes2++ }) {
-                        state.value
-                    }
+                    stateObserver.observeReads(data, { _ -> changes2++ }) { state.value }
                 }
             }
         }
@@ -352,9 +332,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { changes1++ }) {
                 Snapshot.withoutReadObservation {
-                    stateObserver.observeReads(data, { changes2++ }) {
-                        state.value
-                    }
+                    stateObserver.observeReads(data, { changes2++ }) { state.value }
                 }
             }
         }
@@ -390,9 +368,7 @@ class SnapshotStateObserverTestsCommon {
                 stateObserver.observeReads(ValueWrapper("scope2"), { changes2++ }) {
                     Snapshot.withoutReadObservation {
                         val newSnapshot = Snapshot.takeMutableSnapshot()
-                        newSnapshot.enter {
-                            state.value
-                        }
+                        newSnapshot.enter { state.value }
                         newSnapshot.apply().check()
                         newSnapshot.dispose()
                     }
@@ -413,9 +389,7 @@ class SnapshotStateObserverTestsCommon {
                 stateObserver.observeReads(ValueWrapper("scope2"), { changes2++ }) {
                     Snapshot.withoutReadObservation {
                         val newSnapshot = Snapshot.takeSnapshot()
-                        newSnapshot.enter {
-                            state.value
-                        }
+                        newSnapshot.enter { state.value }
                         newSnapshot.dispose()
                     }
                 }
@@ -432,11 +406,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 val newSnapshot = Snapshot.takeSnapshot()
-                newSnapshot.enter {
-                    Snapshot.withoutReadObservation {
-                        state.value
-                    }
-                }
+                newSnapshot.enter { Snapshot.withoutReadObservation { state.value } }
                 newSnapshot.dispose()
             }
         }
@@ -594,9 +564,7 @@ class SnapshotStateObserverTestsCommon {
 
             val scope2 = ValueWrapper("other scope")
             // read the same state in other scope
-            stateObserver.observeReads(scope2, onChange) {
-                derivedState.value
-            }
+            stateObserver.observeReads(scope2, onChange) { derivedState.value }
 
             // advance snapshot to invalidate reads
             Snapshot.notifyObjectsInitialized()
@@ -758,19 +726,13 @@ class SnapshotStateObserverTestsCommon {
         }
 
         runSimpleTest { stateObserver, layoutState ->
-            val derivedState = derivedStateOf {
-                layoutState.value
-            }
+            val derivedState = derivedStateOf { layoutState.value }
 
             // record observation for a draw scope
-            stateObserver.observeReads("draw", changeBlock) {
-                derivedState.value
-            }
+            stateObserver.observeReads("draw", changeBlock) { derivedState.value }
 
             // record observation for a different draw scope
-            stateObserver.observeReads("draw_1", changeBlock) {
-                derivedState.value
-            }
+            stateObserver.observeReads("draw_1", changeBlock) { derivedState.value }
 
             Snapshot.sendApplyNotifications()
 

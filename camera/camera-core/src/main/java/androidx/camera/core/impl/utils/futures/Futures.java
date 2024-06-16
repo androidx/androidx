@@ -20,7 +20,6 @@ import static androidx.core.util.Preconditions.checkNotNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -43,7 +42,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * Utility class for generating specific implementations of {@link ListenableFuture}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Futures {
 
     /**
@@ -479,6 +477,24 @@ public final class Futures {
                         () -> timeoutFuture.cancel(true), CameraXExecutors.directExecutor());
             }
             return "TimeoutFuture[" + input + "]";
+        });
+    }
+
+    /**
+     * Creates a {@link ListenableFuture} signaling the completion of the {@code input} future,
+     * regardless of whether it completes successfully or with an exception. This is useful for
+     * monitoring when the {@code input} future is done without needing to handle its result.
+     *
+     * @param input The input ListenableFuture to monitor.
+     * @param <V> The type of the result within the input future (not used in the returned future).
+     * @return A ListenableFuture that completes when the {@code input} future completes.
+     */
+    @NonNull
+    public static <V> ListenableFuture<Void> transformAsyncOnCompletion(
+            @NonNull ListenableFuture<V> input) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            input.addListener(() -> completer.set(null), CameraXExecutors.directExecutor());
+            return "transformVoidFuture [" + input + "]";
         });
     }
 

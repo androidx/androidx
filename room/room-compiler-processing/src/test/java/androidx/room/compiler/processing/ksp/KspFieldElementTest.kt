@@ -42,9 +42,10 @@ class KspFieldElementTest {
         runModifierTest(
             ModifierTestInput(
                 qName = "Foo",
-                source = Source.kotlin(
-                    "Foo.kt",
-                    """
+                source =
+                    Source.kotlin(
+                        "Foo.kt",
+                        """
                     open class Foo {
                         val intField: Int = 0
                         open val openField: Int = 0
@@ -71,25 +72,27 @@ class KspFieldElementTest {
                         // @JvmField
                         // private val privateJvmField: Int = 0
                     }
-                    """.trimIndent()
-                ),
-                expected = mapOf(
-                    "intField" to listOf(PRIVATE, FINAL),
-                    "openField" to listOf(PRIVATE, FINAL),
-                    "intVar" to listOf(PRIVATE),
-                    "openVar" to listOf(PRIVATE),
-                    "lateinitField" to listOf(PUBLIC),
-                    "privateLateinitField" to listOf(PRIVATE),
-                    "protectedLateinitField" to listOf(PROTECTED),
-                    "internalLateinitField" to listOf(PUBLIC),
-                    "lateinitFieldWithPrivateSetter" to listOf(PRIVATE),
-                    "lateinitFieldWithProtectedSetter" to listOf(PROTECTED),
-                    "lateinitFieldWithInternalSetter" to listOf(PUBLIC),
-                    "protectedLateinitFieldWithPrivateSetter" to listOf(PRIVATE),
-                    "jvmField" to listOf(PUBLIC, FINAL),
-                    "protectedField" to listOf(PRIVATE, FINAL),
-                    "protectedJvmField" to listOf(PROTECTED, FINAL)
-                )
+                    """
+                            .trimIndent()
+                    ),
+                expected =
+                    mapOf(
+                        "intField" to listOf(PRIVATE, FINAL),
+                        "openField" to listOf(PRIVATE, FINAL),
+                        "intVar" to listOf(PRIVATE),
+                        "openVar" to listOf(PRIVATE),
+                        "lateinitField" to listOf(PUBLIC),
+                        "privateLateinitField" to listOf(PRIVATE),
+                        "protectedLateinitField" to listOf(PROTECTED),
+                        "internalLateinitField" to listOf(PUBLIC),
+                        "lateinitFieldWithPrivateSetter" to listOf(PRIVATE),
+                        "lateinitFieldWithProtectedSetter" to listOf(PROTECTED),
+                        "lateinitFieldWithInternalSetter" to listOf(PUBLIC),
+                        "protectedLateinitFieldWithPrivateSetter" to listOf(PRIVATE),
+                        "jvmField" to listOf(PUBLIC, FINAL),
+                        "protectedField" to listOf(PRIVATE, FINAL),
+                        "protectedJvmField" to listOf(PROTECTED, FINAL)
+                    )
             )
         )
     }
@@ -99,9 +102,10 @@ class KspFieldElementTest {
         runModifierTest(
             ModifierTestInput(
                 qName = "JavaClassWithFields",
-                source = Source.java(
-                    "JavaClassWithFields",
-                    """
+                source =
+                    Source.java(
+                        "JavaClassWithFields",
+                        """
                     public class JavaClassWithFields {
                         public Long javaPublic;
                         protected Long javaProtected;
@@ -110,16 +114,18 @@ class KspFieldElementTest {
                         public final long javaFinalPublic = 0;
                         public static final long javaStaticFinalPublic = 0;
                     }
-                    """.trimIndent()
-                ),
-                expected = mapOf(
-                    "javaPublic" to listOf(PUBLIC),
-                    "javaProtected" to listOf(PROTECTED),
-                    "javaPackage" to emptyList(),
-                    "javaPrivate" to listOf(PRIVATE),
-                    "javaFinalPublic" to listOf(PUBLIC, FINAL),
-                    "javaStaticFinalPublic" to listOf(PUBLIC, FINAL)
-                )
+                    """
+                            .trimIndent()
+                    ),
+                expected =
+                    mapOf(
+                        "javaPublic" to listOf(PUBLIC),
+                        "javaProtected" to listOf(PROTECTED),
+                        "javaPackage" to emptyList(),
+                        "javaPrivate" to listOf(PRIVATE),
+                        "javaFinalPublic" to listOf(PUBLIC, FINAL),
+                        "javaStaticFinalPublic" to listOf(PUBLIC, FINAL)
+                    )
             )
         )
     }
@@ -129,9 +135,10 @@ class KspFieldElementTest {
         runModifierTest(
             ModifierTestInput(
                 qName = "JavaClassWithAccessors",
-                source = Source.java(
-                    "JavaClassWithAccessors",
-                    """
+                source =
+                    Source.java(
+                        "JavaClassWithAccessors",
+                        """
                     public class JavaClassWithAccessors {
                         public int javaPublic;
                         protected int javaProtected;
@@ -159,30 +166,34 @@ class KspFieldElementTest {
                         public void setJavaPrivate(int value) {
                         }
                     }
-                    """.trimIndent()
-                ),
-                expected = mapOf(
-                    "javaPublic" to listOf(PUBLIC),
-                    "javaProtected" to listOf(PROTECTED),
-                    "javaPackage" to emptyList(),
-                    "javaPrivate" to listOf(PRIVATE)
-                )
+                    """
+                            .trimIndent()
+                    ),
+                expected =
+                    mapOf(
+                        "javaPublic" to listOf(PUBLIC),
+                        "javaProtected" to listOf(PROTECTED),
+                        "javaPackage" to emptyList(),
+                        "javaPrivate" to listOf(PRIVATE)
+                    )
             )
         )
     }
 
     @Test
     fun asMemberOf() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             open class Base<T, R> {
                 val t : T = TODO()
                 val listOfR : List<R> = TODO()
             }
             class Sub1 : Base<Int, String>()
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val sub = invocation.processingEnv.requireTypeElement("Sub1")
             val base = invocation.processingEnv.requireTypeElement("Base")
@@ -191,10 +202,7 @@ class KspFieldElementTest {
             assertThat(t.type.typeName).isEqualTo(TypeVariableName.get("T"))
             assertThat(listOfR.type.typeName)
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        List::class.className(),
-                        TypeVariableName.get("R")
-                    )
+                    ParameterizedTypeName.get(List::class.className(), TypeVariableName.get("R"))
                 )
 
             assertThat(t.enclosingElement).isEqualTo(base)
@@ -202,10 +210,7 @@ class KspFieldElementTest {
             assertThat(t.asMemberOf(sub.type).typeName).isEqualTo(TypeName.INT.box())
             assertThat(listOfR.asMemberOf(sub.type).typeName)
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        List::class.className(),
-                        String::class.typeName()
-                    )
+                    ParameterizedTypeName.get(List::class.className(), String::class.typeName())
                 )
         }
     }
@@ -213,16 +218,9 @@ class KspFieldElementTest {
     private fun runModifierTest(vararg inputs: ModifierTestInput) {
         // we'll run the test twice. once it is in source and once it is coming from a dependency.
         val sources = inputs.map(ModifierTestInput::source)
-        runProcessorTest(
-            sources = sources
-        ) { invocation ->
-            assertModifiers(invocation, inputs)
-        }
+        runProcessorTest(sources = sources) { invocation -> assertModifiers(invocation, inputs) }
         val classpath = compileFiles(sources)
-        runProcessorTest(
-            sources = emptyList(),
-            classpath = classpath
-        ) { invocation ->
+        runProcessorTest(sources = emptyList(), classpath = classpath) { invocation ->
             assertModifiers(invocation, inputs)
         }
     }
@@ -234,9 +232,7 @@ class KspFieldElementTest {
                 val field = element.getField(name)
                 assertWithMessage("${input.qName}:$name")
                     .that(field.modifiers)
-                    .containsExactlyElementsIn(
-                        modifiers
-                    )
+                    .containsExactlyElementsIn(modifiers)
                 assertThat(field.enclosingElement).isEqualTo(element)
             }
         }
@@ -254,12 +250,14 @@ class KspFieldElementTest {
     }
 
     private val XFieldElement.modifiers
-        get() = sequence {
-            if (isPrivate()) yield(PRIVATE)
-            if (isProtected()) yield(PROTECTED)
-            if (isPublic()) yield(PUBLIC)
-            if (isFinal()) yield(FINAL)
-        }.toList()
+        get() =
+            sequence {
+                    if (isPrivate()) yield(PRIVATE)
+                    if (isProtected()) yield(PROTECTED)
+                    if (isPublic()) yield(PUBLIC)
+                    if (isFinal()) yield(FINAL)
+                }
+                .toList()
 
     private data class ModifierTestInput(
         val qName: String,

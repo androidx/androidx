@@ -42,38 +42,24 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 
-/**
- * The directions in which a [SwipeToDismiss] can be dismissed.
- */
+/** The directions in which a [SwipeToDismiss] can be dismissed. */
 enum class DismissDirection {
-    /**
-     * Can be dismissed by swiping in the reading direction.
-     */
+    /** Can be dismissed by swiping in the reading direction. */
     StartToEnd,
 
-    /**
-     * Can be dismissed by swiping in the reverse of the reading direction.
-     */
+    /** Can be dismissed by swiping in the reverse of the reading direction. */
     EndToStart
 }
 
-/**
- * Possible values of [DismissState].
- */
+/** Possible values of [DismissState]. */
 enum class DismissValue {
-    /**
-     * Indicates the component has not been dismissed yet.
-     */
+    /** Indicates the component has not been dismissed yet. */
     Default,
 
-    /**
-     * Indicates the component has been dismissed in the reading direction.
-     */
+    /** Indicates the component has been dismissed in the reading direction. */
     DismissedToEnd,
 
-    /**
-     * Indicates the component has been dismissed in the reverse of the reading direction.
-     */
+    /** Indicates the component has been dismissed in the reverse of the reading direction. */
     DismissedToStart
 }
 
@@ -91,8 +77,8 @@ class DismissState(
     /**
      * The direction (if any) in which the composable has been or is being dismissed.
      *
-     * If the composable is settled at the default state, then this will be null. Use this to
-     * change the background of the [SwipeToDismiss] if you want different actions on each side.
+     * If the composable is settled at the default state, then this will be null. Use this to change
+     * the background of the [SwipeToDismiss] if you want different actions on each side.
      */
     val dismissDirection: DismissDirection?
         get() = if (offset.value == 0f) null else if (offset.value > 0f) StartToEnd else EndToStart
@@ -108,8 +94,8 @@ class DismissState(
 
     /**
      * Reset the component to the default position with animation and suspend until it if fully
-     * reset or animation has been cancelled. This method will throw [CancellationException] if
-     * the animation is interrupted
+     * reset or animation has been cancelled. This method will throw [CancellationException] if the
+     * animation is interrupted
      *
      * @return the reason the reset animation ended
      */
@@ -127,15 +113,12 @@ class DismissState(
     }
 
     companion object {
-        /**
-         * The default [Saver] implementation for [DismissState].
-         */
-        fun Saver(
-            confirmStateChange: (DismissValue) -> Boolean
-        ) = Saver<DismissState, DismissValue>(
-            save = { it.currentValue },
-            restore = { DismissState(it, confirmStateChange) }
-        )
+        /** The default [Saver] implementation for [DismissState]. */
+        fun Saver(confirmStateChange: (DismissValue) -> Boolean) =
+            Saver<DismissState, DismissValue>(
+                save = { it.currentValue },
+                restore = { DismissState(it, confirmStateChange) }
+            )
     }
 }
 
@@ -165,8 +148,8 @@ fun rememberDismissState(
  * @param modifier Optional [Modifier] for this component.
  * @param directions The set of directions in which the component can be dismissed.
  * @param dismissThresholds The thresholds the item needs to be swiped in order to be dismissed.
- * @param background A composable that is stacked behind the content and is exposed when the
- * content is swiped. You can/should use the [state] to have different backgrounds on each side.
+ * @param background A composable that is stacked behind the content and is exposed when the content
+ *   is swiped. You can/should use the [state] to have different backgrounds on each side.
  * @param dismissContent The content that can be dismissed.
  */
 @Composable
@@ -181,46 +164,45 @@ fun SwipeToDismiss(
     },
     background: @Composable RowScope.() -> Unit,
     dismissContent: @Composable RowScope.() -> Unit
-) = BoxWithConstraints(modifier) {
-    val width = constraints.maxWidth.toFloat()
-    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+) =
+    BoxWithConstraints(modifier) {
+        val width = constraints.maxWidth.toFloat()
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-    val anchors = mutableMapOf(0f to Default)
-    if (StartToEnd in directions) anchors += width to DismissedToEnd
-    if (EndToStart in directions) anchors += -width to DismissedToStart
+        val anchors = mutableMapOf(0f to Default)
+        if (StartToEnd in directions) anchors += width to DismissedToEnd
+        if (EndToStart in directions) anchors += -width to DismissedToStart
 
-    val thresholds = { from: DismissValue, to: DismissValue ->
-        dismissThresholds(getDismissDirection(from, to)!!)
-    }
-    val minFactor =
-        if (EndToStart in directions) StandardResistanceFactor else StiffResistanceFactor
-    val maxFactor =
-        if (StartToEnd in directions) StandardResistanceFactor else StiffResistanceFactor
-    Box(
-        Modifier.swipeable(
-            state = state,
-            anchors = anchors,
-            thresholds = thresholds,
-            orientation = Orientation.Horizontal,
-            enabled = state.currentValue == Default,
-            reverseDirection = isRtl,
-            resistance = ResistanceConfig(
-                basis = width,
-                factorAtMin = minFactor,
-                factorAtMax = maxFactor
+        val thresholds = { from: DismissValue, to: DismissValue ->
+            dismissThresholds(getDismissDirection(from, to)!!)
+        }
+        val minFactor =
+            if (EndToStart in directions) StandardResistanceFactor else StiffResistanceFactor
+        val maxFactor =
+            if (StartToEnd in directions) StandardResistanceFactor else StiffResistanceFactor
+        Box(
+            Modifier.swipeable(
+                state = state,
+                anchors = anchors,
+                thresholds = thresholds,
+                orientation = Orientation.Horizontal,
+                enabled = state.currentValue == Default,
+                reverseDirection = isRtl,
+                resistance =
+                    ResistanceConfig(
+                        basis = width,
+                        factorAtMin = minFactor,
+                        factorAtMax = maxFactor
+                    )
             )
-        )
-    ) {
-        Row(
-            content = background,
-            modifier = Modifier.matchParentSize()
-        )
-        Row(
-            content = dismissContent,
-            modifier = Modifier.offset { IntOffset(state.offset.value.roundToInt(), 0) }
-        )
+        ) {
+            Row(content = background, modifier = Modifier.matchParentSize())
+            Row(
+                content = dismissContent,
+                modifier = Modifier.offset { IntOffset(state.offset.value.roundToInt(), 0) }
+            )
+        }
     }
-}
 
 private fun getDismissDirection(from: DismissValue, to: DismissValue): DismissDirection? {
     return when {

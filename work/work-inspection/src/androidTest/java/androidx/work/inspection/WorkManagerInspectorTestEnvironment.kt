@@ -46,10 +46,8 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
 
     override fun before() {
         artTooling = FakeArtTooling()
-        application = InstrumentationRegistry
-            .getInstrumentation()
-            .context
-            .applicationContext as InspectorApp
+        application =
+            InstrumentationRegistry.getInstrumentation().context.applicationContext as InspectorApp
 
         workManager = WorkManager.getInstance(application)
 
@@ -57,10 +55,11 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = WORK_MANAGER_INSPECTOR_ID,
-                environment = DefaultTestInspectorEnvironment(
-                    testInspectorExecutors = TestInspectorExecutors(job),
-                    artTooling = artTooling
-                )
+                environment =
+                    DefaultTestInspectorEnvironment(
+                        testInspectorExecutors = TestInspectorExecutors(job),
+                        artTooling = artTooling
+                    )
             )
         }
     }
@@ -84,11 +83,10 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
     }
 
     suspend fun sendCommand(command: Command): Response {
-        inspectorTester.sendCommand(command.toByteArray())
-            .let { responseBytes ->
-                assertThat(responseBytes).isNotEmpty()
-                return Response.parseFrom(responseBytes)
-            }
+        inspectorTester.sendCommand(command.toByteArray()).let { responseBytes ->
+            assertThat(responseBytes).isNotEmpty()
+            return Response.parseFrom(responseBytes)
+        }
     }
 
     suspend fun receiveEvent() = receiveFilteredEvent { true }
@@ -109,15 +107,14 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
         artTooling.registerInstancesToFind(listOf(application))
     }
 
-    fun consumeRegisteredHooks(): List<Hook> =
-        artTooling.consumeRegisteredHooks()
+    fun consumeRegisteredHooks(): List<Hook> = artTooling.consumeRegisteredHooks()
 }
 
 /**
  * Fake inspector environment with the following behaviour:
  * - [findInstances] returns pre-registered values from [registerInstancesToFind].
- * - [registerEntryHook] and [registerExitHook] record the calls which can later be
- * retrieved in [consumeRegisteredHooks].
+ * - [registerEntryHook] and [registerExitHook] record the calls which can later be retrieved in
+ *   [consumeRegisteredHooks].
  */
 private class FakeArtTooling : ArtTooling {
     private val instancesToFind = mutableListOf<Any>()
@@ -128,8 +125,8 @@ private class FakeArtTooling : ArtTooling {
     }
 
     /**
-     *  Returns instances pre-registered in [registerInstancesToFind].
-     *  By design crashes in case of the wrong setup - indicating an issue with test code.
+     * Returns instances pre-registered in [registerInstancesToFind]. By design crashes in case of
+     * the wrong setup - indicating an issue with test code.
      */
     @Suppress("UNCHECKED_CAST")
     // TODO: implement actual findInstances behaviour
@@ -140,8 +137,7 @@ private class FakeArtTooling : ArtTooling {
         originClass: Class<*>,
         originMethod: String,
         exitHook: ArtTooling.ExitHook<T>
-    ) {
-    }
+    ) {}
 
     override fun registerEntryHook(
         originClass: Class<*>,
@@ -153,9 +149,7 @@ private class FakeArtTooling : ArtTooling {
     }
 
     fun consumeRegisteredHooks(): List<Hook> =
-        registeredHooks.toList().also {
-            registeredHooks.clear()
-        }
+        registeredHooks.toList().also { registeredHooks.clear() }
 }
 
 sealed class Hook(val originClass: Class<*>, val originMethod: String) {
@@ -166,4 +160,5 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     ) : Hook(originClass, originMethod)
 }
 
-val Hook.asEntryHook get() = (this as Hook.EntryHook).entryHook
+val Hook.asEntryHook
+    get() = (this as Hook.EntryHook).entryHook

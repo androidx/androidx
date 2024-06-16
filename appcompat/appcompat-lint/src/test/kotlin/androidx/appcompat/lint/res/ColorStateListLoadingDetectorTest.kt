@@ -29,9 +29,10 @@ import org.junit.Test
 class ColorStateListLoadingDetectorTest {
     @Test
     fun testCustomGetColorStateList() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.content.res.ColorStateList
@@ -51,16 +52,20 @@ class ColorStateListLoadingDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // We expect a clean Lint run since the call to getColorStateList in activity's onCreate
         // is on our own custom inner class
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.APPCOMPAT_RESOURCES,
-            Stubs.COLOR_STATE_LIST,
-            customActivity
-        ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
+        lint()
+            .files(
+                Stubs.APPCOMPAT_ACTIVITY,
+                Stubs.APPCOMPAT_RESOURCES,
+                Stubs.COLOR_STATE_LIST,
+                customActivity
+            )
+            .issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expectClean()
@@ -68,9 +73,10 @@ class ColorStateListLoadingDetectorTest {
 
     @Test
     fun testCoreGetColorStateListApi24() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.os.Bundle
@@ -82,11 +88,14 @@ class ColorStateListLoadingDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // Manifest that sets min sdk to 24
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                     package="com.example">
@@ -101,18 +110,16 @@ class ColorStateListLoadingDetectorTest {
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         // We expect the call to Resources.getColorStateList to be flagged to use ContextCompat
         // loading
-        /* ktlint-disable max-line-length */
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.COLOR_STATE_LIST,
-            manifest,
-            customActivity
-        ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
+
+        lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, Stubs.COLOR_STATE_LIST, manifest, customActivity)
+            .issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expect(
@@ -121,16 +128,17 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
         getResources().getColorStateList(R.color.color_state_list)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testCoreGetColorStateListApi14() {
-        val customActivity = kotlin(
-            "com/example/CustomActivity.kt",
-            """
+        val customActivity =
+            kotlin(
+                    "com/example/CustomActivity.kt",
+                    """
             package com.example
 
             import android.os.Bundle
@@ -142,11 +150,14 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
         // Manifest that sets min sdk to 14
-        val manifest = manifest(
-            """
+        val manifest =
+            manifest(
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                     package="com.example">
@@ -161,18 +172,16 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         // We expect the call to Resources.getColorStateList to be flagged to use AppCompatResources
         // loading
-        /* ktlint-disable max-line-length */
-        lint().files(
-            Stubs.APPCOMPAT_ACTIVITY,
-            Stubs.COLOR_STATE_LIST,
-            manifest,
-            customActivity
-        ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
+
+        lint()
+            .files(Stubs.APPCOMPAT_ACTIVITY, Stubs.COLOR_STATE_LIST, manifest, customActivity)
+            .issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expect(
@@ -181,8 +190,8 @@ src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorSta
         getResources().getColorStateList(R.color.color_state_list)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

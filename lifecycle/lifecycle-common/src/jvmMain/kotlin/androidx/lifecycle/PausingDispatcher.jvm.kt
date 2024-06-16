@@ -32,10 +32,11 @@ import kotlinx.coroutines.withContext
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-@Deprecated("whenCreated has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withCreated for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenCreated has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withCreated for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 @Suppress("DEPRECATION")
 public suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T): T =
@@ -46,10 +47,11 @@ public suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-@Deprecated("whenCreated has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withCreated for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenCreated has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withCreated for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 @Suppress("DEPRECATION")
 public suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
@@ -62,10 +64,11 @@ public suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() ->
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-@Deprecated("whenStarted has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withStarted for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenStarted has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withStarted for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 @Suppress("DEPRECATION")
 public suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T): T =
@@ -76,10 +79,11 @@ public suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-@Deprecated("whenStarted has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withStarted for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenStarted has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withStarted for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 @Suppress("DEPRECATION")
 public suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
@@ -92,10 +96,11 @@ public suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() ->
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-@Deprecated("whenResumed has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withResumed for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenResumed has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withResumed for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 @Suppress("DEPRECATION")
 public suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T =
@@ -106,10 +111,11 @@ public suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-@Deprecated("whenResumed has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withResumed for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenResumed has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withResumed for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 @Suppress("DEPRECATION")
 public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T {
@@ -120,8 +126,8 @@ public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() ->
  * Runs the given [block] on a [CoroutineDispatcher] that executes the [block] on the main thread
  * and suspends the execution unless the [Lifecycle]'s state is at least [minState].
  *
- * If the [Lifecycle] moves to a lesser state while the [block] is running, the [block] will
- * be suspended until the [Lifecycle] reaches to a state greater or equal to [minState].
+ * If the [Lifecycle] moves to a lesser state while the [block] is running, the [block] will be
+ * suspended until the [Lifecycle] reaches to a state greater or equal to [minState].
  *
  * Note that this won't effect any sub coroutine if they use a different [CoroutineDispatcher].
  * However, the [block] will not resume execution when the sub coroutine finishes unless the
@@ -188,25 +194,27 @@ public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() ->
  * @param block The block to run when the lifecycle is at least in [minState].
  * @return <T> The return value of the [block]
  */
-@Deprecated("whenStateAtLeast has been deprecated because it runs the block on a " +
-    "pausing dispatcher that suspends, rather than cancels work when the " +
-    "lifecycle state goes below the given state. Use withStateAtLeast for " +
-    "non-suspending work that needs to run only once when the Lifecycle changes."
+@Deprecated(
+    "whenStateAtLeast has been deprecated because it runs the block on a " +
+        "pausing dispatcher that suspends, rather than cancels work when the " +
+        "lifecycle state goes below the given state. Use withStateAtLeast for " +
+        "non-suspending work that needs to run only once when the Lifecycle changes."
 )
 public suspend fun <T> Lifecycle.whenStateAtLeast(
     minState: Lifecycle.State,
     block: suspend CoroutineScope.() -> T
-): T = withContext(Dispatchers.Main.immediate) {
-    val job = coroutineContext[Job] ?: error("when[State] methods should have a parent job")
-    val dispatcher = PausingDispatcher()
-    val controller =
-        LifecycleController(this@whenStateAtLeast, minState, dispatcher.dispatchQueue, job)
-    try {
-        withContext(dispatcher, block)
-    } finally {
-        controller.finish()
+): T =
+    withContext(Dispatchers.Main.immediate) {
+        val job = coroutineContext[Job] ?: error("when[State] methods should have a parent job")
+        val dispatcher = PausingDispatcher()
+        val controller =
+            LifecycleController(this@whenStateAtLeast, minState, dispatcher.dispatchQueue, job)
+        try {
+            withContext(dispatcher, block)
+        } finally {
+            controller.finish()
+        }
     }
-}
 
 /**
  * A [CoroutineDispatcher] implementation that maintains a dispatch queue to be able to pause
@@ -215,11 +223,8 @@ public suspend fun <T> Lifecycle.whenStateAtLeast(
  * @see [DispatchQueue] and [Lifecycle.whenStateAtLeast] for details.
  */
 internal class PausingDispatcher : CoroutineDispatcher() {
-    /**
-     * helper class to maintain state and enqueued continuations.
-     */
-    @JvmField
-    internal val dispatchQueue = DispatchQueue()
+    /** helper class to maintain state and enqueued continuations. */
+    @JvmField internal val dispatchQueue = DispatchQueue()
 
     override fun isDispatchNeeded(context: CoroutineContext): Boolean {
         if (Dispatchers.Main.immediate.isDispatchNeeded(context)) {

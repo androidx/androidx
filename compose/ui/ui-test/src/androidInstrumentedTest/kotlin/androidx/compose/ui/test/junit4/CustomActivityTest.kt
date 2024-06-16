@@ -37,42 +37,33 @@ class CustomActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-            MaterialTheme {
-                Box {
-                    Button(onClick = {}) {
-                        Text("Hello")
-                    }
-                }
-            }
-        }
+        setContent { MaterialTheme { Box { Button(onClick = {}) { Text("Hello") } } } }
     }
 }
 
-/**
- * Tests that we can launch custom activities via [createAndroidComposeRule].
- */
+/** Tests that we can launch custom activities via [createAndroidComposeRule]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
 class CustomActivityTest {
     private companion object {
-        const val ContentAlreadySetError = "androidx\\.compose\\.ui\\.test\\.junit4\\." +
-            "CustomActivity@[0-9A-Fa-f]* has already set content\\. If you have populated the " +
-            "Activity with a ComposeView, make sure to call setContent on that ComposeView " +
-            "instead of on the test rule; and make sure that that call to `setContent \\{\\}` " +
-            "is done after the ComposeTestRule has run"
+        const val ContentAlreadySetError =
+            "androidx\\.compose\\.ui\\.test\\.junit4\\." +
+                "CustomActivity@[0-9A-Fa-f]* has already set content\\. If you have populated the " +
+                "Activity with a ComposeView, make sure to call setContent on that ComposeView " +
+                "instead of on the test rule; and make sure that that call to `setContent \\{\\}` " +
+                "is done after the ComposeTestRule has run"
     }
 
     @Test
-    fun launchCustomActivity() = runAndroidComposeUiTest<CustomActivity> {
-        onNodeWithText("Hello").assertExists()
-    }
+    fun launchCustomActivity() =
+        runAndroidComposeUiTest<CustomActivity> { onNodeWithText("Hello").assertExists() }
 
     @Test
-    fun setContentOnActivityWithContent() = runAndroidComposeUiTest<CustomActivity> {
-        expectError<IllegalStateException>(expectedMessage = ContentAlreadySetError) {
-            setContent { Text("Hello") }
+    fun setContentOnActivityWithContent() =
+        runAndroidComposeUiTest<CustomActivity> {
+            expectError<IllegalStateException>(expectedMessage = ContentAlreadySetError) {
+                setContent { Text("Hello") }
+            }
         }
-    }
 }

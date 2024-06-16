@@ -56,4 +56,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Utilities for launchig Activities from the Privacy Sandbox."
+    legacyDisableKotlinStrictApiMode = true
 }

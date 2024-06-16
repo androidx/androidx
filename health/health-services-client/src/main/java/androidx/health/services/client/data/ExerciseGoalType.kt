@@ -41,15 +41,13 @@ public class ExerciseGoalType private constructor(public val id: Int, public val
 
     public companion object {
         /** Goal type indicating this goal is for one event and should then be removed. */
-        @JvmField
-        public val ONE_TIME_GOAL: ExerciseGoalType = ExerciseGoalType(1, "ONE_TIME_GOAL")
+        @JvmField public val ONE_TIME_GOAL: ExerciseGoalType = ExerciseGoalType(1, "ONE_TIME_GOAL")
 
         /**
          * Goal type indicating this goal is for a repeating event and should remain until the
          * calling app removes it.
          */
-        @JvmField
-        public val MILESTONE: ExerciseGoalType = ExerciseGoalType(2, "MILESTONE")
+        @JvmField public val MILESTONE: ExerciseGoalType = ExerciseGoalType(2, "MILESTONE")
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField

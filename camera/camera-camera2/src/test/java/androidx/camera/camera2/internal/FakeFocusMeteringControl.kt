@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal
 import android.os.Build
 import android.util.Log
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
@@ -30,19 +29,17 @@ import java.util.concurrent.TimeUnit
 
 private const val TAG = "FakeFocusMeteringControl"
 
-/**
- * A fake implementations of {@link ScreenFlash} for testing purpose.
- */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+/** A fake implementations of {@link ScreenFlash} for testing purpose. */
 internal class FakeFocusMeteringControl(
     fakeCamera2CameraControlImpl: ScreenFlashTaskTest.FakeCamera2CameraControlImpl,
     quirks: Quirks
-) : FocusMeteringControl(
-    fakeCamera2CameraControlImpl,
-    CameraXExecutors.myLooperExecutor(),
-    MoreExecutors.directExecutor(),
-    quirks,
-) {
+) :
+    FocusMeteringControl(
+        fakeCamera2CameraControlImpl,
+        CameraXExecutors.myLooperExecutor(),
+        MoreExecutors.directExecutor(),
+        quirks,
+    ) {
     // This class needs to be in androidx.camera.camera2.internal path since FocusMeteringControl
     // constructor is package-private
 
@@ -50,19 +47,14 @@ internal class FakeFocusMeteringControl(
 
     private val lock = Any()
 
-    @GuardedBy("mLock")
-    var externalFlashAeModeEnabled = false
+    @GuardedBy("mLock") var externalFlashAeModeEnabled = false
     private var enableExternalFlashAeModeLatch: CountDownLatch? = null
 
-    @GuardedBy("mLock")
-    var triggerAePrecaptureCount = 0
-    @GuardedBy("mLock")
-    private var triggerAePrecaptureLatch: CountDownLatch? = null
+    @GuardedBy("mLock") var triggerAePrecaptureCount = 0
+    @GuardedBy("mLock") private var triggerAePrecaptureLatch: CountDownLatch? = null
 
-    @GuardedBy("mLock")
-    var cancelAfAeTriggerCount = 0
-    @GuardedBy("mLock")
-    private var cancelAfAeTriggerLatch: CountDownLatch? = null
+    @GuardedBy("mLock") var cancelAfAeTriggerCount = 0
+    @GuardedBy("mLock") private var cancelAfAeTriggerLatch: CountDownLatch? = null
 
     override fun triggerAePrecapture(): ListenableFuture<Void> {
         synchronized(lock) {
@@ -75,29 +67,22 @@ internal class FakeFocusMeteringControl(
         return Futures.immediateFuture(null)
     }
 
-    /** Waits for a new [triggerAePrecapture] API invocation.*/
+    /** Waits for a new [triggerAePrecapture] API invocation. */
     fun awaitTriggerAePrecapture(timeoutMillis: Long = 3000) {
-        synchronized(lock) {
-            triggerAePrecaptureLatch = CountDownLatch(1)
-        }
+        synchronized(lock) { triggerAePrecaptureLatch = CountDownLatch(1) }
         triggerAePrecaptureLatch?.await(timeoutMillis, TimeUnit.MILLISECONDS)
     }
 
-    override fun cancelAfAeTrigger(
-        cancelAfTrigger: Boolean,
-        cancelAePrecaptureTrigger: Boolean
-    ) {
+    override fun cancelAfAeTrigger(cancelAfTrigger: Boolean, cancelAePrecaptureTrigger: Boolean) {
         synchronized(lock) {
             cancelAfAeTriggerCount++
             cancelAfAeTriggerLatch?.countDown()
         }
     }
 
-    /** Waits for a new [cancelAfAeTrigger] API invocation.*/
+    /** Waits for a new [cancelAfAeTrigger] API invocation. */
     fun awaitCancelAfAeTrigger(timeoutMillis: Long = 3000) {
-        synchronized(lock) {
-            cancelAfAeTriggerLatch = CountDownLatch(1)
-        }
+        synchronized(lock) { cancelAfAeTriggerLatch = CountDownLatch(1) }
         cancelAfAeTriggerLatch?.await(timeoutMillis, TimeUnit.MILLISECONDS)
     }
 
@@ -114,11 +99,9 @@ internal class FakeFocusMeteringControl(
         return Futures.immediateFuture(null)
     }
 
-    /** Waits for a new [enableExternalFlashAeMode] API invocation.*/
+    /** Waits for a new [enableExternalFlashAeMode] API invocation. */
     fun awaitEnableExternalFlashAeMode(timeoutMillis: Long = 3000) {
-        synchronized(lock) {
-            enableExternalFlashAeModeLatch = CountDownLatch(1)
-        }
+        synchronized(lock) { enableExternalFlashAeModeLatch = CountDownLatch(1) }
         enableExternalFlashAeModeLatch?.await(timeoutMillis, TimeUnit.MILLISECONDS)
     }
 }

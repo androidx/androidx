@@ -22,9 +22,7 @@ import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
-/**
- * Internal class that dispatches initialization events.
- */
+/** Internal class that dispatches initialization events. */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class ReportFragment() : android.app.Fragment() {
@@ -92,7 +90,9 @@ public open class ReportFragment() : android.app.Fragment() {
 
     public interface ActivityInitializationListener {
         public fun onCreate()
+
         public fun onStart()
+
         public fun onResume()
     }
 
@@ -101,15 +101,9 @@ public open class ReportFragment() : android.app.Fragment() {
     // because registerActivityLifecycleCallbacks is available only since api 29.
     @RequiresApi(29)
     internal class LifecycleCallbacks : Application.ActivityLifecycleCallbacks {
-        override fun onActivityCreated(
-            activity: Activity,
-            bundle: Bundle?
-        ) {}
+        override fun onActivityCreated(activity: Activity, bundle: Bundle?) {}
 
-        override fun onActivityPostCreated(
-            activity: Activity,
-            savedInstanceState: Bundle?
-        ) {
+        override fun onActivityPostCreated(activity: Activity, savedInstanceState: Bundle?) {
             dispatch(activity, Lifecycle.Event.ON_CREATE)
         }
 
@@ -137,10 +131,7 @@ public open class ReportFragment() : android.app.Fragment() {
 
         override fun onActivityStopped(activity: Activity) {}
 
-        override fun onActivitySaveInstanceState(
-            activity: Activity,
-            bundle: Bundle
-        ) {}
+        override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
 
         override fun onActivityPreDestroyed(activity: Activity) {
             dispatch(activity, Lifecycle.Event.ON_DESTROY)
@@ -196,9 +187,7 @@ public open class ReportFragment() : android.app.Fragment() {
         @get:JvmName("get")
         public val Activity.reportFragment: ReportFragment
             get() {
-                return this.fragmentManager.findFragmentByTag(
-                    REPORT_FRAGMENT_TAG
-                ) as ReportFragment
+                return this.fragmentManager.findFragmentByTag(REPORT_FRAGMENT_TAG) as ReportFragment
             }
     }
 }

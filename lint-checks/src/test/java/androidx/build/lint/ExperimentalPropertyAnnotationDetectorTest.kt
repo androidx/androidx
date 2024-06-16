@@ -22,22 +22,29 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ExperimentalPropertyAnnotationDetectorTest : AbstractLintDetectorTest(
-    useDetector = ExperimentalPropertyAnnotationDetector(),
-    useIssues = listOf(ExperimentalPropertyAnnotationDetector.ISSUE),
-    stubs = arrayOf(kotlin("""
+class ExperimentalPropertyAnnotationDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = ExperimentalPropertyAnnotationDetector(),
+        useIssues = listOf(ExperimentalPropertyAnnotationDetector.ISSUE),
+        stubs =
+            arrayOf(
+                kotlin(
+                    """
         package java.androidx
 
         @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
         @Retention(AnnotationRetention.BINARY)
         annotation class ExperimentalKotlinAnnotation
-    """))
-) {
+    """
+                )
+            )
+    ) {
     @Test
     fun `Test correctly annotated var properties`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -52,17 +59,18 @@ class ExperimentalPropertyAnnotationDetectorTest : AbstractLintDetectorTest(
                     var correctlyAnnotatedWithDefault: Int = 3
                 }
             """
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test var properties annotated with one target`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -79,11 +87,11 @@ class ExperimentalPropertyAnnotationDetectorTest : AbstractLintDetectorTest(
                     var annotatedWithDefault = 3
                 }
             """
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                     @get:ExperimentalKotlinAnnotation
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +107,8 @@ src/java/androidx/AnnotatedProperty.kt:14: Error: This property does not have al
 4 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
 @@ -5 +5
 +                     @set:ExperimentalKotlinAnnotation
@@ -120,13 +129,9 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 14: Add missing annotations:
 +                     @get:ExperimentalKotlinAnnotation
 +                     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -135,9 +140,10 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 14: Add missing annotations:
 
     @Test
     fun `Test var property annotated with two targets`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -162,11 +168,11 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 14: Add missing annotations:
                     var annotatedWithSetAndProperty = 3
                 }
             """
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                     @get:ExperimentalKotlinAnnotation
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,7 +191,8 @@ src/java/androidx/AnnotatedProperty.kt:21: Error: This property does not have al
 5 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
 @@ -5 +5
 +                     @set:ExperimentalKotlinAnnotation
@@ -204,13 +211,9 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
 +                     @get:ExperimentalKotlinAnnotation
 +                     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -219,9 +222,10 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
 
     @Test
     fun `Test correctly annotated val property`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -234,18 +238,18 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
                     val correctlyAnnotatedWithProperty: Int = 3
                 }
             """
+                )
             )
-        )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 
     @Test
     fun `Test val properties annotated with one target`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -259,11 +263,11 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
                     val annotatedWithDefault = 3
                 }
             """
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                     @get:ExperimentalKotlinAnnotation
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -276,7 +280,8 @@ src/java/androidx/AnnotatedProperty.kt:11: Error: This property does not have al
 3 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
 @@ -5 +5
 +                     @property:ExperimentalKotlinAnnotation
@@ -289,13 +294,9 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
 +                     @get:ExperimentalKotlinAnnotation
 +                     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -304,9 +305,10 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
 
     @Test
     fun `Test property annotated with non-experimental annotation`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -314,25 +316,25 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
                     var correctlyAnnotated: Int = 3
                 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
                 package java.androidx
 
                 annotation class NonExperimentalAnnotation
             """
+                )
             )
-        )
 
-        check(*input)
-            .expectClean()
+        check(*input).expectClean()
     }
 
     @Test
     fun `Test property using Java defined annotation`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 import java.androidx.ExperimentalJavaAnnotation
@@ -342,8 +344,9 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
                     var annotatedWithGet = 3
                 }
         """
-            ),
-            java("""
+                ),
+                java(
+                    """
                 package java.androidx;
 
                 import static androidx.annotation.RequiresOptIn.Level.ERROR;
@@ -352,9 +355,11 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
 
                 @RequiresOptIn(level = ERROR)
                 public @interface ExperimentalJavaAnnotation {}
-            """.trimIndent()),
-            kotlin(
-                """
+            """
+                        .trimIndent()
+                ),
+                kotlin(
+                    """
             package androidx.annotation
 
             import kotlin.annotation.Retention
@@ -370,31 +375,29 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
                     ERROR
                 }
             }
-            """.trimIndent()
+            """
+                        .trimIndent()
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:7: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                     @get:ExperimentalJavaAnnotation
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 7: Add missing annotations:
 @@ -7 +7
 +                     @set:ExperimentalJavaAnnotation
 +                     @property:ExperimentalJavaAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -403,38 +406,36 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 7: Add missing annotations:
 
     @Test
     fun `Test property defined at top-level`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 @get:ExperimentalKotlinAnnotation
                 var annotatedWithGet = 3
             """
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/test.kt:4: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                 @get:ExperimentalKotlinAnnotation
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/test.kt line 4: Add missing annotations:
 @@ -4 +4
 +                 @set:ExperimentalKotlinAnnotation
 +                 @property:ExperimentalKotlinAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -443,9 +444,10 @@ Fix for src/java/androidx/test.kt line 4: Add missing annotations:
 
     @Test
     fun `Test property defined in companion object`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -455,30 +457,27 @@ Fix for src/java/androidx/test.kt line 4: Add missing annotations:
                     }
                 }
             """
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:6: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                         @get:ExperimentalKotlinAnnotation
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 6: Add missing annotations:
 @@ -6 +6
 +                         @set:ExperimentalKotlinAnnotation
 +                         @property:ExperimentalKotlinAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -487,9 +486,10 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 6: Add missing annotations:
 
     @Test
     fun `Test property defined in interface`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 interface AnnotatedProperty {
@@ -497,29 +497,26 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 6: Add missing annotations:
                     val annotatedWithGet: Int
                 }
             """
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
                     @get:ExperimentalKotlinAnnotation
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
 @@ -5 +5
 +                     @property:ExperimentalKotlinAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
-            .files(
-                *stubs,
-                *input
-            )
+            .files(*stubs, *input)
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
             .run()
             .expect(expected)
@@ -528,9 +525,10 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
 
     @Test
     fun `Test experimental annotations on non-properties don't trigger lint`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 @file:ExperimentalKotlinAnnotation
@@ -541,17 +539,18 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
                     fun experimentalFunction() {}
                 }
             """
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test property annotated with JvmField doesn't trigger lint`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedWithJvmField {
@@ -560,67 +559,72 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
                     var experimentalProperty = 3
                 }
             """
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test const property doesn't trigger lint`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 @ExperimentalKotlinAnnotation
                 const val EXPERIMENTAL_CONST = 3
             """
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test property with delegate doesn't trigger lint`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 @ExperimentalKotlinAnnotation
                 var experimentalProperty by mutableStateOf(0L)
                 """
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test property within function doesn't trigger lint`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 fun functionWithProperty() {
                     @ExperimentalKotlinAnnotation
                     val experimentalProperty = 3
                 }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test private property doesn't trigger lint but other non-public properties do`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 class AnnotatedProperty {
@@ -633,12 +637,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
                     @ExperimentalKotlinAnnotation
                     internal var internalProperty = 3
                 }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/AnnotatedProperty.kt:7: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
     @ExperimentalKotlinAnnotation
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -648,7 +653,8 @@ src/java/androidx/AnnotatedProperty.kt:10: Error: This property does not have al
 2 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/AnnotatedProperty.kt line 7: Add missing annotations:
 @@ -7 +7
 +     @set:ExperimentalKotlinAnnotation
@@ -660,63 +666,62 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 10: Add missing annotations:
 +     @get:ExperimentalKotlinAnnotation
 +     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectedFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test property in private class doesn't trigger lint`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 private class AnnotatedProperty {
                     @ExperimentalKotlinAnnotation
                     var experimentalProperty = 3
                 }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
 
         check(*input).expectClean()
     }
 
     @Test
     fun `Test property with private setter only has get annotation added`() {
-        val input = arrayOf(
-            kotlin(
-                """
+        val input =
+            arrayOf(
+                kotlin(
+                    """
                 package java.androidx
 
                 @ExperimentalKotlinAnnotation
                 var experimentalProperty = 3
                     private set
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/java/androidx/test.kt:3: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
 @ExperimentalKotlinAnnotation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/java/androidx/test.kt line 3: Add missing annotations:
 @@ -3 +3
 + @get:ExperimentalKotlinAnnotation
 + @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(expectedFixDiffs)
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 }

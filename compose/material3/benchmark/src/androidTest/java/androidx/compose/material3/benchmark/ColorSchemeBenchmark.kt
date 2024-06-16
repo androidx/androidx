@@ -37,8 +37,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ColorSchemeBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val colorSchemeTestCaseFactory = { ColorSchemeTestCase() }
 
@@ -54,40 +53,73 @@ class ColorSchemeTestCase : LayeredComposeTestCase() {
     override fun MeasuredContent() {
         Column {
             Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.surface))
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.surface))
+            Box(
+                modifier =
+                    Modifier.size(1.dp)
+                        .background(
+                            MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.surface
+                            )
+                        )
             )
             Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.primary))
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.primary))
+            Box(
+                modifier =
+                    Modifier.size(1.dp)
+                        .background(
+                            MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.primary
+                            )
+                        )
             )
             Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.secondary))
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondary))
+            Box(
+                modifier =
+                    Modifier.size(1.dp)
+                        .background(
+                            MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.secondary
+                            )
+                        )
             )
             Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.tertiary))
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.tertiary))
+            Box(
+                modifier =
+                    Modifier.size(1.dp)
+                        .background(
+                            MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.tertiary
+                            )
+                        )
             )
             Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.error))
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.error))
+            Box(
+                modifier =
+                    Modifier.size(1.dp)
+                        .background(
+                            MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.error
+                            )
+                        )
             )
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.surfaceContainerLowest)
+            Box(
+                modifier =
+                    Modifier.size(1.dp).background(MaterialTheme.colorScheme.surfaceContainerLowest)
             )
-            Box(modifier = Modifier.size(1.dp).background(
-                MaterialTheme.colorScheme.contentColorFor(
-                    MaterialTheme.colorScheme.surfaceContainerLowest)
-                )
+            Box(
+                modifier =
+                    Modifier.size(1.dp)
+                        .background(
+                            MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.surfaceContainerLowest
+                            )
+                        )
             )
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

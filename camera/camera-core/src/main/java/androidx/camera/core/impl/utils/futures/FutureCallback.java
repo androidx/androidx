@@ -18,7 +18,6 @@ package androidx.camera.core.impl.utils.futures;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -38,7 +37,6 @@ import java.util.concurrent.Future;
  * @since 10.0
  * @param <V>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface FutureCallback<V> {
     /** Invoked with the result of the {@code Future} computation when it is successful. */
     void onSuccess(@Nullable V result);

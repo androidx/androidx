@@ -23,7 +23,6 @@ import java.time.LocalDateTime
  * @property result contains [AggregationResult] with metrics included in the request.
  * @property startTime start time of the slice.
  * @property endTime end time of the slice.
- *
  * @see [androidx.health.connect.client.HealthConnectClient.aggregateGroupByPeriod]
  */
 class AggregationResultGroupedByPeriod

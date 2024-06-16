@@ -51,8 +51,8 @@ class RunCallbackAction(
 
 /**
  * A callback executed in response to the user action, before the content is updated. The
- * implementing class must have a public zero argument constructor, this is used to instantiate
- * the class at runtime.
+ * implementing class must have a public zero argument constructor, this is used to instantiate the
+ * class at runtime.
  */
 interface ActionCallback {
     /**
@@ -62,11 +62,7 @@ interface ActionCallback {
      * @param glanceId the [GlanceId] that triggered this action
      * @param parameters the parameters associated with the action
      */
-    suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    )
+    suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters)
 }
 
 /**

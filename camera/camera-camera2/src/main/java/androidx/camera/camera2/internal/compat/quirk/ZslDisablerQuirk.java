@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.Quirk;
 
@@ -34,7 +33,6 @@ import java.util.Locale;
  *                  {@link CameraInfo#isZslSupported()}.
  *     Device(s): Samsung Fold4, Samsung s22, Xiaomi Mi 8
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ZslDisablerQuirk implements Quirk {
 
     private static final List<String> AFFECTED_SAMSUNG_MODEL = Arrays.asList(

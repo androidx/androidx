@@ -48,51 +48,48 @@ class ZslControlImplTest {
 
     @Before
     fun setUp() {
-        sessionConfigBuilder = SessionConfig.Builder().also { sessionConfigBuilder ->
-            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
-        }
+        sessionConfigBuilder =
+            SessionConfig.Builder().also { sessionConfigBuilder ->
+                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
+            }
     }
 
     @Test
     fun isPrivateReprocessingSupported_addZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = true,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControlImpl.reprocessingImageReader).isNotNull()
         assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat)
             .isEqualTo(ImageFormat.PRIVATE)
-        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(
-            MAX_IMAGES
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.width).isEqualTo(
-            PRIVATE_REPROCESSING_MAXIMUM_SIZE.width
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.height).isEqualTo(
-            PRIVATE_REPROCESSING_MAXIMUM_SIZE.height
-        )
-        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(
-            RING_BUFFER_CAPACITY
-        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(MAX_IMAGES)
+        assertThat(zslControlImpl.reprocessingImageReader!!.width)
+            .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.width)
+        assertThat(zslControlImpl.reprocessingImageReader!!.height)
+            .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
+        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
     }
 
     @Test
     fun isYuvReprocessingSupported_notAddZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = true,
-                isPrivateReprocessingSupported = false,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = true,
+                    isPrivateReprocessingSupported = false,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
@@ -101,14 +98,15 @@ class ZslControlImplTest {
 
     @Test
     fun isJpegNotValidOutputFormat_notAddZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = true,
-                isPrivateReprocessingSupported = false,
-                isJpegValidOutputFormat = false
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = true,
+                    isPrivateReprocessingSupported = false,
+                    isJpegValidOutputFormat = false
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
@@ -117,14 +115,15 @@ class ZslControlImplTest {
 
     @Test
     fun isReprocessingNotSupported_notAddZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = false,
-                isJpegValidOutputFormat = false
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = false,
+                    isJpegValidOutputFormat = false
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
@@ -133,14 +132,15 @@ class ZslControlImplTest {
 
     @Test
     fun isZslDisabledByUserCaseConfig_notAddZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = true,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
         zslControlImpl.setZslDisabledByUserCaseConfig(true)
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
@@ -150,46 +150,41 @@ class ZslControlImplTest {
 
     @Test
     fun isZslDisabledByFlashMode_addZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = true,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
         zslControlImpl.setZslDisabledByFlashMode(true)
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControlImpl.reprocessingImageReader).isNotNull()
-        assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat).isEqualTo(
-            ImageFormat.PRIVATE
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(
-            MAX_IMAGES
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.width).isEqualTo(
-            PRIVATE_REPROCESSING_MAXIMUM_SIZE.width
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.height).isEqualTo(
-            PRIVATE_REPROCESSING_MAXIMUM_SIZE.height
-        )
-        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(
-            RING_BUFFER_CAPACITY
-        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat)
+            .isEqualTo(ImageFormat.PRIVATE)
+        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(MAX_IMAGES)
+        assertThat(zslControlImpl.reprocessingImageReader!!.width)
+            .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.width)
+        assertThat(zslControlImpl.reprocessingImageReader!!.height)
+            .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
+        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
     }
 
     @Test
     fun isZslDisabled_clearZslConfig() {
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = true,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
@@ -204,14 +199,15 @@ class ZslControlImplTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-F936B")
 
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = true,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
@@ -223,33 +219,27 @@ class ZslControlImplTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-G973")
 
-        zslControlImpl = ZslControlImpl(
-            createCameraProperties(
-                hasCapabilities = true,
-                isYuvReprocessingSupported = false,
-                isPrivateReprocessingSupported = true,
-                isJpegValidOutputFormat = true
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true
+                )
             )
-        )
 
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControlImpl.reprocessingImageReader).isNotNull()
-        assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat).isEqualTo(
-            ImageFormat.PRIVATE
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(
-            MAX_IMAGES
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.width).isEqualTo(
-            PRIVATE_REPROCESSING_MAXIMUM_SIZE.width
-        )
-        assertThat(zslControlImpl.reprocessingImageReader!!.height).isEqualTo(
-            PRIVATE_REPROCESSING_MAXIMUM_SIZE.height
-        )
-        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(
-            RING_BUFFER_CAPACITY
-        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat)
+            .isEqualTo(ImageFormat.PRIVATE)
+        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(MAX_IMAGES)
+        assertThat(zslControlImpl.reprocessingImageReader!!.width)
+            .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.width)
+        assertThat(zslControlImpl.reprocessingImageReader!!.height)
+            .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
+        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
     }
 
     private fun createCameraProperties(
@@ -261,9 +251,7 @@ class ZslControlImplTest {
         val characteristicsMap = mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
         val capabilities = arrayListOf<Int>()
         if (isYuvReprocessingSupported) {
-            capabilities.add(
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING
-            )
+            capabilities.add(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING)
         }
         if (isPrivateReprocessingSupported) {
             capabilities.add(
@@ -279,29 +267,22 @@ class ZslControlImplTest {
             val streamConfigurationMap: StreamConfigurationMap = mock()
 
             if (isYuvReprocessingSupported && isPrivateReprocessingSupported) {
-                whenever(streamConfigurationMap.inputFormats).thenReturn(
-                    arrayOf(ImageFormat.YUV_420_888, ImageFormat.PRIVATE).toIntArray()
-                )
-                whenever(streamConfigurationMap.getInputSizes(ImageFormat.YUV_420_888)).thenReturn(
-                    arrayOf(YUV_REPROCESSING_MAXIMUM_SIZE)
-                )
-                whenever(streamConfigurationMap.getInputSizes(ImageFormat.PRIVATE)).thenReturn(
-                    arrayOf(PRIVATE_REPROCESSING_MAXIMUM_SIZE)
-                )
+                whenever(streamConfigurationMap.inputFormats)
+                    .thenReturn(arrayOf(ImageFormat.YUV_420_888, ImageFormat.PRIVATE).toIntArray())
+                whenever(streamConfigurationMap.getInputSizes(ImageFormat.YUV_420_888))
+                    .thenReturn(arrayOf(YUV_REPROCESSING_MAXIMUM_SIZE))
+                whenever(streamConfigurationMap.getInputSizes(ImageFormat.PRIVATE))
+                    .thenReturn(arrayOf(PRIVATE_REPROCESSING_MAXIMUM_SIZE))
             } else if (isYuvReprocessingSupported) {
-                whenever(streamConfigurationMap.inputFormats).thenReturn(
-                    arrayOf(ImageFormat.YUV_420_888).toIntArray()
-                )
-                whenever(streamConfigurationMap.getInputSizes(ImageFormat.YUV_420_888)).thenReturn(
-                    arrayOf(YUV_REPROCESSING_MAXIMUM_SIZE)
-                )
+                whenever(streamConfigurationMap.inputFormats)
+                    .thenReturn(arrayOf(ImageFormat.YUV_420_888).toIntArray())
+                whenever(streamConfigurationMap.getInputSizes(ImageFormat.YUV_420_888))
+                    .thenReturn(arrayOf(YUV_REPROCESSING_MAXIMUM_SIZE))
             } else if (isPrivateReprocessingSupported) {
-                whenever(streamConfigurationMap.inputFormats).thenReturn(
-                    arrayOf(ImageFormat.PRIVATE).toIntArray()
-                )
-                whenever(streamConfigurationMap.getInputSizes(ImageFormat.PRIVATE)).thenReturn(
-                    arrayOf(PRIVATE_REPROCESSING_MAXIMUM_SIZE)
-                )
+                whenever(streamConfigurationMap.inputFormats)
+                    .thenReturn(arrayOf(ImageFormat.PRIVATE).toIntArray())
+                whenever(streamConfigurationMap.getInputSizes(ImageFormat.PRIVATE))
+                    .thenReturn(arrayOf(PRIVATE_REPROCESSING_MAXIMUM_SIZE))
             }
 
             // Output formats for input
@@ -309,16 +290,17 @@ class ZslControlImplTest {
                 whenever(streamConfigurationMap.getValidOutputFormatsForInput(ImageFormat.PRIVATE))
                     .thenReturn(arrayOf(ImageFormat.JPEG).toIntArray())
                 whenever(
-                    streamConfigurationMap.getValidOutputFormatsForInput(ImageFormat.YUV_420_888)
-                ).thenReturn(arrayOf(ImageFormat.JPEG).toIntArray())
+                        streamConfigurationMap.getValidOutputFormatsForInput(
+                            ImageFormat.YUV_420_888
+                        )
+                    )
+                    .thenReturn(arrayOf(ImageFormat.JPEG).toIntArray())
             }
 
             characteristicsMap[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP] =
                 streamConfigurationMap
         }
-        val cameraMetadata = FakeCameraMetadata(
-            characteristics = characteristicsMap
-        )
+        val cameraMetadata = FakeCameraMetadata(characteristics = characteristicsMap)
 
         return FakeCameraProperties(
             cameraMetadata,

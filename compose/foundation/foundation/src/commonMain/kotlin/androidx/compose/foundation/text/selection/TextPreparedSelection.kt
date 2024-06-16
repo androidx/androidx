@@ -44,15 +44,15 @@ internal class TextPreparedSelectionState {
 }
 
 /**
- * This utility class implements many selection-related operations on text (including basic
- * cursor movements and deletions) and combines them, taking into account how the text was
- * rendered. So, for example, [moveCursorToLineEnd] moves it to the visual line end.
+ * This utility class implements many selection-related operations on text (including basic cursor
+ * movements and deletions) and combines them, taking into account how the text was rendered. So,
+ * for example, [moveCursorToLineEnd] moves it to the visual line end.
  *
  * For many of these operations, it's particularly important to keep the difference between
  * selection start and selection end. In some systems, they are called "anchor" and "caret"
  * respectively. For example, for selection from scratch, after [moveCursorLeftByWord]
- * [moveCursorRight] will move the left side of the selection, but after [moveCursorRightByWord]
- * the right one.
+ * [moveCursorRight] will move the left side of the selection, but after [moveCursorRightByWord] the
+ * right one.
  *
  * To use it in scope of text fields see [TextFieldPreparedSelection]
  */
@@ -88,13 +88,9 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         selection = TextRange(start, end)
     }
 
-    fun selectAll() = apply {
-        setSelection(0, text.length)
-    }
+    fun selectAll() = apply { setSelection(0, text.length) }
 
-    fun deselect() = apply {
-        setCursor(selection.end)
-    }
+    fun deselect() = apply { setCursor(selection.end) }
 
     fun moveCursorLeft() = apply {
         if (isLtr()) {
@@ -112,13 +108,10 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         }
     }
 
-    /**
-     * If there is already a selection, collapse it to the left side. Otherwise, execute [or]
-     */
+    /** If there is already a selection, collapse it to the left side. Otherwise, execute [or] */
     fun collapseLeftOr(or: T.() -> Unit) = apply {
         if (selection.collapsed) {
-            @Suppress("UNCHECKED_CAST")
-            or(this as T)
+            @Suppress("UNCHECKED_CAST") or(this as T)
         } else {
             if (isLtr()) {
                 setCursor(selection.min)
@@ -128,13 +121,10 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         }
     }
 
-    /**
-     * If there is already a selection, collapse it to the right side. Otherwise, execute [or]
-     */
+    /** If there is already a selection, collapse it to the right side. Otherwise, execute [or] */
     fun collapseRightOr(or: T.() -> Unit) = apply {
         if (selection.collapsed) {
-            @Suppress("UNCHECKED_CAST")
-            or(this as T)
+            @Suppress("UNCHECKED_CAST") or(this as T)
         } else {
             if (isLtr()) {
                 setCursor(selection.max)
@@ -144,9 +134,7 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         }
     }
 
-    /**
-     * Returns the index of the character break preceding the end of [selection].
-     */
+    /** Returns the index of the character break preceding the end of [selection]. */
     fun getPrecedingCharacterIndex() = annotatedString.text.findPrecedingBreak(selection.end)
 
     /**
@@ -165,13 +153,9 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         if (next != -1) setCursor(next)
     }
 
-    fun moveCursorToHome() = apply {
-        setCursor(0)
-    }
+    fun moveCursorToHome() = apply { setCursor(0) }
 
-    fun moveCursorToEnd() = apply {
-        setCursor(text.length)
-    }
+    fun moveCursorToEnd() = apply { setCursor(text.length) }
 
     fun moveCursorLeftByWord() = apply {
         if (isLtr()) {
@@ -191,15 +175,11 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
 
     fun getNextWordOffset(): Int? = layoutResult?.getNextWordOffsetForLayout()
 
-    private fun moveCursorNextByWord() = apply {
-        getNextWordOffset()?.let { setCursor(it) }
-    }
+    private fun moveCursorNextByWord() = apply { getNextWordOffset()?.let { setCursor(it) } }
 
     fun getPreviousWordOffset(): Int? = layoutResult?.getPrevWordOffset()
 
-    private fun moveCursorPrevByWord() = apply {
-        getPreviousWordOffset()?.let { setCursor(it) }
-    }
+    private fun moveCursorPrevByWord() = apply { getPreviousWordOffset()?.let { setCursor(it) } }
 
     fun moveCursorPrevByParagraph() = apply {
         var paragraphStart = text.findParagraphStart(selection.min)
@@ -217,25 +197,19 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         setCursor(paragraphEnd)
     }
 
-    fun moveCursorUpByLine() = apply(false) {
-        layoutResult?.jumpByLinesOffset(-1)?.let { setCursor(it) }
-    }
+    fun moveCursorUpByLine() =
+        apply(false) { layoutResult?.jumpByLinesOffset(-1)?.let { setCursor(it) } }
 
-    fun moveCursorDownByLine() = apply(false) {
-        layoutResult?.jumpByLinesOffset(1)?.let { setCursor(it) }
-    }
+    fun moveCursorDownByLine() =
+        apply(false) { layoutResult?.jumpByLinesOffset(1)?.let { setCursor(it) } }
 
     fun getLineStartByOffset(): Int? = layoutResult?.getLineStartByOffsetForLayout()
 
-    fun moveCursorToLineStart() = apply {
-        getLineStartByOffset()?.let { setCursor(it) }
-    }
+    fun moveCursorToLineStart() = apply { getLineStartByOffset()?.let { setCursor(it) } }
 
     fun getLineEndByOffset(): Int? = layoutResult?.getLineEndByOffsetForLayout()
 
-    fun moveCursorToLineEnd() = apply {
-        getLineEndByOffset()?.let { setCursor(it) }
-    }
+    fun moveCursorToLineEnd() = apply { getLineEndByOffset()?.let { setCursor(it) } }
 
     fun moveCursorToLineLeftSide() = apply {
         if (isLtr()) {
@@ -254,9 +228,8 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
     }
 
     // it selects a text from the original selection start to a current selection end
-    fun selectMovement() = apply(false) {
-        selection = TextRange(originalSelection.start, selection.end)
-    }
+    fun selectMovement() =
+        apply(false) { selection = TextRange(originalSelection.start, selection.end) }
 
     private fun isLtr(): Boolean {
         val direction = layoutResult?.getParagraphDirection(transformedEndOffset())
@@ -323,17 +296,18 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         }
 
         val y = getLineBottom(targetLine) - 1
-        val x = state.cachedX!!.also {
-            if ((isLtr() && it >= getLineRight(targetLine)) ||
-                (!isLtr() && it <= getLineLeft(targetLine))
-            ) {
-                return getLineEnd(targetLine, true)
+        val x =
+            state.cachedX!!.also {
+                if (
+                    (isLtr() && it >= getLineRight(targetLine)) ||
+                        (!isLtr() && it <= getLineLeft(targetLine))
+                ) {
+                    return getLineEnd(targetLine, true)
+                }
             }
-        }
 
-        val newOffset = getOffsetForPosition(Offset(x, y)).let {
-            offsetMapping.transformedToOriginal(it)
-        }
+        val newOffset =
+            getOffsetForPosition(Offset(x, y)).let { offsetMapping.transformedToOriginal(it) }
 
         return newOffset
     }
@@ -350,8 +324,7 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
         return offsetMapping.originalToTransformed(selection.max)
     }
 
-    private fun charOffset(offset: Int) =
-        offset.coerceAtMost(text.length - 1)
+    private fun charOffset(offset: Int) = offset.coerceAtMost(text.length - 1)
             .coerceAtLeast(0)
 
     companion object {
@@ -371,67 +344,58 @@ internal class TextPreparedSelection(
     layoutResult: TextLayoutResult? = null,
     offsetMapping: OffsetMapping = OffsetMapping.Identity,
     state: TextPreparedSelectionState = TextPreparedSelectionState()
-) : BaseTextPreparedSelection<TextPreparedSelection>(
-    originalText = originalText,
-    originalSelection = originalSelection,
-    layoutResult = layoutResult,
-    offsetMapping = offsetMapping,
-    state = state
-)
+) :
+    BaseTextPreparedSelection<TextPreparedSelection>(
+        originalText = originalText,
+        originalSelection = originalSelection,
+        layoutResult = layoutResult,
+        offsetMapping = offsetMapping,
+        state = state
+    )
 
 internal class TextFieldPreparedSelection(
     val currentValue: TextFieldValue,
     offsetMapping: OffsetMapping = OffsetMapping.Identity,
     val layoutResultProxy: TextLayoutResultProxy?,
     state: TextPreparedSelectionState = TextPreparedSelectionState()
-) : BaseTextPreparedSelection<TextFieldPreparedSelection>(
-    originalText = currentValue.annotatedString,
-    originalSelection = currentValue.selection,
-    offsetMapping = offsetMapping,
-    layoutResult = layoutResultProxy?.value,
-    state = state
-) {
+) :
+    BaseTextPreparedSelection<TextFieldPreparedSelection>(
+        originalText = currentValue.annotatedString,
+        originalSelection = currentValue.selection,
+        offsetMapping = offsetMapping,
+        layoutResult = layoutResultProxy?.value,
+        state = state
+    ) {
     val value
-        get() = currentValue.copy(
-            annotatedString = annotatedString,
-            selection = selection
-        )
+        get() = currentValue.copy(annotatedString = annotatedString, selection = selection)
 
     fun deleteIfSelectedOr(or: TextFieldPreparedSelection.() -> EditCommand?): List<EditCommand>? {
         return if (selection.collapsed) {
-            or(this)?.let {
-                listOf(it)
-            }
+            or(this)?.let { listOf(it) }
         } else {
-            listOf(
-                CommitTextCommand("", 0),
-                SetSelectionCommand(selection.min, selection.min)
-            )
+            listOf(CommitTextCommand("", 0), SetSelectionCommand(selection.min, selection.min))
         }
     }
 
-    fun moveCursorUpByPage() = apply(false) {
-        layoutResultProxy?.jumpByPagesOffset(-1)?.let { setCursor(it) }
-    }
+    fun moveCursorUpByPage() =
+        apply(false) { layoutResultProxy?.jumpByPagesOffset(-1)?.let { setCursor(it) } }
 
-    fun moveCursorDownByPage() = apply(false) {
-        layoutResultProxy?.jumpByPagesOffset(1)?.let { setCursor(it) }
-    }
+    fun moveCursorDownByPage() =
+        apply(false) { layoutResultProxy?.jumpByPagesOffset(1)?.let { setCursor(it) } }
 
     /**
-     * Returns a cursor position after jumping back or forth by [pagesAmount] number of pages,
-     * where `page` is the visible amount of space in the text field
+     * Returns a cursor position after jumping back or forth by [pagesAmount] number of pages, where
+     * `page` is the visible amount of space in the text field
      */
     private fun TextLayoutResultProxy.jumpByPagesOffset(pagesAmount: Int): Int {
-        val visibleInnerTextFieldRect = innerTextFieldCoordinates?.let { inner ->
-            decorationBoxCoordinates?.localBoundingBoxOf(inner)
-        } ?: Rect.Zero
+        val visibleInnerTextFieldRect =
+            innerTextFieldCoordinates?.let { inner ->
+                decorationBoxCoordinates?.localBoundingBoxOf(inner)
+            } ?: Rect.Zero
         val currentOffset = offsetMapping.originalToTransformed(currentValue.selection.end)
         val currentPos = value.getCursorRect(currentOffset)
         val x = currentPos.left
         val y = currentPos.top + visibleInnerTextFieldRect.size.height * pagesAmount
-        return offsetMapping.transformedToOriginal(
-            value.getOffsetForPosition(Offset(x, y))
-        )
+        return offsetMapping.transformedToOriginal(value.getOffsetForPosition(Offset(x, y)))
     }
 }

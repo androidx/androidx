@@ -23,7 +23,6 @@ import android.hardware.camera2.CaptureResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
@@ -80,7 +79,6 @@ import java.util.concurrent.ScheduledExecutorService;
  * </pre>
  * <p>This class is not thread-safe. All methods must be executed sequentially.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 final class ProcessingCaptureSession implements CaptureSessionInterface {
     private static final String TAG = "ProcessingCaptureSession";
@@ -617,6 +615,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                 mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
             }
         }
+    }
+
+    @Override
+    public boolean isInOpenState() {
+        return mCaptureSession.isInOpenState();
     }
 
     /**

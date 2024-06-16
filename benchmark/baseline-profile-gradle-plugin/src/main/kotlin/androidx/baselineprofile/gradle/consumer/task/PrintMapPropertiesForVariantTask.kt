@@ -26,8 +26,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /**
- * Only used for testing, this task does not have description or group so that it doesn't show up
- * in the task list. It prints internal properties to facilitate assertions in integration tests.
+ * Only used for testing, this task does not have description or group so that it doesn't show up in
+ * the task list. It prints internal properties to facilitate assertions in integration tests.
  */
 @DisableCachingByDefault(because = "Not worth caching. Used only for tests.")
 abstract class PrintMapPropertiesForVariantTask : DefaultTask() {
@@ -40,16 +40,16 @@ abstract class PrintMapPropertiesForVariantTask : DefaultTask() {
             project: Project,
             variant: Variant,
         ) {
-            project
-                .tasks
-                .maybeRegister<PrintMapPropertiesForVariantTask>(TASK_NAME_PREFIX, variant.name) {
-                    it.properties.set(variant.experimentalProperties)
-                }
+            project.tasks.maybeRegister<PrintMapPropertiesForVariantTask>(
+                TASK_NAME_PREFIX,
+                variant.name
+            ) {
+                it.properties.set(variant.experimentalProperties)
+            }
         }
     }
 
-    @get: Input
-    abstract val properties: MapProperty<String, Any>
+    @get:Input abstract val properties: MapProperty<String, Any>
 
     @TaskAction
     fun exec() {

@@ -55,13 +55,13 @@ class TextFieldBringIntoViewTest {
     private val textLayoutResult: TextLayoutResult = mock()
     private val bringIntoViewRequester: BringIntoViewRequester = mock()
 
-    /**
-     * Test implementation of offset map which doubles the offset in transformed text.
-     */
-    private val skippingOffsetMap = object : OffsetMapping {
-        override fun originalToTransformed(offset: Int): Int = offset * 2
-        override fun transformedToOriginal(offset: Int): Int = offset / 2
-    }
+    /** Test implementation of offset map which doubles the offset in transformed text. */
+    private val skippingOffsetMap =
+        object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = offset * 2
+
+            override fun transformedToOriginal(offset: Int): Int = offset / 2
+        }
 
     @Before
     fun setup() {
@@ -73,23 +73,22 @@ class TextFieldBringIntoViewTest {
         val rect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(rect)
         val point = Offset(5f, 6f)
-        layoutCoordinates = MockCoordinates(
-            rootOffset = point
-        )
+        layoutCoordinates = MockCoordinates(rootOffset = point)
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
 
-        val input = TextLayoutInput(
-            text = AnnotatedString(editorState.text),
-            style = TextStyle(),
-            placeholders = listOf(),
-            maxLines = Int.MAX_VALUE,
-            softWrap = true,
-            overflow = TextOverflow.Clip,
-            density = Density(1.0f),
-            layoutDirection = LayoutDirection.Ltr,
-            fontFamilyResolver = mock(),
-            constraints = mock()
-        )
+        val input =
+            TextLayoutInput(
+                text = AnnotatedString(editorState.text),
+                style = TextStyle(),
+                placeholders = listOf(),
+                maxLines = Int.MAX_VALUE,
+                softWrap = true,
+                overflow = TextOverflow.Clip,
+                density = Density(1.0f),
+                layoutDirection = LayoutDirection.Ltr,
+                fontFamilyResolver = mock(),
+                constraints = mock()
+            )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
 
         runBlocking {
@@ -108,22 +107,21 @@ class TextFieldBringIntoViewTest {
         val rect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(rect)
         val point = Offset(5f, 6f)
-        layoutCoordinates = MockCoordinates(
-            rootOffset = point
-        )
+        layoutCoordinates = MockCoordinates(rootOffset = point)
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(12))
-        val input = TextLayoutInput(
-            text = AnnotatedString(editorState.text),
-            style = TextStyle(),
-            placeholders = listOf(),
-            maxLines = Int.MAX_VALUE,
-            softWrap = true,
-            overflow = TextOverflow.Clip,
-            density = Density(1.0f),
-            layoutDirection = LayoutDirection.Ltr,
-            fontFamilyResolver = mock(),
-            constraints = mock()
-        )
+        val input =
+            TextLayoutInput(
+                text = AnnotatedString(editorState.text),
+                style = TextStyle(),
+                placeholders = listOf(),
+                maxLines = Int.MAX_VALUE,
+                softWrap = true,
+                overflow = TextOverflow.Clip,
+                density = Density(1.0f),
+                layoutDirection = LayoutDirection.Ltr,
+                fontFamilyResolver = mock(),
+                constraints = mock()
+            )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
 
         runBlocking {
@@ -144,22 +142,21 @@ class TextFieldBringIntoViewTest {
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 3))
 
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(rect)
-        val input = TextLayoutInput(
-            text = AnnotatedString(editorState.text),
-            style = TextStyle(),
-            placeholders = listOf(),
-            maxLines = Int.MAX_VALUE,
-            softWrap = true,
-            overflow = TextOverflow.Clip,
-            density = Density(1.0f),
-            layoutDirection = LayoutDirection.Ltr,
-            fontFamilyResolver = mock(),
-            constraints = mock()
-        )
+        val input =
+            TextLayoutInput(
+                text = AnnotatedString(editorState.text),
+                style = TextStyle(),
+                placeholders = listOf(),
+                maxLines = Int.MAX_VALUE,
+                softWrap = true,
+                overflow = TextOverflow.Clip,
+                density = Density(1.0f),
+                layoutDirection = LayoutDirection.Ltr,
+                fontFamilyResolver = mock(),
+                constraints = mock()
+            )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
-        layoutCoordinates = MockCoordinates(
-            rootOffset = point
-        )
+        layoutCoordinates = MockCoordinates(rootOffset = point)
 
         runBlocking {
             bringIntoViewRequester.bringSelectionEndIntoView(
@@ -178,29 +175,30 @@ class TextFieldBringIntoViewTest {
         val rect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(rect)
         val point = Offset(5f, 6f)
-        layoutCoordinates = MockCoordinates(
-            rootOffset = point
-        )
+        layoutCoordinates = MockCoordinates(rootOffset = point)
 
-        val input = TextLayoutInput(
-            // In this test case, transform the text into double characters text.
-            text = AnnotatedString("HHeelllloo,,  WWoorrlldd"),
-            style = TextStyle(),
-            placeholders = listOf(),
-            maxLines = Int.MAX_VALUE,
-            softWrap = true,
-            overflow = TextOverflow.Clip,
-            density = Density(1.0f),
-            layoutDirection = LayoutDirection.Ltr,
-            fontFamilyResolver = mock(),
-            constraints = mock()
-        )
+        val input =
+            TextLayoutInput(
+                // In this test case, transform the text into double characters text.
+                text = AnnotatedString("HHeelllloo,,  WWoorrlldd"),
+                style = TextStyle(),
+                placeholders = listOf(),
+                maxLines = Int.MAX_VALUE,
+                softWrap = true,
+                overflow = TextOverflow.Clip,
+                density = Density(1.0f),
+                layoutDirection = LayoutDirection.Ltr,
+                fontFamilyResolver = mock(),
+                constraints = mock()
+            )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
 
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offset * 2
-            override fun transformedToOriginal(offset: Int): Int = offset / 2
-        }
+        val offsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offset * 2
+
+                override fun transformedToOriginal(offset: Int): Int = offset / 2
+            }
 
         // The beginning of the text.
         runBlocking {
@@ -246,10 +244,13 @@ class TextFieldBringIntoViewTest {
     ) : LayoutCoordinates {
         override val providedAlignmentLines: Set<AlignmentLine>
             get() = emptySet()
+
         override val parentLayoutCoordinates: LayoutCoordinates?
             get() = null
+
         override val parentCoordinates: LayoutCoordinates?
             get() = null
+
         override val isAttached: Boolean
             get() = true
 
@@ -258,6 +259,7 @@ class TextFieldBringIntoViewTest {
         override fun localToWindow(relativeToLocal: Offset): Offset = globalOffset
 
         override fun localToRoot(relativeToLocal: Offset): Offset = rootOffset
+
         override fun localPositionOf(
             sourceCoordinates: LayoutCoordinates,
             relativeToSource: Offset

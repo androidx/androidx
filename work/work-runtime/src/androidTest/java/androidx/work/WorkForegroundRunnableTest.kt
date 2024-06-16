@@ -55,10 +55,8 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     public fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().targetContext
         executor = SynchronousExecutor()
-        configuration = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setExecutor(executor)
-            .build()
+        configuration =
+            Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).setExecutor(executor).build()
         progressUpdater = mock(ProgressUpdater::class.java)
         foregroundUpdater = CapturingForegroundUpdater()
         taskExecutor = InstantWorkTaskExecutor()
@@ -68,14 +66,11 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @MediumTest
     @SdkSuppress(maxSdkVersion = 30)
     public fun doesNothing_forRegularWorkRequests() {
-        val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .build()
+        val work = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
 
         insertWork(work)
         val worker = getWorker(work)
-        runBlocking {
-            workForeground(work, worker)
-        }
+        runBlocking { workForeground(work, worker) }
         assertThat(foregroundUpdater.calledParams).isNull()
     }
 
@@ -89,9 +84,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         insertWork(work)
         val worker = getWorker(work)
         try {
-            runBlocking {
-                workForeground(work, worker)
-            }
+            runBlocking { workForeground(work, worker) }
             fail("Worker should have thrown an IllegalStateException at the `foregroundInfo` call.")
         } catch (ise: IllegalStateException) {
             // Nothing to do here. Test succeeded.
@@ -109,11 +102,10 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         insertWork(work)
         val worker = getWorker(work)
 
-        runBlocking {
-            workForeground(work, worker)
-        }
-        val (id, foregroundInfo) = foregroundUpdater.calledParams
-            ?: throw AssertionError("setForegroundAsync must be called")
+        runBlocking { workForeground(work, worker) }
+        val (id, foregroundInfo) =
+            foregroundUpdater.calledParams
+                ?: throw AssertionError("setForegroundAsync must be called")
         assertThat(id).isEqualTo(work.id)
         assertThat(foregroundInfo.notificationId).isEqualTo(TestForegroundWorker.NotificationId)
     }
@@ -150,35 +142,29 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
             newWorkerParams(work)
         ) as Worker
 
-    private suspend fun workForeground(
-        work: OneTimeWorkRequest,
-        worker: Worker
-    ) = workForeground(
-        context,
-        work.workSpec,
-        worker,
-        foregroundUpdater,
-        taskExecutor
-    )
+    private suspend fun workForeground(work: OneTimeWorkRequest, worker: Worker) =
+        workForeground(context, work.workSpec, worker, foregroundUpdater, taskExecutor)
 
-    private fun newWorkerParams(workRequest: WorkRequest) = WorkerParameters(
-        UUID.fromString(workRequest.stringId),
-        Data.EMPTY,
-        listOf<String>(),
-        WorkerParameters.RuntimeExtras(),
-        1,
-        0,
-        executor,
-        Dispatchers.Default,
-        taskExecutor,
-        configuration.workerFactory,
-        progressUpdater,
-        foregroundUpdater
-    )
+    private fun newWorkerParams(workRequest: WorkRequest) =
+        WorkerParameters(
+            UUID.fromString(workRequest.stringId),
+            Data.EMPTY,
+            listOf<String>(),
+            WorkerParameters.RuntimeExtras(),
+            1,
+            0,
+            executor,
+            Dispatchers.Default,
+            taskExecutor,
+            configuration.workerFactory,
+            progressUpdater,
+            foregroundUpdater
+        )
 }
 
 private class CapturingForegroundUpdater : ForegroundUpdater {
     var calledParams: Pair<UUID, ForegroundInfo>? = null
+
     override fun setForegroundAsync(
         context: Context,
         id: UUID,

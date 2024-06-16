@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 
@@ -29,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Configuration for a {@link androidx.camera.core.Camera}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraConfig extends ReadableConfig {
 
     // Option Declarations:

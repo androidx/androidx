@@ -55,17 +55,12 @@ import org.mockito.kotlin.whenever
 @RequiresApi(Build.VERSION_CODES.M) // To call ActivityOptions.makeBasic()
 class RequiresWindowSdkExtensionTests {
 
-    @get:Rule
-    val testRule = WindowSdkExtensionsRule()
+    @get:Rule val testRule = WindowSdkExtensionsRule()
 
-    @Mock
-    private lateinit var embeddingExtension: ActivityEmbeddingComponent
-    @Mock
-    private lateinit var classLoader: ClassLoader
-    @Mock
-    private lateinit var applicationContext: Context
-    @Mock
-    private lateinit var activityOptions: ActivityOptions
+    @Mock private lateinit var embeddingExtension: ActivityEmbeddingComponent
+    @Mock private lateinit var classLoader: ClassLoader
+    @Mock private lateinit var applicationContext: Context
+    @Mock private lateinit var activityOptions: ActivityOptions
 
     private lateinit var mockAnnotations: AutoCloseable
     private lateinit var embeddingCompat: EmbeddingCompat
@@ -73,17 +68,17 @@ class RequiresWindowSdkExtensionTests {
     @Before
     fun setUp() {
         mockAnnotations = MockitoAnnotations.openMocks(this)
-        embeddingCompat = EmbeddingCompat(
-            embeddingExtension,
-            EmbeddingAdapter(PredicateAdapter(classLoader)),
-            ConsumerAdapter(classLoader),
-            applicationContext
-        )
+        embeddingCompat =
+            EmbeddingCompat(
+                embeddingExtension,
+                EmbeddingAdapter(PredicateAdapter(classLoader)),
+                ConsumerAdapter(classLoader),
+                applicationContext
+            )
 
-        doReturn(activityOptions).whenever(embeddingExtension).setLaunchingActivityStack(
-            activityOptions,
-            INVALID_ACTIVITY_STACK_TOKEN
-        )
+        doReturn(activityOptions)
+            .whenever(embeddingExtension)
+            .setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
     }
 
     @After
@@ -126,9 +121,10 @@ class RequiresWindowSdkExtensionTests {
         testRule.overrideExtensionVersion(2)
 
         embeddingCompat.setSplitAttributesCalculator { _ -> TEST_SPLIT_ATTRIBUTES }
-        verify(embeddingExtension).setSplitAttributesCalculator(
-            any<Function<OemSplitAttributesCalculatorParams, OemSplitAttributes>>()
-        )
+        verify(embeddingExtension)
+            .setSplitAttributesCalculator(
+                any<Function<OemSplitAttributesCalculatorParams, OemSplitAttributes>>()
+            )
 
         embeddingCompat.clearSplitAttributesCalculator()
         verify(embeddingExtension).clearSplitAttributesCalculator()
@@ -154,37 +150,35 @@ class RequiresWindowSdkExtensionTests {
         testRule.overrideExtensionVersion(3)
 
         embeddingCompat.setSplitAttributesCalculator { _ -> TEST_SPLIT_ATTRIBUTES }
-        verify(embeddingExtension).setSplitAttributesCalculator(
-            any<Function<OemSplitAttributesCalculatorParams, OemSplitAttributes>>()
-        )
+        verify(embeddingExtension)
+            .setSplitAttributesCalculator(
+                any<Function<OemSplitAttributesCalculatorParams, OemSplitAttributes>>()
+            )
 
         embeddingCompat.clearSplitAttributesCalculator()
         verify(embeddingExtension).clearSplitAttributesCalculator()
 
         embeddingCompat.setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
 
-        verify(embeddingExtension).setLaunchingActivityStack(
-            activityOptions,
-            INVALID_ACTIVITY_STACK_TOKEN
-        )
+        verify(embeddingExtension)
+            .setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
 
         embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
-        verify(embeddingExtension).updateSplitAttributes(
-            INVALID_SPLIT_INFO_TOKEN,
-            OemSplitAttributes.Builder().build()
-        )
+        verify(embeddingExtension)
+            .updateSplitAttributes(INVALID_SPLIT_INFO_TOKEN, OemSplitAttributes.Builder().build())
 
         embeddingCompat.invalidateTopVisibleSplitAttributes()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
     }
 
     companion object {
-        private val TEST_SPLIT_INFO = SplitInfo(
-            ActivityStack(emptyList(), isEmpty = true),
-            ActivityStack(emptyList(), isEmpty = true),
-            SplitAttributes.Builder().build(),
-            INVALID_SPLIT_INFO_TOKEN,
-        )
+        private val TEST_SPLIT_INFO =
+            SplitInfo(
+                ActivityStack(emptyList(), isEmpty = true),
+                ActivityStack(emptyList(), isEmpty = true),
+                SplitAttributes.Builder().build(),
+                INVALID_SPLIT_INFO_TOKEN,
+            )
 
         private val TEST_SPLIT_ATTRIBUTES = SplitAttributes.Builder().build()
     }

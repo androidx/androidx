@@ -19,8 +19,8 @@ package androidx.privacysandbox.sdkruntime.client
 /**
  * A callback for tracking events SDK sandbox death.
  *
- * The callback can be added using [SdkSandboxManagerCompat.addSdkSandboxProcessDeathCallback]
- * and removed using [SdkSandboxManagerCompat.removeSdkSandboxProcessDeathCallback]
+ * The callback can be added using [SdkSandboxManagerCompat.addSdkSandboxProcessDeathCallback] and
+ * removed using [SdkSandboxManagerCompat.removeSdkSandboxProcessDeathCallback]
  *
  * @see [android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback]
  */
@@ -30,11 +30,12 @@ interface SdkSandboxProcessDeathCallbackCompat {
      * various reasons, for example, due to memory pressure on the system, or a crash in the
      * sandbox.
      *
-     * The system will automatically restart the sandbox process if it died due to a crash.
-     * However, the state of the sandbox will be lost - so any SDKs that were loaded previously
-     * would have to be loaded again, using [SdkSandboxManagerCompat.loadSdk] to continue using them.
+     * The system will automatically restart the sandbox process if it died due to a crash. However,
+     * the state of the sandbox will be lost - so any SDKs that were loaded previously would have to
+     * be loaded again, using [SdkSandboxManagerCompat.loadSdk] to continue using them.
      *
-     * @see [android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback.onSdkSandboxDied]
+     * @see
+     *   [android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback.onSdkSandboxDied]
      */
     fun onSdkSandboxDied()
 }

@@ -57,16 +57,18 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
             }
 
             when (qualifiedName) {
-                KOTLIN_EXPERIMENTAL_ANNOTATION, KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
-                JAVA_EXPERIMENTAL_ANNOTATION, JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
+                KOTLIN_EXPERIMENTAL_ANNOTATION,
+                KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
+                JAVA_EXPERIMENTAL_ANNOTATION,
+                JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
                     validateAnnotationRetention(annotated)
                 }
             }
         }
 
         /**
-         * Validates that the [annotated] element has the correct retention, reporting an issue
-         * if it does not.
+         * Validates that the [annotated] element has the correct retention, reporting an issue if
+         * it does not.
          */
         private fun validateAnnotationRetention(annotated: UAnnotated) {
             val isKotlin = isKotlin(annotated.lang)
@@ -89,9 +91,10 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
                 annotationClass = "java.lang.annotation.Retention"
             }
 
-            val actualRetention = annotations.find { annotation ->
-                annotationClass == annotation.qualifiedName
-            }?.extractAttribute(context, "value") ?: defaultRetention
+            val actualRetention =
+                annotations
+                    .find { annotation -> annotationClass == annotation.qualifiedName }
+                    ?.extractAttribute(context, "value") ?: defaultRetention
 
             if (expectedRetention != actualRetention) {
                 reportRetention(
@@ -103,8 +106,8 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
         }
 
         /**
-         * Formats [retention] for presentation in an error message by adding code font and
-         * labeling it as the default value, if applicable.
+         * Formats [retention] for presentation in an error message by adding code font and labeling
+         * it as the default value, if applicable.
          */
         private fun formatRetention(retention: String, defaultRetention: String): String {
             return if (defaultRetention == retention) "default (`$retention`)" else "`$retention`"
@@ -116,7 +119,9 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
          */
         private fun reportRetention(annotated: UAnnotated, expected: String, actual: String) {
             context.report(
-                ISSUE_RETENTION, annotated, context.getNameLocation(annotated),
+                ISSUE_RETENTION,
+                annotated,
+                context.getNameLocation(annotated),
                 "Experimental annotation has $actual retention, should use $expected"
             )
         }
@@ -127,46 +132,51 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
          */
         private fun reportKotlinUsage(annotated: UAnnotated) {
             context.report(
-                ISSUE_KOTLIN_USAGE, annotated, context.getNameLocation(annotated),
+                ISSUE_KOTLIN_USAGE,
+                annotated,
+                context.getNameLocation(annotated),
                 "Experimental annotation should use kotlin.RequiresOptIn"
             )
         }
     }
 
     companion object {
-        val ISSUE_KOTLIN_USAGE = Issue.create(
-            "WrongRequiresOptIn",
-            "Experimental annotations defined in Kotlin must use kotlin.RequiresOptIn",
-            """
+        val ISSUE_KOTLIN_USAGE =
+            Issue.create(
+                "WrongRequiresOptIn",
+                "Experimental annotations defined in Kotlin must use kotlin.RequiresOptIn",
+                """
             Experimental features defined in Kotlin source code must be annotated with the Kotlin
             `@RequiresOptIn` annotation. Using `androidx.annotation.RequiresOptIn` will prevent the
             Kotlin compiler from enforcing its opt-in policies.
             """,
-            Category.CORRECTNESS, 4, Severity.ERROR,
-            Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+                Category.CORRECTNESS,
+                4,
+                Severity.ERROR,
+                Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
 
-        val ISSUE_RETENTION = Issue.create(
-            "ExperimentalAnnotationRetention",
-            "Experimental annotation with incorrect retention",
-            "Experimental annotations defined in Java source should use default " +
-                "(`CLASS`) retention, while Kotlin-sourced annotations should use `BINARY` " +
-                "retention.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE_RETENTION =
+            Issue.create(
+                "ExperimentalAnnotationRetention",
+                "Experimental annotation with incorrect retention",
+                "Experimental annotations defined in Java source should use default " +
+                    "(`CLASS`) retention, while Kotlin-sourced annotations should use `BINARY` " +
+                    "retention.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
 
-        val ISSUES = listOf(
-            ISSUE_RETENTION,
-            ISSUE_KOTLIN_USAGE
-        )
+        val ISSUES = listOf(ISSUE_RETENTION, ISSUE_KOTLIN_USAGE)
     }
 }
 
 /**
  * Attempts to extract the name of the constant used for an attribute value, returning
- * [fallbackValue] if the attribute could not be found or `null` if it couldn't understand the
- * value representation.
+ * [fallbackValue] if the attribute could not be found or `null` if it couldn't understand the value
+ * representation.
  */
 @Suppress("SameParameterValue")
 fun UAnnotation.extractAttribute(
@@ -175,10 +185,11 @@ fun UAnnotation.extractAttribute(
     fallbackValue: String? = null,
 ): String? {
     val attrValue = findAttributeValue(attrName) ?: return fallbackValue
-    val value = attrValue.let {
-        ConstantEvaluator.evaluate(context, it)
-    } ?: (attrValue as? UResolvable)?.resolve()
+    val value =
+        attrValue.let { ConstantEvaluator.evaluate(context, it) }
+            ?: (attrValue as? UResolvable)?.resolve()
     return when (value) {
+        is String -> value
         is PsiField -> value.name
         is Pair<*, *> -> (value.second as? Name)?.identifier
         else -> null

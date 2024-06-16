@@ -63,179 +63,210 @@ class CheckBoxBackportTranslatorTest {
     }
 
     @Test
-    fun canTranslateCheckBox_resolved_unchecked() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            CheckBox(
-                checked = false,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = Color.Red,
-                    uncheckedColor = Color.Blue
-                )
-            )
-        }
+    fun canTranslateCheckBox_resolved_unchecked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    CheckBox(
+                        checked = false,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = Color.Red,
+                                uncheckedColor = Color.Blue
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Blue)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Blue)
+        }
 
     @Test
-    fun canTranslateCheckBox_resolved_checked() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            CheckBox(
-                checked = true,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = Color.Red,
-                    uncheckedColor = Color.Blue
-                )
-            )
-        }
+    fun canTranslateCheckBox_resolved_checked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = Color.Red,
+                                uncheckedColor = Color.Blue
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Red)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Red)
+        }
 
     @Test
-    fun canTranslateCheckBox_dayNight_unchecked_day() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            CheckBox(
-                checked = false,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
-                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
-                )
-            )
-        }
+    fun canTranslateCheckBox_dayNight_unchecked_day() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    CheckBox(
+                        checked = false,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Yellow, night = Color.Green)
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Yellow)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Yellow)
+        }
 
     @Test
-    fun canTranslateCheckBox_dayNight_unchecked_night() = fakeCoroutineScope.runTest {
-        val rv = darkContext.runAndTranslate {
-            CheckBox(
-                checked = false,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
-                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
-                )
-            )
-        }
+    fun canTranslateCheckBox_dayNight_unchecked_night() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                darkContext.runAndTranslate {
+                    CheckBox(
+                        checked = false,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Yellow, night = Color.Green)
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Green)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Green)
+        }
 
     @Test
-    fun canTranslateCheckBox_dayNight_checked_day() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            CheckBox(
-                checked = true,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
-                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
-                )
-            )
-        }
+    fun canTranslateCheckBox_dayNight_checked_day() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Yellow, night = Color.Green)
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Red)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Red)
+        }
 
     @Test
-    fun canTranslateCheckBox_dayNight_checked_night() = fakeCoroutineScope.runTest {
-        val rv = darkContext.runAndTranslate {
-            CheckBox(
-                checked = true,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
-                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
-                )
-            )
-        }
+    fun canTranslateCheckBox_dayNight_checked_night() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                darkContext.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                                uncheckedColor =
+                                    ColorProvider(day = Color.Yellow, night = Color.Green)
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Blue)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Blue)
+        }
 
     @Test
-    fun canTranslateCheckBox_resource_checked() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            CheckBox(
-                checked = true,
-                onCheckedChange = null,
-                text = "Check",
-                colors = CheckboxDefaults.colors(
-                    checkedColor = FixedColorProvider(Color.Red),
-                    uncheckedColor = FixedColorProvider(Color.Blue)
-                )
-            )
-        }
+    fun canTranslateCheckBox_resource_checked() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        text = "Check",
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = FixedColorProvider(Color.Red),
+                                uncheckedColor = FixedColorProvider(Color.Blue)
+                            )
+                    )
+                }
 
-        val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter(Color.Red)
-    }
+            val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            val icon = checkBoxRoot.findViewByType<ImageView>()
+            assertThat(icon).hasColorFilter(Color.Red)
+        }
 
     @Test
-    fun canTranslateCheckBox_onCheckedChange_null() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            CheckBox(
-                checked = true,
-                onCheckedChange = null,
-                text = "CheckBox",
-            )
-        }
+    fun canTranslateCheckBox_onCheckedChange_null() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        text = "CheckBox",
+                    )
+                }
 
-        val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(checkboxRoot.hasOnClickListeners()).isFalse()
-    }
+            val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(checkboxRoot.hasOnClickListeners()).isFalse()
+        }
 
     @Test
-    fun canTranslateCheckBox_onCheckedChange_withAction() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            CheckBox(
-                checked = true,
-                onCheckedChange = actionRunCallback<ActionCallback>(),
-                text = "CheckBox",
-            )
-        }
+    fun canTranslateCheckBox_onCheckedChange_withAction() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = actionRunCallback<ActionCallback>(),
+                        text = "CheckBox",
+                    )
+                }
 
-        val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
-        assertThat(checkboxRoot.hasOnClickListeners()).isTrue()
-    }
+            val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+            assertThat(checkboxRoot.hasOnClickListeners()).isTrue()
+        }
 
     @Test
     fun canTranslateCheckBoxWithSemanticsModifier_contentDescription() =
         fakeCoroutineScope.runTest {
-            val rv = context.runAndTranslate {
-                CheckBox(
-                    checked = true,
-                    onCheckedChange = actionRunCallback<ActionCallback>(),
-                    text = "CheckBox",
-                    modifier = GlanceModifier.semantics {
-                        contentDescription = "Custom checkbox description"
-                    },
-                )
-            }
+            val rv =
+                context.runAndTranslate {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = actionRunCallback<ActionCallback>(),
+                        text = "CheckBox",
+                        modifier =
+                            GlanceModifier.semantics {
+                                contentDescription = "Custom checkbox description"
+                            },
+                    )
+                }
 
             val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
             assertThat(checkboxRoot.contentDescription).isEqualTo("Custom checkbox description")

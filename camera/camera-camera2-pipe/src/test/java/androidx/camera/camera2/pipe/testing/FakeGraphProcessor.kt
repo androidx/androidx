@@ -40,10 +40,13 @@ internal class FakeGraphProcessor(
 ) : GraphProcessor, GraphListener {
     var active = true
         private set
+
     var closed = false
         private set
+
     var repeatingRequest: Request? = null
         private set
+
     val requestQueue: List<List<Request>>
         get() = _requestQueue
 

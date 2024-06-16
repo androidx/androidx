@@ -26,9 +26,7 @@ data class GraphDataPoint(
     /** The time this data was actually received - used to graph latency */
     val timeArrivedNanos: Long,
 
-    /**
-     * TODO("Make custom class to store value to eliminate the need for Number ext. functions")
-     */
+    /** TODO("Make custom class to store value to eliminate the need for Number ext. functions") */
     val value: Number
 ) : Comparable<GraphDataPoint> {
 

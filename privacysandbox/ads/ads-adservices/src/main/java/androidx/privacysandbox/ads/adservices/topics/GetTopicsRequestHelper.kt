@@ -22,16 +22,15 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 
-/**
- * Helper class to consolidate conversion logic for GetTopicsRequest.
- */
+/** Helper class to consolidate conversion logic for GetTopicsRequest. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("ClassVerificationFailure")
 object GetTopicsRequestHelper {
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-    internal fun convertRequestWithRecordObservation(request: GetTopicsRequest):
-        android.adservices.topics.GetTopicsRequest {
+    internal fun convertRequestWithRecordObservation(
+        request: GetTopicsRequest
+    ): android.adservices.topics.GetTopicsRequest {
         return android.adservices.topics.GetTopicsRequest.Builder()
             .setAdsSdkName(request.adsSdkName)
             .setShouldRecordObservation(request.shouldRecordObservation)
@@ -40,8 +39,9 @@ object GetTopicsRequestHelper {
 
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-    internal fun convertRequestWithoutRecordObservation(request: GetTopicsRequest):
-        android.adservices.topics.GetTopicsRequest {
+    internal fun convertRequestWithoutRecordObservation(
+        request: GetTopicsRequest
+    ): android.adservices.topics.GetTopicsRequest {
         return android.adservices.topics.GetTopicsRequest.Builder()
             .setAdsSdkName(request.adsSdkName)
             .build()

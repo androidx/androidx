@@ -27,12 +27,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [AnimatedContentDetector].
- */
+/** Test for [AnimatedContentDetector]. */
 class AnimatedContentDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = AnimatedContentDetector()
 
@@ -40,11 +37,12 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         mutableListOf(AnimatedContentDetector.UnusedContentLambdaTargetStateParameter)
 
     // Simplified AnimatedContent.kt stubs
-    private val AnimatedContentStub = bytecodeStub(
-        filename = "AnimatedContent.kt",
-        filepath = "androidx/compose/animation",
-        checksum = 0x36ddd76f,
-        """
+    private val AnimatedContentStub =
+        bytecodeStub(
+            filename = "AnimatedContent.kt",
+            filepath = "androidx/compose/animation",
+            checksum = 0x36ddd76f,
+            """
             package androidx.compose.animation
 
             import androidx.compose.runtime.Composable
@@ -73,13 +71,13 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
                 content: @Composable AnimatedContentScope.(T) -> Unit
             ) {}
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0ueSSsxLKcrPTKnQS87PLcgvTtVL
         zMvMTSzJzM8TEnQEM1NTnPPzSlLzSrxLuHi5mNPy84XYQlKLgVwlBi0GADRx
         8BlYAAAA
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentKt＄AnimatedContent＄1.class:
         H4sIAAAAAAAA/6VVW28bRRT+Zu34sjG5QZsbBNqa1k7arBPKpXUaakxCF4xB
         OIqE8jReb5Kxd2ei3bVV3vJHeOGBZyokiqiEIh75Uahn1ia3pimmDztz5ty+
@@ -103,7 +101,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         srq9g4SNOzaWbVgo2VjBqo0PcHcHLMSH+GgHIyE+DvFJiHshFkKMPwc4Eluy
         /wcAAA==
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentKt＄AnimatedContent＄2.class:
         H4sIAAAAAAAA/6VUW08TQRT+Zru9Um1B5aaiIkILyEJVHmxDJBXCxoqJNE0M
         T9PuAkN3Z01n2+Abf8QXf4HEBxJNDPHRH2U8s1RjUDGGZOecb79zmZlzzu7X
@@ -122,7 +120,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         0vo+HpF+TJ7jFHV9GzEbN2zctDGBWzZu446NSdzdBlN02XvbiCtMK8woDCnk
         FPLfAe45AxX0BAAA
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentKt＄AnimatedContent＄3.class:
         H4sIAAAAAAAA/6VVW3PbVBD+juz4opjcoM0NArSmtZM2ctJyae2GGpNQgTEM
         zmSGydOxfJIcWzrKSLKnvOWR38EDz3SYoQydYTI88qOY7pFNmqQhYPqgs3v2
@@ -146,7 +144,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         u0jYuG1j1YaFko01rNu4g7u7YCHexwe7GAvxYYiPQtwLsRRi8jmnoznY6gcA
         AA==
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentKt＄AnimatedContent＄4.class:
         H4sIAAAAAAAA/6VUW08TQRT+Zru9Um1B5eYdEVpAFiryYBsiqRA2VkykaWJ4
         mnYXGLo7Y7rbBt949Hf4CyQ+kGhiiI/+KOOZpRqDqDEkO+d8+53LzJxzdr9+
@@ -165,7 +163,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         jlPU9W3EbNywcdPGLdy2cQd3bUzg3jZYQJe9v414gKkA0wGGAuQC5L8D/xWd
         4d8EAAA=
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentKt.class:
         H4sIAAAAAAAA/+1WS1MbRxD+ZiWklRAgVhYgOTEOlmPMwxKCJA4ixIRAUAyy
         Y8nkQR41SAtekHapnRWFLy5yS+Uf5JBL/kFycuWQonzMj0qlZ7W8JJ5Fxckh
@@ -197,7 +195,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         fgUxgTaBTwUeCqQFNIFFgSWBgsAjgWsCjwU+cwN6BJ4IFAVUgVGBxN8a7RIf
         yw8AAA==
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentScope.class:
         H4sIAAAAAAAA/5VRu04CQRQ9d5BFV1TEF/iq1cIVY6cxURMTEtREDA3VsDvR
         AXbGsIOx5Fv8AysTC0Ms/Sjj3ZXKzubkPO7kPubr+/0DwBG2CIE00cDq6DkI
@@ -209,7 +207,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         AWbgZ/lGhmvYzH6SMMtZsY1cHXN1zNexgBJTLNZRxlIblGAZK5wn8BOsJvB+
         APKoOCQGAgAA
         """,
-        """
+            """
         androidx/compose/animation/AnimatedContentTransitionScope.class:
         H4sIAAAAAAAA/51Ru04bQRQ9d4zXsDFgHB4mCakTChasNAiEBEhIlhyQAnJD
         Nd4dwdjeGbQzRi79LfxBKqQUkZWSj0LcWahS0hydxx3dxzw9//kL4Ae2CPvS
@@ -221,7 +219,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         NxOBTcaoNGv4xFh/LcAC4jL/XOIGvpS/S/jAWf0alQ4WO1jqYBkNpljpoImP
         1yCHVaxx7hA7rDtEL0Tug+oaAgAA
         """,
-        """
+            """
         androidx/compose/animation/ContentTransform.class:
         H4sIAAAAAAAA/5VRy04bMRQ910kmYUibBy0N0HbNQzCA2BUhBaRKkQJIgLJh
         5WQMOMnYaOwglvkW/oAVEgsUsexHVb0z5Ae6OToPW/f4+s/f1zcAB/hB2JIm
@@ -233,7 +231,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         CmOQmxWsMlY/DmABYZ6v5fgN3/MfJCxyVr1GoYNPHXzuoIY6UzQ6aGLpGuTw
         BV85dwgdlh2Cf9GA1Gv+AQAA
         """,
-        """
+            """
         androidx/compose/animation/Transition.class:
         H4sIAAAAAAAA/41SXU8TQRQ9s7vdtmuhSwEFxC8U2RZ1gfhgkGCQhKRJ1YQ2
         jQlPQ7vBgXbW7EwJj33yh/gLNNGY+GAaHv1RxjvLBomQ6Mu95545c+beu/vz
@@ -250,13 +248,14 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         wa5jro6bdczjFkHcruMO7u6BKdzDwh79dZhQuK/wQKGkkFeoKEwqTCuM/QaR
         /XoCyAMAAA==
         """
-    )
+        )
 
     @Test
     fun unreferencedParameters() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.animation.*
@@ -280,10 +279,10 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
                     Transition(foo).AnimatedContent(content = { _ -> if (foo) { /**/ } else { /**/ } })
                 }
             """
-            ),
-            AnimatedContentStub,
-            Stubs.Composable
-        )
+                ),
+                AnimatedContentStub,
+                Stubs.Composable
+            )
             .run()
             .expect(
                 """
@@ -330,9 +329,10 @@ src/foo/test.kt:22: Error: Target state parameter _ is not used [UnusedContentLa
 
     @Test
     fun unreferencedParameter_shadowedNames() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package foo
 
                 import androidx.compose.animation.*
@@ -378,10 +378,10 @@ src/foo/test.kt:22: Error: Target state parameter _ is not used [UnusedContentLa
                     }
                 }
             """
-            ),
-            AnimatedContentStub,
-            Stubs.Composable
-        )
+                ),
+                AnimatedContentStub,
+                Stubs.Composable
+            )
             .run()
             .expect(
                 """
@@ -404,9 +404,10 @@ src/foo/test.kt:38: Error: Target state parameter it is not used [UnusedContentL
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
             package foo
 
             import androidx.compose.animation.*
@@ -485,12 +486,11 @@ src/foo/test.kt:38: Error: Target state parameter it is not used [UnusedContentL
                 )
             }
         """
-            ),
-            AnimatedContentStub,
-            Stubs.Composable
-        )
+                ),
+                AnimatedContentStub,
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

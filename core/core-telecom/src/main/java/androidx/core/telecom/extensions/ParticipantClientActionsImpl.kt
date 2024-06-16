@@ -19,6 +19,7 @@ package androidx.core.telecom.extensions
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
+import androidx.core.telecom.CallsManager
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,14 +29,13 @@ import kotlinx.coroutines.flow.asStateFlow
 @RequiresApi(Build.VERSION_CODES.O)
 internal class ParticipantClientActionsImpl(
     internal var mNegotiatedActions: Set<Int>,
-    internal var mOnInitializationComplete: (ParticipantClientActions) -> Unit
+    internal var mOnInitializationComplete: (ParticipantClientActionsImpl) -> Unit
 ) : ParticipantClientActions, IParticipantStateListener.Stub() {
     private val mParticipantsStateFlow: MutableStateFlow<Set<Participant>> =
         MutableStateFlow(emptySet())
-    private val mRaisedHandsStateFlow: MutableStateFlow<Set<Int>> =
-        MutableStateFlow(emptySet())
+    private val mRaisedHandsStateFlow: MutableStateFlow<Set<Int>> = MutableStateFlow(emptySet())
     private val mActiveParticipantStateFlow: MutableStateFlow<Int> =
-        MutableStateFlow(-1)
+        MutableStateFlow(CallsManager.NULL_PARTICIPANT_ID)
 
     internal var mIsParticipantExtensionSupported: Boolean = true
     internal var mIsInitializationComplete = false
@@ -47,6 +47,9 @@ internal class ParticipantClientActionsImpl(
 
     override val negotiatedActions: Set<Int>
         get() = mNegotiatedActions
+
+    val initializationComplete: Boolean
+        get() = mIsInitializationComplete
 
     override val isParticipantExtensionSupported: Boolean
         get() = mIsParticipantExtensionSupported
@@ -62,14 +65,14 @@ internal class ParticipantClientActionsImpl(
 
     override suspend fun toggleHandRaised(isHandRaised: Boolean): CallControlResult {
         val resultCallback = ActionsResultCallback()
-        mActions.toggleHandRaised(resultCallback)
+        mActions.setHandRaised(isHandRaised, resultCallback)
 
         return resultCallback.waitForResponse()
     }
 
-    override suspend fun kickParticipant(participantId: Int): CallControlResult {
+    override suspend fun kickParticipant(participant: Participant): CallControlResult {
         val resultCallback = ActionsResultCallback()
-        mActions.kickParticipant(participantId, resultCallback)
+        mActions.kickParticipant(participant, resultCallback)
 
         return resultCallback.waitForResponse()
     }
@@ -94,5 +97,4 @@ internal class ParticipantClientActionsImpl(
         mIsInitializationComplete = true
         mOnInitializationComplete(this)
     }
-    // Todo: Consider defining an internal cache here to handle the case of out of order operations.
 }

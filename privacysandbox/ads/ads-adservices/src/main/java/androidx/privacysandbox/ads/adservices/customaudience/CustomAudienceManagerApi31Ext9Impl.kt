@@ -25,5 +25,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-class CustomAudienceManagerApi31Ext9Impl(context: Context) : CustomAudienceManagerImplCommon(
-    android.adservices.customaudience.CustomAudienceManager.get(context))
+class CustomAudienceManagerApi31Ext9Impl(context: Context) :
+    CustomAudienceManagerImplCommon(
+        android.adservices.customaudience.CustomAudienceManager.get(context)
+    )

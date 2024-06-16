@@ -20,7 +20,8 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import java.util.Objects
 
 /**
- * This class will be used to return encrypted topic cipher text along with necessary fields required to decrypt it.
+ * This class will be used to return encrypted topic cipher text along with necessary fields
+ * required to decrypt it.
  *
  * <p>Decryption of {@link EncryptedTopic#getEncryptedTopic()} should give json string for {@link
  * Topic}. Example of decrypted json string: {@code { "taxonomy_version": 5, "model_version": 2,
@@ -34,15 +35,17 @@ import java.util.Objects
  * Guide</a>.
  */
 @ExperimentalFeatures.Ext11OptIn
-class EncryptedTopic public constructor(
+class EncryptedTopic
+public constructor(
     val encryptedTopic: ByteArray,
     val keyIdentifier: String,
     val encapsulatedKey: ByteArray
 ) {
     override fun toString(): String {
-        val encryptedTopicString = "EncryptedTopic=${encryptedTopic.decodeToString()}" +
-            ", KeyIdentifier=$keyIdentifier" +
-            ", EncapsulatedKey=${encapsulatedKey.decodeToString()} }"
+        val encryptedTopicString =
+            "EncryptedTopic=${encryptedTopic.decodeToString()}" +
+                ", KeyIdentifier=$keyIdentifier" +
+                ", EncapsulatedKey=${encapsulatedKey.decodeToString()} }"
         return "EncryptedTopic { $encryptedTopicString"
     }
 

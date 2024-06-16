@@ -21,12 +21,11 @@ import java.io.File
 import javax.tools.JavaFileObject
 import org.intellij.lang.annotations.Language
 
-/**
- * Common abstraction for test sources in kotlin and java
- */
+/** Common abstraction for test sources in kotlin and java */
 sealed class Source {
     abstract val relativePath: String
     abstract val contents: String
+
     abstract fun toJFO(): JavaFileObject
 
     override fun toString(): String {
@@ -49,57 +48,35 @@ sealed class Source {
         return result
     }
 
-    class JavaSource(
-        val qName: String,
-        override val contents: String
-    ) : Source() {
+    class JavaSource(val qName: String, override val contents: String) : Source() {
         override fun toJFO(): JavaFileObject {
-            return JavaFileObjects.forSourceString(
-                qName,
-                contents
-            )
+            return JavaFileObjects.forSourceString(qName, contents)
         }
 
         override val relativePath
             get() = qName.replace(".", File.separator) + ".java"
     }
 
-    class KotlinSource(
-        override val relativePath: String,
-        override val contents: String
-    ) : Source() {
+    class KotlinSource(override val relativePath: String, override val contents: String) :
+        Source() {
         override fun toJFO(): JavaFileObject {
             throw IllegalStateException("cannot include kotlin code in javac compilation")
         }
     }
 
     companion object {
-        fun java(
-            qName: String,
-            @Language("java")
-            code: String
-        ): Source {
+        fun java(qName: String, @Language("java") code: String): Source {
             require(!qName.endsWith(".java")) {
                 "Please exclude extension `.java` for Java sources."
             }
-            return JavaSource(
-                qName,
-                code
-            )
+            return JavaSource(qName, code)
         }
 
-        fun kotlin(
-            filePath: String,
-            @Language("kotlin")
-            code: String
-        ): Source {
+        fun kotlin(filePath: String, @Language("kotlin") code: String): Source {
             require(filePath.endsWith(".kt")) {
                 "Please include extension `.kt` for Kotlin sources."
             }
-            return KotlinSource(
-                filePath,
-                code
-            )
+            return KotlinSource(filePath, code)
         }
 
         /**
@@ -109,15 +86,14 @@ sealed class Source {
         fun fromJavaFileObject(javaFileObject: JavaFileObject): Source {
             val uri = javaFileObject.toUri()
             // parse name from uri
-            val contents = javaFileObject.openReader(true).use {
-                it.readText()
-            }
-            val qName = if (uri.scheme == "mem") {
-                // in java compile testing, path includes SOURCE_OUTPUT, drop it
-                uri.path.substringAfter("SOURCE_OUTPUT/").replace('/', '.')
-            } else {
-                uri.path.replace('/', '.')
-            }
+            val contents = javaFileObject.openReader(true).use { it.readText() }
+            val qName =
+                if (uri.scheme == "mem") {
+                    // in java compile testing, path includes SOURCE_OUTPUT, drop it
+                    uri.path.substringAfter("SOURCE_OUTPUT/").replace('/', '.')
+                } else {
+                    uri.path.replace('/', '.')
+                }
             val javaExt = ".java"
             check(qName.endsWith(javaExt)) {
                 "expected a java source file, $qName does not seem like one"
@@ -126,30 +102,18 @@ sealed class Source {
             return java(qName.dropLast(javaExt.length), contents)
         }
 
-        fun loadKotlinSource(
-            file: File,
-            relativePath: String
-        ): Source {
+        fun loadKotlinSource(file: File, relativePath: String): Source {
             check(file.exists() && file.name.endsWith(".kt"))
             return kotlin(relativePath, file.readText())
         }
 
-        fun loadJavaSource(
-            file: File,
-            qName: String
-        ): Source {
+        fun loadJavaSource(file: File, qName: String): Source {
             check(file.exists() && file.name.endsWith(".java"))
             return java(qName, file.readText())
         }
 
-        fun load(
-            file: File,
-            qName: String,
-            relativePath: String
-        ): Source {
-            check(file.exists()) {
-                "file does not exist: ${file.canonicalPath}"
-            }
+        fun load(file: File, qName: String, relativePath: String): Source {
+            check(file.exists()) { "file does not exist: ${file.canonicalPath}" }
             return when {
                 file.name.endsWith(".kt") -> loadKotlinSource(file, relativePath)
                 file.name.endsWith(".java") -> loadJavaSource(file, qName)

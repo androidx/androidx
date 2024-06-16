@@ -55,8 +55,8 @@ class LocalesRotateDoesNotRecreateActivityTestCase() {
     fun testRotateDoesNotRecreateActivity() {
         // Set locales to CUSTOM_LOCALE_LIST and wait for state RESUMED.
         val initialActivity = activityRule.launchActivity(null)
-        var systemLocales = LocalesUpdateActivity.getConfigLocales(
-            initialActivity.resources.configuration)
+        var systemLocales =
+            LocalesUpdateActivity.getConfigLocales(initialActivity.resources.configuration)
         LifecycleOwnerUtils.waitUntilState(initialActivity, Lifecycle.State.RESUMED)
         setLocalesAndWaitForRecreate(initialActivity, CUSTOM_LOCALE_LIST)
 
@@ -66,8 +66,8 @@ class LocalesRotateDoesNotRecreateActivityTestCase() {
         // On API level 26 and below, the configuration object is going to be identical
         // across configuration changes, so we need to pull the orientation value now.
         val orientation = config.orientation
-        val expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
-            CUSTOM_LOCALE_LIST, systemLocales)
+        val expectedLocales =
+            LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
         // Assert that the current Activity has the new locales.
         assertConfigurationLocalesEquals(expectedLocales, config)
 
@@ -95,7 +95,7 @@ class LocalesRotateDoesNotRecreateActivityTestCase() {
         device.setOrientationNatural()
         // setOrientationNatural may need some time rotate orientation to natural, so we wait for
         // the operation to end for 5000ms.
-        device.waitForIdle(/* timeout= */5000)
+        device.waitForIdle(/* timeout= */ 5000)
 
         // Clean up
         activityRule.runOnUiThread {

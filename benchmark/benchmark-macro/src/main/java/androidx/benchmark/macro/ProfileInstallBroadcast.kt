@@ -40,8 +40,8 @@ internal object ProfileInstallBroadcast {
         // Use an explicit broadcast given the app was force-stopped.
         when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
             null,
-                // 0 is returned by the platform by default, and also if no broadcast receiver
-                // receives the broadcast.
+            // 0 is returned by the platform by default, and also if no broadcast receiver
+            // receives the broadcast.
             0 -> {
                 return "The baseline profile install broadcast was not received. " +
                     "This most likely means that the profileinstaller library is missing " +
@@ -77,7 +77,7 @@ internal object ProfileInstallBroadcast {
                 )
             }
             ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND -> {
-                    return "No baseline profile was found in the target apk."
+                return "No baseline profile was found in the target apk."
             }
             ProfileInstaller.RESULT_NOT_WRITABLE,
             ProfileInstaller.RESULT_DESIRED_FORMAT_UNSUPPORTED,
@@ -86,9 +86,7 @@ internal object ProfileInstallBroadcast {
                 throw RuntimeException("Baseline Profile wasn't successfully installed")
             }
             else -> {
-                throw RuntimeException(
-                    "unrecognized ProfileInstaller result code: $result"
-                )
+                throw RuntimeException("unrecognized ProfileInstaller result code: $result")
             }
         }
     }
@@ -131,9 +129,7 @@ internal object ProfileInstallBroadcast {
                 null // success!
             }
             else -> {
-                throw RuntimeException(
-                    "unrecognized ProfileInstaller result code: $result"
-                )
+                throw RuntimeException("unrecognized ProfileInstaller result code: $result")
             }
         }
     }
@@ -148,7 +144,8 @@ internal object ProfileInstallBroadcast {
         Log.d(TAG, "Profile Installer - Save Profile")
         val action = "androidx.profileinstaller.action.SAVE_PROFILE"
         return when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
-            null, 0 -> {
+            null,
+            0 -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
                 // receives the broadcast. This can be because the package name specified is
                 // incorrect or an old version of profile installer was used.
@@ -163,16 +160,13 @@ internal object ProfileInstallBroadcast {
                 // While this is observed to be fast for simple/sample apps,
                 // this can take up significantly longer on large apps
                 // especially on low end devices (see b/316082056)
-                @Suppress("BanThreadSleep")
-                Thread.sleep(1000)
+                @Suppress("BanThreadSleep") Thread.sleep(1000)
                 null // success!
             }
             else -> {
                 // We don't bother supporting RESULT_SAVE_PROFILE_SKIPPED here,
                 // since we already perform SDK_INT checks and use @RequiresApi(24)
-                throw RuntimeException(
-                    "unrecognized ProfileInstaller result code: $result"
-                )
+                throw RuntimeException("unrecognized ProfileInstaller result code: $result")
             }
         }
     }
@@ -189,7 +183,9 @@ internal object ProfileInstallBroadcast {
         val operationKey = "EXTRA_BENCHMARK_OPERATION"
         val broadcastArguments = "-a $action -e $operationKey $operation $packageName/$receiverName"
         return when (val result = Shell.amBroadcast(broadcastArguments)) {
-            null, 0, 16 /* BENCHMARK_OPERATION_UNKNOWN */ -> {
+            null,
+            0,
+            16 /* BENCHMARK_OPERATION_UNKNOWN */ -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
                 // receives the broadcast.
 
@@ -213,15 +209,11 @@ internal object ProfileInstallBroadcast {
                 null // success!
             }
             else -> {
-                throw RuntimeException(
-                    "unrecognized ProfileInstaller result code: $result"
-                )
+                throw RuntimeException("unrecognized ProfileInstaller result code: $result")
             }
         }
     }
 
-    fun dropShaderCache(packageName: String): String? = benchmarkOperation(
-        packageName,
-        "DROP_SHADER_CACHE"
-    )
+    fun dropShaderCache(packageName: String): String? =
+        benchmarkOperation(packageName, "DROP_SHADER_CACHE")
 }

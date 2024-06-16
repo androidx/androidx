@@ -65,9 +65,8 @@ import org.mockito.kotlin.verifyZeroInteractions
 import org.mockito.kotlin.whenever
 
 /**
- * Tests for [SidecarCompat] implementation of [ExtensionInterfaceCompat]. This class
- * uses a mocked Sidecar to verify the behavior of the implementation on any hardware.
- *
+ * Tests for [SidecarCompat] implementation of [ExtensionInterfaceCompat]. This class uses a mocked
+ * Sidecar to verify the behavior of the implementation on any hardware.
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -93,9 +92,11 @@ class SidecarCompatTest : WindowTestBase() {
             SidecarDeviceState.POSTURE_HALF_OPENED
         )
         whenever(sidecarCompat.sidecar!!.deviceState).thenReturn(defaultDeviceState)
-        val sidecarDisplayFeature = newDisplayFeature(
-            Rect(0, 1, WINDOW_BOUNDS.width(), 1), SidecarDisplayFeature.TYPE_HINGE
-        )
+        val sidecarDisplayFeature =
+            newDisplayFeature(
+                Rect(0, 1, WINDOW_BOUNDS.width(), 1),
+                SidecarDisplayFeature.TYPE_HINGE
+            )
         val sidecarWindowLayoutInfo = SidecarWindowLayoutInfo()
         val displayFeatures = listOf(sidecarDisplayFeature)
         SidecarAdapter.setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures)
@@ -105,10 +106,11 @@ class SidecarCompatTest : WindowTestBase() {
 
     @Test
     fun testGetWindowLayout() {
-        val fakeSidecarImp = FakeExtensionImp(
-            newDeviceState(SidecarDeviceState.POSTURE_OPENED),
-            newWindowLayoutInfo(emptyList())
-        )
+        val fakeSidecarImp =
+            FakeExtensionImp(
+                newDeviceState(SidecarDeviceState.POSTURE_OPENED),
+                newWindowLayoutInfo(emptyList())
+            )
         val compat = SidecarCompat(fakeSidecarImp, SidecarAdapter())
         val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
@@ -120,11 +122,8 @@ class SidecarCompatTest : WindowTestBase() {
     @Test
     public fun testGetWindowLayout_featureWithEmptyBounds() {
         // Add a feature with an empty bounds to the reported list
-        val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(
-            getActivityWindowToken(
-                activity
-            )
-        )
+        val originalWindowLayoutInfo =
+            sidecarCompat.sidecar!!.getWindowLayoutInfo(getActivityWindowToken(activity))
         val sidecarDisplayFeatures =
             SidecarAdapter.getSidecarDisplayFeatures(originalWindowLayoutInfo)
         val newFeature = SidecarDisplayFeature()
@@ -147,18 +146,19 @@ class SidecarCompatTest : WindowTestBase() {
         val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(mock())
         val sidecarDisplayFeatures =
             SidecarAdapter.getSidecarDisplayFeatures(originalWindowLayoutInfo)
-        val additionalFeatures = listOf(
-            // Horizontal fold.
-            newDisplayFeature(
-                Rect(0, 1, WINDOW_BOUNDS.width(), 2),
-                SidecarDisplayFeature.TYPE_FOLD
-            ),
-            // Vertical fold.
-            newDisplayFeature(
-                Rect(1, 0, 2, WINDOW_BOUNDS.height()),
-                SidecarDisplayFeature.TYPE_FOLD
+        val additionalFeatures =
+            listOf(
+                // Horizontal fold.
+                newDisplayFeature(
+                    Rect(0, 1, WINDOW_BOUNDS.width(), 2),
+                    SidecarDisplayFeature.TYPE_FOLD
+                ),
+                // Vertical fold.
+                newDisplayFeature(
+                    Rect(1, 0, 2, WINDOW_BOUNDS.height()),
+                    SidecarDisplayFeature.TYPE_FOLD
+                )
             )
-        )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
 
@@ -175,18 +175,19 @@ class SidecarCompatTest : WindowTestBase() {
         val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(mock())
         val sidecarDisplayFeatures =
             SidecarAdapter.getSidecarDisplayFeatures(originalWindowLayoutInfo)
-        val additionalFeatures = listOf(
-            // Horizontal hinge.
-            newDisplayFeature(
-                Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                SidecarDisplayFeature.TYPE_FOLD
-            ),
-            // Vertical hinge.
-            newDisplayFeature(
-                Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                SidecarDisplayFeature.TYPE_FOLD
+        val additionalFeatures =
+            listOf(
+                // Horizontal hinge.
+                newDisplayFeature(
+                    Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
+                    SidecarDisplayFeature.TYPE_FOLD
+                ),
+                // Vertical hinge.
+                newDisplayFeature(
+                    Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
+                    SidecarDisplayFeature.TYPE_FOLD
+                )
             )
-        )
 
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
@@ -205,18 +206,19 @@ class SidecarCompatTest : WindowTestBase() {
         val sidecarDisplayFeatures =
             SidecarAdapter.getSidecarDisplayFeatures(originalWindowLayoutInfo)
 
-        val additionalFeatures = listOf(
-            // Horizontal fold.
-            newDisplayFeature(
-                Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                SidecarDisplayFeature.TYPE_FOLD
-            ),
-            // Vertical fold.
-            newDisplayFeature(
-                Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                SidecarDisplayFeature.TYPE_FOLD
+        val additionalFeatures =
+            listOf(
+                // Horizontal fold.
+                newDisplayFeature(
+                    Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
+                    SidecarDisplayFeature.TYPE_FOLD
+                ),
+                // Vertical fold.
+                newDisplayFeature(
+                    Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
+                    SidecarDisplayFeature.TYPE_FOLD
+                )
             )
-        )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
 
@@ -230,19 +232,21 @@ class SidecarCompatTest : WindowTestBase() {
 
     @Test
     fun testExtensionCallback_filterRemovesInvalidValues() {
-        val fakeSidecarImp = FakeExtensionImp(
-            newDeviceState(SidecarDeviceState.POSTURE_OPENED),
-            newWindowLayoutInfo(emptyList())
-        )
+        val fakeSidecarImp =
+            FakeExtensionImp(
+                newDeviceState(SidecarDeviceState.POSTURE_OPENED),
+                newWindowLayoutInfo(emptyList())
+            )
         val compat = SidecarCompat(fakeSidecarImp, SidecarAdapter())
         val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
         compat.onWindowLayoutChangeListenerAdded(activity)
         fakeSidecarImp.triggerMalformedSignal()
-        verify(mockCallback).onWindowLayoutChanged(
-            any(),
-            argThat { windowLayoutInfo -> windowLayoutInfo.displayFeatures.isEmpty() }
-        )
+        verify(mockCallback)
+            .onWindowLayoutChanged(
+                any(),
+                argThat { windowLayoutInfo -> windowLayoutInfo.displayFeatures.isEmpty() }
+            )
     }
 
     @Test
@@ -252,8 +256,7 @@ class SidecarCompatTest : WindowTestBase() {
         // Verify that the sidecar got the callback set
         val callback = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(callback)
-        verify(sidecarCompat.sidecar!!)
-            .setSidecarCallback(sidecarCallbackCaptor.capture())
+        verify(sidecarCompat.sidecar!!).setSidecarCallback(sidecarCallbackCaptor.capture())
 
         // Verify that the callback set for sidecar propagates the device state callback
         val sidecarDeviceState = SidecarDeviceState()
@@ -267,17 +270,12 @@ class SidecarCompatTest : WindowTestBase() {
         // window layout changed listener has been added.
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         val bounds = Rect(0, 1, WINDOW_BOUNDS.width(), 1)
-        val sidecarDisplayFeature = newDisplayFeature(
-            bounds,
-            SidecarDisplayFeature.TYPE_HINGE
-        )
+        val sidecarDisplayFeature = newDisplayFeature(bounds, SidecarDisplayFeature.TYPE_HINGE)
         val sidecarWindowLayoutInfo = SidecarWindowLayoutInfo()
         val displayFeatures = listOf(sidecarDisplayFeature)
         SidecarAdapter.setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures)
         sidecarCallbackCaptor.firstValue.onWindowLayoutChanged(
-            getActivityWindowToken(
-                activity
-            ),
+            getActivityWindowToken(activity),
             sidecarWindowLayoutInfo
         )
         val windowLayoutInfoCaptor = argumentCaptor<WindowLayoutInfo>()
@@ -296,8 +294,7 @@ class SidecarCompatTest : WindowTestBase() {
         // Verify that the sidecar got the callback set
         val callback = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(callback)
-        verify(sidecarCompat.sidecar!!)
-            .setSidecarCallback(sidecarCallbackCaptor.capture())
+        verify(sidecarCompat.sidecar!!).setSidecarCallback(sidecarCallbackCaptor.capture())
 
         // Verify that the callback set for sidecar propagates the window layout callback when a
         // window layout changed listener has been added.
@@ -309,18 +306,13 @@ class SidecarCompatTest : WindowTestBase() {
         val displayFeatures = listOf(sidecarDisplayFeature)
         SidecarAdapter.setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures)
         val windowToken = mock<IBinder>()
-        sidecarCallbackCaptor.firstValue.onWindowLayoutChanged(
-            windowToken,
-            sidecarWindowLayoutInfo
-        )
+        sidecarCallbackCaptor.firstValue.onWindowLayoutChanged(windowToken, sidecarWindowLayoutInfo)
         verifyZeroInteractions(callback)
     }
 
     @Test
     fun testOnWindowLayoutChangeListenerAdded() {
-        val windowToken = getActivityWindowToken(
-            activity
-        )
+        val windowToken = getActivityWindowToken(activity)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerAdded(windowToken)
         verify(sidecarCompat.sidecar!!).onDeviceStateListenersChanged(false)
@@ -332,12 +324,9 @@ class SidecarCompatTest : WindowTestBase() {
         val expectedLayoutInfo = WindowLayoutInfo(listOf())
         val listener = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(listener)
-        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
-            .thenReturn(layoutInfo)
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any())).thenReturn(layoutInfo)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
-        verify(listener).onWindowLayoutChanged(
-            activity, expectedLayoutInfo
-        )
+        verify(listener).onWindowLayoutChanged(activity, expectedLayoutInfo)
     }
 
     @Test
@@ -346,21 +335,21 @@ class SidecarCompatTest : WindowTestBase() {
         val expectedLayoutInfo = WindowLayoutInfo(listOf())
         val listener = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(listener)
-        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
-            .thenReturn(layoutInfo)
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any())).thenReturn(layoutInfo)
         val fakeView = mock<View>()
         val fakeWindow: Window = TestWindow(activity, fakeView)
         doAnswer { invocation ->
-            val stateChangeListener = invocation.getArgument<View.OnAttachStateChangeListener>(0)
-            fakeWindow.attributes.token = mock()
-            stateChangeListener.onViewAttachedToWindow(fakeView)
-            null
-        }.whenever(fakeView).addOnAttachStateChangeListener(any())
+                val stateChangeListener =
+                    invocation.getArgument<View.OnAttachStateChangeListener>(0)
+                fakeWindow.attributes.token = mock()
+                stateChangeListener.onViewAttachedToWindow(fakeView)
+                null
+            }
+            .whenever(fakeView)
+            .addOnAttachStateChangeListener(any())
         whenever(activity.window).thenReturn(fakeWindow)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
-        verify(listener).onWindowLayoutChanged(
-            activity, expectedLayoutInfo
-        )
+        verify(listener).onWindowLayoutChanged(activity, expectedLayoutInfo)
     }
 
     @Test
@@ -369,31 +358,26 @@ class SidecarCompatTest : WindowTestBase() {
         val expectedLayoutInfo = WindowLayoutInfo(listOf())
         val listener = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(listener)
-        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
-            .thenReturn(layoutInfo)
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any())).thenReturn(layoutInfo)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         sidecarCompat.onWindowLayoutChangeListenerRemoved(activity)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
-        verify(listener, times(2)).onWindowLayoutChanged(
-            activity, expectedLayoutInfo
-        )
+        verify(listener, times(2)).onWindowLayoutChanged(activity, expectedLayoutInfo)
     }
 
     @Test
     fun testOnWindowLayoutInfoChanged_emitNewValueWhenResubscribe() {
         val layoutInfo = SidecarWindowLayoutInfo()
         val expectedLayoutInfo = WindowLayoutInfo(listOf())
-        val expectedLayoutInfo2 = WindowLayoutInfo(listOf(
-            HardwareFoldingFeature(
-            Bounds(validFoldBound(WINDOW_BOUNDS)),
-            FOLD,
-            HALF_OPENED
-        )
-        ))
+        val expectedLayoutInfo2 =
+            WindowLayoutInfo(
+                listOf(
+                    HardwareFoldingFeature(Bounds(validFoldBound(WINDOW_BOUNDS)), FOLD, HALF_OPENED)
+                )
+            )
         val listener = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(listener)
-        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
-            .thenReturn(layoutInfo)
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any())).thenReturn(layoutInfo)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         verify(listener).onWindowLayoutChanged(activity, expectedLayoutInfo)
         // remove listener
@@ -401,12 +385,14 @@ class SidecarCompatTest : WindowTestBase() {
         // change the value for new subscriber
         whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
             .thenReturn(
-                newWindowLayoutInfo(listOf(
-                newDisplayFeature(
-                    validFoldBound(WINDOW_BOUNDS),
-                    SidecarDisplayFeature.TYPE_FOLD
+                newWindowLayoutInfo(
+                    listOf(
+                        newDisplayFeature(
+                            validFoldBound(WINDOW_BOUNDS),
+                            SidecarDisplayFeature.TYPE_FOLD
+                        )
+                    )
                 )
-            ))
             )
         // resubscribe
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
@@ -415,13 +401,9 @@ class SidecarCompatTest : WindowTestBase() {
 
     @Test
     fun testOnWindowLayoutChangeListenerRemoved() {
-        val windowToken = getActivityWindowToken(
-            activity
-        )
+        val windowToken = getActivityWindowToken(activity)
         sidecarCompat.onWindowLayoutChangeListenerRemoved(activity)
-        verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerRemoved(
-            eq(windowToken)
-        )
+        verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerRemoved(eq(windowToken))
     }
 
     @Test
@@ -433,10 +415,11 @@ class SidecarCompatTest : WindowTestBase() {
 
     @Test
     fun testOnDeviceStateChangedUpdatesWindowLayout() {
-        val fakeSidecarImp = FakeExtensionImp(
-            newDeviceState(SidecarDeviceState.POSTURE_CLOSED),
-            validWindowLayoutInfo()
-        )
+        val fakeSidecarImp =
+            FakeExtensionImp(
+                newDeviceState(SidecarDeviceState.POSTURE_CLOSED),
+                validWindowLayoutInfo()
+            )
         val compat = SidecarCompat(fakeSidecarImp, SidecarAdapter())
         val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
@@ -445,13 +428,12 @@ class SidecarCompatTest : WindowTestBase() {
         reset(mockCallback)
         fakeSidecarImp.triggerDeviceState(newDeviceState(SidecarDeviceState.POSTURE_OPENED))
         verify(mockCallback).onWindowLayoutChanged(eq(activity), windowLayoutCaptor.capture())
-        var capturedFoldingFeature = windowLayoutCaptor.firstValue
-            .displayFeatures[0] as FoldingFeature
+        var capturedFoldingFeature =
+            windowLayoutCaptor.firstValue.displayFeatures[0] as FoldingFeature
         assertEquals(FLAT, capturedFoldingFeature.state)
         reset(mockCallback)
         fakeSidecarImp.triggerDeviceState(newDeviceState(SidecarDeviceState.POSTURE_HALF_OPENED))
-        verify(mockCallback)
-            .onWindowLayoutChanged(eq(activity), windowLayoutCaptor.capture())
+        verify(mockCallback).onWindowLayoutChanged(eq(activity), windowLayoutCaptor.capture())
         capturedFoldingFeature = windowLayoutCaptor.secondValue.displayFeatures[0] as FoldingFeature
         assertEquals(HALF_OPENED, capturedFoldingFeature.state)
 
@@ -459,8 +441,7 @@ class SidecarCompatTest : WindowTestBase() {
         reset(mockCallback)
         fakeSidecarImp.triggerDeviceState(newDeviceState(SidecarDeviceState.POSTURE_CLOSED))
         fakeSidecarImp.triggerDeviceState(newDeviceState(SidecarDeviceState.POSTURE_FLIPPED))
-        verify(mockCallback)
-            .onWindowLayoutChanged(eq(activity), windowLayoutCaptor.capture())
+        verify(mockCallback).onWindowLayoutChanged(eq(activity), windowLayoutCaptor.capture())
         assertTrue(windowLayoutCaptor.thirdValue.displayFeatures.isEmpty())
     }
 
@@ -470,6 +451,7 @@ class SidecarCompatTest : WindowTestBase() {
     ) : SidecarInterface {
         private var callback: SidecarCallback
         private val tokens = mutableListOf<IBinder>()
+
         override fun setSidecarCallback(callback: SidecarCallback) {
             this.callback = callback
         }
@@ -491,6 +473,7 @@ class SidecarCompatTest : WindowTestBase() {
         }
 
         override fun onDeviceStateListenersChanged(isEmpty: Boolean) {}
+
         fun triggerMalformedSignal() {
             triggerSignal(malformedWindowLayoutInfo())
         }
@@ -515,37 +498,33 @@ class SidecarCompatTest : WindowTestBase() {
             val malformedFeatures = mutableListOf<SidecarDisplayFeature>()
             for (malformedBound in invalidFoldBounds(WINDOW_BOUNDS)) {
                 malformedFeatures.add(
-                    newDisplayFeature(
-                        malformedBound,
-                        SidecarDisplayFeature.TYPE_FOLD
-                    )
+                    newDisplayFeature(malformedBound, SidecarDisplayFeature.TYPE_FOLD)
                 )
             }
             for (malformedBound in invalidFoldBounds(WINDOW_BOUNDS)) {
                 malformedFeatures.add(
-                    newDisplayFeature(
-                        malformedBound,
-                        SidecarDisplayFeature.TYPE_HINGE
-                    )
+                    newDisplayFeature(malformedBound, SidecarDisplayFeature.TYPE_HINGE)
                 )
             }
             return newWindowLayoutInfo(malformedFeatures)
         }
 
         init {
-            callback = object : SidecarCallback {
-                override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {}
-                override fun onWindowLayoutChanged(
-                    windowToken: IBinder,
-                    newLayout: SidecarWindowLayoutInfo
-                ) {
+            callback =
+                object : SidecarCallback {
+                    override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {}
+
+                    override fun onWindowLayoutChanged(
+                        windowToken: IBinder,
+                        newLayout: SidecarWindowLayoutInfo
+                    ) {}
                 }
-            }
         }
     }
 
     private companion object {
         private val WINDOW_BOUNDS = Rect(1, 1, 50, 100)
+
         private fun newDisplayFeature(rect: Rect, type: Int): SidecarDisplayFeature {
             val feature = SidecarDisplayFeature()
             feature.rect = rect
@@ -562,12 +541,13 @@ class SidecarCompatTest : WindowTestBase() {
         }
 
         private fun validWindowLayoutInfo(): SidecarWindowLayoutInfo {
-            val goodFeatures = listOf(
-                newDisplayFeature(
-                    validFoldBound(WINDOW_BOUNDS),
-                    SidecarDisplayFeature.TYPE_FOLD
+            val goodFeatures =
+                listOf(
+                    newDisplayFeature(
+                        validFoldBound(WINDOW_BOUNDS),
+                        SidecarDisplayFeature.TYPE_FOLD
+                    )
                 )
-            )
             return newWindowLayoutInfo(goodFeatures)
         }
 

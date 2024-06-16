@@ -15,6 +15,7 @@
  */
 
 package androidx.kruth
+
 import kotlin.test.Test
 
 class MathUtilTest {
@@ -23,12 +24,8 @@ class MathUtilTest {
         assertThat(equalWithinTolerance(1.3f, 1.3f, 0.00000000000001f)).isTrue()
         assertThat(equalWithinTolerance(1.3f, 1.3f, 0.0f)).isTrue()
         assertThat(
-            equalWithinTolerance(
-                0.0f,
-                1.0f + 2.0f - 3.0f,
-                0.00000000000000000000000000000001f
+                equalWithinTolerance(0.0f, 1.0f + 2.0f - 3.0f, 0.00000000000000000000000000000001f)
             )
-        )
             .isTrue()
         assertThat(equalWithinTolerance(1.3f, 1.303f, 0.004f)).isTrue()
         assertThat(equalWithinTolerance(1.3f, 1.303f, 0.002f)).isFalse()
@@ -63,8 +60,12 @@ class MathUtilTest {
         assertThat(notEqualWithinTolerance(1.3f, 1.3f, 0.00000000000001f)).isFalse()
         assertThat(notEqualWithinTolerance(1.3f, 1.3f, 0.0f)).isFalse()
         assertThat(
-            notEqualWithinTolerance(0.0f, 1.0f + 2.0f - 3.0f, 0.00000000000000000000000000000001f)
-        )
+                notEqualWithinTolerance(
+                    0.0f,
+                    1.0f + 2.0f - 3.0f,
+                    0.00000000000000000000000000000001f
+                )
+            )
             .isFalse()
         assertThat(notEqualWithinTolerance(1.3f, 1.303f, 0.004f)).isFalse()
         assertThat(notEqualWithinTolerance(1.3f, 1.303f, 0.002f)).isTrue()
@@ -82,34 +83,22 @@ class MathUtilTest {
         assertThat(notEqualWithinTolerance(1.3, 1.3, 0.00000000000001)).isFalse()
         assertThat(notEqualWithinTolerance(1.3, 1.3, 0.0)).isFalse()
         assertThat(
-            notEqualWithinTolerance(0.0, 1.0 + 2.0 - 3.0, 0.00000000000000000000000000000001)
-        )
+                notEqualWithinTolerance(0.0, 1.0 + 2.0 - 3.0, 0.00000000000000000000000000000001)
+            )
             .isFalse()
         assertThat(notEqualWithinTolerance(1.3, 1.303, 0.004)).isFalse()
         assertThat(notEqualWithinTolerance(1.3, 1.303, 0.002)).isTrue()
         assertThat(
-            notEqualWithinTolerance(
-                Double.POSITIVE_INFINITY,
-                Double.POSITIVE_INFINITY,
-                0.01
+                notEqualWithinTolerance(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 0.01)
             )
-        )
             .isFalse()
         assertThat(
-            notEqualWithinTolerance(
-                Double.POSITIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                0.01
+                notEqualWithinTolerance(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0.01)
             )
-        )
             .isFalse()
         assertThat(
-            notEqualWithinTolerance(
-                Double.NEGATIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                0.01
+                notEqualWithinTolerance(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 0.01)
             )
-        )
             .isFalse()
         assertThat(notEqualWithinTolerance(Double.NaN, Double.NaN, 0.01)).isFalse()
     }

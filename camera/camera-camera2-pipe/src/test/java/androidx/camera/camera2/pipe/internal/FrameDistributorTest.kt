@@ -48,14 +48,9 @@ import org.robolectric.annotation.Config
 class FrameDistributorTest {
 
     private val stream1Config =
-        CameraStream.Config.create(
-            Size(1280, 720),
-            StreamFormat.YUV_420_888
-        )
+        CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
     private val stream2Config =
-        CameraStream.Config.create(
-            Size(1920, 1080), StreamFormat.YUV_420_888
-        )
+        CameraStream.Config.create(Size(1920, 1080), StreamFormat.YUV_420_888)
     private val streamConfigs = listOf(stream1Config, stream2Config)
 
     private val imageSimulator = ImageSimulator(streamConfigs)
@@ -68,18 +63,13 @@ class FrameDistributorTest {
     private val cameraFrameNumber = FrameNumber(420)
 
     private val request = Request(streams = streams)
-    private val fakeRequestMetadata = FakeRequestMetadata.from(
-        request,
-        imageSimulator.streamToSurfaceMap,
-        repeating = false
-    )
-    private val fakeFrameInfo = FakeFrameInfo(
-        metadata = FakeFrameMetadata(
-            camera = cameraId,
-            frameNumber = cameraFrameNumber
-        ),
-        requestMetadata = fakeRequestMetadata
-    )
+    private val fakeRequestMetadata =
+        FakeRequestMetadata.from(request, imageSimulator.streamToSurfaceMap, repeating = false)
+    private val fakeFrameInfo =
+        FakeFrameInfo(
+            metadata = FakeFrameMetadata(camera = cameraId, frameNumber = cameraFrameNumber),
+            requestMetadata = fakeRequestMetadata
+        )
 
     private val fakeFrameBuffer = FakeFrameBuffer()
     private val frameCaptureQueue = FrameCaptureQueue()
@@ -94,11 +84,7 @@ class FrameDistributorTest {
 
     @Test
     fun framesAreAddedToFrameBuffer() {
-        frameDistributor.onStarted(
-            fakeRequestMetadata,
-            cameraFrameNumber,
-            cameraTimestamp
-        )
+        frameDistributor.onStarted(fakeRequestMetadata, cameraFrameNumber, cameraTimestamp)
 
         assertThat(fakeFrameBuffer.frames.size).isEqualTo(1)
 
@@ -124,11 +110,7 @@ class FrameDistributorTest {
 
     @Test
     fun outputsAreDistributedToFrame() {
-        frameDistributor.onStarted(
-            fakeRequestMetadata,
-            cameraFrameNumber,
-            cameraTimestamp
-        )
+        frameDistributor.onStarted(fakeRequestMetadata, cameraFrameNumber, cameraTimestamp)
 
         assertThat(fakeFrameBuffer.frames.size).isEqualTo(1)
         val frame = fakeFrameBuffer.frames[0]
@@ -144,11 +126,7 @@ class FrameDistributorTest {
         assertThat(frame.isFrameInfoAvailable).isFalse()
         assertThat(image2.isClosed).isFalse()
 
-        frameDistributor.onComplete(
-            fakeRequestMetadata,
-            cameraFrameNumber,
-            fakeFrameInfo
-        )
+        frameDistributor.onComplete(fakeRequestMetadata, cameraFrameNumber, fakeFrameInfo)
         assertThat(frame.isFrameInfoAvailable).isTrue()
 
         // Now close the frame (without acquiring images)
@@ -164,11 +142,7 @@ class FrameDistributorTest {
         val frameCapture = frameCaptureQueue.enqueue(fakeRequestMetadata.request) as FrameCapture
         assertThat(frameCapture.status).isEqualTo(OutputStatus.PENDING)
 
-        frameDistributor.onStarted(
-            fakeRequestMetadata,
-            cameraFrameNumber,
-            cameraTimestamp
-        )
+        frameDistributor.onStarted(fakeRequestMetadata, cameraFrameNumber, cameraTimestamp)
 
         assertThat(frameCapture.status).isEqualTo(OutputStatus.AVAILABLE)
         val frame = frameCapture.getFrame()
@@ -179,9 +153,7 @@ class FrameDistributorTest {
     @Test
     fun abortedRequestsCauseFramesToBeAborted() {
         val frameCapture = frameCaptureQueue.enqueue(fakeRequestMetadata.request)
-        frameDistributor.onAborted(
-            fakeRequestMetadata.request
-        )
+        frameDistributor.onAborted(fakeRequestMetadata.request)
         assertThat(frameCapture.status).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
         assertThat(frameCapture.getFrame()).isNull()
     }
@@ -189,11 +161,7 @@ class FrameDistributorTest {
     @Test
     fun onFailureCausesFrameInfoToBeLost() {
         val frameCapture = frameCaptureQueue.enqueue(fakeRequestMetadata.request)
-        frameDistributor.onStarted(
-            fakeRequestMetadata,
-            cameraFrameNumber,
-            cameraTimestamp
-        )
+        frameDistributor.onStarted(fakeRequestMetadata, cameraFrameNumber, cameraTimestamp)
         val frame = frameCapture.getFrame()!!
 
         assertThat(frame.frameInfoStatus).isEqualTo(OutputStatus.PENDING)
@@ -222,11 +190,7 @@ class FrameDistributorTest {
     @Test
     fun onFailureWithImageLossAllOutputsToFail() {
         val frameCapture = frameCaptureQueue.enqueue(fakeRequestMetadata.request)
-        frameDistributor.onStarted(
-            fakeRequestMetadata,
-            cameraFrameNumber,
-            cameraTimestamp
-        )
+        frameDistributor.onStarted(fakeRequestMetadata, cameraFrameNumber, cameraTimestamp)
         val frame = frameCapture.getFrame()!!
 
         assertThat(frame.frameInfoStatus).isEqualTo(OutputStatus.PENDING)
@@ -256,8 +220,7 @@ class FrameDistributorTest {
         imageSimulator.close()
     }
 
-    private class FakeFrameBuffer : FrameDistributor.FrameStartedListener,
-        AutoCloseable {
+    private class FakeFrameBuffer : FrameDistributor.FrameStartedListener, AutoCloseable {
         private val lock = Any()
         private var closed = false
         private val _frames = mutableListOf<Frame>()

@@ -47,8 +47,8 @@ fun equals(a: Bundle, b: Bundle): Boolean {
 }
 
 /**
- * Allows deep copying a bundle prior to API 26. Can adjust for more types, but currently
- * that is not needed.
+ * Allows deep copying a bundle prior to API 26. Can adjust for more types, but currently that is
+ * not needed.
  */
 @Suppress("DEPRECATION")
 fun deepCopyBundle(bundle: Bundle): Bundle {
@@ -67,8 +67,10 @@ fun deepCopyBundle(bundle: Bundle): Bundle {
 /** Used to maintain compatibility across API levels. */
 const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 
-/** True if the device running the test is post framework api level,
- * false if pre framework api level. */
+/**
+ * True if the device running the test is post framework api level, false if pre framework api
+ * level.
+ */
 fun isPostFrameworkApiLevel(): Boolean {
     return Build.VERSION.SDK_INT >= 34
 }

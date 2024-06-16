@@ -21,9 +21,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-/**
- * Defines a generic shape.
- */
+/** Defines a generic shape. */
 @Stable
 interface Shape {
     /**
@@ -32,7 +30,6 @@ interface Shape {
      * @param size the size of the shape boundary.
      * @param layoutDirection the current layout direction.
      * @param density the current density of the screen.
-     *
      * @return [Outline] of this shape for the given [size].
      */
     fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline

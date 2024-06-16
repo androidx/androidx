@@ -34,18 +34,18 @@ private const val DefaultFrameDelay = 16_000_000L
  * controlled tests.
  *
  * Calls to [withFrameNanos] will schedule an upcoming frame [frameDelayNanos] nanoseconds in the
- * future by launching into [coroutineScope] if such a frame has not yet been scheduled. The
- * current frame time for [withFrameNanos] is provided by [delayController]. It is strongly
- * suggested that [coroutineScope] contain the test dispatcher controlled by [delayController].
+ * future by launching into [coroutineScope] if such a frame has not yet been scheduled. The current
+ * frame time for [withFrameNanos] is provided by [delayController]. It is strongly suggested that
+ * [coroutineScope] contain the test dispatcher controlled by [delayController].
  *
  * @param coroutineScope The [CoroutineScope] used to simulate the main thread and schedule frames
- * on. It must contain a [TestCoroutineScheduler].
+ *   on. It must contain a [TestCoroutineScheduler].
  * @param frameDelayNanos The number of nanoseconds to [delay] between executing frames.
- * @param onPerformTraversals Called with the frame time of the frame that was just executed,
- * after running all `withFrameNanos` callbacks, but before resuming their callers' continuations.
- * Any continuations resumed while running frame callbacks or [onPerformTraversals] will not be
- * dispatched until after [onPerformTraversals] finishes. If [onPerformTraversals] throws, all
- * `withFrameNanos` callers will be cancelled.
+ * @param onPerformTraversals Called with the frame time of the frame that was just executed, after
+ *   running all `withFrameNanos` callbacks, but before resuming their callers' continuations. Any
+ *   continuations resumed while running frame callbacks or [onPerformTraversals] will not be
+ *   dispatched until after [onPerformTraversals] finishes. If [onPerformTraversals] throws, all
+ *   `withFrameNanos` callers will be cancelled.
  */
 // This is intentionally not OptIn, because we want to communicate to consumers that by using this
 // API, they're also transitively getting all the experimental risk of using the experimental API
@@ -69,13 +69,11 @@ class TestMonotonicFrameClock(
     private var scheduledFrameDispatch = false
     private val frameDeferringInterceptor = FrameDeferringContinuationInterceptor(parentInterceptor)
 
-    /**
-     * Returns whether there are any awaiters on this clock.
-     */
+    /** Returns whether there are any awaiters on this clock. */
     val hasAwaiters: Boolean
-        get() = frameDeferringInterceptor.hasTrampolinedTasks || synchronized(lock) {
-            awaiters.isNotEmpty()
-        }
+        get() =
+            frameDeferringInterceptor.hasTrampolinedTasks ||
+                synchronized(lock) { awaiters.isNotEmpty() }
 
     /**
      * A [CoroutineDispatcher] that will defer continuation resumptions requested within
@@ -86,7 +84,8 @@ class TestMonotonicFrameClock(
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalTestApi
     @ExperimentalTestApi
-    val continuationInterceptor: ContinuationInterceptor get() = frameDeferringInterceptor
+    val continuationInterceptor: ContinuationInterceptor
+        get() = frameDeferringInterceptor
 
     /**
      * Schedules [onFrame] to be ran on the next "fake" frame, and schedules the task to actually
@@ -100,9 +99,7 @@ class TestMonotonicFrameClock(
     override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
         suspendCancellableCoroutine { co ->
             synchronized(lock) {
-                awaiters.add { frameTime ->
-                    co.resumeWith(runCatching { onFrame(frameTime) })
-                }
+                awaiters.add { frameTime -> co.resumeWith(runCatching { onFrame(frameTime) }) }
                 if (!scheduledFrameDispatch) {
                     scheduledFrameDispatch = true
                     coroutineScope.launch {
@@ -117,11 +114,11 @@ class TestMonotonicFrameClock(
      * Executes all scheduled frame callbacks, and then dispatches any continuations that were
      * resumed by the callbacks and deferred by [continuationInterceptor].
      *
-     * This method performs a subset of the responsibilities of `Choreographer.doFrame` on
-     * Android, which is usually responsible for executing animation frames and coroutines, and also
+     * This method performs a subset of the responsibilities of `Choreographer.doFrame` on Android,
+     * which is usually responsible for executing animation frames and coroutines, and also
      * "performing traversals", which practically just means doing the layout pass on the view tree.
-     * Since this method replaces `doFrame`, it also needs to trigger the compose layout pass
-     * (see b/222093277).
+     * Since this method replaces `doFrame`, it also needs to trigger the compose layout pass (see
+     * b/222093277).
      *
      * Typically, the only task that will have been enqueued will be the `Recomposer`'s
      * `runRecomposeAndApplyChanges`' call to [withFrameNanos] – any app coroutines waiting for the
@@ -133,16 +130,17 @@ class TestMonotonicFrameClock(
             // This is set after acquiring the lock in case the virtual time was advanced while
             // waiting for it.
             val frameTime: Long
-            val toRun = kotlin.synchronized(lock) {
-                check(scheduledFrameDispatch) { "frame dispatch not scheduled" }
+            val toRun =
+                kotlin.synchronized(lock) {
+                    check(scheduledFrameDispatch) { "frame dispatch not scheduled" }
 
-                frameTime = delayController.currentTime * 1_000_000
-                scheduledFrameDispatch = false
-                awaiters.also {
-                    awaiters = spareAwaiters
-                    spareAwaiters = it
+                    frameTime = delayController.currentTime * 1_000_000
+                    scheduledFrameDispatch = false
+                    awaiters.also {
+                        awaiters = spareAwaiters
+                        spareAwaiters = it
+                    }
                 }
-            }
 
             // Because runningFrameCallbacks is still true, all these resumptions will be queued to
             // toRunTrampolined.
@@ -154,9 +152,7 @@ class TestMonotonicFrameClock(
     }
 }
 
-/**
- * The frame delay time for the [TestMonotonicFrameClock] in milliseconds.
- */
+/** The frame delay time for the [TestMonotonicFrameClock] in milliseconds. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalTestApi // Required to annotate Java-facing APIs

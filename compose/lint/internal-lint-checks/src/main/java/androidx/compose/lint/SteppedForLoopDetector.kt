@@ -37,34 +37,33 @@ import org.jetbrains.uast.kotlin.isKotlin
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
- * Lint [Detector] to prevent allocating ranges and progression when using `step()` in a
- * for loops. For instance: `for (i in a..b step 2)` .
- * See https://youtrack.jetbrains.com/issue/KT-59115
+ * Lint [Detector] to prevent allocating ranges and progression when using `step()` in a for loops.
+ * For instance: `for (i in a..b step 2)` . See https://youtrack.jetbrains.com/issue/KT-59115
  */
 class SteppedForLoopDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableUastTypes() = listOf(
-        UForEachExpression::class.java
-    )
+    override fun getApplicableUastTypes() = listOf(UForEachExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitForEachExpression(node: UForEachExpression) {
-            if (!isKotlin(node.lang)) return
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitForEachExpression(node: UForEachExpression) {
+                if (!isKotlin(node.lang)) return
 
-            when (val type = node.iteratedValue.skipParenthesizedExprDown()) {
-                is UBinaryExpression -> {
-                    // Check the expression is of the form a step b, where a is a Progression type
-                    if (
-                        isIntegerProgression(type.leftOperand.getExpressionType()) &&
-                        isUntilRange(type.leftOperand.skipParenthesizedExprDown()) &&
-                        type.operatorIdentifier?.name == "step" &&
-                        isInteger(type.rightOperand.getExpressionType())
-                    ) {
-                        report(context, node, type, type.rightOperand.textRepresentation())
+                when (val type = node.iteratedValue.skipParenthesizedExprDown()) {
+                    is UBinaryExpression -> {
+                        // Check the expression is of the form a step b, where a is a Progression
+                        // type
+                        if (
+                            isIntegerProgression(type.leftOperand.getExpressionType()) &&
+                                isUntilRange(type.leftOperand.skipParenthesizedExprDown()) &&
+                                type.operatorIdentifier?.name == "step" &&
+                                isInteger(type.rightOperand.getExpressionType())
+                        ) {
+                            report(context, node, type, type.rightOperand.textRepresentation())
+                        }
                     }
                 }
             }
         }
-    }
 
     private fun isIntegerProgression(type: PsiType?): Boolean {
         if (type == null) return false
@@ -72,12 +71,10 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
         if (type is PsiClassType) {
             val cls = type.resolve()
             return cls != null &&
-                (
-                    IntegerProgressionTypes.contains(cls.qualifiedName) ||
+                (IntegerProgressionTypes.contains(cls.qualifiedName) ||
                     cls.superTypes.any {
                         IntegerProgressionTypes.contains(it.resolve()?.qualifiedName)
-                    }
-                )
+                    })
         }
 
         return false
@@ -105,25 +102,26 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "SteppedForLoop",
-            "A loop over an 'until' or '..<' primitive range (Int/Long/ULong/Char)" +
-                " creates unnecessary allocations",
-            "Using 'until' or '..<' to create an iteration range bypasses a compiler" +
-                " optimization. Consider until '..' instead. " +
-                "See https://youtrack.jetbrains.com/issue/KT-59115",
-            Category.PERFORMANCE, 5, Severity.ERROR,
-            Implementation(
-                SteppedForLoopDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                "SteppedForLoop",
+                "A loop over an 'until' or '..<' primitive range (Int/Long/ULong/Char)" +
+                    " creates unnecessary allocations",
+                "Using 'until' or '..<' to create an iteration range bypasses a compiler" +
+                    " optimization. Consider until '..' instead. " +
+                    "See https://youtrack.jetbrains.com/issue/KT-59115",
+                Category.PERFORMANCE,
+                5,
+                Severity.ERROR,
+                Implementation(SteppedForLoopDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
-        val IntegerProgressionTypes = listOf(
-            "kotlin.ranges.IntProgression",
-            "kotlin.ranges.LongProgression",
-            "kotlin.ranges.CharProgression",
-            "kotlin.ranges.UIntProgression",
-            "kotlin.ranges.ULongProgression"
-        )
+        val IntegerProgressionTypes =
+            listOf(
+                "kotlin.ranges.IntProgression",
+                "kotlin.ranges.LongProgression",
+                "kotlin.ranges.CharProgression",
+                "kotlin.ranges.UIntProgression",
+                "kotlin.ranges.ULongProgression"
+            )
     }
 }

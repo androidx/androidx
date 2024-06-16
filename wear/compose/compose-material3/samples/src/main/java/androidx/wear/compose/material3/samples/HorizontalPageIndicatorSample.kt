@@ -47,15 +47,13 @@ fun HorizontalPageIndicatorSample() {
     val pageCount = 9
     var selectedPage by remember { mutableStateOf(0) }
 
-    val animatedSelectedPage by animateFloatAsState(
-        targetValue = selectedPage.toFloat(), label = "animateSelectedPage",
-    )
+    val animatedSelectedPage by
+        animateFloatAsState(
+            targetValue = selectedPage.toFloat(),
+            label = "animateSelectedPage",
+        )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(6.dp)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().padding(6.dp)) {
         InlineSlider(
             modifier = Modifier.align(Alignment.Center),
             value = selectedPage,
@@ -80,19 +78,11 @@ fun HorizontalPageIndicatorWithPagerSample(swipeState: SwipeToDismissBoxState) {
 
     Box {
         HorizontalPager(
-            modifier = Modifier
-                .fillMaxSize()
-                .edgeSwipeToDismiss(swipeState),
+            modifier = Modifier.fillMaxSize().edgeSwipeToDismiss(swipeState),
             state = pagerState,
         ) { page ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = "Page #$page"
-                )
+            Box(modifier = Modifier.fillMaxSize()) {
+                Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
             }
         }
         HorizontalPageIndicator(

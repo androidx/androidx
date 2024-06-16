@@ -29,22 +29,22 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class ArrangementTest(private val testParam: TestParam) {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
-    fun testArrangement() = with(testParam) {
-        with(actualArrangement) {
-            composeTestRule.density.arrange(
-                actualTotalSize,
-                actualSizes,
-                actualLayoutDirection,
-                actualOutPositions
-            )
+    fun testArrangement() =
+        with(testParam) {
+            with(actualArrangement) {
+                composeTestRule.density.arrange(
+                    actualTotalSize,
+                    actualSizes,
+                    actualLayoutDirection,
+                    actualOutPositions
+                )
 
-            assertThat(actualOutPositions).isEqualTo(expectedOutPositions)
+                assertThat(actualOutPositions).isEqualTo(expectedOutPositions)
+            }
         }
-    }
 
     @Suppress("ArrayInDataClass") // Used only in parameterized tests.
     data class TestParam(
@@ -59,39 +59,40 @@ class ArrangementTest(private val testParam: TestParam) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf<Any>(
-            TestParam(
-                actualArrangement = Arrangement.SpaceBetween,
-                actualTotalSize = 2376,
-                actualSizes = intArrayOf(108, 24),
-                actualLayoutDirection = LayoutDirection.Rtl,
-                actualOutPositions = intArrayOf(0, 0),
-                expectedOutPositions = intArrayOf(2268, 0),
-            ),
-            TestParam(
-                actualArrangement = Arrangement.SpaceBetween,
-                actualTotalSize = 2376,
-                actualSizes = intArrayOf(108),
-                actualLayoutDirection = LayoutDirection.Rtl,
-                actualOutPositions = intArrayOf(0),
-                expectedOutPositions = intArrayOf(2268),
-            ),
-            TestParam(
-                actualArrangement = Arrangement.SpaceBetween,
-                actualTotalSize = 2376,
-                actualSizes = intArrayOf(108, 24),
-                actualLayoutDirection = LayoutDirection.Ltr,
-                actualOutPositions = intArrayOf(0, 0),
-                expectedOutPositions = intArrayOf(0, 2352),
-            ),
-            TestParam(
-                actualArrangement = Arrangement.SpaceBetween,
-                actualTotalSize = 2376,
-                actualSizes = intArrayOf(108),
-                actualLayoutDirection = LayoutDirection.Ltr,
-                actualOutPositions = intArrayOf(0),
-                expectedOutPositions = intArrayOf(0),
-            ),
-        )
+        fun data() =
+            listOf<Any>(
+                TestParam(
+                    actualArrangement = Arrangement.SpaceBetween,
+                    actualTotalSize = 2376,
+                    actualSizes = intArrayOf(108, 24),
+                    actualLayoutDirection = LayoutDirection.Rtl,
+                    actualOutPositions = intArrayOf(0, 0),
+                    expectedOutPositions = intArrayOf(2268, 0),
+                ),
+                TestParam(
+                    actualArrangement = Arrangement.SpaceBetween,
+                    actualTotalSize = 2376,
+                    actualSizes = intArrayOf(108),
+                    actualLayoutDirection = LayoutDirection.Rtl,
+                    actualOutPositions = intArrayOf(0),
+                    expectedOutPositions = intArrayOf(2268),
+                ),
+                TestParam(
+                    actualArrangement = Arrangement.SpaceBetween,
+                    actualTotalSize = 2376,
+                    actualSizes = intArrayOf(108, 24),
+                    actualLayoutDirection = LayoutDirection.Ltr,
+                    actualOutPositions = intArrayOf(0, 0),
+                    expectedOutPositions = intArrayOf(0, 2352),
+                ),
+                TestParam(
+                    actualArrangement = Arrangement.SpaceBetween,
+                    actualTotalSize = 2376,
+                    actualSizes = intArrayOf(108),
+                    actualLayoutDirection = LayoutDirection.Ltr,
+                    actualOutPositions = intArrayOf(0),
+                    expectedOutPositions = intArrayOf(0),
+                ),
+            )
     }
 }

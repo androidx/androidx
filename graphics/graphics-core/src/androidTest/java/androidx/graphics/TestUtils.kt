@@ -40,22 +40,13 @@ fun drawSquares(
     val heightF = height.toFloat()
     val halfWidth = widthF / 2f
     val halfHeight = heightF / 2f
-    canvas.drawRect(0f, 0f, halfWidth, halfHeight,
-        paint.apply { color = topLeft })
-    canvas.drawRect(halfWidth, 0f, widthF, halfHeight,
-        paint.apply { color = topRight })
-    canvas.drawRect(0f, halfHeight, halfWidth, heightF,
-        paint.apply { color = bottomLeft })
-    canvas.drawRect(halfWidth, halfHeight, widthF, heightF,
-        paint.apply { color = bottomRight })
+    canvas.drawRect(0f, 0f, halfWidth, halfHeight, paint.apply { color = topLeft })
+    canvas.drawRect(halfWidth, 0f, widthF, halfHeight, paint.apply { color = topRight })
+    canvas.drawRect(0f, halfHeight, halfWidth, heightF, paint.apply { color = bottomLeft })
+    canvas.drawRect(halfWidth, halfHeight, widthF, heightF, paint.apply { color = bottomRight })
 }
 
-fun Bitmap.verifyQuadrants(
-    topLeft: Int,
-    topRight: Int,
-    bottomLeft: Int,
-    bottomRight: Int
-) {
+fun Bitmap.verifyQuadrants(topLeft: Int, topRight: Int, bottomLeft: Int, bottomRight: Int) {
     Assert.assertEquals(topLeft, getPixel(1, 1))
     Assert.assertEquals(topLeft, getPixel(width / 2 - 2, 1))
     Assert.assertEquals(topLeft, getPixel(width / 2 - 2, height / 2 - 2))

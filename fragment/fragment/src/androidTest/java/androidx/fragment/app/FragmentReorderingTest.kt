@@ -43,8 +43,8 @@ class FragmentReorderingTest() {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Before
     fun setup() {
@@ -86,18 +86,19 @@ class FragmentReorderingTest() {
         activityRule.executePendingTransactions()
 
         assertWithMessage(
-            "Fragment1 should be stopped before Fragment2 moves to " +
-                replaceStateWhenStopped
-        )
-            .that(replaceStateWhenStopped).isLessThan(Lifecycle.State.STARTED)
+                "Fragment1 should be stopped before Fragment2 moves to " + replaceStateWhenStopped
+            )
+            .that(replaceStateWhenStopped)
+            .isLessThan(Lifecycle.State.STARTED)
 
         activityRule.popBackStackImmediate()
 
         assertWithMessage(
-            "Fragment1 should be started only after Fragment2 moves from " +
-                replaceStateWhenPopStarted
-        )
-            .that(replaceStateWhenPopStarted).isLessThan(Lifecycle.State.STARTED)
+                "Fragment1 should be started only after Fragment2 moves from " +
+                    replaceStateWhenPopStarted
+            )
+            .that(replaceStateWhenPopStarted)
+            .isLessThan(Lifecycle.State.STARTED)
     }
 
     // Test that when you add and replace a fragment that only the replace's add
@@ -213,11 +214,12 @@ class FragmentReorderingTest() {
         val fragment1 = CountCallsFragment()
         var id = -1
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            id = fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1)
-                .addToBackStack(null)
-                .setReorderingAllowed(true)
-                .commit()
+            id =
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment1)
+                    .addToBackStack(null)
+                    .setReorderingAllowed(true)
+                    .commit()
             fm.beginTransaction()
                 .hide(fragment1)
                 .addToBackStack(null)
@@ -253,11 +255,12 @@ class FragmentReorderingTest() {
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
-        val id = fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .addToBackStack(null)
-            .setReorderingAllowed(true)
-            .commit()
+        val id =
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
         activityRule.executePendingTransactions()
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
 
@@ -293,11 +296,12 @@ class FragmentReorderingTest() {
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
-        val id = fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .addToBackStack(null)
-            .setReorderingAllowed(true)
-            .commit()
+        val id =
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
         activityRule.executePendingTransactions()
         assertThat(fragment1.onAttachCount).isEqualTo(1)
         assertChildren(container, fragment1)
@@ -350,12 +354,13 @@ class FragmentReorderingTest() {
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
-        val id = fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .detach(fragment1)
-            .addToBackStack(null)
-            .setReorderingAllowed(true)
-            .commit()
+        val id =
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .detach(fragment1)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
         activityRule.executePendingTransactions()
 
         // the add detach is not fully optimized out
@@ -412,12 +417,13 @@ class FragmentReorderingTest() {
         val fm = activityRule.activity.supportFragmentManager
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val fragment1 = CountCallsFragment()
-        val id = fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .hide(fragment1)
-            .addToBackStack(null)
-            .setReorderingAllowed(true)
-            .commit()
+        val id =
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .hide(fragment1)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
         activityRule.executePendingTransactions()
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
@@ -526,11 +532,12 @@ class FragmentReorderingTest() {
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
-        val id = fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .addToBackStack(null)
-            .setReorderingAllowed(true)
-            .commit()
+        val id =
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
         activityRule.executePendingTransactions()
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(0)
@@ -579,11 +586,12 @@ class FragmentReorderingTest() {
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
-        val id = fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .addToBackStack(null)
-            .setReorderingAllowed(true)
-            .commit()
+        val id =
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
         activityRule.executePendingTransactions()
         assertChildren(container, fragment1)
 

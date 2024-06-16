@@ -18,22 +18,16 @@ package androidx.compose.ui.inspection.util
 
 const val NO_ANCHOR_ID = 0
 
-/**
- * A map of anchors with a unique id generator.
- */
+/** A map of anchors with a unique id generator. */
 class AnchorMap {
     private val anchorLookup = mutableMapOf<Int, Any>()
     private val idLookup = mutableMapOf<Any, Int>()
 
-    /**
-     * Return a unique id for the specified [anchor] instance.
-     */
+    /** Return a unique id for the specified [anchor] instance. */
     operator fun get(anchor: Any?): Int =
         anchor?.let { idLookup.getOrPut(it) { generateUniqueId(it) } } ?: NO_ANCHOR_ID
 
-    /**
-     * Return the anchor associated with a given unique anchor [id].
-     */
+    /** Return the anchor associated with a given unique anchor [id]. */
     operator fun get(id: Int): Any? = anchorLookup[id]
 
     private fun generateUniqueId(anchor: Any): Int {

@@ -25,8 +25,7 @@ import androidx.compose.runtime.Immutable
 
 @Sampled
 fun simpleImmutableClass() {
-    @Immutable
-    data class Person(val name: String, val phoneNumber: String)
+    @Immutable data class Person(val name: String, val phoneNumber: String)
 
     @Composable
     fun PersonView(person: Person) {

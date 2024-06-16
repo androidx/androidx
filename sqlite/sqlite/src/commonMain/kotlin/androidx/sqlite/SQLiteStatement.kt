@@ -19,8 +19,8 @@ package androidx.sqlite
 /**
  * SQLite statement definition.
  *
- * A prepared statement is a resource that must be released once it is no longer needed
- * via its [close] function.
+ * A prepared statement is a resource that must be released once it is no longer needed via its
+ * [close] function.
  *
  * See also [Prepared Statement](https://www.sqlite.org/c3ref/stmt.html)
  */
@@ -186,29 +186,27 @@ interface SQLiteStatement {
      * @return the names of the columns
      */
     fun getColumnNames(): List<String> {
-       return List(getColumnCount()) { i -> getColumnName(i) }
+        return List(getColumnCount()) { i -> getColumnName(i) }
     }
 
     /**
      * Executes the statement and evaluates the next result row if available.
      *
-     * A statement is initially prepared and compiled but is not executed until one or more calls
-     * to this function. If the statement execution produces result rows then this function will
-     * return `true` indicating there is a new row of data ready to be read.
+     * A statement is initially prepared and compiled but is not executed until one or more calls to
+     * this function. If the statement execution produces result rows then this function will return
+     * `true` indicating there is a new row of data ready to be read.
      *
      * @return true if there are more rows to evaluate or false if the statement is done executing
      */
     fun step(): Boolean
 
     /**
-     * Resets the prepared statement back to initial state so that it can be re-executed via
-     * [step]. Any parameter bound via the bind*() APIs will retain their value.
+     * Resets the prepared statement back to initial state so that it can be re-executed via [step].
+     * Any parameter bound via the bind*() APIs will retain their value.
      */
     fun reset()
 
-    /**
-     * Clears all parameter bindings. Unset bindings are treated as NULL.
-     */
+    /** Clears all parameter bindings. Unset bindings are treated as NULL. */
     fun clearBindings()
 
     /**

@@ -24,8 +24,8 @@ import kotlin.math.max
 
 /**
  * This animation interface is intended to be stateless, just like Animation<T>. But unlike
- * Animation<T>, DecayAnimation does not have an end value defined. The end value is a
- * result of the animation rather than an input.
+ * Animation<T>, DecayAnimation does not have an end value defined. The end value is a result of the
+ * animation rather than an input.
  */
 interface FloatDecayAnimationSpec {
     /**
@@ -41,11 +41,7 @@ interface FloatDecayAnimationSpec {
      * @param initialValue The start value of the animation
      * @param initialVelocity The start velocity of the animation
      */
-    fun getValueFromNanos(
-        playTimeNanos: Long,
-        initialValue: Float,
-        initialVelocity: Float
-    ): Float
+    fun getValueFromNanos(playTimeNanos: Long, initialValue: Float, initialVelocity: Float): Float
 
     /**
      * Returns the duration of the decay animation, in nanoseconds.
@@ -54,10 +50,7 @@ interface FloatDecayAnimationSpec {
      * @param initialVelocity start velocity of the animation
      */
     @Suppress("MethodNameUnits")
-    fun getDurationNanos(
-        initialValue: Float,
-        initialVelocity: Float
-    ): Long
+    fun getDurationNanos(initialValue: Float, initialVelocity: Float): Long
 
     /**
      * Returns the velocity of the animation at the given time.
@@ -79,10 +72,7 @@ interface FloatDecayAnimationSpec {
      * @param initialValue The start value of the animation
      * @param initialVelocity The start velocity of the animation
      */
-    fun getTargetValue(
-        initialValue: Float,
-        initialVelocity: Float
-    ): Float
+    fun getTargetValue(initialValue: Float, initialVelocity: Float): Float
 }
 
 private const val ExponentialDecayFriction = -4.2f
@@ -91,25 +81,17 @@ private const val ExponentialDecayFriction = -4.2f
  * This is a decay animation where the friction/deceleration is always proportional to the velocity.
  * As a result, the velocity goes under an exponential decay. The constructor parameter,
  * `frictionMultiplier`, can be tuned to adjust the amount of friction applied in the decay. The
- * higher the
- * multiplier, the higher the friction, the sooner the animation will stop, and the shorter distance
- * the animation will travel with the same starting condition.
+ * higher the multiplier, the higher the friction, the sooner the animation will stop, and the
+ * shorter distance the animation will travel with the same starting condition.
+ *
  * @param frictionMultiplier The friction multiplier, indicating how quickly the animation should
- * stop. This should be greater than `0`, with a default value of `1.0`.
- * @param absVelocityThreshold The speed at which the animation is considered close enough to
- * rest for the animation to finish.
+ *   stop. This should be greater than `0`, with a default value of `1.0`.
+ * @param absVelocityThreshold The speed at which the animation is considered close enough to rest
+ *   for the animation to finish.
  */
 class FloatExponentialDecaySpec(
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = false
-    )
-    frictionMultiplier: Float = 1f,
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = false
-    )
-    absVelocityThreshold: Float = 0.1f
+    @FloatRange(from = 0.0, fromInclusive = false) frictionMultiplier: Float = 1f,
+    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f
 ) : FloatDecayAnimationSpec {
 
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
@@ -139,14 +121,11 @@ class FloatExponentialDecaySpec(
     @Suppress("MethodNameUnits")
     override fun getDurationNanos(initialValue: Float, initialVelocity: Float): Long {
         // Inverse of getVelocity
-        return (1000f * ln(absVelocityThreshold / abs(initialVelocity)) / friction)
-            .toLong() * MillisToNanos
+        return (1000f * ln(absVelocityThreshold / abs(initialVelocity)) / friction).toLong() *
+            MillisToNanos
     }
 
-    override fun getTargetValue(
-        initialValue: Float,
-        initialVelocity: Float
-    ): Float {
+    override fun getTargetValue(initialValue: Float, initialVelocity: Float): Float {
         if (abs(initialVelocity) <= absVelocityThreshold) {
             return initialValue
         }
@@ -159,8 +138,8 @@ class FloatExponentialDecaySpec(
 }
 
 /**
- * Creates a [Animation] (with a fixed start value and start velocity) that decays over time
- * based on the given [FloatDecayAnimationSpec].
+ * Creates a [Animation] (with a fixed start value and start velocity) that decays over time based
+ * on the given [FloatDecayAnimationSpec].
  *
  * @param startValue the starting value of the fixed animation.
  * @param startVelocity the starting velocity of the fixed animation.

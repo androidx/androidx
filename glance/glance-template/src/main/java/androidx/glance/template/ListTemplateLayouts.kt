@@ -84,8 +84,9 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
                 val itemSpacer = if (data.listStyle == ListStyle.Full) 8.dp else 0.dp
                 val itemModifier = GlanceModifier.fillMaxSize().padding(vertical = itemSpacer)
                 var itemImageBlock: ImageBlock? = null
-                if (LocalSize.current.width > GlanceTemplateAppWidget.sizeMin &&
-                    LocalSize.current.height > GlanceTemplateAppWidget.sizeMin
+                if (
+                    LocalSize.current.width > GlanceTemplateAppWidget.sizeMin &&
+                        LocalSize.current.height > GlanceTemplateAppWidget.sizeMin
                 ) {
                     itemImageBlock = item.imageBlock
                 }
@@ -108,6 +109,7 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
 
 @Composable
 private fun createTopLevelModifier(): GlanceModifier {
-    return GlanceModifier.fillMaxSize().padding(16.dp)
+    return GlanceModifier.fillMaxSize()
+        .padding(16.dp)
         .background(GlanceTheme.colors.primaryContainer)
 }

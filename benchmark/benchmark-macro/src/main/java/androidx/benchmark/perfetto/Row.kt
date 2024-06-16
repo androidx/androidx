@@ -39,23 +39,32 @@ fun rowOf(vararg pairs: Pair<String, Any?>): Row {
  *     //callback(it["name"] as String, it["ts"] as Long, it["dur"] as Long)
  * }
  * ```
- * Nullable variants of each convenience method are also provided.
  *
+ * Nullable variants of each convenience method are also provided.
  */
 @ExperimentalPerfettoTraceProcessorApi
 class Row(private val map: Map<String, Any?>) : Map<String, Any?> by map {
     fun string(columnName: String): String = map[columnName] as String
+
     fun long(columnName: String): Long = map[columnName] as Long
+
     fun double(columnName: String): Double = map[columnName] as Double
+
     fun bytes(columnName: String): ByteArray = map[columnName] as ByteArray
+
     fun nullableString(columnName: String): String? = map[columnName] as String?
+
     @Suppress("AutoBoxing") // primitives are already internally boxed
     fun nullableLong(columnName: String): Long? = map[columnName] as Long?
+
     @Suppress("AutoBoxing") // primitives are already internally boxed
     fun nullableDouble(columnName: String): Double? = map[columnName] as Double?
+
     fun nullableBytes(columnName: String): ByteArray? = map[columnName] as ByteArray?
 
     override fun hashCode(): Int = map.hashCode()
+
     override fun toString(): String = map.toString()
+
     override fun equals(other: Any?): Boolean = map == other
 }

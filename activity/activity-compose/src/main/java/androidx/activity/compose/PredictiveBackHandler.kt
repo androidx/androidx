@@ -42,9 +42,8 @@ import kotlinx.coroutines.launch
  *
  * Calling this in your composable adds the given lambda to the [OnBackPressedDispatcher] of the
  * [LocalOnBackPressedDispatcherOwner]. The lambda passes in a Flow<BackEventCompat> where each
- * [BackEventCompat] reflects the progress of current gesture back. The lambda content should
- * follow this structure:
- *
+ * [BackEventCompat] reflects the progress of current gesture back. The lambda content should follow
+ * this structure:
  * ```
  * PredictiveBackHandler { progress: Flow<BackEventCompat> ->
  *      // code for gesture back started
@@ -59,9 +58,9 @@ import kotlinx.coroutines.launch
  * }
  * ```
  *
- * If this is called by nested composables, if enabled, the inner most composable will consume
- * the call to system back and invoke its lambda. The call will continue to propagate up until it
- * finds an enabled BackHandler.
+ * If this is called by nested composables, if enabled, the inner most composable will consume the
+ * call to system back and invoke its lambda. The call will continue to propagate up until it finds
+ * an enabled BackHandler.
  *
  * @sample androidx.activity.compose.samples.PredictiveBack
  *
@@ -71,8 +70,9 @@ import kotlinx.coroutines.launch
 @Composable
 public fun PredictiveBackHandler(
     enabled: Boolean = true,
-    onBack: suspend (progress: @JvmSuppressWildcards Flow<BackEventCompat>) ->
-        @JvmSuppressWildcards Unit
+    onBack:
+        suspend (progress: @JvmSuppressWildcards Flow<BackEventCompat>) -> @JvmSuppressWildcards
+            Unit
 ) {
     // ensure we don't re-register callbacks when onBack changes
     val currentOnBack by rememberUpdatedState(onBack)
@@ -124,13 +124,13 @@ public fun PredictiveBackHandler(
         }
     }
 
-    LaunchedEffect(enabled) {
-        backCallBack.isEnabled = enabled
-    }
+    LaunchedEffect(enabled) { backCallBack.isEnabled = enabled }
 
-    val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
-            "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
-        }.onBackPressedDispatcher
+    val backDispatcher =
+        checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
+                "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
+            }
+            .onBackPressedDispatcher
 
     @Suppress("deprecation", "KotlinRedundantDiagnosticSuppress") // TODO b/330570365
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -138,9 +138,7 @@ public fun PredictiveBackHandler(
     DisposableEffect(lifecycleOwner, backDispatcher) {
         backDispatcher.addCallback(lifecycleOwner, backCallBack)
 
-        onDispose {
-            backCallBack.remove()
-        }
+        onDispose { backCallBack.remove() }
     }
 }
 
@@ -150,15 +148,12 @@ private class OnBackInstance(
     onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
 ) {
     val channel = Channel<BackEventCompat>(capacity = BUFFERED, onBufferOverflow = SUSPEND)
-    val job = scope.launch {
-        var completed = false
-        onBack(channel.consumeAsFlow().onCompletion {
-            completed = true
-        })
-        check(completed) {
-            "You must collect the progress flow"
+    val job =
+        scope.launch {
+            var completed = false
+            onBack(channel.consumeAsFlow().onCompletion { completed = true })
+            check(completed) { "You must collect the progress flow" }
         }
-    }
 
     fun send(backEvent: BackEventCompat) = channel.trySend(backEvent)
 

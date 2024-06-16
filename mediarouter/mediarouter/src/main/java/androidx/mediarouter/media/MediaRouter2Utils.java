@@ -51,9 +51,9 @@ import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HDMI;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HDMI_ARC;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HDMI_EARC;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HEARING_AID;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTPHONE;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTWATCH;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET_DOCKED;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TV;
@@ -332,6 +332,10 @@ class MediaRouter2Utils {
                 return FEATURE_LIVE_VIDEO;
             case MediaControlIntent.CATEGORY_REMOTE_PLAYBACK:
                 return FEATURE_REMOTE_PLAYBACK;
+            case MediaControlIntent.CATEGORY_REMOTE_AUDIO_PLAYBACK:
+                return FEATURE_REMOTE_AUDIO_PLAYBACK;
+            case MediaControlIntent.CATEGORY_REMOTE_VIDEO_PLAYBACK:
+                return FEATURE_REMOTE_VIDEO_PLAYBACK;
         }
         return controlCategory;
     }
@@ -344,6 +348,10 @@ class MediaRouter2Utils {
                 return MediaControlIntent.CATEGORY_LIVE_VIDEO;
             case FEATURE_REMOTE_PLAYBACK:
                 return MediaControlIntent.CATEGORY_REMOTE_PLAYBACK;
+            case FEATURE_REMOTE_AUDIO_PLAYBACK:
+                return MediaControlIntent.CATEGORY_REMOTE_AUDIO_PLAYBACK;
+            case FEATURE_REMOTE_VIDEO_PLAYBACK:
+                return MediaControlIntent.CATEGORY_REMOTE_VIDEO_PLAYBACK;
         }
         return routeFeature;
     }

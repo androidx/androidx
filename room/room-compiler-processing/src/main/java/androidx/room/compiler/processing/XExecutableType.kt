@@ -25,13 +25,12 @@ interface XExecutableType {
     /** Parameter types of the method or constructor. */
     val parameterTypes: List<XType>
 
-    /**
-     * The list of `Throwable`s that are declared in this executable's signature.
-     */
+    /** The list of `Throwable`s that are declared in this executable's signature. */
     val thrownTypes: List<XType>
 
     /**
      * Returns `true` if this represents the same type as [other].
+     *
      * TODO: decide on how we want to handle nullability here.
      */
     fun isSameType(other: XExecutableType): Boolean

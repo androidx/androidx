@@ -17,8 +17,8 @@
 package androidx.compose.ui
 
 /**
- * Unstable API for use only between `compose-ui` modules sharing the same exact version,
- * subject to change without notice in major, minor, or patch releases.
+ * Unstable API for use only between `compose-ui` modules sharing the same exact version, subject to
+ * change without notice in major, minor, or patch releases.
  */
 @RequiresOptIn(
     "Unstable API for use only between compose-ui modules sharing the same exact version, " +

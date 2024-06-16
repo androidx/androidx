@@ -49,7 +49,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
         lint()
             .files(
                 java(
-                    """
+                        """
                     package test.pkg;
 
                     import androidx.annotation.RestrictTo;
@@ -81,7 +81,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                         }
                     }
                     """
-                )
+                    )
                     .indented(),
                 SUPPORT_ANNOTATIONS_JAR
             )
@@ -94,7 +94,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     java(
-                        """
+                            """
                 package test.pkg;
                 import library.pkg.internal.InternalClass;
                 import library.pkg.Library;
@@ -115,11 +115,11 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     java(
-                        "src/test/java/test/pkg/UnitTestLibrary.java",
-                        """
+                            "src/test/java/test/pkg/UnitTestLibrary.java",
+                            """
                 package test.pkg;
                 import library.pkg.PrivateClass;
 
@@ -130,18 +130,18 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     library,
                     gradle(
-                        """
+                            """
                 apply plugin: 'com.android.application'
 
                 dependencies {
                     compile 'my.group.id:mylib:25.0.0-SNAPSHOT'
                 }
                 """
-                    )
+                        )
                         .indented(),
                     SUPPORT_ANNOTATIONS_JAR
                 )
@@ -171,7 +171,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     java(
-                        """
+                            """
                 package com.example.mylibrary;
 
                 import androidx.annotation.RestrictTo;
@@ -205,10 +205,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     java(
-                        """
+                            """
                 package test.pkg;
 
                 import com.example.mylibrary.LibraryCode;
@@ -225,7 +225,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     SUPPORT_ANNOTATIONS_JAR
                 )
@@ -236,7 +236,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     kotlin(
-                        """
+                            """
                 package com.example.myapplication
 
                 import com.example.mylibrary.LibraryCode
@@ -250,7 +250,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     val f3 = LibraryCode.FIELD3
                 }
                 """
-                    )
+                        )
                         .indented(),
                     SUPPORT_ANNOTATIONS_JAR
                 )
@@ -278,7 +278,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     java(
-                        """
+                            """
                 package test.pkg;
                 import library.pkg.PrivateClass;
 
@@ -290,10 +290,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     java(
-                        """
+                            """
                 package test.pkg;
                 import library.pkg.PrivateClass;
 
@@ -301,10 +301,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                 public class TestLibrary2 extends PrivateClass {
                 }
                 """
-                    )
+                        )
                         .indented(),
                     java(
-                        """
+                            """
                 package test.pkg;
 
                 @SuppressWarnings("ClassNameDiffersFromFileName")
@@ -314,10 +314,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     java(
-                        """
+                            """
                 package test.pkg;
 
                 @SuppressWarnings("ClassNameDiffersFromFileName")
@@ -327,18 +327,18 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     library,
                     gradle(
-                        """
+                            """
                 apply plugin: 'com.android.application'
 
                 dependencies {
                     compile 'my.group.id:mylib:25.0.0-SNAPSHOT'
                 }
                 """
-                    )
+                        )
                         .indented(),
                     SUPPORT_ANNOTATIONS_JAR
                 )
@@ -446,28 +446,28 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                 """
                 ),
                 java(
-                    """
+                        """
                 package test.pkg;
 
                 @SuppressWarnings("ClassNameDiffersFromFileName")
                 public class MyJavaClass extends RestrictedClass implements RestrictedInterface {
                 }
                 """
-                )
+                    )
                     .indented(),
                 java(
-                    "src/androidTest/java/test/pkg/MyTestJavaClass.java",
-                    """
+                        "src/androidTest/java/test/pkg/MyTestJavaClass.java",
+                        """
                   package test.pkg;
 
                   @SuppressWarnings("ClassNameDiffersFromFileName")
                   public class MyTestJavaClass extends RestrictedClass {
                   }
                   """
-                )
+                    )
                     .indented(),
                 kotlin(
-                    """
+                        """
                 package test.pkg
 
                 import androidx.annotation.RestrictTo
@@ -475,10 +475,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                 @RestrictTo(RestrictTo.Scope.TESTS)
                 open class RestrictedClass
                 """
-                )
+                    )
                     .indented(),
                 kotlin(
-                    """
+                        """
                 package test.pkg
 
                 import androidx.annotation.RestrictTo
@@ -486,17 +486,17 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                 @RestrictTo(RestrictTo.Scope.TESTS)
                 interface RestrictedInterface
                 """
-                )
+                    )
                     .indented(),
                 gradle(
-                    """
+                        """
                 android {
                     lintOptions {
                         checkTestSources true
                     }
                 }
                 """
-                )
+                    )
                     .indented(),
                 SUPPORT_ANNOTATIONS_JAR
             )
@@ -570,7 +570,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
         lint()
             .files(
                 kotlin(
-                    """
+                        """
                 package test.pkg
 
                 import androidx.annotation.RestrictTo
@@ -583,7 +583,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                 @RestrictTo(RestrictTo.Scope.SUBCLASSES)
                 val foo = Foo()
                 """
-                )
+                    )
                     .indented(),
                 SUPPORT_ANNOTATIONS_JAR
             )
@@ -604,7 +604,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
         lint()
             .files(
                 kotlin(
-                    """
+                        """
                 package test.pkg
 
                 import androidx.annotation.RestrictTo
@@ -630,10 +630,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     var foo4: Foo? = Foo()
                 }
               """
-                )
+                    )
                     .indented(),
                 kotlin(
-                    """
+                        """
                 package test.pkg
                 class Sub : Bar() {
                     fun test() {
@@ -658,7 +658,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                )
+                    )
                     .indented(),
                 SUPPORT_ANNOTATIONS_JAR
             )
@@ -685,34 +685,32 @@ class RestrictToDetectorTest : AbstractCheckTest() {
     fun testGetMavenCoordinateFromIdentifier() {
         assertEquals(
             "androidx.wear.tiles:tiles-material:",
-            DefaultLintModelModuleLibrary(
-                ":@@:wear:tiles:tiles-material", "", null, false
-            ).getMavenNameFromIdentifier()!!.toString()
+            DefaultLintModelModuleLibrary(":@@:wear:tiles:tiles-material", "", null, false)
+                .getMavenNameFromIdentifier()!!
+                .toString()
         )
 
         assertEquals(
             "androidx.wear.tiles:tiles-material:",
-            DefaultLintModelModuleLibrary(
-                ":@@:wear:tiles:tiles-material::debug", "", null, false
-            ).getMavenNameFromIdentifier()!!.toString()
+            DefaultLintModelModuleLibrary(":@@:wear:tiles:tiles-material::debug", "", null, false)
+                .getMavenNameFromIdentifier()!!
+                .toString()
         )
 
         assertEquals(
             null,
-            DefaultLintModelModuleLibrary(
-                "", "", null, false
-            ).getMavenNameFromIdentifier()
+            DefaultLintModelModuleLibrary("", "", null, false).getMavenNameFromIdentifier()
         )
     }
 
     fun testFindMavenNameWithJarFileInPath() {
         val mavenName = DefaultLintModelMavenName("", "")
         val path = "/media/nvme/android/androidx-main/out/androidx/health/connect/connect-client"
-        val filePath = "$path/build/.transforms/7940653434057db25345237f4ed56def/transformed/out" +
-            "/jars/libs/repackaged.jar"
-        val library = DefaultLintModelJavaLibrary(
-            "", listOf(File(filePath)), mavenName, false, null
-        )
+        val filePath =
+            "$path/build/.transforms/7940653434057db25345237f4ed56def/transformed/out" +
+                "/jars/libs/repackaged.jar"
+        val library =
+            DefaultLintModelJavaLibrary("", listOf(File(filePath)), mavenName, false, null)
 
         assertEquals(mavenName, listOf(library).findMavenNameWithJarFileInPath(path))
     }
@@ -722,9 +720,9 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             mavenLibrary(
                 "my.group.id:mylib:25.0.0-SNAPSHOT",
                 stubSources =
-                listOf(
-                    java(
-                        """
+                    listOf(
+                        java(
+                                """
                         package library.pkg;
 
                         import androidx.annotation.RestrictTo;
@@ -738,10 +736,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                             }
                         }
                         """
-                    )
-                        .indented(),
-                    java(
-                        """
+                            )
+                            .indented(),
+                        java(
+                                """
                         package library.pkg;
 
                         import androidx.annotation.RestrictTo;
@@ -752,10 +750,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                             }
                         }
                         """
-                    )
-                        .indented(),
-                    java(
-                        """
+                            )
+                            .indented(),
+                        java(
+                                """
                         package library.pkg.internal;
 
                         public class InternalClass {
@@ -763,18 +761,18 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                             }
                         }
                         """
-                    )
-                        .indented(),
-                    java(
-                        """
+                            )
+                            .indented(),
+                        java(
+                                """
                         @RestrictTo(RestrictTo.Scope.GROUP_ID)
                         package library.pkg.internal;
 
                         import androidx.annotation.RestrictTo;
                         """
-                    )
-                        .indented()
-                ),
+                            )
+                            .indented()
+                    ),
                 compileOnly = listOf(SUPPORT_ANNOTATIONS_JAR)
             )
     }
@@ -784,7 +782,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     java(
-                        """
+                            """
                 package com.example.mylibrary;
 
                 import androidx.annotation.RestrictTo;
@@ -825,10 +823,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     java(
-                        """
+                            """
                 package test.pkg;
 
                 import com.example.mylibrary.LibraryCode;
@@ -847,14 +845,14 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     gradle(
-                        """
+                            """
                     apply plugin: 'com.android.library'
                     group=test.pkg.library
                     """
-                    )
+                        )
                         .indented(),
                     SUPPORT_ANNOTATIONS_JAR
                 )
@@ -865,7 +863,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     java(
-                        """
+                            """
                 package com.example.dotless;
 
                 import androidx.annotation.RestrictTo;
@@ -876,14 +874,14 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     }
                 }
                 """
-                    )
+                        )
                         .indented(),
                     gradle(
-                        """
+                            """
                     apply plugin: 'com.android.library'
                     group=dotless
                     """
-                    )
+                        )
                         .indented(),
                     SUPPORT_ANNOTATIONS_JAR
                 )
@@ -893,7 +891,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             project()
                 .files(
                     kotlin(
-                        """
+                            """
                 package com.example.myapplication
 
                 import com.example.mylibrary.LibraryCode
@@ -911,14 +909,14 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                     DotlessCode.method() // ERROR
                 }
                 """
-                    )
+                        )
                         .indented(),
                     gradle(
-                        """
+                            """
                     apply plugin: 'com.android.library'
                     group=other.app
                     """
-                    )
+                        )
                         .indented()
                 )
                 .name("lib2")
@@ -1007,7 +1005,7 @@ class RestrictToDetectorTest : AbstractCheckTest() {
         lint()
             .files(
                 kotlin(
-                    """
+                        """
           package test.pkg
 
           import library.pkg.PrivateKotlinClass
@@ -1016,14 +1014,14 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             override fun method() {}
           }
           """
-                )
+                    )
                     .indented(),
                 mavenLibrary(
                     "my.group.id:myklib:25.0.0-SNAPSHOT",
                     stubSources =
-                    listOf(
-                        kotlin(
-                            """
+                        listOf(
+                            kotlin(
+                                    """
               package library.pkg
 
               import androidx.annotation.RestrictTo
@@ -1033,20 +1031,20 @@ class RestrictToDetectorTest : AbstractCheckTest() {
                   open fun method() {}
               }
               """
-                        )
-                            .indented(),
-                    ),
+                                )
+                                .indented(),
+                        ),
                     compileOnly = listOf(SUPPORT_ANNOTATIONS_JAR)
                 ),
                 gradle(
-                    """
+                        """
                 apply plugin: 'com.android.application'
 
                 dependencies {
                     compile 'my.group.id:myklib:25.0.0-SNAPSHOT'
                 }
                 """
-                )
+                    )
                     .indented(),
                 SUPPORT_ANNOTATIONS_JAR
             )

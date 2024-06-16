@@ -27,11 +27,12 @@ import androidx.glance.unit.ColorProvider
 /**
  * Adds a determinate linear progress indicator view to the glance view.
  *
- * @param progress of this progress indicator, where 0.0 represents no progress and 1.0 represents full progress
+ * @param progress of this progress indicator, where 0.0 represents no progress and 1.0 represents
+ *   full progress
  * @param modifier the modifier to apply to the progress bar
  * @param color The color of the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
- * progress has not reached that area of the overall indicator yet.
+ *   progress has not reached that area of the overall indicator yet.
  */
 @Composable
 fun LinearProgressIndicator(
@@ -58,7 +59,7 @@ fun LinearProgressIndicator(
  * @param modifier the modifier to apply to the progress bar
  * @param color The color of the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
- * progress has not reached that area of the overall indicator yet.
+ *   progress has not reached that area of the overall indicator yet.
  */
 @Composable
 fun LinearProgressIndicator(
@@ -73,7 +74,7 @@ fun LinearProgressIndicator(
             this.set(true) { this.indeterminate = it }
             this.set(color) { this.color = it }
             this.set(backgroundColor) { this.backgroundColor = it }
-          }
+        }
     )
 }
 
@@ -85,41 +86,37 @@ class EmittableLinearProgressIndicator : Emittable {
     var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
     var backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
 
-    override fun copy(): Emittable = EmittableLinearProgressIndicator().also {
-        it.modifier = modifier
-        it.progress = progress
-        it.indeterminate = indeterminate
-        it.color = color
-        it.backgroundColor = backgroundColor
-    }
+    override fun copy(): Emittable =
+        EmittableLinearProgressIndicator().also {
+            it.modifier = modifier
+            it.progress = progress
+            it.indeterminate = indeterminate
+            it.color = color
+            it.backgroundColor = backgroundColor
+        }
 
-    override fun toString(): String = "EmittableLinearProgressIndicator(" +
-        "modifier=$modifier, " +
-        "progress=$progress, " +
-        "indeterminate=$indeterminate, " +
-        "color=$color, " +
-        "backgroundColor=$backgroundColor" +
-        ")"
+    override fun toString(): String =
+        "EmittableLinearProgressIndicator(" +
+            "modifier=$modifier, " +
+            "progress=$progress, " +
+            "indeterminate=$indeterminate, " +
+            "color=$color, " +
+            "backgroundColor=$backgroundColor" +
+            ")"
 }
 
-/**
- * Contains the default values used for [LinearProgressIndicator].
- */
+/** Contains the default values used for [LinearProgressIndicator]. */
 object ProgressIndicatorDefaults {
 
-  /**
-   * Default color for [LinearProgressIndicator].
-   * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
-   */
-  private val Color = Color(0xFF6200EE)
+    /**
+     * Default color for [LinearProgressIndicator]. [Material color
+     * specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
+     */
+    private val Color = Color(0xFF6200EE)
 
-  /**
-   * Default ColorProvider for the progress indicator in [LinearProgressIndicator].
-   */
-  val IndicatorColorProvider = ColorProvider(Color)
+    /** Default ColorProvider for the progress indicator in [LinearProgressIndicator]. */
+    val IndicatorColorProvider = ColorProvider(Color)
 
-  /**
-   * Default ColorProvider for the background in [LinearProgressIndicator].
-   */
-  val BackgroundColorProvider = ColorProvider(Color.copy(alpha = 0.24f))
+    /** Default ColorProvider for the background in [LinearProgressIndicator]. */
+    val BackgroundColorProvider = ColorProvider(Color.copy(alpha = 0.24f))
 }

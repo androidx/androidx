@@ -60,14 +60,10 @@ import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * These tests were copied from DialogTest.kt for support of deprecated Dialogs
- */
-
+/** These tests were copied from DialogTest.kt for support of deprecated Dialogs */
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcBehaviourTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag_on_alert_with_buttons() {
@@ -260,12 +256,8 @@ class DialogWithMaterialSlcBehaviourTest {
                 ) {
                     AlertWithMaterialSlc(
                         title = {},
-                        negativeButton = {
-                            Button(onClick = {}, content = {})
-                        },
-                        positiveButton = {
-                            Button(onClick = {}, content = {})
-                        },
+                        negativeButton = { Button(onClick = {}, content = {}) },
+                        positiveButton = { Button(onClick = {}, content = {}) },
                         content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
                     )
                 }
@@ -394,24 +386,22 @@ class DialogWithMaterialSlcBehaviourTest {
 
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcContentSizeAndPositionTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun spaces_icon_and_title_correctly_on_alert_with_buttons() {
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                AlertWithMaterialSlc(
-                    icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    negativeButton = {
-                        Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
-                    },
-                    positiveButton = { Button(onClick = {}) {} },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            AlertWithMaterialSlc(
+                icon = { TestImage(ICON_TAG) },
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                negativeButton = {
+                    Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
+                },
+                positiveButton = { Button(onClick = {}) {} },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val iconBottom = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().bottom
         val titleTop = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().top
@@ -422,20 +412,19 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
     fun spaces_title_and_buttons_correctly_on_alert_with_buttons() {
         var titlePadding = 0.dp
 
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                titlePadding = DialogDefaults.TitlePadding.calculateBottomPadding()
-                AlertWithMaterialSlc(
-                    icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    negativeButton = {
-                        Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
-                    },
-                    positiveButton = { Button(onClick = {}) {} },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            titlePadding = DialogDefaults.TitlePadding.calculateBottomPadding()
+            AlertWithMaterialSlc(
+                icon = { TestImage(ICON_TAG) },
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                negativeButton = {
+                    Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
+                },
+                positiveButton = { Button(onClick = {}) {} },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
         val buttonTop = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().top
@@ -444,24 +433,23 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
 
     @Test
     fun spaces_icon_and_title_correctly_on_alert_with_chips() {
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                AlertWithMaterialSlc(
-                    icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    content = {
-                        item {
-                            Chip(
-                                label = { Text("Chip") },
-                                onClick = {},
-                                modifier = Modifier.testTag(CHIP_TAG)
-                            )
-                        }
-                    },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            AlertWithMaterialSlc(
+                icon = { TestImage(ICON_TAG) },
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                content = {
+                    item {
+                        Chip(
+                            label = { Text("Chip") },
+                            onClick = {},
+                            modifier = Modifier.testTag(CHIP_TAG)
+                        )
+                    }
+                },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val iconBottom = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().bottom
         val titleTop = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().top
@@ -472,25 +460,24 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
     fun spaces_title_and_chips_correctly_on_alert_with_chips() {
         var titlePadding = 0.dp
 
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                titlePadding = DialogDefaults.TitlePadding.calculateBottomPadding()
-                AlertWithMaterialSlc(
-                    icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    content = {
-                        item {
-                            Chip(
-                                label = { Text("Chip") },
-                                onClick = {},
-                                modifier = Modifier.testTag(CHIP_TAG)
-                            )
-                        }
-                    },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            titlePadding = DialogDefaults.TitlePadding.calculateBottomPadding()
+            AlertWithMaterialSlc(
+                icon = { TestImage(ICON_TAG) },
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                content = {
+                    item {
+                        Chip(
+                            label = { Text("Chip") },
+                            onClick = {},
+                            modifier = Modifier.testTag(CHIP_TAG)
+                        )
+                    }
+                },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
         val chipTop = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().top
@@ -499,16 +486,15 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
 
     @Test
     fun spaces_icon_and_title_correctly_on_ConfirmationWithMaterialSlc() {
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                ConfirmationWithMaterialSlc(
-                    onTimeout = {},
-                    icon = { TestImage(ICON_TAG) },
-                    content = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            ConfirmationWithMaterialSlc(
+                onTimeout = {},
+                icon = { TestImage(ICON_TAG) },
+                content = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val iconBottom = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().bottom
         val titleTop = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().top
@@ -519,20 +505,19 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
     fun spaces_title_and_body_correctly_on_alert_with_buttons() {
         var titleSpacing = 0.dp
 
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                AlertWithMaterialSlc(
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    negativeButton = {
-                        Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
-                    },
-                    positiveButton = { Button(onClick = {}) {} },
-                    content = { Text("Body", modifier = Modifier.testTag(BODY_TAG)) },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
+            AlertWithMaterialSlc(
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                negativeButton = {
+                    Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
+                },
+                positiveButton = { Button(onClick = {}) {} },
+                content = { Text("Body", modifier = Modifier.testTag(BODY_TAG)) },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
         val bodyTop = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().top
@@ -543,26 +528,25 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
     fun spaces_title_and_body_correctly_on_alert_with_chips() {
         var titleSpacing = 0.dp
 
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                AlertWithMaterialSlc(
-                    icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
-                    content = {
-                        item {
-                            Chip(
-                                label = { Text("Chip") },
-                                onClick = {},
-                                modifier = Modifier.testTag(CHIP_TAG)
-                            )
-                        }
-                    },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
+            AlertWithMaterialSlc(
+                icon = { TestImage(ICON_TAG) },
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
+                content = {
+                    item {
+                        Chip(
+                            label = { Text("Chip") },
+                            onClick = {},
+                            modifier = Modifier.testTag(CHIP_TAG)
+                        )
+                    }
+                },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
         val bodyTop = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().top
@@ -573,23 +557,20 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
     fun spaces_body_and_buttons_correctly_on_alert_with_buttons() {
         var bodyPadding = 0.dp
 
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bodyPadding = DialogDefaults.BodyPadding.calculateBottomPadding()
-                AlertWithMaterialSlc(
-                    icon = {},
-                    title = {},
-                    negativeButton = {
-                        Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
-                    },
-                    positiveButton = {
-                        Button(onClick = {}) {}
-                    },
-                    content = { Text("Body", modifier = Modifier.testTag(BODY_TAG)) },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            bodyPadding = DialogDefaults.BodyPadding.calculateBottomPadding()
+            AlertWithMaterialSlc(
+                icon = {},
+                title = {},
+                negativeButton = {
+                    Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
+                },
+                positiveButton = { Button(onClick = {}) {} },
+                content = { Text("Body", modifier = Modifier.testTag(BODY_TAG)) },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val bodyBottom = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().bottom
         val buttonTop = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().top
@@ -600,26 +581,25 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
     fun spaces_body_and_chips_correctly_on_alert_with_chips() {
         var bodyPadding = 0.dp
 
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bodyPadding = DialogDefaults.BodyPadding.calculateBottomPadding()
-                AlertWithMaterialSlc(
-                    icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
-                    content = {
-                        item {
-                            Chip(
-                                label = { Text("Chip") },
-                                onClick = {},
-                                modifier = Modifier.testTag(CHIP_TAG)
-                            )
-                        }
-                    },
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            bodyPadding = DialogDefaults.BodyPadding.calculateBottomPadding()
+            AlertWithMaterialSlc(
+                icon = { TestImage(ICON_TAG) },
+                title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
+                content = {
+                    item {
+                        Chip(
+                            label = { Text("Chip") },
+                            onClick = {},
+                            modifier = Modifier.testTag(CHIP_TAG)
+                        )
+                    }
+                },
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
 
         val bodyBottom = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().bottom
         val chipTop = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().top
@@ -629,8 +609,7 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
 
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcContentColorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun gives_icon_onbackground_on_alert_for_buttons() {
@@ -967,9 +946,7 @@ class DialogWithMaterialSlcContentColorTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(overrideColor, 100.0f)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(overrideColor, 100.0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -987,9 +964,7 @@ class DialogWithMaterialSlcContentColorTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(overrideColor, 100.0f)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(overrideColor, 100.0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1006,9 +981,7 @@ class DialogWithMaterialSlcContentColorTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(overrideColor, 100.0f)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(overrideColor, 100.0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1020,15 +993,14 @@ class DialogWithMaterialSlcContentColorTest {
         var expectedBackground = Color.Transparent
 
         rule.setContentWithTheme {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(testBackground)) {
+            Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
                 expectedBackground = expected()
                 content()
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(expectedBackground, 100.0f)
     }
@@ -1036,8 +1008,7 @@ class DialogWithMaterialSlcContentColorTest {
 
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcTextStyleTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun gives_title_correct_textstyle_on_alert_for_buttons() {

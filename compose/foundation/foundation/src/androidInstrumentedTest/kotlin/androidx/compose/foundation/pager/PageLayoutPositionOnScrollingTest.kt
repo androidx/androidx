@@ -36,88 +36,86 @@ class PageLayoutPositionOnScrollingTest : SingleParamBasePagerTest() {
     }
 
     @Test
-    fun swipeForwardAndBackward_verifyPagesAreLaidOutCorrectly() = with(rule) {
-        // Arrange
-        setContent {
-            ParameterizedPager(
-                modifier = Modifier.fillMaxSize(),
-                orientation = it.orientation,
-                layoutDirection = it.layoutDirection,
-                pageSpacing = it.pageSpacing,
-                contentPadding = it.mainAxisContentPadding,
-                reverseLayout = it.reverseLayout
-            )
-        }
-
-        forEachParameter(ParamsToTest) { param ->
-            val delta = pagerSize * 0.4f * param.scrollForwardSign
-
-            // Act and Assert - forward
-            repeat(DefaultAnimationRepetition) {
-                onNodeWithTag(it.toString()).assertIsDisplayed()
-                param.confirmPageIsInCorrectPosition(it)
-                runAndWaitForPageSettling {
-                    onNodeWithTag(it.toString()).performTouchInput {
-                        with(param) {
-                            swipeWithVelocityAcrossMainAxis(
-                                with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                                delta
-                            )
-                        }
-                    }
-                }
+    fun swipeForwardAndBackward_verifyPagesAreLaidOutCorrectly() =
+        with(rule) {
+            // Arrange
+            setContent {
+                ParameterizedPager(
+                    modifier = Modifier.fillMaxSize(),
+                    orientation = it.orientation,
+                    layoutDirection = it.layoutDirection,
+                    pageSpacing = it.pageSpacing,
+                    contentPadding = it.mainAxisContentPadding,
+                    reverseLayout = it.reverseLayout
+                )
             }
 
-            // Act - backward
-            repeat(DefaultAnimationRepetition) {
-                val countDown = DefaultAnimationRepetition - it
-                onNodeWithTag(countDown.toString()).assertIsDisplayed()
-                param.confirmPageIsInCorrectPosition(countDown)
-                runAndWaitForPageSettling {
-                    rule.onNodeWithTag(countDown.toString()).performTouchInput {
-                        with(param) {
-                            swipeWithVelocityAcrossMainAxis(
-                                with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                                delta * -1f
-                            )
-                        }
-                    }
-                }
-            }
+            forEachParameter(ParamsToTest) { param ->
+                val delta = pagerSize * 0.4f * param.scrollForwardSign
 
-            resetTestCase()
-        }
-    }
-
-    private fun resetTestCase() {
-        rule.runOnIdle {
-            runBlocking {
-                pagerState.scrollToPage(0)
-            }
-        }
-    }
-
-    companion object {
-        val ParamsToTest = mutableListOf<SingleParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                for (pageSpacing in TestPageSpacing) {
-                    for (reverseLayout in TestReverseLayout) {
-                        for (layoutDirection in TestLayoutDirection) {
-                            for (contentPadding in testContentPaddings(orientation)) {
-                                add(
-                                    SingleParamConfig(
-                                        orientation = orientation,
-                                        mainAxisContentPadding = contentPadding,
-                                        reverseLayout = reverseLayout,
-                                        layoutDirection = layoutDirection,
-                                        pageSpacing = pageSpacing
-                                    )
+                // Act and Assert - forward
+                repeat(DefaultAnimationRepetition) {
+                    onNodeWithTag(it.toString()).assertIsDisplayed()
+                    param.confirmPageIsInCorrectPosition(it)
+                    runAndWaitForPageSettling {
+                        onNodeWithTag(it.toString()).performTouchInput {
+                            with(param) {
+                                swipeWithVelocityAcrossMainAxis(
+                                    with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
+                                    delta
                                 )
                             }
                         }
                     }
                 }
+
+                // Act - backward
+                repeat(DefaultAnimationRepetition) {
+                    val countDown = DefaultAnimationRepetition - it
+                    onNodeWithTag(countDown.toString()).assertIsDisplayed()
+                    param.confirmPageIsInCorrectPosition(countDown)
+                    runAndWaitForPageSettling {
+                        rule.onNodeWithTag(countDown.toString()).performTouchInput {
+                            with(param) {
+                                swipeWithVelocityAcrossMainAxis(
+                                    with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
+                                    delta * -1f
+                                )
+                            }
+                        }
+                    }
+                }
+
+                resetTestCase()
             }
         }
+
+    private fun resetTestCase() {
+        rule.runOnIdle { runBlocking { pagerState.scrollToPage(0) } }
+    }
+
+    companion object {
+        val ParamsToTest =
+            mutableListOf<SingleParamConfig>().apply {
+                for (orientation in TestOrientation) {
+                    for (pageSpacing in TestPageSpacing) {
+                        for (reverseLayout in TestReverseLayout) {
+                            for (layoutDirection in TestLayoutDirection) {
+                                for (contentPadding in testContentPaddings(orientation)) {
+                                    add(
+                                        SingleParamConfig(
+                                            orientation = orientation,
+                                            mainAxisContentPadding = contentPadding,
+                                            reverseLayout = reverseLayout,
+                                            layoutDirection = layoutDirection,
+                                            pageSpacing = pageSpacing
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
     }
 }

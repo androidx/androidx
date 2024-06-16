@@ -38,29 +38,29 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun ResizeComposeViewDemo() {
     var size by remember { mutableStateOf(IntSize(0, 0)) }
     Box(
-        Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { it.consume() }
-                        val change = event.changes.firstOrNull()
-                        if (change != null) {
-                            val position = change.position.round()
-                            size = IntSize(position.x, position.y)
-                        }
+        Modifier.fillMaxSize().pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    event.changes.forEach { it.consume() }
+                    val change = event.changes.firstOrNull()
+                    if (change != null) {
+                        val position = change.position.round()
+                        size = IntSize(position.x, position.y)
                     }
                 }
-            }) {
+            }
+        }
+    ) {
         with(LocalDensity.current) {
-            AndroidView(factory = { context ->
-                ComposeView(context).apply {
-                    setContent {
-                        Box(Modifier.fillMaxSize().background(Color.Blue))
+            AndroidView(
+                factory = { context ->
+                    ComposeView(context).apply {
+                        setContent { Box(Modifier.fillMaxSize().background(Color.Blue)) }
                     }
-                }
-            }, modifier = Modifier.size(size.width.toDp(), size.height.toDp()))
+                },
+                modifier = Modifier.size(size.width.toDp(), size.height.toDp())
+            )
             Text("Touch the screen to change the size of the child ComposeView")
         }
     }

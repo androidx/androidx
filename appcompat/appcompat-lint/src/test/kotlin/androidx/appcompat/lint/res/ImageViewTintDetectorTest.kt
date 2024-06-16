@@ -24,9 +24,10 @@ import org.junit.Test
 class ImageViewTintDetectorTest {
     @Test
     fun testUsageOfTintAttribute() {
-        val layout = LintDetectorTest.xml(
-            "layout/image_view.xml",
-            """
+        val layout =
+            LintDetectorTest.xml(
+                    "layout/image_view.xml",
+                    """
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -39,14 +40,16 @@ class ImageViewTintDetectorTest {
         android:tint="#FF0000" />
 </LinearLayout>
         """
-        ).indented().within("res")
+                )
+                .indented()
+                .within("res")
 
         // We expect the definition of the image view to be flagged since it has
         // android:tint instead of app:tint. We also expect a matching
         // fix to replace android:tint with app:tint, retaining the same value
-        lint().files(
-            layout
-        ).issues(ImageViewTintDetector.USING_ANDROID_TINT)
+        lint()
+            .files(layout)
+            .issues(ImageViewTintDetector.USING_ANDROID_TINT)
             .run()
             .expect(
                 """
@@ -54,7 +57,8 @@ res/layout/image_view.xml:10: Error: Must use app:tint instead of android:tint [
         android:tint="#FF0000" />
         ~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -64,7 +68,8 @@ Fix for res/layout/image_view.xml line 10: Use `app:tint` instead of `android:ti
 @@ -11 +12
 -         android:tint="#FF0000" />
 +         app:tint="#FF0000" />
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 }

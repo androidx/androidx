@@ -41,9 +41,7 @@ class DoubleTransitionBugFragment : Fragment(R.layout.double_transition_bug_acti
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.important_button).setOnClickListener {
-            switchFragment()
-        }
+        view.findViewById<Button>(R.id.important_button).setOnClickListener { switchFragment() }
     }
 
     private fun switchFragment() {
@@ -57,7 +55,8 @@ class DoubleTransitionBugFragment : Fragment(R.layout.double_transition_bug_acti
         val first = Fragment(R.layout.double_transition_bug_fragment_first)
         first.enterTransition = Fade().setDuration(5000)
 
-        childFragmentManager.beginTransaction()
+        childFragmentManager
+            .beginTransaction()
             .setReorderingAllowed(true)
             .add(R.id.content, first)
             .add(R.id.content, second)

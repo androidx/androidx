@@ -38,8 +38,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ColorsBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val colorsTestCaseFactory = { ColorsTestCase() }
 
@@ -58,46 +57,53 @@ private class ColorsTestCase : LayeredComposeTestCase() {
                 // Primary
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colors.primary))
                 Box(
-                    modifier = Modifier.size(1.dp)
-                        .background(
-                            MaterialTheme.colors.contentColorFor(MaterialTheme.colors.primary)
-                    )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colors.contentColorFor(MaterialTheme.colors.primary)
+                            )
                 )
 
                 // Secondary
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colors.secondary))
                 Box(
-                    modifier = Modifier.size(1.dp)
-                        .background(
-                            MaterialTheme.colors.contentColorFor(MaterialTheme.colors.secondary)
-                        )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colors.contentColorFor(MaterialTheme.colors.secondary)
+                            )
                 )
 
                 // Background
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colors.background))
                 Box(
-                    modifier = Modifier.size(1.dp)
-                        .background(
-                            MaterialTheme.colors.contentColorFor(MaterialTheme.colors.background)
-                        )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colors.contentColorFor(
+                                    MaterialTheme.colors.background
+                                )
+                            )
                 )
 
                 // Surface
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colors.surface))
                 Box(
-                    modifier = Modifier.size(1.dp)
-                        .background(
-                            MaterialTheme.colors.contentColorFor(MaterialTheme.colors.surface)
-                        )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colors.contentColorFor(MaterialTheme.colors.surface)
+                            )
                 )
 
                 // Error
                 Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colors.error))
                 Box(
-                    modifier = Modifier.size(1.dp)
-                        .background(
-                            MaterialTheme.colors.contentColorFor(MaterialTheme.colors.error)
-                        )
+                    modifier =
+                        Modifier.size(1.dp)
+                            .background(
+                                MaterialTheme.colors.contentColorFor(MaterialTheme.colors.error)
+                            )
                 )
             }
         }

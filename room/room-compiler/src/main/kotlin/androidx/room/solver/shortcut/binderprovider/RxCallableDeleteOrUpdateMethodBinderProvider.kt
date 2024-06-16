@@ -15,6 +15,7 @@
  */
 
 package androidx.room.solver.shortcut.binderprovider
+
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
@@ -22,13 +23,10 @@ import androidx.room.solver.RxType
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 
-/**
- * Provider for Rx Callable binders.
- */
-open class RxCallableDeleteOrUpdateMethodBinderProvider internal constructor(
-    val context: Context,
-    private val rxType: RxType
-) : DeleteOrUpdateMethodBinderProvider {
+/** Provider for Rx Callable binders. */
+open class RxCallableDeleteOrUpdateMethodBinderProvider
+internal constructor(val context: Context, private val rxType: RxType) :
+    DeleteOrUpdateMethodBinderProvider {
 
     /**
      * [Single] and [Maybe] are generics but [Completable] is not so each implementation of this
@@ -52,32 +50,30 @@ open class RxCallableDeleteOrUpdateMethodBinderProvider internal constructor(
     }
 
     companion object {
-        fun getAll(context: Context) = listOf(
-            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_SINGLE),
-            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_MAYBE),
-            RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
-            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_SINGLE),
-            RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_MAYBE),
-            RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
-        )
+        fun getAll(context: Context) =
+            listOf(
+                RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_SINGLE),
+                RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_MAYBE),
+                RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
+                RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_SINGLE),
+                RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_MAYBE),
+                RxCompletableDeleteOrUpdateMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
+            )
     }
 }
 
-private class RxCompletableDeleteOrUpdateMethodBinderProvider(
-    context: Context,
-    rxType: RxType
-) : RxCallableDeleteOrUpdateMethodBinderProvider(context, rxType) {
+private class RxCompletableDeleteOrUpdateMethodBinderProvider(context: Context, rxType: RxType) :
+    RxCallableDeleteOrUpdateMethodBinderProvider(context, rxType) {
 
     private val completableType: XRawType? by lazy {
         context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
     /**
-     * Since Completable is not a generic, the supported return type should be Void (nullable).
-     * Like this, the generated Callable.call method will return Void.
+     * Since Completable is not a generic, the supported return type should be Void (nullable). Like
+     * this, the generated Callable.call method will return Void.
      */
-    override fun extractTypeArg(declared: XType): XType =
-        context.COMMON_TYPES.VOID.makeNullable()
+    override fun extractTypeArg(declared: XType): XType = context.COMMON_TYPES.VOID.makeNullable()
 
     override fun matches(declared: XType): Boolean = isCompletable(declared)
 
@@ -89,14 +85,10 @@ private class RxCompletableDeleteOrUpdateMethodBinderProvider(
     }
 }
 
-private class RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(
-    context: Context,
-    rxType: RxType
-) : RxCallableDeleteOrUpdateMethodBinderProvider(context, rxType) {
+private class RxSingleOrMaybeDeleteOrUpdateMethodBinderProvider(context: Context, rxType: RxType) :
+    RxCallableDeleteOrUpdateMethodBinderProvider(context, rxType) {
 
-    /**
-     * Since Maybe can have null values, the Callable returned must allow for null values.
-     */
+    /** Since Maybe can have null values, the Callable returned must allow for null values. */
     override fun extractTypeArg(declared: XType): XType =
         declared.typeArguments.first().makeNullable()
 }

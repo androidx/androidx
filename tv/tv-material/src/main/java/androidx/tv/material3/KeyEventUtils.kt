@@ -22,12 +22,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.type
 
-/**
- * Checks if the `Back` key is pressed
- */
+/** Checks if the `Back` key is pressed */
 internal fun KeyEvent.isBackPress() = key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK
 
-/**
- * Checks if the keyEventType is `KeyDown`
- */
+/** Checks if the keyEventType is `KeyDown` */
 internal fun KeyEvent.isTypeKeyDown() = type == KeyDown

@@ -25,10 +25,8 @@ import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
 
-internal class JavacAnnotation(
-    val env: JavacProcessingEnv,
-    val mirror: AnnotationMirror
-) : InternalXAnnotation() {
+internal class JavacAnnotation(val env: JavacProcessingEnv, val mirror: AnnotationMirror) :
+    InternalXAnnotation() {
 
     override val name: String
         get() = mirror.annotationType.asElement().simpleName.toString()
@@ -58,14 +56,14 @@ internal class JavacAnnotation(
     }
 
     override val annotationValues: List<XAnnotationValue> by lazy {
-        AnnotationMirrors.getAnnotationValuesWithDefaults(mirror)
-            .map { (executableElement, annotationValue) ->
-                JavacAnnotationValue(
-                    env,
-                    env.wrapExecutableElement(executableElement) as JavacMethodElement,
-                    annotationValue
-                )
-            }
+        AnnotationMirrors.getAnnotationValuesWithDefaults(mirror).map {
+            (executableElement, annotationValue) ->
+            JavacAnnotationValue(
+                env,
+                env.wrapExecutableElement(executableElement) as JavacMethodElement,
+                annotationValue
+            )
+        }
     }
 
     override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {

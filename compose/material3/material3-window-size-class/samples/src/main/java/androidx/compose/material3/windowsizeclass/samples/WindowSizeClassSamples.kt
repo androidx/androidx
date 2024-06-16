@@ -47,6 +47,4 @@ fun AndroidWindowSizeClassSample() {
     }
 }
 
-@Suppress("UNUSED_PARAMETER")
-@Composable
-private fun MyScreen(useNavRail: Boolean) {}
+@Suppress("UNUSED_PARAMETER") @Composable private fun MyScreen(useNavRail: Boolean) {}

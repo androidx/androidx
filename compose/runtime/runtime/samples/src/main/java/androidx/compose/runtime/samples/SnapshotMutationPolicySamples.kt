@@ -30,16 +30,18 @@ fun counterSample() {
      * the applying snapshot are added together with changes of other snapshots. Changes to a
      * [MutableState] with a counterPolicy will never cause an apply conflict.
      *
-     * As the name implies, this is useful when counting things, such as tracking the amount of
-     * a resource consumed or produced while in a snapshot. For example, if snapshot A produces 10
+     * As the name implies, this is useful when counting things, such as tracking the amount of a
+     * resource consumed or produced while in a snapshot. For example, if snapshot A produces 10
      * things and snapshot B produces 20 things, the result of applying both A and B should be that
      * 30 things were produced.
      */
-    fun counterPolicy(): SnapshotMutationPolicy<Int> = object : SnapshotMutationPolicy<Int> {
-        override fun equivalent(a: Int, b: Int): Boolean = a == b
-        override fun merge(previous: Int, current: Int, applied: Int) =
-            current + (applied - previous)
-    }
+    fun counterPolicy(): SnapshotMutationPolicy<Int> =
+        object : SnapshotMutationPolicy<Int> {
+            override fun equivalent(a: Int, b: Int): Boolean = a == b
+
+            override fun merge(previous: Int, current: Int, applied: Int) =
+                current + (applied - previous)
+        }
 
     val state = mutableStateOf(0, counterPolicy())
     val snapshot1 = Snapshot.takeMutableSnapshot()

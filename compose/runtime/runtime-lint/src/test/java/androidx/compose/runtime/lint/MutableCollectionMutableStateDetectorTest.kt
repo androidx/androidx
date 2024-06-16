@@ -28,12 +28,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [MutableCollectionMutableStateDetector].
- */
+/** Test for [MutableCollectionMutableStateDetector]. */
 class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = MutableCollectionMutableStateDetector()
 
@@ -43,11 +40,12 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
     /**
      * Extensions / subclasses around Kotlin mutable collections, both in source and compiled form.
      */
-    private val KotlinMutableCollectionExtensions = kotlinAndBytecodeStub(
-        filename = "MutableCollectionExtensions.kt",
-        filepath = "stubs",
-        checksum = 0xb32e2e72,
-        """
+    private val KotlinMutableCollectionExtensions =
+        kotlinAndBytecodeStub(
+            filename = "MutableCollectionExtensions.kt",
+            filepath = "stubs",
+            checksum = 0xb32e2e72,
+            """
             package stubs
 
             fun mutableList(): MutableList<Int> = mutableListOf()
@@ -70,13 +68,13 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
             object MutableCollectionObject : MutableCollection<Int> by mutableListOf()
             class MutableCollectionSubclass : MutableCollection<Int> by mutableListOf()
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uaSSMxLKcrPTKnQS87PLcgvTtUr
         Ks0rycxNFeIPzkssKM7ILwkuSSxJ9S7hUuNiLS4pTSoWkvUtLUlMykl1zs/J
         SU0uyczPc60oSc0rBjKKger4uFhKUotLhNhCgKR3iRKDFgMAINgad30AAAA=
         """,
-        """
+            """
         stubs/MutableCollectionExtensionsKt.class:
         H4sIAAAAAAAA/52W224aRxjH/wMLCwuGBWM7Jond4HOcZMk5rl23rps0NOA0
         cRSp8tVir+jasETMYqV3fpY+QVtfVGqlCvWyr9B3qfrNerXLjqFKiszOzHf4
@@ -101,7 +99,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         oBLN9crjqeM1tceU+TlFf3GAeA07NXxZwy6+quEpntXwNZ4fgHHU8M0Bpjge
         cbzw/h7S4eIoev0CR5Ljltdf51jkmPf6cxwzHFWOBKffXpj+F3+GwS2MCQAA
         """,
-        """
+            """
         stubs/MutableCollectionObject.class:
         H4sIAAAAAAAA/6VWW1cTVxT+zoQkQzLKEAzXilpRA2kJotUWkIKINRpACaUq
         tnYIIw5MJnZmQtXe6M3erw8+9LHPPtTVFrGu1UXtW39UV/eZGRIIA9J2rWTO
@@ -141,7 +139,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         bfFBGh/ioykwCx/jzhQaLf77xPlFLbRYaLLQbKHVobRbSFpIOfse53nCwoCF
         UxbOOK8jFkYtZC1M/gPQMrgUVA8AAA==
         """,
-        """
+            """
         stubs/MutableCollectionSubclass.class:
         H4sIAAAAAAAA/6VWW1cTVxT+TkLuI5kECbcWpaIG0hJAqy0gBW81GkAJpSq2
         dghjHJhM7MyEqr3R+/3Vhz722Ye6VovYrtVFfeyP6uo+k2ECyURou1Yy58ze
@@ -180,7 +178,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         PrV+EQNdBjoMdBrotih9BlIG0tZ+xHqeMjBh4KyBC9brlIFpAzkD8/8AHPTg
         +vQOAAA=
         """,
-        """
+            """
         stubs/MutableListObject.class:
         H4sIAAAAAAAA/6VYiXsT1xH/7cqWZGmN1wLfxIZg4kMEGZKSBjs0DhAiMCZg
         1yW4NFnLi1lbB9WuXJM2LU3apOl90pbeaXrTFprE4NCmDumZHn9Sv868fV5L
@@ -236,7 +234,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         xjEb222csDFu47SYOmvjGTGwbMzaKNgo2ijZWLBx0cZzNp638cL/AWVqBCvg
         GAAA
         """,
-        """
+            """
         stubs/MutableListSubclass.class:
         H4sIAAAAAAAA/6VYi3sTxxH/nWTrecZnGb+JDcHEDxFkSEoaTGgcIETYQMCu
         S3BpcpYPc7YeVHtyDW1amrRN0/eTtvSdpm/aQpsYnLSpQ9/9o/p1Zm99luST
@@ -290,7 +288,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         I//iAh0CbQLtAtukpE8+HxbYI7BPjkcEjggcExgV2CFwSmBC4KycOi/wghzY
         AnMCBYGiQElgUeCywIsCLwm8/H/95bQCgBgAAA==
         """,
-        """
+            """
         stubs/MutableMapObject.class:
         H4sIAAAAAAAA/7VW61cb1xH/3ZWQhFjsRbxk2QEnlmMBiYWp6ziF0gIhtgzG
         Brk0sUvTRazxotXK1V1RO325r/SRPvJo3Tb91s/+gE9bJ27O6aHut/5RPZ3Z
@@ -334,7 +332,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         b0FI/Aw/v4UXJPokfuH+OiTe3aH7JZISv5QYkDgtcUoiLTHiLmUkhiTOuvQ5
         9zshMSkxJTEtcUHiksScxLzEdYm8K7DyXx6SSY0REgAA
         """,
-        """
+            """
         stubs/MutableMapSubclass.class:
         H4sIAAAAAAAA/7VW63Mb1RX/3ZWsl9fxWn4pSrADUYhsQ+S4aQjYGOw0JIqd
         hy1qIMHAWt44a61WQXflJpSW8OgDSh9Amw/92M/5YGbaQGCGMfnIH8X0nN21
@@ -377,7 +375,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         99cp8fttelAiIfEHiSGJYxJHJVISY+5SWmJE4oRLn3THKYlpiRmJWYnTEucl
         5iTmJa5K5FyB5f8CUiecwrERAAA=
         """,
-        """
+            """
         stubs/MutableSetObject.class:
         H4sIAAAAAAAA/6VX61cTRxT/zQaSJVnMEt5o0VbUQCpBtL5CqUixRl5CUqrQ
         1i7JGhaSjd3dULUv+rLv5wc/9GM/+6Getoj1nB5qv/WP6umd3XV5LcppzyEz
@@ -417,7 +415,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         xhI+oCE+TOMjfDwDZuIT3KKHoUn/3+JT+y9iotVEs8mFe2zJIROdJg7b45N2
         mzLRb+KsiXP257CJERMTJrL/AgVNgdYyDwAA
         """,
-        """
+            """
         stubs/MutableSetSubclass.class:
         H4sIAAAAAAAA/6VWW3PTRhT+Vo7vCpGde6CBlgBOXOIQKDenKYFCMbmRxE1p
         0pYqtnAUyzKV5BToLb3fX3noY595KDNtCO1MJ+WxP6rTs7IiJ44MmXbG1q7O
@@ -456,17 +454,18 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         PrN/URPdJjpNLjxgS46Z6Ddx3J6ftZ9pE6MmLpq4Yr+Om5gwMWMi+y/NlFaM
         0g4AAA==
         """
-    )
+        )
 
     /**
      * Extensions / subclasses around Kotlin immutable collections, both in source and compiled
      * form.
      */
-    private val KotlinImmutableCollectionExtensions = kotlinAndBytecodeStub(
-        filename = "ImmutableCollectionExtensions.kt",
-        filepath = "stubs",
-        checksum = 0x366b10e3,
-        """
+    private val KotlinImmutableCollectionExtensions =
+        kotlinAndBytecodeStub(
+            filename = "ImmutableCollectionExtensions.kt",
+            filepath = "stubs",
+            checksum = 0x366b10e3,
+            """
             package stubs
 
             fun list(): List<Int> = listOf()
@@ -489,13 +488,13 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
             object CollectionObject : Collection<Int> by listOf()
             class CollectionSubclass : Collection<Int> by listOf()
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/y2KuwrCQBBFR3yAUyhsZSdYSYT8hFhIyvgDm2TAhd2dkLkL
         +Xy38MI5nOIS0ZaINpUj/ccPvvg8LRqmtR01zWrSLiUjJHHnPvvZvooeHtKB
         77w3lMHc9Z1SgR+iPDVGGRE0v1ZIthpWnyfeQQzu8KnucKOGfhfuUbR/AAAA
         """,
-        """
+            """
         stubs/CollectionObject.class:
         H4sIAAAAAAAA/61WW1cTVxT+zoQkwxAhRLlbGitqIEoQrVZBWqRYg1wUkKrU
         2iEZwsBkJp2ZULQ3e7P3PvrQ1ac++6CrrWJdq6X2rT+qq/tMxiEmg8tlXSs5
@@ -534,7 +533,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         /YLVO44g4JoI4Dtn/hzf08yDvUZMX51HII1rabyfxgf4kJb4KI2PcX0ezMIn
         +HQeDRbaLHzm/OosdFpot9BhYZcj2W+h10K/hRMWhknyH/VQQCa0DgAA
         """,
-        """
+            """
         stubs/CollectionSubclass.class:
         H4sIAAAAAAAA/61WW3PTVhD+jhzbsiISx5CQC01NCeDEEIdAoeA0baChOOQC
         SUiBlFLFVhwlsuRKchrojd7bP8BDH/vMA51pIbQzbcpjf1Sne2ShGFthGMqM
@@ -572,7 +571,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         aOT7aFMSnUWEcqjksJ7Dx9igKW7lcBufLILZ+BSfLaLVRpeNz91fs41eG902
         emzsdyVHbAzaGLbxpo0xkvwHiMP5IlQOAAA=
         """,
-        """
+            """
         stubs/ImmutableCollectionExtensionsKt.class:
         H4sIAAAAAAAA/51VW1PbRhg9a/kiK8IWtnOxIYkxhEATEJA0aQolTWmSqjGk
         LZ288CSDxiOQZca7ZtI3fkt/QVteOn3oMH3sX+h/6fRbWZGMsDtJbGt3v9s5
@@ -597,7 +596,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         SwvP8JWFLXxt4Tle7IFxvMQ3e7jK8YDDCn5rHMscxWBc4MhyLAbjBY4Zjulg
         PMVR4VjiyHDUOcr/AfU3caL+CAAA
         """,
-        """
+            """
         stubs/ListObject.class:
         H4sIAAAAAAAA/61Y+18U1xX/zizsLssqCwoIWN0aEheILmqaNC5FiSXNImIU
         QqO2NcPugAOzs9uZWYrpI6aPJH2mTVvbpu/03dpWm0Qh9tNa+1v/qH56zp3L
@@ -649,7 +648,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         fgG9Dnoc3BD/Wx3sdpjS52CvoAw6eNTBsFhnHBxz0O/guINxB1lBnHJwRizO
         O7jo4IX/Af1E8byHFwAA
         """,
-        """
+            """
         stubs/ListSubclass.class:
         H4sIAAAAAAAA/61Y+3cbRxX+ZmU9LCuxrMR2bIdEpG4jW02kJKWllnHqBpfK
         cZwmdk0bA+laWjtrr1Zid2Wc8kp5tTwLBQKUd3lDgACtY8M5YPIjfxSHO7Pj
@@ -699,7 +698,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         ORX4W3Tw5fGLPH6Zx6/waxriN3n8Fr+bB7Pxe/xhHv02+mzcEv87bBy2uWTA
         xlEhGbbxqI2sGOdsnLUxaOMpGxM28kI4beOSGFyxcdXGS/8DOjz+UycXAAA=
         """,
-        """
+            """
         stubs/MapObject.class:
         H4sIAAAAAAAA/7VY+1cbxxX+ZiUkIYS9yObdJNihRoCxMHGd2FJpgWJHNmAD
         Do5xE2cRC1m02lV3V9SkTeM+8uj77abpO323bktOWztpzmld97f+UT29M7tI
@@ -750,7 +749,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         /Ez8Gmz8fKNN8k4bv7BxxEbMxjEbPTZOiK5+G8fp3UK0kzaGbYzYGLVx2sb5
         /wNOKu12BRsAAA==
         """,
-        """
+            """
         stubs/MapSubclass.class:
         H4sIAAAAAAAA/7VY+1cbxxX+ZiUkIWR7kQ3m0STYoSDAWJi4TmyptECxIxts
         AwlOcBNnEYuyaLWr7q6oSZvWbZP0/W7dNH2n7x7/QM9pnaQ9p3X9Y/+ont6Z
@@ -799,7 +798,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         E4EMvp/BDzL4IX5ETfw4g7v4yU0wG2/jpzfRZaPTxjvi12LjZ5ttknfb+LmN
         EzYSNvps9Ns4LbqGbJyiVwTRTtsYszFuY8LGORuX/g8xSG5wpRoAAA==
         """,
-        """
+            """
         stubs/SetObject.class:
         H4sIAAAAAAAA/61WbVcTRxR+ZkOyy7JIiCICVlNFDUQJotVqKBYp1iAvSpCq
         2NolWXFhs5vubij21b7Z9g/4oR97+tEPetoq1nNaar/1R/X0zmZdQhJ6ONZz
@@ -837,7 +836,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         5LsI4Vtv/hzf0TxHZg4x7c4hlEEpg+UMPsQKLXE7g4/wMSk4+ASfziHqoMPB
         Z95fk4PdDjoddDnY60l6HRx20O+t0w7O0OJfSxUks8cNAAA=
         """,
-        """
+            """
         stubs/SetSubclass.class:
         H4sIAAAAAAAA/61WW3PTVhD+jhzfFIUohgBJKLgQwIkhDoFCwWlooKE45AJx
         SIHQUsUWRoksuZKchl7p5Tfw0Ic+9JkHOtNCaGfalMf+qE73yIrs2EonQ5mx
@@ -874,13 +873,14 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         Es1FhHKo5PBJDhZsmsLJoYpVUrDxKdYWIdvosfHQ/bXbOGCj10afjUOuZNDG
         CRvD7jxr4yJN/gX455r+Zw0AAA==
         """
-    )
+        )
 
     @Test
     fun mutableCollection_stdlib() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -913,10 +913,10 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
                     val collectionProperty = mutableStateOf(collectionParam)
                 }
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -961,9 +961,10 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun mutableCollection_stdlib_explicitExpressionType_noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -996,10 +997,10 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
                     val collectionProperty = mutableStateOf<Collection<Int>>(collectionParam)
                 }
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expectClean()
@@ -1007,9 +1008,10 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun mutableCollection_stdlib_explicitPropertyType_noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1042,10 +1044,10 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
                     val collectionProperty: MutableState<Collection<Int>> = mutableStateOf(collectionParam)
                 }
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expectClean()
@@ -1053,9 +1055,10 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun mutableCollection_java() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1100,10 +1103,10 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
                     val collectionProperty = mutableStateOf(collectionParam)
                 }
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -1169,9 +1172,10 @@ src/test/test.kt:43: Warning: Creating a MutableState object with a mutable coll
      */
     @Test
     fun mutableCollection_kotlinTypeAliases() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1211,10 +1215,10 @@ src/test/test.kt:43: Warning: Creating a MutableState object with a mutable coll
                     val linkedMapParameter = mutableStateOf(linkedMapParam)
                 }
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -1271,9 +1275,10 @@ src/test/test.kt:38: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun mutableCollection_sourceExtensions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1299,11 +1304,11 @@ src/test/test.kt:38: Warning: Creating a MutableState object with a mutable coll
                 val collectionObjectImplementation = mutableStateOf(MutableCollectionObject)
                 val collectionSubclass = mutableStateOf(MutableCollectionSubclass())
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            KotlinMutableCollectionExtensions.kotlin
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                KotlinMutableCollectionExtensions.kotlin
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -1363,9 +1368,10 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun mutableCollection_compiledExtensions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1391,12 +1397,12 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 val collectionObjectImplementation = mutableStateOf(MutableCollectionObject)
                 val collectionSubclass = mutableStateOf(MutableCollectionSubclass())
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            Stubs.Composable,
-            KotlinMutableCollectionExtensions.bytecode
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                Stubs.Composable,
+                KotlinMutableCollectionExtensions.bytecode
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -1456,9 +1462,10 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun immutableCollection_stdlib_noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1491,10 +1498,10 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                     val collectionProperty = mutableStateOf(collectionParam)
                 }
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expectClean()
@@ -1502,9 +1509,10 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun immutableCollection_sourceExtensions_noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1530,11 +1538,11 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 val collectionObjectImplementation = mutableStateOf(CollectionObject)
                 val collectionSubclass = mutableStateOf(CollectionSubclass())
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            KotlinImmutableCollectionExtensions.kotlin
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                KotlinImmutableCollectionExtensions.kotlin
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expectClean()
@@ -1542,9 +1550,10 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
 
     @Test
     fun immutableCollection_compiledExtensions_noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.*
@@ -1570,15 +1579,14 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 val collectionObjectImplementation = mutableStateOf(CollectionObject)
                 val collectionSubclass = mutableStateOf(CollectionSubclass())
             """
-            ),
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            Stubs.Composable,
-            KotlinImmutableCollectionExtensions.bytecode
-        )
+                ),
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                Stubs.Composable,
+                KotlinImmutableCollectionExtensions.bytecode
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

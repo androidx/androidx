@@ -36,6 +36,7 @@ private val BoundDistance = 1500.dp
 private val MinimumDistance = 50.dp
 
 private const val DEBUG = false
+
 private inline fun debugLog(generateMsg: () -> String) {
     if (DEBUG) {
         println("LazyScrolling: ${generateMsg()}")
@@ -96,7 +97,7 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                         true
                     } else if (
                         firstVisibleItemIndex == index &&
-                        firstVisibleItemScrollOffset > scrollOffset
+                            firstVisibleItemScrollOffset > scrollOffset
                     ) {
                         true
                     } else {
@@ -107,7 +108,7 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                         true
                     } else if (
                         firstVisibleItemIndex == index &&
-                        firstVisibleItemScrollOffset < scrollOffset
+                            firstVisibleItemScrollOffset < scrollOffset
                     ) {
                         true
                     } else {
@@ -119,12 +120,13 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
             var loops = 1
             while (loop && itemCount > 0) {
                 val expectedDistance = expectedDistanceTo(index, scrollOffset)
-                val target = if (abs(expectedDistance) < targetDistancePx) {
-                    val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
-                    if (forward) absTargetPx else -absTargetPx
-                } else {
-                    if (forward) targetDistancePx else -targetDistancePx
-                }
+                val target =
+                    if (abs(expectedDistance) < targetDistancePx) {
+                        val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
+                        if (forward) absTargetPx else -absTargetPx
+                    } else {
+                        if (forward) targetDistancePx else -targetDistancePx
+                    }
 
                 debugLog {
                     "Scrolling to index=$index offset=$scrollOffset from " +
@@ -134,20 +136,18 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
 
                 anim = anim.copy(value = 0f)
                 var prevValue = 0f
-                anim.animateTo(
-                    target,
-                    sequentialAnimation = (anim.velocity != 0f)
-                ) {
+                anim.animateTo(target, sequentialAnimation = (anim.velocity != 0f)) {
                     // If we haven't found the item yet, check if it's visible.
                     var targetItemOffset = getTargetItemOffset(index)
 
                     if (targetItemOffset == null) {
                         // Springs can overshoot their target, clamp to the desired range
-                        val coercedValue = if (target > 0) {
-                            value.coerceAtMost(target)
-                        } else {
-                            value.coerceAtLeast(target)
-                        }
+                        val coercedValue =
+                            if (target > 0) {
+                                value.coerceAtMost(target)
+                            } else {
+                                value.coerceAtLeast(target)
+                            }
                         val delta = coercedValue - prevValue
                         debugLog {
                             "Scrolling by $delta (target: $target, coercedValue: $coercedValue)"
@@ -180,7 +180,7 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                             if (forward) {
                                 if (
                                     loops >= 2 &&
-                                    index - lastVisibleItemIndex > numOfItemsForTeleport
+                                        index - lastVisibleItemIndex > numOfItemsForTeleport
                                 ) {
                                     // Teleport
                                     debugLog { "Teleport forward" }
@@ -192,7 +192,7 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                             } else {
                                 if (
                                     loops >= 2 &&
-                                    firstVisibleItemIndex - index > numOfItemsForTeleport
+                                        firstVisibleItemIndex - index > numOfItemsForTeleport
                                 ) {
                                     // Teleport
                                     debugLog { "Teleport backward" }
@@ -227,28 +227,30 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
             val anim = itemFound.previousAnimation.copy(value = 0f)
             val target = (itemFound.itemOffset + scrollOffset).toFloat()
             var prevValue = 0f
-            debugLog {
-                "Seeking by $target at velocity ${itemFound.previousAnimation.velocity}"
-            }
+            debugLog { "Seeking by $target at velocity ${itemFound.previousAnimation.velocity}" }
             anim.animateTo(target, sequentialAnimation = (anim.velocity != 0f)) {
                 // Springs can overshoot their target, clamp to the desired range
-                val coercedValue = when {
-                    target > 0 -> {
-                        value.coerceAtMost(target)
+                val coercedValue =
+                    when {
+                        target > 0 -> {
+                            value.coerceAtMost(target)
+                        }
+                        target < 0 -> {
+                            value.coerceAtLeast(target)
+                        }
+                        else -> {
+                            debugLog {
+                                "WARNING: somehow ended up seeking 0px, this shouldn't happen"
+                            }
+                            0f
+                        }
                     }
-                    target < 0 -> {
-                        value.coerceAtLeast(target)
-                    }
-                    else -> {
-                        debugLog { "WARNING: somehow ended up seeking 0px, this shouldn't happen" }
-                        0f
-                    }
-                }
                 val delta = coercedValue - prevValue
                 debugLog { "Seeking by $delta (coercedValue = $coercedValue)" }
                 val consumed = scrollBy(delta)
-                if (delta != consumed /* hit the end, stop */ ||
-                    coercedValue != value /* would have overshot, stop */
+                if (
+                    delta != consumed /* hit the end, stop */ ||
+                        coercedValue != value /* would have overshot, stop */
                 ) {
                     cancelAnimation()
                 }

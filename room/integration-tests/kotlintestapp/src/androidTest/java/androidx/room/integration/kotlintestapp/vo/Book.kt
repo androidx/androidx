@@ -25,22 +25,20 @@ import androidx.room.TypeConverters
 
 @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
 @Entity(
-    foreignKeys = arrayOf(
-        ForeignKey(
-            entity = Publisher::class,
-            parentColumns = arrayOf("publisherId"),
-            childColumns = arrayOf("bookPublisherId"),
-            deferred = true
+    foreignKeys =
+        arrayOf(
+            ForeignKey(
+                entity = Publisher::class,
+                parentColumns = arrayOf("publisherId"),
+                childColumns = arrayOf("bookPublisherId"),
+                deferred = true
+            )
         )
-    )
 )
 data class Book(
     @PrimaryKey val bookId: String,
     val title: String,
     val bookPublisherId: String,
-    @ColumnInfo(defaultValue = "0")
-    @field:TypeConverters(Lang::class)
-    val languages: Set<Lang>,
-    @ColumnInfo(defaultValue = "0")
-    val salesCnt: Int
+    @ColumnInfo(defaultValue = "0") @field:TypeConverters(Lang::class) val languages: Set<Lang>,
+    @ColumnInfo(defaultValue = "0") val salesCnt: Int
 )

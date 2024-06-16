@@ -17,43 +17,29 @@ package androidx.work
 
 import androidx.annotation.RequiresApi
 
-/**
- * An enumeration of various network types that can be used as [Constraints] for work.
- */
+/** An enumeration of various network types that can be used as [Constraints] for work. */
 enum class NetworkType {
-    /**
-     * A network is not required for this work.
-     */
+    /** A network is not required for this work. */
     NOT_REQUIRED,
 
-    /**
-     * Any working network connection is required for this work.
-     */
+    /** Any working network connection is required for this work. */
     CONNECTED,
 
-    /**
-     * An unmetered network connection is required for this work.
-     */
+    /** An unmetered network connection is required for this work. */
     UNMETERED,
 
-    /**
-     * A non-roaming network connection is required for this work.
-     */
+    /** A non-roaming network connection is required for this work. */
     NOT_ROAMING,
 
-    /**
-     * A metered network connection is required for this work.
-     */
+    /** A metered network connection is required for this work. */
     METERED,
 
     /**
-     * A temporarily unmetered Network. This capability will be set for networks that are
-     * generally metered, but are currently unmetered.
+     * A temporarily unmetered Network. This capability will be set for networks that are generally
+     * metered, but are currently unmetered.
      *
-     * Note: This capability can be changed at any time. When it is removed,
-     * [ListenableWorker]s are responsible for stopping any data transfer that should not
-     * occur on a metered network.
+     * Note: This capability can be changed at any time. When it is removed, [ListenableWorker]s are
+     * responsible for stopping any data transfer that should not occur on a metered network.
      */
-    @RequiresApi(30)
-    TEMPORARILY_UNMETERED
+    @RequiresApi(30) TEMPORARILY_UNMETERED
 }

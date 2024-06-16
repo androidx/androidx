@@ -31,15 +31,13 @@ import androidx.compose.ui.Modifier
 @Composable
 fun windowInsetsNestedScrollDemo() {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize() // fill the window
-            .imePadding() // pad out the bottom for the IME
-            .imeNestedScroll(), // scroll IME at the bottom
+        modifier =
+            Modifier.fillMaxSize() // fill the window
+                .imePadding() // pad out the bottom for the IME
+                .imeNestedScroll(), // scroll IME at the bottom
         reverseLayout = true // First item is at the bottom
     ) {
         // content
-        items(50) {
-            Text("Hello World")
-        }
+        items(50) { Text("Hello World") }
     }
 }

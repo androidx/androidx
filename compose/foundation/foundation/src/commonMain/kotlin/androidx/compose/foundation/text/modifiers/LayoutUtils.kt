@@ -20,24 +20,21 @@ import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 
-/**
- * Find the constraints to pass to Paragraph based on all the parameters.
- */
+/** Find the constraints to pass to Paragraph based on all the parameters. */
 internal fun finalConstraints(
     constraints: Constraints,
     softWrap: Boolean,
     overflow: TextOverflow,
     maxIntrinsicWidth: Float
-): Constraints = Constraints(
+): Constraints =
+    Constraints(
         minWidth = 0,
         maxWidth = finalMaxWidth(constraints, softWrap, overflow, maxIntrinsicWidth),
         minHeight = 0,
         maxHeight = constraints.maxHeight
     )
 
-/**
- * Find the final max width a Paragraph would use based on all parameters.
- */
+/** Find the final max width a Paragraph would use based on all parameters. */
 internal fun finalMaxWidth(
     constraints: Constraints,
     softWrap: Boolean,
@@ -45,11 +42,12 @@ internal fun finalMaxWidth(
     maxIntrinsicWidth: Float
 ): Int {
     val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-    val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
-        constraints.maxWidth
-    } else {
-        Constraints.Infinity
-    }
+    val maxWidth =
+        if (widthMatters && constraints.hasBoundedWidth) {
+            constraints.maxWidth
+        } else {
+            Constraints.Infinity
+        }
 
     // if minWidth == maxWidth the width is fixed.
     //    therefore we can pass that value to our paragraph and use it
@@ -67,9 +65,7 @@ internal fun finalMaxWidth(
     }
 }
 
-/**
- * Find the maxLines to pass to text layout based on all parameters
- */
+/** Find the maxLines to pass to text layout based on all parameters */
 internal fun finalMaxLines(softWrap: Boolean, overflow: TextOverflow, maxLinesIn: Int): Int {
     // This is a fallback behavior because native text layout doesn't support multiple
     // ellipsis in one text layout.

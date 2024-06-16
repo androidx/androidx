@@ -37,7 +37,8 @@ import org.junit.Test
 
 @SmallTest
 class SpannableStringBuilderTest {
-    @Test fun builder() {
+    @Test
+    fun builder() {
         val result: SpannedString = buildSpannedString {
             append("Hello,")
             append(" World")
@@ -45,13 +46,12 @@ class SpannableStringBuilderTest {
         assertEquals("Hello, World", result.toString())
     }
 
-    @Test fun builderInSpan() {
+    @Test
+    fun builderInSpan() {
         val bold = StyleSpan(BOLD)
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            inSpans(bold) {
-                append("World")
-            }
+            inSpans(bold) { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -64,12 +64,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(bold))
     }
 
-    @Test fun builderBold() {
+    @Test
+    fun builderBold() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            bold {
-                append("World")
-            }
+            bold { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -82,12 +81,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(bold))
     }
 
-    @Test fun builderItalic() {
+    @Test
+    fun builderItalic() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            italic {
-                append("World")
-            }
+            italic { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -100,12 +98,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(italic))
     }
 
-    @Test fun builderUnderline() {
+    @Test
+    fun builderUnderline() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            underline {
-                append("World")
-            }
+            underline { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -117,12 +114,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(underline))
     }
 
-    @Test fun builderColor() {
+    @Test
+    fun builderColor() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            color(RED) {
-                append("World")
-            }
+            color(RED) { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -135,12 +131,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(color))
     }
 
-    @Test fun builderBackgroundColor() {
+    @Test
+    fun builderBackgroundColor() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            backgroundColor(RED) {
-                append("World")
-            }
+            backgroundColor(RED) { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -153,12 +148,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(color))
     }
 
-    @Test fun builderStrikeThrough() {
+    @Test
+    fun builderStrikeThrough() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            strikeThrough {
-                append("World")
-            }
+            strikeThrough { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -170,12 +164,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(strikeThrough))
     }
 
-    @Test fun builderScale() {
+    @Test
+    fun builderScale() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            scale(2f) {
-                append("World")
-            }
+            scale(2f) { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -188,12 +181,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(scale))
     }
 
-    @Test fun builderSuperscript() {
+    @Test
+    fun builderSuperscript() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            superscript {
-                append("World")
-            }
+            superscript { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -205,12 +197,11 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(superscript))
     }
 
-    @Test fun builderSubscript() {
+    @Test
+    fun builderSubscript() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            subscript {
-                append("World")
-            }
+            subscript { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 
@@ -222,17 +213,14 @@ class SpannableStringBuilderTest {
         assertEquals(12, result.getSpanEnd(subscript))
     }
 
-    @Test fun nested() {
+    @Test
+    fun nested() {
         val result: SpannedString = buildSpannedString {
             color(RED) {
                 append('H')
-                subscript {
-                    append('e')
-                }
+                subscript { append('e') }
                 append('l')
-                superscript {
-                    append('l')
-                }
+                superscript { append('l') }
                 append('o')
             }
             append(", ")
@@ -240,9 +228,7 @@ class SpannableStringBuilderTest {
                 append('W')
                 underline {
                     append('o')
-                    bold {
-                        append('r')
-                    }
+                    bold { append('r') }
                     append('l')
                 }
                 append('d')
@@ -281,12 +267,11 @@ class SpannableStringBuilderTest {
         assertEquals(10, result.getSpanEnd(bold))
     }
 
-    @Test fun multipleSpans() {
+    @Test
+    fun multipleSpans() {
         val result: SpannedString = buildSpannedString {
             append("Hello, ")
-            inSpans(BulletSpan(), UnderlineSpan()) {
-                append("World")
-            }
+            inSpans(BulletSpan(), UnderlineSpan()) { append("World") }
         }
         assertEquals("Hello, World", result.toString())
 

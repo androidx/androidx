@@ -27,27 +27,17 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 /**
- * The base class for specifying parameters for work that should be enqueued in [WorkManager].
- * There are two concrete implementations of this class: [OneTimeWorkRequest] and
- * [PeriodicWorkRequest].
+ * The base class for specifying parameters for work that should be enqueued in [WorkManager]. There
+ * are two concrete implementations of this class: [OneTimeWorkRequest] and [PeriodicWorkRequest].
  */
-abstract class WorkRequest internal constructor(
-    /**
-     * The unique identifier associated with this unit of work.
-     */
+abstract class WorkRequest
+internal constructor(
+    /** The unique identifier associated with this unit of work. */
     open val id: UUID,
-    /**
-     * The [WorkSpec] associated with this unit of work.
-     *
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val workSpec: WorkSpec,
-    /**
-     * The tags associated with this unit of work.
-     *
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val tags: Set<String>
+    /** The [WorkSpec] associated with this unit of work. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val workSpec: WorkSpec,
+    /** The tags associated with this unit of work. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val tags: Set<String>
 ) {
 
     /**
@@ -60,12 +50,11 @@ abstract class WorkRequest internal constructor(
         get() = id.toString()
 
     /**
-     * A builder for [WorkRequest]s.  There are two concrete implementations of this class:
+     * A builder for [WorkRequest]s. There are two concrete implementations of this class:
      * [OneTimeWorkRequest.Builder] and [PeriodicWorkRequest.Builder].
      */
-    abstract class Builder<B : Builder<B, *>, W : WorkRequest> internal constructor(
-        internal val workerClass: Class<out ListenableWorker>
-    ) {
+    abstract class Builder<B : Builder<B, *>, W : WorkRequest>
+    internal constructor(internal val workerClass: Class<out ListenableWorker>) {
         internal var backoffCriteriaSet = false
         internal var id: UUID = UUID.randomUUID()
         internal var workSpec: WorkSpec = WorkSpec(id.toString(), workerClass.name)
@@ -74,8 +63,8 @@ abstract class WorkRequest internal constructor(
         /**
          * The id of the request.
          *
-         * It is a useful for the creation of `WorkRequest` for the [WorkManager.updateWork],
-         * that uses `id` for identifying an work that should be updated.
+         * It is a useful for the creation of `WorkRequest` for the [WorkManager.updateWork], that
+         * uses `id` for identifying work that should be updated.
          */
         @SuppressWarnings("SetterReturnsThis")
         fun setId(id: UUID): B {
@@ -85,10 +74,9 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Sets the backoff policy and backoff delay for the work.  The default values are
-         * [BackoffPolicy.EXPONENTIAL] and
-         * [WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS], respectively.  `backoffDelay`
-         * will be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
+         * Sets the backoff policy and backoff delay for the work. The default values are
+         * [BackoffPolicy.EXPONENTIAL] and [WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS], respectively.
+         * `backoffDelay` will be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
          * [WorkRequest.MAX_BACKOFF_MILLIS].
          *
          * @param backoffPolicy The [BackoffPolicy] to use when increasing backoff time
@@ -108,10 +96,9 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Sets the backoff policy and backoff delay for the work.  The default values are
-         * [BackoffPolicy.EXPONENTIAL] and
-         * [WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS], respectively.  `duration` will
-         * be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
+         * Sets the backoff policy and backoff delay for the work. The default values are
+         * [BackoffPolicy.EXPONENTIAL] and [WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS], respectively.
+         * `duration` will be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
          * [WorkRequest.MAX_BACKOFF_MILLIS].
          *
          * @param backoffPolicy The [BackoffPolicy] to use when increasing backoff time
@@ -138,8 +125,8 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Adds input [Data] to the work.  If a worker has prerequisites in its chain, this
-         * Data will be merged with the outputs of the prerequisites using an [InputMerger].
+         * Adds input [Data] to the work. If a worker has prerequisites in its chain, this Data will
+         * be merged with the outputs of the prerequisites using an [InputMerger].
          *
          * @param inputData key/value pairs that will be provided to the worker
          * @return The current [Builder]
@@ -150,7 +137,7 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Adds a tag for the work.  You can query and cancel work by tags.  Tags are particularly
+         * Adds a tag for the work. You can query and cancel work by tags. Tags are particularly
          * useful for modules or libraries to find and operate on their own work.
          *
          * @param tag A tag for identifying the work in queries.
@@ -165,11 +152,11 @@ abstract class WorkRequest internal constructor(
          * Specifies the name of the trace span to be used by [WorkManager] when executing the
          * specified [WorkRequest].
          *
-         * [WorkManager] uses the simple name of the [ListenableWorker] class
-         * truncated to a `127` character string, as the [traceTag] by default.
+         * [WorkManager] uses the simple name of the [ListenableWorker] class truncated to a `127`
+         * character string, as the [traceTag] by default.
          *
-         * You should override the [traceTag], when you are using [ListenableWorker] delegation
-         * via a [WorkerFactory].
+         * You should override the [traceTag], when you are using [ListenableWorker] delegation via
+         * a [WorkerFactory].
          *
          * @param traceTag The name of the trace tag
          * @return The current [Builder]
@@ -184,17 +171,16 @@ abstract class WorkRequest internal constructor(
 
         /**
          * Specifies that the results of this work should be kept for at least the specified amount
-         * of time.  After this time has elapsed, the results **may** be pruned at the discretion
-         * of WorkManager when there are no pending dependent jobs.
+         * of time. After this time has elapsed, the results **may** be pruned at the discretion of
+         * WorkManager when there are no pending dependent jobs.
          *
-         * When the results of a work are pruned, it becomes impossible to query for its
-         * [WorkInfo].
+         * When the results of a work are pruned, it becomes impossible to query for its [WorkInfo].
          *
          * Specifying a long duration here may adversely affect performance in terms of app storage
          * and database query time.
          *
-         * @param duration The minimum duration of time (in `timeUnit` units) to keep the
-         * results of this work
+         * @param duration The minimum duration of time (in `timeUnit` units) to keep the results of
+         *   this work
          * @param timeUnit The unit of time for `duration`
          * @return The current [Builder]
          */
@@ -205,12 +191,11 @@ abstract class WorkRequest internal constructor(
 
         /**
          * Specifies that the results of this work should be kept for at least the specified amount
-         * of time.  After this time has elapsed, the results may be pruned at the discretion
-         * of WorkManager when this WorkRequest has reached a finished state (see
+         * of time. After this time has elapsed, the results may be pruned at the discretion of
+         * WorkManager when this WorkRequest has reached a finished state (see
          * [WorkInfo.State.isFinished]) and there are no pending dependent jobs.
          *
-         * When the results of a work are pruned, it becomes impossible to query for its
-         * [WorkInfo].
+         * When the results of a work are pruned, it becomes impossible to query for its [WorkInfo].
          *
          * Specifying a long duration here may adversely affect performance in terms of app storage
          * and database query time.
@@ -231,7 +216,7 @@ abstract class WorkRequest internal constructor(
          * @param timeUnit The units of time for `duration`
          * @return The current [Builder]
          * @throws IllegalArgumentException if the given initial delay will push the execution time
-         * past `Long.MAX_VALUE` and cause an overflow
+         *   past `Long.MAX_VALUE` and cause an overflow
          */
         open fun setInitialDelay(duration: Long, timeUnit: TimeUnit): B {
             workSpec.initialDelay = timeUnit.toMillis(duration)
@@ -247,7 +232,7 @@ abstract class WorkRequest internal constructor(
          * @param duration The length of the delay
          * @return The current [Builder]
          * @throws IllegalArgumentException if the given initial delay will push the execution time
-         * past `Long.MAX_VALUE` and cause an overflow
+         *   past `Long.MAX_VALUE` and cause an overflow
          */
         @RequiresApi(26)
         open fun setInitialDelay(duration: Duration): B {
@@ -259,8 +244,8 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Marks the [WorkRequest] as important to the user.  In this case, WorkManager
-         * provides an additional signal to the OS that this work is important.
+         * Marks the [WorkRequest] as important to the user. In this case, WorkManager provides an
+         * additional signal to the OS that this work is important.
          *
          * @param policy The [OutOfQuotaPolicy] to be used.
          */
@@ -306,7 +291,7 @@ abstract class WorkRequest internal constructor(
         internal abstract val thisObject: B
 
         /**
-         * Sets the initial state for this work.  Used in testing only.
+         * Sets the initial state for this work. Used in testing only.
          *
          * @param state The [WorkInfo.State] to set
          * @return The current [Builder]
@@ -319,7 +304,7 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Sets the initial run attempt count for this work.  Used in testing only.
+         * Sets the initial run attempt count for this work. Used in testing only.
          *
          * @param runAttemptCount The initial run attempt count
          * @return The current [Builder]
@@ -361,40 +346,32 @@ abstract class WorkRequest internal constructor(
     }
 
     companion object {
-        /**
-         * The default initial backoff time (in milliseconds) for work that has to be retried.
-         */
+        /** The default initial backoff time (in milliseconds) for work that has to be retried. */
         const val DEFAULT_BACKOFF_DELAY_MILLIS = 30000L
 
-        /**
-         * The maximum backoff time (in milliseconds) for work that has to be retried.
-         */
+        /** The maximum backoff time (in milliseconds) for work that has to be retried. */
         @SuppressLint("MinMaxConstant")
         const val MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000L // 5 hours
 
-        /**
-         * The minimum backoff time for work (in milliseconds) that has to be retried.
-         */
-        @SuppressLint("MinMaxConstant")
-        const val MIN_BACKOFF_MILLIS = 10 * 1000L // 10 seconds.
+        /** The minimum backoff time for work (in milliseconds) that has to be retried. */
+        @SuppressLint("MinMaxConstant") const val MIN_BACKOFF_MILLIS = 10 * 1000L // 10 seconds.
 
-        /**
-         * The maximum length of a trace span.
-         */
+        /** The maximum length of a trace span. */
         private const val MAX_TRACE_SPAN_LENGTH = 127
 
         /**
          * The [androidx.tracing.Trace] class already truncates names.
          *
-         * We try and extract the class name so it does not get truncated, given package name can
-         * be implied from other sources of information.
+         * We try and extract the class name so it does not get truncated, given package name can be
+         * implied from other sources of information.
          */
         private fun deriveTraceTagFromClassName(workerClassName: String): String {
             val components = workerClassName.split(".")
-            val label = when (components.size) {
-                1 -> components[0]
-                else -> components.last()
-            }
+            val label =
+                when (components.size) {
+                    1 -> components[0]
+                    else -> components.last()
+                }
             return if (label.length <= MAX_TRACE_SPAN_LENGTH) {
                 label
             } else {

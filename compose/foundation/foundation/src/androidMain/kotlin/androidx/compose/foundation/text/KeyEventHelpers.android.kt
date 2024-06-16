@@ -26,4 +26,4 @@ internal actual fun KeyEvent.cancelsTextSelection(): Boolean {
 }
 
 // It's platform-specific behavior, Android doesn't have such a concept
-internal actual fun showCharacterPalette() { }
+internal actual fun showCharacterPalette() {}

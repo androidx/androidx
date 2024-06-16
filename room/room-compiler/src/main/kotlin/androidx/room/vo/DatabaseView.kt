@@ -30,21 +30,20 @@ class DatabaseView(
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     constructor: Constructor?
-) : Pojo(element, type, fields, embeddedFields, emptyList(), constructor),
+) :
+    Pojo(element, type, fields, embeddedFields, emptyList(), constructor),
     HasSchemaIdentity,
     EntityOrView {
 
     override val tableName = viewName
 
-    val createViewQuery by lazy {
-        createViewQuery(viewName)
-    }
+    val createViewQuery by lazy { createViewQuery(viewName) }
 
     /**
      * List of all the underlying tables including those that are indirectly referenced.
      *
-     * This is populated by DatabaseProcessor. This cannot be an immutable constructor parameter
-     * as it can only be known after all the other views are initialized and parsed.
+     * This is populated by DatabaseProcessor. This cannot be an immutable constructor parameter as
+     * it can only be known after all the other views are initialized and parsed.
      */
     val tables = mutableSetOf<String>()
 

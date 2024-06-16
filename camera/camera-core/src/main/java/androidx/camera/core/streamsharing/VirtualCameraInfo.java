@@ -18,11 +18,9 @@ package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 
-import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ForwardingCameraInfo;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -32,7 +30,6 @@ import java.util.UUID;
 /**
  * A {@link CameraInfoInternal} that returns info of the virtual camera.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class VirtualCameraInfo extends ForwardingCameraInfo {
 
     private final String mVirtualCameraId;

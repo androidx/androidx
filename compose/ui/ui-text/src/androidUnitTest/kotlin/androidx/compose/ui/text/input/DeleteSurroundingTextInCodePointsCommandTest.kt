@@ -227,23 +227,25 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
     @Test
     fun throws_whenLengthBeforeInvalid() {
-        val error = assertFailsWith<IllegalArgumentException> {
-            DeleteSurroundingTextInCodePointsCommand(
-                lengthBeforeCursor = -42,
-                lengthAfterCursor = 0
-            )
-        }
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                DeleteSurroundingTextInCodePointsCommand(
+                    lengthBeforeCursor = -42,
+                    lengthAfterCursor = 0
+                )
+            }
         assertThat(error).hasMessageThat().contains("-42")
     }
 
     @Test
     fun throws_whenLengthAfterInvalid() {
-        val error = assertFailsWith<IllegalArgumentException> {
-            DeleteSurroundingTextInCodePointsCommand(
-                lengthBeforeCursor = 0,
-                lengthAfterCursor = -42
-            )
-        }
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                DeleteSurroundingTextInCodePointsCommand(
+                    lengthBeforeCursor = 0,
+                    lengthAfterCursor = -42
+                )
+            }
         assertThat(error).hasMessageThat().contains("-42")
     }
 
@@ -255,9 +257,10 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val eb = EditingBuffer(text, selection)
 
         DeleteSurroundingTextInCodePointsCommand(
-            lengthBeforeCursor = 0,
-            lengthAfterCursor = Int.MAX_VALUE
-        ).applyTo(eb)
+                lengthBeforeCursor = 0,
+                lengthAfterCursor = Int.MAX_VALUE
+            )
+            .applyTo(eb)
 
         assertThat(eb.toString()).isEqualTo(textAfterDelete)
         assertThat(eb.cursor).isEqualTo(textAfterDelete.length)
@@ -270,9 +273,10 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val eb = EditingBuffer(text, selection)
 
         DeleteSurroundingTextInCodePointsCommand(
-            lengthBeforeCursor = Int.MAX_VALUE,
-            lengthAfterCursor = 0
-        ).applyTo(eb)
+                lengthBeforeCursor = Int.MAX_VALUE,
+                lengthAfterCursor = 0
+            )
+            .applyTo(eb)
 
         assertThat(eb.toString()).isEqualTo("bcde")
         assertThat(eb.cursor).isEqualTo(0)
@@ -285,9 +289,10 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val eb = EditingBuffer(text, selection)
 
         DeleteSurroundingTextInCodePointsCommand(
-            lengthBeforeCursor = Int.MAX_VALUE,
-            lengthAfterCursor = Int.MAX_VALUE
-        ).applyTo(eb)
+                lengthBeforeCursor = Int.MAX_VALUE,
+                lengthAfterCursor = Int.MAX_VALUE
+            )
+            .applyTo(eb)
 
         assertThat(eb.toString()).isEqualTo("")
         assertThat(eb.cursor).isEqualTo(0)
@@ -300,9 +305,10 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val eb = EditingBuffer(text, selection)
 
         DeleteSurroundingTextInCodePointsCommand(
-            lengthBeforeCursor = Int.MAX_VALUE,
-            lengthAfterCursor = Int.MAX_VALUE
-        ).applyTo(eb)
+                lengthBeforeCursor = Int.MAX_VALUE,
+                lengthAfterCursor = Int.MAX_VALUE
+            )
+            .applyTo(eb)
 
         assertThat(eb.toString()).isEqualTo("")
         assertThat(eb.cursor).isEqualTo(0)
@@ -316,9 +322,10 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val eb = EditingBuffer(text, selection)
 
         DeleteSurroundingTextInCodePointsCommand(
-            lengthBeforeCursor = 0,
-            lengthAfterCursor = Int.MAX_VALUE - 1
-        ).applyTo(eb)
+                lengthBeforeCursor = 0,
+                lengthAfterCursor = Int.MAX_VALUE - 1
+            )
+            .applyTo(eb)
 
         assertThat(eb.toString()).isEqualTo(textAfterDelete)
         assertThat(eb.cursor).isEqualTo(textAfterDelete.length)
@@ -331,9 +338,10 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val eb = EditingBuffer(text, selection)
 
         DeleteSurroundingTextInCodePointsCommand(
-            lengthBeforeCursor = Int.MAX_VALUE - 1,
-            lengthAfterCursor = 0
-        ).applyTo(eb)
+                lengthBeforeCursor = Int.MAX_VALUE - 1,
+                lengthAfterCursor = 0
+            )
+            .applyTo(eb)
 
         assertThat(eb.toString()).isEqualTo("bcde")
         assertThat(eb.cursor).isEqualTo(0)

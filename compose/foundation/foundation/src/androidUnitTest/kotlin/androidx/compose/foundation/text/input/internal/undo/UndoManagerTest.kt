@@ -35,40 +35,25 @@ class UndoManagerTest {
     @Test
     fun initialLowCapacityThrows_undoStack() {
         assertFailsWith<IllegalArgumentException>(
-            getInitialCapacityErrorMessage(
-                capacity = 1,
-                totalStackSize = 2
-            )
+            getInitialCapacityErrorMessage(capacity = 1, totalStackSize = 2)
         ) {
-            UndoManager(
-                initialUndoStack = listOf(1, 2),
-                capacity = 1
-            )
+            UndoManager(initialUndoStack = listOf(1, 2), capacity = 1)
         }
     }
 
     @Test
     fun initialLowCapacityThrows_redoStack() {
         assertFailsWith<IllegalArgumentException>(
-            getInitialCapacityErrorMessage(
-                capacity = 1,
-                totalStackSize = 2
-            )
+            getInitialCapacityErrorMessage(capacity = 1, totalStackSize = 2)
         ) {
-            UndoManager(
-                initialRedoStack = listOf(1, 2),
-                capacity = 1
-            )
+            UndoManager(initialRedoStack = listOf(1, 2), capacity = 1)
         }
     }
 
     @Test
     fun initialLowCapacityThrows_bothStacks() {
         assertFailsWith<IllegalArgumentException>(
-            getInitialCapacityErrorMessage(
-                capacity = 3,
-                totalStackSize = 4
-            )
+            getInitialCapacityErrorMessage(capacity = 3, totalStackSize = 4)
         ) {
             UndoManager(
                 initialUndoStack = listOf(1, 2),
@@ -186,5 +171,5 @@ class UndoManagerTest {
 
     private fun getInitialCapacityErrorMessage(capacity: Int, totalStackSize: Int) =
         "Initial list of undo and redo operations have a size=($totalStackSize) greater " +
-        "than the given capacity=($capacity)."
+            "than the given capacity=($capacity)."
 }

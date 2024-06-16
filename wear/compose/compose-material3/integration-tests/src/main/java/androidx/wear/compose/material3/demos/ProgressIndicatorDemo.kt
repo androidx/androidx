@@ -39,47 +39,43 @@ import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
 
-val ProgressIndicatorDemos = listOf(
-    DemoCategory(
-        "Samples",
-        listOf(
-            ComposableDemo("Full screen") {
-                Centralize {
-                    FullScreenProgressIndicatorSample()
-                }
-            },
-            ComposableDemo("Media button wrapping") {
-                Centralize {
-                    MediaButtonProgressIndicatorSample()
-                }
-            },
-            ComposableDemo("Overflow progress (>100%)") {
-                Centralize {
-                    OverflowProgressIndicatorSample()
-                }
-            },
-            ComposableDemo("Small sized indicator") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    Button({ /* No op */ }, modifier = Modifier.align(Alignment.Center)) {
-                        Text(
-                            "Loading...",
-                            modifier = Modifier.align(Alignment.CenterVertically))
-                        Spacer(modifier = Modifier.size(10.dp))
-                        CircularProgressIndicator(
-                            progress = { 0.75f },
-                            modifier = Modifier.size(IconButtonDefaults.DefaultButtonSize),
-                            startAngle = 120f,
-                            endAngle = 60f,
-                            strokeWidth = ButtonCircularIndicatorStrokeWidth,
-                            colors = ProgressIndicatorDefaults.colors(indicatorColor = Color.Red)
-                        )
+val ProgressIndicatorDemos =
+    listOf(
+        DemoCategory(
+            "Samples",
+            listOf(
+                ComposableDemo("Full screen") {
+                    Centralize { FullScreenProgressIndicatorSample() }
+                },
+                ComposableDemo("Media button wrapping") {
+                    Centralize { MediaButtonProgressIndicatorSample() }
+                },
+                ComposableDemo("Overflow progress (>100%)") {
+                    Centralize { OverflowProgressIndicatorSample() }
+                },
+                ComposableDemo("Small sized indicator") {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                    ) {
+                        Button({ /* No op */ }, modifier = Modifier.align(Alignment.Center)) {
+                            Text(
+                                "Loading...",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                            Spacer(modifier = Modifier.size(10.dp))
+                            CircularProgressIndicator(
+                                progress = { 0.75f },
+                                modifier = Modifier.size(IconButtonDefaults.DefaultButtonSize),
+                                startAngle = 120f,
+                                endAngle = 60f,
+                                strokeWidth = ButtonCircularIndicatorStrokeWidth,
+                                colors =
+                                    ProgressIndicatorDefaults.colors(indicatorColor = Color.Red)
+                            )
+                        }
                     }
                 }
-            }
+            )
         )
     )
-)

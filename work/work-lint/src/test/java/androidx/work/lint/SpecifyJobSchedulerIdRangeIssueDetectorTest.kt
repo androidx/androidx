@@ -28,22 +28,23 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
 
     @Test
     fun failWhenUsingCustomJobServiceAndIdsAreNotSpecified() {
-        val service = kotlin(
-            "com/example/TestJobService.kt",
-            """
+        val service =
+            kotlin(
+                    "com/example/TestJobService.kt",
+                    """
             package com.example
 
             import android.app.job.JobService
 
             class TestJobService: JobService()
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        /* ktlint-disable max-line-length */
-        lint().files(
-            JOB_SERVICE,
-            service
-        ).issues(SpecifyJobSchedulerIdRangeIssueDetector.ISSUE)
+        lint()
+            .files(JOB_SERVICE, service)
+            .issues(SpecifyJobSchedulerIdRangeIssueDetector.ISSUE)
             .run()
             .expect(
                 """
@@ -51,27 +52,31 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
                 class TestJobService: JobService()
                       ~~~~~~~~~~~~~~
                 0 errors, 1 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun succeedWhenJobSchedulerIdRangeIsSpecified() {
-        val service = kotlin(
-            "com/example/TestJobService.kt",
-            """
+        val service =
+            kotlin(
+                    "com/example/TestJobService.kt",
+                    """
             package com.example
 
             import android.app.job.JobService
 
             class TestJobService: JobService()
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        val snippet = kotlin(
-            "com/example/Test.kt",
-            """
+        val snippet =
+            kotlin(
+                    "com/example/Test.kt",
+                    """
             package com.example
 
             import androidx.work.Configuration
@@ -83,14 +88,13 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
                 }
             }
             """
-        ).indented().within("src")
+                )
+                .indented()
+                .within("src")
 
-        lint().files(
-            JOB_SERVICE,
-            WORK_MANAGER_CONFIGURATION_PROVIDER,
-            service,
-            snippet
-        ).issues(SpecifyJobSchedulerIdRangeIssueDetector.ISSUE)
+        lint()
+            .files(JOB_SERVICE, WORK_MANAGER_CONFIGURATION_PROVIDER, service, snippet)
+            .issues(SpecifyJobSchedulerIdRangeIssueDetector.ISSUE)
             .run()
             .expectClean()
     }

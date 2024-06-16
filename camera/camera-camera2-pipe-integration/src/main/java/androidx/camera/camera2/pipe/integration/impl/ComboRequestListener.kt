@@ -30,16 +30,15 @@ import java.util.concurrent.Executor
 import javax.inject.Inject
 
 /**
- * A ComboRequestListener which contains a set of [Request.Listener]s.
- * The primary purpose of this class is to receive the capture result from the currently
- * configured [UseCaseCamera] and propagate to the registered [Request.Listener]s.
+ * A ComboRequestListener which contains a set of [Request.Listener]s. The primary purpose of this
+ * class is to receive the capture result from the currently configured [UseCaseCamera] and
+ * propagate to the registered [Request.Listener]s.
  */
 @CameraScope
 class ComboRequestListener @Inject constructor() : Request.Listener {
     private val requestListeners = mutableMapOf<Request.Listener, Executor>()
 
-    @Volatile
-    private var listeners: Map<Request.Listener, Executor> = mapOf()
+    @Volatile private var listeners: Map<Request.Listener, Executor> = mapOf()
 
     fun addListener(listener: Request.Listener, executor: Executor) {
         check(!listeners.contains(listener)) { "$listener was already registered!" }
@@ -88,13 +87,7 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
         requestFailure: RequestFailure
     ) {
         listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onFailed(
-                    requestMetadata,
-                    frameNumber,
-                    requestFailure
-                )
-            }
+            executor.execute { listener.onFailed(requestMetadata, frameNumber, requestFailure) }
         }
     }
 
@@ -105,20 +98,14 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute {
-                listener.onPartialCaptureResult(
-                    requestMetadata,
-                    frameNumber,
-                    captureResult
-                )
+                listener.onPartialCaptureResult(requestMetadata, frameNumber, captureResult)
             }
         }
     }
 
     override fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
         listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onRequestSequenceAborted(requestMetadata)
-            }
+            executor.execute { listener.onRequestSequenceAborted(requestMetadata) }
         }
     }
 
@@ -127,25 +114,19 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
         frameNumber: FrameNumber
     ) {
         listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onRequestSequenceCompleted(requestMetadata, frameNumber)
-            }
+            executor.execute { listener.onRequestSequenceCompleted(requestMetadata, frameNumber) }
         }
     }
 
     override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
         listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onRequestSequenceCreated(requestMetadata)
-            }
+            executor.execute { listener.onRequestSequenceCreated(requestMetadata) }
         }
     }
 
     override fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata) {
         listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onRequestSequenceSubmitted(requestMetadata)
-            }
+            executor.execute { listener.onRequestSequenceSubmitted(requestMetadata) }
         }
     }
 
@@ -155,9 +136,7 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
         timestamp: CameraTimestamp
     ) {
         listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onStarted(requestMetadata, frameNumber, timestamp)
-            }
+            executor.execute { listener.onStarted(requestMetadata, frameNumber, timestamp) }
         }
     }
 
@@ -175,9 +154,6 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
 }
 
 fun RequestMetadata.containsTag(tagKey: String, tagValue: Any): Boolean =
-    getOrDefault(
-        CAMERAX_TAG_BUNDLE,
-        TagBundle.emptyBundle()
-    ).getTag(tagKey).let {
+    getOrDefault(CAMERAX_TAG_BUNDLE, TagBundle.emptyBundle()).getTag(tagKey).let {
         return it == tagValue
     }

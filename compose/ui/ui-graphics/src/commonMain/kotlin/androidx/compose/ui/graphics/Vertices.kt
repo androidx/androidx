@@ -19,7 +19,7 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastAny
 
-/**  A set of vertex data used by [Canvas.drawVertices]. */
+/** A set of vertex data used by [Canvas.drawVertices]. */
 class Vertices(
     val vertexMode: VertexMode,
     positions: List<Offset>,
@@ -41,24 +41,17 @@ class Vertices(
             throw IllegalArgumentException("positions and colors lengths must match.")
         if (indices.fastAny(outOfBounds))
             throw IllegalArgumentException(
-                "indices values must be valid indices " +
-                    "in the positions list."
+                "indices values must be valid indices " + "in the positions list."
             )
 
         this.positions = encodePointList(positions)
         this.textureCoordinates = encodePointList(textureCoordinates)
         this.colors = encodeColorList(colors)
-        this.indices = ShortArray(indices.size) {
-            i ->
-            indices[i].toShort()
-        }
+        this.indices = ShortArray(indices.size) { i -> indices[i].toShort() }
     }
 
     private fun encodeColorList(colors: List<Color>): IntArray {
-        return IntArray(colors.size) {
-            i ->
-            colors[i].toArgb()
-        }
+        return IntArray(colors.size) { i -> colors[i].toArgb() }
     }
 
     private fun encodePointList(points: List<Offset>): FloatArray {

@@ -24,11 +24,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/* ktlint-disable max-line-length */
 @RunWith(Parameterized::class)
-class PrimitiveInCollectionDetectorTest(
-    parameters: Parameters
-) : LintDetectorTest() {
+class PrimitiveInCollectionDetectorTest(parameters: Parameters) : LintDetectorTest() {
 
     private val type = parameters.type
     private val value = parameters.value
@@ -45,149 +42,168 @@ class PrimitiveInCollectionDetectorTest(
 
     @Test
     fun functionWithSetReturnType() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(): Set<$type>? = null
                         fun bar(): Set<String>? = null // no warning for this
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:4: Error: return type Set<$longType> of foo: replace with ${collectionType}Set [PrimitiveInCollection]
                         fun foo(): Set<$type>? = null
                                    ~~~~$tild~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun functionWithSetClassReturnType() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(): HashSet<$type>? = null
                         fun bar(): HashSet<String>? = null // no warning for this
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:4: Error: return type HashSet<$longType> of foo: replace with ${collectionType}Set [PrimitiveInCollection]
                         fun foo(): HashSet<$type>? = null
                                    ~~~~~~~~$tild~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun functionWithListReturnType() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(): List<$type>? = null
                         fun bar(): List<String>? = null // no warning for this
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:4: Error: return type List<$longType> of foo: replace with ${collectionType}List [PrimitiveInCollection]
                         fun foo(): List<$type>? = null
                                    ~~~~$tild~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun functionWithListClassReturnType() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(): ArrayList<$type>? = null
                         fun bar(): ArrayList<String>? = null // no warning for this
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:4: Error: return type ArrayList<$longType> of foo: replace with ${collectionType}List [PrimitiveInCollection]
                         fun foo(): ArrayList<$type>? = null
                                    ~~~~~~~~~~$tild~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun functionWithMapReturnType() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(): Map<$type, Any>? = null
                         fun bar(): Map<String, Any>? = null // no warning for this
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:4: Error: return type Map<$longType, Object> of foo: replace with ${collectionType}ObjectMap [PrimitiveInCollection]
                         fun foo(): Map<$type, Any>? = null
                                    ~~~~$tild~~~~~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun functionWithMapClassReturnType() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(): HashMap<$type, Any>? = null
                         fun bar(): HashMap<String, Any>? = null // no warning for this
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:4: Error: return type HashMap<$longType, Object> of foo: replace with ${collectionType}ObjectMap [PrimitiveInCollection]
                         fun foo(): HashMap<$type, Any>? = null
                                    ~~~~~~~~$tild~~~~~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variableSet() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -200,24 +216,27 @@ src/androidx/compose/lint/test.kt:4: Error: return type HashMap<$longType, Objec
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type Set<$longType>: replace with ${collectionType}Set [PrimitiveInCollection]
                             val s = mutableSetOf($value)
                             ~~~~~~~~~~~~~~~~~~~~~$vtild~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variableHashSet() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -230,24 +249,27 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type Set<$longType>:
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type HashSet<$longType>: replace with ${collectionType}Set [PrimitiveInCollection]
                             val s = HashSet<$type>()
                             ~~~~~~~~~~~~~~~~$tild~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variableList() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -260,24 +282,27 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type HashSet<$longTy
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type List<$longType>: replace with ${collectionType}List [PrimitiveInCollection]
                             val s = mutableListOf($value)
                             ~~~~~~~~~~~~~~~~~~~~~~$vtild~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variableArrayList() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -290,24 +315,27 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type List<$longType>
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type ArrayList<$longType>: replace with ${collectionType}List [PrimitiveInCollection]
                             val s = ArrayList<$type>()
                             ~~~~~~~~~~~~~~~~~~$tild~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variableHashMap() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -320,24 +348,27 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type ArrayList<$long
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type Map<String, $longType>: replace with Object${collectionType}Map [PrimitiveInCollection]
                             val s = mutableMapOf("Hello" to $value)
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$vtild~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variableMap() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -350,24 +381,27 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type Map<String, $lo
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type HashMap<$longType, String>: replace with ${collectionType}ObjectMap [PrimitiveInCollection]
                             val s = HashMap<$type, String>()
                             ~~~~~~~~~~~~~~~~$tild~~~~~~~~~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun variablePrimitivePrimitiveMap() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo() {
@@ -375,31 +409,36 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type HashMap<$longTy
                             println(s)
                         }
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/test.kt:5: Error: variable s with type HashMap<$longType, $longType>: replace with ${collectionType}${collectionType}Map [PrimitiveInCollection]
                             val s = HashMap<$type, $type>()
                             ~~~~~~~~~~~~~~~~$tild~~$tild~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun dataClassConstructor() {
-        lint().files(
-            ContainsIntClass,
-            SimpleValueClass.bytecode,
-            kotlin(
-                """
+        lint()
+            .files(
+                ContainsIntClass,
+                SimpleValueClass.bytecode,
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         data class Foo(val foo: Set<$type>)
                         """
+                )
             )
-        ).run().expect(
-            """
+            .run()
+            .expect(
+                """
 src/androidx/compose/lint/Foo.kt:4: Error: constructor Foo has parameter foo with type Set<$longType>: replace with ${collectionType}Set [PrimitiveInCollection]
                         data class Foo(val foo: Set<$type>)
                                                 ~~~~$tild~
@@ -411,15 +450,16 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
                                                 ~~~~$tild~
 3 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun hiddenVariableInDeconstruction() {
         // Regression test from b/328122546
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                         package androidx.compose.lint
 
                         fun foo(value: Any) {
@@ -430,8 +470,10 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
                             println(third)
                         }
                 """
+                )
             )
-        ).run().expectClean()
+            .run()
+            .expectClean()
     }
 
     data class Parameters(
@@ -444,46 +486,57 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters() = listOf(
-            Parameters("Char", "'a'", "Character", "Int"),
-            Parameters("Byte", "0.toByte()", "Byte", "Int"),
-            Parameters("UByte", "0u.toUByte()", "UByte", "Int"),
-            Parameters("Short", "0.toShort()", "Short", "Int"),
-            Parameters("UShort", "0u.toUShort()", "UShort", "Int"),
-            Parameters("Int", "1", "Integer", "Int"),
-            Parameters("UInt", "1u", "UInt", "Int"),
-            Parameters("Long", "1L", "Long", "Long"),
-            Parameters("ULong", "1uL", "ULong", "Long"),
-            Parameters("Float", "1f", "Float", "Float"),
-            Parameters("Double", "1.0", "Double", "Float"),
-            Parameters("ContainsInt", "ContainsInt(0)", "ContainsInt", "Int"),
-            Parameters("test.SimpleValueClass", "test.SimpleValueClass(0)", "SimpleValueClass", "Int")
-        )
+        fun initParameters() =
+            listOf(
+                Parameters("Char", "'a'", "Character", "Int"),
+                Parameters("Byte", "0.toByte()", "Byte", "Int"),
+                Parameters("UByte", "0u.toUByte()", "UByte", "Int"),
+                Parameters("Short", "0.toShort()", "Short", "Int"),
+                Parameters("UShort", "0u.toUShort()", "UShort", "Int"),
+                Parameters("Int", "1", "Integer", "Int"),
+                Parameters("UInt", "1u", "UInt", "Int"),
+                Parameters("Long", "1L", "Long", "Long"),
+                Parameters("ULong", "1uL", "ULong", "Long"),
+                Parameters("Float", "1f", "Float", "Float"),
+                Parameters("Double", "1.0", "Double", "Float"),
+                Parameters("ContainsInt", "ContainsInt(0)", "ContainsInt", "Int"),
+                Parameters(
+                    "test.SimpleValueClass",
+                    "test.SimpleValueClass(0)",
+                    "SimpleValueClass",
+                    "Int"
+                )
+            )
 
-        val ContainsIntClass = kotlin(
-            """
+        val ContainsIntClass =
+            kotlin(
+                """
             package androidx.compose.lint
 
             @JvmInline value class ContainsInt(val value: Int)
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val SimpleValueClass = kotlinAndBytecodeStub(
-            filename = "SimpleValueClass.kt",
-            filepath = "test",
-            checksum = 0x8b98db3a,
-            source = """
+        val SimpleValueClass =
+            kotlinAndBytecodeStub(
+                filename = "SimpleValueClass.kt",
+                filepath = "test",
+                checksum = 0x8b98db3a,
+                source =
+                    """
                 package test
 
                 @JvmInline
                 value class SimpleValueClass(val value: Int)
-            """.trimIndent(),
-        """
+            """
+                        .trimIndent(),
+                """
             META-INF/main.kotlin_module:
             H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgkucSTcxLKcrPTKnQS87PLcgvTtXL
             ycwrEWILSS0u8S5RYtBiAAC6aGYHOQAAAA==
             """,
-            """
+                """
             test/SimpleValueClass.class:
             H4sIAAAAAAAA/31U31MbVRT+7s0m2Ww2sAktkAW1P7RN+NGkWGuVghS0djEU
             hRql+LKEHVhINpjdZPrIm/4FPviiow++8KAzCoydcRDf/Jscx3M3m4RZMs5k
@@ -511,6 +564,6 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
             DHxkoGRgBU9pi1UDH+OTTTAXa1jfxJAL1cUzF3H/O+8i7yLqIubigW+5T+/K
             xYyLKRc5F9d9Y8rFwH8DJohDBwgAAA==
             """
-        )
+            )
     }
 }

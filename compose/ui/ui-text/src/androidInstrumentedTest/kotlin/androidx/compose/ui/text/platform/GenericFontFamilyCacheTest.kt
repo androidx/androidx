@@ -36,10 +36,11 @@ class GenericFontFamilyCacheTest {
     fun cached_instance_for_the_same_input() {
         val typeface = AndroidGenericFontFamilyTypeface(FontFamily.SansSerif)
         assertThat(
-            typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
-        ).isSameInstanceAs(
-            typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
-        )
+                typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
+            )
+            .isSameInstanceAs(
+                typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
+            )
     }
 
     @Test
@@ -47,9 +48,10 @@ class GenericFontFamilyCacheTest {
     fun not_cached_instance_if_different_input() {
         val typeface = AndroidGenericFontFamilyTypeface(FontFamily.SansSerif)
         assertThat(
-            typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
-        ).isNotSameInstanceAs(
-            typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Italic, FontSynthesis.None)
-        )
+                typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
+            )
+            .isNotSameInstanceAs(
+                typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Italic, FontSynthesis.None)
+            )
     }
 }

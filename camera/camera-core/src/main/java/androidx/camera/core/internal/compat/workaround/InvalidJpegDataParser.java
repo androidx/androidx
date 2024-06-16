@@ -17,7 +17,6 @@
 package androidx.camera.core.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.LargeJpegImageQuirk;
@@ -27,7 +26,6 @@ import androidx.camera.core.internal.compat.quirk.LargeJpegImageQuirk;
  *
  * @see LargeJpegImageQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class InvalidJpegDataParser {
     private final LargeJpegImageQuirk mQuirk = DeviceQuirks.get(LargeJpegImageQuirk.class);
 

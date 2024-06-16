@@ -28,9 +28,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ViewTreeViewModelStoreOwnerTest {
-    /**
-     * Tests that a direct set/get on a single view survives a round trip
-     */
+    /** Tests that a direct set/get on a single view survives a round trip */
     @Test
     fun setGetSameView() {
         val v = View(InstrumentationRegistry.getInstrumentation().context)
@@ -47,9 +45,7 @@ class ViewTreeViewModelStoreOwnerTest {
             .isEqualTo(fakeOwner)
     }
 
-    /**
-     * minimal test that checks View..findViewTreeViewModelStoreOwner works
-     */
+    /** minimal test that checks View..findViewTreeViewModelStoreOwner works */
     @Test
     fun setFindsSameView() {
         val v = View(InstrumentationRegistry.getInstrumentation().context)
@@ -67,8 +63,8 @@ class ViewTreeViewModelStoreOwnerTest {
     }
 
     /**
-     * Tests that the owner set on a root of a subhierarchy is seen by both direct children
-     * and other descendants
+     * Tests that the owner set on a root of a subhierarchy is seen by both direct children and
+     * other descendants
      */
     @Test
     fun getAncestorOwner() {
@@ -98,13 +94,12 @@ class ViewTreeViewModelStoreOwnerTest {
     }
 
     /**
-     * Tests that a new owner set between a root and a descendant is seen by the descendant
-     * instead of the root value
+     * Tests that a new owner set between a root and a descendant is seen by the descendant instead
+     * of the root value
      */
     @Test
     fun shadowedOwner() {
-        val context =
-            InstrumentationRegistry.getInstrumentation().context
+        val context = InstrumentationRegistry.getInstrumentation().context
         val root: ViewGroup = FrameLayout(context)
         val parent: ViewGroup = FrameLayout(context)
         val child = View(context)

@@ -32,37 +32,43 @@ class DeletionRequestTest {
     @SdkSuppress(minSdkVersion = 26) // For Instant#MIN and Instant#MAX reference
     fun testToString() {
         val now = Instant.now()
-        val result = "DeletionRequest { DeletionMode=DELETION_MODE_ALL, " +
-            "MatchBehavior=MATCH_BEHAVIOR_DELETE, " +
-            "Start=$now, End=$now, DomainUris=[www.abc.com], OriginUris=[www.xyz.com] }"
+        val result =
+            "DeletionRequest { DeletionMode=DELETION_MODE_ALL, " +
+                "MatchBehavior=MATCH_BEHAVIOR_DELETE, " +
+                "Start=$now, End=$now, DomainUris=[www.abc.com], OriginUris=[www.xyz.com] }"
 
-        val deletionRequest = DeletionRequest(
-            DeletionRequest.DELETION_MODE_ALL,
-            DeletionRequest.MATCH_BEHAVIOR_DELETE,
-            now,
-            now,
-            listOf(Uri.parse("www.abc.com")),
-            listOf(Uri.parse("www.xyz.com")),
-        )
+        val deletionRequest =
+            DeletionRequest(
+                DeletionRequest.DELETION_MODE_ALL,
+                DeletionRequest.MATCH_BEHAVIOR_DELETE,
+                now,
+                now,
+                listOf(Uri.parse("www.abc.com")),
+                listOf(Uri.parse("www.xyz.com")),
+            )
         Truth.assertThat(deletionRequest.toString()).isEqualTo(result)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26) // For Instant#MIN and Instant#MAX reference
     fun testEquals() {
-        val deletionRequest1 = DeletionRequest(
-            DeletionRequest.DELETION_MODE_ALL,
-            DeletionRequest.MATCH_BEHAVIOR_DELETE,
-            Instant.MIN,
-            Instant.MAX,
-            listOf(Uri.parse("www.abc.com")),
-            listOf(Uri.parse("www.xyz.com")))
-        val deletionRequest2 = DeletionRequest.Builder(
-            deletionMode = DeletionRequest.DELETION_MODE_ALL,
-            matchBehavior = DeletionRequest.MATCH_BEHAVIOR_DELETE)
-            .setDomainUris(listOf(Uri.parse("www.abc.com")))
-            .setOriginUris(listOf(Uri.parse("www.xyz.com")))
-            .build()
+        val deletionRequest1 =
+            DeletionRequest(
+                DeletionRequest.DELETION_MODE_ALL,
+                DeletionRequest.MATCH_BEHAVIOR_DELETE,
+                Instant.MIN,
+                Instant.MAX,
+                listOf(Uri.parse("www.abc.com")),
+                listOf(Uri.parse("www.xyz.com"))
+            )
+        val deletionRequest2 =
+            DeletionRequest.Builder(
+                    deletionMode = DeletionRequest.DELETION_MODE_ALL,
+                    matchBehavior = DeletionRequest.MATCH_BEHAVIOR_DELETE
+                )
+                .setDomainUris(listOf(Uri.parse("www.abc.com")))
+                .setOriginUris(listOf(Uri.parse("www.xyz.com")))
+                .build()
         Truth.assertThat(deletionRequest1 == deletionRequest2).isTrue()
     }
 }

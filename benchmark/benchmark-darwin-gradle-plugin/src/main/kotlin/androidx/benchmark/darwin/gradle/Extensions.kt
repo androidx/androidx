@@ -20,9 +20,7 @@ import java.io.ByteArrayOutputStream
 import org.gradle.api.GradleException
 import org.gradle.process.ExecOperations
 
-/**
- * Executes the [ExecOperations] quietly.
- */
+/** Executes the [ExecOperations] quietly. */
 fun ExecOperations.executeQuietly(args: List<String>) {
     val output = ByteArrayOutputStream()
     // Combine stdout and stderr here. So when we need to surface exceptions
@@ -40,7 +38,8 @@ fun ExecOperations.executeQuietly(args: List<String>) {
             throw GradleException(
                 """
                     ${output.toString(Charsets.UTF_8)}
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
         }
     }

@@ -43,7 +43,7 @@ class DraggableAnchorsTest {
 
     @Test
     fun draggableAnchors_get_nonexistentAnchor_returnsNaN() {
-        val anchors = DraggableAnchors<TestValue> { }
+        val anchors = DraggableAnchors<TestValue> {}
         assertThat(anchors.positionOf(A)).isNaN()
     }
 
@@ -54,12 +54,9 @@ class DraggableAnchorsTest {
             B at 100f
             C at 200f
         }
-        assertThat(anchors.closestAnchor(25f))
-            .isEqualTo(A)
-        assertThat(anchors.closestAnchor(75f))
-            .isEqualTo(B)
-        assertThat(anchors.closestAnchor(175f))
-            .isEqualTo(C)
+        assertThat(anchors.closestAnchor(25f)).isEqualTo(A)
+        assertThat(anchors.closestAnchor(75f)).isEqualTo(B)
+        assertThat(anchors.closestAnchor(175f)).isEqualTo(C)
     }
 
     @Test
@@ -68,10 +65,8 @@ class DraggableAnchorsTest {
             A at 0f
             B at 100f
         }
-        assertThat(anchors.closestAnchor(1f, searchUpwards = true))
-            .isEqualTo(B)
-        assertThat(anchors.closestAnchor(99f, searchUpwards = false))
-            .isEqualTo(A)
+        assertThat(anchors.closestAnchor(1f, searchUpwards = true)).isEqualTo(B)
+        assertThat(anchors.closestAnchor(99f, searchUpwards = false)).isEqualTo(A)
     }
 
     @Test
@@ -94,12 +89,14 @@ class DraggableAnchorsTest {
 
     @Test
     fun draggableAnchors_hasAnchorFor() {
-        val anchors = DraggableAnchors {
-            A at 100f
-        }
+        val anchors = DraggableAnchors { A at 100f }
         assertThat(anchors.positionOf(A)).isEqualTo(100f)
         assertThat(anchors.hasAnchorFor(A)).isTrue()
     }
 }
 
-private enum class TestValue { A, B, C }
+private enum class TestValue {
+    A,
+    B,
+    C
+}

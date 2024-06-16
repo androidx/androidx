@@ -27,54 +27,42 @@ class MapSaverTest {
     @Test
     fun simpleSaveAndRestore() {
         val original = User("John", 30)
-        val saved = with(UserSaver) {
-            allowingScope.save(original)
-        }
+        val saved = with(UserSaver) { allowingScope.save(original) }
 
         assertThat(saved).isNotNull()
-        assertThat(UserSaver.restore(saved!!))
-            .isEqualTo(original)
+        assertThat(UserSaver.restore(saved!!)).isEqualTo(original)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun exceptionWhenAllItemsCantBeSaved() {
-        with(UserSaver) {
-            disallowingScope.save(User("John", 30))
-        }
+        with(UserSaver) { disallowingScope.save(User("John", 30)) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun exceptionWhenOneValueCantBeSaved() {
-        val onlyInts = object : SaverScope {
-            override fun canBeSaved(value: Any) = value is Int
-        }
+        val onlyInts =
+            object : SaverScope {
+                override fun canBeSaved(value: Any) = value is Int
+            }
 
-        with(UserSaver) {
-            onlyInts.save(User("John", 30))
-        }
+        with(UserSaver) { onlyInts.save(User("John", 30)) }
     }
 
     @Test
     fun nullableMapItemsAreSupported() {
         val original = NullableUser(null, 30)
-        val saved = with(NullableUserSaver) {
-            allowingScope.save(original)
-        }
+        val saved = with(NullableUserSaver) { allowingScope.save(original) }
 
         assertThat(saved).isNotNull()
-        assertThat(NullableUserSaver.restore(saved!!))
-            .isEqualTo(original)
+        assertThat(NullableUserSaver.restore(saved!!)).isEqualTo(original)
     }
 
     @Test
     fun nullableTypeIsSupported() {
-        val saved = with(NullableUserSaver) {
-            allowingScope.save(null)
-        }
+        val saved = with(NullableUserSaver) { allowingScope.save(null) }
 
         assertThat(saved).isNotNull()
-        assertThat(NullableUserSaver.restore(saved!!))
-            .isEqualTo(NullableUser(null, null))
+        assertThat(NullableUserSaver.restore(saved!!)).isEqualTo(NullableUser(null, null))
     }
 }
 

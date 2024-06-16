@@ -26,12 +26,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ComposableNamingDetector].
- */
+/** Test for [ComposableNamingDetector]. */
 class ComposableNamingDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposableNamingDetector()
 
@@ -40,9 +37,10 @@ class ComposableNamingDetectorTest : LintDetectorTest() {
 
     @Test
     fun returnsUnit_lowerCaseName_fails() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -50,9 +48,9 @@ class ComposableNamingDetectorTest : LintDetectorTest() {
                 @Composable
                 fun button() {}
             """
-            ),
-            Stubs.Composable
-        )
+                ),
+                Stubs.Composable
+            )
             .run()
             .expect(
                 """
@@ -74,9 +72,10 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
 
     @Test
     fun returnsUnit_upperCaseName_passes() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -84,18 +83,19 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
                 @Composable
                 fun Button() {}
             """
-            ),
-            Stubs.Composable
-        )
+                ),
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun returnsValue_lowerCaseName_passes() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -103,18 +103,19 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
                 @Composable
                 fun getInt(): Int { return 5 }
             """
-            ),
-            Stubs.Composable
-        )
+                ),
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun returnsValue_upperCaseName_fails() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -122,9 +123,9 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
                 @Composable
                 fun GetInt(): Int { return 5 }
             """
-            ),
-            Stubs.Composable
-        )
+                ),
+                Stubs.Composable
+            )
             .run()
             .expect(
                 """
@@ -146,9 +147,10 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
 
     @Test
     fun ignoreNonComposableFunctions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 fun button() {}
@@ -156,17 +158,18 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
                 fun GetInt(): Int { return 5 }
                 fun getInt(): Int { return 5 }
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 
     @Test
     fun ignoreOperatorComposableFunctions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -179,18 +182,19 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
                     operator fun unaryPlus() {}
                 }
             """
-            ),
-            Stubs.Composable
-        )
+                ),
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun ignoreInvalidOverrides() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -218,11 +222,10 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
                     override fun generic() {}
                 }
             """
-            ),
-            Stubs.Composable
-        )
+                ),
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

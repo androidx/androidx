@@ -34,9 +34,7 @@ import androidx.fragment.app.Fragment
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 
-/**
- * Fragment for testing MLKit integration.
- */
+/** Fragment for testing MLKit integration. */
 class MlKitFragment : Fragment() {
 
     private lateinit var cameraController: LifecycleCameraController
@@ -88,7 +86,8 @@ class MlKitFragment : Fragment() {
 
         cameraController.clearImageAnalysisAnalyzer()
         val scanner = barcodeScanner!!
-        cameraController.setImageAnalysisAnalyzer(mainThreadExecutor(),
+        cameraController.setImageAnalysisAnalyzer(
+            mainThreadExecutor(),
             MlKitAnalyzer(
                 listOf(scanner),
                 COORDINATE_SYSTEM_VIEW_REFERENCED,
@@ -99,6 +98,7 @@ class MlKitFragment : Fragment() {
                     overlayView.setTileRect(RectF(barcodes[0].boundingBox))
                     overlayView.invalidate()
                 }
-            })
+            }
+        )
     }
 }

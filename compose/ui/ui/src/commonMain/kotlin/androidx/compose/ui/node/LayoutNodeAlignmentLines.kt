@@ -24,14 +24,10 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastRoundToInt
 
 internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwner) {
-    /**
-     * `true` when the alignment lines needs to be recalculated because they might have changed.
-     */
+    /** `true` when the alignment lines needs to be recalculated because they might have changed. */
     internal var dirty = true
 
-    /**
-     * `true` when the alignment lines were used by the parent during measurement.
-     */
+    /** `true` when the alignment lines were used by the parent during measurement. */
     internal var usedDuringParentMeasurement = false
 
     /**
@@ -40,28 +36,22 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
      */
     internal var usedDuringParentLayout = false
 
-    /**
-     * `true` when the alignment lines were used by the parent during the last completed layout.
-     */
+    /** `true` when the alignment lines were used by the parent during the last completed layout. */
     internal var previousUsedDuringParentLayout = false
 
-    /**
-     * `true` when the alignment lines were used by the modifier of the node during measurement.
-     */
+    /** `true` when the alignment lines were used by the modifier of the node during measurement. */
     internal var usedByModifierMeasurement = false
 
-    /**
-     * `true` when the alignment lines were used by the modifier of the node during measurement.
-     */
+    /** `true` when the alignment lines were used by the modifier of the node during measurement. */
     internal var usedByModifierLayout = false
 
-    /**
-     * `true` when the direct parent or our modifier relies on our alignment lines.
-     */
+    /** `true` when the direct parent or our modifier relies on our alignment lines. */
     internal val queried
-        get() = usedDuringParentMeasurement ||
-            previousUsedDuringParentLayout || usedByModifierMeasurement ||
-            usedByModifierLayout
+        get() =
+            usedDuringParentMeasurement ||
+                previousUsedDuringParentLayout ||
+                usedByModifierMeasurement ||
+                usedByModifierLayout
 
     /**
      * The closest layout node ancestor who was asked for alignment lines, either by the parent or
@@ -84,35 +74,35 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
      * alignmentUsedBy* of the layout nodes in the hierarchy.
      */
     fun recalculateQueryOwner() {
-        queryOwner = if (queried) {
-            alignmentLinesOwner
-        } else {
-            val parent = alignmentLinesOwner.parentAlignmentLinesOwner ?: return
-            val parentQueryOwner = parent.alignmentLines.queryOwner
-            if (parentQueryOwner != null && parentQueryOwner.alignmentLines.queried) {
-                parentQueryOwner
+        queryOwner =
+            if (queried) {
+                alignmentLinesOwner
             } else {
-                val owner = queryOwner
-                if (owner == null || owner.alignmentLines.queried) return
-                owner.parentAlignmentLinesOwner?.alignmentLines?.recalculateQueryOwner()
-                owner.parentAlignmentLinesOwner?.alignmentLines?.queryOwner
+                val parent = alignmentLinesOwner.parentAlignmentLinesOwner ?: return
+                val parentQueryOwner = parent.alignmentLines.queryOwner
+                if (parentQueryOwner != null && parentQueryOwner.alignmentLines.queried) {
+                    parentQueryOwner
+                } else {
+                    val owner = queryOwner
+                    if (owner == null || owner.alignmentLines.queried) return
+                    owner.parentAlignmentLinesOwner?.alignmentLines?.recalculateQueryOwner()
+                    owner.parentAlignmentLinesOwner?.alignmentLines?.queryOwner
+                }
             }
-        }
     }
 
-    /**
-     * The alignment lines of this layout, inherited + intrinsic
-     */
+    /** The alignment lines of this layout, inherited + intrinsic */
     private val alignmentLineMap: MutableMap<AlignmentLine, Int> = hashMapOf()
 
     fun getLastCalculation(): Map<AlignmentLine, Int> = alignmentLineMap
 
     protected abstract val NodeCoordinator.alignmentLinesMap: Map<AlignmentLine, Int>
+
     protected abstract fun NodeCoordinator.getPositionFor(alignmentLine: AlignmentLine): Int
 
     /**
-     * Returns the alignment line value for a given alignment line without affecting whether
-     * the flag for whether the alignment line was read.
+     * Returns the alignment line value for a given alignment line without affecting whether the
+     * flag for whether the alignment line was read.
      */
     private fun addAlignmentLine(
         alignmentLine: AlignmentLine,
@@ -131,25 +121,23 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
             }
         }
 
-        val positionInContainer = (if (alignmentLine is HorizontalAlignmentLine) {
-            position.y
-        } else {
-            position.x
-        }).fastRoundToInt()
+        val positionInContainer =
+            (if (alignmentLine is HorizontalAlignmentLine) {
+                    position.y
+                } else {
+                    position.x
+                })
+                .fastRoundToInt()
         // If the line was already provided by a previous child, merge the values.
-        alignmentLineMap[alignmentLine] = if (alignmentLine in alignmentLineMap) {
-            alignmentLine.merge(
-                alignmentLineMap.getValue(alignmentLine),
+        alignmentLineMap[alignmentLine] =
+            if (alignmentLine in alignmentLineMap) {
+                alignmentLine.merge(alignmentLineMap.getValue(alignmentLine), positionInContainer)
+            } else {
                 positionInContainer
-            )
-        } else {
-            positionInContainer
-        }
+            }
     }
 
-    /**
-     * Recalculate alignment lines from all the children.
-     */
+    /** Recalculate alignment lines from all the children. */
     fun recalculate() {
         alignmentLineMap.clear()
         alignmentLinesOwner.forEachChildAlignmentLinesOwner { childOwner ->
@@ -177,9 +165,7 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
         dirty = false
     }
 
-    /**
-     * Reset all the internal states.
-     */
+    /** Reset all the internal states. */
     internal fun reset() {
         dirty = true
         usedDuringParentMeasurement = false
@@ -211,12 +197,9 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
     protected abstract fun NodeCoordinator.calculatePositionInParent(position: Offset): Offset
 }
 
-/**
- * AlignmentLines impl that are specific to non-lookahead pass.
- */
-internal class LayoutNodeAlignmentLines(
-    alignmentLinesOwner: AlignmentLinesOwner
-) : AlignmentLines(alignmentLinesOwner) {
+/** AlignmentLines impl that are specific to non-lookahead pass. */
+internal class LayoutNodeAlignmentLines(alignmentLinesOwner: AlignmentLinesOwner) :
+    AlignmentLines(alignmentLinesOwner) {
 
     override val NodeCoordinator.alignmentLinesMap: Map<AlignmentLine, Int>
         get() = measureResult.alignmentLines
@@ -228,12 +211,9 @@ internal class LayoutNodeAlignmentLines(
         toParentPosition(position)
 }
 
-/**
- * AlignmentLines impl that are specific to lookahead pass.
- */
-internal class LookaheadAlignmentLines(
-    alignmentLinesOwner: AlignmentLinesOwner
-) : AlignmentLines(alignmentLinesOwner) {
+/** AlignmentLines impl that are specific to lookahead pass. */
+internal class LookaheadAlignmentLines(alignmentLinesOwner: AlignmentLinesOwner) :
+    AlignmentLines(alignmentLinesOwner) {
 
     override val NodeCoordinator.alignmentLinesMap: Map<AlignmentLine, Int>
         get() = lookaheadDelegate!!.measureResult.alignmentLines

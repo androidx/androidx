@@ -49,7 +49,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -106,7 +105,6 @@ import java.util.Set;
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
  * and image formats can be supported.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     private final CameraInternal mCameraInternal;

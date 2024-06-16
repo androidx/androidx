@@ -38,249 +38,260 @@ class ColorProvidersTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     fun testGlanceMatchMaterial3Colors() {
-        val lightColors = mapOf(
-            androidx.glance.R.color.glance_colorPrimary to
-                com.google.android.material.R.color.m3_sys_color_light_primary,
-            androidx.glance.R.color.glance_colorOnPrimary to
-                com.google.android.material.R.color.m3_sys_color_light_on_primary,
-            androidx.glance.R.color.glance_colorPrimaryInverse to
-                com.google.android.material.R.color.m3_sys_color_light_inverse_primary,
-            androidx.glance.R.color.glance_colorPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_light_primary_container,
-            androidx.glance.R.color.glance_colorOnPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_light_on_primary_container,
-            androidx.glance.R.color.glance_colorSecondary to
-                com.google.android.material.R.color.m3_sys_color_light_secondary,
-            androidx.glance.R.color.glance_colorOnSecondary to
-                com.google.android.material.R.color.m3_sys_color_light_on_secondary,
-            androidx.glance.R.color.glance_colorSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_light_secondary_container,
-            androidx.glance.R.color.glance_colorOnSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_light_on_secondary_container,
-            androidx.glance.R.color.glance_colorTertiary to
-                com.google.android.material.R.color.m3_sys_color_light_tertiary,
-            androidx.glance.R.color.glance_colorOnTertiary to
-                com.google.android.material.R.color.m3_sys_color_light_on_tertiary,
-            androidx.glance.R.color.glance_colorTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_light_tertiary_container,
-            androidx.glance.R.color.glance_colorOnTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_light_on_tertiary_container,
-            androidx.glance.R.color.glance_colorBackground to
-                com.google.android.material.R.color.m3_sys_color_light_background,
-            androidx.glance.R.color.glance_colorOnBackground to
-                com.google.android.material.R.color.m3_sys_color_light_on_background,
-            androidx.glance.R.color.glance_colorSurface to
-                com.google.android.material.R.color.m3_sys_color_light_surface,
-            androidx.glance.R.color.glance_colorOnSurface to
-                com.google.android.material.R.color.m3_sys_color_light_on_surface,
-            androidx.glance.R.color.glance_colorSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_light_surface_variant,
-            androidx.glance.R.color.glance_colorOnSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_light_on_surface_variant,
-            androidx.glance.R.color.glance_colorSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_light_inverse_surface,
-            androidx.glance.R.color.glance_colorOnSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_light_inverse_on_surface,
-            androidx.glance.R.color.glance_colorOutline to
-                com.google.android.material.R.color.m3_sys_color_light_outline,
-            androidx.glance.R.color.glance_colorError to
-                com.google.android.material.R.color.m3_sys_color_light_error,
-            androidx.glance.R.color.glance_colorOnError to
-                com.google.android.material.R.color.m3_sys_color_light_on_error,
-            androidx.glance.R.color.glance_colorErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_light_error_container,
-            androidx.glance.R.color.glance_colorOnErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_light_on_error_container,
-        )
-        lightColors.forEach {
-            assertColor(it.key, it.value)
-        }
+        val lightColors =
+            mapOf(
+                androidx.glance.R.color.glance_colorPrimary to
+                    com.google.android.material.R.color.m3_sys_color_light_primary,
+                androidx.glance.R.color.glance_colorOnPrimary to
+                    com.google.android.material.R.color.m3_sys_color_light_on_primary,
+                androidx.glance.R.color.glance_colorPrimaryInverse to
+                    com.google.android.material.R.color.m3_sys_color_light_inverse_primary,
+                androidx.glance.R.color.glance_colorPrimaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_primary_container,
+                androidx.glance.R.color.glance_colorOnPrimaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_on_primary_container,
+                androidx.glance.R.color.glance_colorSecondary to
+                    com.google.android.material.R.color.m3_sys_color_light_secondary,
+                androidx.glance.R.color.glance_colorOnSecondary to
+                    com.google.android.material.R.color.m3_sys_color_light_on_secondary,
+                androidx.glance.R.color.glance_colorSecondaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_secondary_container,
+                androidx.glance.R.color.glance_colorOnSecondaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_on_secondary_container,
+                androidx.glance.R.color.glance_colorTertiary to
+                    com.google.android.material.R.color.m3_sys_color_light_tertiary,
+                androidx.glance.R.color.glance_colorOnTertiary to
+                    com.google.android.material.R.color.m3_sys_color_light_on_tertiary,
+                androidx.glance.R.color.glance_colorTertiaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_tertiary_container,
+                androidx.glance.R.color.glance_colorOnTertiaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_on_tertiary_container,
+                androidx.glance.R.color.glance_colorBackground to
+                    com.google.android.material.R.color.m3_sys_color_light_background,
+                androidx.glance.R.color.glance_colorOnBackground to
+                    com.google.android.material.R.color.m3_sys_color_light_on_background,
+                androidx.glance.R.color.glance_colorSurface to
+                    com.google.android.material.R.color.m3_sys_color_light_surface,
+                androidx.glance.R.color.glance_colorOnSurface to
+                    com.google.android.material.R.color.m3_sys_color_light_on_surface,
+                androidx.glance.R.color.glance_colorSurfaceVariant to
+                    com.google.android.material.R.color.m3_sys_color_light_surface_variant,
+                androidx.glance.R.color.glance_colorOnSurfaceVariant to
+                    com.google.android.material.R.color.m3_sys_color_light_on_surface_variant,
+                androidx.glance.R.color.glance_colorSurfaceInverse to
+                    com.google.android.material.R.color.m3_sys_color_light_inverse_surface,
+                androidx.glance.R.color.glance_colorOnSurfaceInverse to
+                    com.google.android.material.R.color.m3_sys_color_light_inverse_on_surface,
+                androidx.glance.R.color.glance_colorOutline to
+                    com.google.android.material.R.color.m3_sys_color_light_outline,
+                androidx.glance.R.color.glance_colorError to
+                    com.google.android.material.R.color.m3_sys_color_light_error,
+                androidx.glance.R.color.glance_colorOnError to
+                    com.google.android.material.R.color.m3_sys_color_light_on_error,
+                androidx.glance.R.color.glance_colorErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_error_container,
+                androidx.glance.R.color.glance_colorOnErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_on_error_container,
+            )
+        lightColors.forEach { assertColor(it.key, it.value) }
     }
 
     @Test
     @Config(qualifiers = "night", sdk = [Build.VERSION_CODES.R])
     fun testGlanceMatchMaterial3NightColors() {
-        val darkColors = mapOf(
-            androidx.glance.R.color.glance_colorPrimary to
-                com.google.android.material.R.color.m3_sys_color_dark_primary,
-            androidx.glance.R.color.glance_colorOnPrimary to
-                com.google.android.material.R.color.m3_sys_color_dark_on_primary,
-            androidx.glance.R.color.glance_colorPrimaryInverse to
-                com.google.android.material.R.color.m3_sys_color_dark_inverse_primary,
-            androidx.glance.R.color.glance_colorPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_primary_container,
-            androidx.glance.R.color.glance_colorOnPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_on_primary_container,
-            androidx.glance.R.color.glance_colorSecondary to
-                com.google.android.material.R.color.m3_sys_color_dark_secondary,
-            androidx.glance.R.color.glance_colorOnSecondary to
-                com.google.android.material.R.color.m3_sys_color_dark_on_secondary,
-            androidx.glance.R.color.glance_colorSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_secondary_container,
-            androidx.glance.R.color.glance_colorOnSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_on_secondary_container,
-            androidx.glance.R.color.glance_colorTertiary to
-                com.google.android.material.R.color.m3_sys_color_dark_tertiary,
-            androidx.glance.R.color.glance_colorOnTertiary to
-                com.google.android.material.R.color.m3_sys_color_dark_on_tertiary,
-            androidx.glance.R.color.glance_colorTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_tertiary_container,
-            androidx.glance.R.color.glance_colorOnTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_on_tertiary_container,
-            androidx.glance.R.color.glance_colorBackground to
-                com.google.android.material.R.color.m3_sys_color_dark_background,
-            androidx.glance.R.color.glance_colorOnBackground to
-                com.google.android.material.R.color.m3_sys_color_dark_on_background,
-            androidx.glance.R.color.glance_colorSurface to
-                com.google.android.material.R.color.m3_sys_color_dark_surface,
-            androidx.glance.R.color.glance_colorOnSurface to
-                com.google.android.material.R.color.m3_sys_color_dark_on_surface,
-            androidx.glance.R.color.glance_colorSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_dark_surface_variant,
-            androidx.glance.R.color.glance_colorOnSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_dark_on_surface_variant,
-            androidx.glance.R.color.glance_colorSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_dark_inverse_surface,
-            androidx.glance.R.color.glance_colorOnSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_dark_inverse_on_surface,
-            androidx.glance.R.color.glance_colorOutline to
-                com.google.android.material.R.color.m3_sys_color_dark_outline,
-            androidx.glance.R.color.glance_colorError to
-                com.google.android.material.R.color.m3_sys_color_dark_error,
-            androidx.glance.R.color.glance_colorOnError to
-                com.google.android.material.R.color.m3_sys_color_dark_on_error,
-            androidx.glance.R.color.glance_colorErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_error_container,
-            androidx.glance.R.color.glance_colorOnErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_on_error_container,
-        )
-        darkColors.forEach {
-            assertColor(it.key, it.value)
-        }
+        val darkColors =
+            mapOf(
+                androidx.glance.R.color.glance_colorPrimary to
+                    com.google.android.material.R.color.m3_sys_color_dark_primary,
+                androidx.glance.R.color.glance_colorOnPrimary to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_primary,
+                androidx.glance.R.color.glance_colorPrimaryInverse to
+                    com.google.android.material.R.color.m3_sys_color_dark_inverse_primary,
+                androidx.glance.R.color.glance_colorPrimaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_primary_container,
+                androidx.glance.R.color.glance_colorOnPrimaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_primary_container,
+                androidx.glance.R.color.glance_colorSecondary to
+                    com.google.android.material.R.color.m3_sys_color_dark_secondary,
+                androidx.glance.R.color.glance_colorOnSecondary to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_secondary,
+                androidx.glance.R.color.glance_colorSecondaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_secondary_container,
+                androidx.glance.R.color.glance_colorOnSecondaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_secondary_container,
+                androidx.glance.R.color.glance_colorTertiary to
+                    com.google.android.material.R.color.m3_sys_color_dark_tertiary,
+                androidx.glance.R.color.glance_colorOnTertiary to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_tertiary,
+                androidx.glance.R.color.glance_colorTertiaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_tertiary_container,
+                androidx.glance.R.color.glance_colorOnTertiaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_tertiary_container,
+                androidx.glance.R.color.glance_colorBackground to
+                    com.google.android.material.R.color.m3_sys_color_dark_background,
+                androidx.glance.R.color.glance_colorOnBackground to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_background,
+                androidx.glance.R.color.glance_colorSurface to
+                    com.google.android.material.R.color.m3_sys_color_dark_surface,
+                androidx.glance.R.color.glance_colorOnSurface to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_surface,
+                androidx.glance.R.color.glance_colorSurfaceVariant to
+                    com.google.android.material.R.color.m3_sys_color_dark_surface_variant,
+                androidx.glance.R.color.glance_colorOnSurfaceVariant to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_surface_variant,
+                androidx.glance.R.color.glance_colorSurfaceInverse to
+                    com.google.android.material.R.color.m3_sys_color_dark_inverse_surface,
+                androidx.glance.R.color.glance_colorOnSurfaceInverse to
+                    com.google.android.material.R.color.m3_sys_color_dark_inverse_on_surface,
+                androidx.glance.R.color.glance_colorOutline to
+                    com.google.android.material.R.color.m3_sys_color_dark_outline,
+                androidx.glance.R.color.glance_colorError to
+                    com.google.android.material.R.color.m3_sys_color_dark_error,
+                androidx.glance.R.color.glance_colorOnError to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_error,
+                androidx.glance.R.color.glance_colorErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_error_container,
+                androidx.glance.R.color.glance_colorOnErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_error_container,
+            )
+        darkColors.forEach { assertColor(it.key, it.value) }
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
     fun testGlanceMatchMaterial3v31Colors() {
-        val v31Colors = mapOf(
-            androidx.glance.R.color.glance_colorPrimary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_primary,
-            androidx.glance.R.color.glance_colorOnPrimary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_primary,
-            androidx.glance.R.color.glance_colorPrimaryInverse to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_inverse_primary,
-            androidx.glance.R.color.glance_colorPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_primary_container,
-            androidx.glance.R.color.glance_colorOnPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_primary_container,
-            androidx.glance.R.color.glance_colorSecondary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_secondary,
-            androidx.glance.R.color.glance_colorOnSecondary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_secondary,
-            androidx.glance.R.color.glance_colorSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_secondary_container,
-            androidx.glance.R.color.glance_colorOnSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_secondary_container, // ktlint-disable max-line-length
-            androidx.glance.R.color.glance_colorTertiary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_tertiary,
-            androidx.glance.R.color.glance_colorOnTertiary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_tertiary,
-            androidx.glance.R.color.glance_colorTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_tertiary_container,
-            androidx.glance.R.color.glance_colorOnTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_tertiary_container, // ktlint-disable max-line-length
-            androidx.glance.R.color.glance_colorBackground to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_background,
-            androidx.glance.R.color.glance_colorOnBackground to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_background,
-            androidx.glance.R.color.glance_colorSurface to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_surface,
-            androidx.glance.R.color.glance_colorOnSurface to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_surface,
-            androidx.glance.R.color.glance_colorSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_surface_variant,
-            androidx.glance.R.color.glance_colorOnSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_on_surface_variant,
-            androidx.glance.R.color.glance_colorSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_inverse_surface,
-            androidx.glance.R.color.glance_colorOnSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_inverse_on_surface,
-            androidx.glance.R.color.glance_colorOutline to
-                com.google.android.material.R.color.m3_sys_color_dynamic_light_outline,
-            androidx.glance.R.color.glance_colorError to
-                com.google.android.material.R.color.m3_sys_color_light_error,
-            androidx.glance.R.color.glance_colorOnError to
-                com.google.android.material.R.color.m3_sys_color_light_on_error,
-            androidx.glance.R.color.glance_colorErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_light_error_container,
-            androidx.glance.R.color.glance_colorOnErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_light_on_error_container,
-        )
-        v31Colors.forEach {
-            assertColor(it.key, it.value)
-        }
+        val v31Colors =
+            mapOf(
+                androidx.glance.R.color.glance_colorPrimary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_primary,
+                androidx.glance.R.color.glance_colorOnPrimary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_on_primary,
+                androidx.glance.R.color.glance_colorPrimaryInverse to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_inverse_primary,
+                androidx.glance.R.color.glance_colorPrimaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_primary_container,
+                androidx.glance.R.color.glance_colorOnPrimaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_on_primary_container,
+                androidx.glance.R.color.glance_colorSecondary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_secondary,
+                androidx.glance.R.color.glance_colorOnSecondary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_on_secondary,
+                androidx.glance.R.color.glance_colorSecondaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_secondary_container,
+                androidx.glance.R.color.glance_colorOnSecondaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_on_secondary_container,
+                androidx.glance.R.color.glance_colorTertiary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_tertiary,
+                androidx.glance.R.color.glance_colorOnTertiary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_on_tertiary,
+                androidx.glance.R.color.glance_colorTertiaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_tertiary_container,
+                androidx.glance.R.color.glance_colorOnTertiaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_on_tertiary_container,
+                androidx.glance.R.color.glance_colorBackground to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_background,
+                androidx.glance.R.color.glance_colorOnBackground to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_on_background,
+                androidx.glance.R.color.glance_colorSurface to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_surface,
+                androidx.glance.R.color.glance_colorOnSurface to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_on_surface,
+                androidx.glance.R.color.glance_colorSurfaceVariant to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_surface_variant,
+                androidx.glance.R.color.glance_colorOnSurfaceVariant to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_on_surface_variant,
+                androidx.glance.R.color.glance_colorSurfaceInverse to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_inverse_surface,
+                androidx.glance.R.color.glance_colorOnSurfaceInverse to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_light_inverse_on_surface,
+                androidx.glance.R.color.glance_colorOutline to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_light_outline,
+                androidx.glance.R.color.glance_colorError to
+                    com.google.android.material.R.color.m3_sys_color_light_error,
+                androidx.glance.R.color.glance_colorOnError to
+                    com.google.android.material.R.color.m3_sys_color_light_on_error,
+                androidx.glance.R.color.glance_colorErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_error_container,
+                androidx.glance.R.color.glance_colorOnErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_light_on_error_container,
+            )
+        v31Colors.forEach { assertColor(it.key, it.value) }
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S], qualifiers = "night")
     fun testGlanceMatchMaterial3v31NightColors() {
-        val v31NightColors = mapOf(
-            androidx.glance.R.color.glance_colorPrimary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_primary,
-            androidx.glance.R.color.glance_colorOnPrimary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_primary,
-            androidx.glance.R.color.glance_colorPrimaryInverse to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_inverse_primary,
-            androidx.glance.R.color.glance_colorPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_primary_container,
-            androidx.glance.R.color.glance_colorOnPrimaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_primary_container,
-            androidx.glance.R.color.glance_colorSecondary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_secondary,
-            androidx.glance.R.color.glance_colorOnSecondary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_secondary,
-            androidx.glance.R.color.glance_colorSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_secondary_container,
-            androidx.glance.R.color.glance_colorOnSecondaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_secondary_container, // ktlint-disable max-line-length
-            androidx.glance.R.color.glance_colorTertiary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_tertiary,
-            androidx.glance.R.color.glance_colorOnTertiary to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_tertiary,
-            androidx.glance.R.color.glance_colorTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_tertiary_container,
-            androidx.glance.R.color.glance_colorOnTertiaryContainer to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_tertiary_container,
-            androidx.glance.R.color.glance_colorBackground to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_background,
-            androidx.glance.R.color.glance_colorOnBackground to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_background,
-            androidx.glance.R.color.glance_colorSurface to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_surface,
-            androidx.glance.R.color.glance_colorOnSurface to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_surface,
-            androidx.glance.R.color.glance_colorSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_surface_variant,
-            androidx.glance.R.color.glance_colorOnSurfaceVariant to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_surface_variant,
-            androidx.glance.R.color.glance_colorSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_inverse_surface,
-            androidx.glance.R.color.glance_colorOnSurfaceInverse to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_inverse_on_surface,
-            androidx.glance.R.color.glance_colorOutline to
-                com.google.android.material.R.color.m3_sys_color_dynamic_dark_outline,
-            androidx.glance.R.color.glance_colorError to
-                com.google.android.material.R.color.m3_sys_color_dark_error,
-            androidx.glance.R.color.glance_colorOnError to
-                com.google.android.material.R.color.m3_sys_color_dark_on_error,
-            androidx.glance.R.color.glance_colorErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_error_container,
-            androidx.glance.R.color.glance_colorOnErrorContainer to
-                com.google.android.material.R.color.m3_sys_color_dark_on_error_container,
-        )
-        v31NightColors.forEach {
-            assertColor(it.key, it.value)
-        }
+        val v31NightColors =
+            mapOf(
+                androidx.glance.R.color.glance_colorPrimary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_primary,
+                androidx.glance.R.color.glance_colorOnPrimary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_primary,
+                androidx.glance.R.color.glance_colorPrimaryInverse to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_inverse_primary,
+                androidx.glance.R.color.glance_colorPrimaryContainer to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_primary_container,
+                androidx.glance.R.color.glance_colorOnPrimaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_on_primary_container,
+                androidx.glance.R.color.glance_colorSecondary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_secondary,
+                androidx.glance.R.color.glance_colorOnSecondary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_secondary,
+                androidx.glance.R.color.glance_colorSecondaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_secondary_container,
+                androidx.glance.R.color.glance_colorOnSecondaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_on_secondary_container,
+                androidx.glance.R.color.glance_colorTertiary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_tertiary,
+                androidx.glance.R.color.glance_colorOnTertiary to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_tertiary,
+                androidx.glance.R.color.glance_colorTertiaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_tertiary_container,
+                androidx.glance.R.color.glance_colorOnTertiaryContainer to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_on_tertiary_container,
+                androidx.glance.R.color.glance_colorBackground to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_background,
+                androidx.glance.R.color.glance_colorOnBackground to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_background,
+                androidx.glance.R.color.glance_colorSurface to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_surface,
+                androidx.glance.R.color.glance_colorOnSurface to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_on_surface,
+                androidx.glance.R.color.glance_colorSurfaceVariant to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_surface_variant,
+                androidx.glance.R.color.glance_colorOnSurfaceVariant to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_on_surface_variant,
+                androidx.glance.R.color.glance_colorSurfaceInverse to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_inverse_surface,
+                androidx.glance.R.color.glance_colorOnSurfaceInverse to
+                    com.google.android.material.R.color
+                        .m3_sys_color_dynamic_dark_inverse_on_surface,
+                androidx.glance.R.color.glance_colorOutline to
+                    com.google.android.material.R.color.m3_sys_color_dynamic_dark_outline,
+                androidx.glance.R.color.glance_colorError to
+                    com.google.android.material.R.color.m3_sys_color_dark_error,
+                androidx.glance.R.color.glance_colorOnError to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_error,
+                androidx.glance.R.color.glance_colorErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_error_container,
+                androidx.glance.R.color.glance_colorOnErrorContainer to
+                    com.google.android.material.R.color.m3_sys_color_dark_on_error_container,
+            )
+        v31NightColors.forEach { assertColor(it.key, it.value) }
     }
 
     private fun assertColor(@ColorRes source: Int, @ColorRes target: Int) {

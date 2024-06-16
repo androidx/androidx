@@ -26,10 +26,10 @@ import androidx.compose.runtime.Stable
  *
  * One must create a [ModifierLocal] instance, which can be referenced by consumers statically.
  * [ModifierLocal] instances themselves hold no data, and can be thought of as a type-safe
- * identifier for the data being passed to other modifiers to the right of the providing
- * modifier or down the tree. [ModifierLocal] factory functions take a single parameter: a
- * factory to create a default value in cases where a [ModifierLocal] is used without a Provider.
- * If this is a situation you would rather not handle, you can throw an error in this factory.
+ * identifier for the data being passed to other modifiers to the right of the providing modifier or
+ * down the tree. [ModifierLocal] factory functions take a single parameter: a factory to create a
+ * default value in cases where a [ModifierLocal] is used without a Provider. If this is a situation
+ * you would rather not handle, you can throw an error in this factory.
  *
  * To add a value that can be accessed by other modifiers, create an instance of a
  * [ProvidableModifierLocal] and add it to the tree by using a [modifierLocalProvider]. Now other
@@ -40,15 +40,14 @@ import androidx.compose.runtime.Stable
  * @see modifierLocalProvider
  * @see modifierLocalConsumer
  */
-@Stable
-sealed class ModifierLocal<T> constructor(internal val defaultFactory: () -> T)
+@Stable sealed class ModifierLocal<T> constructor(internal val defaultFactory: () -> T)
 
 /**
  * [ProvidableModifierLocal]s are [ModifierLocal]s that can be used to provide values using a
  * [ModifierLocalProvider].
  *
- * When you create an instance of a [ProvidableModifierLocal], and want to prevent users of
- * your library from providing new values but want to allow the values to be consumed, expose a
+ * When you create an instance of a [ProvidableModifierLocal], and want to prevent users of your
+ * library from providing new values but want to allow the values to be consumed, expose a
  * [ModifierLocal] instead.
  *
  * @see ModifierLocal
@@ -63,8 +62,8 @@ class ProvidableModifierLocal<T>(defaultFactory: () -> T) : ModifierLocal<T>(def
  * Creates a [ProvidableModifierLocal] and specifies a default factory.
  *
  * @param defaultFactory a factory to create a default value in cases where a [ModifierLocal] is
- * consumed without a Provider. If this is a situation you would rather not handle, you can throw
- * an error in this factory.
+ *   consumed without a Provider. If this is a situation you would rather not handle, you can throw
+ *   an error in this factory.
  *
  * Here are examples where a modifier can communicate with another in the same modifier chain:
  *
@@ -95,15 +94,15 @@ fun <T> modifierLocalOf(defaultFactory: () -> T): ProvidableModifierLocal<T> =
     ProvidableModifierLocal(defaultFactory)
 
 /**
- * This scope gives us access to modifier locals that are provided by other modifiers to the left
- * of this modifier, or above this modifier in the layout tree.
+ * This scope gives us access to modifier locals that are provided by other modifiers to the left of
+ * this modifier, or above this modifier in the layout tree.
  *
  * @see modifierLocalOf
  */
 interface ModifierLocalReadScope {
     /**
-     * Read a [ModifierLocal] that was provided by other modifiers to the left of this modifier,
-     * or above this modifier in the layout tree.
+     * Read a [ModifierLocal] that was provided by other modifiers to the left of this modifier, or
+     * above this modifier in the layout tree.
      */
     val <T> ModifierLocal<T>.current: T
 }

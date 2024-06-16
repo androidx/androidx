@@ -41,11 +41,12 @@ class VelocityTracker1DTest : BaseTest() {
     fun threePoints_pointerStoppedMoving_nonDifferentialValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    25 to 25f,
-                    50 to 50f,
-                    100 to 100f,
-                ),
+                dataPoints =
+                    listOf(
+                        25 to 25f,
+                        50 to 50f,
+                        100 to 100f,
+                    ),
                 // Expect 0 velocities, as the pointer will be considered to have stopped moving,
                 // due to the (100-50)=40ms gap from the last data point (i.e. it's effectively
                 // a data set with only 1 data point).
@@ -59,11 +60,12 @@ class VelocityTracker1DTest : BaseTest() {
     fun threePoints_zeroVelocity_nonDifferentialValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 273f,
-                    1 to 273f,
-                    2 to 273f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 273f,
+                        1 to 273f,
+                        2 to 273f,
+                    ),
                 expectedVelocity = 0f
             ),
         )
@@ -104,12 +106,13 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 0f,
-                    10 to 5f,
-                    20 to 10f,
-                    30 to 15f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 0f,
+                        10 to 5f,
+                        20 to 10f,
+                        30 to 15f,
+                    ),
                 expectedVelocity = 500f,
             )
         )
@@ -120,11 +123,12 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to -20f,
-                    10 to -15f,
-                    20 to -10f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to -20f,
+                        10 to -15f,
+                        20 to -10f,
+                    ),
                 expectedVelocity = 500f,
             )
         )
@@ -135,11 +139,12 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to -5f,
-                    10 to 0f,
-                    20 to 5f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to -5f,
+                        10 to 0f,
+                        20 to 5f,
+                    ),
                 expectedVelocity = 500f,
             )
         )
@@ -150,11 +155,12 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 0f,
-                    10 to -5f,
-                    20 to -10f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 0f,
+                        10 to -5f,
+                        20 to -10f,
+                    ),
                 expectedVelocity = -500f,
             )
         )
@@ -165,11 +171,12 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 20f,
-                    10 to 15f,
-                    20 to 10f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 20f,
+                        10 to 15f,
+                        20 to 10f,
+                    ),
                 expectedVelocity = -500f,
             )
         )
@@ -180,11 +187,12 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 5f,
-                    10 to 0f,
-                    20 to -5f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 5f,
+                        10 to 0f,
+                        20 to -5f,
+                    ),
                 expectedVelocity = -500f,
             )
         )
@@ -197,19 +205,20 @@ class VelocityTracker1DTest : BaseTest() {
         // This can be visualized as 2 lines: flat line (50ms), and line with slope of 2 units/ms.
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 0f,
-                    10 to 0f,
-                    20 to 0f,
-                    30 to 0f,
-                    40 to 0f,
-                    50 to 0f,
-                    60 to 20f,
-                    70 to 40f,
-                    80 to 60f,
-                    90 to 80f,
-                    100 to 100f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 0f,
+                        10 to 0f,
+                        20 to 0f,
+                        30 to 0f,
+                        40 to 0f,
+                        50 to 0f,
+                        60 to 20f,
+                        70 to 40f,
+                        80 to 60f,
+                        90 to 80f,
+                        100 to 100f,
+                    ),
                 expectedVelocity = 2000f
             ),
         )
@@ -222,13 +231,14 @@ class VelocityTracker1DTest : BaseTest() {
         // were to just plot these points.
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 0f,
-                    30 to 0f,
-                    40 to 0f,
-                    70 to 40f,
-                    100 to 100f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 0f,
+                        30 to 0f,
+                        40 to 0f,
+                        70 to 40f,
+                        100 to 100f,
+                    ),
                 expectedVelocity = 2018.2f
             )
         )
@@ -239,19 +249,20 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at first, but flat line afterwards.
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 0f,
-                    10 to 10f,
-                    20 to 20f,
-                    30 to 30f,
-                    40 to 40f,
-                    50 to 50f,
-                    60 to 50f,
-                    70 to 50f,
-                    80 to 50f,
-                    90 to 50f,
-                    100 to 50f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 0f,
+                        10 to 10f,
+                        20 to 20f,
+                        30 to 30f,
+                        40 to 40f,
+                        50 to 50f,
+                        60 to 50f,
+                        70 to 50f,
+                        80 to 50f,
+                        90 to 50f,
+                        100 to 50f,
+                    ),
                 expectedVelocity = 1000f
             )
         )
@@ -262,11 +273,12 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at first, but flat line afterwards
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 0f,
-                    50 to 50f,
-                    100 to 50f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 0f,
+                        50 to 50f,
+                        100 to 50f,
+                    ),
                 expectedVelocity = 0f
             ),
         )
@@ -276,15 +288,16 @@ class VelocityTracker1DTest : BaseTest() {
     fun swordfishFlingDown_xValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 271f,
-                    16 to 269.786346f,
-                    35 to 267.983063f,
-                    52 to 262.638397f,
-                    68 to 266.138824f,
-                    85 to 274.79245f,
-                    96 to 274.79245f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 271f,
+                        16 to 269.786346f,
+                        35 to 267.983063f,
+                        52 to 262.638397f,
+                        68 to 266.138824f,
+                        85 to 274.79245f,
+                        96 to 274.79245f,
+                    ),
                 expectedVelocity = 623.57f
             )
         )
@@ -294,15 +307,16 @@ class VelocityTracker1DTest : BaseTest() {
     fun swordfishFlingDown_yValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    0 to 96f,
-                    16 to 106.922775f,
-                    35 to 156.660034f,
-                    52 to 220.339081f,
-                    68 to 331.581116f,
-                    85 to 428.113159f,
-                    96 to 428.113159f,
-                ),
+                dataPoints =
+                    listOf(
+                        0 to 96f,
+                        16 to 106.922775f,
+                        35 to 156.660034f,
+                        52 to 220.339081f,
+                        68 to 331.581116f,
+                        85 to 428.113159f,
+                        96 to 428.113159f,
+                    ),
                 expectedVelocity = 5970.73f
             )
         )
@@ -312,24 +326,25 @@ class VelocityTracker1DTest : BaseTest() {
     fun sailfishFlingUpSlow_xValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    235089067 to 528.0f,
-                    235089084 to 527.0f,
-                    235089093 to 527.0f,
-                    235089095 to 527.0f,
-                    235089101 to 527.0f,
-                    235089110 to 528.0f,
-                    235089112 to 528.25f,
-                    235089118 to 531.0f,
-                    235089126 to 535.0f,
-                    235089129 to 536.33f,
-                    235089135 to 540.0f,
-                    235089144 to 546.0f,
-                    235089146 to 547.21f,
-                    235089152 to 553.0f,
-                    235089160 to 559.0f,
-                    235089162 to 560.66f,
-                ),
+                dataPoints =
+                    listOf(
+                        235089067 to 528.0f,
+                        235089084 to 527.0f,
+                        235089093 to 527.0f,
+                        235089095 to 527.0f,
+                        235089101 to 527.0f,
+                        235089110 to 528.0f,
+                        235089112 to 528.25f,
+                        235089118 to 531.0f,
+                        235089126 to 535.0f,
+                        235089129 to 536.33f,
+                        235089135 to 540.0f,
+                        235089144 to 546.0f,
+                        235089146 to 547.21f,
+                        235089152 to 553.0f,
+                        235089160 to 559.0f,
+                        235089162 to 560.66f,
+                    ),
                 expectedVelocity = 764.34f,
             )
         )
@@ -339,24 +354,25 @@ class VelocityTracker1DTest : BaseTest() {
     fun sailfishFlingUpSlow_yValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    235089067 to 983.0f,
-                    235089084 to 981.0f,
-                    235089093 to 977.0f,
-                    235089095 to 975.93f,
-                    235089101 to 970.0f,
-                    235089110 to 960.0f,
-                    235089112 to 957.51f,
-                    235089118 to 946.0f,
-                    235089126 to 931.0f,
-                    235089129 to 926.02f,
-                    235089135 to 914.0f,
-                    235089144 to 896.0f,
-                    235089146 to 892.36f,
-                    235089152 to 877.0f,
-                    235089160 to 851.0f,
-                    235089162 to 843.82f,
-                ),
+                dataPoints =
+                    listOf(
+                        235089067 to 983.0f,
+                        235089084 to 981.0f,
+                        235089093 to 977.0f,
+                        235089095 to 975.93f,
+                        235089101 to 970.0f,
+                        235089110 to 960.0f,
+                        235089112 to 957.51f,
+                        235089118 to 946.0f,
+                        235089126 to 931.0f,
+                        235089129 to 926.02f,
+                        235089135 to 914.0f,
+                        235089144 to 896.0f,
+                        235089146 to 892.36f,
+                        235089152 to 877.0f,
+                        235089160 to 851.0f,
+                        235089162 to 843.82f,
+                    ),
                 expectedVelocity = -3604.82f,
             )
         )
@@ -368,17 +384,18 @@ class VelocityTracker1DTest : BaseTest() {
         // data ponits "repeated"
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    920922 to 561.0f,
-                    920930 to 559.0f,
-                    920938 to 559.0f,
-                    920947 to 562.91f,
-                    920955 to 577.0f,
-                    920963 to 596.87f,
-                    920972 to 631.0f,
-                    920980 to 671.31f,
-                    920989 to 715.0f,
-                ),
+                dataPoints =
+                    listOf(
+                        920922 to 561.0f,
+                        920930 to 559.0f,
+                        920938 to 559.0f,
+                        920947 to 562.91f,
+                        920955 to 577.0f,
+                        920963 to 596.87f,
+                        920972 to 631.0f,
+                        920980 to 671.31f,
+                        920989 to 715.0f,
+                    ),
                 expectedVelocity = 5670.32f,
             )
         )
@@ -390,17 +407,18 @@ class VelocityTracker1DTest : BaseTest() {
         // data ponits "repeated"
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints = listOf(
-                    920922 to 1412.0f,
-                    920930 to 1377.0f,
-                    920938 to 1371.0f,
-                    920947 to 1342.68f,
-                    920955 to 1272.0f,
-                    920963 to 1190.54f,
-                    920972 to 1093.0f,
-                    920980 to 994.68f,
-                    920989 to 903.0f,
-                ),
+                dataPoints =
+                    listOf(
+                        920922 to 1412.0f,
+                        920930 to 1377.0f,
+                        920938 to 1371.0f,
+                        920947 to 1342.68f,
+                        920955 to 1272.0f,
+                        920963 to 1190.54f,
+                        920972 to 1093.0f,
+                        920980 to 994.68f,
+                        920989 to 903.0f,
+                    ),
                 expectedVelocity = -13021.10f,
             )
         )
@@ -409,14 +427,12 @@ class VelocityTracker1DTest : BaseTest() {
     private fun checkTestCase(testCase: VelocityTrackingTestCase) {
         val expectedVelocity = testCase.expectedVelocity
         val tracker = VelocityTracker1D()
-        testCase.dataPoints.forEach {
-            tracker.addDataPoint(it.first.toLong(), it.second)
-        }
+        testCase.dataPoints.forEach { tracker.addDataPoint(it.first.toLong(), it.second) }
 
         Truth.assertWithMessage(
-            "Wrong velocity for data points: ${testCase.dataPoints}" +
-                "\nExpected velocity: {$expectedVelocity}"
-        )
+                "Wrong velocity for data points: ${testCase.dataPoints}" +
+                    "\nExpected velocity: {$expectedVelocity}"
+            )
             .that(tracker.calculateVelocity())
             .isWithin(abs(expectedVelocity) * Tolerance)
             .of(expectedVelocity)

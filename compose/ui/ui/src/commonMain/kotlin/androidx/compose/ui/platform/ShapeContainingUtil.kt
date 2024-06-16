@@ -26,8 +26,8 @@ import androidx.compose.ui.graphics.PathOperation
 /**
  * Returns `true` if ([x], [y]) is within [outline]. For some outlines that don't require a [Path],
  * the exact point is used to calculate whether the point is inside [outline]. When a [Path] is
- * required, a 0.01 x 0.01 box around ([x], [y]) is used to intersect with the path to determine
- * the result.
+ * required, a 0.01 x 0.01 box around ([x], [y]) is used to intersect with the path to determine the
+ * result.
  *
  * The [tmpTouchPointPath] and [tmpOpPath] are temporary Paths that are cleared after use and will
  * be used in the calculation of the intersection. These must be empty when passed as parameters or
@@ -39,18 +39,17 @@ internal fun isInOutline(
     y: Float,
     tmpTouchPointPath: Path? = null,
     tmpOpPath: Path? = null
-): Boolean = when (outline) {
-    is Outline.Rectangle -> isInRectangle(outline.rect, x, y)
-    is Outline.Rounded -> isInRoundedRect(outline, x, y, tmpTouchPointPath, tmpOpPath)
-    is Outline.Generic -> isInPath(outline.path, x, y, tmpTouchPointPath, tmpOpPath)
-}
+): Boolean =
+    when (outline) {
+        is Outline.Rectangle -> isInRectangle(outline.rect, x, y)
+        is Outline.Rounded -> isInRoundedRect(outline, x, y, tmpTouchPointPath, tmpOpPath)
+        is Outline.Generic -> isInPath(outline.path, x, y, tmpTouchPointPath, tmpOpPath)
+    }
 
 private fun isInRectangle(rect: Rect, x: Float, y: Float) =
     rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom
 
-/**
- * Returns `true` if ([x], [y]) is within [outline].
- */
+/** Returns `true` if ([x], [y]) is within [outline]. */
 private fun isInRoundedRect(
     outline: Outline.Rounded,
     x: Float,
@@ -104,13 +103,14 @@ private fun isInRoundedRect(
 }
 
 /**
- * Returns `true` if the rounded rectangle has rounded corners that fit within the sides or
- * `false` if the rounded sides add up to a greater size that a side.
+ * Returns `true` if the rounded rectangle has rounded corners that fit within the sides or `false`
+ * if the rounded sides add up to a greater size that a side.
  */
-private fun RoundRect.cornersFit() = topLeftCornerRadius.x + topRightCornerRadius.x <= width &&
-    bottomLeftCornerRadius.x + bottomRightCornerRadius.x <= width &&
-    topLeftCornerRadius.y + bottomLeftCornerRadius.y <= height &&
-    topRightCornerRadius.y + bottomRightCornerRadius.y <= height
+private fun RoundRect.cornersFit() =
+    topLeftCornerRadius.x + topRightCornerRadius.x <= width &&
+        bottomLeftCornerRadius.x + bottomRightCornerRadius.x <= width &&
+        topLeftCornerRadius.y + bottomLeftCornerRadius.y <= height &&
+        topRightCornerRadius.y + bottomRightCornerRadius.y <= height
 
 /**
  * Used to determine whether a point is within a rounded corner, this returns `true` if the point
@@ -147,9 +147,7 @@ private fun isInPath(
 ): Boolean {
     val rect = Rect(x - 0.005f, y - 0.005f, x + 0.005f, y + 0.005f)
     val touchPointPath = tmpTouchPointPath ?: Path()
-    touchPointPath.addRect(
-        rect
-    )
+    touchPointPath.addRect(rect)
 
     val opPath = tmpOpPath ?: Path()
     opPath.op(path, touchPointPath, PathOperation.Intersect)

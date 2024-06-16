@@ -37,15 +37,16 @@ class SavedStateRegistryTest {
     @Test
     fun saveRestoreFlow() {
         startFlow { registry ->
-            registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
-            registry.registerSavedStateProvider("b") { bundleOf("foo", 2) }
-        }.recreateAndCheck { registry ->
-            val bundleForA = registry.consumeRestoredStateForKey("a")
-            val bundleForB = registry.consumeRestoredStateForKey("b")
-            assertThat(bundleForA.isSame(bundleOf("foo", 1))).isTrue()
-            assertThat(bundleForA.isSame(bundleOf("foo", 1))).isTrue()
-            assertThat(bundleForB.isSame(bundleOf("foo", 2))).isTrue()
-        }
+                registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
+                registry.registerSavedStateProvider("b") { bundleOf("foo", 2) }
+            }
+            .recreateAndCheck { registry ->
+                val bundleForA = registry.consumeRestoredStateForKey("a")
+                val bundleForB = registry.consumeRestoredStateForKey("b")
+                assertThat(bundleForA.isSame(bundleOf("foo", 1))).isTrue()
+                assertThat(bundleForA.isSame(bundleOf("foo", 1))).isTrue()
+                assertThat(bundleForB.isSame(bundleOf("foo", 2))).isTrue()
+            }
     }
 
     @UiThreadTest
@@ -65,54 +66,54 @@ class SavedStateRegistryTest {
     @UiThreadTest
     @Test
     fun consumeSameTwice() {
-        startFlow { registry ->
-            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-        }.recreateAndCheck { registry ->
-            assertThat(registry.consumeRestoredStateForKey("a").isSame(bundleOf("key", "fo")))
-                .isTrue()
-            assertThat(registry.consumeRestoredStateForKey("a")).isNull()
-        }
+        startFlow { registry -> registry.registerSavedStateProvider("a") { bundleOf("key", "fo") } }
+            .recreateAndCheck { registry ->
+                assertThat(registry.consumeRestoredStateForKey("a").isSame(bundleOf("key", "fo")))
+                    .isTrue()
+                assertThat(registry.consumeRestoredStateForKey("a")).isNull()
+            }
     }
 
     @UiThreadTest
     @Test
     fun unregister() {
         startFlow { registry ->
-            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-            registry.unregisterSavedStateProvider("a")
-            // this call should succeed
-            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-            registry.unregisterSavedStateProvider("a")
-        }.recreateAndCheck { registry ->
-            assertThat(registry.consumeRestoredStateForKey("a")).isNull()
-        }
+                registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
+                registry.unregisterSavedStateProvider("a")
+                // this call should succeed
+                registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
+                registry.unregisterSavedStateProvider("a")
+            }
+            .recreateAndCheck { registry ->
+                assertThat(registry.consumeRestoredStateForKey("a")).isNull()
+            }
     }
 
     @UiThreadTest
     @Test
     fun unconsumedSavedState() {
-        startFlow { registry ->
-            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-        }.recreateAndCheck {
-            // so we don't consume anything after restoration
-        }.recreateAndCheck { registry ->
-            assertThat(registry.consumeRestoredStateForKey("a").isSame(bundleOf("key", "fo")))
-                .isTrue()
-        }
+        startFlow { registry -> registry.registerSavedStateProvider("a") { bundleOf("key", "fo") } }
+            .recreateAndCheck {
+                // so we don't consume anything after restoration
+            }
+            .recreateAndCheck { registry ->
+                assertThat(registry.consumeRestoredStateForKey("a").isSame(bundleOf("key", "fo")))
+                    .isTrue()
+            }
     }
 
     @UiThreadTest
     @Test
     fun unconsumedSavedStateClashWithCallback() {
-        startFlow { registry ->
-            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-        }.recreateAndCheck { intermediateRegistry ->
-            // there is unconsumed value for "a"
-            intermediateRegistry.registerSavedStateProvider("a") { bundleOf("key", "ba") }
-        }.recreateAndCheck { registry ->
-            assertThat(registry.consumeRestoredStateForKey("a").isSame(bundleOf("key", "ba")))
-                .isTrue()
-        }
+        startFlow { registry -> registry.registerSavedStateProvider("a") { bundleOf("key", "fo") } }
+            .recreateAndCheck { intermediateRegistry ->
+                // there is unconsumed value for "a"
+                intermediateRegistry.registerSavedStateProvider("a") { bundleOf("key", "ba") }
+            }
+            .recreateAndCheck { registry ->
+                assertThat(registry.consumeRestoredStateForKey("a").isSame(bundleOf("key", "ba")))
+                    .isTrue()
+            }
     }
 
     @UiThreadTest
@@ -138,17 +139,19 @@ class SavedStateRegistryTest {
     @Test
     fun sneakClass() {
         startFlow { registry ->
-            @Suppress("UNCHECKED_CAST")
-            val sneak = ErrorInStaticBlock::class.java as Class<SavedStateRegistry.AutoRecreated>
-            registry.runOnNextRecreation(sneak)
-        }.recreate { owner ->
-            try {
-                owner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-                Assert.fail()
-            } catch (e: Exception) {
-                assertThat(e).isInstanceOf(ClassCastException::class.java)
+                @Suppress("UNCHECKED_CAST")
+                val sneak =
+                    ErrorInStaticBlock::class.java as Class<SavedStateRegistry.AutoRecreated>
+                registry.runOnNextRecreation(sneak)
             }
-        }
+            .recreate { owner ->
+                try {
+                    owner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+                    Assert.fail()
+                } catch (e: Exception) {
+                    assertThat(e).isInstanceOf(ClassCastException::class.java)
+                }
+            }
     }
 
     @UiThreadTest
@@ -177,9 +180,7 @@ class SavedStateRegistryTest {
         val owner = FakeSavedStateRegistryOwner()
         val outBundle = Bundle()
         owner.savedStateRegistryController.performSave(outBundle)
-        assertWithMessage("Bundle $outBundle should be empty")
-            .that(outBundle.isEmpty)
-            .isTrue()
+        assertWithMessage("Bundle $outBundle should be empty").that(outBundle.isEmpty).isTrue()
     }
 
     @UiThreadTest
@@ -218,8 +219,8 @@ class SavedStateRegistryTest {
         }
     }
 
-    private fun startFlow(block: (SavedStateRegistry) -> Unit) = TestFlow(null)
-        .recreateAndCheck(block)
+    private fun startFlow(block: (SavedStateRegistry) -> Unit) =
+        TestFlow(null).recreateAndCheck(block)
 }
 
 private class ToBeRecreated : SavedStateRegistry.AutoRecreated {
@@ -234,6 +235,7 @@ private class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {
 
     override val lifecycle
         get() = lifecycleRegistry
+
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 }

@@ -31,22 +31,20 @@ public inline fun <reified T : Any> Context.getSystemService(): T? =
     ContextCompat.getSystemService(this, T::class.java)
 
 /**
- * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the attribute
- * values in [set] that are listed in [attrs]. In addition, if the given [AttributeSet]
- * specifies a style class (through the `style` attribute), that style will be applied
- * on top of the base attributes it defines.
+ * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the attribute values in [set]
+ * that are listed in [attrs]. In addition, if the given [AttributeSet] specifies a style class
+ * (through the `style` attribute), that style will be applied on top of the base attributes it
+ * defines.
  *
  * @param set The base set of attribute values.
- * @param attrs The desired attributes to be retrieved. These attribute IDs must be
- *              sorted in ascending order.
- * @param defStyleAttr An attribute in the current theme that contains a reference to
- *                     a style resource that supplies defaults values for the [TypedArray].
- *                     Can be 0 to not look for defaults.
- * @param defStyleRes A resource identifier of a style resource that supplies default values
- *                    for the [TypedArray], used only if [defStyleAttr] is 0 or can not be found
- *                     in the theme. Can be 0 to not look for defaults.
+ * @param attrs The desired attributes to be retrieved. These attribute IDs must be sorted in
+ *   ascending order.
+ * @param defStyleAttr An attribute in the current theme that contains a reference to a style
+ *   resource that supplies defaults values for the [TypedArray]. Can be 0 to not look for defaults.
+ * @param defStyleRes A resource identifier of a style resource that supplies default values for the
+ *   [TypedArray], used only if [defStyleAttr] is 0 or can not be found in the theme. Can be 0 to
+ *   not look for defaults.
  * @param block The block that will be executed.
- *
  * @see Context.obtainStyledAttributes
  * @see android.content.res.Resources.Theme.obtainStyledAttributes
  */
@@ -61,13 +59,12 @@ public inline fun Context.withStyledAttributes(
 }
 
 /**
- * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the the values
- * defined by the style resource [resourceId] which are listed in [attrs].
+ * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the values defined by the
+ * style resource [resourceId] which are listed in [attrs].
  *
  * @param resourceId The desired style resource.
  * @param attrs The desired attributes. These attribute IDs must be sorted in ascending order.
  * @param block The block that will be executed.
- *
  * @see Context.obtainStyledAttributes
  * @see android.content.res.Resources.Theme.obtainStyledAttributes
  */

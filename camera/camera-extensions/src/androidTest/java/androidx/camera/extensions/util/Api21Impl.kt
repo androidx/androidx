@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.extensions.util
 
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 
-/**
- * Helper class to prevent class verification failures at API level 21.
- */
+/** Helper class to prevent class verification failures at API level 21. */
 object Api21Impl {
 
-    @DoNotInline
-    @JvmStatic
-    fun CameraDevice.toCameraDeviceWrapper() = CameraDeviceWrapper(this)
+    @DoNotInline @JvmStatic fun CameraDevice.toCameraDeviceWrapper() = CameraDeviceWrapper(this)
 
     class CameraDeviceWrapper(private val cameraDevice: CameraDevice) {
 
-        @DoNotInline
-        fun unwrap(): CameraDevice = cameraDevice
+        @DoNotInline fun unwrap(): CameraDevice = cameraDevice
 
         @DoNotInline
         fun close() {

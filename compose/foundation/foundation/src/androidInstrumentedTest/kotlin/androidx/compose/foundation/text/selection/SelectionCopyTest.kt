@@ -47,8 +47,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
 class SelectionCopyTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val fontFamily = TEST_FONT_FAMILY
     private val fontSize = 20.sp
@@ -121,16 +120,12 @@ class SelectionCopyTest {
     private fun TestContent(textContent: String) {
         SelectionContainer(
             selection = selection.value,
-            onSelectionChange = {
-                selection.value = it
-            },
+            onSelectionChange = { selection.value = it },
             modifier = Modifier.fillMaxSize(),
         ) {
             BasicText(
                 text = textContent,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .testTag(textTag),
+                modifier = Modifier.wrapContentSize().testTag(textTag),
                 style = testTextStyle
             )
         }

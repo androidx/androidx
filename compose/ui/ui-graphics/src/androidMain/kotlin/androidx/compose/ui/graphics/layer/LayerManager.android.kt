@@ -19,67 +19,73 @@ package androidx.compose.ui.graphics.layer
 import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.M
 import android.os.Looper
 import android.os.Message
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.collection.ObjectList
-import androidx.collection.mutableObjectListOf
+import androidx.collection.ScatterSet
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.core.os.HandlerCompat
 
 /**
- * Class responsible for managing the layer lifecycle to support
- * persisting of displaylist content. HWUI aggressively releases resources
- * from a displaylist if it is not used to render a single frame from a HardwareRenderer
- * instance
+ * Class responsible for managing the layer lifecycle to support persisting of displaylist content.
+ * HWUI aggressively releases resources from a displaylist if it is not used to render a single
+ * frame from a HardwareRenderer instance
  */
 internal class LayerManager(val canvasHolder: CanvasHolder) {
 
-    private val layerList = mutableObjectListOf<GraphicsLayer>()
+    private val activeLayerSet = mutableScatterSetOf<GraphicsLayer>()
+    private val nonActiveLayerCache = WeakCache<GraphicsLayer>()
 
     /**
-     * Create a placeholder ImageReader instance that we will use to issue a single draw call
-     * for each GraphicsLayer. This placeholder draw will increase the ref count of each
-     * RenderNode instance within HWUI therefore persisting it across frames as there is
-     * another internal CanvasContext instance owned by the internal HwuiContext instance of
-     * a Surface
+     * Create a placeholder ImageReader instance that we will use to issue a single draw call for
+     * each GraphicsLayer. This placeholder draw will increase the ref count of each RenderNode
+     * instance within HWUI therefore persisting it across frames as there is another internal
+     * CanvasContext instance owned by the internal HwuiContext instance of a Surface
      */
     private var imageReader: ImageReader? = null
 
-    private val handler = HandlerCompat.createAsync(Looper.getMainLooper()) {
-        persistLayers(layerList)
-        true
-    }
+    private val handler =
+        HandlerCompat.createAsync(Looper.getMainLooper()) {
+            persistLayers(activeLayerSet)
+            true
+        }
+
+    fun takeFromCache(ownerId: Long): GraphicsLayer? =
+        nonActiveLayerCache.pop()?.also { it.reuse(ownerId) }
 
     fun persist(layer: GraphicsLayer) {
-        if (!layerList.contains(layer)) {
-            layerList.add(layer)
-            if (!handler.hasMessages(0)) {
-                // we don't run persistLayers() synchronously in order to do less work as there
-                // might be a lot of new layers created during one frame. however we also want
-                // to execute it as soon as possible to be able to persist the layers before
-                // they discard their content. it is possible that there is some other work
-                // scheduled on the main thread which is going to change what layers are drawn.
-                // we use sendMessageAtFrontOfQueue() in order to be executed before that.
-                handler.sendMessageAtFrontOfQueue(Message.obtain())
-            }
+        activeLayerSet.add(layer)
+        if (!handler.hasMessages(0)) {
+            // we don't run persistLayers() synchronously in order to do less work as there
+            // might be a lot of new layers created during one frame. however we also want
+            // to execute it as soon as possible to be able to persist the layers before
+            // they discard their content. it is possible that there is some other work
+            // scheduled on the main thread which is going to change what layers are drawn.
+            // we use sendMessageAtFrontOfQueue() in order to be executed before that.
+            handler.sendMessageAtFrontOfQueue(Message.obtain())
         }
     }
 
     fun release(layer: GraphicsLayer) {
-        if (layerList.remove(layer)) {
+        if (activeLayerSet.remove(layer)) {
             layer.discardDisplayList()
+            if (SDK_INT >= M) { // L throws during RenderThread when reusing the Views.
+                nonActiveLayerCache.push(layer)
+            }
         }
     }
 
-    private fun persistLayers(layers: ObjectList<GraphicsLayer>) {
+    private fun persistLayers(layers: ScatterSet<GraphicsLayer>) {
         /**
          * Create a placeholder ImageReader instance that we will use to issue a single draw call
          * for each GraphicsLayer. This placeholder draw will increase the ref count of each
-         * RenderNode instance within HWUI therefore persisting it across frames as there is
-         * another internal CanvasContext instance owned by the internal HwuiContext instance of
-         * a Surface. This is only necessary for Android M and above.
+         * RenderNode instance within HWUI therefore persisting it across frames as there is another
+         * internal CanvasContext instance owned by the internal HwuiContext instance of a Surface.
+         * This is only necessary for Android M and above.
          */
         val requiredOsVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
         // On Robolectric even Surface#lockHardwareCanvas is not hardware accelerated and
@@ -89,16 +95,20 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         // See b/340578758
         val shouldPersistLayers = requiredOsVersion && layers.isNotEmpty() && !isRobolectric
         if (shouldPersistLayers) {
-            val reader = imageReader ?: ImageReader.newInstance(
-                1,
-                1,
-                PixelFormat.RGBA_8888,
-                1
-            ).apply {
-                // We don't care about the result, but release the buffer back to the queue
-                // for subsequent renders to ensure the RenderThread is free as much as possible
-                setOnImageAvailableListener({ it?.acquireLatestImage()?.close() }, handler)
-            }.also { imageReader = it }
+            val reader =
+                imageReader
+                    ?: ImageReader.newInstance(1, 1, PixelFormat.RGBA_8888, 1)
+                        .apply {
+                            // We don't care about the result, but release the buffer back to the
+                            // queue
+                            // for subsequent renders to ensure the RenderThread is free as much as
+                            // possible
+                            setOnImageAvailableListener(
+                                { it?.acquireLatestImage()?.close() },
+                                handler
+                            )
+                        }
+                        .also { imageReader = it }
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
 
@@ -117,19 +127,21 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         imageReader = null
     }
 
+    fun hasImageReader(): Boolean = imageReader != null
+
     /**
-     * Discards the corresponding ImageReader used to increment the ref count of each layer
-     * and persists the current layer list creating a new ImageReader. This is useful in scenarios
-     * where HWUI releases graphics resources in response to onTrimMemory often when the application
-     * is backgrounded
+     * Discards the corresponding ImageReader used to increment the ref count of each layer and
+     * persists the current layer list creating a new ImageReader. This is useful in scenarios where
+     * HWUI releases graphics resources in response to onTrimMemory often when the application is
+     * backgrounded
      */
     fun updateLayerPersistence() {
         destroy()
-        persistLayers(layerList)
+        persistLayers(activeLayerSet)
     }
 
     companion object {
-        private val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
+        val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
     }
 }
 
@@ -137,6 +149,5 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
 private object LockHardwareCanvasHelper {
 
     @androidx.annotation.DoNotInline
-    fun lockHardwareCanvas(surface: Surface): android.graphics.Canvas =
-        surface.lockHardwareCanvas()
+    fun lockHardwareCanvas(surface: Surface): android.graphics.Canvas = surface.lockHardwareCanvas()
 }

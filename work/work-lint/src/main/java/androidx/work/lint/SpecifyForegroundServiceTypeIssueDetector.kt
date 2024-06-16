@@ -44,31 +44,35 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
     private val knownServiceTypes = mutableSetOf<String>()
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "SpecifyForegroundServiceType",
-            briefDescription = "Specify foreground service type",
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "SpecifyForegroundServiceType",
+                briefDescription = "Specify foreground service type",
+                explanation =
+                    """
                 When using the setForegroundAsync() API, the application must override <service /> \
                 entry for `SystemForegroundService` to include the foreground service type in the \
                  `AndroidManifest.xml` file.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                SpecifyForegroundServiceTypeIssueDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(
+                        SpecifyForegroundServiceTypeIssueDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
+                    )
             )
-        )
 
-        private val SERVICE_TYPE_MAPPING = mapOf(
-            1 to "dataSync",
-            2 to "mediaPlayback",
-            4 to "phoneCall",
-            8 to "location",
-            16 to "connectedDevice",
-            32 to "mediaProjection"
-        )
+        private val SERVICE_TYPE_MAPPING =
+            mapOf(
+                1 to "dataSync",
+                2 to "mediaPlayback",
+                4 to "phoneCall",
+                8 to "location",
+                16 to "connectedDevice",
+                32 to "mediaProjection"
+            )
     }
 
     override fun getApplicableConstructorTypes() = listOf("androidx.work.ForegroundInfo")
@@ -99,8 +103,9 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
                             context.report(
                                 issue = ISSUE,
                                 location = context.getLocation(node),
-                                message = "Missing $name foregroundServiceType in " +
-                                    "the AndroidManifest.xml"
+                                message =
+                                    "Missing $name foregroundServiceType in " +
+                                        "the AndroidManifest.xml"
                             )
                         }
                     }

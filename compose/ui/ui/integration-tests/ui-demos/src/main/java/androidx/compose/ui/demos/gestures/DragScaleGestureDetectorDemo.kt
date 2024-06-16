@@ -35,9 +35,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple demo that shows off how [detectTransformGestures] automatically pans and zooms.
- */
+/** Simple demo that shows off how [detectTransformGestures] automatically pans and zooms. */
 @Composable
 fun DragAndScaleGestureFilterDemo() {
     val size = remember { mutableStateOf(200.dp) }

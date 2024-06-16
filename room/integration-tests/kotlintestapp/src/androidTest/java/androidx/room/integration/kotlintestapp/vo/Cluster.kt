@@ -20,9 +20,6 @@ import androidx.room.Relation
 
 class Cluster(
     @field:Embedded val mHivemind: Hivemind,
-    @field:Relation(
-        parentColumn = "mId",
-        entity = Robot::class,
-        entityColumn = "mHiveId"
-    ) val mRobotList: List<Robot>
+    @field:Relation(parentColumn = "mId", entity = Robot::class, entityColumn = "mHiveId")
+    val mRobotList: List<Robot>
 )

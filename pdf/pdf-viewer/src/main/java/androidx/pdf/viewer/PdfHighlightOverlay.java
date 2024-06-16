@@ -16,6 +16,7 @@
 
 package androidx.pdf.viewer;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
@@ -31,17 +32,17 @@ import androidx.pdf.util.RectDrawSpec;
 public class PdfHighlightOverlay extends HighlightOverlay {
 
     /** Highlights the selection blue. */
-    public PdfHighlightOverlay(PageSelection selection) {
+    public PdfHighlightOverlay(@NonNull PageSelection selection) {
         super(new RectDrawSpec(HighlightPaint.SELECTION, selection.getRects()));
     }
 
     /** Highlights all the matches yellow. */
-    public PdfHighlightOverlay(MatchRects matchRects) {
+    public PdfHighlightOverlay(@NonNull MatchRects matchRects) {
         super(new RectDrawSpec(HighlightPaint.MATCH, matchRects.flatten()));
     }
 
     /** Highlights the current match orange, and all the other matches yellow. */
-    public PdfHighlightOverlay(MatchRects matchRects, int currentMatch) {
+    public PdfHighlightOverlay(@NonNull MatchRects matchRects, int currentMatch) {
         super(
                 new RectDrawSpec(HighlightPaint.CURRENT_MATCH, matchRects.get(currentMatch)),
                 new RectDrawSpec(HighlightPaint.MATCH,

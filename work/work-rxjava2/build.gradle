@@ -46,6 +46,7 @@ androidx {
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

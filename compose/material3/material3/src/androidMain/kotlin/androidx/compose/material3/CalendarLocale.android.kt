@@ -24,9 +24,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.os.ConfigurationCompat
 import java.util.Locale
 
-/**
- * Returns the default [CalendarLocale].
- */
+/** Returns the default [CalendarLocale]. */
 @Composable
 @ReadOnlyComposable
 @OptIn(ExperimentalMaterial3Api::class)

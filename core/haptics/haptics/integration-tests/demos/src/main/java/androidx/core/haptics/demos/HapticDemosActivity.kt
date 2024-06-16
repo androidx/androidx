@@ -28,9 +28,7 @@ import androidx.core.haptics.signal.WaveformSignal.Companion.off
 import androidx.core.haptics.signal.WaveformSignal.Companion.on
 import androidx.core.haptics.signal.WaveformSignal.Companion.waveformOf
 
-/**
- * Demonstrations of multiple haptic signal samples.
- */
+/** Demonstrations of multiple haptic signal samples. */
 class HapticDemosActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,27 +66,26 @@ class HapticDemosActivity : AppCompatActivity() {
         findViewById<Button>(R.id.repeating_waveform_btn).setOnClickListener {
             hapticManager.play(
                 waveformOf(
-                    on(durationMillis = 20),
-                    off(durationMillis = 50),
-                    on(durationMillis = 20),
-                ).thenRepeat(
-                    // 500ms off
-                    off(durationMillis = 500),
-                    // 600ms ramp up with 50% increments
-                    on(durationMillis = 100, amplitude = 0.1f),
-                    on(durationMillis = 100, amplitude = 0.15f),
-                    on(durationMillis = 100, amplitude = 0.22f),
-                    on(durationMillis = 100, amplitude = 0.34f),
-                    on(durationMillis = 100, amplitude = 0.51f),
-                    on(durationMillis = 100, amplitude = 0.76f),
-                    // 400ms at max amplitude
-                    on(durationMillis = 400, amplitude = 1f),
-                ),
+                        on(durationMillis = 20),
+                        off(durationMillis = 50),
+                        on(durationMillis = 20),
+                    )
+                    .thenRepeat(
+                        // 500ms off
+                        off(durationMillis = 500),
+                        // 600ms ramp up with 50% increments
+                        on(durationMillis = 100, amplitude = 0.1f),
+                        on(durationMillis = 100, amplitude = 0.15f),
+                        on(durationMillis = 100, amplitude = 0.22f),
+                        on(durationMillis = 100, amplitude = 0.34f),
+                        on(durationMillis = 100, amplitude = 0.51f),
+                        on(durationMillis = 100, amplitude = 0.76f),
+                        // 400ms at max amplitude
+                        on(durationMillis = 400, amplitude = 1f),
+                    ),
                 HapticAttributes(HapticAttributes.USAGE_RINGTONE),
             )
         }
-        findViewById<Button>(R.id.cancel_btn).setOnClickListener {
-            hapticManager.cancel()
-        }
+        findViewById<Button>(R.id.cancel_btn).setOnClickListener { hapticManager.cancel() }
     }
 }

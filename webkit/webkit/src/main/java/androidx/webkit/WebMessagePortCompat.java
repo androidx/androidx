@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.os.Handler;
 import android.webkit.WebMessagePort;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -33,7 +34,7 @@ import java.lang.reflect.InvocationHandler;
  * HTML5 message ports.</a>
  *
  * <p>A Message port represents one endpoint of a Message Channel. In Android
- * webview, there is no separate Message Channel object. When a message channel
+ * WebView, there is no separate Message Channel object. When a message channel
  * is created, both ports are tangled to each other and started, and then
  * returned in a MessagePort array, see {@link WebViewCompat#createWebMessageChannel}
  * for creating a message channel.
@@ -55,6 +56,7 @@ import java.lang.reflect.InvocationHandler;
  * <p>It is possible to transfer both ports of a channel to JS, for example for
  * communication between subframes.
  */
+@AnyThread
 public abstract class WebMessagePortCompat {
     /**
      * The listener for handling MessagePort events. The message callback

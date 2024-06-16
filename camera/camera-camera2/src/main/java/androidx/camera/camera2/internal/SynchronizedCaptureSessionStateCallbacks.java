@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SynchronizedCaptureSessionStateCallbacks extends
         SynchronizedCaptureSession.StateCallback {
 
@@ -107,7 +106,6 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         }
     }
 
-    @RequiresApi(21)
     static class Adapter extends SynchronizedCaptureSession.StateCallback {
         @NonNull
         private final CameraCaptureSession.StateCallback mCameraCaptureSessionStateCallback;

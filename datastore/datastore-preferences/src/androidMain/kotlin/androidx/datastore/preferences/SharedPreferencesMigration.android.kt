@@ -34,15 +34,15 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 /**
  * Creates a SharedPreferencesMigration for DataStore<Preferences>.
  *
- * Note: This migration only supports the basic SharedPreferences types: boolean, float, int,
- * long, string and string set. If the result of getAll contains other types, they will be ignored.
+ * Note: This migration only supports the basic SharedPreferences types: boolean, float, int, long,
+ * string and string set. If the result of getAll contains other types, they will be ignored.
  *
  * @param produceSharedPreferences Should return the instance of SharedPreferences to migrate from.
  * @param keysToMigrate The list of keys to migrate. The keys will be mapped to
- * datastore.Preferences with their same values. If the key is already present in the new
- * Preferences, the key will not be migrated again. If the key is not present in the
- * SharedPreferences it will not be migrated. If keysToMigrate is not set, all keys will be
- * migrated from the existing SharedPreferences.
+ *   datastore.Preferences with their same values. If the key is already present in the new
+ *   Preferences, the key will not be migrated again. If the key is not present in the
+ *   SharedPreferences it will not be migrated. If keysToMigrate is not set, all keys will be
+ *   migrated from the existing SharedPreferences.
  */
 @JvmOverloads // Generate methods for default params for java users.
 public fun SharedPreferencesMigration(
@@ -73,10 +73,10 @@ public fun SharedPreferencesMigration(
  * @param context Context used for getting SharedPreferences.
  * @param sharedPreferencesName The name of the SharedPreferences.
  * @param keysToMigrate The list of keys to migrate. The keys will be mapped to
- * datastore.Preferences with their same values. If the key is already present in the new
- * Preferences, the key will not be migrated again. If the key is not present in the
- * SharedPreferences it will not be migrated. If keysToMigrate is not set, all keys will be
- * migrated from the existing SharedPreferences.
+ *   datastore.Preferences with their same values. If the key is already present in the new
+ *   Preferences, the key will not be migrated again. If the key is not present in the
+ *   SharedPreferences it will not be migrated. If keysToMigrate is not set, all keys will be
+ *   migrated from the existing SharedPreferences.
  */
 @JvmOverloads // Generate methods for default params for java users.
 public fun SharedPreferencesMigration(
@@ -113,26 +113,14 @@ private fun getMigrationFunction(): suspend (SharedPreferencesView, Preferences)
         val mutablePreferences = currentData.toMutablePreferences()
         for ((key, value) in filteredSharedPreferences) {
             when (value) {
-                is Boolean -> mutablePreferences[
-                    booleanPreferencesKey(key)
-                ] = value
-                is Float -> mutablePreferences[
-                    floatPreferencesKey(key)
-                ] = value
-                is Int -> mutablePreferences[
-                    intPreferencesKey(key)
-                ] = value
-                is Long -> mutablePreferences[
-                    longPreferencesKey(key)
-                ] = value
-                is String -> mutablePreferences[
-                    stringPreferencesKey(key)
-                ] = value
+                is Boolean -> mutablePreferences[booleanPreferencesKey(key)] = value
+                is Float -> mutablePreferences[floatPreferencesKey(key)] = value
+                is Int -> mutablePreferences[intPreferencesKey(key)] = value
+                is Long -> mutablePreferences[longPreferencesKey(key)] = value
+                is String -> mutablePreferences[stringPreferencesKey(key)] = value
                 is Set<*> -> {
                     @Suppress("UNCHECKED_CAST")
-                    mutablePreferences[
-                        stringSetPreferencesKey(key)
-                    ] = value as Set<String>
+                    mutablePreferences[stringSetPreferencesKey(key)] = value as Set<String>
                 }
             }
         }

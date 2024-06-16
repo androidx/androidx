@@ -66,26 +66,29 @@ class SignalGeneratorViewModelTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var viewModel: SignalGeneratorViewModel
     private lateinit var lifecycleOwner: FakeLifecycleOwner
-    private val fakeViewModelStoreOwner = object : ViewModelStoreOwner {
-        private val vmStore = ViewModelStore()
+    private val fakeViewModelStoreOwner =
+        object : ViewModelStoreOwner {
+            private val vmStore = ViewModelStore()
 
-        override val viewModelStore = vmStore
+            override val viewModelStore = vmStore
 
-        fun clear() {
-            vmStore.clear()
+            fun clear() {
+                vmStore.clear()
+            }
         }
-    }
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     @get:Rule
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.RECORD_AUDIO
-    )
+    val grantPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.RECORD_AUDIO
+        )
 
     @Before
     fun setUp(): Unit = runBlocking {

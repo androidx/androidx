@@ -26,23 +26,15 @@ import androidx.compose.ui.graphics.colorspace.Rgb
 import androidx.compose.ui.graphics.colorspace.TransferParameters
 import androidx.compose.ui.graphics.colorspace.WhitePoint
 
-/**
- * Convert the Compose [ColorSpace] into an Android framework [android.graphics.ColorSpace]
- */
+/** Convert the Compose [ColorSpace] into an Android framework [android.graphics.ColorSpace] */
 @RequiresApi(Build.VERSION_CODES.O)
 fun ColorSpace.toAndroidColorSpace(): android.graphics.ColorSpace =
-        with(ColorSpaceVerificationHelper) {
-            androidColorSpace()
-        }
+    with(ColorSpaceVerificationHelper) { androidColorSpace() }
 
-/**
- * Convert the [android.graphics.ColorSpace] into a Compose [ColorSpace]
- */
+/** Convert the [android.graphics.ColorSpace] into a Compose [ColorSpace] */
 @RequiresApi(Build.VERSION_CODES.O)
 fun android.graphics.ColorSpace.toComposeColorSpace() =
-    with(ColorSpaceVerificationHelper) {
-        composeColorSpace()
-    }
+    with(ColorSpaceVerificationHelper) { composeColorSpace() }
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object ColorSpaceVerificationHelper {
@@ -73,19 +65,20 @@ private object ColorSpaceVerificationHelper {
                 if (this is Rgb) {
                     val whitePointArray = this.whitePoint.toXyz()
                     val transferParams = this.transferParameters
-                    val androidTransferParams = if (transferParams != null) {
-                        android.graphics.ColorSpace.Rgb.TransferParameters(
-                            transferParams.a,
-                            transferParams.b,
-                            transferParams.c,
-                            transferParams.d,
-                            transferParams.e,
-                            transferParams.f,
-                            transferParams.gamma
-                        )
-                    } else {
-                        null
-                    }
+                    val androidTransferParams =
+                        if (transferParams != null) {
+                            android.graphics.ColorSpace.Rgb.TransferParameters(
+                                transferParams.a,
+                                transferParams.b,
+                                transferParams.c,
+                                transferParams.d,
+                                transferParams.e,
+                                transferParams.f,
+                                transferParams.gamma
+                            )
+                        } else {
+                            null
+                        }
                     if (androidTransferParams != null) {
                         android.graphics.ColorSpace.Rgb(
                             this.name,
@@ -116,60 +109,47 @@ private object ColorSpaceVerificationHelper {
     @RequiresApi(Build.VERSION_CODES.O)
     fun android.graphics.ColorSpace.composeColorSpace(): ColorSpace {
         return when (this.id) {
-            android.graphics.ColorSpace.Named.SRGB.ordinal ->
-                ColorSpaces.Srgb
-            android.graphics.ColorSpace.Named.ACES.ordinal ->
-                ColorSpaces.Aces
-            android.graphics.ColorSpace.Named.ACESCG.ordinal ->
-                ColorSpaces.Acescg
-            android.graphics.ColorSpace.Named.ADOBE_RGB.ordinal ->
-                ColorSpaces.AdobeRgb
-            android.graphics.ColorSpace.Named.BT2020.ordinal ->
-                ColorSpaces.Bt2020
-            android.graphics.ColorSpace.Named.BT709.ordinal ->
-                ColorSpaces.Bt709
-            android.graphics.ColorSpace.Named.CIE_LAB.ordinal ->
-                ColorSpaces.CieLab
-            android.graphics.ColorSpace.Named.CIE_XYZ.ordinal ->
-                ColorSpaces.CieXyz
-            android.graphics.ColorSpace.Named.DCI_P3.ordinal ->
-                ColorSpaces.DciP3
-            android.graphics.ColorSpace.Named.DISPLAY_P3.ordinal ->
-                ColorSpaces.DisplayP3
-            android.graphics.ColorSpace.Named.EXTENDED_SRGB.ordinal ->
-                ColorSpaces.ExtendedSrgb
+            android.graphics.ColorSpace.Named.SRGB.ordinal -> ColorSpaces.Srgb
+            android.graphics.ColorSpace.Named.ACES.ordinal -> ColorSpaces.Aces
+            android.graphics.ColorSpace.Named.ACESCG.ordinal -> ColorSpaces.Acescg
+            android.graphics.ColorSpace.Named.ADOBE_RGB.ordinal -> ColorSpaces.AdobeRgb
+            android.graphics.ColorSpace.Named.BT2020.ordinal -> ColorSpaces.Bt2020
+            android.graphics.ColorSpace.Named.BT709.ordinal -> ColorSpaces.Bt709
+            android.graphics.ColorSpace.Named.CIE_LAB.ordinal -> ColorSpaces.CieLab
+            android.graphics.ColorSpace.Named.CIE_XYZ.ordinal -> ColorSpaces.CieXyz
+            android.graphics.ColorSpace.Named.DCI_P3.ordinal -> ColorSpaces.DciP3
+            android.graphics.ColorSpace.Named.DISPLAY_P3.ordinal -> ColorSpaces.DisplayP3
+            android.graphics.ColorSpace.Named.EXTENDED_SRGB.ordinal -> ColorSpaces.ExtendedSrgb
             android.graphics.ColorSpace.Named.LINEAR_EXTENDED_SRGB.ordinal ->
                 ColorSpaces.LinearExtendedSrgb
-            android.graphics.ColorSpace.Named.LINEAR_SRGB.ordinal ->
-                ColorSpaces.LinearSrgb
-            android.graphics.ColorSpace.Named.NTSC_1953.ordinal ->
-                ColorSpaces.Ntsc1953
-            android.graphics.ColorSpace.Named.PRO_PHOTO_RGB.ordinal ->
-                ColorSpaces.ProPhotoRgb
-            android.graphics.ColorSpace.Named.SMPTE_C.ordinal ->
-                ColorSpaces.SmpteC
+            android.graphics.ColorSpace.Named.LINEAR_SRGB.ordinal -> ColorSpaces.LinearSrgb
+            android.graphics.ColorSpace.Named.NTSC_1953.ordinal -> ColorSpaces.Ntsc1953
+            android.graphics.ColorSpace.Named.PRO_PHOTO_RGB.ordinal -> ColorSpaces.ProPhotoRgb
+            android.graphics.ColorSpace.Named.SMPTE_C.ordinal -> ColorSpaces.SmpteC
             else -> {
                 if (this is android.graphics.ColorSpace.Rgb) {
                     val transferParams = this.transferParameters
-                    val whitePoint = if (this.whitePoint.size == 3) {
-                        WhitePoint(this.whitePoint[0], this.whitePoint[1], this.whitePoint[2])
-                    } else {
-                        WhitePoint(this.whitePoint[0], this.whitePoint[1])
-                    }
+                    val whitePoint =
+                        if (this.whitePoint.size == 3) {
+                            WhitePoint(this.whitePoint[0], this.whitePoint[1], this.whitePoint[2])
+                        } else {
+                            WhitePoint(this.whitePoint[0], this.whitePoint[1])
+                        }
 
-                    val composeTransferParams = if (transferParams != null) {
-                        TransferParameters(
-                            gamma = transferParams.g,
-                            a = transferParams.a,
-                            b = transferParams.b,
-                            c = transferParams.c,
-                            d = transferParams.d,
-                            e = transferParams.e,
-                            f = transferParams.f
-                        )
-                    } else {
-                        null
-                    }
+                    val composeTransferParams =
+                        if (transferParams != null) {
+                            TransferParameters(
+                                gamma = transferParams.g,
+                                a = transferParams.a,
+                                b = transferParams.b,
+                                c = transferParams.c,
+                                d = transferParams.d,
+                                e = transferParams.e,
+                                f = transferParams.f
+                            )
+                        } else {
+                            null
+                        }
                     Rgb(
                         name = this.name,
                         primaries = this.primaries,

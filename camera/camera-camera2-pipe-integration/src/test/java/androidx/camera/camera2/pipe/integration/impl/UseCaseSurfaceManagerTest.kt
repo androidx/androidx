@@ -54,24 +54,18 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 class UseCaseSurfaceManagerTest {
 
-    @get:Rule
-    val dispatcherRule = MainDispatcherRule(useCaseThreads.backgroundDispatcher)
+    @get:Rule val dispatcherRule = MainDispatcherRule(useCaseThreads.backgroundDispatcher)
 
     companion object {
         private val executor = MoreExecutors.directExecutor()
         private val useCaseThreads by lazy {
             val dispatcher = executor.asCoroutineDispatcher()
-            val cameraScope = CoroutineScope(
-                SupervisorJob() +
-                    dispatcher +
-                    CoroutineName("UseCaseSurfaceManagerTest")
-            )
+            val cameraScope =
+                CoroutineScope(
+                    SupervisorJob() + dispatcher + CoroutineName("UseCaseSurfaceManagerTest")
+                )
 
-            UseCaseThreads(
-                cameraScope,
-                executor,
-                dispatcher
-            )
+            UseCaseThreads(cameraScope, executor, dispatcher)
         }
     }
 
@@ -83,12 +77,17 @@ class UseCaseSurfaceManagerTest {
         val testDeferrableSurface1 = createTestDeferrableSurface().also { it.close() }
         val testDeferrableSurface2 = createTestDeferrableSurface().also { it.close() }
 
-        val errorListener = object : SessionConfig.ErrorListener {
-            val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
-            override fun onError(sessionConfig: SessionConfig, error: SessionConfig.SessionError) {
-                results.add(Pair(sessionConfig, error))
+        val errorListener =
+            object : SessionConfig.ErrorListener {
+                val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+                override fun onError(
+                    sessionConfig: SessionConfig,
+                    error: SessionConfig.SessionError
+                ) {
+                    results.add(Pair(sessionConfig, error))
+                }
             }
-        }
 
         val fakeTestUseCase1 = createFakeTestUseCase {
             it.setupSessionConfig(
@@ -113,27 +112,28 @@ class UseCaseSurfaceManagerTest {
 
         // Act
         UseCaseSurfaceManager(
-            useCaseThreads,
-            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            NoOpInactiveSurfaceCloser,
-        ).setupAsync(
-            graph = fakeGraph,
-            sessionConfigAdapter = SessionConfigAdapter(
-                useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)
-            ),
-            surfaceToStreamMap = mapOf(
-                testDeferrableSurface1 to StreamId(0),
-                testDeferrableSurface2 to StreamId(1)
-            ),
-        ).await()
+                useCaseThreads,
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+                NoOpInactiveSurfaceCloser,
+            )
+            .setupAsync(
+                graph = fakeGraph,
+                sessionConfigAdapter =
+                    SessionConfigAdapter(useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)),
+                surfaceToStreamMap =
+                    mapOf(
+                        testDeferrableSurface1 to StreamId(0),
+                        testDeferrableSurface2 to StreamId(1)
+                    ),
+            )
+            .await()
 
         // Assert, verify it only reports the SURFACE_NEEDS_RESET error on one SessionConfig
         // at a time.
         assertThat(fakeGraph.setSurfaceResults.size).isEqualTo(0)
         assertThat(errorListener.results.size).isEqualTo(1)
-        assertThat(errorListener.results[0].second).isEqualTo(
-            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
-        )
+        assertThat(errorListener.results[0].second)
+            .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
     }
 
     @Test
@@ -159,31 +159,31 @@ class UseCaseSurfaceManagerTest {
         }
 
         val fakeGraph = FakeCameraGraph()
-        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> = mapOf(
-            testDeferrableSurface1 to StreamId(0),
-            testDeferrableSurface2 to StreamId(1)
-        )
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(testDeferrableSurface1 to StreamId(0), testDeferrableSurface2 to StreamId(1))
 
         // Act
         UseCaseSurfaceManager(
-            useCaseThreads,
-            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            NoOpInactiveSurfaceCloser,
-        ).setupAsync(
-            graph = fakeGraph,
-            sessionConfigAdapter = SessionConfigAdapter(
-                useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)
-            ),
-            surfaceToStreamMap = deferrableSurfaceToStreamId,
-        ).await()
+                useCaseThreads,
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+                NoOpInactiveSurfaceCloser,
+            )
+            .setupAsync(
+                graph = fakeGraph,
+                sessionConfigAdapter =
+                    SessionConfigAdapter(useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)),
+                surfaceToStreamMap = deferrableSurfaceToStreamId,
+            )
+            .await()
 
         // Assert, 2 surfaces from the fakeTestUseCase1 and fakeTestUseCase2 should be set to the
         // Graph
-        assertThat(fakeGraph.setSurfaceResults).isEqualTo(
-            deferrableSurfaceToStreamId.map {
-                it.value to (it.key as TestDeferrableSurface).testSurface
-            }.toMap()
-        )
+        assertThat(fakeGraph.setSurfaceResults)
+            .isEqualTo(
+                deferrableSurfaceToStreamId
+                    .map { it.value to (it.key as TestDeferrableSurface).testSurface }
+                    .toMap()
+            )
 
         // Clean up
         testDeferrableSurface1.close()
@@ -193,49 +193,59 @@ class UseCaseSurfaceManagerTest {
     @Test
     fun setupNeverCompleteDeferrableSurface_shouldTimeout() = runBlocking {
         // Arrange
-        val neverCompleteDeferrableSurface = object : DeferrableSurface() {
-            val provideSurfaceDeferred = CompletableDeferred<Surface>()
-            override fun provideSurface(): ListenableFuture<Surface> {
-                return provideSurfaceDeferred.asListenableFuture()
-            }
+        val neverCompleteDeferrableSurface =
+            object : DeferrableSurface() {
+                val provideSurfaceDeferred = CompletableDeferred<Surface>()
 
-            fun cleanUp() {
-                provideSurfaceDeferred.cancel()
-                close()
+                override fun provideSurface(): ListenableFuture<Surface> {
+                    return provideSurfaceDeferred.asListenableFuture()
+                }
+
+                fun cleanUp() {
+                    provideSurfaceDeferred.cancel()
+                    close()
+                }
             }
-        }
-        val errorListener = object : SessionConfig.ErrorListener {
-            val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
-            override fun onError(sessionConfig: SessionConfig, error: SessionConfig.SessionError) {
-                results.add(Pair(sessionConfig, error))
+        val errorListener =
+            object : SessionConfig.ErrorListener {
+                val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+                override fun onError(
+                    sessionConfig: SessionConfig,
+                    error: SessionConfig.SessionError
+                ) {
+                    results.add(Pair(sessionConfig, error))
+                }
             }
-        }
         val fakeTestUseCase = createFakeTestUseCase {
-            it.setupSessionConfig(SessionConfig.Builder().also { sessionConfigBuilder ->
-                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                sessionConfigBuilder.addSurface(neverCompleteDeferrableSurface)
-                sessionConfigBuilder.addErrorListener(errorListener)
-            })
+            it.setupSessionConfig(
+                SessionConfig.Builder().also { sessionConfigBuilder ->
+                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                    sessionConfigBuilder.addSurface(neverCompleteDeferrableSurface)
+                    sessionConfigBuilder.addErrorListener(errorListener)
+                }
+            )
         }
 
         val fakeGraph = FakeCameraGraph()
-        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> = mapOf(
-            neverCompleteDeferrableSurface to StreamId(0),
-        )
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(
+                neverCompleteDeferrableSurface to StreamId(0),
+            )
 
         // Act
         UseCaseSurfaceManager(
-            useCaseThreads,
-            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            NoOpInactiveSurfaceCloser,
-        ).setupAsync(
-            graph = fakeGraph,
-            sessionConfigAdapter = SessionConfigAdapter(
-                useCases = listOf(fakeTestUseCase)
-            ),
-            surfaceToStreamMap = deferrableSurfaceToStreamId,
-            timeoutMillis = TimeUnit.SECONDS.toMillis(1)
-        ).await()
+                useCaseThreads,
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+                NoOpInactiveSurfaceCloser,
+            )
+            .setupAsync(
+                graph = fakeGraph,
+                sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                surfaceToStreamMap = deferrableSurfaceToStreamId,
+                timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+            )
+            .await()
 
         // Assert, verify it is no-op for the getSurface timeout case.
         assertThat(fakeGraph.setSurfaceResults.size).isEqualTo(0)
@@ -248,29 +258,35 @@ class UseCaseSurfaceManagerTest {
     @Test
     fun stopNeverCompleteTask_shouldCancelSurfaceSetup() = runBlocking {
         // Arrange
-        val neverCompleteDeferrableSurface = object : DeferrableSurface() {
-            val provideSurfaceDeferred = CompletableDeferred<Surface>()
-            val provideSurfaceIsCalledDeferred = CompletableDeferred<Unit>()
+        val neverCompleteDeferrableSurface =
+            object : DeferrableSurface() {
+                val provideSurfaceDeferred = CompletableDeferred<Surface>()
+                val provideSurfaceIsCalledDeferred = CompletableDeferred<Unit>()
 
-            override fun provideSurface(): ListenableFuture<Surface> {
-                try {
-                    return provideSurfaceDeferred.asListenableFuture()
-                } finally {
-                    provideSurfaceIsCalledDeferred.complete(Unit)
+                override fun provideSurface(): ListenableFuture<Surface> {
+                    try {
+                        return provideSurfaceDeferred.asListenableFuture()
+                    } finally {
+                        provideSurfaceIsCalledDeferred.complete(Unit)
+                    }
+                }
+
+                fun cleanUp() {
+                    close()
+                    provideSurfaceDeferred.cancel()
                 }
             }
+        val errorListener =
+            object : SessionConfig.ErrorListener {
+                val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
 
-            fun cleanUp() {
-                close()
-                provideSurfaceDeferred.cancel()
+                override fun onError(
+                    sessionConfig: SessionConfig,
+                    error: SessionConfig.SessionError
+                ) {
+                    results.add(Pair(sessionConfig, error))
+                }
             }
-        }
-        val errorListener = object : SessionConfig.ErrorListener {
-            val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
-            override fun onError(sessionConfig: SessionConfig, error: SessionConfig.SessionError) {
-                results.add(Pair(sessionConfig, error))
-            }
-        }
         val fakeTestUseCase = createFakeTestUseCase {
             it.setupSessionConfig(
                 SessionConfig.Builder().also { sessionConfigBuilder ->
@@ -282,22 +298,23 @@ class UseCaseSurfaceManagerTest {
         }
 
         val fakeGraph = FakeCameraGraph()
-        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> = mapOf(
-            neverCompleteDeferrableSurface to StreamId(0),
-        )
-        val useCaseSurfaceManager = UseCaseSurfaceManager(
-            useCaseThreads,
-            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            NoOpInactiveSurfaceCloser,
-        )
-        val deferred = useCaseSurfaceManager.setupAsync(
-            graph = fakeGraph,
-            sessionConfigAdapter = SessionConfigAdapter(
-                useCases = listOf(fakeTestUseCase)
-            ),
-            surfaceToStreamMap = deferrableSurfaceToStreamId,
-            timeoutMillis = TimeUnit.SECONDS.toMillis(60)
-        )
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(
+                neverCompleteDeferrableSurface to StreamId(0),
+            )
+        val useCaseSurfaceManager =
+            UseCaseSurfaceManager(
+                useCaseThreads,
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+                NoOpInactiveSurfaceCloser,
+            )
+        val deferred =
+            useCaseSurfaceManager.setupAsync(
+                graph = fakeGraph,
+                sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                surfaceToStreamMap = deferrableSurfaceToStreamId,
+                timeoutMillis = TimeUnit.SECONDS.toMillis(60)
+            )
         neverCompleteDeferrableSurface.provideSurfaceIsCalledDeferred.await()
 
         // Act.
@@ -315,13 +332,12 @@ class UseCaseSurfaceManagerTest {
     }
 
     private fun createFakeTestUseCase(block: (FakeTestUseCase) -> Unit) =
-        FakeTestUseCase(
-            FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
-        ).also {
+        FakeTestUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig).also {
             block(it)
         }
 
-    private fun createTestDeferrableSurface() = TestDeferrableSurface().also {
-        it.terminationFuture.addListener({ it.cleanUp() }, useCaseThreads.backgroundExecutor)
-    }
+    private fun createTestDeferrableSurface() =
+        TestDeferrableSurface().also {
+            it.terminationFuture.addListener({ it.cleanUp() }, useCaseThreads.backgroundExecutor)
+        }
 }

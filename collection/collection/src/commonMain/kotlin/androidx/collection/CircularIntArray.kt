@@ -23,9 +23,8 @@ import kotlin.jvm.JvmOverloads
  * O(1) prepend and O(1) append. The CircularIntArray automatically grows its capacity when number
  * of added integers is over its capacity.
  *
- * @constructor Creates a circular array with capacity for at least [minCapacity] elements.
- *
  * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
+ * @constructor Creates a circular array with capacity for at least [minCapacity] elements.
  */
 public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int = 8) {
     private var elements: IntArray
@@ -39,11 +38,12 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
 
         // If minCapacity isn't a power of 2, round up to the next highest
         // power of 2.
-        val arrayCapacity: Int = if (minCapacity.countOneBits() != 1) {
-            (minCapacity - 1).takeHighestOneBit() shl 1
-        } else {
-            minCapacity
-        }
+        val arrayCapacity: Int =
+            if (minCapacity.countOneBits() != 1) {
+                (minCapacity - 1).takeHighestOneBit() shl 1
+            } else {
+                minCapacity
+            }
         capacityBitmask = arrayCapacity - 1
         elements = IntArray(arrayCapacity)
     }
@@ -117,16 +117,14 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
         return result
     }
 
-    /**
-     * Remove all integers from the [CircularIntArray].
-     */
+    /** Remove all integers from the [CircularIntArray]. */
     public fun clear() {
         tail = head
     }
 
     /**
-     * Remove multiple integers from front of the [CircularIntArray], ignore when [count]
-     * is less than or equals to 0.
+     * Remove multiple integers from front of the [CircularIntArray], ignore when [count] is less
+     * than or equals to 0.
      *
      * @param count Number of integers to remove.
      * @throws IndexOutOfBoundsException if numOfElements is larger than [size]
@@ -142,8 +140,8 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
     }
 
     /**
-     * Remove multiple elements from end of the [CircularIntArray], ignore when [count]
-     * is less than or equals to 0.
+     * Remove multiple elements from end of the [CircularIntArray], ignore when [count] is less than
+     * or equals to 0.
      *
      * @param count Number of integers to remove.
      * @throws IndexOutOfBoundsException if [count] is larger than [size]

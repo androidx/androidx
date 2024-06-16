@@ -30,14 +30,16 @@ import org.junit.Test
 @SmallTest
 class ImageDecoderTest {
 
-    @Test fun decodeBitmap() {
+    @Test
+    fun decodeBitmap() {
         val src = ImageDecoder.createSource(buffer)
         val decodedBitmap = src.decodeBitmap { _, _ -> setTargetSize(10, 10) }
         assertEquals(10, decodedBitmap.width)
         assertEquals(10, decodedBitmap.height)
     }
 
-    @Test fun decodeDrawable() {
+    @Test
+    fun decodeDrawable() {
         val src = ImageDecoder.createSource(buffer)
         val decodedDrawable = src.decodeDrawable { _, _ -> setTargetSize(10, 10) }
         assertEquals(10, decodedDrawable.intrinsicWidth)
@@ -50,11 +52,11 @@ class ImageDecoderTest {
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
-            val stream = ByteArrayOutputStream().apply {
-                Bitmap
-                    .createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-                    .compress(Bitmap.CompressFormat.JPEG, 100, this)
-            }
+            val stream =
+                ByteArrayOutputStream().apply {
+                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                        .compress(Bitmap.CompressFormat.JPEG, 100, this)
+                }
 
             buffer = ByteBuffer.wrap(stream.toByteArray())
         }

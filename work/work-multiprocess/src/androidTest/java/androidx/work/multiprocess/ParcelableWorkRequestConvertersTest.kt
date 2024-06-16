@@ -45,10 +45,11 @@ public class ParcelableWorkRequestConvertersTest {
             return
         }
 
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .addTag("Test Worker")
-            .keepResultsForAtLeast(1, TimeUnit.DAYS)
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .addTag("Test Worker")
+                .keepResultsForAtLeast(1, TimeUnit.DAYS)
+                .build()
         assertOn(request)
     }
 
@@ -60,21 +61,18 @@ public class ParcelableWorkRequestConvertersTest {
             return
         }
 
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(1, TimeUnit.HOURS)
-            .setInputData(
-                Data.Builder()
-                    .put("test", 1L)
-                    .build()
-            )
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
-            )
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialDelay(1, TimeUnit.HOURS)
+                .setInputData(Data.Builder().put("test", 1L).build())
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresBatteryNotLow(true)
+                        .build()
+                )
+                .build()
         assertOn(request)
     }
 
@@ -87,24 +85,21 @@ public class ParcelableWorkRequestConvertersTest {
         }
 
         val uri = Uri.parse("test://foo")
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(1, TimeUnit.HOURS)
-            .setInputData(
-                Data.Builder()
-                    .put("test", 1L)
-                    .build()
-            )
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .setRequiresCharging(true)
-                    .setRequiresStorageNotLow(true)
-                    .addContentUriTrigger(uri, true)
-                    .build()
-            )
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialDelay(1, TimeUnit.HOURS)
+                .setInputData(Data.Builder().put("test", 1L).build())
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresBatteryNotLow(true)
+                        .setRequiresCharging(true)
+                        .setRequiresStorageNotLow(true)
+                        .addContentUriTrigger(uri, true)
+                        .build()
+                )
+                .build()
         assertOn(request)
     }
 
@@ -118,11 +113,12 @@ public class ParcelableWorkRequestConvertersTest {
 
         val requests = mutableListOf<WorkRequest>()
         repeat(10) {
-            requests += OneTimeWorkRequest.Builder(TestWorker::class.java)
-                .addTag("Test Worker")
-                .keepResultsForAtLeast(1, TimeUnit.DAYS)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
+            requests +=
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .addTag("Test Worker")
+                    .keepResultsForAtLeast(1, TimeUnit.DAYS)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
         }
         assertOn(requests)
     }
@@ -154,8 +150,6 @@ public class ParcelableWorkRequestConvertersTest {
     }
 
     private fun assertRequests(listOne: List<WorkRequest>, listTwo: List<WorkRequest>) {
-        listOne.forEachIndexed { i, workRequest ->
-            assertRequest(workRequest, listTwo[i])
-        }
+        listOne.forEachIndexed { i, workRequest -> assertRequest(workRequest, listTwo[i]) }
     }
 }

@@ -47,52 +47,53 @@ class TorchFlashRequiredFor3aUpdateQuirkTest(
         @ParameterizedRobolectricTestRunner.Parameters(
             name = "Model: {0}, lens facing: {1}, external ae mode: {2}, enabled: {3}"
         )
-        fun data() = listOf(
-            arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_FRONT, false, false),
-            arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_FRONT, true, false),
-            arrayOf("Pixel 6", CameraCharacteristics.LENS_FACING_FRONT, false, false),
-            arrayOf("Pixel 6A", CameraCharacteristics.LENS_FACING_BACK, false, false),
-            arrayOf("Pixel 6A", CameraCharacteristics.LENS_FACING_FRONT, false, true),
-            arrayOf("Pixel 7 pro", CameraCharacteristics.LENS_FACING_FRONT, false, true),
-            arrayOf("Pixel 8", CameraCharacteristics.LENS_FACING_FRONT, false, true),
-            arrayOf("SM-A320FL", CameraCharacteristics.LENS_FACING_FRONT, false, false),
-        )
+        fun data() =
+            listOf(
+                arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_FRONT, false, false),
+                arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_FRONT, true, false),
+                arrayOf("Pixel 6", CameraCharacteristics.LENS_FACING_FRONT, false, false),
+                arrayOf("Pixel 6A", CameraCharacteristics.LENS_FACING_BACK, false, false),
+                arrayOf("Pixel 6A", CameraCharacteristics.LENS_FACING_FRONT, false, true),
+                arrayOf("Pixel 7 pro", CameraCharacteristics.LENS_FACING_FRONT, false, true),
+                arrayOf("Pixel 8", CameraCharacteristics.LENS_FACING_FRONT, false, true),
+                arrayOf("SM-A320FL", CameraCharacteristics.LENS_FACING_FRONT, false, false),
+            )
     }
 
     private fun getCameraQuirks(
         lensFacing: Int,
         externalFlashAeModeSupported: Boolean,
     ): Quirks {
-        val characteristicsMap = mutableMapOf<CameraCharacteristics.Key<*>, Any?>().apply {
-            this[CameraCharacteristics.LENS_FACING] = lensFacing
+        val characteristicsMap =
+            mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
+                .apply {
+                    this[CameraCharacteristics.LENS_FACING] = lensFacing
 
-            this[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES] =
-                if (externalFlashAeModeSupported) {
-                    intArrayOf(CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
-                } else intArrayOf(
-                    CameraMetadata.CONTROL_AE_MODE_ON
-                )
-        }.toMap()
+                    this[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES] =
+                        if (externalFlashAeModeSupported) {
+                            intArrayOf(CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
+                        } else intArrayOf(CameraMetadata.CONTROL_AE_MODE_ON)
+                }
+                .toMap()
 
         val cameraCharacteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics =
             Shadow.extract<ShadowCameraCharacteristics>(cameraCharacteristics)
-        characteristicsMap.forEach { entry ->
-            shadowCharacteristics.set(entry.key, entry.value)
-        }
+        characteristicsMap.forEach { entry -> shadowCharacteristics.set(entry.key, entry.value) }
 
         val cameraMetadata = FakeCameraMetadata(characteristicsMap)
 
         return CameraQuirks(
-            cameraMetadata,
-            StreamConfigurationMapCompat(
-                StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(
-                    cameraMetadata,
-                    StreamConfigurationMapBuilder.newBuilder().build()
-                )
-            ),
-        ).quirks
+                cameraMetadata,
+                StreamConfigurationMapCompat(
+                    StreamConfigurationMapBuilder.newBuilder().build(),
+                    OutputSizesCorrector(
+                        cameraMetadata,
+                        StreamConfigurationMapBuilder.newBuilder().build()
+                    )
+                ),
+            )
+            .quirks
     }
 
     @Test
@@ -103,7 +104,8 @@ class TorchFlashRequiredFor3aUpdateQuirkTest(
 
         // Act
         val isFlashModeTorchRequired =
-            cameraQuirks.get(TorchFlashRequiredFor3aUpdateQuirk::class.java)
+            cameraQuirks
+                .get(TorchFlashRequiredFor3aUpdateQuirk::class.java)
                 ?.isFlashModeTorchRequired() ?: false
 
         // Verify

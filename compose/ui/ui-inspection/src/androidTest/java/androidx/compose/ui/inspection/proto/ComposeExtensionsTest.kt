@@ -24,7 +24,6 @@ class ComposeExtensionsTest {
     fun testLambdaSelector() {
         assertThat(findLambdaSelector("com.example.Compose\$MainActivityKt\$lambda-10\$1\$2\$2\$1"))
             .isEqualTo("lambda-10\$1\$2\$2\$1")
-        assertThat(findLambdaSelector("com.example.Class\$f1\$3\$2"))
-            .isEqualTo("3$2")
+        assertThat(findLambdaSelector("com.example.Class\$f1\$3\$2")).isEqualTo("3$2")
     }
 }

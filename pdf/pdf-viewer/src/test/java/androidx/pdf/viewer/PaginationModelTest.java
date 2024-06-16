@@ -24,7 +24,6 @@ import android.graphics.Rect;
 
 import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
-import androidx.pdf.util.ProjectorContext;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -47,7 +46,7 @@ public class PaginationModelTest {
     @Before
     public void init() {
         mContext = ApplicationProvider.getApplicationContext();
-        ProjectorContext.installProjectorGlobalsForTest(mContext);
+        PdfViewer.setScreenForTest(mContext);
         mPaginationModel = new PaginationModel();
     }
 
@@ -222,9 +221,8 @@ public class PaginationModelTest {
 
     /**
      * Helper method. Spacing between pages is in DP so can change based on device. This method
-     * obtains the value for the current {@link #mPaginationModel} which is calculated based on
-     * {@link ProjectorContext}. Pages are zero-indexed so page <code>X</code> will have
-     * <code>X</code> full page gaps above it.
+     * obtains the value for the current {@link #mPaginationModel}. Pages are zero-indexed so
+     * page <code>X</code> will have <code>X</code> full page gaps above it.
      */
     private int getSpacingAbovePage(int pageNum) {
         return mPaginationModel.getPageSpacingPx() * 2 * pageNum;

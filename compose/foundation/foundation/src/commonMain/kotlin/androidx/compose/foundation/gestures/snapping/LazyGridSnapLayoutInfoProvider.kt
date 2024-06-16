@@ -31,84 +31,82 @@ import kotlin.math.sign
  * A [SnapLayoutInfoProvider] for LazyGrids.
  *
  * @param lazyGridState The [LazyGridState] with information about the current state of the grid
- * @param snapPosition The desired positioning of the snapped item within the main layout.
- * This position should be considered with regards to the start edge of the item and the placement
- * within the viewport.
- *
+ * @param snapPosition The desired positioning of the snapped item within the main layout. This
+ *   position should be considered with regards to the start edge of the item and the placement
+ *   within the viewport.
  * @return A [SnapLayoutInfoProvider] that can be used with [snapFlingBehavior]
  */
 fun SnapLayoutInfoProvider(
     lazyGridState: LazyGridState,
     snapPosition: SnapPosition = SnapPosition.Center
-) = object : SnapLayoutInfoProvider {
-    private val layoutInfo: LazyGridLayoutInfo
-        get() = lazyGridState.layoutInfo
+) =
+    object : SnapLayoutInfoProvider {
+        private val layoutInfo: LazyGridLayoutInfo
+            get() = lazyGridState.layoutInfo
 
-    private val averageItemSize: Int
-        get() {
-            val layoutInfo = layoutInfo
-            return if (layoutInfo.visibleItemsInfo.isEmpty()) {
-                0
-            } else {
-                val numberOfItems = layoutInfo.visibleItemsInfo.size
-                layoutInfo.visibleItemsInfo.sumOf {
-                    it.sizeOnMainAxis(layoutInfo.orientation)
-                } / numberOfItems
+        private val averageItemSize: Int
+            get() {
+                val layoutInfo = layoutInfo
+                return if (layoutInfo.visibleItemsInfo.isEmpty()) {
+                    0
+                } else {
+                    val numberOfItems = layoutInfo.visibleItemsInfo.size
+                    layoutInfo.visibleItemsInfo.sumOf {
+                        it.sizeOnMainAxis(layoutInfo.orientation)
+                    } / numberOfItems
+                }
             }
+
+        override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
+            return (decayOffset.absoluteValue - averageItemSize).coerceAtLeast(0.0f) *
+                decayOffset.sign
         }
 
-    override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
-        return (decayOffset.absoluteValue - averageItemSize)
-            .coerceAtLeast(0.0f) * decayOffset.sign
-    }
+        override fun calculateSnapOffset(velocity: Float): Float {
+            var distanceFromItemBeforeTarget = Float.NEGATIVE_INFINITY
+            var distanceFromItemAfterTarget = Float.POSITIVE_INFINITY
 
-    override fun calculateSnapOffset(
-        velocity: Float
-    ): Float {
-        var distanceFromItemBeforeTarget = Float.NEGATIVE_INFINITY
-        var distanceFromItemAfterTarget = Float.POSITIVE_INFINITY
+            layoutInfo.visibleItemsInfo.fastForEach { item ->
+                val distance =
+                    calculateDistanceToDesiredSnapPosition(
+                        mainAxisViewPortSize = layoutInfo.singleAxisViewportSize,
+                        beforeContentPadding = layoutInfo.beforeContentPadding,
+                        afterContentPadding = layoutInfo.afterContentPadding,
+                        itemSize = item.sizeOnMainAxis(orientation = layoutInfo.orientation),
+                        itemOffset = item.offsetOnMainAxis(orientation = layoutInfo.orientation),
+                        itemIndex = item.index,
+                        snapPosition = snapPosition,
+                        itemCount = layoutInfo.totalItemsCount
+                    )
 
-        layoutInfo.visibleItemsInfo.fastForEach { item ->
-            val distance =
-                calculateDistanceToDesiredSnapPosition(
-                    mainAxisViewPortSize = layoutInfo.singleAxisViewportSize,
-                    beforeContentPadding = layoutInfo.beforeContentPadding,
-                    afterContentPadding = layoutInfo.afterContentPadding,
-                    itemSize = item.sizeOnMainAxis(orientation = layoutInfo.orientation),
-                    itemOffset = item.offsetOnMainAxis(orientation = layoutInfo.orientation),
-                    itemIndex = item.index,
-                    snapPosition = snapPosition,
-                    itemCount = layoutInfo.totalItemsCount
-                )
+                // Find item that is closest to the center
+                if (distance <= 0 && distance > distanceFromItemBeforeTarget) {
+                    distanceFromItemBeforeTarget = distance
+                }
 
-            // Find item that is closest to the center
-            if (distance <= 0 && distance > distanceFromItemBeforeTarget) {
-                distanceFromItemBeforeTarget = distance
+                // Find item that is closest to center, but after it
+                if (distance >= 0 && distance < distanceFromItemAfterTarget) {
+                    distanceFromItemAfterTarget = distance
+                }
             }
 
-            // Find item that is closest to center, but after it
-            if (distance >= 0 && distance < distanceFromItemAfterTarget) {
-                distanceFromItemAfterTarget = distance
-            }
+            return calculateFinalOffset(
+                with(lazyGridState.density) { calculateFinalSnappingItem(velocity) },
+                distanceFromItemBeforeTarget,
+                distanceFromItemAfterTarget
+            )
         }
-
-        return calculateFinalOffset(
-            with(lazyGridState.density) { calculateFinalSnappingItem(velocity) },
-            distanceFromItemBeforeTarget,
-            distanceFromItemAfterTarget
-        )
     }
-}
 
 /**
- * Create and remember a FlingBehavior for decayed snapping in Lazy Grids. This will snap
- * the item according to [snapPosition].
+ * Create and remember a FlingBehavior for decayed snapping in Lazy Grids. This will snap the item
+ * according to [snapPosition].
  *
- * @param lazyGridState The [LazyGridState] from the LazyGrid where this [FlingBehavior] will
- * be used.
- * @param snapPosition The desired positioning of the snapped item within the main layout.
- * This position should be considered with regards to the start edge of the item and the placement
- * within the viewport.
+ * @param lazyGridState The [LazyGridState] from the LazyGrid where this [FlingBehavior] will be
+ *   used.
+ * @param snapPosition The desired positioning of the snapped item within the main layout. This
+ *   position should be considered with regards to the start edge of the item and the placement
+ *   within the viewport.
  */
 @Composable
 fun rememberSnapFlingBehavior(
@@ -121,11 +119,12 @@ fun rememberSnapFlingBehavior(
 }
 
 internal val LazyGridLayoutInfo.singleAxisViewportSize: Int
-    get() = if (orientation == Orientation.Vertical) {
-        viewportSize.height
-    } else {
-        viewportSize.width
-    }
+    get() =
+        if (orientation == Orientation.Vertical) {
+            viewportSize.height
+        } else {
+            viewportSize.width
+        }
 
 internal fun LazyGridItemInfo.sizeOnMainAxis(orientation: Orientation): Int {
     return if (orientation == Orientation.Vertical) {

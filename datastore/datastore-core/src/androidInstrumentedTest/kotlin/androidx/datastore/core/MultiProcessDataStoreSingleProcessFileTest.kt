@@ -53,12 +53,12 @@ class MultiProcessDataStoreSingleProcessFileTest :
         // ensure the file exists by writing into it
         testFile.file.writeText("")
         testFile.file.setReadable(false)
-        val result = runCatching {
-            store.data.first()
-        }
+        val result = runCatching { store.data.first() }
 
         Truth.assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
-        Truth.assertThat(result.exceptionOrNull()).hasCauseThat().hasMessageThat()
+        Truth.assertThat(result.exceptionOrNull())
+            .hasCauseThat()
+            .hasMessageThat()
             .contains("Permission denied")
     }
 
@@ -68,7 +68,9 @@ class MultiProcessDataStoreSingleProcessFileTest :
         testFile.file.writeText("")
         testFile.file.setReadable(false)
 
-        assertThrows<IOException> { store.data.first() }.hasCauseThat().hasMessageThat()
+        assertThrows<IOException> { store.data.first() }
+            .hasCauseThat()
+            .hasMessageThat()
             .contains("Permission denied")
 
         testFile.file.setReadable(true)
@@ -77,13 +79,17 @@ class MultiProcessDataStoreSingleProcessFileTest :
 
     @Test
     fun testMutatingDataStoreFails() = runTest {
-
-        val dataStore = DataStoreImpl(
-            storage = FileStorage(ByteWrapper.ByteWrapperSerializer(), {
-                MultiProcessCoordinator(dataStoreScope.coroutineContext, it)
-            }) { testFile.file },
-            scope = dataStoreScope,
-        )
+        val dataStore =
+            DataStoreImpl(
+                storage =
+                    FileStorage(
+                        ByteWrapper.ByteWrapperSerializer(),
+                        { MultiProcessCoordinator(dataStoreScope.coroutineContext, it) }
+                    ) {
+                        testFile.file
+                    },
+                scope = dataStoreScope,
+            )
 
         assertThrows<IllegalStateException> {
             dataStore.updateData { input: ByteWrapper ->
@@ -98,53 +104,49 @@ class MultiProcessDataStoreSingleProcessFileTest :
     fun stressTest() = runBlocking {
         val stressTestFile = getJavaFile(testIO.newTempFile(tempFolder))
         val testJob = Job()
-        val testScope = CoroutineScope(
-            Dispatchers.IO + testJob
-        )
-        val stressTestStore = DataStoreImpl<Int>(
-            storage = FileStorage(
-                object : Serializer<Int> {
-                    override val defaultValue: Int
-                        get() = 0
+        val testScope = CoroutineScope(Dispatchers.IO + testJob)
+        val stressTestStore =
+            DataStoreImpl<Int>(
+                storage =
+                    FileStorage(
+                        object : Serializer<Int> {
+                            override val defaultValue: Int
+                                get() = 0
 
-                    override suspend fun readFrom(input: InputStream): Int {
-                        return input.reader(Charsets.UTF_8).use {
-                            it.readText().toIntOrNull() ?: defaultValue
-                        }
-                    }
+                            override suspend fun readFrom(input: InputStream): Int {
+                                return input.reader(Charsets.UTF_8).use {
+                                    it.readText().toIntOrNull() ?: defaultValue
+                                }
+                            }
 
-                    override suspend fun writeTo(t: Int, output: OutputStream) {
-                        output.writer(Charsets.UTF_8).use {
-                            it.write(t.toString())
-                            it.flush()
-                        }
-                    }
-                },
-                coordinatorProducer = {
-                    MultiProcessCoordinator(testScope.coroutineContext, it)
-                },
-                produceFile = { stressTestFile }
-            ),
-            scope = testScope,
-            initTasksList = emptyList()
-        )
+                            override suspend fun writeTo(t: Int, output: OutputStream) {
+                                output.writer(Charsets.UTF_8).use {
+                                    it.write(t.toString())
+                                    it.flush()
+                                }
+                            }
+                        },
+                        coordinatorProducer = {
+                            MultiProcessCoordinator(testScope.coroutineContext, it)
+                        },
+                        produceFile = { stressTestFile }
+                    ),
+                scope = testScope,
+                initTasksList = emptyList()
+            )
         val limit = 1_000
         stressTestStore.updateData { 0 }
-        val reader = async(Dispatchers.IO + testJob) {
-            stressTestStore.data.scan(0) { prev, next ->
-                check(next >= prev) {
-                    "check failed: $prev / $next"
-                }
-                next
-            }.take(limit - 200).collect() // we can drop some intermediate values, it is fine
-        }
-        val writer = async {
-            repeat(limit) {
-                stressTestStore.updateData {
-                    it + 1
-                }
+        val reader =
+            async(Dispatchers.IO + testJob) {
+                stressTestStore.data
+                    .scan(0) { prev, next ->
+                        check(next >= prev) { "check failed: $prev / $next" }
+                        next
+                    }
+                    .take(limit - 200)
+                    .collect() // we can drop some intermediate values, it is fine
             }
-        }
+        val writer = async { repeat(limit) { stressTestStore.updateData { it + 1 } } }
         listOf(reader, writer).awaitAll()
         testJob.cancelAndJoin()
     }

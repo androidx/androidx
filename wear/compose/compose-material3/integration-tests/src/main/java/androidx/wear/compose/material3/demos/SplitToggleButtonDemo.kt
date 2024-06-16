@@ -44,45 +44,19 @@ fun SplitToggleButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader { Text("Checkbox") }
-        }
-        item {
-            DemoSplitToggleCheckbox(enabled = true, initiallyChecked = true)
-        }
-        item {
-            DemoSplitToggleCheckbox(enabled = true, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Disabled Checkbox") }
-        }
-        item {
-            DemoSplitToggleCheckbox(enabled = false, initiallyChecked = true)
-        }
-        item {
-            DemoSplitToggleCheckbox(enabled = false, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Switch") }
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = true, initiallyChecked = true)
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = true, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Disabled Switch") }
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = false, initiallyChecked = true)
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = false, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Multi-line") }
-        }
+        item { ListHeader { Text("Checkbox") } }
+        item { DemoSplitToggleCheckbox(enabled = true, initiallyChecked = true) }
+        item { DemoSplitToggleCheckbox(enabled = true, initiallyChecked = false) }
+        item { ListHeader { Text("Disabled Checkbox") } }
+        item { DemoSplitToggleCheckbox(enabled = false, initiallyChecked = true) }
+        item { DemoSplitToggleCheckbox(enabled = false, initiallyChecked = false) }
+        item { ListHeader { Text("Switch") } }
+        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = true) }
+        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = false) }
+        item { ListHeader { Text("Disabled Switch") } }
+        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = true) }
+        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = false) }
+        item { ListHeader { Text("Multi-line") } }
         item {
             DemoSplitToggleCheckbox(
                 enabled = true,
@@ -131,9 +105,7 @@ private fun DemoSplitToggleCheckbox(
         },
         checked = checked,
         toggleControl = {
-            Checkbox(modifier = Modifier.semantics {
-                contentDescription = primary
-            })
+            Checkbox(modifier = Modifier.semantics { contentDescription = primary })
         },
         onCheckedChange = { checked = it },
         onClick = {
@@ -172,11 +144,7 @@ private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
             )
         },
         checked = checked,
-        toggleControl = {
-            Switch(modifier = Modifier.semantics {
-                contentDescription = text
-            })
-        },
+        toggleControl = { Switch(modifier = Modifier.semantics { contentDescription = text }) },
         onCheckedChange = { checked = it },
         onClick = {
             val toastText = text + " " + if (checked) "Checked" else "Not Checked"

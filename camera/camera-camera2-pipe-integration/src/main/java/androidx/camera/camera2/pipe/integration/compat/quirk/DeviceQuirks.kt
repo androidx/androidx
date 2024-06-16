@@ -23,17 +23,15 @@ import androidx.camera.core.impl.Quirks
  * Provider of device specific quirks, which are used for device specific workarounds.
  *
  * Device specific quirks depend on device properties, including the manufacturer
- * ([android.os.Build.MANUFACTURER]), model ([android.os.Build.MODEL]) and OS
- * level ([android.os.Build.VERSION.SDK_INT]).
+ * ([android.os.Build.MANUFACTURER]), model ([android.os.Build.MODEL]) and OS level
+ * ([android.os.Build.VERSION.SDK_INT]).
  *
  * Device specific quirks are lazily loaded, i.e. They are loaded the first time they're needed.
  */
 object DeviceQuirks {
 
-    /** Returns all device specific quirks loaded on the current device.  */
-    val all: Quirks by lazy {
-        Quirks(DeviceQuirksLoader.loadQuirks())
-    }
+    /** Returns all device specific quirks loaded on the current device. */
+    val all: Quirks by lazy { Quirks(DeviceQuirksLoader.loadQuirks()) }
 
     /**
      * Retrieves a specific device [Quirk] instance given its type.

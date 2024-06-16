@@ -31,7 +31,9 @@ import androidx.compose.ui.unit.LayoutDirection
  * [layout direction][DeviceConfigurationOverride.Companion.LayoutDirection].
  *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideFontScaleSample
+ *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideForcedSizeSample
+ *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLayoutDirectionSample
  */
 @Composable
@@ -43,9 +45,9 @@ fun DeviceConfigurationOverride(
 /**
  * The specification for an override applied to some piece of content.
  *
- * When wrapping content in [Override], some particular override will be locally applied to
- * the wrapped in order to test that content in isolation, without needing to configure the
- * entire device.
+ * When wrapping content in [Override], some particular override will be locally applied to the
+ * wrapped in order to test that content in isolation, without needing to configure the entire
+ * device.
  */
 fun interface DeviceConfigurationOverride {
 
@@ -65,22 +67,17 @@ fun interface DeviceConfigurationOverride {
 }
 
 /**
- * Combines this override with the [other] override into a single override, by
- * applying this override as the outer override first, then the [other] override as
- * an inner override, and then the content.
+ * Combines this override with the [other] override into a single override, by applying this
+ * override as the outer override first, then the [other] override as an inner override, and then
+ * the content.
  *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideThenSample
  */
 infix fun DeviceConfigurationOverride.then(
     other: DeviceConfigurationOverride
-): DeviceConfigurationOverride =
-    DeviceConfigurationOverride { contentUnderTest ->
-        this.Override {
-            other.Override {
-                contentUnderTest()
-            }
-        }
-    }
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    this.Override { other.Override { contentUnderTest() } }
+}
 
 /**
  * A [DeviceConfigurationOverride] that overrides the available size for the contained content.

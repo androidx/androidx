@@ -72,11 +72,12 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
         val requestCode = intent.getIntExtra(INTENT_EXTRA_KEY_REQUEST_CODE, -1)
         setResult(requestCode, result)
 
-        supportActionBar?.title = if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
-            resources.getString(R.string.camerax_extensions_validator)
-        } else {
-            resources.getString(R.string.camera2_extensions_validator)
-        }
+        supportActionBar?.title =
+            if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
+                resources.getString(R.string.camerax_extensions_validator)
+            } else {
+                resources.getString(R.string.camera2_extensions_validator)
+            }
         supportActionBar!!.subtitle = "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}]"
 
         val layoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -87,8 +88,10 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
 
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
-                if (extensionTestResultMap.values.elementAt(position).first ==
-                    TEST_RESULT_NOT_SUPPORTED) {
+                if (
+                    extensionTestResultMap.values.elementAt(position).first ==
+                        TEST_RESULT_NOT_SUPPORTED
+                ) {
                     Toast.makeText(this, "Not supported!", Toast.LENGTH_SHORT).show()
                     return@OnItemClickListener
                 }

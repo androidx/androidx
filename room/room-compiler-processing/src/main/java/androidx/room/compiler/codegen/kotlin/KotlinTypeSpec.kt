@@ -27,10 +27,8 @@ import androidx.room.compiler.codegen.XTypeSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.javapoet.KTypeSpec
 
-internal class KotlinTypeSpec(
-    private val _className: XClassName?,
-    internal val actual: KTypeSpec
-) : KotlinLang(), XTypeSpec {
+internal class KotlinTypeSpec(private val _className: XClassName?, internal val actual: KTypeSpec) :
+    KotlinLang(), XTypeSpec {
     override fun toString() = actual.toString()
 
     override val className: XClassName
@@ -43,9 +41,7 @@ internal class KotlinTypeSpec(
         private val className: XClassName?,
         internal val actual: KTypeSpecBuilder
     ) : KotlinLang(), XTypeSpec.Builder {
-        override fun superclass(typeName: XTypeName) = apply {
-            actual.superclass(typeName.kotlin)
-        }
+        override fun superclass(typeName: XTypeName) = apply { actual.superclass(typeName.kotlin) }
 
         override fun addSuperinterface(typeName: XTypeName) = apply {
             actual.addSuperinterface(typeName.kotlin)

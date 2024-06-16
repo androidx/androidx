@@ -18,23 +18,21 @@ package androidx.fragment.app.strictmode
 
 import androidx.fragment.app.Fragment
 
-/**
- * See [FragmentStrictMode.Policy.Builder.detectWrongNestedHierarchy].
- */
-class WrongNestedHierarchyViolation internal constructor(
+/** See [FragmentStrictMode.Policy.Builder.detectWrongNestedHierarchy]. */
+class WrongNestedHierarchyViolation
+internal constructor(
     fragment: Fragment,
-    /**
-     * Gets the expected parent [Fragment] of the fragment causing the Violation.
-     */
+    /** Gets the expected parent [Fragment] of the fragment causing the Violation. */
     val expectedParentFragment: Fragment,
     /**
-     * Gets the unique ID of the container that the [Fragment] causing
-     * the Violation would have been added to.
+     * Gets the unique ID of the container that the [Fragment] causing the Violation would have been
+     * added to.
      */
     val containerId: Int
-) : Violation(
-    fragment,
-    "Attempting to nest fragment $fragment within the view " +
-        "of parent fragment $expectedParentFragment via container with ID $containerId " +
-        "without using parent's childFragmentManager"
-)
+) :
+    Violation(
+        fragment,
+        "Attempting to nest fragment $fragment within the view " +
+            "of parent fragment $expectedParentFragment via container with ID $containerId " +
+            "without using parent's childFragmentManager"
+    )

@@ -33,47 +33,63 @@ fun GetParametersCommand(
     node: ComposableNode,
     useDelayedParameterExtraction: Boolean,
     skipSystemComposables: Boolean = true
-): Command = if (useDelayedParameterExtraction) {
-    GetParametersByAnchorIdCommand(rootViewId, node.anchorHash, node.id, skipSystemComposables)
-} else {
-    GetParametersByIdCommand(rootViewId, node.id, skipSystemComposables)
-}
+): Command =
+    if (useDelayedParameterExtraction) {
+        GetParametersByAnchorIdCommand(rootViewId, node.anchorHash, node.id, skipSystemComposables)
+    } else {
+        GetParametersByIdCommand(rootViewId, node.id, skipSystemComposables)
+    }
 
 fun GetParametersByIdCommand(
     rootViewId: Long,
     composableId: Long,
     skipSystemComposables: Boolean = true
-): Command = Command.newBuilder().apply {
-    getParametersCommand = GetParametersCommand.newBuilder().apply {
-        this.rootViewId = rootViewId
-        this.composableId = composableId
-        this.skipSystemComposables = skipSystemComposables
-    }.build()
-}.build()
+): Command =
+    Command.newBuilder()
+        .apply {
+            getParametersCommand =
+                GetParametersCommand.newBuilder()
+                    .apply {
+                        this.rootViewId = rootViewId
+                        this.composableId = composableId
+                        this.skipSystemComposables = skipSystemComposables
+                    }
+                    .build()
+        }
+        .build()
 
 fun GetParametersByAnchorIdCommand(
     rootViewId: Long,
     anchorId: Int,
     composableId: Long,
     skipSystemComposables: Boolean = true
-): Command = Command.newBuilder().apply {
-    getParametersCommand = GetParametersCommand.newBuilder().apply {
-        this.rootViewId = rootViewId
-        this.anchorHash = anchorId
-        this.composableId = composableId
-        this.skipSystemComposables = skipSystemComposables
-    }.build()
-}.build()
+): Command =
+    Command.newBuilder()
+        .apply {
+            getParametersCommand =
+                GetParametersCommand.newBuilder()
+                    .apply {
+                        this.rootViewId = rootViewId
+                        this.anchorHash = anchorId
+                        this.composableId = composableId
+                        this.skipSystemComposables = skipSystemComposables
+                    }
+                    .build()
+        }
+        .build()
 
-fun GetAllParametersCommand(
-    rootViewId: Long,
-    skipSystemComposables: Boolean = true
-): Command = Command.newBuilder().apply {
-    getAllParametersCommand = GetAllParametersCommand.newBuilder().apply {
-        this.rootViewId = rootViewId
-        this.skipSystemComposables = skipSystemComposables
-    }.build()
-}.build()
+fun GetAllParametersCommand(rootViewId: Long, skipSystemComposables: Boolean = true): Command =
+    Command.newBuilder()
+        .apply {
+            getAllParametersCommand =
+                GetAllParametersCommand.newBuilder()
+                    .apply {
+                        this.rootViewId = rootViewId
+                        this.skipSystemComposables = skipSystemComposables
+                    }
+                    .build()
+        }
+        .build()
 
 fun GetParameterDetailsCommand(
     rootViewId: Long,
@@ -81,19 +97,25 @@ fun GetParameterDetailsCommand(
     startIndex: Int,
     maxElements: Int,
     skipSystemComposables: Boolean = true
-): Command = Command.newBuilder().apply {
-    getParameterDetailsCommand = GetParameterDetailsCommand.newBuilder().apply {
-        this.rootViewId = rootViewId
-        this.skipSystemComposables = skipSystemComposables
-        this.reference = reference
-        if (startIndex >= 0) {
-            this.startIndex = startIndex
+): Command =
+    Command.newBuilder()
+        .apply {
+            getParameterDetailsCommand =
+                GetParameterDetailsCommand.newBuilder()
+                    .apply {
+                        this.rootViewId = rootViewId
+                        this.skipSystemComposables = skipSystemComposables
+                        this.reference = reference
+                        if (startIndex >= 0) {
+                            this.startIndex = startIndex
+                        }
+                        if (maxElements >= 0) {
+                            this.maxElements = maxElements
+                        }
+                    }
+                    .build()
         }
-        if (maxElements >= 0) {
-            this.maxElements = maxElements
-        }
-    }.build()
-}.build()
+        .build()
 
 fun GetComposablesCommand(
     rootViewId: Long,
@@ -101,18 +123,22 @@ fun GetComposablesCommand(
     generation: Int = 1,
     extractAllParameters: Boolean = false
 ): Command =
-    Command.newBuilder().apply {
-        getComposablesCommand = GetComposablesCommand.newBuilder().apply {
-            this.rootViewId = rootViewId
-            this.skipSystemComposables = skipSystemComposables
-            this.generation = generation
-            this.extractAllParameters = extractAllParameters
+    Command.newBuilder()
+        .apply {
+            getComposablesCommand =
+                GetComposablesCommand.newBuilder()
+                    .apply {
+                        this.rootViewId = rootViewId
+                        this.skipSystemComposables = skipSystemComposables
+                        this.generation = generation
+                        this.extractAllParameters = extractAllParameters
+                    }
+                    .setRootViewId(rootViewId)
+                    .setSkipSystemComposables(skipSystemComposables)
+                    .setGeneration(generation)
+                    .build()
         }
-            .setRootViewId(rootViewId)
-            .setSkipSystemComposables(skipSystemComposables)
-            .setGeneration(generation)
-            .build()
-    }.build()
+        .build()
 
 fun GetUpdateSettingsCommand(
     includeRecomposeCounts: Boolean = false,
@@ -120,14 +146,19 @@ fun GetUpdateSettingsCommand(
     delayParameterExtractions: Boolean = false,
     reduceChildNesting: Boolean = false
 ): Command =
-    Command.newBuilder().apply {
-        updateSettingsCommand = UpdateSettingsCommand.newBuilder().apply {
-            this.includeRecomposeCounts = includeRecomposeCounts
-            this.keepRecomposeCounts = keepRecomposeCounts
-            this.delayParameterExtractions = delayParameterExtractions
-            this.reduceChildNesting = reduceChildNesting
-        }.build()
-    }.build()
+    Command.newBuilder()
+        .apply {
+            updateSettingsCommand =
+                UpdateSettingsCommand.newBuilder()
+                    .apply {
+                        this.includeRecomposeCounts = includeRecomposeCounts
+                        this.keepRecomposeCounts = keepRecomposeCounts
+                        this.delayParameterExtractions = delayParameterExtractions
+                        this.reduceChildNesting = reduceChildNesting
+                    }
+                    .build()
+        }
+        .build()
 
 fun ComposableNode.flatten(): List<ComposableNode> =
     listOf(this).plus(this.childrenList.flatMap { it.flatten() })

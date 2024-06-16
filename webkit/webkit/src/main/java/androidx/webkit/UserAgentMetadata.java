@@ -376,7 +376,7 @@ public final class UserAgentMetadata {
      * <pre class="prettyprint">
      *  // Create a setting with default options.
      *  new UserAgentMetadata.Builder().build();
-     *
+     * <p>
      *  // Create a setting with a brand version contains brand name: myBrand, major version: 100,
      *  // full version: 100.1.1.1.
      *  BrandVersion brandVersion = new BrandVersion.Builder().setBrand("myBrand")
@@ -385,7 +385,7 @@ public final class UserAgentMetadata {
      *                                                        .build();
      *  new UserAgentMetadata.Builder().setBrandVersionList(Collections.singletonList(brandVersion))
      *                                 .build();
-     *
+     * <p>
      *  // Create a setting brand version, platform, platform version and bitness.
      *  new UserAgentMetadata.Builder().setBrandVersionList(Collections.singletonList(brandVersion))
      *                                 .setPlatform("myPlatform")

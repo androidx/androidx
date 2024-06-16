@@ -49,43 +49,44 @@ internal class TextAnnotatedStringElement(
     private val onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
-    override fun create(): TextAnnotatedStringNode = TextAnnotatedStringNode(
-        text,
-        style,
-        fontFamilyResolver,
-        onTextLayout,
-        overflow,
-        softWrap,
-        maxLines,
-        minLines,
-        placeholders,
-        onPlaceholderLayout,
-        selectionController,
-        color,
-        onShowTranslation
-    )
+    override fun create(): TextAnnotatedStringNode =
+        TextAnnotatedStringNode(
+            text,
+            style,
+            fontFamilyResolver,
+            onTextLayout,
+            overflow,
+            softWrap,
+            maxLines,
+            minLines,
+            placeholders,
+            onPlaceholderLayout,
+            selectionController,
+            color,
+            onShowTranslation
+        )
 
     override fun update(node: TextAnnotatedStringNode) {
         node.doInvalidations(
             drawChanged = node.updateDraw(color, style),
-            textChanged = node.updateText(
-                text = text
-            ),
-            layoutChanged = node.updateLayoutRelatedArgs(
-                style = style,
-                placeholders = placeholders,
-                minLines = minLines,
-                maxLines = maxLines,
-                softWrap = softWrap,
-                fontFamilyResolver = fontFamilyResolver,
-                overflow = overflow
-            ),
-            callbacksChanged = node.updateCallbacks(
-                onTextLayout = onTextLayout,
-                onPlaceholderLayout = onPlaceholderLayout,
-                selectionController = selectionController,
-                onShowTranslation = onShowTranslation
-            )
+            textChanged = node.updateText(text = text),
+            layoutChanged =
+                node.updateLayoutRelatedArgs(
+                    style = style,
+                    placeholders = placeholders,
+                    minLines = minLines,
+                    maxLines = maxLines,
+                    softWrap = softWrap,
+                    fontFamilyResolver = fontFamilyResolver,
+                    overflow = overflow
+                ),
+            callbacksChanged =
+                node.updateCallbacks(
+                    onTextLayout = onTextLayout,
+                    onPlaceholderLayout = onPlaceholderLayout,
+                    selectionController = selectionController,
+                    onShowTranslation = onShowTranslation
+                )
         )
     }
 

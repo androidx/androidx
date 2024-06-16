@@ -42,15 +42,15 @@ import androidx.glance.unit.ColorProvider
  * A Title Bar. Contains an Icon, Text, and actions. Intended to be placed at the top of a widget.
  *
  * @param startIcon A tintable icon representing your app or brand.
- * @param title Text to be displayed. Generally the name of your widget or app. Title
- * should be shortened or omitted when the widget's width is narrow. The width can be checked
- * using `LocalSize.current.width`
+ * @param title Text to be displayed. Generally the name of your widget or app. Title should be
+ *   shortened or omitted when the widget's width is narrow. The width can be checked using
+ *   `LocalSize.current.width`
  * @param iconColor The color which [startIcon] will be tinted.
  * @param textColor The color which [title] will be tinted.
  * @param modifier GlanceModifier.
  * @param fontFamily Optional override for [title]'s font family. Leave null to use the default.
  * @param actions A slot api for buttons. Use [CircleIconButton] with backgroundColor = null.
- * Buttons will be placed in a [Row].
+ *   Buttons will be placed in a [Row].
  */
 @SuppressLint("ComposableLambdaParameterNaming") // lint thinks `actions` should be called `content`
 @Composable
@@ -65,10 +65,7 @@ fun TitleBar(
 ) {
     @Composable
     fun StartIcon() {
-        Box(
-            GlanceModifier.size(48.dp).padding(start = 2.dp),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(GlanceModifier.size(48.dp).padding(start = 2.dp), contentAlignment = Alignment.Center) {
             Image(
                 modifier = GlanceModifier.size(24.dp),
                 provider = startIcon,
@@ -82,12 +79,13 @@ fun TitleBar(
     fun RowScope.Title() {
         Text(
             text = title,
-            style = TextStyle(
-                color = textColor,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp,
-                fontFamily = fontFamily
-            ),
+            style =
+                TextStyle(
+                    color = textColor,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    fontFamily = fontFamily
+                ),
             maxLines = 1,
             modifier = GlanceModifier.defaultWeight()
         )

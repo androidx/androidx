@@ -96,18 +96,19 @@ class BenchmarkDataTest {
                 warmupIterations = 1,
                 repeatIterations = 1,
                 thermalThrottleSleepSeconds = 0,
-                profilerOutputs = listOf(
-                    BenchmarkData.TestResult.ProfilerOutput(
-                        BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
-                        "duplicate label",
-                        "filename1.trace"
-                    ),
-                    BenchmarkData.TestResult.ProfilerOutput(
-                        BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
-                        "duplicate label",
-                        "filename2.trace"
+                profilerOutputs =
+                    listOf(
+                        BenchmarkData.TestResult.ProfilerOutput(
+                            BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
+                            "duplicate label",
+                            "filename1.trace"
+                        ),
+                        BenchmarkData.TestResult.ProfilerOutput(
+                            BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
+                            "duplicate label",
+                            "filename2.trace"
+                        )
                     )
-                )
             )
         }
     }
@@ -130,19 +131,15 @@ class BenchmarkDataTest {
 
     @Test
     fun artMainlineVersion() {
-        validateArtMainlineVersion(
-            artMainlineVersion = BenchmarkData.Context().artMainlineVersion
-        )
+        validateArtMainlineVersion(artMainlineVersion = BenchmarkData.Context().artMainlineVersion)
     }
 
     private fun readTextAsset(filename: String): String {
-        return InstrumentationRegistry
-            .getInstrumentation()
+        return InstrumentationRegistry.getInstrumentation()
             .context
             .assets
             .open(filename)
-            .reader().use {
-                it.readText()
-            }
+            .reader()
+            .use { it.readText() }
     }
 }

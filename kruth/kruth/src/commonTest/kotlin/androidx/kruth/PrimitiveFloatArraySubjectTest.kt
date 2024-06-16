@@ -92,9 +92,7 @@ class PrimitiveFloatArraySubjectTest {
             floatArrayOf(2.2f, 5.4f, POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN, 0.0f, -0.0f)
         val expected =
             floatArrayOf(2.2f, 5.4f, POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN, 0.0f, -0.0f)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNotEqualTo(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNotEqualTo(expected) }
     }
 
     @Test

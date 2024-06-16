@@ -32,15 +32,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark that runs [AndroidNestedScrollViewTestCase].
- */
+/** Benchmark that runs [AndroidNestedScrollViewTestCase]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AndroidNestedScrollViewBenchmark {
 
-    @get:Rule
-    val benchmarkRule = AndroidBenchmarkRule()
+    @get:Rule val benchmarkRule = AndroidBenchmarkRule()
 
     private val nestedScrollCaseFactory = { AndroidNestedScrollViewTestCase() }
 

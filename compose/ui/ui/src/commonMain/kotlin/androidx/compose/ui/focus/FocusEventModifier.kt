@@ -21,28 +21,20 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
-/**
- * A [modifier][Modifier.Element] that can be used to observe focus state events.
- */
+/** A [modifier][Modifier.Element] that can be used to observe focus state events. */
 @Deprecated("Use FocusEventModifierNode instead")
 @JvmDefaultWithCompatibility
 interface FocusEventModifier : Modifier.Element {
-    /**
-     * A callback that is called whenever the focus system raises events.
-     */
+    /** A callback that is called whenever the focus system raises events. */
     fun onFocusEvent(focusState: FocusState)
 }
 
-/**
- * Add this modifier to a component to observe focus state events.
- */
-fun Modifier.onFocusEvent(
-    onFocusEvent: (FocusState) -> Unit
-): Modifier = this then FocusEventElement(onFocusEvent)
+/** Add this modifier to a component to observe focus state events. */
+fun Modifier.onFocusEvent(onFocusEvent: (FocusState) -> Unit): Modifier =
+    this then FocusEventElement(onFocusEvent)
 
-private data class FocusEventElement(
-    val onFocusEvent: (FocusState) -> Unit
-) : ModifierNodeElement<FocusEventNode>() {
+private data class FocusEventElement(val onFocusEvent: (FocusState) -> Unit) :
+    ModifierNodeElement<FocusEventNode>() {
     override fun create() = FocusEventNode(onFocusEvent)
 
     override fun update(node: FocusEventNode) {
@@ -55,9 +47,8 @@ private data class FocusEventElement(
     }
 }
 
-private class FocusEventNode(
-    var onFocusEvent: (FocusState) -> Unit
-) : FocusEventModifierNode, Modifier.Node() {
+private class FocusEventNode(var onFocusEvent: (FocusState) -> Unit) :
+    FocusEventModifierNode, Modifier.Node() {
 
     override fun onFocusEvent(focusState: FocusState) {
         this.onFocusEvent.invoke(focusState)

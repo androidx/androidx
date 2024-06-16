@@ -50,13 +50,11 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
 
     /**
      * The regular test dispatcher will already run the [kotlinx.coroutines.launch]es as if they
-     * were [kotlinx.coroutines.CoroutineStart.UNDISPATCHED], so overwrite it with a standard
-     * single parallelism dispatcher. Without this, a regression on this functionality would
-     * not be caught in this test.
+     * were [kotlinx.coroutines.CoroutineStart.UNDISPATCHED], so overwrite it with a standard single
+     * parallelism dispatcher. Without this, a regression on this functionality would not be caught
+     * in this test.
      */
-    @OptIn(ExperimentalTestApi::class)
-    @get:Rule
-    val rule = createComposeRule(Dispatchers.Main)
+    @OptIn(ExperimentalTestApi::class) @get:Rule val rule = createComposeRule(Dispatchers.Main)
 
     private val testTag = "testTag"
     private val observer = RecordingTextDragObserver()
@@ -66,21 +64,22 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
     fun setup() {
         rule.setContent {
             CompositionLocalProvider(
-                LocalViewConfiguration provides TestViewConfiguration(
-                    minimumTouchTargetSize = DpSize.Zero,
-                    touchSlop = Float.MIN_VALUE,
-                )
+                LocalViewConfiguration provides
+                    TestViewConfiguration(
+                        minimumTouchTargetSize = DpSize.Zero,
+                        touchSlop = Float.MIN_VALUE,
+                    )
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Box(
-                        modifier = Modifier
-                            .size(10.dp, 10.dp)
-                            .background(Color.Black)
-                            .align(Alignment.Center)
-                            .pointerInput(Unit) {
-                                detectDownAndDragGesturesWithObserver(observer)
-                            }
-                            .testTag(testTag)
+                        modifier =
+                            Modifier.size(10.dp, 10.dp)
+                                .background(Color.Black)
+                                .align(Alignment.Center)
+                                .pointerInput(Unit) {
+                                    detectDownAndDragGesturesWithObserver(observer)
+                                }
+                                .testTag(testTag)
                     )
                 }
             }
@@ -98,17 +97,20 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
 
         rule.waitForIdle()
 
-        assertThat(records)
-            .containsExactly("down", "start", "drag", "drag", "stop", "up")
-            .inOrder()
+        assertThat(records).containsExactly("down", "start", "drag", "drag", "stop", "up").inOrder()
     }
 
     private inner class RecordingTextDragObserver : TextDragObserver {
         override fun onDown(point: Offset) = add("down")
+
         override fun onUp() = add("up")
+
         override fun onStart(startPoint: Offset) = add("start")
+
         override fun onDrag(delta: Offset) = add("drag")
+
         override fun onStop() = add("stop")
+
         override fun onCancel() = add("cancel")
 
         private fun add(str: String) {

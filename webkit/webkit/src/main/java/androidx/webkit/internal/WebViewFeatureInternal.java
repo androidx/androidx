@@ -42,7 +42,6 @@ import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebResourceRequestCompat;
-import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
@@ -106,12 +105,12 @@ public class WebViewFeatureInternal {
             Features.START_SAFE_BROWSING);
 
     /**
-     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(Set,
-     * ValueCallback)}, plumbing through the deprecated boundary interface.
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(
+     * java.util.List, ValueCallback)}, plumbing through the deprecated boundary interface.
      *
-     * <p>Don't use this value directly. This exists only so {@link WebViewFeature#isSupported}
-     * supports the <b>deprecated</b> public feature when running against <b>old</b> WebView
-     * versions.
+     * <p>Don't use this value directly. This exists only so
+     * {@link WebViewFeatureInternal#isSupported(String)} supports the <b>deprecated</b> public
+     * feature when running against <b>old</b> WebView versions.
      *
      * @deprecated use {@link #SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED} to test for the
      * <b>old</b> boundary interface
@@ -122,12 +121,12 @@ public class WebViewFeatureInternal {
                     Features.SAFE_BROWSING_WHITELIST);
 
     /**
-     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(Set,
-     * ValueCallback)}, plumbing through the new boundary interface.
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(
+     * java.util.List, ValueCallback)}, plumbing through the new boundary interface.
      *
-     * <p>Don't use this value directly. This exists only so {@link WebViewFeature#isSupported}
-     * supports the <b>deprecated</b> public feature when running against <b>new</b> WebView
-     * versions.
+     * <p>Don't use this value directly. This exists only so
+     * {@link WebViewFeatureInternal#isSupported(String)} supports the <b>deprecated</b> public
+     * feature when running against <b>new</b> WebView versions.
      *
      * @deprecated use {@link #SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED} to test for the
      * <b>new</b> boundary interface.
@@ -402,10 +401,10 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link WebViewCompat#getWebViewRenderProcessClient()},
-     * {@link WebViewCompat#setWebViewRenderProcessClient(WebViewRenderProcessClient)},
-     * {@link WebViewRenderProcessClient#onRenderProcessUnresponsive(WebView, WebViewRenderProcess)},
-     * {@link WebViewRenderProcessClient#onRenderProcessResponsive(WebView, WebViewRenderProcess)}
+     * {@link WebViewCompat#getWebViewRenderProcessClient(android.webkit.WebView)},
+     * {@link WebViewCompat#setWebViewRenderProcessClient(WebView, androidx.webkit.WebViewRenderProcessClient)},
+     * {@link android.webkit.WebViewRenderProcessClient#onRenderProcessUnresponsive(WebView, android.webkit.WebViewRenderProcess)},
+     * {@link android.webkit.WebViewRenderProcessClient#onRenderProcessResponsive(WebView, android.webkit.WebViewRenderProcess)}
      */
     public static final ApiFeature.Q WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE =
             new ApiFeature.Q(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
@@ -438,10 +437,8 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link ProxyController#setProxyOverride(ProxyConfig, Executor, Runnable)},
-     * {@link ProxyController#setProxyOverride(ProxyConfig, Runnable)},
-     * {@link ProxyController#clearProxyOverride(Executor, Runnable)}, and
-     * {@link ProxyController#clearProxyOverride(Runnable)}.
+     * {@link ProxyController#setProxyOverride(ProxyConfig, Executor, Runnable)}, and
+     * {@link ProxyController#clearProxyOverride(Executor, Runnable)}.
      */
     public static final ApiFeature.NoFramework PROXY_OVERRIDE = new ApiFeature.NoFramework(
             WebViewFeature.PROXY_OVERRIDE, Features.PROXY_OVERRIDE);
@@ -472,9 +469,8 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setWebMessageListener(android.webkit.WebView,
-     * androidx.webkit.WebViewCompat.WebMessageListener, String, String[])} and
-     * {@link androidx.webkit.WebViewCompat#removeWebMessageListener()}
+     * {@link androidx.webkit.WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)} and
+     * {@link androidx.webkit.WebViewCompat#removeWebMessageListener(WebView, String)}
      */
     public static final ApiFeature.NoFramework WEB_MESSAGE_LISTENER =
             new ApiFeature.NoFramework(WebViewFeature.WEB_MESSAGE_LISTENER,
@@ -491,7 +487,8 @@ public class WebViewFeatureInternal {
                     Features.DOCUMENT_START_SCRIPT);
 
     /**
-     * This feature covers {@link androidx.webkit.ProxyConfig.Builder.setReverseBypass(boolean)}
+     * This feature covers {@link
+     * androidx.webkit.ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
      */
     public static final ApiFeature.NoFramework PROXY_OVERRIDE_REVERSE_BYPASS =
             new ApiFeature.NoFramework(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS,
@@ -516,13 +513,12 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.CookieManager#getCookieInfo(CookieManager, String)}.
+     * {@link androidx.webkit.CookieManagerCompat#getCookieInfo(android.webkit.CookieManager, String)}.
      */
     public static final ApiFeature.NoFramework GET_COOKIE_INFO =
             new ApiFeature.NoFramework(WebViewFeature.GET_COOKIE_INFO, Features.GET_COOKIE_INFO);
 
     /**
-     * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
      * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)],
      * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)},
@@ -536,7 +532,7 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)} and
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, androidx.webkit.UserAgentMetadata)} and
      * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
      *
      */
@@ -545,7 +541,6 @@ public class WebViewFeatureInternal {
                     Features.USER_AGENT_METADATA);
 
     /**
-     * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
      * {@link Profile#getName()}.
      * {@link Profile#getWebStorage()}.
@@ -586,7 +581,7 @@ public class WebViewFeatureInternal {
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebSettingsCompat.WebViewMediaIntegrityApiStatusConfig)}
+     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, androidx.webkit.WebViewMediaIntegrityApiStatusConfig)}
      * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
      */
     public static final ApiFeature.NoFramework WEBVIEW_MEDIA_INTEGRITY_API_STATUS =
@@ -612,6 +607,26 @@ public class WebViewFeatureInternal {
      */
     public static final ApiFeature.NoFramework WEB_AUTHENTICATION = new ApiFeature.NoFramework(
             WebViewFeature.WEB_AUTHENTICATION, Features.WEB_AUTHENTICATION);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setSpeculativeLoadingStatus(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getSpeculativeLoadingStatus(WebSettings)}
+     */
+    public static final ApiFeature.NoFramework SPECULATIVE_LOADING =
+            new ApiFeature.NoFramework(WebViewFeature.SPECULATIVE_LOADING,
+                    Features.SPECULATIVE_LOADING);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheEnabled(WebSettings, boolean)}
+     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheEnabled(WebSettings)}
+     */
+    public static final ApiFeature.NoFramework BACK_FORWARD_CACHE =
+            new ApiFeature.NoFramework(WebViewFeature.BACK_FORWARD_CACHE,
+                    Features.BACK_FORWARD_CACHE);
 
     // --- Add new feature constants above this line ---
 

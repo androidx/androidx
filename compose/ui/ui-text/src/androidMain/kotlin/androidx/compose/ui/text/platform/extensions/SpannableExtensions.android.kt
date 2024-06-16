@@ -91,21 +91,20 @@ internal fun Spannable.setTextIndent(
         if (indent.firstLine == 0.sp && indent.restLine == 0.sp) return@let
         if (indent.firstLine.isUnspecified || indent.restLine.isUnspecified) return@let
         with(density) {
-            val firstLine = when (indent.firstLine.type) {
-                TextUnitType.Sp -> indent.firstLine.toPx()
-                TextUnitType.Em -> indent.firstLine.value * contextFontSize
-                else -> 0f
-            }
-            val restLine = when (indent.restLine.type) {
-                TextUnitType.Sp -> indent.restLine.toPx()
-                TextUnitType.Em -> indent.restLine.value * contextFontSize
-                else -> 0f
-            }
+            val firstLine =
+                when (indent.firstLine.type) {
+                    TextUnitType.Sp -> indent.firstLine.toPx()
+                    TextUnitType.Em -> indent.firstLine.value * contextFontSize
+                    else -> 0f
+                }
+            val restLine =
+                when (indent.restLine.type) {
+                    TextUnitType.Sp -> indent.restLine.toPx()
+                    TextUnitType.Em -> indent.restLine.value * contextFontSize
+                    else -> 0f
+                }
             setSpan(
-                LeadingMarginSpan.Standard(
-                    ceil(firstLine).toInt(),
-                    ceil(restLine).toInt()
-                ),
+                LeadingMarginSpan.Standard(ceil(firstLine).toInt(), ceil(restLine).toInt()),
                 0,
                 length
             )
@@ -126,14 +125,15 @@ internal fun Spannable.setLineHeight(
         // it won't apply trimLastLineBottom rule
         val endIndex = if (isEmpty() || last() == '\n') length + 1 else length
         setSpan(
-            span = LineHeightStyleSpan(
-                lineHeight = resolvedLineHeight,
-                startIndex = 0,
-                endIndex = endIndex,
-                trimFirstLineTop = lineHeightStyle.trim.isTrimFirstLineTop(),
-                trimLastLineBottom = lineHeightStyle.trim.isTrimLastLineBottom(),
-                topRatio = lineHeightStyle.alignment.topRatio
-            ),
+            span =
+                LineHeightStyleSpan(
+                    lineHeight = resolvedLineHeight,
+                    startIndex = 0,
+                    endIndex = endIndex,
+                    trimFirstLineTop = lineHeightStyle.trim.isTrimFirstLineTop(),
+                    trimLastLineBottom = lineHeightStyle.trim.isTrimLastLineBottom(),
+                    topRatio = lineHeightStyle.alignment.topRatio
+                ),
             start = 0,
             end = length
         )
@@ -148,11 +148,7 @@ internal fun Spannable.setLineHeight(
 ) {
     val resolvedLineHeight = resolveLineHeightInPx(lineHeight, contextFontSize, density)
     if (!resolvedLineHeight.isNaN()) {
-        setSpan(
-            span = LineHeightSpan(lineHeight = resolvedLineHeight),
-            start = 0,
-            end = length
-        )
+        setSpan(span = LineHeightSpan(lineHeight = resolvedLineHeight), start = 0, end = length)
     }
 }
 
@@ -199,10 +195,7 @@ internal fun Spannable.setSpanStyles(
 
         if (start < 0 || start >= length || end <= start || end > length) continue
 
-        setSpanStyle(
-            spanStyleRange,
-            density
-        )
+        setSpanStyle(spanStyleRange, density)
 
         if (spanStyleRange.item.needsLetterSpacingSpan) {
             hasLetterSpacing = true
@@ -223,9 +216,7 @@ internal fun Spannable.setSpanStyles(
 
             if (start < 0 || start >= length || end <= start || end > length) continue
 
-            createLetterSpacingSpan(style.letterSpacing, density)?.let {
-                setSpan(it, start, end)
-            }
+            createLetterSpacingSpan(style.letterSpacing, density)?.let { setSpan(it, start, end) }
         }
     }
 }
@@ -271,21 +262,16 @@ private fun Spannable.setSpanStyle(
  * and we have to resolve font settings and create typeface first and then set it directly on
  * TextPaint.
  *
- * Notice that a [contextTextStyle] is also required when we flatten the font related styles.
- * For example:
- *  the entire text has the TextStyle(fontFamily = Sans-serif)
- *  Hi Hello World
- *  [ bold ]
- * FontWeight.Bold is set in range [0, 8).
- * The resolved TypefaceSpan should be TypefaceSpan("Sans-serif", "bold") in range [0, 8).
- * As demonstrated above, the fontFamily information is from [contextTextStyle].
- *
- * @see flattenFontStylesAndApply
+ * Notice that a [contextTextStyle] is also required when we flatten the font related styles. For
+ * example: the entire text has the TextStyle(fontFamily = Sans-serif) Hi Hello World [ bold ]
+ * FontWeight.Bold is set in range
+ * [0, 8). The resolved TypefaceSpan should be TypefaceSpan("Sans-serif", "bold") in range [0, 8). As demonstrated above, the fontFamily information is from [contextTextStyle].
  *
  * @param contextTextStyle the global [TextStyle] for the entire string.
  * @param spanStyles the [spanStyles] to be applied, this function will first filter out the font
- * related [SpanStyle]s and then apply them to this [Spannable].
+ *   related [SpanStyle]s and then apply them to this [Spannable].
  * @param fontFamilyResolver the [Font.ResourceLoader] used to resolve font.
+ * @see flattenFontStylesAndApply
  */
 @OptIn(InternalPlatformTextApi::class)
 private fun Spannable.setFontAttributes(
@@ -293,27 +279,25 @@ private fun Spannable.setFontAttributes(
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
 ) {
-    val fontRelatedSpanStyles = spanStyles.fastFilter {
-        it.item.hasFontAttributes() || it.item.fontSynthesis != null
-    }
+    val fontRelatedSpanStyles =
+        spanStyles.fastFilter { it.item.hasFontAttributes() || it.item.fontSynthesis != null }
 
     // Create a SpanStyle if contextTextStyle has font related attributes, otherwise use
     // null to avoid unnecessary object creation.
-    val contextFontSpanStyle = if (contextTextStyle.hasFontAttributes()) {
-        SpanStyle(
-            fontFamily = contextTextStyle.fontFamily,
-            fontWeight = contextTextStyle.fontWeight,
-            fontStyle = contextTextStyle.fontStyle,
-            fontSynthesis = contextTextStyle.fontSynthesis
-        )
-    } else {
-        null
-    }
+    val contextFontSpanStyle =
+        if (contextTextStyle.hasFontAttributes()) {
+            SpanStyle(
+                fontFamily = contextTextStyle.fontFamily,
+                fontWeight = contextTextStyle.fontWeight,
+                fontStyle = contextTextStyle.fontStyle,
+                fontSynthesis = contextTextStyle.fontSynthesis
+            )
+        } else {
+            null
+        }
 
-    flattenFontStylesAndApply(
-        contextFontSpanStyle,
-        fontRelatedSpanStyles
-    ) { spanStyle, start, end ->
+    flattenFontStylesAndApply(contextFontSpanStyle, fontRelatedSpanStyles) { spanStyle, start, end
+        ->
         setSpan(
             TypefaceSpan(
                 resolveTypeface(
@@ -334,9 +318,9 @@ private fun Spannable.setFontAttributes(
  * Flatten styles in the [spanStyles], so that overlapping styles are merged, and then apply the
  * [block] on the merged [SpanStyle].
  *
- * @param contextFontSpanStyle the global [SpanStyle]. It act as if every [spanStyles] is applied
- * on top of it. This parameter is nullable. A null value is exactly the same as a default
- * SpanStyle, but avoids unnecessary object creation.
+ * @param contextFontSpanStyle the global [SpanStyle]. It act as if every [spanStyles] is applied on
+ *   top of it. This parameter is nullable. A null value is exactly the same as a default SpanStyle,
+ *   but avoids unnecessary object creation.
  * @param spanStyles the input [SpanStyle] ranges to be flattened.
  * @param block the function to be applied on the merged [SpanStyle].
  */
@@ -385,15 +369,18 @@ internal fun flattenFontStylesAndApply(
             // Empty spans do not intersect with anything, skip them.
             if (
                 spanStyle.start != spanStyle.end &&
-                intersect(lastTransitionOffsets, transitionOffset, spanStyle.start, spanStyle.end)
+                    intersect(
+                        lastTransitionOffsets,
+                        transitionOffset,
+                        spanStyle.start,
+                        spanStyle.end
+                    )
             ) {
                 mergedSpanStyle = mergedSpanStyle.merge(spanStyle.item)
             }
         }
 
-        mergedSpanStyle?.let {
-            block(it, lastTransitionOffsets, transitionOffset)
-        }
+        mergedSpanStyle?.let { block(it, lastTransitionOffsets, transitionOffset) }
 
         lastTransitionOffsets = transitionOffset
     }
@@ -406,9 +393,7 @@ private fun createLetterSpacingSpan(
     density: Density
 ): MetricAffectingSpan? {
     return when (letterSpacing.type) {
-        TextUnitType.Sp -> with(density) {
-            LetterSpacingSpanPx(letterSpacing.toPx())
-        }
+        TextUnitType.Sp -> with(density) { LetterSpacingSpanPx(letterSpacing.toPx()) }
         TextUnitType.Em -> {
             LetterSpacingSpanEm(letterSpacing.value)
         }
@@ -439,18 +424,12 @@ private fun Spannable.setShadow(shadow: Shadow?, start: Int, end: Int) {
 
 @OptIn(InternalPlatformTextApi::class)
 private fun Spannable.setDrawStyle(drawStyle: DrawStyle?, start: Int, end: Int) {
-    drawStyle?.let {
-        setSpan(DrawStyleSpan(it), start, end)
-    }
+    drawStyle?.let { setSpan(DrawStyleSpan(it), start, end) }
 }
 
 internal fun Spannable.setBackground(color: Color, start: Int, end: Int) {
     if (color.isSpecified) {
-        setSpan(
-            BackgroundColorSpan(color.toArgb()),
-            start,
-            end
-        )
+        setSpan(BackgroundColorSpan(color.toArgb()), start, end)
     }
 }
 
@@ -483,36 +462,35 @@ private fun Spannable.setGeometricTransform(
 
 @OptIn(InternalPlatformTextApi::class)
 private fun Spannable.setFontFeatureSettings(fontFeatureSettings: String?, start: Int, end: Int) {
-    fontFeatureSettings?.let {
-        setSpan(FontFeatureSpan(it), start, end)
-    }
+    fontFeatureSettings?.let { setSpan(FontFeatureSpan(it), start, end) }
 }
 
 @Suppress("DEPRECATION")
 internal fun Spannable.setFontSize(fontSize: TextUnit, density: Density, start: Int, end: Int) {
     when (fontSize.type) {
-        TextUnitType.Sp -> with(density) {
-            setSpan(
-                AbsoluteSizeSpan(/* size */ fontSize.toPx().roundToInt(), /* dip */ false),
-                start,
-                end
-            )
-        }
+        TextUnitType.Sp ->
+            with(density) {
+                setSpan(
+                    AbsoluteSizeSpan(/* size */ fontSize.toPx().roundToInt(), /* dip */ false),
+                    start,
+                    end
+                )
+            }
         TextUnitType.Em -> {
             setSpan(RelativeSizeSpan(fontSize.value), start, end)
         }
-        else -> {
-        } // Do nothing
+        else -> {} // Do nothing
     }
 }
 
 @OptIn(InternalPlatformTextApi::class)
 internal fun Spannable.setTextDecoration(textDecoration: TextDecoration?, start: Int, end: Int) {
     textDecoration?.let {
-        val textDecorationSpan = TextDecorationSpan(
-            isUnderlineText = TextDecoration.Underline in it,
-            isStrikethroughText = TextDecoration.LineThrough in it
-        )
+        val textDecorationSpan =
+            TextDecorationSpan(
+                isUnderlineText = TextDecoration.Underline in it,
+                isStrikethroughText = TextDecoration.LineThrough in it
+            )
         setSpan(textDecorationSpan, start, end)
     }
 }
@@ -525,17 +503,10 @@ internal fun Spannable.setColor(color: Color, start: Int, end: Int) {
 
 @OptIn(InternalPlatformTextApi::class)
 private fun Spannable.setBaselineShift(baselineShift: BaselineShift?, start: Int, end: Int) {
-    baselineShift?.let {
-        setSpan(BaselineShiftSpan(it.multiplier), start, end)
-    }
+    baselineShift?.let { setSpan(BaselineShiftSpan(it.multiplier), start, end) }
 }
 
-private fun Spannable.setBrush(
-    brush: Brush?,
-    alpha: Float,
-    start: Int,
-    end: Int
-) {
+private fun Spannable.setBrush(brush: Brush?, alpha: Float, start: Int, end: Int) {
     brush?.let {
         when (brush) {
             is SolidColor -> {
@@ -550,15 +521,14 @@ private fun Spannable.setBrush(
 
 /**
  * Returns true if there is any font settings on this [TextStyle].
+ *
  * @see hasFontAttributes
  */
 private fun TextStyle.hasFontAttributes(): Boolean {
     return toSpanStyle().hasFontAttributes() || fontSynthesis != null
 }
 
-/**
- * Helper function that merges a nullable [SpanStyle] with another [SpanStyle].
- */
+/** Helper function that merges a nullable [SpanStyle] with another [SpanStyle]. */
 private fun SpanStyle?.merge(spanStyle: SpanStyle): SpanStyle {
     if (this == null) return spanStyle
     return this.merge(spanStyle)

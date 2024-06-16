@@ -31,9 +31,11 @@ internal class ExerciseGoalTest {
 
     @Test
     fun protoRoundTrip_oneTime() {
-        val proto = ExerciseGoal.createOneTimeGoal(
-            DataTypeCondition(HEART_RATE_BPM_STATS, 145.0, GREATER_THAN)
-        ).proto
+        val proto =
+            ExerciseGoal.createOneTimeGoal(
+                    DataTypeCondition(HEART_RATE_BPM_STATS, 145.0, GREATER_THAN)
+                )
+                .proto
 
         val goal = ExerciseGoal.fromProto(proto)
 
@@ -46,10 +48,12 @@ internal class ExerciseGoalTest {
 
     @Test
     fun protoRoundTrip_milestone() {
-        val proto = ExerciseGoal.createMilestone(
-            DataTypeCondition(DISTANCE_TOTAL, 500.0, GREATER_THAN),
-            period = 1000.0
-        ).proto
+        val proto =
+            ExerciseGoal.createMilestone(
+                    DataTypeCondition(DISTANCE_TOTAL, 500.0, GREATER_THAN),
+                    period = 1000.0
+                )
+                .proto
 
         val goal = ExerciseGoal.fromProto(proto)
 

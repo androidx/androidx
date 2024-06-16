@@ -75,40 +75,46 @@ class GlanceSessionManagerTest {
     private val additionalTime = 200.milliseconds
     private val idleTimeout = 200.milliseconds
     private val initialTimeout = 500.milliseconds
-    private val timeouts = TimeoutOptions(
-        additionalTime = additionalTime,
-        idleTimeout = idleTimeout,
-        initialTimeout = initialTimeout,
-        timeSource = { testScope.currentTime },
-    )
+    private val timeouts =
+        TimeoutOptions(
+            additionalTime = additionalTime,
+            idleTimeout = idleTimeout,
+            initialTimeout = initialTimeout,
+            timeSource = { testScope.currentTime },
+        )
 
     @Before
     fun before() = runBlocking {
-        val config = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setExecutor(SynchronousExecutor())
-            .setWorkerFactory(object : WorkerFactory() {
-                    override fun createWorker(
-                    appContext: Context,
-                    workerClassName: String,
-                    workerParameters: WorkerParameters
-                ): ListenableWorker {
-                    assertThat(workerClassName).isEqualTo(SessionWorker::class.qualifiedName)
-                    return SessionWorker(
-                        appContext,
-                        workerParameters,
-                        GlanceSessionManager,
-                        timeouts,
-                        testScope.coroutineContext[CoroutineDispatcher]!!,
-                    )
-                }
-            })
-            .build()
+        val config =
+            Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .setExecutor(SynchronousExecutor())
+                .setWorkerFactory(
+                    object : WorkerFactory() {
+                        override fun createWorker(
+                            appContext: Context,
+                            workerClassName: String,
+                            workerParameters: WorkerParameters
+                        ): ListenableWorker {
+                            assertThat(workerClassName)
+                                .isEqualTo(SessionWorker::class.qualifiedName)
+                            return SessionWorker(
+                                appContext,
+                                workerParameters,
+                                GlanceSessionManager,
+                                timeouts,
+                                testScope.coroutineContext[CoroutineDispatcher]!!,
+                            )
+                        }
+                    }
+                )
+                .build()
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
-        workerState = WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWorkLiveData(testSession.key)
-            .asFlow()
-            .stateIn(workerStateScope)
+        workerState =
+            WorkManager.getInstance(context)
+                .getWorkInfosForUniqueWorkLiveData(testSession.key)
+                .asFlow()
+                .stateIn(workerStateScope)
     }
 
     @After
@@ -121,76 +127,79 @@ class GlanceSessionManagerTest {
     }
 
     @Test
-    fun startingSessionRunsComposition() = testScope.runTest {
-        startSession()
+    fun startingSessionRunsComposition() =
+        testScope.runTest {
+            startSession()
 
-        val text = assertIs<EmittableText>(testSession.uiTree.receive().children.single())
-        assertThat(text.text).isEqualTo("Hello World")
+            val text = assertIs<EmittableText>(testSession.uiTree.receive().children.single())
+            assertThat(text.text).isEqualTo("Hello World")
 
-        GlanceSessionManager.runWithLock {
-            assertNotNull(getSession(testSession.key)).close()
+            GlanceSessionManager.runWithLock { assertNotNull(getSession(testSession.key)).close() }
+            waitForWorkerSuccess()
         }
-        waitForWorkerSuccess()
-    }
 
     @Test
-    fun sessionInitialTimeout() = testScope.runTest {
-        startSession()
+    fun sessionInitialTimeout() =
+        testScope.runTest {
+            startSession()
 
-        // Timeout starts after first successful composition
-        testSession.uiTree.receive()
-        val timeout = testTimeSource.measureTime {
-            waitForWorkerTimeout()
+            // Timeout starts after first successful composition
+            testSession.uiTree.receive()
+            val timeout = testTimeSource.measureTime { waitForWorkerTimeout() }
+            assertThat(timeout).isEqualTo(initialTimeout)
         }
-        assertThat(timeout).isEqualTo(initialTimeout)
-    }
 
     @Test
-    fun sessionDoesNotTimeoutBeforeFirstComposition() = testScope.runTest {
-        startSession()
+    fun sessionDoesNotTimeoutBeforeFirstComposition() =
+        testScope.runTest {
+            startSession()
 
-        // The session is not subject to a timeout before the composition has been processed
-        // successfully for the first time.
-        delay(initialTimeout * 5)
-        GlanceSessionManager.runWithLock {
-            assertThat(isSessionRunning(context, testSession.key)).isTrue()
-        }
+            // The session is not subject to a timeout before the composition has been processed
+            // successfully for the first time.
+            delay(initialTimeout * 5)
+            GlanceSessionManager.runWithLock {
+                assertThat(isSessionRunning(context, testSession.key)).isTrue()
+            }
 
-        testSession.uiTree.receive()
-        val timeout = testTimeSource.measureTime {
-            waitForWorkerTimeout()
+            testSession.uiTree.receive()
+            val timeout = testTimeSource.measureTime { waitForWorkerTimeout() }
+            assertThat(timeout).isEqualTo(initialTimeout)
         }
-        assertThat(timeout).isEqualTo(initialTimeout)
-    }
 
     @Test
-    fun sessionAddsTimeOnExternalEvents() = testScope.runTest {
-        startSession()
+    fun sessionAddsTimeOnExternalEvents() =
+        testScope.runTest {
+            startSession()
 
-        // Timeout starts after first successful composition, and is incremented every time an event
-        // is received.
-        testSession.uiTree.receive()
-        val timeout = testTimeSource.measureTime {
-            delay(initialTimeout - 1.milliseconds)
-            testSession.sendEvent()
-            waitForWorkerTimeout()
+            // Timeout starts after first successful composition, and is incremented every time an
+            // event
+            // is received.
+            testSession.uiTree.receive()
+            val timeout =
+                testTimeSource.measureTime {
+                    delay(initialTimeout - 1.milliseconds)
+                    testSession.sendEvent()
+                    waitForWorkerTimeout()
+                }
+            assertThat(timeout).isEqualTo(initialTimeout + additionalTime)
         }
-        assertThat(timeout).isEqualTo(initialTimeout + additionalTime)
-    }
 
     @Test
-    fun sessionDoesNotAddTimeOnExternalEventsIfThereIsEnoughTimeLeft() = testScope.runTest {
-        startSession()
+    fun sessionDoesNotAddTimeOnExternalEventsIfThereIsEnoughTimeLeft() =
+        testScope.runTest {
+            startSession()
 
-        // Timeout starts after first successful composition. There is still enough time when events
-        // arrive, so the deadline will not be extended.
-        testSession.uiTree.receive()
-        val timeout = testTimeSource.measureTime {
-            repeat(5) { testSession.sendEvent() }
-            waitForWorkerTimeout()
+            // Timeout starts after first successful composition. There is still enough time when
+            // events
+            // arrive, so the deadline will not be extended.
+            testSession.uiTree.receive()
+            val timeout =
+                testTimeSource.measureTime {
+                    repeat(5) { testSession.sendEvent() }
+                    waitForWorkerTimeout()
+                }
+            assertThat(timeout).isEqualTo(initialTimeout)
         }
-        assertThat(timeout).isEqualTo(initialTimeout)
-    }
 
     private suspend fun startSession() {
         GlanceSessionManager.runWithLock {
@@ -200,15 +209,17 @@ class GlanceSessionManagerTest {
         }
     }
 
-    private suspend fun waitForWorkerState(vararg state: State) = workerState.first {
-        it.singleOrNull()?.state in state
-    }.single()
+    private suspend fun waitForWorkerState(vararg state: State) =
+        workerState.first { it.singleOrNull()?.state in state }.single()
 
     private suspend fun waitForWorkerStart() = waitForWorkerState(State.RUNNING)
+
     private suspend fun waitForWorkerSuccess() = waitForWorkerState(State.SUCCEEDED)
-    private suspend fun waitForWorkerTimeout() = waitForWorkerSuccess().also {
-        assertThat(it.outputData.getBoolean(TimeoutExitReason, false)).isTrue()
-    }
+
+    private suspend fun waitForWorkerTimeout() =
+        waitForWorkerSuccess().also {
+            assertThat(it.outputData.getBoolean(TimeoutExitReason, false)).isTrue()
+        }
 }
 
 class TestSession : Session("session-123") {
@@ -218,9 +229,7 @@ class TestSession : Session("session-123") {
 
     override fun createRootEmittable(): EmittableWithChildren = RootEmittable()
 
-    override fun provideGlance(context: Context) = @Composable {
-        Text("Hello World")
-    }
+    override fun provideGlance(context: Context) = @Composable { Text("Hello World") }
 
     override suspend fun processEmittableTree(
         context: Context,
@@ -230,15 +239,11 @@ class TestSession : Session("session-123") {
         return true
     }
 
-    override suspend fun processEvent(context: Context, event: Any) {
-    }
+    override suspend fun processEvent(context: Context, event: Any) {}
 
-    private class RootEmittable(
-        override var modifier: GlanceModifier = GlanceModifier
-    ) : EmittableWithChildren() {
-        override fun copy() = RootEmittable(modifier).also {
-            it.children.addAll(children)
-        }
+    private class RootEmittable(override var modifier: GlanceModifier = GlanceModifier) :
+        EmittableWithChildren() {
+        override fun copy() = RootEmittable(modifier).also { it.children.addAll(children) }
     }
 }
 

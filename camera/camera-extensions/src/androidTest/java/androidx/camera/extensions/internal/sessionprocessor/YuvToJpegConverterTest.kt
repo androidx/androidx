@@ -53,12 +53,9 @@ class YuvToJpegConverterTest {
 
     @Before
     fun setUp() {
-        jpegImageReaderProxy = ImageReaderProxys.createIsolatedReader(
-            WIDTH, HEIGHT, ImageFormat.JPEG, MAX_IMAGES
-        )
-        yuvToJpegConverter = YuvToJpegConverter(
-            100, jpegImageReaderProxy.surface!!
-        )
+        jpegImageReaderProxy =
+            ImageReaderProxys.createIsolatedReader(WIDTH, HEIGHT, ImageFormat.JPEG, MAX_IMAGES)
+        yuvToJpegConverter = YuvToJpegConverter(100, jpegImageReaderProxy.surface!!)
     }
 
     @After
@@ -68,18 +65,19 @@ class YuvToJpegConverterTest {
 
     private fun generateYuvImage(): ImageProxy {
         return TestImageUtil.createYuvFakeImageProxy(
-            ImmutableImageInfo.create(
-                TagBundle.emptyBundle(), 0, 0, Matrix()
-            ), WIDTH, HEIGHT
+            ImmutableImageInfo.create(TagBundle.emptyBundle(), 0, 0, Matrix()),
+            WIDTH,
+            HEIGHT
         )
     }
 
     @Test
     fun canOutputJpeg() = runBlocking {
         val deferredImage = CompletableDeferred<ImageProxy>()
-        jpegImageReaderProxy.setOnImageAvailableListener({ imageReader ->
-            imageReader.acquireNextImage()?.let { deferredImage.complete(it) }
-        }, CameraXExecutors.ioExecutor())
+        jpegImageReaderProxy.setOnImageAvailableListener(
+            { imageReader -> imageReader.acquireNextImage()?.let { deferredImage.complete(it) } },
+            CameraXExecutors.ioExecutor()
+        )
 
         val imageYuv = generateYuvImage()
         yuvToJpegConverter.writeYuvImage(imageYuv)
@@ -102,9 +100,10 @@ class YuvToJpegConverterTest {
     fun canSetRotation() = runBlocking {
         val rotationDegrees = 270
         val deferredImage = CompletableDeferred<ImageProxy>()
-        jpegImageReaderProxy.setOnImageAvailableListener({ imageReader ->
-            imageReader.acquireNextImage()?.let { deferredImage.complete(it) }
-        }, CameraXExecutors.ioExecutor())
+        jpegImageReaderProxy.setOnImageAvailableListener(
+            { imageReader -> imageReader.acquireNextImage()?.let { deferredImage.complete(it) } },
+            CameraXExecutors.ioExecutor()
+        )
 
         val imageYuv = generateYuvImage()
         yuvToJpegConverter.setRotationDegrees(rotationDegrees)

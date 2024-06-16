@@ -22,6 +22,9 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.ARRAY_LIST
+import androidx.room.ext.CommonTypeNames.HASH_SET
+import androidx.room.ext.KotlinCollectionMemberNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.result.MultimapQueryResultAdapter.MapType.Companion.isSparseArray
@@ -35,32 +38,24 @@ import androidx.room.vo.ColumnIndexVar
  * of nested maps. Each level of nesting of a map is represented by a [NestedMapValueResultAdapter],
  * except the innermost level which is represented by an [EndMapValueResultAdapter].
  *
- * For example, if a DAO method returns a `Map<A, Map<B, Map<C, D>>>`, `Map<C, D>` is represented
- * by an [EndMapValueResultAdapter], and the outer 2 levels are represented by a
+ * For example, if a DAO method returns a `Map<A, Map<B, Map<C, D>>>`, `Map<C, D>` is represented by
+ * an [EndMapValueResultAdapter], and the outer 2 levels are represented by a
  * [NestedMapValueResultAdapter] each.
  *
  * A [NestedMapValueResultAdapter] can wrap either another [NestedMapValueResultAdapter] or an
  * [EndMapValueResultAdapter], whereas an [EndMapValueResultAdapter] does not wrap another adapter
  * and only contains row adapters for the innermost map.
  */
-sealed class MapValueResultAdapter(
-    val rowAdapters: List<RowAdapter>
-) {
+sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
 
-    /**
-     * True if this adapters requires key checking due to its values being passed by reference.
-     */
+    /** True if this adapters requires key checking due to its values being passed by reference. */
     abstract fun requiresContainsKeyCheck(): Boolean
 
-    /**
-     * Left-Hand-Side of a Map value type arg initialization.
-     */
+    /** Left-Hand-Side of a Map value type arg initialization. */
     abstract fun getDeclarationTypeName(): XTypeName
 
-    /**
-     * Right-Hand-Side of a Map value type arg initialization.
-     */
-    abstract fun getInstantiationTypeName(language: CodeLanguage): XTypeName
+    /** Right-Hand-Side of a Map value type arg initialization. */
+    abstract fun getInstantiationCodeBlock(language: CodeLanguage): XCodeBlock
 
     abstract fun isMigratedToDriver(): Boolean
 
@@ -79,8 +74,8 @@ sealed class MapValueResultAdapter(
     )
 
     /**
-     * A [NestedMapValueResultAdapter] contains the key information and the value map information
-     * of any level of a nested map that is not the innermost "End" map.
+     * A [NestedMapValueResultAdapter] contains the key information and the value map information of
+     * any level of a nested map that is not the innermost "End" map.
      *
      * The [convert] function implementation for a [NestedMapValueResultAdapter] generates code that
      * resolves the key of the map and delegates to the value map's [NestedMapValueResultAdapter] or
@@ -92,55 +87,62 @@ sealed class MapValueResultAdapter(
         private val keyTypeArg: XType,
         private val mapType: MultimapQueryResultAdapter.MapType,
         private val mapValueResultAdapter: MapValueResultAdapter
-    ) : MapValueResultAdapter(
-        rowAdapters = listOf(keyRowAdapter) + mapValueResultAdapter.rowAdapters
-    ) {
+    ) :
+        MapValueResultAdapter(
+            rowAdapters = listOf(keyRowAdapter) + mapValueResultAdapter.rowAdapters
+        ) {
 
         private val keyTypeName = keyTypeArg.asTypeName()
 
         override fun requiresContainsKeyCheck(): Boolean = true
 
-        override fun getDeclarationTypeName() = when (val typeOfMap = this.mapType) {
-            MultimapQueryResultAdapter.MapType.DEFAULT,
-            MultimapQueryResultAdapter.MapType.ARRAY_MAP ->
-                typeOfMap.className.parametrizedBy(
-                    keyTypeName,
-                    mapValueResultAdapter.getDeclarationTypeName()
-                )
+        override fun getDeclarationTypeName() =
+            when (val typeOfMap = this.mapType) {
+                MultimapQueryResultAdapter.MapType.DEFAULT,
+                MultimapQueryResultAdapter.MapType.ARRAY_MAP ->
+                    typeOfMap.className.parametrizedBy(
+                        keyTypeName,
+                        mapValueResultAdapter.getDeclarationTypeName()
+                    )
+                MultimapQueryResultAdapter.MapType.LONG_SPARSE,
+                MultimapQueryResultAdapter.MapType.INT_SPARSE ->
+                    typeOfMap.className.parametrizedBy(
+                        mapValueResultAdapter.getDeclarationTypeName()
+                    )
+            }
 
-            MultimapQueryResultAdapter.MapType.LONG_SPARSE,
-            MultimapQueryResultAdapter.MapType.INT_SPARSE ->
-                typeOfMap.className.parametrizedBy(
-                    mapValueResultAdapter.getDeclarationTypeName()
-                )
-        }
-
-        override fun getInstantiationTypeName(
-            language: CodeLanguage
-        ) = when (val typeOfMap = this.mapType) {
-            MultimapQueryResultAdapter.MapType.DEFAULT ->
-                // LinkedHashMap is used as impl to preserve key ordering for ordered
-                // query results.
-                when (language) {
-                    CodeLanguage.JAVA -> CommonTypeNames.LINKED_HASH_MAP
-                    CodeLanguage.KOTLIN -> KotlinTypeNames.LINKED_HASH_MAP
-                }.parametrizedBy(
-                    keyTypeName,
-                    mapValueResultAdapter.getDeclarationTypeName()
-                )
-
-            MultimapQueryResultAdapter.MapType.ARRAY_MAP ->
-                typeOfMap.className.parametrizedBy(
-                    keyTypeName,
-                    mapValueResultAdapter.getDeclarationTypeName()
-                )
-
-            MultimapQueryResultAdapter.MapType.LONG_SPARSE,
-            MultimapQueryResultAdapter.MapType.INT_SPARSE ->
-                typeOfMap.className.parametrizedBy(
-                    mapValueResultAdapter.getDeclarationTypeName()
-                )
-        }
+        override fun getInstantiationCodeBlock(language: CodeLanguage): XCodeBlock =
+            when (val typeOfMap = this.mapType) {
+                MultimapQueryResultAdapter.MapType.DEFAULT ->
+                    // LinkedHashMap is used as impl to preserve key ordering for ordered
+                    // query results.
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        when (language) {
+                            CodeLanguage.JAVA -> CommonTypeNames.LINKED_HASH_MAP
+                            CodeLanguage.KOTLIN -> KotlinTypeNames.LINKED_HASH_MAP
+                        }.parametrizedBy(
+                            keyTypeName,
+                            mapValueResultAdapter.getDeclarationTypeName()
+                        )
+                    )
+                MultimapQueryResultAdapter.MapType.ARRAY_MAP ->
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        typeOfMap.className.parametrizedBy(
+                            keyTypeName,
+                            mapValueResultAdapter.getDeclarationTypeName()
+                        )
+                    )
+                MultimapQueryResultAdapter.MapType.LONG_SPARSE,
+                MultimapQueryResultAdapter.MapType.INT_SPARSE ->
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        typeOfMap.className.parametrizedBy(
+                            mapValueResultAdapter.getDeclarationTypeName()
+                        )
+                    )
+            }
 
         override fun isMigratedToDriver(): Boolean = mapValueResultAdapter.isMigratedToDriver()
 
@@ -160,66 +162,68 @@ sealed class MapValueResultAdapter(
                 // Generate map key check if the next value adapter is by reference
                 // (nested map case or collection end value)
                 @Suppress("NAME_SHADOWING") // On purpose to avoid miss using param
-                val valuesVarName = if (mapValueResultAdapter.requiresContainsKeyCheck()) {
-                    scope.getTmpVar("_values").also { tmpValuesVarName ->
-                        addLocalVariable(
-                            tmpValuesVarName,
-                            mapValueResultAdapter.getDeclarationTypeName()
-                        )
-                        if (mapType.isSparseArray()) {
-                            beginControlFlow(
-                                "if (%L.get(%L) != null)",
-                                valuesVarName,
-                                tmpKeyVarName
-                            )
-                        } else {
-                            beginControlFlow(
-                                "if (%L.containsKey(%L))",
-                                valuesVarName,
-                                tmpKeyVarName
-                            )
-                        }.apply {
-                            val getFunction = when (language) {
-                                CodeLanguage.JAVA ->
-                                    "get"
-                                CodeLanguage.KOTLIN ->
-                                    if (mapType.isSparseArray()) "get" else "getValue"
-                            }
-                            addStatement(
-                                "%L = %L.%L(%L)",
+                val valuesVarName =
+                    if (mapValueResultAdapter.requiresContainsKeyCheck()) {
+                        scope.getTmpVar("_values").also { tmpValuesVarName ->
+                            addLocalVariable(
                                 tmpValuesVarName,
-                                valuesVarName,
-                                getFunction,
-                                tmpKeyVarName
+                                mapValueResultAdapter.getDeclarationTypeName()
                             )
-                        }.nextControlFlow("else").apply {
-                            addStatement(
-                                "%L = %L",
-                                tmpValuesVarName,
-                                XCodeBlock.ofNewInstance(
-                                    language,
-                                    mapValueResultAdapter.getInstantiationTypeName(language)
-                                )
-                            )
-                            addStatement(
-                                "%L.put(%L, %L)",
-                                valuesVarName,
-                                tmpKeyVarName,
-                                tmpValuesVarName
-                            )
-                        }.endControlFlow()
+                            if (mapType.isSparseArray()) {
+                                    beginControlFlow(
+                                        "if (%L.get(%L) != null)",
+                                        valuesVarName,
+                                        tmpKeyVarName
+                                    )
+                                } else {
+                                    beginControlFlow(
+                                        "if (%L.containsKey(%L))",
+                                        valuesVarName,
+                                        tmpKeyVarName
+                                    )
+                                }
+                                .apply {
+                                    val getFunction =
+                                        when (language) {
+                                            CodeLanguage.JAVA -> "get"
+                                            CodeLanguage.KOTLIN ->
+                                                if (mapType.isSparseArray()) "get" else "getValue"
+                                        }
+                                    addStatement(
+                                        "%L = %L.%L(%L)",
+                                        tmpValuesVarName,
+                                        valuesVarName,
+                                        getFunction,
+                                        tmpKeyVarName
+                                    )
+                                }
+                                .nextControlFlow("else")
+                                .apply {
+                                    addStatement(
+                                        "%L = %L",
+                                        tmpValuesVarName,
+                                        mapValueResultAdapter.getInstantiationCodeBlock(language)
+                                    )
+                                    addStatement(
+                                        "%L.put(%L, %L)",
+                                        valuesVarName,
+                                        tmpKeyVarName,
+                                        tmpValuesVarName
+                                    )
+                                }
+                                .endControlFlow()
 
-                        // Perform key columns null check, in a nested mapping we still add
-                        // the key with an empty map as the value entry.
-                        mapValueResultAdapter.generateContinueColumnCheck(
-                            scope,
-                            cursorVarName,
-                            dupeColumnsIndexAdapter
-                        )
+                            // Perform key columns null check, in a nested mapping we still add
+                            // the key with an empty map as the value entry.
+                            mapValueResultAdapter.generateContinueColumnCheck(
+                                scope,
+                                cursorVarName,
+                                dupeColumnsIndexAdapter
+                            )
+                        }
+                    } else {
+                        valuesVarName
                     }
-                } else {
-                    valuesVarName
-                }
                 @Suppress("NAME_SHADOWING") // On purpose, to avoid using param
                 val genPutValueCode: (String, Boolean) -> Unit = { tmpValueVarName, doKeyCheck ->
                     if (doKeyCheck) {
@@ -227,25 +231,33 @@ sealed class MapValueResultAdapter(
                         // multiple values are encountered for the same key, we will only
                         // consider the first ever encountered mapping.
                         if (mapType.isSparseArray()) {
-                            beginControlFlow(
-                                "if (%L.get(%L) == null)",
-                                valuesVarName, tmpKeyVarName
-                            )
-                        } else {
-                            beginControlFlow(
-                                "if (!%L.containsKey(%L))",
-                                valuesVarName, tmpKeyVarName
-                            )
-                        }.apply {
-                            addStatement(
-                                "%L.put(%L, %L)",
-                                valuesVarName, tmpKeyVarName, tmpValueVarName
-                            )
-                        }.endControlFlow()
+                                beginControlFlow(
+                                    "if (%L.get(%L) == null)",
+                                    valuesVarName,
+                                    tmpKeyVarName
+                                )
+                            } else {
+                                beginControlFlow(
+                                    "if (!%L.containsKey(%L))",
+                                    valuesVarName,
+                                    tmpKeyVarName
+                                )
+                            }
+                            .apply {
+                                addStatement(
+                                    "%L.put(%L, %L)",
+                                    valuesVarName,
+                                    tmpKeyVarName,
+                                    tmpValueVarName
+                                )
+                            }
+                            .endControlFlow()
                     } else {
                         addStatement(
                             "%L.put(%L, %L)",
-                            valuesVarName, tmpKeyVarName, tmpValueVarName
+                            valuesVarName,
+                            tmpKeyVarName,
+                            tmpValueVarName
                         )
                     }
                 }
@@ -276,8 +288,8 @@ sealed class MapValueResultAdapter(
     }
 
     /**
-     * An [EndMapValueResultAdapter] contains only the value information regarding the innermost
-     * map of the returned nested map.
+     * An [EndMapValueResultAdapter] contains only the value information regarding the innermost map
+     * of the returned nested map.
      *
      * The [convert] function implementation for an [EndMapValueResultAdapter] uses the value row
      * adapter to innermost value map's value, regardless of whether it is a collection type or not.
@@ -286,9 +298,7 @@ sealed class MapValueResultAdapter(
         private val valueRowAdapter: RowAdapter,
         private val valueTypeArg: XType,
         private val valueCollectionType: MultimapQueryResultAdapter.CollectionValueType?
-    ) : MapValueResultAdapter(
-        rowAdapters = listOf(valueRowAdapter)
-    ) {
+    ) : MapValueResultAdapter(rowAdapters = listOf(valueRowAdapter)) {
         override fun requiresContainsKeyCheck(): Boolean = valueCollectionType != null
 
         // The type name of the concrete result map value
@@ -302,14 +312,37 @@ sealed class MapValueResultAdapter(
         // The type name of the result map value
         // For Map<Foo, Bar> it is Bar
         // for Map<Foo, List<Bar> it is List<Bar>
-        override fun getInstantiationTypeName(language: CodeLanguage): XTypeName {
+        override fun getInstantiationCodeBlock(language: CodeLanguage): XCodeBlock {
             return when (valueCollectionType) {
                 MultimapQueryResultAdapter.CollectionValueType.LIST ->
-                    CommonTypeNames.ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName())
+                    when (language) {
+                        CodeLanguage.JAVA ->
+                            XCodeBlock.ofNewInstance(
+                                language,
+                                ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName())
+                            )
+                        CodeLanguage.KOTLIN ->
+                            XCodeBlock.of(
+                                language,
+                                "%M()",
+                                KotlinCollectionMemberNames.MUTABLE_LIST_OF
+                            )
+                    }
                 MultimapQueryResultAdapter.CollectionValueType.SET ->
-                    CommonTypeNames.HASH_SET.parametrizedBy(valueTypeArg.asTypeName())
-                else ->
-                    valueTypeArg.asTypeName()
+                    when (language) {
+                        CodeLanguage.JAVA ->
+                            XCodeBlock.ofNewInstance(
+                                language,
+                                HASH_SET.parametrizedBy(valueTypeArg.asTypeName())
+                            )
+                        CodeLanguage.KOTLIN ->
+                            XCodeBlock.of(
+                                language,
+                                "%M()",
+                                KotlinCollectionMemberNames.MUTABLE_SET_OF
+                            )
+                    }
+                else -> XCodeBlock.ofNewInstance(language, valueTypeArg.asTypeName())
             }
         }
 
@@ -328,10 +361,7 @@ sealed class MapValueResultAdapter(
                 // If we have a collection type, then this means that we have a 1-to-many mapping
                 // as opposed to a 1-to-many mapping.
                 if (valueCollectionType != null) {
-                    addLocalVariable(
-                        tmpValueVarName,
-                        valueTypeArg.asTypeName()
-                    )
+                    addLocalVariable(tmpValueVarName, valueTypeArg.asTypeName())
                     valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                     addStatement("%L.add(%L)", valuesVarName, tmpValueVarName)
                 } else {
@@ -339,30 +369,33 @@ sealed class MapValueResultAdapter(
                     val valueIndexVars =
                         dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
                             ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
-                    val columnNullCheckCodeBlock = getColumnNullCheckCode(
-                        language = scope.language,
-                        cursorVarName = cursorVarName,
-                        indexVars = valueIndexVars
-                    )
+                    val columnNullCheckCodeBlock =
+                        getColumnNullCheckCode(
+                            language = scope.language,
+                            cursorVarName = cursorVarName,
+                            indexVars = valueIndexVars
+                        )
 
                     // Perform value columns null check, in a 1-to-1 mapping we still add the key
                     // with a null value entry if permitted.
-                    beginControlFlow("if (%L)", columnNullCheckCodeBlock).apply {
-                        if (
-                            language == CodeLanguage.KOTLIN &&
-                            valueTypeArg.nullability == XNullability.NONNULL
-                        ) {
-                            addStatement(
-                                "error(%S)",
-                                "The column(s) of the map value object of type " +
-                                    "'$valueTypeArg' are NULL but the map's value type " +
-                                    "argument expect it to be NON-NULL"
-                            )
-                        } else {
-                            genPutValueCode.invoke("null", false)
-                            addStatement("continue")
+                    beginControlFlow("if (%L)", columnNullCheckCodeBlock)
+                        .apply {
+                            if (
+                                language == CodeLanguage.KOTLIN &&
+                                    valueTypeArg.nullability == XNullability.NONNULL
+                            ) {
+                                addStatement(
+                                    "error(%S)",
+                                    "The column(s) of the map value object of type " +
+                                        "'$valueTypeArg' are NULL but the map's value type " +
+                                        "argument expect it to be NON-NULL"
+                                )
+                            } else {
+                                genPutValueCode.invoke("null", false)
+                                addStatement("continue")
+                            }
                         }
-                    }.endControlFlow()
+                        .endControlFlow()
 
                     addLocalVariable(tmpValueVarName, valueTypeArg.asTypeName())
                     valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
@@ -396,42 +429,44 @@ sealed class MapValueResultAdapter(
         rowAdapter: RowAdapter,
         cursorVarName: String,
         dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
-    ) = XCodeBlock.builder(language).apply {
-        check(rowAdapter is QueryMappedRowAdapter)
-        val valueIndexVars =
-            dupeColumnsIndexAdapter?.getIndexVarsForMapping(rowAdapter.mapping)
-                ?: rowAdapter.getDefaultIndexAdapter().getIndexVars()
-        val columnNullCheckCodeBlock = getColumnNullCheckCode(
-            language = language,
-            cursorVarName = cursorVarName,
-            indexVars = valueIndexVars
-        )
-        beginControlFlow("if (%L)", columnNullCheckCodeBlock).apply {
-            addStatement("continue")
-        }.endControlFlow()
-    }.build()
+    ) =
+        XCodeBlock.builder(language)
+            .apply {
+                check(rowAdapter is QueryMappedRowAdapter)
+                val valueIndexVars =
+                    dupeColumnsIndexAdapter?.getIndexVarsForMapping(rowAdapter.mapping)
+                        ?: rowAdapter.getDefaultIndexAdapter().getIndexVars()
+                val columnNullCheckCodeBlock =
+                    getColumnNullCheckCode(
+                        language = language,
+                        cursorVarName = cursorVarName,
+                        indexVars = valueIndexVars
+                    )
+                beginControlFlow("if (%L)", columnNullCheckCodeBlock)
+                    .apply { addStatement("continue") }
+                    .endControlFlow()
+            }
+            .build()
 
-    /**
-     * Generates a code expression that verifies if all matched fields are null.
-     */
+    /** Generates a code expression that verifies if all matched fields are null. */
     protected fun getColumnNullCheckCode(
         language: CodeLanguage,
         cursorVarName: String,
         indexVars: List<ColumnIndexVar>
-    ) = XCodeBlock.builder(language).apply {
-        val space = when (language) {
-            CodeLanguage.JAVA -> "%W"
-            CodeLanguage.KOTLIN -> " "
-        }
-        val conditions = indexVars.map {
-            XCodeBlock.of(
-                language,
-                "%L.isNull(%L)",
-                cursorVarName,
-                it.indexVar
-            )
-        }
-        val placeholders = conditions.joinToString(separator = "$space&&$space") { "%L" }
-        add(placeholders, *conditions.toTypedArray())
-    }.build()
+    ) =
+        XCodeBlock.builder(language)
+            .apply {
+                val space =
+                    when (language) {
+                        CodeLanguage.JAVA -> "%W"
+                        CodeLanguage.KOTLIN -> " "
+                    }
+                val conditions =
+                    indexVars.map {
+                        XCodeBlock.of(language, "%L.isNull(%L)", cursorVarName, it.indexVar)
+                    }
+                val placeholders = conditions.joinToString(separator = "$space&&$space") { "%L" }
+                add(placeholders, *conditions.toTypedArray())
+            }
+            .build()
 }

@@ -28,18 +28,14 @@ import org.junit.Test
 class TargetApiAnnotationUsageDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = TargetApiAnnotationUsageDetector()
 
-    override fun getIssues(): List<Issue> = listOf(
-        TargetApiAnnotationUsageDetector.ISSUE
-    )
+    override fun getIssues(): List<Issue> = listOf(TargetApiAnnotationUsageDetector.ISSUE)
 
     private fun checkTask(testFile: TestFile): TestLintTask {
-        return lint().files(
-            java(annotationSource),
-            testFile
-        )
+        return lint().files(java(annotationSource), testFile)
     }
 
-    private val annotationSource = """
+    private val annotationSource =
+        """
 package android.annotation;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -55,12 +51,14 @@ import java.lang.annotation.Target;
 public @interface TargetApi {
     int value();
 }
-    """.trimIndent()
+    """
+            .trimIndent()
 
     @Test
     fun testAnnotationUsageJava() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
 package androidx.sample;
 
 import android.annotation.TargetApi;
@@ -72,11 +70,12 @@ public class SampleClass {
         // Stub
     }
 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/SampleClass.java:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
 @TargetApi(24)
 ~~~~~~~~~~~~~~
@@ -84,11 +83,11 @@ src/androidx/sample/SampleClass.java:7: Error: Use @RequiresApi instead of @Targ
     @TargetApi(15)
     ~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        /* ktlint-disable max-line-length */
-        val expectFixDiffs = """
+        val expectFixDiffs =
+            """
 Fix for src/androidx/sample/SampleClass.java line 5: Replace with `@RequiresApi`:
 @@ -5 +5
 - @TargetApi(24)
@@ -97,19 +96,17 @@ Fix for src/androidx/sample/SampleClass.java line 7: Replace with `@RequiresApi`
 @@ -7 +7
 -     @TargetApi(15)
 +     @androidx.annotation.RequiresApi(15)
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        checkTask(input)
-            .run()
-            .expect(expected)
-            .expectFixDiffs(expectFixDiffs)
+        checkTask(input).run().expect(expected).expectFixDiffs(expectFixDiffs)
     }
 
     @Test
     fun testAnnotationUsageKt() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
 package androidx.sample
 
 import android.annotation.TargetApi
@@ -121,11 +118,12 @@ class SampleClass {
         // Stub
     }
 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/SampleClass.kt:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
 @TargetApi(24)
 ~~~~~~~~~~~~~~
@@ -133,11 +131,11 @@ src/androidx/sample/SampleClass.kt:7: Error: Use @RequiresApi instead of @Target
     @TargetApi(15)
     ~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        /* ktlint-disable max-line-length */
-        val expectFixDiffs = """
+        val expectFixDiffs =
+            """
 Fix for src/androidx/sample/SampleClass.kt line 5: Replace with `@RequiresApi`:
 @@ -5 +5
 - @TargetApi(24)
@@ -146,12 +144,9 @@ Fix for src/androidx/sample/SampleClass.kt line 7: Replace with `@RequiresApi`:
 @@ -7 +7
 -     @TargetApi(15)
 +     @androidx.annotation.RequiresApi(15)
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        checkTask(input)
-            .run()
-            .expect(expected)
-            .expectFixDiffs(expectFixDiffs)
+        checkTask(input).run().expect(expected).expectFixDiffs(expectFixDiffs)
     }
 }

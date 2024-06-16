@@ -25,8 +25,8 @@ android {
     defaultConfig {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25
-        versionCode 24
-        versionName "1.24"
+        versionCode 28
+        versionName "1.28"
     }
 
     buildTypes {
@@ -55,7 +55,7 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-util"))
     implementation(project(":compose:ui:ui:ui-samples"))
-    implementation(project(":compose:material:material-icons-core"))
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
 
     implementation(project(':wear:compose:compose-foundation'))
     implementation(project(":wear:compose:compose-foundation-samples"))

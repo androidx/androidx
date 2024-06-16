@@ -20,18 +20,14 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/**
- * A simple counter on which we can await 0.
- */
+/** A simple counter on which we can await 0. */
 class TaskTracker : TrackedExecutor.Callback {
     private val lock = ReentrantLock()
     private val idle = lock.newCondition()
     private var counter = 0
 
     override fun inc() {
-        lock.withLock {
-            counter++
-        }
+        lock.withLock { counter++ }
     }
 
     override fun dec() {

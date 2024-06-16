@@ -22,7 +22,8 @@ import com.google.common.collect.Table
 import com.google.common.collect.Table.Cell
 import com.google.common.collect.Tables.immutableCell
 
-class TableSubject<R, C, V> internal constructor(
+class TableSubject<R, C, V>
+internal constructor(
     actual: Table<R, C, V>,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<Table<R, C, V>>(actual, metadata, typeDescriptionOverride = null) {
@@ -91,9 +92,7 @@ class TableSubject<R, C, V> internal constructor(
         requireNonNull(cell)
         requireNonNull(actual)
 
-        checkNoNeedToDisplayBothValues("cellSet()")
-            .that(actual.cellSet())
-            .contains(cell)
+        checkNoNeedToDisplayBothValues("cellSet()").that(actual.cellSet()).contains(cell)
     }
 
     /** Fails if the table contains the given cell. */
@@ -106,9 +105,7 @@ class TableSubject<R, C, V> internal constructor(
         requireNonNull(cell)
         requireNonNull(actual)
 
-        checkNoNeedToDisplayBothValues("cellSet()")
-            .that(actual.cellSet())
-            .doesNotContain(cell)
+        checkNoNeedToDisplayBothValues("cellSet()").that(actual.cellSet()).doesNotContain(cell)
     }
 
     /** Fails if the table does not contain the given row key. */

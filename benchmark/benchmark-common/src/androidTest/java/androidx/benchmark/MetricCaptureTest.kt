@@ -27,9 +27,7 @@ import org.junit.runner.RunWith
 class MetricCaptureTest {
     @Test
     fun allocationCountCapture_simple() {
-        AllocationCountCapture().verifyMedian(100..110) {
-            allocate(100)
-        }
+        AllocationCountCapture().verifyMedian(100..110) { allocate(100) }
     }
 
     @Test
@@ -53,12 +51,13 @@ class MetricCaptureTest {
 private fun MetricCapture.verifyMedian(expected: IntRange, block: MetricCapture.() -> Unit) {
     assertEquals(1, names.size)
     val longArray = longArrayOf(0L)
-    val results = List(200) {
-        captureStart(System.nanoTime())
-        block()
-        captureStop(System.nanoTime(), longArray, 0)
-        longArray[0] * 1.0
-    }
+    val results =
+        List(200) {
+            captureStart(System.nanoTime())
+            block()
+            captureStop(System.nanoTime(), longArray, 0)
+            longArray[0] * 1.0
+        }
     val median = MetricResult(names[0], results).median.toInt()
     if (median !in expected) {
         throw AssertionError(

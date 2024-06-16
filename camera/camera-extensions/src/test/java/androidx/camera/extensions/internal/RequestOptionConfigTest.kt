@@ -36,41 +36,62 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class RequestOptionConfigTest {
     @Test
     fun canBuildWithCaptureRequestOptions() {
-        val config = RequestOptionConfig.Builder()
-            .setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
-                CaptureRequest.CONTROL_AF_MODE_AUTO)
-            .setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, 90)
-            .build()
+        val config =
+            RequestOptionConfig.Builder()
+                .setCaptureRequestOption(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CaptureRequest.CONTROL_AF_MODE_AUTO
+                )
+                .setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, 90)
+                .build()
 
         assertThat(config.listOptions().size).isEqualTo(2)
-        assertThat(config.retrieveOption(
-            RequestOptionConfig.createOptionFromKey(CaptureRequest.CONTROL_AF_MODE))
-        ).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
-        assertThat(config.retrieveOption(
-            RequestOptionConfig.createOptionFromKey(CaptureRequest.JPEG_ORIENTATION))
-        ).isEqualTo(90)
+        assertThat(
+                config.retrieveOption(
+                    RequestOptionConfig.createOptionFromKey(CaptureRequest.CONTROL_AF_MODE)
+                )
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+        assertThat(
+                config.retrieveOption(
+                    RequestOptionConfig.createOptionFromKey(CaptureRequest.JPEG_ORIENTATION)
+                )
+            )
+            .isEqualTo(90)
     }
 
     @Test
     fun canBuildFromConfig() {
         val mutableOptionConfig = MutableOptionsBundle.create()
         mutableOptionConfig.insertOption(
-            Option.create("NonCaptureOption", String::class.java, null), "value1")
+            Option.create("NonCaptureOption", String::class.java, null),
+            "value1"
+        )
         mutableOptionConfig.insertOption(
-            Option.create("NonCaptureOption2", Integer::class.java, null), 99)
+            Option.create("NonCaptureOption2", Integer::class.java, null),
+            99
+        )
         mutableOptionConfig.insertOption(
             RequestOptionConfig.createOptionFromKey(CaptureRequest.CONTROL_AF_MODE),
-            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+        )
 
-        val requestOptionConfig = RequestOptionConfig.Builder.from(mutableOptionConfig)
-            .setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, 180)
-            .build()
+        val requestOptionConfig =
+            RequestOptionConfig.Builder.from(mutableOptionConfig)
+                .setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, 180)
+                .build()
         assertThat(requestOptionConfig.listOptions().size).isEqualTo(2)
-        assertThat(requestOptionConfig.retrieveOption(
-            RequestOptionConfig.createOptionFromKey(CaptureRequest.CONTROL_AF_MODE))
-        ).isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-        assertThat(requestOptionConfig.retrieveOption(
-            RequestOptionConfig.createOptionFromKey(CaptureRequest.JPEG_ORIENTATION))
-        ).isEqualTo(180)
+        assertThat(
+                requestOptionConfig.retrieveOption(
+                    RequestOptionConfig.createOptionFromKey(CaptureRequest.CONTROL_AF_MODE)
+                )
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        assertThat(
+                requestOptionConfig.retrieveOption(
+                    RequestOptionConfig.createOptionFromKey(CaptureRequest.JPEG_ORIENTATION)
+                )
+            )
+            .isEqualTo(180)
     }
- }
+}

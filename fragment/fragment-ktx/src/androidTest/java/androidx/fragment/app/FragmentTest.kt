@@ -35,23 +35,13 @@ class FragmentTest {
         with(ActivityScenario.launch(TestActivity::class.java)) {
             val fragment1 = ResultFragment()
 
-            val fm = withActivity {
-                supportFragmentManager
-            }
+            val fm = withActivity { supportFragmentManager }
 
-            withActivity {
-                fm.commitNow {
-                    add(fragment1, null)
-                }
-            }
+            withActivity { fm.commitNow { add(fragment1, null) } }
             val expectedResult = "resultGood"
             val fragment2 = SetResultFragment(expectedResult)
 
-            withActivity {
-                fm.commitNow {
-                    add(fragment2, null)
-                }
-            }
+            withActivity { fm.commitNow { add(fragment2, null) } }
 
             assertWithMessage("The result is incorrect")
                 .that(fragment1.actualResult)

@@ -36,6 +36,7 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
 
     override val size: IntSize
         get() = lookaheadDelegate.let { IntSize(it.width, it.height) }
+
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = coordinator.providedAlignmentLines
 
@@ -46,6 +47,7 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
                 it.lookaheadDelegate?.coordinates
             }
         }
+
     override val parentCoordinates: LayoutCoordinates?
         get() {
             checkPrecondition(isAttached) { NodeCoordinator.ExpectAttachedLayoutCoordinates }
@@ -55,14 +57,15 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
     override val isAttached: Boolean
         get() = coordinator.isAttached
 
-    override val introducesFrameOfReference: Boolean
-        get() = !lookaheadDelegate.isPlacedUsingCurrentFrameOfReference
+    override val introducesMotionFrameOfReference: Boolean
+        get() = lookaheadDelegate.isPlacedUnderMotionFrameOfReference
 
     private val lookaheadOffset: Offset
-        get() = lookaheadDelegate.rootLookaheadDelegate.let {
-            localPositionOf(it.coordinates, Offset.Zero) -
-                coordinator.localPositionOf(it.coordinator, Offset.Zero)
-        }
+        get() =
+            lookaheadDelegate.rootLookaheadDelegate.let {
+                localPositionOf(it.coordinates, Offset.Zero) -
+                    coordinator.localPositionOf(it.coordinator, Offset.Zero)
+            }
 
     override fun screenToLocal(relativeToScreen: Offset): Offset =
         coordinator.screenToLocal(relativeToScreen) + lookaheadOffset
@@ -86,29 +89,13 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
         localPositionOf(
             sourceCoordinates = sourceCoordinates,
             relativeToSource = relativeToSource,
-            excludeDirectManipulationOffset = false
+            includeMotionFrameOfReference = true
         )
 
-    override fun positionInLocalFrameOfReference(
-        sourceCoordinates: LayoutCoordinates,
-        relativeToSource: Offset
-    ): Offset = localPositionOf(
-        sourceCoordinates = sourceCoordinates,
-        relativeToSource = relativeToSource,
-        excludeDirectManipulationOffset = true
-    )
-
-    /**
-     * Handles local position calculation.
-     *
-     * Pass [excludeDirectManipulationOffset] as true, to exclude offsets placed under
-     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement]. It's expected to be true for
-     * calls coming from [positionInLocalFrameOfReference].
-     */
-    internal fun localPositionOf(
+    override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset,
-        excludeDirectManipulationOffset: Boolean
+        includeMotionFrameOfReference: Boolean
     ): Offset {
         if (sourceCoordinates is LookaheadLayoutCoordinates) {
             val source = sourceCoordinates.lookaheadDelegate
@@ -117,63 +104,64 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
 
             return commonAncestor.lookaheadDelegate?.let { ancestor ->
                 // Common ancestor is in lookahead
-                val sourceInCommonAncestor = source.positionIn(
-                    ancestor = ancestor,
-                    excludingAgnosticOffset = excludeDirectManipulationOffset
-                ) + relativeToSource.round()
+                val sourceInCommonAncestor =
+                    source.positionIn(
+                        ancestor = ancestor,
+                        excludingAgnosticOffset = !includeMotionFrameOfReference
+                    ) + relativeToSource.round()
 
-                val lookaheadPosInAncestor = lookaheadDelegate.positionIn(
-                    ancestor = ancestor,
-                    excludingAgnosticOffset = excludeDirectManipulationOffset
-                )
+                val lookaheadPosInAncestor =
+                    lookaheadDelegate.positionIn(
+                        ancestor = ancestor,
+                        excludingAgnosticOffset = !includeMotionFrameOfReference
+                    )
 
                 (sourceInCommonAncestor - lookaheadPosInAncestor).toOffset()
-            } ?: commonAncestor.let {
-                // The two coordinates are in two separate LookaheadLayouts
-                val sourceRoot = source.rootLookaheadDelegate
-
-                val sourcePosition = source.positionIn(
-                    ancestor = sourceRoot,
-                    excludingAgnosticOffset = excludeDirectManipulationOffset
-                ) + sourceRoot.position + relativeToSource.round()
-
-                val rootDelegate = lookaheadDelegate.rootLookaheadDelegate
-                val lookaheadPosition = lookaheadDelegate.positionIn(
-                    ancestor = rootDelegate,
-                    excludingAgnosticOffset = excludeDirectManipulationOffset
-                ) + rootDelegate.position
-
-                val relativePosition = (sourcePosition - lookaheadPosition).toOffset()
-
-                rootDelegate.coordinator.wrappedBy!!.localPositionOf(
-                    sourceCoordinates = sourceRoot.coordinator.wrappedBy!!,
-                    relativeToSource = relativePosition,
-                    excludeDirectManipulationOffset = excludeDirectManipulationOffset
-                )
             }
+                ?: commonAncestor.let {
+                    // The two coordinates are in two separate LookaheadLayouts
+                    val sourceRoot = source.rootLookaheadDelegate
+
+                    val sourcePosition =
+                        source.positionIn(
+                            ancestor = sourceRoot,
+                            excludingAgnosticOffset = !includeMotionFrameOfReference
+                        ) + sourceRoot.position + relativeToSource.round()
+
+                    val rootDelegate = lookaheadDelegate.rootLookaheadDelegate
+                    val lookaheadPosition =
+                        lookaheadDelegate.positionIn(
+                            ancestor = rootDelegate,
+                            excludingAgnosticOffset = !includeMotionFrameOfReference
+                        ) + rootDelegate.position
+
+                    val relativePosition = (sourcePosition - lookaheadPosition).toOffset()
+
+                    rootDelegate.coordinator.wrappedBy!!.localPositionOf(
+                        sourceCoordinates = sourceRoot.coordinator.wrappedBy!!,
+                        relativeToSource = relativePosition,
+                        includeMotionFrameOfReference = includeMotionFrameOfReference
+                    )
+                }
         } else {
             val rootDelegate = lookaheadDelegate.rootLookaheadDelegate
             // This is a case of mixed coordinates where `this` is lookahead coords, and
             // `sourceCoordinates` isn't. Therefore we'll break this into two parts:
             // local position in lookahead coords space && local position in regular layout coords
             // space.
-            val localLookaheadPos = localPositionOf(
-                sourceCoordinates = rootDelegate.lookaheadLayoutCoordinates,
-                relativeToSource = relativeToSource,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
-            )
-
-            val localPos = if (excludeDirectManipulationOffset) {
-                rootDelegate.coordinator.coordinates.positionInLocalFrameOfReference(
-                    sourceCoordinates = sourceCoordinates,
-                    relativeToSource = Offset.Zero,
+            val localLookaheadPos =
+                localPositionOf(
+                    sourceCoordinates = rootDelegate.lookaheadLayoutCoordinates,
+                    relativeToSource = relativeToSource,
+                    includeMotionFrameOfReference = includeMotionFrameOfReference
                 )
-            } else {
+
+            val localPos =
                 rootDelegate.coordinator.coordinates.localPositionOf(
                     sourceCoordinates = sourceCoordinates,
-                    relativeToSource = Offset.Zero
+                    relativeToSource = Offset.Zero,
+                    includeMotionFrameOfReference = includeMotionFrameOfReference
                 )
-            }
             return localLookaheadPos + localPos
         }
     }

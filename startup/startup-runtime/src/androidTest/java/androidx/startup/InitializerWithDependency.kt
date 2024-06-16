@@ -19,9 +19,7 @@ package androidx.startup
 import android.content.Context
 import android.util.Log
 
-/**
- * Initializer with a dependency on [InitializerNoDependencies].
- */
+/** Initializer with a dependency on [InitializerNoDependencies]. */
 class InitializerWithDependency : Initializer<Unit> {
     override fun create(context: Context) {
         Log.i(TAG, "Initialized")

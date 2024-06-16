@@ -73,23 +73,24 @@ fun NestedMenuDemo() {
             modifier = Modifier.background(menuColor),
             transitionSpec = {
                 if (initialState < targetState) {
-                    // Going from parent menu to child menu, slide towards left
-                    slideIntoContainer(towards = SlideDirection.Left) togetherWith
-                        ExitTransition.KeepUntilTransitionsFinished
-                } else {
-                    // Going from child menu to parent menu, slide towards right
-                    slideIntoContainer(
-                        towards = SlideDirection.Right,
-                        initialOffset = { offsetForFullSlide -> offsetForFullSlide / 2 }
-                    ) togetherWith
-                        slideOutOfContainer(towards = SlideDirection.Right)
-                }.apply {
-                    targetContentZIndex = when (targetState) {
-                        NestedMenuState.Level1 -> 1f
-                        NestedMenuState.Level2 -> 2f
-                        NestedMenuState.Level3 -> 3f
+                        // Going from parent menu to child menu, slide towards left
+                        slideIntoContainer(towards = SlideDirection.Left) togetherWith
+                            ExitTransition.KeepUntilTransitionsFinished
+                    } else {
+                        // Going from child menu to parent menu, slide towards right
+                        slideIntoContainer(
+                            towards = SlideDirection.Right,
+                            initialOffset = { offsetForFullSlide -> offsetForFullSlide / 2 }
+                        ) togetherWith slideOutOfContainer(towards = SlideDirection.Right)
                     }
-                }
+                    .apply {
+                        targetContentZIndex =
+                            when (targetState) {
+                                NestedMenuState.Level1 -> 1f
+                                NestedMenuState.Level2 -> 2f
+                                NestedMenuState.Level3 -> 3f
+                            }
+                    }
             }
         ) {
             when (it) {
@@ -101,7 +102,11 @@ fun NestedMenuDemo() {
     }
 }
 
-private enum class NestedMenuState { Level1, Level2, Level3 }
+private enum class NestedMenuState {
+    Level1,
+    Level2,
+    Level3
+}
 
 private fun NestedMenuState.next(): NestedMenuState =
     NestedMenuState.values()[min(this.ordinal + 1, 2)]

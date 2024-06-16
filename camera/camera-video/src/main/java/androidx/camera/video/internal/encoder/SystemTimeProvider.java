@@ -18,14 +18,11 @@ package androidx.camera.video.internal.encoder;
 
 import android.os.SystemClock;
 
-import androidx.annotation.RequiresApi;
-
 import java.util.concurrent.TimeUnit;
 
 /**
  * A TimeProvider implementation based on System time.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SystemTimeProvider implements TimeProvider {
 
     @Override

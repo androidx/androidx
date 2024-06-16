@@ -88,20 +88,18 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterialApi::class)
 class ChipTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun defaultSemantics() {
         rule.setMaterialContent {
             Box {
-                Chip(modifier = Modifier.testTag(TestChipTag), onClick = {}) {
-                    Text(TestChipTag)
-                }
+                Chip(modifier = Modifier.testTag(TestChipTag), onClick = {}) { Text(TestChipTag) }
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -111,17 +109,14 @@ class ChipTest {
     fun disabledSemantics() {
         rule.setMaterialContent {
             Box {
-                Chip(
-                    modifier = Modifier.testTag(TestChipTag),
-                    onClick = {},
-                    enabled = false
-                ) {
+                Chip(modifier = Modifier.testTag(TestChipTag), onClick = {}, enabled = false) {
                     Text(TestChipTag)
                 }
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsNotEnabled()
             .assertHasClickAction()
@@ -142,7 +137,8 @@ class ChipTest {
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsNotEnabled()
             .assertHasClickAction()
@@ -155,19 +151,12 @@ class ChipTest {
         val text = "Test chip"
 
         rule.setMaterialContent {
-            Box {
-                Chip(onClick = onClick, modifier = Modifier.testTag(TestChipTag)) {
-                    Text(text)
-                }
-            }
+            Box { Chip(onClick = onClick, modifier = Modifier.testTag(TestChipTag)) { Text(text) } }
         }
 
-        rule.onNodeWithTag(TestChipTag)
-            .performClick()
+        rule.onNodeWithTag(TestChipTag).performClick()
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -185,7 +174,8 @@ class ChipTest {
                 }
             }
         }
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             // Confirm the chip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -211,7 +201,8 @@ class ChipTest {
                 }
             }
         }
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             // Confirm the filter chip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -226,29 +217,18 @@ class ChipTest {
         // This test can be reasonable failing on the non default font scales
         // so lets skip it.
         Assume.assumeTrue(rule.density.fontScale <= 1f)
-        rule.setMaterialContent {
-            Chip(onClick = {}) {
-                Text("Test chip")
-            }
-        }
+        rule.setMaterialContent { Chip(onClick = {}) { Text("Test chip") } }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsEqualTo(ChipDefaults.MinHeight)
+        rule.onNode(hasClickAction()).assertHeightIsEqualTo(ChipDefaults.MinHeight)
     }
 
     @Test
     fun withLargeFontSizeIsLargerThenMinHeight() {
         rule.setMaterialContent {
-            Chip(onClick = {}) {
-                Text(
-                    text = "Test chip",
-                    fontSize = 50.sp
-                )
-            }
+            Chip(onClick = {}) { Text(text = "Test chip", fontSize = 50.sp) }
         }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsAtLeast(ChipDefaults.MinHeight + 1.dp)
+        rule.onNode(hasClickAction()).assertHeightIsAtLeast(ChipDefaults.MinHeight + 1.dp)
     }
 
     @Test
@@ -298,16 +278,15 @@ class ChipTest {
             )
         }
 
-        rule.onNodeWithTag("Leading", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("Leading", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(4.dp)
-        rule.onNodeWithText("Test chip", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(
-                4.dp + ChipDefaults.LeadingIconSize + 8.dp
-            )
-        rule.onNodeWithTag("Trailing", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(
-                chipWidth - 8.dp - ChipDefaults.LeadingIconSize
-            )
+        rule
+            .onNodeWithText("Test chip", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(4.dp + ChipDefaults.LeadingIconSize + 8.dp)
+        rule
+            .onNodeWithTag("Trailing", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(chipWidth - 8.dp - ChipDefaults.LeadingIconSize)
     }
 
     @Test
@@ -316,14 +295,10 @@ class ChipTest {
         var content = Color.Unspecified
         rule.setMaterialContent {
             onSurface = MaterialTheme.colors.onSurface
-            Chip(onClick = {}) {
-                content = LocalContentColor.current
-            }
+            Chip(onClick = {}) { content = LocalContentColor.current }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(content).isEqualTo(onSurface)
-        }
+        rule.runOnIdle { Truth.assertThat(content).isEqualTo(onSurface) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -343,15 +318,15 @@ class ChipTest {
             ) {}
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
                 horizontalPadding = 0.dp,
                 verticalPadding = 0.dp,
                 backgroundColor = surface,
-                shapeColor = onSurface.copy(0.38f * 0.12f * 0.87f)
-                    .compositeOver(surface)
+                shapeColor = onSurface.copy(0.38f * 0.12f * 0.87f).compositeOver(surface)
             )
     }
 
@@ -363,24 +338,17 @@ class ChipTest {
         rule.setMaterialContent {
             Chip(
                 onClick = {},
-                modifier = Modifier.onGloballyPositioned {
-                    chipBounds = it.boundsInRoot()
-                }
+                modifier = Modifier.onGloballyPositioned { chipBounds = it.boundsInRoot() }
             ) {
                 Spacer(
-                    Modifier
-                        .requiredSize(10.dp)
-                        .onGloballyPositioned {
-                            item1Bounds = it.boundsInRoot()
-                        }
+                    Modifier.requiredSize(10.dp).onGloballyPositioned {
+                        item1Bounds = it.boundsInRoot()
+                    }
                 )
                 Spacer(
-                    Modifier
-                        .requiredWidth(10.dp)
-                        .requiredHeight(5.dp)
-                        .onGloballyPositioned {
-                            item2Bounds = it.boundsInRoot()
-                        }
+                    Modifier.requiredWidth(10.dp).requiredHeight(5.dp).onGloballyPositioned {
+                        item2Bounds = it.boundsInRoot()
+                    }
                 )
             }
         }
@@ -405,7 +373,8 @@ class ChipTest {
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .assertHeightIsEqualTo(ChipDefaults.MinHeight)
             .assertWidthIsEqualTo(labelWidth + horizontalPadding * 2)
     }
@@ -431,8 +400,10 @@ class ChipTest {
                     )
                 }
             ) {
-                Text("Long long long long long long long long long long long long long long" +
-                    "long long long long long long long long long long long long long long long")
+                Text(
+                    "Long long long long long long long long long long long long long long" +
+                        "long long long long long long long long long long long long long long long"
+                )
             }
         }
 
@@ -445,10 +416,8 @@ class ChipTest {
         rule.setMaterialContent {
             Box(Modifier.fillMaxSize()) {
                 Chip(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .testTag(TestChipTag)
-                        .requiredSize(10.dp),
+                    modifier =
+                        Modifier.align(Alignment.Center).testTag(TestChipTag).requiredSize(10.dp),
                     onClick = { clicked = !clicked }
                 ) {
                     Box(Modifier.size(10.dp))
@@ -456,14 +425,13 @@ class ChipTest {
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assertWidthIsEqualTo(10.dp)
             .assertHeightIsEqualTo(10.dp)
             .assertTouchWidthIsEqualTo(48.dp)
             .assertTouchHeightIsEqualTo(48.dp)
-            .performTouchInput {
-                click(Offset(-1f, -1f))
-            }
+            .performTouchInput { click(Offset(-1f, -1f)) }
 
         Truth.assertThat(clicked).isTrue()
     }
@@ -477,10 +445,7 @@ class ChipTest {
         rule.setMaterialContent {
             Box {
                 chip(Modifier.onGloballyPositioned { parentCoordinates = it }) {
-                    Text(
-                        "Test chip",
-                        Modifier.onGloballyPositioned { childCoordinates = it }
-                    )
+                    Text("Test chip", Modifier.onGloballyPositioned { childCoordinates = it })
                 }
             }
         }
@@ -492,16 +457,11 @@ class ChipTest {
             val topLeft =
                 childCoordinates!!.localToWindow(Offset.Zero).x -
                     parentCoordinates!!.localToWindow(Offset.Zero).x
-            val topRight = parentCoordinates!!.localToWindow(
-                Offset(
-                    parentBounds.right,
-                    parentBounds.top
-                )
-            ).x - childCoordinates!!.localToWindow(Offset(childBounds.right, childBounds.top)).x
+            val topRight =
+                parentCoordinates!!.localToWindow(Offset(parentBounds.right, parentBounds.top)).x -
+                    childCoordinates!!.localToWindow(Offset(childBounds.right, childBounds.top)).x
 
-            val expectedPadding = with(rule.density) {
-                padding.roundToPx().toFloat()
-            }
+            val expectedPadding = with(rule.density) { padding.roundToPx().toFloat() }
             Truth.assertThat(expectedPadding).isEqualTo(topLeft)
             Truth.assertThat(expectedPadding).isEqualTo(-topRight)
         }

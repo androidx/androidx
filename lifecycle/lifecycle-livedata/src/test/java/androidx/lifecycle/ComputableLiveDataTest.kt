@@ -52,10 +52,8 @@ class ComputableLiveDataTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
-        lifecycleOwner = TestLifecycleOwner(
-            Lifecycle.State.INITIALIZED,
-            UnconfinedTestDispatcher(null, null)
-        )
+        lifecycleOwner =
+            TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher(null, null))
     }
 
     @Before
@@ -73,8 +71,7 @@ class ComputableLiveDataTest {
     fun noComputeWithoutObservers() {
         val computable = TestComputable()
         verify(taskExecutor, never())?.executeOnDiskIO(computable.refreshRunnable)
-        verify(taskExecutor, never())
-            ?.executeOnDiskIO(computable.invalidationRunnable)
+        verify(taskExecutor, never())?.executeOnDiskIO(computable.invalidationRunnable)
     }
 
     @Test
@@ -87,20 +84,19 @@ class ComputableLiveDataTest {
             val computeCounter = Semaphore(0)
             // available permits for computation
             val computeLock = Semaphore(0)
-            val computable: TestComputable = object : TestComputable(1, 2) {
-                override fun compute(): Int {
-                    try {
-                        computeCounter.release(1)
-                        computeLock.tryAcquire(1, 20, TimeUnit.SECONDS)
-                    } catch (e: InterruptedException) {
-                        throw AssertionError(e)
+            val computable: TestComputable =
+                object : TestComputable(1, 2) {
+                    override fun compute(): Int {
+                        try {
+                            computeCounter.release(1)
+                            computeLock.tryAcquire(1, 20, TimeUnit.SECONDS)
+                        } catch (e: InterruptedException) {
+                            throw AssertionError(e)
+                        }
+                        return super.compute()
                     }
-                    return super.compute()
                 }
-            }
-            val captor = ArgumentCaptor.forClass(
-                Int::class.java
-            )
+            val captor = ArgumentCaptor.forClass(Int::class.java)
             @Suppress("unchecked_cast")
             val observer: Observer<in Int?> = mock(Observer::class.java) as Observer<in Int?>
             executor.postToMainThread {
@@ -108,20 +104,14 @@ class ComputableLiveDataTest {
                 verify(observer, never()).onChanged(anyInt())
             }
             // wait for first compute call
-            assertThat(
-                computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS),
-                `is`(true)
-            )
+            assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), `is`(true))
             // re-invalidate while in compute
             computable.invalidate()
             computable.invalidate()
             computable.invalidate()
             computable.invalidate()
             // ensure another compute call does not arrive
-            assertThat(
-                computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS),
-                `is`(false)
-            )
+            assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), `is`(false))
             // allow computation to finish
             computeLock.release(2)
             // wait for the second result, first will be skipped due to invalidation during compute
@@ -154,24 +144,14 @@ class ComputableLiveDataTest {
 
     @Test
     fun customExecutor() {
-        val customExecutor = mock(
-            Executor::class.java
-        )
+        val customExecutor = mock(Executor::class.java)
         val computable = TestComputable(customExecutor, 1)
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         computable.liveData.observe(lifecycleOwner) {
             // ignored
         }
-        verify(taskExecutor, never())?.executeOnDiskIO(
-            any(
-                Runnable::class.java
-            )
-        )
-        verify(customExecutor, never()).execute(
-            any(
-                Runnable::class.java
-            )
-        )
+        verify(taskExecutor, never())?.executeOnDiskIO(any(Runnable::class.java))
+        verify(customExecutor, never()).execute(any(Runnable::class.java))
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
         verify(taskExecutor, never())?.executeOnDiskIO(computable.refreshRunnable)
         verify(customExecutor).execute(computable.refreshRunnable)

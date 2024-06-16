@@ -53,8 +53,10 @@ class CallEndpointCompatTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @Test
     fun testSupportedMask() {
-        val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or
-            CallAudioState.ROUTE_SPEAKER or CallAudioState.ROUTE_WIRED_HEADSET
+        val supportedRouteMask =
+            CallAudioState.ROUTE_EARPIECE or
+                CallAudioState.ROUTE_SPEAKER or
+                CallAudioState.ROUTE_WIRED_HEADSET
         val state = CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask)
         val endpoints = EndpointUtils.toCallEndpointsCompat(state)
         assertEquals(3, endpoints.size)
@@ -109,9 +111,6 @@ class CallEndpointCompatTest {
             CallAudioState.ROUTE_STREAMING,
             EndpointUtils.mapTypeToRoute(CallEndpointCompat.TYPE_STREAMING)
         )
-        assertEquals(
-            CallAudioState.ROUTE_EARPIECE,
-            EndpointUtils.mapTypeToRoute(-1)
-        )
+        assertEquals(CallAudioState.ROUTE_EARPIECE, EndpointUtils.mapTypeToRoute(-1))
     }
 }

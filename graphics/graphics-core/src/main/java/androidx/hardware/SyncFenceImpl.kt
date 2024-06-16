@@ -27,26 +27,22 @@ internal interface SyncFenceImpl {
      */
     fun await(timeoutNanos: Long): Boolean
 
-    /**
-     * Waits forever for a [SyncFenceImpl] to signal
-     */
+    /** Waits forever for a [SyncFenceImpl] to signal */
     fun awaitForever(): Boolean
 
-    /**
-     * Close the [SyncFenceImpl]
-     */
+    /** Close the [SyncFenceImpl] */
     fun close()
 
     /**
-     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns an instant, [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid,
-     * and if the fence hasn't yet signaled, then [SyncFenceCompat.SIGNAL_TIME_PENDING] is returned.
+     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain. This returns
+     * an instant, [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and if the
+     * fence hasn't yet signaled, then [SyncFenceCompat.SIGNAL_TIME_PENDING] is returned.
      */
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getSignalTimeNanos(): Long
+    @RequiresApi(Build.VERSION_CODES.O) fun getSignalTimeNanos(): Long
 
     /**
      * Checks if the SyncFence object is valid.
+     *
      * @return `true` if it is valid, `false` otherwise
      */
     fun isValid(): Boolean

@@ -38,8 +38,7 @@ import org.junit.runner.RunWith
 class BoringLayoutFactoryTest {
     @Test
     fun measure_plainText_returnBoringMetrics() {
-        assertThat(measure("abc", TextPaint(), TextDirectionHeuristics.FIRSTSTRONG_LTR))
-            .isNotNull()
+        assertThat(measure("abc", TextPaint(), TextDirectionHeuristics.FIRSTSTRONG_LTR)).isNotNull()
     }
 
     @Test
@@ -57,19 +56,13 @@ class BoringLayoutFactoryTest {
             5,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
-        assertThat(measure(text, TextPaint(), TextDirectionHeuristics.FIRSTSTRONG_LTR))
-            .isNotNull()
+        assertThat(measure(text, TextPaint(), TextDirectionHeuristics.FIRSTSTRONG_LTR)).isNotNull()
     }
 
     @Test
     fun measure_textWithParagraphStyle_returnNull() {
         val text = SpannableString("HelloWorld")
-        text.setSpan(
-            LeadingMarginSpan.Standard(20),
-            0,
-            5,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        text.setSpan(LeadingMarginSpan.Standard(20), 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         assertThat(measure(text, TextPaint(), TextDirectionHeuristics.FIRSTSTRONG_LTR)).isNull()
     }
 
@@ -79,13 +72,14 @@ class BoringLayoutFactoryTest {
         val paint = TextPaint()
         val width = 100
         val metrics = BoringLayout.isBoring(text, paint)
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = width,
-            metrics = metrics,
-            includePadding = false
-        )
+        val boringLayout =
+            create(
+                text = text,
+                paint = paint,
+                width = width,
+                metrics = metrics,
+                includePadding = false
+            )
 
         assertThat(boringLayout.text).isEqualTo(text)
         assertThat(boringLayout.paint).isEqualTo(paint)
@@ -103,13 +97,14 @@ class BoringLayoutFactoryTest {
         val paint = TextPaint()
         val width = 100
         val metrics = BoringLayout.isBoring(text, paint)
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = width,
-            metrics = metrics,
-            includePadding = true
-        )
+        val boringLayout =
+            create(
+                text = text,
+                paint = paint,
+                width = width,
+                metrics = metrics,
+                includePadding = true
+            )
 
         assertThat(boringLayout.text).isEqualTo(text)
         assertThat(boringLayout.paint).isEqualTo(paint)
@@ -138,13 +133,14 @@ class BoringLayoutFactoryTest {
         val text: CharSequence = "abcdefghijk"
         val paint = TextPaint()
         val metrics = BoringLayout.isBoring(text, paint)
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = metrics.width,
-            metrics = metrics,
-            includePadding = true
-        )
+        val boringLayout =
+            create(
+                text = text,
+                paint = paint,
+                width = metrics.width,
+                metrics = metrics,
+                includePadding = true
+            )
         assertThat(boringLayout.getLineAscent(0)).isEqualTo(metrics.top)
         assertThat(boringLayout.getLineDescent(0)).isEqualTo(metrics.bottom)
     }
@@ -154,13 +150,14 @@ class BoringLayoutFactoryTest {
         val text: CharSequence = "abcdefghijk"
         val paint = TextPaint()
         val metrics = BoringLayout.isBoring(text, paint)
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = metrics.width,
-            metrics = metrics,
-            includePadding = false
-        )
+        val boringLayout =
+            create(
+                text = text,
+                paint = paint,
+                width = metrics.width,
+                metrics = metrics,
+                includePadding = false
+            )
 
         assertThat(boringLayout.getLineAscent(0)).isEqualTo(metrics.ascent)
         assertThat(boringLayout.getLineDescent(0)).isEqualTo(metrics.descent)
@@ -171,12 +168,8 @@ class BoringLayoutFactoryTest {
         val text: CharSequence = "abcdefghijk"
         val paint = TextPaint()
         val metrics = BoringLayout.isBoring(text, paint)
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = metrics.width,
-            metrics = metrics
-        )
+        val boringLayout =
+            create(text = text, paint = paint, width = metrics.width, metrics = metrics)
 
         val topPad = boringLayout.topPadding
         val bottomPad = boringLayout.bottomPadding
@@ -186,13 +179,7 @@ class BoringLayoutFactoryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun create_setEllipsizedWidth_withNegative_throwsIAE() {
-        create(
-            text = "",
-            paint = TextPaint(),
-            width = 0,
-            metrics = Metrics(),
-            ellipsizedWidth = -1
-        )
+        create(text = "", paint = TextPaint(), width = 0, metrics = Metrics(), ellipsizedWidth = -1)
     }
 
     @Test
@@ -201,14 +188,15 @@ class BoringLayoutFactoryTest {
         val paint = TextPaint()
         val metrics = BoringLayout.isBoring(text, paint)
         val width = metrics.width
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = width,
-            metrics = metrics,
-            ellipsize = TextUtils.TruncateAt.END,
-            ellipsizedWidth = width
-        )
+        val boringLayout =
+            create(
+                text = text,
+                paint = paint,
+                width = width,
+                metrics = metrics,
+                ellipsize = TextUtils.TruncateAt.END,
+                ellipsizedWidth = width
+            )
 
         assertThat(boringLayout.getEllipsisCount(0)).isEqualTo(0)
     }
@@ -220,14 +208,15 @@ class BoringLayoutFactoryTest {
         val metrics = BoringLayout.isBoring(text, paint)
         val width = metrics.width
 
-        val boringLayout = create(
-            text = text,
-            paint = paint,
-            width = width,
-            metrics = metrics,
-            ellipsize = TextUtils.TruncateAt.END,
-            ellipsizedWidth = width / 2
-        )
+        val boringLayout =
+            create(
+                text = text,
+                paint = paint,
+                width = width,
+                metrics = metrics,
+                ellipsize = TextUtils.TruncateAt.END,
+                ellipsizedWidth = width / 2
+            )
 
         assertThat(boringLayout.getEllipsisCount(0)).isGreaterThan(0)
     }

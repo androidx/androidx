@@ -40,24 +40,21 @@ fun getSystemClasspaths(): Set<String> {
     return System.getProperty("java.class.path")!!.split(pathSeparator).toSet()
 }
 
-/**
- * Converts java compilation diagnostic messages into [DiagnosticMessage] objects.
- */
+/** Converts java compilation diagnostic messages into [DiagnosticMessage] objects. */
 internal fun List<Diagnostic<out JavaFileObject>>.toDiagnosticMessages(
     javaSources: Map<JavaFileObject, Source>
 ): List<DiagnosticMessage> {
     return this.map { diagnostic ->
-        val source = diagnostic.source?.let {
-            javaSources[it]
-        }
-        val location = if (source == null) {
-            null
-        } else {
-            DiagnosticLocation(
-                source = source,
-                line = diagnostic.lineNumber.toInt(),
-            )
-        }
+        val source = diagnostic.source?.let { javaSources[it] }
+        val location =
+            if (source == null) {
+                null
+            } else {
+                DiagnosticLocation(
+                    source = source,
+                    line = diagnostic.lineNumber.toInt(),
+                )
+            }
         DiagnosticMessage(
             kind = diagnostic.kind,
             msg = diagnostic.getMessage(Locale.US),

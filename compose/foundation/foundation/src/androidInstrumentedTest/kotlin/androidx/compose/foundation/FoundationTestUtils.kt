@@ -29,10 +29,10 @@ import androidx.compose.ui.unit.dp
  * [View.requestFocus()][android.view.View.requestFocus] will not take focus if the view has no
  * size.
  *
- * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is
- * useful in cases where we need tests that could be affected by initial focus. Eg. When there is
- * only one focusable item and we clear focus, that item could end up being focused on again by the
- * initial focus logic.
+ * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is useful
+ *   in cases where we need tests that could be affected by initial focus. Eg. When there is only
+ *   one focusable item and we clear focus, that item could end up being focused on again by the
+ *   initial focus logic.
  */
 internal fun ComposeContentTestRule.setFocusableContent(
     extraItemForInitialFocus: Boolean = true,

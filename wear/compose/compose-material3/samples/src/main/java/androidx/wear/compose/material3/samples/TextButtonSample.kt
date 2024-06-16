@@ -24,14 +24,11 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
-import androidx.wear.compose.material3.TextButtonDefaults.textStyleFor
 
 @Composable
 @Sampled
 fun TextButtonSample() {
-    TextButton(onClick = { /* Do something */ }) {
-        Text(text = "ABC")
-    }
+    TextButton(onClick = { /* Do something */ }) { Text(text = "ABC") }
 }
 
 @Composable
@@ -53,7 +50,7 @@ fun LargeFilledTonalTextButtonSample() {
         colors = TextButtonDefaults.filledTonalTextButtonColors(),
         modifier = Modifier.size(TextButtonDefaults.LargeButtonSize)
     ) {
-        Text(text = "ABC", style = textStyleFor(TextButtonDefaults.LargeButtonSize))
+        Text(text = "ABC", style = TextButtonDefaults.largeButtonTextStyle)
     }
 }
 
@@ -75,6 +72,18 @@ fun OutlinedTextButtonSample() {
         onClick = { /* Do something */ },
         colors = TextButtonDefaults.outlinedTextButtonColors(),
         border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+    ) {
+        Text(text = "ABC")
+    }
+}
+
+@Sampled
+@Composable
+fun TextButtonWithOnLongClickSample(onLongClick: () -> Unit) {
+    TextButton(
+        onClick = { /* Do something for onClick*/ },
+        onLongClick = onLongClick,
+        onLongClickLabel = "OnLongClick action"
     ) {
         Text(text = "ABC")
     }

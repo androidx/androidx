@@ -33,10 +33,8 @@ class GuavaImmutableMultimapQueryResultAdapter(
     private val valueRowAdapter: RowAdapter,
     private val immutableClassName: XClassName,
 ) : MultimapQueryResultAdapter(context, parsedQuery, listOf(keyRowAdapter, valueRowAdapter)) {
-    private val mapType = immutableClassName.parametrizedBy(
-        keyTypeArg.asTypeName(),
-        valueTypeArg.asTypeName()
-    )
+    private val mapType =
+        immutableClassName.parametrizedBy(keyTypeArg.asTypeName(), valueTypeArg.asTypeName())
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         val mapVarName = scope.getTmpVar("_mapBuilder")
@@ -65,40 +63,34 @@ class GuavaImmutableMultimapQueryResultAdapter(
                 }
             }
 
-            val builderClassName = when (immutableClassName) {
-                GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP ->
-                    GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP_BUILDER
-
-                GuavaTypeNames.IMMUTABLE_SET_MULTIMAP ->
-                    GuavaTypeNames.IMMUTABLE_SET_MULTIMAP_BUILDER
-
-                else ->
-                    // Return type is base class ImmutableMultimap, need the case handled here,
-                    // but won't actually get here in the code if this is the case as we will
-                    // do an early return in TypeAdapterStore.kt.
-                    GuavaTypeNames.IMMUTABLE_MULTIMAP_BUILDER
-            }
+            val builderClassName =
+                when (immutableClassName) {
+                    GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP ->
+                        GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP_BUILDER
+                    GuavaTypeNames.IMMUTABLE_SET_MULTIMAP ->
+                        GuavaTypeNames.IMMUTABLE_SET_MULTIMAP_BUILDER
+                    else ->
+                        // Return type is base class ImmutableMultimap, need the case handled here,
+                        // but won't actually get here in the code if this is the case as we will
+                        // do an early return in TypeAdapterStore.kt.
+                        GuavaTypeNames.IMMUTABLE_MULTIMAP_BUILDER
+                }
 
             addLocalVariable(
                 name = mapVarName,
-                typeName = builderClassName.parametrizedBy(
-                    keyTypeArg.asTypeName(),
-                    valueTypeArg.asTypeName()
-                ),
-                assignExpr = XCodeBlock.of(
-                    language = language,
-                    format = "%T.builder()",
-                    immutableClassName
-                )
+                typeName =
+                    builderClassName.parametrizedBy(
+                        keyTypeArg.asTypeName(),
+                        valueTypeArg.asTypeName()
+                    ),
+                assignExpr =
+                    XCodeBlock.of(language = language, format = "%T.builder()", immutableClassName)
             )
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
             beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
-                addLocalVariable(
-                    name = tmpKeyVarName,
-                    typeName = keyTypeArg.asTypeName()
-                )
+                addLocalVariable(name = tmpKeyVarName, typeName = keyTypeArg.asTypeName())
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
                 // Iterate over all matched fields to check if all are null. If so, we continue in
@@ -107,20 +99,18 @@ class GuavaImmutableMultimapQueryResultAdapter(
                 val valueIndexVars =
                     dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
                         ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
-                val columnNullCheckCodeBlock = getColumnNullCheckCode(
-                    language = language,
-                    cursorVarName = cursorVarName,
-                    indexVars = valueIndexVars
-                )
+                val columnNullCheckCodeBlock =
+                    getColumnNullCheckCode(
+                        language = language,
+                        cursorVarName = cursorVarName,
+                        indexVars = valueIndexVars
+                    )
                 // Perform column null check
-                beginControlFlow("if (%L)", columnNullCheckCodeBlock).apply {
-                    addStatement("continue")
-                }.endControlFlow()
+                beginControlFlow("if (%L)", columnNullCheckCodeBlock)
+                    .apply { addStatement("continue") }
+                    .endControlFlow()
 
-                addLocalVariable(
-                    name = tmpValueVarName,
-                    typeName = valueTypeArg.asTypeName()
-                )
+                addLocalVariable(name = tmpValueVarName, typeName = valueTypeArg.asTypeName())
                 valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                 addStatement("%L.put(%L, %L)", mapVarName, tmpKeyVarName, tmpValueVarName)
             }
@@ -128,11 +118,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
             addLocalVariable(
                 name = outVarName,
                 typeName = mapType,
-                assignExpr = XCodeBlock.of(
-                    language = language,
-                    format = "%L.build()",
-                    mapVarName
-                )
+                assignExpr = XCodeBlock.of(language = language, format = "%L.build()", mapVarName)
             )
         }
     }

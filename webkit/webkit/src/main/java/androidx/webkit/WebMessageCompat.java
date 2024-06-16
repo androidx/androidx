@@ -28,7 +28,8 @@ import java.util.Objects;
 
 /**
  * The Java representation of the HTML5 PostMessage event. See
- * https://html.spec.whatwg.org/multipage/comms.html#the-messageevent-interfaces
+ * <a href="https://html.spec.whatwg.org/multipage/comms.html#the-messageevent-interfaces">
+ *     https://html.spec.whatwg.org/multipage/comms.html#the-messageevent-interfaces</a>
  * for definition of a MessageEvent in HTML5.
  */
 public class WebMessageCompat {

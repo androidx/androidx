@@ -34,31 +34,39 @@ class AdSelectionFromOutcomesConfigTest {
     private val adSelectionIds: List<Long> = listOf(10, 11, 12)
     private val adSelectionSignals: AdSelectionSignals = AdSelectionSignals("adSelSignals")
     private val selectionLogicUri: Uri = Uri.parse("www.abc.com")
+
     @Test
     fun testToString() {
-        val result = "AdSelectionFromOutcomesConfig: seller=$seller, " +
-            "adSelectionIds='$adSelectionIds', adSelectionSignals=$adSelectionSignals, " +
-            "selectionLogicUri=$selectionLogicUri"
-        val request = AdSelectionFromOutcomesConfig(
-            seller,
-            adSelectionIds,
-            adSelectionSignals,
-            selectionLogicUri)
+        val result =
+            "AdSelectionFromOutcomesConfig: seller=$seller, " +
+                "adSelectionIds='$adSelectionIds', adSelectionSignals=$adSelectionSignals, " +
+                "selectionLogicUri=$selectionLogicUri"
+        val request =
+            AdSelectionFromOutcomesConfig(
+                seller,
+                adSelectionIds,
+                adSelectionSignals,
+                selectionLogicUri
+            )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val adSelectionFromOutcomesConfig = AdSelectionFromOutcomesConfig(
-            seller,
-            adSelectionIds,
-            adSelectionSignals,
-            selectionLogicUri)
-        var adSelectionFromOutcomesConfig2 = AdSelectionFromOutcomesConfig(
-            AdTechIdentifier("1234"),
-            adSelectionIds,
-            adSelectionSignals,
-            Uri.parse("www.abc.com"))
+        val adSelectionFromOutcomesConfig =
+            AdSelectionFromOutcomesConfig(
+                seller,
+                adSelectionIds,
+                adSelectionSignals,
+                selectionLogicUri
+            )
+        var adSelectionFromOutcomesConfig2 =
+            AdSelectionFromOutcomesConfig(
+                AdTechIdentifier("1234"),
+                adSelectionIds,
+                adSelectionSignals,
+                Uri.parse("www.abc.com")
+            )
         Truth.assertThat(adSelectionFromOutcomesConfig == adSelectionFromOutcomesConfig2).isTrue()
     }
 }

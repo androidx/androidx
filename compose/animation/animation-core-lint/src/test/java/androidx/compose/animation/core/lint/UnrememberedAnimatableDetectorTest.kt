@@ -28,12 +28,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [UnrememberedAnimatableDetector].
- */
+/** Test for [UnrememberedAnimatableDetector]. */
 class UnrememberedAnimatableDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = UnrememberedAnimatableDetector()
 
@@ -41,11 +38,12 @@ class UnrememberedAnimatableDetectorTest : LintDetectorTest() {
         mutableListOf(UnrememberedAnimatableDetector.UnrememberedAnimatable)
 
     // Simplified Animatable Color function stub, from androidx.compose.animation
-    private val AnimatableColorStub = bytecodeStub(
-        filename = "SingleValueAnimation.kt",
-        filepath = "androidx/compose/animation",
-        checksum = 0x98c0a447,
-        """
+    private val AnimatableColorStub =
+        bytecodeStub(
+            filename = "SingleValueAnimation.kt",
+            filepath = "androidx/compose/animation",
+            checksum = 0x98c0a447,
+            """
             package androidx.compose.animation
 
             import androidx.compose.animation.core.Animatable
@@ -53,14 +51,14 @@ class UnrememberedAnimatableDetectorTest : LintDetectorTest() {
 
             fun Animatable(initialValue: Color): Animatable<Color, Any> = Animatable(initialValue)
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/3XLvQvCQAwF8IiiGEThBhERBBfBoS6Cszh2s+KetqE9uI9y
         TcE/3xN1KgZehsf7AcAQAAYxU/gennBNrgxel8+k8LbxLSfktCXR3qllpl1l
         +EGm48uvTQWPuP2vYhNYzT57yg1HcMZVD4TOibas8MaWbc4hFbXIHDVt7SUT
         kjfc46YHO51UgZpaF62aXL3xUeIcR8KtqPE9/lR2cIAXLlZThPEAAAA=
         """,
-        """
+            """
         androidx/compose/animation/SingleValueAnimationKt.class:
         H4sIAAAAAAAA/5VTXU8TQRQ9s223Za20VFEoigooHwLTEh8wJUSCMSkWTMQ0
         MTyYaTvWabczZHa24ZH4T/QX+CbRxBB880cZZ1sIiSUKD3vn3Dvnzv3cX7+/
@@ -78,13 +76,14 @@ class UnrememberedAnimatableDetectorTest : LintDetectorTest() {
         YGN7iJUxXka+jAncKeMuJsu4h/t7IAEeYGoPyQDTAWYCPAzwKMBogEQA9w+x
         P7r8kQQAAA==
         """
-    )
+        )
 
     @Test
     fun notRemembered() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.animation.*
@@ -167,14 +166,14 @@ class UnrememberedAnimatableDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Animatable,
-            AnimatableColorStub,
-            Stubs.Color,
-            Stubs.Composable,
-            Stubs.Remember,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
+                ),
+                Stubs.Animatable,
+                AnimatableColorStub,
+                Stubs.Color,
+                Stubs.Composable,
+                Stubs.Remember,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -259,9 +258,10 @@ src/test/{.kt:80: Error: Creating an Animatable during composition without using
 
     @Test
     fun rememberedInsideComposableBody() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.animation.*
@@ -333,24 +333,25 @@ src/test/{.kt:80: Error: Creating an Animatable during composition without using
                     }
                 }
             """
-            ),
-            Stubs.Animatable,
-            AnimatableColorStub,
-            Stubs.Color,
-            Stubs.Composable,
-            Stubs.Remember,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
-        )
+                ),
+                Stubs.Animatable,
+                AnimatableColorStub,
+                Stubs.Color,
+                Stubs.Composable,
+                Stubs.Remember,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.animation.*
@@ -448,17 +449,16 @@ src/test/{.kt:80: Error: Creating an Animatable during composition without using
                     }
                 }
             """
-            ),
-            Stubs.Animatable,
-            AnimatableColorStub,
-            Stubs.Color,
-            Stubs.Composable,
-            Stubs.Remember,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker
+                ),
+                Stubs.Animatable,
+                AnimatableColorStub,
+                Stubs.Color,
+                Stubs.Composable,
+                Stubs.Remember,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker
             )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

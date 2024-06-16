@@ -44,18 +44,14 @@ abstract class ActivityResultRegistry {
     private val keyToRc = mutableMapOf<String, Int>()
     private val keyToLifecycleContainers = mutableMapOf<String, LifecycleContainer>()
     private val launchedKeys = mutableListOf<String>()
-    @Transient
-    private val keyToCallback = mutableMapOf<String, CallbackAndContract<*>>()
+    @Transient private val keyToCallback = mutableMapOf<String, CallbackAndContract<*>>()
     private val parsedPendingResults = mutableMapOf<String, Any?>()
-    /**
-     * Storage for the set of key to ActivityResult instances that have
-     * yet to be delivered
-     */
+    /** Storage for the set of key to ActivityResult instances that have yet to be delivered */
     private val pendingResults = Bundle()
 
     /**
-     * Start the process of executing an [ActivityResultContract] in a type-safe way,
-     * using the provided [contract][ActivityResultContract].
+     * Start the process of executing an [ActivityResultContract] in a type-safe way, using the
+     * provided [contract][ActivityResultContract].
      *
      * @param requestCode request code to use
      * @param contract contract to use for type conversions
@@ -80,7 +76,6 @@ abstract class ActivityResultRegistry {
      * @param lifecycleOwner a [LifecycleOwner] that makes this call.
      * @param contract the contract specifying input/output types of the call
      * @param callback the activity result callback
-     *
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     fun <I, O> register(
@@ -106,15 +101,12 @@ abstract class ActivityResultRegistry {
                     parsedPendingResults.remove(key)
                     callback.onActivityResult(parsedPendingResult)
                 }
-                val pendingResult = BundleCompat.getParcelable(pendingResults, key,
-                    ActivityResult::class.java)
+                val pendingResult =
+                    BundleCompat.getParcelable(pendingResults, key, ActivityResult::class.java)
                 if (pendingResult != null) {
                     pendingResults.remove(key)
                     callback.onActivityResult(
-                        contract.parseResult(
-                            pendingResult.resultCode,
-                            pendingResult.data
-                        )
+                        contract.parseResult(pendingResult.resultCode, pendingResult.data)
                     )
                 }
             } else if (Lifecycle.Event.ON_STOP == event) {
@@ -127,11 +119,12 @@ abstract class ActivityResultRegistry {
         keyToLifecycleContainers[key] = lifecycleContainer
         return object : ActivityResultLauncher<I>() {
             override fun launch(input: I, options: ActivityOptionsCompat?) {
-                val innerCode = checkNotNull(keyToRc[key]) {
-                    "Attempting to launch an unregistered ActivityResultLauncher with " +
-                        "contract $contract and input $input. You must ensure the " +
-                        "ActivityResultLauncher is registered before calling launch()."
-                }
+                val innerCode =
+                    checkNotNull(keyToRc[key]) {
+                        "Attempting to launch an unregistered ActivityResultLauncher with " +
+                            "contract $contract and input $input. You must ensure the " +
+                            "ActivityResultLauncher is registered before calling launch()."
+                    }
                 launchedKeys.add(key)
                 try {
                     onLaunch(innerCode, contract, input, options)
@@ -156,14 +149,13 @@ abstract class ActivityResultRegistry {
      * This is normally called by a higher level convenience methods like
      * [ActivityResultCaller.registerForActivityResult].
      *
-     * When calling this, you must call [ActivityResultLauncher.unregister] on the
-     * returned [ActivityResultLauncher] when the launcher is no longer needed to
-     * release any values that might be captured in the registered callback.
+     * When calling this, you must call [ActivityResultLauncher.unregister] on the returned
+     * [ActivityResultLauncher] when the launcher is no longer needed to release any values that
+     * might be captured in the registered callback.
      *
      * @param key a unique string key identifying this call
      * @param contract the contract specifying input/output types of the call
      * @param callback the activity result callback
-     *
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     fun <I, O> register(
@@ -174,13 +166,12 @@ abstract class ActivityResultRegistry {
         registerKey(key)
         keyToCallback[key] = CallbackAndContract(callback, contract)
         if (parsedPendingResults.containsKey(key)) {
-            @Suppress("UNCHECKED_CAST")
-            val parsedPendingResult = parsedPendingResults[key] as O
+            @Suppress("UNCHECKED_CAST") val parsedPendingResult = parsedPendingResults[key] as O
             parsedPendingResults.remove(key)
             callback.onActivityResult(parsedPendingResult)
         }
-        val pendingResult = BundleCompat.getParcelable(pendingResults, key,
-            ActivityResult::class.java)
+        val pendingResult =
+            BundleCompat.getParcelable(pendingResults, key, ActivityResult::class.java)
         if (pendingResult != null) {
             pendingResults.remove(key)
             callback.onActivityResult(
@@ -189,11 +180,12 @@ abstract class ActivityResultRegistry {
         }
         return object : ActivityResultLauncher<I>() {
             override fun launch(input: I, options: ActivityOptionsCompat?) {
-                val innerCode = checkNotNull(keyToRc[key]) {
-                    "Attempting to launch an unregistered ActivityResultLauncher with " +
-                        "contract $contract and input $input. You must ensure the " +
-                        "ActivityResultLauncher is registered before calling launch()."
-                }
+                val innerCode =
+                    checkNotNull(keyToRc[key]) {
+                        "Attempting to launch an unregistered ActivityResultLauncher with " +
+                            "contract $contract and input $input. You must ensure the " +
+                            "ActivityResultLauncher is registered before calling launch()."
+                    }
                 launchedKeys.add(key)
                 try {
                     onLaunch(innerCode, contract, input, options)
@@ -213,8 +205,8 @@ abstract class ActivityResultRegistry {
     }
 
     /**
-     * Unregister a callback previously registered with [register]. This shouldn't be
-     * called directly, but instead through [ActivityResultLauncher.unregister].
+     * Unregister a callback previously registered with [register]. This shouldn't be called
+     * directly, but instead through [ActivityResultLauncher.unregister].
      *
      * @param key the unique key used when registering a callback.
      */
@@ -229,15 +221,13 @@ abstract class ActivityResultRegistry {
         }
         keyToCallback.remove(key)
         if (parsedPendingResults.containsKey(key)) {
-            Log.w(LOG_TAG,
-                "Dropping pending result for request $key: ${parsedPendingResults[key]}")
+            Log.w(LOG_TAG, "Dropping pending result for request $key: ${parsedPendingResults[key]}")
             parsedPendingResults.remove(key)
         }
         if (pendingResults.containsKey(key)) {
-            val pendingResult = BundleCompat.getParcelable(pendingResults, key,
-                ActivityResult::class.java)
-            Log.w(LOG_TAG,
-                "Dropping pending result for request $key: $pendingResult")
+            val pendingResult =
+                BundleCompat.getParcelable(pendingResults, key, ActivityResult::class.java)
+            Log.w(LOG_TAG, "Dropping pending result for request $key: $pendingResult")
             pendingResults.remove(key)
         }
         val lifecycleContainer = keyToLifecycleContainers[key]
@@ -257,18 +247,9 @@ abstract class ActivityResultRegistry {
             KEY_COMPONENT_ACTIVITY_REGISTERED_RCS,
             ArrayList(keyToRc.values)
         )
-        outState.putStringArrayList(
-            KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
-            ArrayList(keyToRc.keys)
-        )
-        outState.putStringArrayList(
-            KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS,
-            ArrayList(launchedKeys)
-        )
-        outState.putBundle(
-            KEY_COMPONENT_ACTIVITY_PENDING_RESULTS,
-            Bundle(pendingResults)
-        )
+        outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS, ArrayList(keyToRc.keys))
+        outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS, ArrayList(launchedKeys))
+        outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS, Bundle(pendingResults))
     }
 
     /**
@@ -285,13 +266,13 @@ abstract class ActivityResultRegistry {
         if (keys == null || rcs == null) {
             return
         }
-        val restoredLaunchedKeys = savedInstanceState.getStringArrayList(
-            KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS)
+        val restoredLaunchedKeys =
+            savedInstanceState.getStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS)
         if (restoredLaunchedKeys != null) {
             launchedKeys.addAll(restoredLaunchedKeys)
         }
-        val restoredPendingResults = savedInstanceState.getBundle(
-            KEY_COMPONENT_ACTIVITY_PENDING_RESULTS)
+        val restoredPendingResults =
+            savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS)
         if (restoredPendingResults != null) {
             pendingResults.putAll(restoredPendingResults)
         }
@@ -315,15 +296,14 @@ abstract class ActivityResultRegistry {
     }
 
     /**
-     * Dispatch a result received via [Activity.onActivityResult] to the callback on record,
-     * or store the result if callback was not yet registered.
+     * Dispatch a result received via [Activity.onActivityResult] to the callback on record, or
+     * store the result if callback was not yet registered.
      *
      * @param requestCode request code to identify the callback
      * @param resultCode status to indicate the success of the operation
      * @param data an intent that carries the result data
-     *
-     * @return whether there was a callback was registered for the given request code which was
-     * or will be called.
+     * @return whether there was a callback was registered for the given request code which was or
+     *   will be called.
      */
     @MainThread
     fun dispatchResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
@@ -337,7 +317,6 @@ abstract class ActivityResultRegistry {
      *
      * @param requestCode request code to identify the callback
      * @param result the result to propagate
-     *
      * @return true if there is a callback registered for the given request code, false otherwise.
      */
     @MainThread
@@ -388,19 +367,17 @@ abstract class ActivityResultRegistry {
     }
 
     /**
-     * Generate a random number between the initial value (00010000) inclusive, and the max
-     * integer value. If that number is already an existing request code, generate another until
-     * we find one that is new.
+     * Generate a random number between the initial value (00010000) inclusive, and the max integer
+     * value. If that number is already an existing request code, generate another until we find one
+     * that is new.
      *
      * @return the number
      */
     private fun generateRandomNumber(): Int {
         return generateSequence {
-            nextInt(Int.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE + 1) +
-                INITIAL_REQUEST_CODE_VALUE
-        }.first { number ->
-            !rcToKey.containsKey(number)
-        }
+                nextInt(Int.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE + 1) + INITIAL_REQUEST_CODE_VALUE
+            }
+            .first { number -> !rcToKey.containsKey(number) }
     }
 
     private fun bindRcKey(rc: Int, key: String) {
@@ -422,9 +399,7 @@ abstract class ActivityResultRegistry {
         }
 
         fun clearObservers() {
-            observers.forEach { observer ->
-                lifecycle.removeObserver(observer)
-            }
+            observers.forEach { observer -> lifecycle.removeObserver(observer) }
             observers.clear()
         }
     }

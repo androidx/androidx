@@ -71,9 +71,7 @@ suspend fun updateAppWidgetState(
     updateState: suspend (MutablePreferences) -> Unit,
 ) {
     updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) {
-        it.toMutablePreferences().apply {
-            updateState(this)
-        }
+        it.toMutablePreferences().apply { updateState(this) }
     }
 }
 
@@ -87,4 +85,5 @@ suspend fun <T> GlanceAppWidget.getAppWidgetState(
         context,
         checkNotNull(stateDefinition) { "No state defined in this provider" },
         glanceId
-    ) as T
+    )
+        as T

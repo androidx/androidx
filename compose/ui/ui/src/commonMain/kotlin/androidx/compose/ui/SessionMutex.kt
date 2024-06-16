@@ -25,45 +25,39 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
 
 /**
- * Helper class for coordinating between mutually-exclusive sessions. A session is represented as
- * an object of type [T] and a coroutine [Job] whose lifetime is tied to the session.
+ * Helper class for coordinating between mutually-exclusive sessions. A session is represented as an
+ * object of type [T] and a coroutine [Job] whose lifetime is tied to the session.
  *
- * Only one session can be active at a time. When a new session is started, the old session will
- * be cancelled and allowed to finish any cancellation tasks (e.g. `finally` blocks) before the
- * new session's coroutine starts.
+ * Only one session can be active at a time. When a new session is started, the old session will be
+ * cancelled and allowed to finish any cancellation tasks (e.g. `finally` blocks) before the new
+ * session's coroutine starts.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @InternalComposeUiApi
 @JvmInline
-value class SessionMutex<T> private constructor(
-    private val currentSessionHolder: AtomicReference<Session<T>?>
-) {
+value class SessionMutex<T>
+private constructor(private val currentSessionHolder: AtomicReference<Session<T>?>) {
     constructor() : this(AtomicReference(null))
 
-    /**
-     * Returns the current session object.
-     */
+    /** Returns the current session object. */
     val currentSession: T?
         get() = currentSessionHolder.get()?.value
 
     /**
-     * Cancels any existing session and then calls [session].
-     * [session] will in turn be cancelled if this method is called again before it returns.
+     * Cancels any existing session and then calls [session]. [session] will in turn be cancelled if
+     * this method is called again before it returns.
      *
      * @param sessionInitializer Called immediately to create the new session object, before
-     * cancelling the previous session. Receives a [CoroutineScope] that has the same context as
-     * [session] will get.
+     *   cancelling the previous session. Receives a [CoroutineScope] that has the same context as
+     *   [session] will get.
      * @param session Called with the return value from [sessionInitializer] after cancelling the
-     * previous session.
+     *   previous session.
      */
     suspend fun <R> withSessionCancellingPrevious(
         sessionInitializer: (CoroutineScope) -> T,
         session: suspend (data: T) -> R
     ): R = coroutineScope {
-        val newSession = Session(
-            job = coroutineContext.job,
-            value = sessionInitializer(this)
-        )
+        val newSession = Session(job = coroutineContext.job, value = sessionInitializer(this))
         currentSessionHolder.getAndSet(newSession)?.job?.cancelAndJoin()
         try {
             return@coroutineScope session(newSession.value)

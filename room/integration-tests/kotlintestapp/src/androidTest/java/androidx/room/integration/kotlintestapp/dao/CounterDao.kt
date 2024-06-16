@@ -24,11 +24,9 @@ import androidx.room.integration.kotlintestapp.vo.Counter
 
 @Dao
 interface CounterDao {
-    @Upsert
-    suspend fun upsert(c: Counter)
+    @Upsert suspend fun upsert(c: Counter)
 
-    @Query("SELECT * FROM Counter WHERE id = :id")
-    suspend fun getCounter(id: Long): Counter
+    @Query("SELECT * FROM Counter WHERE id = :id") suspend fun getCounter(id: Long): Counter
 
     @SkipQueryVerification // ModifiedCounter is not an entity
     @Query("INSERT OR REPLACE INTO Counter SELECT * FROM ModifiedCounter WHERE id = :id")

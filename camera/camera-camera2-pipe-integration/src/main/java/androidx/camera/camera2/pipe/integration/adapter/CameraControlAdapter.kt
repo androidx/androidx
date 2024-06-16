@@ -62,7 +62,9 @@ import kotlinx.coroutines.async
 @SuppressLint("UnsafeOptInUsageError")
 @CameraScope
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
-class CameraControlAdapter @Inject constructor(
+class CameraControlAdapter
+@Inject
+constructor(
     private val cameraProperties: CameraProperties,
     private val evCompControl: EvCompControl,
     private val flashControl: FlashControl,
@@ -94,11 +96,13 @@ class CameraControlAdapter @Inject constructor(
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> =
         Futures.nonCancellationPropagating(
-            FutureChain.from(
-                torchControl.setTorchAsync(torch).asListenableFuture()
-            ).transform(
-                Function { return@Function null }, CameraXExecutors.directExecutor()
-            )
+            FutureChain.from(torchControl.setTorchAsync(torch).asListenableFuture())
+                .transform(
+                    Function {
+                        return@Function null
+                    },
+                    CameraXExecutors.directExecutor()
+                )
         )
 
     override fun startFocusAndMetering(
@@ -108,11 +112,13 @@ class CameraControlAdapter @Inject constructor(
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
         return Futures.nonCancellationPropagating(
-            threads.sequentialScope.async {
-                focusMeteringControl.cancelFocusAndMeteringAsync().join()
-                // Convert to null once the task is done, ignore the results.
-                return@async null
-            }.asListenableFuture()
+            threads.sequentialScope
+                .async {
+                    focusMeteringControl.cancelFocusAndMeteringAsync().join()
+                    // Convert to null once the task is done, ignore the results.
+                    return@async null
+                }
+                .asListenableFuture()
         )
     }
 
@@ -129,8 +135,7 @@ class CameraControlAdapter @Inject constructor(
     override fun setFlashMode(@ImageCapture.FlashMode flashMode: Int) {
         flashControl.setFlashAsync(flashMode)
         zslControl.setZslDisabledByFlashMode(
-            flashMode == FLASH_MODE_ON ||
-                flashMode == FLASH_MODE_AUTO
+            flashMode == FLASH_MODE_ON || flashMode == FLASH_MODE_AUTO
         )
     }
 
@@ -139,9 +144,7 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
-        Futures.nonCancellationPropagating(
-            evCompControl.updateAsync(exposure).asListenableFuture()
-        )
+        Futures.nonCancellationPropagating(evCompControl.updateAsync(exposure).asListenableFuture())
 
     override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
         zslControl.setZslDisabledByUserCaseConfig(disabled)
@@ -159,11 +162,7 @@ class CameraControlAdapter @Inject constructor(
         captureConfigs: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
-    ) = stillCaptureRequestControl.issueCaptureRequests(
-        captureConfigs,
-        captureMode,
-        flashType
-    )
+    ) = stillCaptureRequestControl.issueCaptureRequests(captureConfigs, captureMode, flashType)
 
     override fun getSessionConfig(): SessionConfig {
         warn { "TODO: getSessionConfig is not yet supported" }

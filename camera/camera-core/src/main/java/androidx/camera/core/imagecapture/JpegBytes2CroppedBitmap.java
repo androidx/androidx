@@ -24,10 +24,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Rect;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
@@ -37,7 +35,6 @@ import java.io.IOException;
 /**
  * Processes a JPEG image and produces a cropped {@link Bitmap} output.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 final class JpegBytes2CroppedBitmap implements Operation<Packet<byte[]>, Packet<Bitmap>> {
 
     @NonNull

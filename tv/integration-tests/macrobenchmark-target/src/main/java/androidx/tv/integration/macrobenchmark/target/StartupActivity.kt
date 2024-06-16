@@ -27,8 +27,6 @@ class StartupActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            Text("TV Compose Macrobenchmark Target")
-        }
+        setContent { Text("TV Compose Macrobenchmark Target") }
     }
 }

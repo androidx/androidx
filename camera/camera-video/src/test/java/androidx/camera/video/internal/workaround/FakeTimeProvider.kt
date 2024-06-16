@@ -16,14 +16,10 @@
 
 package androidx.camera.video.internal.workaround
 
-import androidx.annotation.RequiresApi
 import androidx.camera.video.internal.encoder.TimeProvider
 import java.util.concurrent.TimeUnit
 
-/**
- * A fake TimeProvider implementation.
- */
-@RequiresApi(21)
+/** A fake TimeProvider implementation. */
 class FakeTimeProvider(var uptimeNs: Long = 0L, var realtimeNs: Long = 0L) : TimeProvider {
 
     override fun uptimeUs() = TimeUnit.NANOSECONDS.toMicros(uptimeNs)

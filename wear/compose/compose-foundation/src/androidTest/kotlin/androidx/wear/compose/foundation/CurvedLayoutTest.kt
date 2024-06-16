@@ -39,8 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class CurvedLayoutTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private fun anchor_and_clockwise_test(
         anchor: Float,
@@ -58,61 +57,59 @@ class CurvedLayoutTest {
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 CurvedLayout(
-                    modifier = Modifier.size(200.dp)
-                        .onGloballyPositioned { rowCoords = it },
+                    modifier = Modifier.size(200.dp).onGloballyPositioned { rowCoords = it },
                     anchor = anchor,
                     anchorType = anchorTypeState,
                     angularDirection = angularDirection
                 ) {
                     curvedComposable(modifier = CurvedModifier.spy(capturedInfo)) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .onGloballyPositioned { coords = it }
-                        )
+                        Box(modifier = Modifier.size(40.dp).onGloballyPositioned { coords = it })
                     }
                 }
 
                 if (anchorType != initialAnchorType) {
-                    LaunchedEffect(true) {
-                        anchorTypeState = anchorType
-                    }
+                    LaunchedEffect(true) { anchorTypeState = anchorType }
                 }
             }
         }
 
         val isLtr = layoutDirection == LayoutDirection.Ltr
-        val clockwise = when (angularDirection) {
-            CurvedDirection.Angular.Normal -> isLtr
-            CurvedDirection.Angular.Reversed -> !isLtr
-            CurvedDirection.Angular.Clockwise -> true
-            CurvedDirection.Angular.CounterClockwise -> false
-            else -> throw java.lang.IllegalArgumentException(
-                "Illegal AngularDirection: $angularDirection"
-            )
-        }
+        val clockwise =
+            when (angularDirection) {
+                CurvedDirection.Angular.Normal -> isLtr
+                CurvedDirection.Angular.Reversed -> !isLtr
+                CurvedDirection.Angular.Clockwise -> true
+                CurvedDirection.Angular.CounterClockwise -> false
+                else ->
+                    throw java.lang.IllegalArgumentException(
+                        "Illegal AngularDirection: $angularDirection"
+                    )
+            }
 
         rule.runOnIdle {
-            val dims = RadialDimensions(
-                absoluteClockwise = angularDirection == CurvedDirection.Angular.Normal ||
-                    angularDirection == CurvedDirection.Angular.Clockwise,
-                rowCoords!!,
-                coords!!
-            )
+            val dims =
+                RadialDimensions(
+                    absoluteClockwise =
+                        angularDirection == CurvedDirection.Angular.Normal ||
+                            angularDirection == CurvedDirection.Angular.Clockwise,
+                    rowCoords!!,
+                    coords!!
+                )
             checkSpy(dims, capturedInfo)
 
             // It's at the outer side of the CurvedRow,
             assertEquals(dims.rowRadius, dims.outerRadius, FLOAT_TOLERANCE)
 
-            val actualAngle = if (anchorType == AnchorType.Center) {
-                dims.middleAngle
-            } else {
-                if (anchorType == AnchorType.Start == clockwise) {
-                    dims.startAngle
+            val actualAngle =
+                if (anchorType == AnchorType.Center) {
+                    dims.middleAngle
                 } else {
-                    dims.endAngle
+                    if (anchorType == AnchorType.Start == clockwise) {
+                        dims.startAngle
+                    } else {
+                        dims.endAngle
+                    }
                 }
-            }
             checkAngle(anchor, actualAngle)
         }
     }
@@ -222,15 +219,11 @@ class CurvedLayoutTest {
         var rowCoords: LayoutCoordinates? = null
         val coords = Array<LayoutCoordinates?>(3) { null }
         rule.setContent {
-            CurvedLayout(
-                modifier = Modifier.onGloballyPositioned { rowCoords = it }
-            ) {
+            CurvedLayout(modifier = Modifier.onGloballyPositioned { rowCoords = it }) {
                 repeat(3) { ix ->
                     curvedComposable {
                         Box(
-                            modifier = Modifier
-                                .size(30.dp)
-                                .onGloballyPositioned { coords[ix] = it }
+                            modifier = Modifier.size(30.dp).onGloballyPositioned { coords[ix] = it }
                         )
                     }
                 }
@@ -238,13 +231,7 @@ class CurvedLayoutTest {
         }
 
         rule.runOnIdle {
-            val dims = coords.map {
-                RadialDimensions(
-                    absoluteClockwise = true,
-                    rowCoords!!,
-                    it!!
-                )
-            }
+            val dims = coords.map { RadialDimensions(absoluteClockwise = true, rowCoords!!, it!!) }
 
             dims.forEach {
                 // They are all at the outer side of the CurvedRow,
@@ -271,44 +258,30 @@ class CurvedLayoutTest {
         var bigSpy = CapturedInfo()
         // We have a big box and a small box with the specified alignment
         rule.setContent {
-            CurvedLayout(
-                modifier = Modifier.onGloballyPositioned { rowCoords = it }
-            ) {
+            CurvedLayout(modifier = Modifier.onGloballyPositioned { rowCoords = it }) {
                 curvedComposable(
                     modifier = CurvedModifier.spy(smallSpy),
                     radialAlignment = radialAlignment
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .onGloballyPositioned { smallBoxCoords = it }
+                        modifier = Modifier.size(30.dp).onGloballyPositioned { smallBoxCoords = it }
                     )
                 }
                 curvedComposable(
                     modifier = CurvedModifier.spy(bigSpy),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(45.dp)
-                            .onGloballyPositioned { bigBoxCoords = it }
-                    )
+                    Box(modifier = Modifier.size(45.dp).onGloballyPositioned { bigBoxCoords = it })
                 }
             }
         }
 
         rule.runOnIdle {
-            val bigBoxDimensions = RadialDimensions(
-                absoluteClockwise = true,
-                rowCoords!!,
-                bigBoxCoords!!
-            )
+            val bigBoxDimensions =
+                RadialDimensions(absoluteClockwise = true, rowCoords!!, bigBoxCoords!!)
             checkSpy(bigBoxDimensions, bigSpy)
 
-            val smallBoxDimensions = RadialDimensions(
-                absoluteClockwise = true,
-                rowCoords!!,
-                smallBoxCoords!!
-            )
+            val smallBoxDimensions =
+                RadialDimensions(absoluteClockwise = true, rowCoords!!, smallBoxCoords!!)
             checkSpy(smallBoxDimensions, smallSpy)
 
             // There are one after another
@@ -360,9 +333,7 @@ class CurvedLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            visible.value = targetVisibility
-        }
+        rule.runOnIdle { visible.value = targetVisibility }
 
         rule.waitForIdle()
         if (targetVisibility) {
@@ -372,25 +343,19 @@ class CurvedLayoutTest {
         }
     }
 
-    @Test
-    fun showing_child_works() = visibility_change_test_setup(true)
+    @Test fun showing_child_works() = visibility_change_test_setup(true)
 
-    @Test
-    fun hiding_child_works() = visibility_change_test_setup(false)
+    @Test fun hiding_child_works() = visibility_change_test_setup(false)
 
     @Test
     fun change_elements_on_side_effect_works() {
         var num by mutableStateOf(0)
         rule.setContent {
-            SideEffect {
-                num = 2
-            }
+            SideEffect { num = 2 }
 
             CurvedLayout(modifier = Modifier.fillMaxSize()) {
                 repeat(num) {
-                    curvedComposable {
-                        Box(modifier = Modifier.size(20.dp).testTag("Node$it"))
-                    }
+                    curvedComposable { Box(modifier = Modifier.size(20.dp).testTag("Node$it")) }
                 }
             }
         }

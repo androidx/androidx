@@ -252,7 +252,7 @@
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Uživatelské jméno"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Zadejte do telefonu tento PIN"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Pokud se chcete přihlásit, naskenujte QR kód"</string>
-    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Přihlásit se přes Google"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Přihlášení přes Google"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Pomocí tohoto tlačítka dokončete přihlášení přes Google"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Jste přihlášeni!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Přihlášení dokončeno"</string>

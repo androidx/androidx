@@ -3,6 +3,7 @@ androidx.compose.animation.core
 androidx.compose.animation.graphics.vector
 androidx.compose.desktop
 androidx.compose.foundation
+androidx.compose.foundation.contextmenu
 androidx.compose.foundation.gestures
 androidx.compose.foundation.gestures.snapping
 androidx.compose.foundation.interaction
@@ -52,3 +53,11 @@ androidx.compose.ui.util
 androidx.compose.ui.viewinterop
 androidx.compose.ui.window
 androidx.navigation.compose
+androidx.wear.compose.foundation
+androidx.wear.compose.foundation.lazy
+androidx.wear.compose.foundation.rotary
+androidx.wear.compose.material
+androidx.wear.compose.material.dialog
+androidx.wear.compose.material3
+androidx.wear.compose.materialcore
+androidx.wear.compose.navigation

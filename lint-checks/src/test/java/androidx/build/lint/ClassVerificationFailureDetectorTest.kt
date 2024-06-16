@@ -26,25 +26,24 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
-    useDetector = ClassVerificationFailureDetector(),
-    useIssues = listOf(ClassVerificationFailureDetector.METHOD_CALL_ISSUE),
-    stubs = arrayOf(
-        // AndroidManifest with minSdkVersion=14
-        manifest().minSdk(14),
-    ),
-) {
+class ClassVerificationFailureDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = ClassVerificationFailureDetector(),
+        useIssues = listOf(ClassVerificationFailureDetector.METHOD_CALL_ISSUE),
+        stubs =
+            arrayOf(
+                // AndroidManifest with minSdkVersion=14
+                manifest().minSdk(14),
+            ),
+    ) {
 
     @Test
     fun `Detection of unsafe references in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.ClassVerificationFailureFromJava"),
-            RequiresApi,
-            IntRange
-        )
+        val input =
+            arrayOf(javaSample("androidx.ClassVerificationFailureFromJava"), RequiresApi, IntRange)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ClassVerificationFailureFromJava.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             view.setBackgroundTintList(tint);
                  ~~~~~~~~~~~~~~~~~~~~~
@@ -55,20 +54,21 @@ src/androidx/ClassVerificationFailureFromJava.java:56: Error: This call referenc
         return view.getAccessibilityClassName();
                     ~~~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Detection and auto-fix of unsafe references in real-world Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.sample.core.widget.ListViewCompat"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.sample.core.widget.ListViewCompat"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/core/widget/ListViewCompat.java:39: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             listView.scrollListBy(y);
                      ~~~~~~~~~~~~
@@ -76,9 +76,11 @@ src/androidx/sample/core/widget/ListViewCompat.java:69: Error: This call referen
             return listView.canScrollList(direction);
                             ~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to static inner class:
 @@ -39 +39
 -             listView.scrollListBy(y);
@@ -115,58 +117,53 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to 
 +
 @@ -92 +103
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Detection and auto-fix of unsafe references in real-world Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.sample.core.widget.ListViewCompatKotlin"),
-        )
+        val input =
+            arrayOf(
+                ktSample("androidx.sample.core.widget.ListViewCompatKotlin"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/core/widget/ListViewCompatKotlin.kt:33: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             listView.scrollListBy(y)
                      ~~~~~~~~~~~~
-src/androidx/sample/core/widget/ListViewCompatKotlin.kt:58: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/sample/core/widget/ListViewCompatKotlin.kt:56: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             listView.canScrollList(direction)
                      ~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Detection of RequiresApi annotation in outer class in Java source`() {
-        val input = arrayOf(
-            javaSample("androidx.RequiresApiJava"),
-            RequiresApi
-        )
+        val input = arrayOf(javaSample("androidx.RequiresApiJava"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 No warnings.
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Detection of RequiresApi annotation in outer class in Kotlin source`() {
-        val input = arrayOf(
-            ktSample("androidx.RequiresApiKotlin"),
-            RequiresApi
-        )
+        val input = arrayOf(ktSample("androidx.RequiresApiKotlin"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/RequiresApiKotlinOuter19Passes.kt:67: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             Character.isSurrogate(c)
                       ~~~~~~~~~~~
@@ -180,20 +177,21 @@ src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a
             Character.isSurrogate(c)
                       ~~~~~~~~~~~
 4 errors, 0 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }
 
     @Test
     fun `Auto-fix unsafe void-type method reference in Java source`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeVoidMethodReferenceJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.AutofixUnsafeVoidMethodReferenceJava"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract to static inner class:
 @@ -34 +34
 -             view.setBackgroundTintList(new ColorStateList(null, null));
@@ -212,20 +210,21 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 +
 @@ -38 +49
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix unsafe constructor reference in Java source`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeConstructorReferenceJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.AutofixUnsafeConstructorReferenceJava"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract to static inner class:
 @@ -35 +35
 -             AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);
@@ -244,20 +243,21 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 +
 @@ -39 +50
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix unsafe static method reference in Java source`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeStaticMethodReferenceJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.AutofixUnsafeStaticMethodReferenceJava"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extract to static inner class:
 @@ -33 +33
 -             return View.generateViewId();
@@ -276,20 +276,21 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 +
 @@ -38 +49
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix unsafe generic-type method reference in Java source`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeGenericMethodReferenceJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.AutofixUnsafeGenericMethodReferenceJava"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extract to static inner class:
 @@ -34 +34
 -             return context.getSystemService(serviceClass);
@@ -308,21 +309,19 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 +
 @@ -39 +50
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix unsafe reference in Java source with existing inner class`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeReferenceWithExistingClassJava"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(javaSample("androidx.AutofixUnsafeReferenceWithExistingClassJava"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: Extract to static inner class:
 @@ -36 +36
 -             view.setBackgroundTintList(new ColorStateList(null, null));
@@ -341,22 +340,23 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
 +
 @@ -47 +58
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix unsafe reference in Java source when the fix code already exists`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeReferenceWithExistingFix"),
-            RequiresApi,
-            DoNotInline
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.AutofixUnsafeReferenceWithExistingFix"),
+                RequiresApi,
+                DoNotInline
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeReferenceWithExistingFix.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         view.setBackgroundTintList(new ColorStateList(null, null));
              ~~~~~~~~~~~~~~~~~~~~~
@@ -366,7 +366,8 @@ src/androidx/AutofixUnsafeReferenceWithExistingFix.java:45: Error: This call ref
 2 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 37: Extract to static inner class:
 @@ -37 +37
 -         view.setBackgroundTintList(new ColorStateList(null, null));
@@ -384,20 +385,20 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 45: Extract
 + }
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Detection and auto-fix for qualified expressions (issue 205026874)`() {
-        val input = arrayOf(
-            javaSample("androidx.sample.appcompat.widget.ActionBarBackgroundDrawable"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.sample.appcompat.widget.ActionBarBackgroundDrawable"),
+                RequiresApi
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:71: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
                 mContainer.mSplitBackground.getOutline(outline);
                                             ~~~~~~~~~~
@@ -405,9 +406,11 @@ src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:76: Error:
                 mContainer.mBackground.getOutline(outline);
                                        ~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 71: Extract to static inner class:
 @@ -71 +71
 -                 mContainer.mSplitBackground.getOutline(outline);
@@ -444,28 +447,27 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +
 @@ -91 +102
 + }
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix includes fully qualified class name (issue 205035683, 236721202)`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeMethodWithQualifiedClass"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(javaSample("androidx.AutofixUnsafeMethodWithQualifiedClass"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeMethodWithQualifiedClass.java:40: Error: This call references a method added in API level 19; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return builder.setMediaSize(mediaSize);
                        ~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 40: Extract to static inner class:
 @@ -40 +40
 +         return Api19Impl.setMediaSize(builder, mediaSize);
@@ -483,19 +485,16 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 40: Extract
 @@ -43 +54
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Auto-fix for unsafe method call on this`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeCallToThis")
-        )
+        val input = arrayOf(javaSample("androidx.AutofixUnsafeCallToThis"))
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeCallToThis.java:39: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             getClipToPadding();
             ~~~~~~~~~~~~~~~~
@@ -508,7 +507,8 @@ src/androidx/AutofixUnsafeCallToThis.java:57: Error: This call references a meth
 3 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inner class:
 @@ -39 +39
 -             getClipToPadding();
@@ -564,26 +564,24 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 57: Extract to static inn
 @@ -61 +72
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix for unsafe method call on cast object (issue 206111383)`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeCallOnCast")
-        )
+        val input = arrayOf(javaSample("androidx.AutofixUnsafeCallOnCast"))
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeCallOnCast.java:32: Error: This call references a method added in API level 28; however, the containing class androidx.AutofixUnsafeCallOnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();
                                                   ~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeCallOnCast.java line 32: Extract to static inner class:
 @@ -32 +32
 -             ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();
@@ -603,20 +601,17 @@ Fix for src/androidx/AutofixUnsafeCallOnCast.java line 32: Extract to static inn
 @@ -36 +47
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix with implicit class cast from new return type (issue 214389795)`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeCallWithImplicitReturnCast"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(javaSample("androidx.AutofixUnsafeCallWithImplicitReturnCast"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:36: Error: This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return new AdaptiveIconDrawable(null, null);
                ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -635,7 +630,8 @@ src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java:68: Error: This call r
 5 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 36: Extract to static inner class:
 @@ -36 +36
 -         return new AdaptiveIconDrawable(null, null);
@@ -727,27 +723,25 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitReturnCast.java line 68: Extra
 @@ -78 +89
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix for constructor needs qualified class name (issue 244714253)`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeConstructorQualifiedClass"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(javaSample("androidx.AutofixUnsafeConstructorQualifiedClass"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeConstructorQualifiedClass.java:32: Error: This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeConstructorQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return new Notification.DecoratedCustomViewStyle();
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeConstructorQualifiedClass.java line 32: Extract to static inner class:
 @@ -32 +32
 +         return Api24Impl.createDecoratedCustomViewStyle();
@@ -765,20 +759,17 @@ Fix for src/androidx/AutofixUnsafeConstructorQualifiedClass.java line 32: Extrac
 @@ -35 +46
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix with implicit class cast from new parameter type (issue 266845827)`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeCallWithImplicitParamCast"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(javaSample("androidx.AutofixUnsafeCallWithImplicitParamCast"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixUnsafeCallWithImplicitParamCast.java:34: Error: This call references a method added in API level 16; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         style.setBuilder(builder);
               ~~~~~~~~~~
@@ -788,7 +779,8 @@ src/androidx/AutofixUnsafeCallWithImplicitParamCast.java:43: Error: This call re
 2 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 34: Extract to static inner class:
 @@ -34 +34
 -         style.setBuilder(builder);
@@ -826,20 +818,17 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 43: Extrac
 @@ -46 +57
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
     fun `Auto-fix for method with varargs that are implicitly cast (issue 266845827)`() {
-        val input = arrayOf(
-            javaSample("androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast"),
-            RequiresApi
-        )
+        val input =
+            arrayOf(javaSample("androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast"), RequiresApi)
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java:35: Error: This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         adapter.setAutofillOptions();
                 ~~~~~~~~~~~~~~~~~~
@@ -852,7 +841,8 @@ src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java:52: Error: This cal
 3 errors, 0 warnings
         """
 
-        val expectedFix = """
+        val expectedFix =
+            """
 Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 35: Extract to static inner class:
 @@ -35 +35
 -         adapter.setAutofillOptions();
@@ -908,7 +898,6 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 52: Ex
 @@ -55 +66
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }

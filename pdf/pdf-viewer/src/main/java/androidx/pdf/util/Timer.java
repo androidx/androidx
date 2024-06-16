@@ -16,8 +16,10 @@
 
 package androidx.pdf.util;
 
+import android.annotation.SuppressLint;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -29,12 +31,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Simple timer for profiling methods.
  */
+@SuppressLint("BanConcurrentHashMap")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Timer {
 
     private final long mStartTimeMs;
 
     /** Start a new timer right now. */
+    @NonNull
     public static Timer start() {
         return new Timer();
     }
@@ -68,8 +72,9 @@ public class Timer {
         /**
          *
          */
+        @NonNull
         @CanIgnoreReturnValue
-        public LogBuilder track(String event) {
+        public LogBuilder track(@NonNull String event) {
             mLog.append(event).append(":").append(mTimer.time()).append("; ");
             return this;
         }
@@ -77,9 +82,10 @@ public class Timer {
         /**
          *
          */
+        @NonNull
         @CanIgnoreReturnValue
         @FormatMethod
-        public LogBuilder trackFmt(String eventFmt, Object... args) {
+        public LogBuilder trackFmt(@NonNull String eventFmt, @NonNull Object... args) {
             mLog.append(String.format(eventFmt, args)).append(":").append(mTimer.time()).append(
                     "; ");
             return this;
@@ -88,6 +94,7 @@ public class Timer {
         /**
          *
          */
+        @NonNull
         @Override
         public String toString() {
             return mLog.toString();
@@ -101,14 +108,14 @@ public class Timer {
         /**
          *
          */
-        public void start(String key) {
+        public void start(@NonNull String key) {
             mNameToTimer.put(key, new LogBuilder());
         }
 
         /**
          *
          */
-        public void track(String key, String event) {
+        public void track(@NonNull String key, @NonNull String event) {
             LogBuilder logger = mNameToTimer.get(key);
             if (logger != null) {
                 logger.track(event);
@@ -118,7 +125,8 @@ public class Timer {
         /**
          *
          */
-        public String stop(String key) {
+        @NonNull
+        public String stop(@NonNull String key) {
             LogBuilder logger = mNameToTimer.remove(key);
             if (logger != null) {
                 return logger.toString();

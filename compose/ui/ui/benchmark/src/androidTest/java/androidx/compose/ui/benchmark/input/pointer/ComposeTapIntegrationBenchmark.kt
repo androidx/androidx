@@ -41,30 +41,24 @@ import org.junit.runner.RunWith
  * Benchmark for simply tapping on an item in Compose.
  *
  * The intent is to measure the speed of all parts necessary for a normal tap starting from
- * [MotionEvent]s getting dispatched to a particular view.  The test therefore includes hit
- * testing and dispatch.
+ * [MotionEvent]s getting dispatched to a particular view. The test therefore includes hit testing
+ * and dispatch.
  *
  * This is intended to be an equivalent counterpart to [AndroidTapIntegrationBenchmark].
  *
- * The hierarchy is set up to look like:
- * rootView
- *   -> Column
- *     -> Text (with click listener)
- *     -> Text (with click listener)
- *     -> Text (with click listener)
- *     -> ...
+ * The hierarchy is set up to look like: rootView -> Column -> Text (with click listener) -> Text
+ * (with click listener) -> Text (with click listener) -> ...
  *
- * MotionEvents are dispatched to rootView as ACTION_DOWN followed by ACTION_UP.  The validity of
- * the test is verified inside the click listener with com.google.common.truth.Truth.assertThat
- * and by counting the clicks in the click listener and later verifying that they count is
- * sufficiently high.
+ * MotionEvents are dispatched to rootView as ACTION_DOWN followed by ACTION_UP. The validity of the
+ * test is verified inside the click listener with com.google.common.truth.Truth.assertThat and by
+ * counting the clicks in the click listener and later verifying that they count is sufficiently
+ * high.
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComposeTapIntegrationBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun clickOnLateItem() {
@@ -100,25 +94,27 @@ class ComposeTapIntegrationBenchmark {
             }
 
             // Simple Events
-            val down = MotionEvent(
-                0,
-                android.view.MotionEvent.ACTION_DOWN,
-                1,
-                0,
-                arrayOf(PointerProperties(0)),
-                arrayOf(PointerCoords(0f, y)),
-                rootView
-            )
+            val down =
+                MotionEvent(
+                    0,
+                    android.view.MotionEvent.ACTION_DOWN,
+                    1,
+                    0,
+                    arrayOf(PointerProperties(0)),
+                    arrayOf(PointerCoords(0f, y)),
+                    rootView
+                )
 
-            val up = MotionEvent(
-                10,
-                android.view.MotionEvent.ACTION_UP,
-                1,
-                0,
-                arrayOf(PointerProperties(0)),
-                arrayOf(PointerCoords(0f, y)),
-                rootView
-            )
+            val up =
+                MotionEvent(
+                    10,
+                    android.view.MotionEvent.ACTION_UP,
+                    1,
+                    0,
+                    arrayOf(PointerProperties(0)),
+                    arrayOf(PointerCoords(0f, y)),
+                    rootView
+                )
 
             benchmarkRule.measureRepeatedOnUiThread {
                 rootView.dispatchTouchEvent(down)
@@ -137,35 +133,29 @@ class ComposeTapIntegrationBenchmark {
 
         @Composable
         override fun Content() {
-            with(LocalDensity.current) {
-                itemHeightDp = ItemHeightPx.toDp()
-            }
+            with(LocalDensity.current) { itemHeightDp = ItemHeightPx.toDp() }
 
             EmailList(NumItems)
         }
 
         @Composable
         fun EmailList(count: Int) {
-            Column {
-                repeat(count) { i ->
-                    Email("$i")
-                }
-            }
+            Column { repeat(count) { i -> Email("$i") } }
         }
 
         @Composable
         fun Email(label: String) {
             BasicText(
                 text = label,
-                modifier = Modifier
-                    .pointerInput(label) {
-                        detectTapGestures {
-                            assertThat(label).isEqualTo(expectedLabel)
-                            actualClickCount++
+                modifier =
+                    Modifier.pointerInput(label) {
+                            detectTapGestures {
+                                assertThat(label).isEqualTo(expectedLabel)
+                                actualClickCount++
+                            }
                         }
-                    }
-                    .fillMaxWidth()
-                    .requiredHeight(itemHeightDp)
+                        .fillMaxWidth()
+                        .requiredHeight(itemHeightDp)
             )
         }
     }

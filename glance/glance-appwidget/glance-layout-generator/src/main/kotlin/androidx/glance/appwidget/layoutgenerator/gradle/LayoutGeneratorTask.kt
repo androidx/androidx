@@ -35,8 +35,8 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Task generating the layouts from a set of Layout templates.
  *
- * See [LayoutGenerator] for details on the template format, and [generateRegistry] for details
- * on the Kotlin code generated to access those layouts from code.
+ * See [LayoutGenerator] for details on the template format, and [generateRegistry] for details on
+ * the Kotlin code generated to access those layouts from code.
  */
 @CacheableTask
 abstract class LayoutGeneratorTask : DefaultTask() {
@@ -49,11 +49,9 @@ abstract class LayoutGeneratorTask : DefaultTask() {
     @get:InputDirectory
     abstract val childLayoutDirectory: DirectoryProperty
 
-    @get:OutputDirectory
-    abstract val outputSourceDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputSourceDir: DirectoryProperty
 
-    @get:OutputDirectory
-    abstract val outputResourcesDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputResourcesDir: DirectoryProperty
 
     @TaskAction
     fun execute() {
@@ -61,11 +59,13 @@ abstract class LayoutGeneratorTask : DefaultTask() {
         outputSourceDir.asFile.get().mkdirs()
         outputResourcesDir.asFile.get().mkdirs()
 
-        val generatedLayouts = LayoutGenerator().generateAllFiles(
-            checkNotNull(containerLayoutDirectory.get().asFile.listFiles()).asList(),
-            checkNotNull(childLayoutDirectory.get().asFile.listFiles()).asList(),
-            outputResourcesDir.get().asFile
-        )
+        val generatedLayouts =
+            LayoutGenerator()
+                .generateAllFiles(
+                    checkNotNull(containerLayoutDirectory.get().asFile.listFiles()).asList(),
+                    checkNotNull(childLayoutDirectory.get().asFile.listFiles()).asList(),
+                    outputResourcesDir.get().asFile
+                )
         generateRegistry(
             packageName = outputModule,
             layouts = generatedLayouts.generatedContainers,
@@ -73,24 +73,23 @@ abstract class LayoutGeneratorTask : DefaultTask() {
             rowColumnChildLayouts = generatedLayouts.generatedRowColumnChildren,
             outputSourceDir = outputSourceDir.get().asFile
         )
-        cleanResources(
-            outputResourcesDir.get().asFile, generatedLayouts.extractGeneratedFiles()
-        )
+        cleanResources(outputResourcesDir.get().asFile, generatedLayouts.extractGeneratedFiles())
     }
 
     private fun GeneratedFiles.extractGeneratedFiles(): Set<File> =
-        generatedContainers.values.flatMap { container ->
-            container.map { it.generatedFile }
-        }.toSet() + generatedBoxChildren.values.flatMap { child ->
-            child.map { it.generatedFile }
-        }.toSet() + generatedRowColumnChildren.values.flatMap { child ->
-            child.map { it.generatedFile }
-        }.toSet() + extraFiles
+        generatedContainers.values
+            .flatMap { container -> container.map { it.generatedFile } }
+            .toSet() +
+            generatedBoxChildren.values
+                .flatMap { child -> child.map { it.generatedFile } }
+                .toSet() +
+            generatedRowColumnChildren.values
+                .flatMap { child -> child.map { it.generatedFile } }
+                .toSet() +
+            extraFiles
 
     companion object {
-        /**
-         * Registers [LayoutGeneratorTask] in [project] for all variants.
-         */
+        /** Registers [LayoutGeneratorTask] in [project] for all variants. */
         @JvmStatic
         fun registerLayoutGenerator(
             project: Project,
@@ -103,22 +102,25 @@ abstract class LayoutGeneratorTask : DefaultTask() {
 
             val taskName = "generateLayouts"
 
-            val task = project.tasks.register(taskName, LayoutGeneratorTask::class.java) {
-                it.containerLayoutDirectory.set(containerLayoutDirectory)
-                it.childLayoutDirectory.set(childLayoutDirectory)
-                it.outputSourceDir.set(buildDirectory.dir("$outputDirectory/kotlin"))
-                it.outputResourcesDir.set(buildDirectory.dir("$outputDirectory/res/layouts"))
-            }
-
-            project.extensions.getByType(AndroidComponentsExtension::class.java)
-                .onVariants { variant ->
-                    variant.sources.java?.addGeneratedSourceDirectory(
-                        task, LayoutGeneratorTask::outputSourceDir
-                    )
-                    variant.sources.res?.addGeneratedSourceDirectory(
-                        task, LayoutGeneratorTask::outputResourcesDir
-                    )
+            val task =
+                project.tasks.register(taskName, LayoutGeneratorTask::class.java) {
+                    it.containerLayoutDirectory.set(containerLayoutDirectory)
+                    it.childLayoutDirectory.set(childLayoutDirectory)
+                    it.outputSourceDir.set(buildDirectory.dir("$outputDirectory/kotlin"))
+                    it.outputResourcesDir.set(buildDirectory.dir("$outputDirectory/res/layouts"))
                 }
+
+            project.extensions.getByType(AndroidComponentsExtension::class.java).onVariants {
+                variant ->
+                variant.sources.java?.addGeneratedSourceDirectory(
+                    task,
+                    LayoutGeneratorTask::outputSourceDir
+                )
+                variant.sources.res?.addGeneratedSourceDirectory(
+                    task,
+                    LayoutGeneratorTask::outputResourcesDir
+                )
+            }
         }
     }
 }

@@ -34,9 +34,7 @@ class ConstraintDomErrorTest {
     @Test
     fun getter_success() {
         val error = ConstraintError()
-        val expectedType =
-            ConstraintError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR
+        val expectedType = ConstraintError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

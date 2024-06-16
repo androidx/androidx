@@ -39,8 +39,10 @@ androidXMultiplatform {
     sourceSets {
         // Need a source file to force a klib creation.
         // see: https://youtrack.jetbrains.com/issue/KT-52344
-        darwinMain {}
-        targets.all { target ->
+        darwinMain {
+            dependsOn(commonMain)
+        }
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(darwinMain)

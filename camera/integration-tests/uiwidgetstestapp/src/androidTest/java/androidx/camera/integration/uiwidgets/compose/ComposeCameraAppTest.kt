@@ -46,18 +46,13 @@ class ComposeCameraAppTest {
     // Provide permissions to app via ComposeCameraActivity
     @get:Rule
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(
-            *ComposeCameraActivity.REQUIRED_PERMISSIONS
-        )
+        GrantPermissionRule.grant(*ComposeCameraActivity.REQUIRED_PERMISSIONS)
 
-    @get: Rule
-    val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
+    @get:Rule val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
-    @get: Rule
-    val repeatRule = RepeatRule()
+    @get:Rule val repeatRule = RepeatRule()
 
     @Before
     fun setup() {
@@ -92,16 +87,19 @@ class ComposeCameraAppTest {
     fun testPreviewViewStreamStateOnNavigation() {
 
         // Get VideoCapture Navigation Tab (Node)
-        val node = androidComposeTestRule.onNode(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.Role, Role.Tab,
-            ).and(
+        val node =
+            androidComposeTestRule.onNode(
                 SemanticsMatcher.expectValue(
-                    SemanticsProperties.ContentDescription,
-                    listOf("VideoCapture")
-                )
+                        SemanticsProperties.Role,
+                        Role.Tab,
+                    )
+                    .and(
+                        SemanticsMatcher.expectValue(
+                            SemanticsProperties.ContentDescription,
+                            listOf("VideoCapture")
+                        )
+                    )
             )
-        )
 
         // Ensure that Tab is selected after we click on it
         node.performClick().assertIsSelected()
@@ -120,21 +118,22 @@ class ComposeCameraAppTest {
         expectedScreen: ComposeCameraScreen,
         expectedState: PreviewView.StreamState,
         scenario: ActivityScenario<ComposeCameraActivity>,
-    ) = runBlocking<Unit> {
-        lateinit var result: Deferred<Boolean>
+    ) =
+        runBlocking<Unit> {
+            lateinit var result: Deferred<Boolean>
 
-        scenario.onActivity { activity ->
-            // Make async Coroutine to wait the result, not block the test thread.
-            result = async {
-                activity.waitForStreamState(
-                    expectedScreen = expectedScreen,
-                    expectedState = expectedState
-                )
+            scenario.onActivity { activity ->
+                // Make async Coroutine to wait the result, not block the test thread.
+                result = async {
+                    activity.waitForStreamState(
+                        expectedScreen = expectedScreen,
+                        expectedState = expectedState
+                    )
+                }
             }
-        }
 
-        Truth.assertThat(result.await()).isTrue()
-    }
+            Truth.assertThat(result.await()).isTrue()
+        }
 
     companion object {
         private const val TAG = "ComposeCameraAppTest"

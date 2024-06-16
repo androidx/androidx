@@ -56,10 +56,12 @@ class BoxedNonNullTypesTest {
 
     @Before
     fun init() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            MyDb::class.java
-        ).build()
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    MyDb::class.java
+                )
+                .build()
     }
 
     @Test
@@ -84,51 +86,49 @@ class BoxedNonNullTypesTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     fun javaOptional() {
-        assertThat(db.myDao().getAsJavaOptional()).isEqualTo(
-            Optional.empty<Long>()
-        )
+        assertThat(db.myDao().getAsJavaOptional()).isEqualTo(Optional.empty<Long>())
         db.myDao().insert(MyEntity(5))
-        assertThat(db.myDao().getAsJavaOptional()).isEqualTo(
-            Optional.of(5L)
-        )
+        assertThat(db.myDao().getAsJavaOptional()).isEqualTo(Optional.of(5L))
     }
 
     @Test
     fun guavaOptional() {
-        assertThat(db.myDao().getAsGuavaOptional()).isEqualTo(
-            com.google.common.base.Optional.absent<Long>()
-        )
+        assertThat(db.myDao().getAsGuavaOptional())
+            .isEqualTo(com.google.common.base.Optional.absent<Long>())
         db.myDao().insert(MyEntity(6))
-        assertThat(db.myDao().getAsGuavaOptional()).isEqualTo(
-            com.google.common.base.Optional.of(6L)
-        )
+        assertThat(db.myDao().getAsGuavaOptional())
+            .isEqualTo(com.google.common.base.Optional.of(6L))
     }
 
     @Test
-    fun getAsLiveData() = runBlocking<Unit> {
-        db.myDao().insert(MyEntity(7))
-        assertThat(db.myDao().getAsLiveData().asFlow().first()).isEqualTo(7L)
-    }
+    fun getAsLiveData() =
+        runBlocking<Unit> {
+            db.myDao().insert(MyEntity(7))
+            assertThat(db.myDao().getAsLiveData().asFlow().first()).isEqualTo(7L)
+        }
 
     @Test
-    fun getAsLiveData_nullable() = runBlocking<Unit> {
-        assumeKsp()
-        db.myDao().insert(MyNullableEntity(null))
-        assertThat(db.myDao().getAsNullableLiveData().asFlow().first()).isNull()
-    }
+    fun getAsLiveData_nullable() =
+        runBlocking<Unit> {
+            assumeKsp()
+            db.myDao().insert(MyNullableEntity(null))
+            assertThat(db.myDao().getAsNullableLiveData().asFlow().first()).isNull()
+        }
 
     @Test
-    fun getAsFlow() = runBlocking<Unit> {
-        db.myDao().insert(MyEntity(8))
-        assertThat(db.myDao().getAsFlow().first()).isEqualTo(8L)
-    }
+    fun getAsFlow() =
+        runBlocking<Unit> {
+            db.myDao().insert(MyEntity(8))
+            assertThat(db.myDao().getAsFlow().first()).isEqualTo(8L)
+        }
 
     @Test
-    fun getAsFlow_nullable() = runBlocking<Unit> {
-        assumeKsp()
-        db.myDao().insert(MyNullableEntity(null))
-        assertThat(db.myDao().getAsNullableFlow().first()).isNull()
-    }
+    fun getAsFlow_nullable() =
+        runBlocking<Unit> {
+            assumeKsp()
+            db.myDao().insert(MyNullableEntity(null))
+            assertThat(db.myDao().getAsNullableFlow().first()).isNull()
+        }
 
     @Test
     fun getAsRx2Observable() {
@@ -147,8 +147,7 @@ class BoxedNonNullTypesTest {
                 .isEqualTo(0L)
         }
         db.myDao().insert(MyEntity(9))
-        assertThat(db.myDao().getAsRx2ObservableUnknownTypeInCursor().blockingFirst())
-            .isEqualTo(9L)
+        assertThat(db.myDao().getAsRx2ObservableUnknownTypeInCursor().blockingFirst()).isEqualTo(9L)
     }
 
     @Test
@@ -172,18 +171,14 @@ class BoxedNonNullTypesTest {
     @Test
     fun getAsListenableFuture() {
         db.myDao().insert(MyEntity(13))
-        assertThat(
-            db.myDao().getAsListenableFuture().get()
-        ).isEqualTo(13L)
+        assertThat(db.myDao().getAsListenableFuture().get()).isEqualTo(13L)
     }
 
     @Test
     fun getAsListenableFuture_nullable() {
         assumeKsp()
         db.myDao().insert(MyNullableEntity(null))
-        assertThat(
-            db.myDao().getAsNullableListenableFuture().get()
-        ).isEqualTo(null)
+        assertThat(db.myDao().getAsNullableListenableFuture().get()).isEqualTo(null)
     }
 
     @Entity
@@ -209,43 +204,35 @@ class BoxedNonNullTypesTest {
 
     @Dao
     interface MyDao {
-        @Query("SELECT value FROM MyEntity")
-        fun getAsList(): List<Long>
+        @Query("SELECT value FROM MyEntity") fun getAsList(): List<Long>
 
         @Suppress("ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE")
         @Query("SELECT value FROM MyNullableEntity")
         fun getAsNullableList(): List<Long?>
 
         // immutable list does not allow nulls, hence no nullable test for it
-        @Query("SELECT value FROM MyEntity")
-        fun getAsImmutableList(): ImmutableList<Long>
+        @Query("SELECT value FROM MyEntity") fun getAsImmutableList(): ImmutableList<Long>
 
-        @Query("SELECT value FROM MyEntity LIMIT 1")
-        fun getAsJavaOptional(): Optional<Long>
+        @Query("SELECT value FROM MyEntity LIMIT 1") fun getAsJavaOptional(): Optional<Long>
 
         @Query("SELECT value FROM MyEntity LIMIT 1")
         fun getAsGuavaOptional(): com.google.common.base.Optional<Long>
 
-        @Query("SELECT value FROM MyEntity LIMIT 1")
-        fun getAsLiveData(): LiveData<Long>
+        @Query("SELECT value FROM MyEntity LIMIT 1") fun getAsLiveData(): LiveData<Long>
 
         @Query("SELECT value FROM MyNullableEntity LIMIT 1")
         fun getAsNullableLiveData(): LiveData<Long?>
 
-        @Query("SELECT value FROM MyEntity LIMIT 1")
-        fun getAsFlow(): Flow<Long>
+        @Query("SELECT value FROM MyEntity LIMIT 1") fun getAsFlow(): Flow<Long>
 
-        @Query("SELECT value FROM MyNullableEntity LIMIT 1")
-        fun getAsNullableFlow(): Flow<Long?>
+        @Query("SELECT value FROM MyNullableEntity LIMIT 1") fun getAsNullableFlow(): Flow<Long?>
 
-        @Query("SELECT value FROM MyEntity LIMIT 1")
-        fun getAsRx2Observable(): Observable<Long>
+        @Query("SELECT value FROM MyEntity LIMIT 1") fun getAsRx2Observable(): Observable<Long>
 
         @Query("SELECT max(value) FROM MyEntity")
         fun getAsRx2ObservableUnknownTypeInCursor(): Observable<Long>
 
-        @Query("SELECT value FROM MyEntity LIMIT 1")
-        fun getAsRx2Flowable(): Flowable<Long>
+        @Query("SELECT value FROM MyEntity LIMIT 1") fun getAsRx2Flowable(): Flowable<Long>
 
         @Query("SELECT value FROM MyEntity LIMIT 1")
         fun getAsRx3Observable(): io.reactivex.rxjava3.core.Observable<Long>
@@ -259,10 +246,8 @@ class BoxedNonNullTypesTest {
         @Query("SELECT value FROM MyNullableEntity LIMIT 1")
         fun getAsNullableListenableFuture(): ListenableFuture<Long?>
 
-        @Insert
-        fun insert(vararg entities: MyEntity)
+        @Insert fun insert(vararg entities: MyEntity)
 
-        @Insert
-        fun insert(vararg entities: MyNullableEntity)
+        @Insert fun insert(vararg entities: MyNullableEntity)
     }
 }

@@ -44,9 +44,7 @@ class PipActivity : ComponentActivity() {
         textView = findViewById(R.id.textView)
 
         moveToRandomPosition()
-        moveButton.setOnClickListener {
-            moveToRandomPosition()
-        }
+        moveButton.setOnClickListener { moveToRandomPosition() }
 
         trackHintView()
     }
@@ -61,19 +59,18 @@ class PipActivity : ComponentActivity() {
     private fun trackHintView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    trackPipAnimationHintView(moveButton)
-                }
+                repeatOnLifecycle(Lifecycle.State.STARTED) { trackPipAnimationHintView(moveButton) }
             }
         }
     }
 
     private fun moveToRandomPosition() {
-        moveButton.layoutParams = RelativeLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            randomPosition().forEach { rule -> addRule(rule) }
-        }
+        moveButton.layoutParams =
+            RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                .apply { randomPosition().forEach { rule -> addRule(rule) } }
     }
 
     private fun randomPosition(): List<Int> {

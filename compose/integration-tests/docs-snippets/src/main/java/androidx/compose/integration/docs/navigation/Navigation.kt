@@ -55,7 +55,6 @@ import androidx.navigation.navDeepLink
  *
  * No action required if it's modified.
  */
-
 @Composable
 private fun NavigationSnippet1() {
     val navController = rememberNavController()
@@ -64,8 +63,8 @@ private fun NavigationSnippet1() {
 @Composable
 private fun NavigationSnippet2(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "profile") {
-        composable("profile") { Profile(/*...*/) }
-        composable("friendslist") { FriendsList(/*...*/) }
+        composable("profile") { Profile(/*...*/ ) }
+        composable("friendslist") { FriendsList(/*...*/ ) }
         /*...*/
     }
 }
@@ -74,9 +73,7 @@ private object NavigationSnippet3 {
     @Composable
     fun Profile(navController: NavController) {
         /*...*/
-        Button(onClick = { navController.navigate("friends") }) {
-            Text(text = "Navigate next")
-        }
+        Button(onClick = { navController.navigate("friends") }) { Text(text = "Navigate next") }
         /*...*/
     }
 }
@@ -96,7 +93,8 @@ private fun NavigationSnippet5(navController: NavHostController) {
         composable(
             "profile/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) { /*...*/ }
+        ) { /*...*/
+        }
     }
 }
 
@@ -125,10 +123,8 @@ private fun NavGraphBuilder.NavigationSnippet8(navController: NavHostController)
 private fun NavGraphBuilder.NavigationSnippet9(navController: NavHostController) {
     val uri = "https://example.com"
 
-    composable(
-        "profile?id={id}",
-        deepLinks = listOf(navDeepLink { uriPattern = "$uri/{id}" })
-    ) { backStackEntry ->
+    composable("profile?id={id}", deepLinks = listOf(navDeepLink { uriPattern = "$uri/{id}" })) {
+        backStackEntry ->
         Profile(navController, backStackEntry.arguments?.getString("id"))
     }
 }
@@ -137,17 +133,19 @@ private fun NavGraphBuilder.NavigationSnippet9(navController: NavHostController)
 private fun NavigationSnippet10() {
     val id = "exampleId"
     val context = LocalContext.current
-    val deepLinkIntent = Intent(
-        Intent.ACTION_VIEW,
-        "https://example.com/$id".toUri(),
-        context,
-        MyActivity::class.java
-    )
+    val deepLinkIntent =
+        Intent(
+            Intent.ACTION_VIEW,
+            "https://example.com/$id".toUri(),
+            context,
+            MyActivity::class.java
+        )
 
-    val deepLinkPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
-        addNextIntentWithParentStack(deepLinkIntent)
-        getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
+    val deepLinkPendingIntent: PendingIntent? =
+        TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(deepLinkIntent)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
 }
 
 @Composable
@@ -166,11 +164,14 @@ private fun NavigationSnippet11(items: List<Screen>) {
                         onClick = {
                             // This is the equivalent to popUpTo the start destination
                             navController.popBackStack(
-                                navController.graph.startDestinationId, false
+                                navController.graph.startDestinationId,
+                                false
                             )
 
-                            // This if check gives us a "singleTop" behavior where we do not create a
-                            // second instance of the composable if we are already on that destination
+                            // This if check gives us a "singleTop" behavior where we do not create
+                            // a
+                            // second instance of the composable if we are already on that
+                            // destination
                             if (currentRoute != screen.route) {
                                 navController.navigate(screen.route)
                             }
@@ -213,25 +214,15 @@ private object R {
     }
 }
 
-@Composable
-private fun Profile() {
-}
+@Composable private fun Profile() {}
 
-@Composable
-private fun Profile(userId: String?, content: @Composable (String) -> Unit) {
-}
+@Composable private fun Profile(userId: String?, content: @Composable (String) -> Unit) {}
 
-@Composable
-private fun Profile(navController: NavHostController) {
-}
+@Composable private fun Profile(navController: NavHostController) {}
 
-@Composable
-private fun FriendsList() {
-}
+@Composable private fun FriendsList() {}
 
-@Composable
-private fun FriendsList(navController: NavHostController) {
-}
+@Composable private fun FriendsList(navController: NavHostController) {}
 
 @Composable
 private fun Profile(navController: NavHostController, arg: String?) {
@@ -239,7 +230,9 @@ private fun Profile(navController: NavHostController, arg: String?) {
 }
 
 private class MyActivity
+
 private sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Profile : Screen("profile", R.string.profile)
+
     object FriendsList : Screen("friendslist", R.string.friends_list)
 }

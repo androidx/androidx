@@ -69,26 +69,29 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
 
     @Before
     fun setupAsserter() {
-        asserter = object : TextSelectionAsserter(
-            textContent = text,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { selection.value },
-        ) {
-            override fun subAssert() {
-                Truth.assertAbout(SelectionSubject.withContent(textContent))
-                    .that(getActual())
-                    .hasSelection(
-                        expected = selection,
-                        startTextDirection = startLayoutDirection,
-                        endTextDirection = endLayoutDirection,
-                    )
-            }
-        }.apply {
-            startSelectionHandleShown = false
-            endSelectionHandleShown = false
-        }
+        asserter =
+            object :
+                    TextSelectionAsserter(
+                        textContent = text,
+                        rule = rule,
+                        textToolbar = textToolbar,
+                        hapticFeedback = hapticFeedback,
+                        getActual = { selection.value },
+                    ) {
+                    override fun subAssert() {
+                        Truth.assertAbout(SelectionSubject.withContent(textContent))
+                            .that(getActual())
+                            .hasSelection(
+                                expected = selection,
+                                startTextDirection = startLayoutDirection,
+                                endTextDirection = endLayoutDirection,
+                            )
+                    }
+                }
+                .apply {
+                    startSelectionHandleShown = false
+                    endSelectionHandleShown = false
+                }
     }
 
     @Composable
@@ -104,9 +107,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                     style = style,
                     maxLines = maxLinesState.value,
                     overflow = overflowState.value,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .testTag(textTag)
+                    modifier = Modifier.width(100.dp).testTag(textTag)
                 )
             }
         }
@@ -313,10 +314,12 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
         }
 
         // last position where the handle is shown
-        val initialPosition = rule.onNode(isSelectionHandle(Handle.SelectionEnd))
-            .fetchSemanticsNode()
-            .getSelectionHandleInfo()
-            .position
+        val initialPosition =
+            rule
+                .onNode(isSelectionHandle(Handle.SelectionEnd))
+                .fetchSemanticsNode()
+                .getSelectionHandleInfo()
+                .position
 
         // drag straight down, out of text bounds
         touchDragTo(offsetTwoPosition.copy(y = bottomEnd.y))
@@ -327,9 +330,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
         }
 
         performTouchGesture { up() }
-        asserter.applyAndAssert {
-            textToolbarShown = true
-        }
+        asserter.applyAndAssert { textToolbarShown = true }
 
         withHandlePressed(Handle.SelectionEnd) {
             setInitialGesturePosition(initialPosition)
@@ -343,27 +344,25 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
     }
 
     private fun HandlePressedScope.moveHandleToCharacter(characterOffset: Int) {
-        val destinationPosition = characterBox(characterOffset).run {
-            when (fetchHandleInfo().handle) {
-                Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
-                Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
-                Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+        val destinationPosition =
+            characterBox(characterOffset).run {
+                when (fetchHandleInfo().handle) {
+                    Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
+                    Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
+                    Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+                }
             }
-        }
         moveHandleTo(destinationPosition)
     }
 
     private fun characterPosition(offset: Int): Offset =
-        characterBox(offset)
-            .centerLeft
-            .nudge(HorizontalDirection.END)
+        characterBox(offset).centerLeft.nudge(HorizontalDirection.END)
 
     private fun characterBox(offset: Int): Rect {
         val pointerAreaPosition =
             rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val textPosition = rule.onNodeWithTag(textTag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(textTag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(offset)
-            .translate(textPosition - pointerAreaPosition)
+        return textLayoutResult.getBoundingBox(offset).translate(textPosition - pointerAreaPosition)
     }
 }

@@ -35,7 +35,6 @@ import android.util.Size;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProcessingUtil;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -50,7 +49,6 @@ import java.nio.ByteBuffer;
 /**
  * Utility class for image related operations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageUtil {
     private static final String TAG = "ImageUtil";
 

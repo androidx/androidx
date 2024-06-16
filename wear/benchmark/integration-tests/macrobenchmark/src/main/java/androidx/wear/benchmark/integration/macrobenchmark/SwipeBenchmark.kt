@@ -33,11 +33,8 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SwipeBenchmark(
-    private val compilationMode: CompilationMode
-) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+class SwipeBenchmark(private val compilationMode: CompilationMode) {
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Before
     fun setUp() {
@@ -81,5 +78,6 @@ class SwipeBenchmark(
         @JvmStatic
         fun parameters() = createCompilationParams()
     }
+
     private val SWIPE_SPEED = 500
 }

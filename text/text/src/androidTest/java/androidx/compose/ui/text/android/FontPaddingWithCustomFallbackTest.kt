@@ -56,11 +56,12 @@ class FontPaddingWithCustomFallbackTest {
 
     @Test
     fun mixedTypefaceHasPaddings() {
-        val mixedLayout = createTextLayout(
-            mixedTextMultiLine,
-            width = fontSize * 2,
-            typeface = latinFirstFallback
-        )
+        val mixedLayout =
+            createTextLayout(
+                mixedTextMultiLine,
+                width = fontSize * 2,
+                typeface = latinFirstFallback
+            )
 
         // tall font is 1500/500
         // latin font is 800/200
@@ -92,34 +93,36 @@ class FontPaddingWithCustomFallbackTest {
         val textSize = 100.0f
         val layoutWidth = textSize * mixedText.length
 
-        val layoutPaddingFalse = createTextLayout(
-            text = mixedTextMultiLine,
-            width = layoutWidth,
-            includePadding = false,
-            typeface = latinFirstFallback
-        )
+        val layoutPaddingFalse =
+            createTextLayout(
+                text = mixedTextMultiLine,
+                width = layoutWidth,
+                includePadding = false,
+                typeface = latinFirstFallback
+            )
 
-        val layoutPaddingTrue = createTextLayout(
-            text = mixedTextMultiLine,
-            width = layoutWidth,
-            includePadding = true,
-            typeface = latinFirstFallback
-        )
+        val layoutPaddingTrue =
+            createTextLayout(
+                text = mixedTextMultiLine,
+                width = layoutWidth,
+                includePadding = true,
+                typeface = latinFirstFallback
+            )
 
         assertThat(layoutPaddingFalse.bottomPadding).isGreaterThan(0)
         assertThat(layoutPaddingFalse.topPadding).isGreaterThan(0)
 
         for (line in 0..1) {
-            assertThat(layoutPaddingFalse.getLineBottom(line)).isEqualTo(
-                layoutPaddingTrue.getLineBottom(line) + layoutPaddingFalse.topPadding
-            )
+            assertThat(layoutPaddingFalse.getLineBottom(line))
+                .isEqualTo(layoutPaddingTrue.getLineBottom(line) + layoutPaddingFalse.topPadding)
         }
 
-        assertThat(layoutPaddingFalse.getLineBottom(2)).isEqualTo(
-            layoutPaddingTrue.getLineBottom(2) +
-                layoutPaddingFalse.topPadding +
-                layoutPaddingFalse.bottomPadding
-        )
+        assertThat(layoutPaddingFalse.getLineBottom(2))
+            .isEqualTo(
+                layoutPaddingTrue.getLineBottom(2) +
+                    layoutPaddingFalse.topPadding +
+                    layoutPaddingFalse.bottomPadding
+            )
     }
 
     @Test
@@ -127,12 +130,13 @@ class FontPaddingWithCustomFallbackTest {
         val textSize = 100.0f
         val layoutWidth = textSize * mixedText.length
 
-        val layout = createTextLayout(
-            text = mixedTextMultiLine,
-            width = layoutWidth,
-            includePadding = false,
-            typeface = latinFirstFallback
-        )
+        val layout =
+            createTextLayout(
+                text = mixedTextMultiLine,
+                width = layoutWidth,
+                includePadding = false,
+                typeface = latinFirstFallback
+            )
 
         val path = spy(Path())
         layout.getSelectionPath(0, 0, path)
@@ -147,19 +151,21 @@ class FontPaddingWithCustomFallbackTest {
         val textSize = 100.0f
         val layoutWidth = textSize * mixedText.length
 
-        val layoutPaddingFalse = createTextLayout(
-            text = mixedTextMultiLine,
-            width = layoutWidth,
-            includePadding = false,
-            typeface = latinFirstFallback
-        )
+        val layoutPaddingFalse =
+            createTextLayout(
+                text = mixedTextMultiLine,
+                width = layoutWidth,
+                includePadding = false,
+                typeface = latinFirstFallback
+            )
 
-        val layoutPaddingTrue = createTextLayout(
-            text = mixedTextMultiLine,
-            width = layoutWidth,
-            includePadding = true,
-            typeface = latinFirstFallback
-        )
+        val layoutPaddingTrue =
+            createTextLayout(
+                text = mixedTextMultiLine,
+                width = layoutWidth,
+                includePadding = true,
+                typeface = latinFirstFallback
+            )
 
         assertThat(layoutPaddingFalse.bottomPadding).isGreaterThan(0)
         assertThat(layoutPaddingFalse.topPadding).isGreaterThan(0)
@@ -172,9 +178,8 @@ class FontPaddingWithCustomFallbackTest {
 
         // padding true with offset is the expected path
         pathPaddingTrue.offset(0f, layoutPaddingFalse.topPadding.toFloat())
-        val pathDifference = Path().apply {
-            op(pathPaddingFalse, pathPaddingTrue, Path.Op.DIFFERENCE)
-        }
+        val pathDifference =
+            Path().apply { op(pathPaddingFalse, pathPaddingTrue, Path.Op.DIFFERENCE) }
         assertThat(pathDifference.isEmpty).isTrue()
     }
 
@@ -192,10 +197,11 @@ class FontPaddingWithCustomFallbackTest {
         alignment: Int = LayoutCompat.DEFAULT_ALIGNMENT,
         typeface: Typeface = latinTypeface
     ): TextLayout {
-        val textPaint = TextPaint().apply {
-            this.typeface = typeface
-            this.textSize = fontSize
-        }
+        val textPaint =
+            TextPaint().apply {
+                this.typeface = typeface
+                this.textSize = fontSize
+            }
 
         return TextLayout(
             charSequence = text,

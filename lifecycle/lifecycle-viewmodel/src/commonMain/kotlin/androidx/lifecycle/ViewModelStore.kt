@@ -20,50 +20,42 @@ import androidx.annotation.RestrictTo
 /**
  * Class to store `ViewModel`s.
  *
- * An instance of `ViewModelStore` must be retained through configuration changes:
- * if an owner of this `ViewModelStore` is destroyed and recreated due to configuration
- * changes, new instance of an owner should still have the same old instance of
- * `ViewModelStore`.
+ * An instance of `ViewModelStore` must be retained through configuration changes: if an owner of
+ * this `ViewModelStore` is destroyed and recreated due to configuration changes, new instance of an
+ * owner should still have the same old instance of `ViewModelStore`.
  *
- * If an owner of this `ViewModelStore` is destroyed and is not going to be recreated,
- * then it should call [clear] on this `ViewModelStore`, so `ViewModel`s would
- * be notified that they are no longer used.
+ * If an owner of this `ViewModelStore` is destroyed and is not going to be recreated, then it
+ * should call [clear] on this `ViewModelStore`, so `ViewModel`s would be notified that they are no
+ * longer used.
  *
- * Use [ViewModelStoreOwner.getViewModelStore] to retrieve a `ViewModelStore` for
- * activities and fragments.
+ * Use [ViewModelStoreOwner.getViewModelStore] to retrieve a `ViewModelStore` for activities and
+ * fragments.
  */
 public open class ViewModelStore {
 
     private val map = mutableMapOf<String, ViewModel>()
 
-    /**
-     */
+    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun put(key: String, viewModel: ViewModel) {
         val oldViewModel = map.put(key, viewModel)
         oldViewModel?.clear()
     }
 
-    /**
-     * Returns the `ViewModel` mapped to the given `key` or null if none exists.
-     */
-    /**
-     */
+    /** Returns the `ViewModel` mapped to the given `key` or null if none exists. */
+    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun get(key: String): ViewModel? {
         return map[key]
     }
 
-    /**
-     */
+    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun keys(): Set<String> {
         return HashSet(map.keys)
     }
 
-    /**
-     * Clears internal storage and notifies `ViewModel`s that they are no longer used.
-     */
+    /** Clears internal storage and notifies `ViewModel`s that they are no longer used. */
     public fun clear() {
         for (vm in map.values) {
             vm.clear()

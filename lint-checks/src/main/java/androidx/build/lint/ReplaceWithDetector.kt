@@ -38,9 +38,11 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNewExpression
 import com.intellij.psi.impl.source.tree.TreeElement
+import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
@@ -54,10 +56,11 @@ import org.jetbrains.uast.USimpleNameReferenceExpression
 
 class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
-    override fun applicableAnnotations(): List<String> = listOf(
-        JAVA_REPLACE_WITH_ANNOTATION,
-        KOTLIN_DEPRECATED_ANNOTATION,
-    )
+    override fun applicableAnnotations(): List<String> =
+        listOf(
+            JAVA_REPLACE_WITH_ANNOTATION,
+            KOTLIN_DEPRECATED_ANNOTATION,
+        )
 
     override fun visitAnnotationUsage(
         context: JavaContext,
@@ -74,24 +77,34 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         // Ignore callbacks for assignment on the original declaration of an annotated field.
         if (type == AnnotationUsageType.ASSIGNMENT_RHS && usage.uastParent == referenced) return
 
-        var (expression, imports) = when (qualifiedName) {
-            KOTLIN_DEPRECATED_ANNOTATION -> {
-                val replaceWith = annotation.findAttributeValue("replaceWith")?.unwrap()
-                    as? UCallExpression ?: return
-                val expression = replaceWith.valueArguments.getOrNull(0)?.parseLiteral() ?: return
-                val imports = replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral()
-                    ?: emptyList()
-                Pair(expression, imports)
+        // [b/323214452] Don't replace property usages since we don't handle property accessors.
+        if ((referenced as? KtLightMethod)?.kotlinOrigin is KtProperty) return
+
+        // Don't warn for Kotlin replacement in Kotlin files -- that's the Kotlin Compiler's job.
+        if (qualifiedName == KOTLIN_DEPRECATED_ANNOTATION && isKotlin(usage.lang)) return
+
+        var (expression, imports) =
+            when (qualifiedName) {
+                KOTLIN_DEPRECATED_ANNOTATION -> {
+                    val replaceWith =
+                        annotation.findAttributeValue("replaceWith")?.unwrap() as? UCallExpression
+                            ?: return
+                    val expression =
+                        replaceWith.valueArguments.getOrNull(0)?.parseLiteral() ?: return
+                    val imports =
+                        replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral() ?: emptyList()
+                    Pair(expression, imports)
+                }
+                JAVA_REPLACE_WITH_ANNOTATION -> {
+                    val expression =
+                        annotation.findAttributeValue("expression")?.let { expr ->
+                            ConstantEvaluator.evaluate(context, expr)
+                        } as? String ?: return
+                    val imports = annotation.getAttributeValueVarargLiteral("imports")
+                    Pair(expression, imports)
+                }
+                else -> return
             }
-            JAVA_REPLACE_WITH_ANNOTATION -> {
-                val expression = annotation.findAttributeValue("expression")?.let { expr ->
-                    ConstantEvaluator.evaluate(context, expr)
-                } as? String ?: return
-                val imports = annotation.getAttributeValueVarargLiteral("imports")
-                Pair(expression, imports)
-            }
-            else -> return
-        }
 
         var location = context.getLocation(usage)
         val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
@@ -101,9 +114,12 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
             // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
             // expression may contain argument names of the deprecated function, which will
             // be substituted with actual parameters used in the call being updated.
-            val argsToParams = referenced.parameters.mapIndexed { index, param ->
-                param.name to usage.getArgumentForParameter(index)?.asSourceString()
-            }.toMap()
+            val argsToParams =
+                referenced.parameters
+                    .mapIndexed { index, param ->
+                        param.name to usage.getArgumentForParameter(index)?.asSourceString()
+                    }
+                    .toMap()
 
             // Tokenize the replacement expression using a regex, replacing as we go. This
             // isn't the most efficient approach (e.g. trie) but it's easy to write.
@@ -120,21 +136,25 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                 }
             } while (index < expression.length)
 
-            location = when (val sourcePsi = usage.sourcePsi) {
-                is PsiNewExpression -> {
-                    // The expression should never specify "new", but if it specifies a
-                    // receiver then we should replace the call to "new". For example, if
-                    // we're replacing `new Clazz("arg")` with `ClazzCompat.create("arg")`.
-                    context.getConstructorLocation(
-                        usage, sourcePsi, includeReceiver, includeArguments
-                    )
+            location =
+                when (val sourcePsi = usage.sourcePsi) {
+                    is PsiNewExpression -> {
+                        // The expression should never specify "new", but if it specifies a
+                        // receiver then we should replace the call to "new". For example, if
+                        // we're replacing `new Clazz("arg")` with `ClazzCompat.create("arg")`.
+                        context.getConstructorLocation(
+                            usage,
+                            sourcePsi,
+                            includeReceiver,
+                            includeArguments
+                        )
+                    }
+                    else -> {
+                        // The expression may optionally specify a receiver or arguments, in
+                        // which case we should include the originals in the replacement range.
+                        context.getCallLocation(usage, includeReceiver, includeArguments)
+                    }
                 }
-                else -> {
-                    // The expression may optionally specify a receiver or arguments, in
-                    // which case we should include the originals in the replacement range.
-                    context.getCallLocation(usage, includeReceiver, includeArguments)
-                }
-            }
         } else if (referenced is PsiField && usage is USimpleNameReferenceExpression) {
             // The expression may optionally specify a receiver, in which case we should
             // include the original in the replacement range.
@@ -157,8 +177,13 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         expression: String,
         imports: List<String>,
     ) {
-        context.report(ISSUE, usage, location, "Replacement available",
-            createLintFix(context, location, expression, imports))
+        context.report(
+            ISSUE,
+            usage,
+            location,
+            "Replacement available",
+            createLintFix(context, location, expression, imports)
+        )
     }
 
     private fun createLintFix(
@@ -169,14 +194,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
     ): LintFix {
         val name = "Replace with `$expression`"
         val lintFixBuilder = fix().composite().name(name)
-        lintFixBuilder.add(
-            fix()
-                .replace()
-                .range(location)
-                .name(name)
-                .with(expression)
-                .build()
-        )
+        lintFixBuilder.add(fix().replace().range(location).name(name).with(expression).build())
         if (imports.isNotEmpty()) {
             lintFixBuilder.add(fix().import(context, add = imports).build())
         }
@@ -194,52 +212,58 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
     ): LintFix.ReplaceStringBuilder {
         val isKotlin = isKotlin(context.uastFile!!.lang)
         val lastImport = context.uastFile?.imports?.lastOrNull()
-        val packageElem = when (val psiFile = context.psiFile) {
-            is PsiJavaFile -> psiFile.packageStatement
-            is KtFile -> psiFile.packageDirective?.psiOrParent
-            else -> null
-        }
+        val packageElem =
+            when (val psiFile = context.psiFile) {
+                is PsiJavaFile -> psiFile.packageStatement
+                is KtFile -> psiFile.packageDirective?.psiOrParent
+                else -> null
+            }
 
         // Build the imports block. Leave any ordering or formatting up to the client.
-        val prependImports = when {
-            lastImport != null -> "\n"
-            packageElem != null -> "\n\n"
-            else -> ""
-        }
-        val appendImports = when {
-            lastImport != null -> ""
-            packageElem != null -> ""
-            else -> "\n"
-        }
+        val prependImports =
+            when {
+                lastImport != null -> "\n"
+                packageElem != null -> "\n\n"
+                else -> ""
+            }
+        val appendImports =
+            when {
+                lastImport != null -> ""
+                packageElem != null -> ""
+                else -> "\n"
+            }
         val formattedImports = add.joinToString("\n") { "import " + if (isKotlin) it else "$it;" }
         val importsText = prependImports + formattedImports + appendImports
 
         // Append after any existing imports, after the package declaration, or at the beginning of
         // the file if there are no imports and no package declaration.
-        val appendLocation = (lastImport ?: packageElem) ?.let { context.getLocation(it) }
-            ?: Location.create(context.file, context.getContents(), 0, 0)
+        val appendLocation =
+            (lastImport ?: packageElem)?.let { context.getLocation(it) }
+                ?: Location.create(context.file, context.getContents(), 0, 0)
         val replaceBuilder = replace().range(appendLocation).end().with(importsText)
         return replaceBuilder.autoFix()
     }
 
     companion object {
-        private val IMPLEMENTATION = Implementation(
-            ReplaceWithDetector::class.java,
-            Scope.JAVA_FILE_SCOPE,
-        )
+        private val IMPLEMENTATION =
+            Implementation(
+                ReplaceWithDetector::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            )
 
         const val KOTLIN_DEPRECATED_ANNOTATION = "kotlin.Deprecated"
         const val JAVA_REPLACE_WITH_ANNOTATION = "androidx.annotation.ReplaceWith"
 
-        val ISSUE = Issue.create(
-            id = "ReplaceWith",
-            briefDescription = "Replacement available",
-            explanation = "A recommended replacement is available for this API usage.",
-            category = Category.CORRECTNESS,
-            priority = 4,
-            severity = Severity.INFORMATIONAL,
-            implementation = IMPLEMENTATION,
-        )
+        val ISSUE =
+            Issue.create(
+                id = "ReplaceWith",
+                briefDescription = "Replacement available",
+                explanation = "A recommended replacement is available for this API usage.",
+                category = Category.CORRECTNESS,
+                priority = 4,
+                severity = Severity.INFORMATIONAL,
+                implementation = IMPLEMENTATION,
+            )
     }
 }
 
@@ -267,8 +291,9 @@ fun JavaContext.getConstructorLocation(
                 // Work around UAST bug where the value argument list points directly to the
                 // string content node instead of a node containing the opening and closing
                 // tokens as well. We need to include the closing tags in the range as well!
-                val next = (lastArgument.sourcePsi as? KtLiteralStringTemplateEntry)
-                    ?.nextSibling as? TreeElement
+                val next =
+                    (lastArgument.sourcePsi as? KtLiteralStringTemplateEntry)?.nextSibling
+                        as? TreeElement
                 val delta =
                     if (next != null && next.elementType == KtTokens.CLOSING_QUOTE) {
                         next.textLength
@@ -312,7 +337,7 @@ fun JavaContext.getConstructorLocation(
 
 /**
  * @return the value of the specified vararg attribute as a list of String literals, or an empty
- * list if not specified
+ *   list if not specified
  */
 fun UAnnotation.getAttributeValueVarargLiteral(name: String): List<String> =
     findDeclaredAttributeValue(name)?.parseVarargLiteral() ?: emptyList()

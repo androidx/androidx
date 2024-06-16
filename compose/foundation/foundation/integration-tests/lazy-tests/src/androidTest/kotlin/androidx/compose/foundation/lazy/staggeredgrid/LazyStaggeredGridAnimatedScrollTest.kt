@@ -46,16 +46,16 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
-class LazyStaggeredGridAnimatedScrollTest(
-    orientation: Orientation
-) : BaseLazyStaggeredGridWithOrientation(orientation) {
+class LazyStaggeredGridAnimatedScrollTest(orientation: Orientation) :
+    BaseLazyStaggeredGridWithOrientation(orientation) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(
-            Orientation.Vertical,
-            Orientation.Horizontal,
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                Orientation.Vertical,
+                Orientation.Horizontal,
+            )
     }
 
     internal lateinit var state: LazyStaggeredGridState
@@ -66,9 +66,7 @@ class LazyStaggeredGridAnimatedScrollTest(
 
     @Before
     fun setUp() {
-        itemSizeDp = with(rule.density) {
-            itemSizePx.toDp()
-        }
+        itemSizeDp = with(rule.density) { itemSizePx.toDp() }
     }
 
     private fun testScroll(spacingPx: Int = 0, assertBlock: suspend () -> Unit) {
@@ -78,9 +76,7 @@ class LazyStaggeredGridAnimatedScrollTest(
             TestContent(with(rule.density) { spacingPx.toDp() })
         }
         rule.waitForIdle()
-        runBlocking {
-            assertBlock()
-        }
+        runBlocking { assertBlock() }
     }
 
     @Test
@@ -99,27 +95,21 @@ class LazyStaggeredGridAnimatedScrollTest(
 
     @Test
     fun animateScrollToItem_positiveOffset() = testScroll {
-        withContext(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(10, 10)
-        }
+        withContext(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(10, 10) }
         assertThat(state.firstVisibleItemIndex).isEqualTo(10)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
     }
 
     @Test
     fun animateScrollToItem_positiveOffset_largerThanItem() = testScroll {
-        withContext(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(10, 150)
-        }
+        withContext(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(10, 150) }
         assertThat(state.firstVisibleItemIndex).isEqualTo(12)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(50)
     }
 
     @Test
     fun animateScrollToItem_negativeOffset() = testScroll {
-        withContext(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(10, -10)
-        }
+        withContext(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(10, -10) }
         assertThat(state.firstVisibleItemIndex).isEqualTo(8)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(itemSizePx - 10)
     }
@@ -136,9 +126,7 @@ class LazyStaggeredGridAnimatedScrollTest(
 
     @Test
     fun animateScrollToItem_afterLastItem() = testScroll {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(100)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(100) }
         rule.waitForIdle()
         assertThat(state.firstVisibleItemIndex).isEqualTo(91)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
@@ -146,9 +134,7 @@ class LazyStaggeredGridAnimatedScrollTest(
 
     @Test
     fun animateScrollToItem_toFullSpan() = testScroll {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(50, 10)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(50, 10) }
         rule.waitForIdle()
         assertThat(state.firstVisibleItemIndex).isEqualTo(50)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
@@ -156,33 +142,23 @@ class LazyStaggeredGridAnimatedScrollTest(
 
     @Test
     fun animateScrollToItem_toFullSpan_andBack() = testScroll {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(50, 10)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(50, 10) }
         rule.waitForIdle()
 
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            state.animateScrollToItem(45, 0)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { state.animateScrollToItem(45, 0) }
 
         assertThat(state.firstVisibleItemIndex).isEqualTo(44)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
     }
 
-    @Test
-    fun animateScrollToItem_inBounds() = testScroll {
-        assertSpringAnimation(2)
-    }
+    @Test fun animateScrollToItem_inBounds() = testScroll { assertSpringAnimation(2) }
 
     @Test
     fun animateScrollToItem_inBounds_withOffset() = testScroll {
         assertSpringAnimation(2, itemSizePx / 2)
     }
 
-    @Test
-    fun animateScrollToItem_outOfBounds() = testScroll {
-        assertSpringAnimation(10)
-    }
+    @Test fun animateScrollToItem_outOfBounds() = testScroll { assertSpringAnimation(10) }
 
     @Test
     fun animateScrollToItem_firstItem() = testScroll {
@@ -215,24 +191,24 @@ class LazyStaggeredGridAnimatedScrollTest(
     }
 
     @Test
-    fun animateScrollToItem_outOfBounds_withSpacing() = testScroll(spacingPx = 10) {
-        assertSpringAnimation(20, spacingPx = 10)
-    }
+    fun animateScrollToItem_outOfBounds_withSpacing() =
+        testScroll(spacingPx = 10) { assertSpringAnimation(20, spacingPx = 10) }
 
     @Test
-    fun animateScrollToItem_outOfBounds_withNegativeSpacing() = testScroll(spacingPx = -10) {
-        assertSpringAnimation(20, spacingPx = -10)
-    }
+    fun animateScrollToItem_outOfBounds_withNegativeSpacing() =
+        testScroll(spacingPx = -10) { assertSpringAnimation(20, spacingPx = -10) }
 
     @Test
-    fun animateScrollToItem_backwards_withSpacing() = testScroll(spacingPx = 10) {
-        assertSpringAnimation(toIndex = 0, fromIndex = 20, spacingPx = 10)
-    }
+    fun animateScrollToItem_backwards_withSpacing() =
+        testScroll(spacingPx = 10) {
+            assertSpringAnimation(toIndex = 0, fromIndex = 20, spacingPx = 10)
+        }
 
     @Test
-    fun animateScrollToItem_backwards_withNegativeSpacing() = testScroll(spacingPx = -10) {
-        assertSpringAnimation(toIndex = 0, fromIndex = 20, spacingPx = -10)
-    }
+    fun animateScrollToItem_backwards_withNegativeSpacing() =
+        testScroll(spacingPx = -10) {
+            assertSpringAnimation(toIndex = 0, fromIndex = 20, spacingPx = -10)
+        }
 
     private fun assertSpringAnimation(
         toIndex: Int,
@@ -242,11 +218,7 @@ class LazyStaggeredGridAnimatedScrollTest(
         spacingPx: Int = 0
     ) {
         if (fromIndex != 0 || fromOffset != 0) {
-            rule.runOnIdle {
-                runBlocking {
-                    state.scrollToItem(fromIndex, fromOffset)
-                }
-            }
+            rule.runOnIdle { runBlocking { state.scrollToItem(fromIndex, fromOffset) } }
         }
         rule.waitForIdle()
 
@@ -255,9 +227,7 @@ class LazyStaggeredGridAnimatedScrollTest(
 
         rule.mainClock.autoAdvance = false
 
-        scope.launch {
-            state.animateScrollToItem(toIndex, toOffset)
-        }
+        scope.launch { state.animateScrollToItem(toIndex, toOffset) }
 
         while (!state.isScrollInProgress) {
             Thread.sleep(5)
@@ -276,15 +246,16 @@ class LazyStaggeredGridAnimatedScrollTest(
         val frameDuration = 16L
         for (i in 0..duration step frameDuration) {
             val nanosTime = TimeUnit.MILLISECONDS.toNanos(i)
-            val expectedValue =
-                spec.getValueFromNanos(nanosTime, startOffset, endOffset, 0f)
+            val expectedValue = spec.getValueFromNanos(nanosTime, startOffset, endOffset, 0f)
             val actualValue =
                 (state.firstVisibleItemIndex / 2 * itemSizeWSpacing +
                     state.firstVisibleItemScrollOffset)
             assertWithMessage(
-                "On animation frame at ${i}ms index=${state.firstVisibleItemIndex} " +
-                    "offset=${state.firstVisibleItemScrollOffset} expectedValue=$expectedValue"
-            ).that(actualValue).isEqualTo(expectedValue.roundToInt(), tolerance = 1)
+                    "On animation frame at ${i}ms index=${state.firstVisibleItemIndex} " +
+                        "offset=${state.firstVisibleItemScrollOffset} expectedValue=$expectedValue"
+                )
+                .that(actualValue)
+                .isEqualTo(expectedValue.roundToInt(), tolerance = 1)
 
             rule.mainClock.advanceTimeBy(frameDuration)
             expectedTime += frameDuration
@@ -307,19 +278,11 @@ class LazyStaggeredGridAnimatedScrollTest(
                 count = 100,
                 span = {
                     // mark a span to check scroll through
-                    if (it == 50)
-                        StaggeredGridItemSpan.FullLine
-                    else
-                        StaggeredGridItemSpan.SingleLane
+                    if (it == 50) StaggeredGridItemSpan.FullLine
+                    else StaggeredGridItemSpan.SingleLane
                 }
             ) {
-                BasicText(
-                    "$it",
-                    Modifier
-                        .mainAxisSize(itemSizeDp)
-                        .testTag("$it")
-                        .debugBorder()
-                )
+                BasicText("$it", Modifier.mainAxisSize(itemSizeDp).testTag("$it").debugBorder())
             }
         }
     }

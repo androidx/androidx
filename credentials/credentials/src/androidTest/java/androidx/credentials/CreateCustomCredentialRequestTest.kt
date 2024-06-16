@@ -27,13 +27,14 @@ import org.junit.Test
 class CreateCustomCredentialRequestTest {
     @Test
     fun constructor_emptyType_throws() {
-        assertThrows(
-            "Expected empty type to throw IAE",
-            IllegalArgumentException::class.java
-        ) {
+        assertThrows("Expected empty type to throw IAE", IllegalArgumentException::class.java) {
             CreateCustomCredentialRequest(
-                "", Bundle(), Bundle(), false,
-                DisplayInfo("userId"), false
+                "",
+                Bundle(),
+                Bundle(),
+                false,
+                DisplayInfo("userId"),
+                false
             )
         }
     }
@@ -66,31 +67,25 @@ class CreateCustomCredentialRequestTest {
         val expectedSystemProvider = true
         val expectedOrigin = "Origin"
 
-        val request = CreateCustomCredentialRequest(
-            expectedType,
-            inputCredentialDataBundle,
-            inputCandidateQueryDataBundle,
-            expectedSystemProvider,
-            expectedDisplayInfo,
-            expectedAutoSelectAllowed,
-            expectedOrigin,
-            expectedPreferImmediatelyAvailableCredentials
-        )
+        val request =
+            CreateCustomCredentialRequest(
+                expectedType,
+                inputCredentialDataBundle,
+                inputCandidateQueryDataBundle,
+                expectedSystemProvider,
+                expectedDisplayInfo,
+                expectedAutoSelectAllowed,
+                expectedOrigin,
+                expectedPreferImmediatelyAvailableCredentials
+            )
 
         assertThat(request.type).isEqualTo(expectedType)
-        assertThat(equals(request.credentialData, expectedCredentialDataBundle))
-            .isTrue()
-        assertThat(
-            equals(
-                request.candidateQueryData,
-                expectedCandidateQueryDataBundle
-            )
-        ).isTrue()
+        assertThat(equals(request.credentialData, expectedCredentialDataBundle)).isTrue()
+        assertThat(equals(request.candidateQueryData, expectedCandidateQueryDataBundle)).isTrue()
         assertThat(request.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
         assertThat(request.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
-        assertThat(request.preferImmediatelyAvailableCredentials).isEqualTo(
-            expectedPreferImmediatelyAvailableCredentials
-        )
+        assertThat(request.preferImmediatelyAvailableCredentials)
+            .isEqualTo(expectedPreferImmediatelyAvailableCredentials)
         assertThat(request.displayInfo).isEqualTo(expectedDisplayInfo)
         assertThat(request.origin).isEqualTo(expectedOrigin)
     }
@@ -108,52 +103,46 @@ class CreateCustomCredentialRequestTest {
         val expectedAutoSelectAllowed = true
         val expectedPreferImmediatelyAvailableCredentials = true
         val expectedOrigin = "Origin"
-        val request = CreateCustomCredentialRequest(
-            expectedType,
-            expectedCredentialDataBundle,
-            expectedCandidateQueryDataBundle,
-            expectedSystemProvider,
-            expectedDisplayInfo,
-            expectedAutoSelectAllowed,
-            expectedOrigin,
-            expectedPreferImmediatelyAvailableCredentials,
-        )
+        val request =
+            CreateCustomCredentialRequest(
+                expectedType,
+                expectedCredentialDataBundle,
+                expectedCandidateQueryDataBundle,
+                expectedSystemProvider,
+                expectedDisplayInfo,
+                expectedAutoSelectAllowed,
+                expectedOrigin,
+                expectedPreferImmediatelyAvailableCredentials,
+            )
         val finalCredentialData = request.credentialData
         finalCredentialData.putBundle(
             DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
             expectedDisplayInfo.toBundle()
         )
 
-        val convertedRequest = createFrom(
-            request.type, request.credentialData, request.candidateQueryData,
-            request.isSystemProviderRequired, request.origin
-        )
+        val convertedRequest =
+            createFrom(
+                request.type,
+                request.credentialData,
+                request.candidateQueryData,
+                request.isSystemProviderRequired,
+                request.origin
+            )
 
         assertThat(convertedRequest).isInstanceOf(CreateCustomCredentialRequest::class.java)
         val actualRequest = convertedRequest as CreateCustomCredentialRequest
         assertThat(actualRequest.type).isEqualTo(expectedType)
-        assertThat(
-            equals(
-                actualRequest.credentialData,
-                expectedCredentialDataBundle
-            )
-        ).isTrue()
-        assertThat(
-            equals(
-                actualRequest.candidateQueryData,
-                expectedCandidateQueryDataBundle
-            )
-        ).isTrue()
+        assertThat(equals(actualRequest.credentialData, expectedCredentialDataBundle)).isTrue()
+        assertThat(equals(actualRequest.candidateQueryData, expectedCandidateQueryDataBundle))
+            .isTrue()
         assertThat(actualRequest.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
         assertThat(actualRequest.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
-        assertThat(actualRequest.displayInfo.userId)
-            .isEqualTo(expectedDisplayInfo.userId)
+        assertThat(actualRequest.displayInfo.userId).isEqualTo(expectedDisplayInfo.userId)
         assertThat(actualRequest.displayInfo.userDisplayName)
             .isEqualTo(expectedDisplayInfo.userDisplayName)
         assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
         assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
-        assertThat(actualRequest.preferImmediatelyAvailableCredentials).isEqualTo(
-            expectedPreferImmediatelyAvailableCredentials
-        )
+        assertThat(actualRequest.preferImmediatelyAvailableCredentials)
+            .isEqualTo(expectedPreferImmediatelyAvailableCredentials)
     }
 }

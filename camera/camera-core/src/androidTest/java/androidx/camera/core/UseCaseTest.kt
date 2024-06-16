@@ -25,6 +25,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+import androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED
 import androidx.camera.core.UseCase.snapToSurfaceRotation
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.Config
@@ -178,22 +179,23 @@ class UseCaseTest {
     @Test
     fun mergeConfigs() {
         val cameraDefaultPriority = 4
-        val defaultConfig = FakeUseCaseConfig.Builder()
-            .setTargetRotation(Surface.ROTATION_0)
-            .setBufferFormat(ImageFormat.RAW10)
-            .setSurfaceOccupancyPriority(cameraDefaultPriority).useCaseConfig
+        val defaultConfig =
+            FakeUseCaseConfig.Builder()
+                .setTargetRotation(Surface.ROTATION_0)
+                .setBufferFormat(ImageFormat.RAW10)
+                .setSurfaceOccupancyPriority(cameraDefaultPriority)
+                .useCaseConfig
         val useCaseImageFormat = ImageFormat.YUV_420_888
-        val useCaseConfig = FakeUseCaseConfig.Builder()
-            .setTargetRotation(Surface.ROTATION_90)
-            .setBufferFormat(useCaseImageFormat).useCaseConfig
-        val extendedConfig = FakeUseCaseConfig.Builder()
-            .setTargetRotation(Surface.ROTATION_180).useCaseConfig
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder()
+                .setTargetRotation(Surface.ROTATION_90)
+                .setBufferFormat(useCaseImageFormat)
+                .useCaseConfig
+        val extendedConfig =
+            FakeUseCaseConfig.Builder().setTargetRotation(Surface.ROTATION_180).useCaseConfig
         val testUseCase = FakeUseCase(useCaseConfig)
         val cameraInfo = FakeCameraInfoInternal()
-        val mergedConfig = testUseCase.mergeConfigs(
-            cameraInfo, extendedConfig,
-            defaultConfig
-        )
+        val mergedConfig = testUseCase.mergeConfigs(cameraInfo, extendedConfig, defaultConfig)
         assertThat(mergedConfig.surfaceOccupancyPriority).isEqualTo(cameraDefaultPriority)
         assertThat(mergedConfig.inputFormat).isEqualTo(useCaseImageFormat)
         val imageOutputConfig = mergedConfig as ImageOutputConfig
@@ -215,12 +217,8 @@ class UseCaseTest {
         val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo).isNotNull()
         assertThat(resolutionInfo!!.resolution).isEqualTo(SURFACE_RESOLUTION)
-        assertThat(resolutionInfo.cropRect).isEqualTo(
-            Rect(
-                0, 0,
-                SURFACE_RESOLUTION.width, SURFACE_RESOLUTION.height
-            )
-        )
+        assertThat(resolutionInfo.cropRect)
+            .isEqualTo(Rect(0, 0, SURFACE_RESOLUTION.width, SURFACE_RESOLUTION.height))
         assertThat(resolutionInfo.rotationDegrees).isEqualTo(0)
     }
 
@@ -252,10 +250,7 @@ class UseCaseTest {
         val fakeUseCase = FakeUseCase()
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.setViewPort(
-            ViewPort(
-                ViewPort.FILL_CENTER,
-                Rational(16, 9), Surface.ROTATION_0, LayoutDirection.LTR
-            )
+            ViewPort(ViewPort.FILL_CENTER, Rational(16, 9), Surface.ROTATION_0, LayoutDirection.LTR)
         )
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
         val resolutionInfo = fakeUseCase.resolutionInfoInternal
@@ -265,7 +260,7 @@ class UseCaseTest {
     @Test
     fun defaultMirrorModeIsOff() {
         val fakeUseCase = createFakeUseCase()
-        assertThat(fakeUseCase.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+        assertThat(fakeUseCase.mirrorModeInternal).isEqualTo(MIRROR_MODE_UNSPECIFIED)
     }
 
     @Test
@@ -305,29 +300,32 @@ class UseCaseTest {
 
     @Test
     fun snapToSurfaceRotation_invalidInput() {
-        assertThrows<IllegalArgumentException> {
-            snapToSurfaceRotation(-1)
-        }
-        assertThrows<IllegalArgumentException> {
-            snapToSurfaceRotation(360)
-        }
+        assertThrows<IllegalArgumentException> { snapToSurfaceRotation(-1) }
+        assertThrows<IllegalArgumentException> { snapToSurfaceRotation(360) }
     }
 
     @Test
     fun keepUseCaseTargetName_whenMergingConfigs() {
         val targetName = "Fake-UseCase-TargetName"
         val fakeUseCase = FakeUseCaseConfig.Builder().setTargetName(targetName).build()
-        val extendedConfig = FakeUseCaseConfig.Builder().apply {
-            mutableConfig.insertOption(OPTION_TARGET_NAME, "Extended-Config-TargetName")
-        }.useCaseConfig
-        val defaultConfig = FakeUseCaseConfig.Builder().apply {
-            mutableConfig.insertOption(OPTION_TARGET_NAME, "Default-Config-TargetName")
-        }.useCaseConfig
-        val mergedConfig = fakeUseCase.mergeConfigs(
-            FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK),
-            extendedConfig,
-            defaultConfig
-        )
+        val extendedConfig =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    mutableConfig.insertOption(OPTION_TARGET_NAME, "Extended-Config-TargetName")
+                }
+                .useCaseConfig
+        val defaultConfig =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    mutableConfig.insertOption(OPTION_TARGET_NAME, "Default-Config-TargetName")
+                }
+                .useCaseConfig
+        val mergedConfig =
+            fakeUseCase.mergeConfigs(
+                FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK),
+                extendedConfig,
+                defaultConfig
+            )
         assertThat(mergedConfig.targetName).isEqualTo(targetName)
     }
 
@@ -339,19 +337,14 @@ class UseCaseTest {
             FakeUseCaseConfig.Builder()
                 .setTargetName("UseCase")
                 .setTargetRotation(targetRotation)
-                .apply {
-                    mirrorMode?.let { setMirrorMode(it) }
-                }
+                .apply { mirrorMode?.let { setMirrorMode(it) } }
                 .useCaseConfig
         )
     }
 
     private fun createCameraUseCaseAdapter(): CameraUseCaseAdapter {
         val cameraId = "fakeCameraId"
-        val fakeCamera = FakeCamera(
-            cameraId, null,
-            FakeCameraInfoInternal(cameraId)
-        )
+        val fakeCamera = FakeCamera(cameraId, null, FakeCameraInfoInternal(cameraId))
         val fakeCameraDeviceSurfaceManager = FakeCameraDeviceSurfaceManager()
         fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(
             cameraId,

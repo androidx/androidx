@@ -17,9 +17,7 @@ package androidx.collection
 
 import kotlin.jvm.JvmInline
 
-/**
- * This is a value class to test ValueClassSet and ValueClassList
- */
+/** This is a value class to test ValueClassSet and ValueClassList */
 @JvmInline
 internal value class TestValueClass(val value: ULong) {
     override fun toString(): String {

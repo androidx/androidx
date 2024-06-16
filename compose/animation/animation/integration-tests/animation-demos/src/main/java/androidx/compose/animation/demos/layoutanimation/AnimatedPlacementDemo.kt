@@ -66,37 +66,19 @@ fun AnimatedPlacementDemo() {
     var alignment by remember { mutableStateOf(Alignment.TopStart) }
     Column {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = { alignment = Alignment.TopStart }) {
-                Text("TopStart")
-            }
-            Button(onClick = { alignment = Alignment.TopCenter }) {
-                Text("TopCenter")
-            }
-            Button(onClick = { alignment = Alignment.TopEnd }) {
-                Text("TopEnd")
-            }
+            Button(onClick = { alignment = Alignment.TopStart }) { Text("TopStart") }
+            Button(onClick = { alignment = Alignment.TopCenter }) { Text("TopCenter") }
+            Button(onClick = { alignment = Alignment.TopEnd }) { Text("TopEnd") }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = { alignment = Alignment.CenterStart }) {
-                Text("CenterStart")
-            }
-            Button(onClick = { alignment = Alignment.Center }) {
-                Text("Center")
-            }
-            Button(onClick = { alignment = Alignment.CenterEnd }) {
-                Text("CenterEnd")
-            }
+            Button(onClick = { alignment = Alignment.CenterStart }) { Text("CenterStart") }
+            Button(onClick = { alignment = Alignment.Center }) { Text("Center") }
+            Button(onClick = { alignment = Alignment.CenterEnd }) { Text("CenterEnd") }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = { alignment = Alignment.BottomStart }) {
-                Text("BottomStart")
-            }
-            Button(onClick = { alignment = Alignment.BottomCenter }) {
-                Text("BottomCenter")
-            }
-            Button(onClick = { alignment = Alignment.BottomEnd }) {
-                Text("BottomEnd")
-            }
+            Button(onClick = { alignment = Alignment.BottomStart }) { Text("BottomStart") }
+            Button(onClick = { alignment = Alignment.BottomCenter }) { Text("BottomCenter") }
+            Button(onClick = { alignment = Alignment.BottomEnd }) { Text("BottomEnd") }
         }
         AnimatedChildAlignment(alignment)
     }
@@ -112,23 +94,22 @@ fun Modifier.animatePlacement(): Modifier = composed {
 class AnimatedPlacementModifier(val scope: CoroutineScope) : OnPlacedModifier, LayoutModifier {
     var targetOffset by mutableStateOf(Offset.Zero)
     var animatable by mutableStateOf<Animatable<Offset, AnimationVector2D>?>(null)
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(
-                animatable?.let { (it.value - targetOffset).round() } ?: IntOffset.Zero
-            )
+            placeable.place(animatable?.let { (it.value - targetOffset).round() } ?: IntOffset.Zero)
         }
     }
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
         targetOffset = coordinates.positionInParent()
         // Animate to the new target offset when alignment changes.
-        val anim = animatable ?: Animatable(targetOffset, Offset.VectorConverter)
-            .also { animatable = it }
+        val anim =
+            animatable ?: Animatable(targetOffset, Offset.VectorConverter).also { animatable = it }
         if (anim.targetValue != targetOffset) {
             scope.launch {
                 anim.animateTo(targetOffset, spring(stiffness = Spring.StiffnessMediumLow))
@@ -141,8 +122,8 @@ class AnimatedPlacementModifier(val scope: CoroutineScope) : OnPlacedModifier, L
 fun AnimatedChildAlignment(alignment: Alignment) {
     Box(Modifier.fillMaxSize().padding(4.dp).border(1.dp, Color.Red)) {
         Box(
-            modifier = Modifier.animatePlacement().align(alignment).size(100.dp)
-                .background(Color.Red)
+            modifier =
+                Modifier.animatePlacement().align(alignment).size(100.dp).background(Color.Red)
         )
     }
 }

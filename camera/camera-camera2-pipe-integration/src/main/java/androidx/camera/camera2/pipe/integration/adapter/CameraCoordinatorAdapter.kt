@@ -36,23 +36,17 @@ class CameraCoordinatorAdapter(
     private var cameraPipe: CameraPipe?,
     cameraDevices: CameraDevices,
 ) : CameraCoordinator {
-    @VisibleForTesting
-    val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
+    @VisibleForTesting val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
 
-    @VisibleForTesting
-    var concurrentCameraIdsSet = mutableSetOf<Set<CameraId>>()
+    @VisibleForTesting var concurrentCameraIdsSet = mutableSetOf<Set<CameraId>>()
 
-    @VisibleForTesting
-    var concurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
+    @VisibleForTesting var concurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
 
-    @VisibleForTesting
-    var activeConcurrentCameraInfosList = mutableListOf<CameraInfo>()
+    @VisibleForTesting var activeConcurrentCameraInfosList = mutableListOf<CameraInfo>()
 
-    @VisibleForTesting
-    var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
+    @VisibleForTesting var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
 
-    @VisibleForTesting
-    var concurrentModeOn = false
+    @VisibleForTesting var concurrentModeOn = false
 
     init {
         val concurrentCameraIds = cameraDevices.awaitConcurrentCameraIds()!!.toMutableSet()
@@ -63,11 +57,14 @@ class CameraCoordinatorAdapter(
                 val cameraId2: String = cameraIdsList[1].value
                 var isBackwardCompatible = false
                 try {
-                    isBackwardCompatible = isBackwardCompatible(cameraId1, cameraDevices) &&
-                        isBackwardCompatible(cameraId2, cameraDevices)
+                    isBackwardCompatible =
+                        isBackwardCompatible(cameraId1, cameraDevices) &&
+                            isBackwardCompatible(cameraId2, cameraDevices)
                 } catch (e: InitializationException) {
-                    Log.debug { "Concurrent camera id pair: " +
-                        "($cameraId1, $cameraId2) is not backward compatible" }
+                    Log.debug {
+                        "Concurrent camera id pair: " +
+                            "($cameraId1, $cameraId2) is not backward compatible"
+                    }
                 }
                 if (!isBackwardCompatible) {
                     continue
@@ -92,15 +89,21 @@ class CameraCoordinatorAdapter(
 
     @OptIn(ExperimentalCamera2Interop::class)
     override fun getConcurrentCameraSelectors(): MutableList<MutableList<CameraSelector>> {
-        return concurrentCameraIdsSet.map { concurrentCameraIds ->
-            concurrentCameraIds.map { cameraId ->
-                CameraSelector.Builder().addCameraFilter { cameraInfos ->
-                    cameraInfos.filter {
-                        cameraId.value == Camera2CameraInfo.from(it).getCameraId()
+        return concurrentCameraIdsSet
+            .map { concurrentCameraIds ->
+                concurrentCameraIds
+                    .map { cameraId ->
+                        CameraSelector.Builder()
+                            .addCameraFilter { cameraInfos ->
+                                cameraInfos.filter {
+                                    cameraId.value == Camera2CameraInfo.from(it).getCameraId()
+                                }
+                            }
+                            .build()
                     }
-                }.build()
-            }.toMutableList()
-        }.toMutableList()
+                    .toMutableList()
+            }
+            .toMutableList()
     }
 
     override fun getActiveConcurrentCameraInfos(): MutableList<CameraInfo> {
@@ -109,12 +112,13 @@ class CameraCoordinatorAdapter(
 
     override fun setActiveConcurrentCameraInfos(cameraInfos: MutableList<CameraInfo>) {
         activeConcurrentCameraInfosList = cameraInfos
-        val graphConfigs = cameraInternalMap.values.map {
-            checkNotNull(it.getDeferredCameraGraphConfig()) {
-                "Every CameraInternal instance is expected to have a deferred CameraGraph config " +
-                    "when the active concurrent CameraInfos are set!"
+        val graphConfigs =
+            cameraInternalMap.values.map {
+                checkNotNull(it.getDeferredCameraGraphConfig()) {
+                    "Every CameraInternal instance is expected to have a deferred CameraGraph config " +
+                        "when the active concurrent CameraInfos are set!"
+                }
             }
-        }
         val cameraGraphs = checkNotNull(cameraPipe).createCameraGraphs(graphConfigs)
         check(cameraGraphs.size == cameraInternalMap.size)
         for ((cameraInternalAdapter, cameraGraph) in cameraInternalMap.values.zip(cameraGraphs)) {
@@ -155,11 +159,9 @@ class CameraCoordinatorAdapter(
         }
     }
 
-    override fun addListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
-    }
+    override fun addListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {}
 
-    override fun removeListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
-    }
+    override fun removeListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {}
 
     override fun shutdown() {
         cameraPipe = null

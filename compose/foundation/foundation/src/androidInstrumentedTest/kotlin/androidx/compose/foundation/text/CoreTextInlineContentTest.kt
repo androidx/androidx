@@ -53,8 +53,7 @@ import org.mockito.kotlin.verify
 @RunWith(AndroidJUnit4::class)
 class CoreTextInlineContentTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val fontSize = 10
 
@@ -67,25 +66,26 @@ class CoreTextInlineContentTest {
         var size by mutableStateOf(IntSize(50, 50))
 
         rule.setContent {
-            val inlineTextContent = InlineTextContent(
-                placeholder = Placeholder(
-                    size.width.sp,
-                    size.height.sp,
-                    PlaceholderVerticalAlign.AboveBaseline
-                )
-            ) {
-                Box(modifier = Modifier.fillMaxSize().onSizeChanged(onSizeChanged))
-            }
+            val inlineTextContent =
+                InlineTextContent(
+                    placeholder =
+                        Placeholder(
+                            size.width.sp,
+                            size.height.sp,
+                            PlaceholderVerticalAlign.AboveBaseline
+                        )
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().onSizeChanged(onSizeChanged))
+                }
 
-            CompositionLocalProvider(
-                LocalDensity provides Density(density = 1f, fontScale = 1f)
-            ) {
+            CompositionLocalProvider(LocalDensity provides Density(density = 1f, fontScale = 1f)) {
                 BasicText(
-                    text = buildAnnotatedString {
-                        append("Hello")
-                        appendInlineContent("box")
-                        append("World")
-                    },
+                    text =
+                        buildAnnotatedString {
+                            append("Hello")
+                            appendInlineContent("box")
+                            append("World")
+                        },
                     style = TextStyle(fontSize = 100.sp),
                     inlineContent = mapOf("box" to inlineTextContent),
                     maxLines = Int.MAX_VALUE,
@@ -129,10 +129,7 @@ class CoreTextInlineContentTest {
     fun rtlTextContent_inlineContent_placement() {
         rule.setContent {
             // RTL character, supported by sample_font
-            TestContent(
-                predicate = "\u05D1\u05D1\u05D1\u05D1\u05D1",
-                suffix = "\u05D1\u05D1\u05D1"
-            )
+            TestContent(predicate = "\u05D1\u05D1\u05D1\u05D1\u05D1", suffix = "\u05D1\u05D1\u05D1")
         }
 
         // Expected text layout; "a" is LTR, "b" is RTL"
@@ -160,10 +157,7 @@ class CoreTextInlineContentTest {
     fun bidiText_inlineContent_placement() {
         rule.setContent {
             // RTL and LTR characters, supported by sample_font
-            TestContent(
-                predicate = "\u05D1\u05D1\u05D1\u0061\u0061",
-                suffix = "\u0061\u0061\u0061"
-            )
+            TestContent(predicate = "\u05D1\u05D1\u05D1\u0061\u0061", suffix = "\u0061\u0061\u0061")
         }
 
         // Expected text layout; "a" is LTR, "b" is RTL"
@@ -175,10 +169,7 @@ class CoreTextInlineContentTest {
     fun bidiText_2_inlineContent_placement() {
         rule.setContent {
             // RTL and LTR characters, supported by sample_font
-            TestContent(
-                predicate = "\u0061\u0061\u0061\u05D1\u05D1",
-                suffix = "\u05D1\u05D1\u05D1"
-            )
+            TestContent(predicate = "\u0061\u0061\u0061\u05D1\u05D1", suffix = "\u05D1\u05D1\u05D1")
         }
 
         // Expected text layout; "a" is LTR, "b" is RTL"
@@ -192,25 +183,26 @@ class CoreTextInlineContentTest {
         suffix: String,
         textStyle: TextStyle = this.textStyle
     ) {
-        CompositionLocalProvider(
-            LocalDensity provides Density(density = 1f, fontScale = 1f)
-        ) {
-            val inlineTextContent = InlineTextContent(
-                placeholder = Placeholder(
-                    fontSize.sp,
-                    fontSize.sp,
-                    PlaceholderVerticalAlign.AboveBaseline
-                )
-            ) {
-                Box(modifier = Modifier.fillMaxSize().testTag("box"))
-            }
+        CompositionLocalProvider(LocalDensity provides Density(density = 1f, fontScale = 1f)) {
+            val inlineTextContent =
+                InlineTextContent(
+                    placeholder =
+                        Placeholder(
+                            fontSize.sp,
+                            fontSize.sp,
+                            PlaceholderVerticalAlign.AboveBaseline
+                        )
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().testTag("box"))
+                }
 
             BasicText(
-                text = buildAnnotatedString {
-                    append(predicate)
-                    appendInlineContent("box")
-                    append(suffix)
-                },
+                text =
+                    buildAnnotatedString {
+                        append(predicate)
+                        appendInlineContent("box")
+                        append(suffix)
+                    },
                 modifier = Modifier.testTag("text"),
                 style = textStyle,
                 inlineContent = mapOf("box" to inlineTextContent),
@@ -220,14 +212,14 @@ class CoreTextInlineContentTest {
     }
 
     private fun expectInlineContentPosition(left: Int, right: Int) {
-        val (boxLeft, boxRight) = with(
-            rule.onNodeWithTag("box", useUnmergedTree = true).fetchSemanticsNode()
-        ) {
-            Pair(positionInRoot.x, positionInRoot.x + size.width)
-        }
-        val (textLeft, textRight) = with(rule.onNodeWithTag("text").fetchSemanticsNode()) {
-            Pair(positionInRoot.x, positionInRoot.x + size.width)
-        }
+        val (boxLeft, boxRight) =
+            with(rule.onNodeWithTag("box", useUnmergedTree = true).fetchSemanticsNode()) {
+                Pair(positionInRoot.x, positionInRoot.x + size.width)
+            }
+        val (textLeft, textRight) =
+            with(rule.onNodeWithTag("text").fetchSemanticsNode()) {
+                Pair(positionInRoot.x, positionInRoot.x + size.width)
+            }
 
         rule.waitForIdle()
 

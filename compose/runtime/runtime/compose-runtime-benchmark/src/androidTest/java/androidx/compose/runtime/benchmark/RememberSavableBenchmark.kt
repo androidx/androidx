@@ -38,10 +38,7 @@ class RememberSaveableBenchmark : ComposeBenchmarkBase() {
     @Test
     fun rememberSaveable_1() = runBlockingTestWithFrameClock {
         measureComposeFocused {
-            @Suppress("UNUSED_VARIABLE")
-            val i: Int = rememberSaveable {
-                10
-            }
+            @Suppress("UNUSED_VARIABLE") val i: Int = rememberSaveable { 10 }
         }
     }
 
@@ -50,10 +47,7 @@ class RememberSaveableBenchmark : ComposeBenchmarkBase() {
     fun rememberSaveable_10() = runBlockingTestWithFrameClock {
         measureComposeFocused {
             repeat(10) {
-                @Suppress("UNUSED_VARIABLE")
-                val i: Int = rememberSaveable {
-                    10
-                }
+                @Suppress("UNUSED_VARIABLE") val i: Int = rememberSaveable { 10 }
             }
         }
     }
@@ -63,10 +57,7 @@ class RememberSaveableBenchmark : ComposeBenchmarkBase() {
     fun rememberSaveable_100() = runBlockingTestWithFrameClock {
         measureComposeFocused {
             repeat(100) {
-                @Suppress("UNUSED_VARIABLE")
-                val i: Int = rememberSaveable {
-                    10
-                }
+                @Suppress("UNUSED_VARIABLE") val i: Int = rememberSaveable { 10 }
             }
         }
     }
@@ -76,9 +67,7 @@ class RememberSaveableBenchmark : ComposeBenchmarkBase() {
     fun rememberSaveable_mutable_1() = runBlockingTestWithFrameClock {
         measureComposeFocused {
             @Suppress("UNUSED_VARIABLE")
-            val i = rememberSaveable(stateSaver = autoSaver()) {
-                mutableStateOf(10)
-            }
+            val i = rememberSaveable(stateSaver = autoSaver()) { mutableStateOf(10) }
         }
     }
 
@@ -88,9 +77,7 @@ class RememberSaveableBenchmark : ComposeBenchmarkBase() {
         measureComposeFocused {
             repeat(10) {
                 @Suppress("UNUSED_VARIABLE")
-                val i = rememberSaveable(stateSaver = autoSaver()) {
-                    mutableStateOf(10)
-                }
+                val i = rememberSaveable(stateSaver = autoSaver()) { mutableStateOf(10) }
             }
         }
     }
@@ -101,9 +88,7 @@ class RememberSaveableBenchmark : ComposeBenchmarkBase() {
         measureComposeFocused {
             repeat(100) {
                 @Suppress("UNUSED_VARIABLE")
-                val i = rememberSaveable(stateSaver = autoSaver()) {
-                    mutableStateOf(10)
-                }
+                val i = rememberSaveable(stateSaver = autoSaver()) { mutableStateOf(10) }
             }
         }
     }

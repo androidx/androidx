@@ -50,16 +50,18 @@ public class CameraSelectorTest {
     @Throws(ExecutionException::class, InterruptedException::class)
     public fun setUp() {
         val cameraFactory = FakeCameraFactory()
-        mRearCamera = FakeCamera(
-            Mockito.mock(CameraControlInternal::class.java),
-            FakeCameraInfoInternal(mRearRotation, CameraSelector.LENS_FACING_BACK)
-        )
+        mRearCamera =
+            FakeCamera(
+                Mockito.mock(CameraControlInternal::class.java),
+                FakeCameraInfoInternal(mRearRotation, CameraSelector.LENS_FACING_BACK)
+            )
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, mRearId) { mRearCamera }
         mCameras.add(mRearCamera)
-        mFrontCamera = FakeCamera(
-            Mockito.mock(CameraControlInternal::class.java),
-            FakeCameraInfoInternal(mFrontRotation, CameraSelector.LENS_FACING_FRONT)
-        )
+        mFrontCamera =
+            FakeCamera(
+                Mockito.mock(CameraControlInternal::class.java),
+                FakeCameraInfoInternal(mFrontRotation, CameraSelector.LENS_FACING_FRONT)
+            )
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, mFrontId) { mFrontCamera }
         mCameras.add(mFrontCamera)
     }
@@ -91,27 +93,23 @@ public class CameraSelectorTest {
     @Test(expected = IllegalStateException::class)
     public fun exception_ifGetLensFacingConflicted() {
         val cameraSelectorBuilder = CameraSelector.Builder()
-        cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK)
+        cameraSelectorBuilder
+            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
             .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
         cameraSelectorBuilder.build().lensFacing
     }
 
     @Test
     public fun canAppendFilters() {
-        val filter0 = Mockito.mock(
-            CameraFilter::class.java
-        )
-        val filter1 = Mockito.mock(
-            CameraFilter::class.java
-        )
-        val filter2 = Mockito.mock(
-            CameraFilter::class.java
-        )
-        val cameraSelector = CameraSelector.Builder()
-            .addCameraFilter(filter0)
-            .addCameraFilter(filter1)
-            .addCameraFilter(filter2)
-            .build()
+        val filter0 = Mockito.mock(CameraFilter::class.java)
+        val filter1 = Mockito.mock(CameraFilter::class.java)
+        val filter2 = Mockito.mock(CameraFilter::class.java)
+        val cameraSelector =
+            CameraSelector.Builder()
+                .addCameraFilter(filter0)
+                .addCameraFilter(filter1)
+                .addCameraFilter(filter2)
+                .build()
         assertThat(cameraSelector.cameraFilterSet).containsAtLeast(filter0, filter1, filter2)
     }
 
@@ -122,15 +120,13 @@ public class CameraSelectorTest {
 
     @Test
     public fun canSelectDefaultFrontCamera() {
-        assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameras))
-            .isEqualTo(mFrontCamera)
+        assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameras)).isEqualTo(mFrontCamera)
     }
 
     @Test
     public fun canSelectWithCameraFilter() {
         val filter = CameraFilter { cameraInfos: List<CameraInfo> ->
-            val output: MutableList<CameraInfo> =
-                ArrayList()
+            val output: MutableList<CameraInfo> = ArrayList()
             for (cameraInfo in cameraInfos) {
                 if (cameraInfo.sensorRotationDegrees == mFrontRotation) {
                     output.add(cameraInfo)
@@ -138,9 +134,7 @@ public class CameraSelectorTest {
             }
             output
         }
-        val cameraSelector = CameraSelector.Builder().addCameraFilter(
-            filter
-        ).build()
+        val cameraSelector = CameraSelector.Builder().addCameraFilter(filter).build()
         assertThat(cameraSelector.select(mCameras)).isEqualTo(mFrontCamera)
     }
 
@@ -148,8 +142,7 @@ public class CameraSelectorTest {
     public fun exception_extraOutputCamera() {
         val cameraSelectorBuilder = CameraSelector.Builder()
         cameraSelectorBuilder.addCameraFilter {
-            val result: MutableList<CameraInfo> =
-                ArrayList()
+            val result: MutableList<CameraInfo> = ArrayList()
             // Add an extra camera to output.
             result.add(FakeCameraInfoInternal())
             result

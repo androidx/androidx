@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import android.webkit.CookieManager;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.webkit.internal.ApiFeature;
@@ -30,6 +31,7 @@ import java.util.List;
 /**
  * Compatibility version of {@link android.webkit.CookieManager}
  */
+@AnyThread
 public class CookieManagerCompat {
     private CookieManagerCompat() {}
 

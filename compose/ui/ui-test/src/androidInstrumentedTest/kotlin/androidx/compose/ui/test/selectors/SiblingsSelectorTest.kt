@@ -33,20 +33,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SiblingsSelectorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun siblings_noSibling() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") } }
 
-        rule.onNodeWithTag("Child")
-            .onSiblings()
-            .assertCountEquals(0)
+        rule.onNodeWithTag("Child").onSiblings().assertCountEquals(0)
     }
 
     @Test
@@ -58,9 +51,7 @@ class SiblingsSelectorTest {
             }
         }
 
-        rule.onNodeWithTag("Child1")
-            .onSiblings()
-            .assertCountEquals(1)
+        rule.onNodeWithTag("Child1").onSiblings().assertCountEquals(1)
     }
 
     @Test
@@ -73,12 +64,9 @@ class SiblingsSelectorTest {
             }
         }
 
-        rule.onNodeWithTag("Child2")
-            .onSiblings()
-            .assertCountEquals(2)
-            .apply {
-                get(0).assert(hasTestTag("Child1"))
-                get(1).assert(hasTestTag("Child3"))
-            }
+        rule.onNodeWithTag("Child2").onSiblings().assertCountEquals(2).apply {
+            get(0).assert(hasTestTag("Child1"))
+            get(1).assert(hasTestTag("Child3"))
+        }
     }
 }

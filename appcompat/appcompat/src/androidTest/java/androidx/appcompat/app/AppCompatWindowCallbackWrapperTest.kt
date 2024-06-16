@@ -102,15 +102,18 @@ class AppCompatWindowCallbackWrapperTest {
                 // Set up a fake application sub-panel, then close it. This is messy, but it's
                 // likely more reliable than displaying a real panel.
                 val v = FrameLayout(activity)
-                val st = AppCompatDelegateImpl.PanelFeatureState(
-                    Window.FEATURE_CONTEXT_MENU
-                ).apply {
-                    isOpen = true
-                    decorView = v
-                }
-                activity.windowManager.addView(v,
-                    WindowManager.LayoutParams(0, 0,
-                        WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL, 0,
+                val st =
+                    AppCompatDelegateImpl.PanelFeatureState(Window.FEATURE_CONTEXT_MENU).apply {
+                        isOpen = true
+                        decorView = v
+                    }
+                activity.windowManager.addView(
+                    v,
+                    WindowManager.LayoutParams(
+                        0,
+                        0,
+                        WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+                        0,
                         PixelFormat.TRANSLUCENT
                     )
                 )

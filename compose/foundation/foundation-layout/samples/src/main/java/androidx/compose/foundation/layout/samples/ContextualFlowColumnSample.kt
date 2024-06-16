@@ -51,60 +51,57 @@ import kotlin.random.Random
 @Composable
 fun ContextualFlowColMaxLineDynamicSeeMore() {
     val totalCount = 300
-    var maxLines by remember {
-        mutableStateOf(2)
-    }
+    var maxLines by remember { mutableStateOf(2) }
 
     Text(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .padding(20.dp),
-        text = "ContextualFlowColumn (based on Subcompose)" +
-            " is great for Large Items & +N dynamic labels",
+        modifier = Modifier.fillMaxWidth(1f).padding(20.dp),
+        text =
+            "ContextualFlowColumn (based on Subcompose)" +
+                " is great for Large Items & +N dynamic labels",
         fontWeight = FontWeight.Bold
     )
 
-    val moreOrCollapseIndicator = @Composable { scope: ContextualFlowColumnOverflowScope ->
-        val remainingItems = totalCount - scope.shownItemCount
-        DynamicSeeMore(
-            isHorizontal = true,
-            remainingItems = remainingItems
-        ) {
-            if (remainingItems == 0) {
-                maxLines = 2
-            } else {
-                maxLines += 2
+    val moreOrCollapseIndicator =
+        @Composable { scope: ContextualFlowColumnOverflowScope ->
+            val remainingItems = totalCount - scope.shownItemCount
+            DynamicSeeMore(isHorizontal = true, remainingItems = remainingItems) {
+                if (remainingItems == 0) {
+                    maxLines = 2
+                } else {
+                    maxLines += 2
+                }
             }
         }
-    }
     ContextualFlowColumn(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .horizontalScroll(rememberScrollState())
-            .padding(20.dp)
-            .height(200.dp)
-            .wrapContentHeight(align = Alignment.Top),
+        modifier =
+            Modifier.fillMaxWidth(1f)
+                .horizontalScroll(rememberScrollState())
+                .padding(20.dp)
+                .height(200.dp)
+                .wrapContentHeight(align = Alignment.Top),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         maxLines = maxLines,
-        overflow = ContextualFlowColumnOverflow.expandOrCollapseIndicator(
-            minColumnsToShowCollapse = 4,
-            expandIndicator = moreOrCollapseIndicator,
-            collapseIndicator = moreOrCollapseIndicator
-        ),
+        overflow =
+            ContextualFlowColumnOverflow.expandOrCollapseIndicator(
+                minColumnsToShowCollapse = 4,
+                expandIndicator = moreOrCollapseIndicator,
+                collapseIndicator = moreOrCollapseIndicator
+            ),
         itemCount = totalCount
     ) { index ->
         Box(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .height(50.dp)
-                .width(50.dp)
-                .background(Color.Green)
+            modifier =
+                Modifier.align(Alignment.CenterHorizontally)
+                    .height(50.dp)
+                    .width(50.dp)
+                    .background(Color.Green)
         ) {
-            Text(text = index.toString(), fontSize = 18.sp, modifier =
-            Modifier
-                .padding(3.dp)
-                .align(Alignment.Center))
+            Text(
+                text = index.toString(),
+                fontSize = 18.sp,
+                modifier = Modifier.padding(3.dp).align(Alignment.Center)
+            )
         }
     }
 }
@@ -115,10 +112,7 @@ fun ContextualFlowColMaxLineDynamicSeeMore() {
 fun ContextualFlowColumn_ItemPosition() {
     Text("Ln: Line No\nPs: Position No. in Line", modifier = Modifier.padding(20.dp))
     ContextualFlowColumn(
-        modifier = Modifier
-            .fillMaxHeight(1f)
-            .width(210.dp)
-            .padding(20.dp),
+        modifier = Modifier.fillMaxHeight(1f).width(210.dp).padding(20.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         maxItemsInEachColumn = 4,
@@ -127,14 +121,14 @@ fun ContextualFlowColumn_ItemPosition() {
         val width = 50.dp.coerceAtMost(maxWidth)
         val height = Random.nextInt(80, 100).dp.coerceAtMost(maxHeightInLine)
         Box(
-            Modifier
-                .width(width)
+            Modifier.width(width)
                 .height(height)
                 .background(MatchingColors.getByIndex(indexInLine)!!.color)
         ) {
             Text(
-                text = "Ln: ${this@ContextualFlowColumn.lineIndex}" +
-                    "\nPs: ${this@ContextualFlowColumn.indexInLine}",
+                text =
+                    "Ln: ${this@ContextualFlowColumn.lineIndex}" +
+                        "\nPs: ${this@ContextualFlowColumn.indexInLine}",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(3.dp)
             )

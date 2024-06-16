@@ -18,5 +18,4 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
-data class Playlist(@field:PrimaryKey val mPlaylistId: Int)
+@Entity data class Playlist(@field:PrimaryKey val mPlaylistId: Int)

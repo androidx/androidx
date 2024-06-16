@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
  *
  * @param recordTypes Set of [Record] types the token will observe change for.
  * @param dataOriginFilters Optional set of [DataOrigin] filters, default is empty set for no
- * filter.
+ *   filter.
  */
 class ChangesTokenRequest(
     internal val recordTypes: Set<KClass<out Record>>,

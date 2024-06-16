@@ -28,8 +28,8 @@ internal val SemanticsNode.siblings: List<SemanticsNode>
  * Returns a parent of this node.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
- * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
- * none or more than one element is found.
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if none or
+ * more than one element is found.
  */
 fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
@@ -39,9 +39,7 @@ fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     )
 }
 
-/**
- * Returns children of this node.
- */
+/** Returns children of this node. */
 fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
@@ -56,8 +54,8 @@ fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
  * Use this only if this node has exactly one child.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
- * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
- * none or more than one element is found.
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if none or
+ * more than one element is found.
  */
 fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
@@ -78,6 +76,7 @@ fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = o
  * Returns all siblings of this node.
  *
  * Example: For the following tree
+ *
  * ```
  * |-A
  *   |-B1
@@ -100,8 +99,8 @@ fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
  * Use this only if this node has exactly one sibling.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
- * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
- * none or more than one element is found.
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if none or
+ * more than one element is found.
  */
 fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
@@ -115,6 +114,7 @@ fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
  * Returns all the ancestors of this node.
  *
  * Example: For the following tree
+ *
  * ```
  * |-A
  *   |-B
@@ -134,8 +134,8 @@ fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
  * Returns the first node in this collection.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
- * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
- * no element is found.
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if no
+ * element is found.
  */
 fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
     return get(0)
@@ -145,15 +145,11 @@ fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
  * Returns the last node in this collection.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
- * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
- * no element is found.
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if no
+ * element is found.
  */
 fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(
-        testContext,
-        useUnmergedTree,
-        selector.addLastNodeSelector()
-    )
+    return SemanticsNodeInteraction(testContext, useUnmergedTree, selector.addLastNodeSelector())
 }
 
 /**
@@ -175,8 +171,8 @@ fun SemanticsNodeInteractionCollection.filter(
  * Expects to return exactly one node matching the given [matcher].
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
- * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
- * no element is found.
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if no
+ * element is found.
  *
  * @param matcher Matcher to use for the filtering.
  */

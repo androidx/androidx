@@ -32,11 +32,13 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ConstraintLayoutDslDetector.IncorrectReferencesDeclarationIssue)
 
-    private val ConstraintSetScopeStub = bytecodeStub(
-        filename = "ConstraintSetScope.kt",
-        filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
-        checksum = 0xb5f243fa,
-        source = """
+    private val ConstraintSetScopeStub =
+        bytecodeStub(
+            filename = "ConstraintSetScope.kt",
+            filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
+            checksum = 0xb5f243fa,
+            source =
+                """
             package androidx.constraintlayout.compose
     
             class ConstraintSetScope {
@@ -85,14 +87,15 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
             }
 
             class ConstrainedLayoutReference(val id: Any)
-        """.trimIndent(),
-"""
+        """
+                    .trimIndent(),
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgMudSTMxLKcrPTKnQS87PKy4pSszM
         K8lJrMwvLQEK5BbkF6cKCfnml2Tm5wUnp+alBifnF6R6l3AJcrGnViTmFuSk
         CrGFpBaXeJcoMWgxAACjh5JrZAAAAA==
         """,
-        """
+            """
         androidx/constraintlayout/compose/ConstrainedLayoutReference.class:
         H4sIAAAAAAAA/6VRXU8TURA9d/u1rEW2lUoBxQ9QSlEWiG8giWJMNqloqOGF
         p9vda7ntdpfs3jb41t/iL9BEo/HBND76o4xzy4oCvvkyZ87cmTNzZ378/PoN
@@ -109,7 +112,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         ufpHVN6f00SqWTxNSDXPT/pgbO/jIeFjis5R3vwhMi5uuLjpYgG3yMVtF3dw
         9xAswSKWDpFPMJPgXgIz0X41wewvvckEVQIEAAA=
         """,
-        """
+            """
         androidx/constraintlayout/compose/ConstraintSetScope＄ConstrainedLayoutReferences.class:
         H4sIAAAAAAAA/92X3VLbRhTHz8rfwoBwjOM4hjpEIcaYGBvj8BUKIdAYBKE4
         pUnpl7AVIjAy45UZcsf0Im/QPkB70dt2pplk2pkOw2VfoG+T6ZFRQDJWxnF0
@@ -149,7 +152,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         xY+Rr7fgKoUohW8o+OpHN4UwhT4K31J4QGGJwkMKyxQECmsU1ilkKeQoTFCY
         ojBDYZbCHMUXnZb4LvQq4m+7rl78D9ISPcyrGgAA
         """,
-        """
+            """
         androidx/constraintlayout/compose/ConstraintSetScope.class:
         H4sIAAAAAAAA/7VVXU8bRxQ9s/5kMY5xAuEjTUlME/MR1qE0bQNNC25JljpA
         7Qo14qXD7sRZWO+inTWCN9T+gv6F/oJWaiFqpAjlsT+q6p21IcFYeUDtg2fu
@@ -174,13 +177,15 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         ZRMenudnHZswH/HHsE6jTtg0xZrox3dR1gqqNFcJX6DYLzYRM/HIxJcmvsIi
         mVgyUcbXm2AS32B5E30SusRjiaTEYGSMSTyRKET2LYneyDD/BWglTVUgCAAA
         """
-    )
+        )
 
-    private val MotionSceneScopeStub = bytecodeStub(
-        filename = "MotionSceneScope.kt",
-        filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
-        checksum = 0x499473bb,
-        source = """
+    private val MotionSceneScopeStub =
+        bytecodeStub(
+            filename = "MotionSceneScope.kt",
+            filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
+            checksum = 0x499473bb,
+            source =
+                """
             package androidx.constraintlayout.compose
 
             import androidx.constraintlayout.compose.ConstrainedLayoutReference
@@ -240,14 +245,15 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
                         ConstrainedLayoutReference(ids.getOrElse(15) { nextId() })
                 }
             }
-        """.trimIndent(),
-"""
+        """
+                    .trimIndent(),
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgMudSTMxLKcrPTKnQS87PKy4pSszM
         K8lJrMwvLQEK5BbkF6cKCfnml2Tm5wUnp+alBifnF6R6l3AJcrGnViTmFuSk
         CrGFpBaXeJcoMWgxAACjh5JrZAAAAA==
         """,
-        """
+            """
         androidx/constraintlayout/compose/MotionSceneScope＄ConstrainedLayoutReferences.class:
         H4sIAAAAAAAA/92XS1PbVhTHz5XfwoBxgBDAAYoJYOMI+QUGkoYQKAZDKE5p
         UvoStkIERmJ8ZYbsmC7yDdoP0C66bWeaSaad6TAsu+sXyvTIiCA5VkYhWnXA
@@ -287,7 +293,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         vtoGQvE15OttuE6hn8I3FAL1o5dCD4UIhW8pPKCwRGGZwgqFAoV1ChsU0hSy
         FKYpzFCYo3CXwj2KP3FaytvQq4Cfnbp66T9woDCJcRoAAA==
         """,
-        """
+            """
         androidx/constraintlayout/compose/MotionSceneScope.class:
         H4sIAAAAAAAA/61VW08bRxT+Zm1ssxjHOOHqNCWBNuYS1qH0FmhacEtY11wK
         KWrES4fdCVlY76KdNYI31H/Qp773F7RSC1EjRSiP/VFVz6yXJBgrUqLI0pkz
@@ -313,7 +319,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         8K8o9v4WEia+NvGNiXkskIuKiW/x3RaYxCIebCEnoUssSaQk5iKnT2JYwpQY
         iaY3Jboip/o/WrVkd0EIAAA=
         """,
-        """
+            """
         androidx/constraintlayout/compose/MotionSceneScopeKt.class:
         H4sIAAAAAAAA/2WQz04iQRDGvxoUEVdEFBXc7GG9M2C8eTIrJhNhdiO7xoSD
         aYYOaRi6zUwP0RvZR9nH2IMhHvehNlYbjQle6s+vv1R91f/+/30EcILPhBOh
@@ -325,13 +331,14 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         xSytvUqvPwjRgoeVF9t1rCLP3YEzjwJqnPPM191VTOovcR+HnFvMi6zf6CMX
         4FOAzQAlbAUoYztABTt9UIpdVPvwUqym2HsG4yzy1wsCAAA=
         """
-    )
+        )
 
     @Test
     fun createRefsForArgumentTest() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                     package example
                     
                     import androidx.constraintlayout.compose.*
@@ -357,11 +364,12 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
                             val (box3, text3, image3) = createRefsFor(*ids)
                         }                   
                     }
-                """.trimIndent()
-            ),
-            ConstraintSetScopeStub,
-            MotionSceneScopeStub
-        )
+                """
+                        .trimIndent()
+                ),
+                ConstraintSetScopeStub,
+                MotionSceneScopeStub
+            )
             .run()
             .expect(
                 """src/example/test.kt:8: Error: Arguments of createRefsFor (2) do not match assigned variables (3) [IncorrectReferencesDeclaration]

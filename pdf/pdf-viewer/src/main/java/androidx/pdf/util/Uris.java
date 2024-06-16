@@ -107,6 +107,7 @@ public class Uris {
      * content
      * Uris, the name must be queried from the contentResolver.
      */
+    @NonNull
     public static String extractName(@NonNull Uri uri, @NonNull ContentResolver contentResolver) {
         if (Uris.isContentUri(uri)) {
             return ContentUriOpener.extractContentName(contentResolver, uri);
@@ -120,7 +121,7 @@ public class Uris {
      * data/data/package.name directory. We should not support these uris, as the request could be a
      * QUICK_VIEW intent from a thirdparty app.
      */
-    public static boolean isFileUriInSamePackageDataDir(Uri uri) {
+    public static boolean isFileUriInSamePackageDataDir(@NonNull Uri uri) {
         return isFileUri(uri)
                 && uri.getPath() != null
                 && uri.getPath().contains(DATA_DIR + AppInfo.get().getPackageName());

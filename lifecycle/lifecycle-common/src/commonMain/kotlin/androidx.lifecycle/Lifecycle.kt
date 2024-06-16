@@ -33,22 +33,21 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 /**
- * Defines an object that has an Android Lifecycle. [Fragment][androidx.fragment.app.Fragment]
- * and [FragmentActivity][androidx.fragment.app.FragmentActivity] classes implement
- * [LifecycleOwner] interface which has the [ getLifecycle][LifecycleOwner.getLifecycle] method to access the Lifecycle. You can also implement [LifecycleOwner]
- * in your own classes.
+ * Defines an object that has an Android Lifecycle. [Fragment][androidx.fragment.app.Fragment] and
+ * [FragmentActivity][androidx.fragment.app.FragmentActivity] classes implement [LifecycleOwner]
+ * interface which has the [ getLifecycle][LifecycleOwner.getLifecycle] method to access the
+ * Lifecycle. You can also implement [LifecycleOwner] in your own classes.
  *
- * [Event.ON_CREATE], [Event.ON_START], [Event.ON_RESUME] events in this class
- * are dispatched **after** the [LifecycleOwner]'s related method returns.
- * [Event.ON_PAUSE], [Event.ON_STOP], [Event.ON_DESTROY] events in this class
- * are dispatched **before** the [LifecycleOwner]'s related method is called.
- * For instance, [Event.ON_START] will be dispatched after
- * [onStart][android.app.Activity.onStart] returns, [Event.ON_STOP] will be dispatched
- * before [onStop][android.app.Activity.onStop] is called.
- * This gives you certain guarantees on which state the owner is in.
+ * [Event.ON_CREATE], [Event.ON_START], [Event.ON_RESUME] events in this class are dispatched
+ * **after** the [LifecycleOwner]'s related method returns. [Event.ON_PAUSE], [Event.ON_STOP],
+ * [Event.ON_DESTROY] events in this class are dispatched **before** the [LifecycleOwner]'s related
+ * method is called. For instance, [Event.ON_START] will be dispatched after
+ * [onStart][android.app.Activity.onStart] returns, [Event.ON_STOP] will be dispatched before
+ * [onStop][android.app.Activity.onStop] is called. This gives you certain guarantees on which state
+ * the owner is in.
  *
- * To observe lifecycle events call [.addObserver] passing an object
- * that implements either [DefaultLifecycleObserver] or [LifecycleEventObserver].
+ * To observe lifecycle events call [.addObserver] passing an object that implements either
+ * [DefaultLifecycleObserver] or [LifecycleEventObserver].
  */
 public abstract class Lifecycle {
     /**
@@ -62,108 +61,89 @@ public abstract class Lifecycle {
     public var internalScopeRef: AtomicReference<Any?> = AtomicReference(null)
 
     /**
-     * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes
-     * state.
+     * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes state.
      *
-     * The given observer will be brought to the current state of the LifecycleOwner.
-     * For example, if the LifecycleOwner is in [State.STARTED] state, the given observer
-     * will receive [Event.ON_CREATE], [Event.ON_START] events.
+     * The given observer will be brought to the current state of the LifecycleOwner. For example,
+     * if the LifecycleOwner is in [State.STARTED] state, the given observer will receive
+     * [Event.ON_CREATE], [Event.ON_START] events.
      *
      * @param observer The observer to notify.
      */
-    @MainThread
-    public abstract fun addObserver(observer: LifecycleObserver)
+    @MainThread public abstract fun addObserver(observer: LifecycleObserver)
 
     /**
      * Removes the given observer from the observers list.
      *
      * If this method is called while a state change is being dispatched,
-     *
-     *  * If the given observer has not yet received that event, it will not receive it.
-     *  * If the given observer has more than 1 method that observes the currently dispatched
-     * event and at least one of them received the event, all of them will receive the event and
-     * the removal will happen afterwards.
-     *
+     * * If the given observer has not yet received that event, it will not receive it.
+     * * If the given observer has more than 1 method that observes the currently dispatched event
+     *   and at least one of them received the event, all of them will receive the event and the
+     *   removal will happen afterwards.
      *
      * @param observer The observer to be removed.
      */
-    @MainThread
-    public abstract fun removeObserver(observer: LifecycleObserver)
+    @MainThread public abstract fun removeObserver(observer: LifecycleObserver)
 
     /**
      * Returns the current state of the Lifecycle.
      *
      * @return The current state of the Lifecycle.
      */
-    @get:MainThread
-    public abstract val currentState: State
+    @get:MainThread public abstract val currentState: State
 
     /**
-     * Returns a [StateFlow] where the [StateFlow.value] represents
-     * the current [State] of this Lifecycle.
+     * Returns a [StateFlow] where the [StateFlow.value] represents the current [State] of this
+     * Lifecycle.
      *
-     * @return [StateFlow] where the [StateFlow.value] represents
-     * the current [State] of this Lifecycle.
+     * @return [StateFlow] where the [StateFlow.value] represents the current [State] of this
+     *   Lifecycle.
      */
     public open val currentStateFlow: StateFlow<Lifecycle.State>
         get() {
             val mutableStateFlow = MutableStateFlow(currentState)
-            LifecycleEventObserver { _, event ->
-                mutableStateFlow.value = event.targetState
-            }.also { addObserver(it) }
+            LifecycleEventObserver { _, event -> mutableStateFlow.value = event.targetState }
+                .also { addObserver(it) }
             return mutableStateFlow.asStateFlow()
         }
 
     public enum class Event {
-        /**
-         * Constant for onCreate event of the [LifecycleOwner].
-         */
+        /** Constant for onCreate event of the [LifecycleOwner]. */
         ON_CREATE,
 
-        /**
-         * Constant for onStart event of the [LifecycleOwner].
-         */
+        /** Constant for onStart event of the [LifecycleOwner]. */
         ON_START,
 
-        /**
-         * Constant for onResume event of the [LifecycleOwner].
-         */
+        /** Constant for onResume event of the [LifecycleOwner]. */
         ON_RESUME,
 
-        /**
-         * Constant for onPause event of the [LifecycleOwner].
-         */
+        /** Constant for onPause event of the [LifecycleOwner]. */
         ON_PAUSE,
 
-        /**
-         * Constant for onStop event of the [LifecycleOwner].
-         */
+        /** Constant for onStop event of the [LifecycleOwner]. */
         ON_STOP,
 
-        /**
-         * Constant for onDestroy event of the [LifecycleOwner].
-         */
+        /** Constant for onDestroy event of the [LifecycleOwner]. */
         ON_DESTROY,
 
-        /**
-         * An [Event] constant that can be used to match all events.
-         */
+        /** An [Event] constant that can be used to match all events. */
         ON_ANY;
 
         /**
-         * Returns the new [Lifecycle.State] of a [Lifecycle] that just reported
-         * this [Lifecycle.Event].
+         * Returns the new [Lifecycle.State] of a [Lifecycle] that just reported this
+         * [Lifecycle.Event].
          *
-         * Throws [IllegalArgumentException] if called on [.ON_ANY], as it is a special
-         * value used by [OnLifecycleEvent] and not a real lifecycle event.
+         * Throws [IllegalArgumentException] if called on [.ON_ANY], as it is a special value used
+         * by [OnLifecycleEvent] and not a real lifecycle event.
          *
          * @return the state that will result from this event
          */
         public val targetState: State
             get() {
                 when (this) {
-                    ON_CREATE, ON_STOP -> return State.CREATED
-                    ON_START, ON_PAUSE -> return State.STARTED
+                    ON_CREATE,
+                    ON_STOP -> return State.CREATED
+                    ON_START,
+                    ON_PAUSE -> return State.STARTED
                     ON_RESUME -> return State.RESUMED
                     ON_DESTROY -> return State.DESTROYED
                     ON_ANY -> {}
@@ -173,9 +153,9 @@ public abstract class Lifecycle {
 
         public companion object {
             /**
-             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle]
-             * leaving the specified [Lifecycle.State] to a lower state, or `null`
-             * if there is no valid event that can move down from the given state.
+             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle] leaving the
+             * specified [Lifecycle.State] to a lower state, or `null` if there is no valid event
+             * that can move down from the given state.
              *
              * @param state the higher state that the returned event will transition down from
              * @return the event moving down the lifecycle phases from state
@@ -191,9 +171,9 @@ public abstract class Lifecycle {
             }
 
             /**
-             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle]
-             * entering the specified [Lifecycle.State] from a higher state, or `null`
-             * if there is no valid event that can move down to the given state.
+             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle] entering the
+             * specified [Lifecycle.State] from a higher state, or `null` if there is no valid event
+             * that can move down to the given state.
              *
              * @param state the lower state that the returned event will transition down to
              * @return the event moving down the lifecycle phases to state
@@ -209,9 +189,9 @@ public abstract class Lifecycle {
             }
 
             /**
-             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle]
-             * leaving the specified [Lifecycle.State] to a higher state, or `null`
-             * if there is no valid event that can move up from the given state.
+             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle] leaving the
+             * specified [Lifecycle.State] to a higher state, or `null` if there is no valid event
+             * that can move up from the given state.
              *
              * @param state the lower state that the returned event will transition up from
              * @return the event moving up the lifecycle phases from state
@@ -227,9 +207,9 @@ public abstract class Lifecycle {
             }
 
             /**
-             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle]
-             * entering the specified [Lifecycle.State] from a lower state, or `null`
-             * if there is no valid event that can move up to the given state.
+             * Returns the [Lifecycle.Event] that will be reported by a [Lifecycle] entering the
+             * specified [Lifecycle.State] from a lower state, or `null` if there is no valid event
+             * that can move up to the given state.
              *
              * @param state the higher state that the returned event will transition up to
              * @return the event moving up the lifecycle phases to state
@@ -247,8 +227,8 @@ public abstract class Lifecycle {
     }
 
     /**
-     * Lifecycle states. You can consider the states as the nodes in a graph and
-     * [Event]s as the edges between these nodes.
+     * Lifecycle states. You can consider the states as the nodes in a graph and [Event]s as the
+     * edges between these nodes.
      */
     public enum class State {
         /**
@@ -259,35 +239,31 @@ public abstract class Lifecycle {
         DESTROYED,
 
         /**
-         * Initialized state for a LifecycleOwner. For an [android.app.Activity], this is
-         * the state when it is constructed but has not received
-         * [onCreate][android.app.Activity.onCreate] yet.
+         * Initialized state for a LifecycleOwner. For an [android.app.Activity], this is the state
+         * when it is constructed but has not received [onCreate][android.app.Activity.onCreate]
+         * yet.
          */
         INITIALIZED,
 
         /**
-         * Created state for a LifecycleOwner. For an [android.app.Activity], this state
-         * is reached in two cases:
-         *
-         *  * after [onCreate][android.app.Activity.onCreate] call;
-         *  * **right before** [onStop][android.app.Activity.onStop] call.
-         *
+         * Created state for a LifecycleOwner. For an [android.app.Activity], this state is reached
+         * in two cases:
+         * * after [onCreate][android.app.Activity.onCreate] call;
+         * * **right before** [onStop][android.app.Activity.onStop] call.
          */
         CREATED,
 
         /**
-         * Started state for a LifecycleOwner. For an [android.app.Activity], this state
-         * is reached in two cases:
-         *
-         *  * after [onStart][android.app.Activity.onStart] call;
-         *  * **right before** [onPause][android.app.Activity.onPause] call.
-         *
+         * Started state for a LifecycleOwner. For an [android.app.Activity], this state is reached
+         * in two cases:
+         * * after [onStart][android.app.Activity.onStart] call;
+         * * **right before** [onPause][android.app.Activity.onPause] call.
          */
         STARTED,
 
         /**
-         * Resumed state for a LifecycleOwner. For an [android.app.Activity], this state
-         * is reached after [onResume][android.app.Activity.onResume] is called.
+         * Resumed state for a LifecycleOwner. For an [android.app.Activity], this state is reached
+         * after [onResume][android.app.Activity.onResume] is called.
          */
         RESUMED;
 
@@ -306,6 +282,7 @@ public abstract class Lifecycle {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public expect class AtomicReference<V>(value: V) {
     public fun get(): V
+
     public fun compareAndSet(expect: V, newValue: V): Boolean
 }
 
@@ -324,10 +301,8 @@ public val Lifecycle.coroutineScope: LifecycleCoroutineScope
             if (existing != null) {
                 return existing
             }
-            val newScope = LifecycleCoroutineScopeImpl(
-                this,
-                SupervisorJob() + Dispatchers.Main.immediate
-            )
+            val newScope =
+                LifecycleCoroutineScopeImpl(this, SupervisorJob() + Dispatchers.Main.immediate)
             if (internalScopeRef.compareAndSet(null, newScope)) {
                 newScope.register()
                 return newScope
@@ -376,14 +351,13 @@ internal class LifecycleCoroutineScopeImpl(
     }
 }
 
-/**
- * Creates a [Flow] of [Lifecycle.Event]s containing values dispatched by this [Lifecycle].
- */
+/** Creates a [Flow] of [Lifecycle.Event]s containing values dispatched by this [Lifecycle]. */
 public val Lifecycle.eventFlow: Flow<Lifecycle.Event>
-    get() = callbackFlow {
-        val observer = LifecycleEventObserver { _, event ->
-            trySend(event)
-        }.also { addObserver(it) }
+    get() =
+        callbackFlow {
+                val observer =
+                    LifecycleEventObserver { _, event -> trySend(event) }.also { addObserver(it) }
 
-        awaitClose { removeObserver(observer) }
-    }.flowOn(Dispatchers.Main.immediate)
+                awaitClose { removeObserver(observer) }
+            }
+            .flowOn(Dispatchers.Main.immediate)

@@ -24,11 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
 import android.webkit.WebSettings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -48,7 +46,6 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatTest {
     public static final String TEST_APK_NAME = "androidx.webkit.instrumentation.test";
     WebViewOnUiThread mWebViewOnUiThread;
@@ -310,5 +307,36 @@ public class WebSettingsCompatTest {
                 WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER);
         Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER,
                 WebSettingsCompat.getWebAuthenticationSupport(settings));
+    }
+
+    @Test
+    public void testSpeculativeLoading() {
+        WebkitUtils.checkFeature(WebViewFeature.SPECULATIVE_LOADING);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        mWebViewOnUiThread.setCleanupTask(
+                () -> WebSettingsCompat.setSpeculativeLoadingStatus(settings,
+                        WebSettingsCompat.SPECULATIVE_LOADING_DISABLED));
+
+        Assert.assertEquals("DISABLED should be the default",
+                WebSettingsCompat.SPECULATIVE_LOADING_DISABLED,
+                WebSettingsCompat.getSpeculativeLoadingStatus(settings));
+
+        WebSettingsCompat.setSpeculativeLoadingStatus(settings,
+                WebSettingsCompat.SPECULATIVE_LOADING_PRERENDER_ENABLED);
+        Assert.assertEquals(WebSettingsCompat.SPECULATIVE_LOADING_PRERENDER_ENABLED,
+                WebSettingsCompat.getSpeculativeLoadingStatus(settings));
+
+    }
+
+    @Test
+    public void testBFCache() {
+        WebkitUtils.checkFeature(WebViewFeature.BACK_FORWARD_CACHE);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+
+        assertFalse("disabled should be the default",
+                WebSettingsCompat.getBackForwardCacheEnabled(settings));
+
+        WebSettingsCompat.setBackForwardCacheEnabled(settings, true);
+        Assert.assertTrue(WebSettingsCompat.getBackForwardCacheEnabled(settings));
     }
 }

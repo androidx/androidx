@@ -34,9 +34,10 @@ class ViewDragHelperTest {
 
     @Test
     fun testProcessTouchEventWithInconsistentStream() {
-        val callback = object : ViewDragHelper.Callback() {
-            override fun tryCaptureView(child: View, pointerId: Int): Boolean = false
-        }
+        val callback =
+            object : ViewDragHelper.Callback() {
+                override fun tryCaptureView(child: View, pointerId: Int): Boolean = false
+            }
         activityRule.runOnUiThread {
             val activity = activityRule.activity
             val content = activity.findViewById<View>(android.R.id.content)!! as ViewGroup

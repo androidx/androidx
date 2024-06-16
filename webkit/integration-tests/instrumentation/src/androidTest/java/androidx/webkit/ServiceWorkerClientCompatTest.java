@@ -19,7 +19,6 @@ package androidx.webkit;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -27,10 +26,8 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -46,8 +43,6 @@ import java.util.concurrent.Callable;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerClientCompatTest {
 
     // This test relies on

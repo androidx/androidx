@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
@@ -67,31 +66,27 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.Objects.requireNonNull
 
 /**
- * A singleton which can be used to bind the lifecycle of cameras to any [LifecycleOwner]
- * within an application's process.
+ * A singleton which can be used to bind the lifecycle of cameras to any [LifecycleOwner] within an
+ * application's process.
  *
- * Only a single process camera provider can exist within a process, and it can be retrieved
- * with [getInstance].
+ * Only a single process camera provider can exist within a process, and it can be retrieved with
+ * [getInstance].
  *
- * Heavyweight resources, such as open and running camera devices, will be scoped to the
- * lifecycle provided to [bindToLifecycle]. Other lightweight resources, such as static camera
+ * Heavyweight resources, such as open and running camera devices, will be scoped to the lifecycle
+ * provided to [bindToLifecycle]. Other lightweight resources, such as static camera
  * characteristics, may be retrieved and cached upon first retrieval of this provider with
  * [getInstance], and will persist for the lifetime of the process.
  *
  * This is the standard provider for applications to use.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
     private val mLock = Any()
 
-    @GuardedBy("mLock")
-    private var mCameraXConfigProvider: CameraXConfig.Provider? = null
+    @GuardedBy("mLock") private var mCameraXConfigProvider: CameraXConfig.Provider? = null
 
-    @GuardedBy("mLock")
-    private var mCameraXInitializeFuture: ListenableFuture<CameraX>? = null
+    @GuardedBy("mLock") private var mCameraXInitializeFuture: ListenableFuture<CameraX>? = null
 
-    @GuardedBy("mLock")
-    private var mCameraXShutdownFuture = Futures.immediateFuture<Void>(null)
+    @GuardedBy("mLock") private var mCameraXShutdownFuture = Futures.immediateFuture<Void>(null)
 
     private val mLifecycleCameraRepository = LifecycleCameraRepository()
     private var mCameraX: CameraX? = null
@@ -102,8 +97,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         HashMap()
 
     /**
-     * Allows shutting down this ProcessCameraProvider instance so a new instance can be
-     * retrieved by [getInstance].
+     * Allows shutting down this ProcessCameraProvider instance so a new instance can be retrieved
+     * by [getInstance].
      *
      * Once shutdownAsync is invoked, a new instance can be retrieved with [getInstance].
      *
@@ -111,8 +106,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * allows the process camera provider to be used in test suites which may need to initialize
      * CameraX in different ways in between tests.
      *
-     * @return A [ListenableFuture] representing the shutdown status. Cancellation of this
-     * future is a no-op.
+     * @return A [ListenableFuture] representing the shutdown status. Cancellation of this future is
+     *   a no-op.
      */
     @VisibleForTesting
     fun shutdownAsync(): ListenableFuture<Void> {
@@ -142,56 +137,56 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
     /**
      * Binds the collection of [UseCase] to a [LifecycleOwner].
      *
-     * The state of the lifecycle will determine when the cameras are open, started, stopped
-     * and closed.  When started, the use cases receive camera data.
+     * The state of the lifecycle will determine when the cameras are open, started, stopped and
+     * closed. When started, the use cases receive camera data.
      *
      * Binding to a lifecycleOwner in state currently in [Lifecycle.State.STARTED] or greater will
      * also initialize and start data capture. If the camera was already running this may cause a
      * new initialization to occur temporarily stopping data from the camera before restarting it.
      *
-     * Multiple use cases can be bound via adding them all to a single bindToLifecycle call, or
-     * by using multiple bindToLifecycle calls.  Using a single call that includes all the use
-     * cases helps to set up a camera session correctly for all uses cases, such as by allowing
-     * determination of resolutions depending on all the use cases bound being bound.
-     * If the use cases are bound separately, it will find the supported resolution with the
-     * priority depending on the binding sequence. If the use cases are bound with a single call,
-     * it will find the supported resolution with the priority in sequence of [ImageCapture],
-     * [Preview] and then [ImageAnalysis]. The resolutions that can be supported depends
-     * on the camera device hardware level that there are some default guaranteed resolutions
-     * listed in [android.hardware.camera2.CameraDevice.createCaptureSession].
+     * Multiple use cases can be bound via adding them all to a single bindToLifecycle call, or by
+     * using multiple bindToLifecycle calls. Using a single call that includes all the use cases
+     * helps to set up a camera session correctly for all uses cases, such as by allowing
+     * determination of resolutions depending on all the use cases bound being bound. If the use
+     * cases are bound separately, it will find the supported resolution with the priority depending
+     * on the binding sequence. If the use cases are bound with a single call, it will find the
+     * supported resolution with the priority in sequence of [ImageCapture], [Preview] and then
+     * [ImageAnalysis]. The resolutions that can be supported depends on the camera device hardware
+     * level that there are some default guaranteed resolutions listed in
+     * [android.hardware.camera2.CameraDevice.createCaptureSession].
      *
-     * Currently up to 3 use cases may be bound to a [Lifecycle] at any time. Exceeding
-     * capability of target camera device will throw an IllegalArgumentException.
+     * Currently up to 3 use cases may be bound to a [Lifecycle] at any time. Exceeding capability
+     * of target camera device will throw an IllegalArgumentException.
      *
-     * A UseCase should only be bound to a single lifecycle and camera selector a time.
-     * Attempting to bind a use case to a lifecycle when it is already bound to another lifecycle
-     * is an error, and the use case binding will not change. Attempting to bind the same use case
-     * to multiple camera selectors is also an error and will not change the binding.
+     * A UseCase should only be bound to a single lifecycle and camera selector a time. Attempting
+     * to bind a use case to a lifecycle when it is already bound to another lifecycle is an error,
+     * and the use case binding will not change. Attempting to bind the same use case to multiple
+     * camera selectors is also an error and will not change the binding.
      *
      * If different use cases are bound to different camera selectors that resolve to distinct
      * cameras, but the same lifecycle, only one of the cameras will operate at a time. The
      * non-operating camera will not become active until it is the only camera with use cases bound.
      *
-     * The [Camera] returned is determined by the given camera selector, plus other
-     * internal requirements, possibly from use case configurations. The camera returned from
-     * bindToLifecycle may differ from the camera determined solely by a camera selector. If the
-     * camera selector can't resolve a valid camera under the requirements, an
-     * IllegalArgumentException will be thrown.
+     * The [Camera] returned is determined by the given camera selector, plus other internal
+     * requirements, possibly from use case configurations. The camera returned from bindToLifecycle
+     * may differ from the camera determined solely by a camera selector. If the camera selector
+     * can't resolve a valid camera under the requirements, an IllegalArgumentException will be
+     * thrown.
      *
      * Only [UseCase] bound to latest active [Lifecycle] can keep alive. [UseCase] bound to other
      * [Lifecycle] will be stopped.
      *
      * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
-     * cases.
-     * @param cameraSelector The camera selector which determines the camera to use for set of
-     * use cases.
+     *   cases.
+     * @param cameraSelector The camera selector which determines the camera to use for set of use
+     *   cases.
      * @param useCases The use cases to bind to a lifecycle.
      * @return The [Camera] instance which is determined by the camera selector and internal
-     * requirements.
+     *   requirements.
      * @throws IllegalStateException If the use case has already been bound to another lifecycle or
-     * method is not called on main thread.
+     *   method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
-     * camera to be used for the given use cases.
+     *   camera to be used for the given use cases.
      * @throws UnsupportedOperationException If the camera is configured in concurrent mode.
      */
     @MainThread
@@ -207,10 +202,14 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             )
         }
         cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
-        val camera = bindToLifecycle(
-            lifecycleOwner, cameraSelector, null, emptyList<CameraEffect>(),
-            *useCases
-        )
+        val camera =
+            bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                null,
+                emptyList<CameraEffect>(),
+                *useCases
+            )
         return camera
     }
 
@@ -239,13 +238,14 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             )
         }
         cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
-        val camera = bindToLifecycle(
-            lifecycleOwner,
-            cameraSelector,
-            useCaseGroup.viewPort,
-            useCaseGroup.effects,
-            *useCaseGroup.useCases.toTypedArray<UseCase>()
-        )
+        val camera =
+            bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                useCaseGroup.viewPort,
+                useCaseGroup.effects,
+                *useCaseGroup.useCases.toTypedArray<UseCase>()
+            )
         return camera
     }
 
@@ -257,8 +257,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * [IllegalArgumentException] will be thrown. If cameras are already used by other [UseCase]s,
      * [UnsupportedOperationException] will be thrown.
      *
-     * A logical camera is a grouping of two or more of those physical cameras.
-     * See [Multi-camera API](https://developer.android.com/media/camera/camera2/multi-camera)
+     * A logical camera is a grouping of two or more of those physical cameras. See
+     * [Multi-camera API](https://developer.android.com/media/camera/camera2/multi-camera)
      *
      * If we want to open concurrent logical cameras, which are one front camera and one back
      * camera, the device needs to support [PackageManager.FEATURE_CAMERA_CONCURRENT]. To set up
@@ -294,11 +294,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      *
      * @param singleCameraConfigs Input list of [SingleCameraConfig]s.
      * @return Output [ConcurrentCamera] instance.
-     *
      * @throws IllegalArgumentException If less or more than two camera configs are provided.
      * @throws UnsupportedOperationException If device is not supporting concurrent camera or
-     * cameras are already used by other [UseCase]s.
-     *
+     *   cameras are already used by other [UseCase]s.
      * @see ConcurrentCamera
      * @see availableConcurrentCameraInfos
      * @see CameraInfo.isLogicalMultiCameraSupported
@@ -320,19 +318,21 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         val secondCameraConfig = singleCameraConfigs[1]!!
 
         val cameras: MutableList<Camera> = ArrayList()
-        if (firstCameraConfig.cameraSelector.lensFacing
-            == secondCameraConfig.cameraSelector.lensFacing) {
+        if (
+            firstCameraConfig.cameraSelector.lensFacing ==
+                secondCameraConfig.cameraSelector.lensFacing
+        ) {
             if (cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT) {
                 throw UnsupportedOperationException(
                     "Camera is already running, call unbindAll() before binding more cameras."
                 )
             }
-            if (firstCameraConfig.lifecycleOwner
-                != secondCameraConfig.lifecycleOwner ||
-                firstCameraConfig.useCaseGroup.viewPort
-                != secondCameraConfig.useCaseGroup.viewPort ||
-                firstCameraConfig.useCaseGroup.effects
-                != secondCameraConfig.useCaseGroup.effects
+            if (
+                firstCameraConfig.lifecycleOwner != secondCameraConfig.lifecycleOwner ||
+                    firstCameraConfig.useCaseGroup.viewPort !=
+                        secondCameraConfig.useCaseGroup.viewPort ||
+                    firstCameraConfig.useCaseGroup.effects !=
+                        secondCameraConfig.useCaseGroup.effects
             ) {
                 throw IllegalArgumentException(
                     "Two camera configs need to have the same lifecycle owner, view port and " +
@@ -353,13 +353,14 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             }
 
             cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
-            val camera = bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                viewPort,
-                effects,
-                *useCases.toTypedArray<UseCase>()
-            )
+            val camera =
+                bindToLifecycle(
+                    lifecycleOwner,
+                    cameraSelector,
+                    viewPort,
+                    effects,
+                    *useCases.toTypedArray<UseCase>()
+                )
             cameras.add(camera)
         } else {
             if (!mContext!!.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
@@ -385,7 +386,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             }
             cameraInfosToBind.add(firstCameraInfo)
             cameraInfosToBind.add(secondCameraInfo)
-            if (activeConcurrentCameraInfos.isNotEmpty() &&
+            if (
+                activeConcurrentCameraInfos.isNotEmpty() &&
                     cameraInfosToBind != activeConcurrentCameraInfos
             ) {
                 throw UnsupportedOperationException(
@@ -395,13 +397,14 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
 
             cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
             for (config: SingleCameraConfig? in singleCameraConfigs) {
-                val camera = bindToLifecycle(
-                    config!!.lifecycleOwner,
-                    config.cameraSelector,
-                    config.useCaseGroup.viewPort,
-                    config.useCaseGroup.effects,
-                    *config.useCaseGroup.useCases.toTypedArray<UseCase>()
-                )
+                val camera =
+                    bindToLifecycle(
+                        config!!.lifecycleOwner,
+                        config.cameraSelector,
+                        config.useCaseGroup.viewPort,
+                        config.useCaseGroup.effects,
+                        *config.useCaseGroup.useCases.toTypedArray<UseCase>()
+                    )
                 cameras.add(camera)
             }
             activeConcurrentCameraInfos = cameraInfosToBind
@@ -413,15 +416,15 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * Binds [ViewPort] and a collection of [UseCase] to a [LifecycleOwner].
      *
      * The state of the lifecycle will determine when the cameras are open, started, stopped and
-     * closed.  When started, the use cases receive camera data.
+     * closed. When started, the use cases receive camera data.
      *
      * Binding to a [LifecycleOwner] in state currently in [Lifecycle.State.STARTED] or greater will
      * also initialize and start data capture. If the camera was already running this may cause a
      * new initialization to occur temporarily stopping data from the camera before restarting it.
      *
-     * Multiple use cases can be bound via adding them all to a single [bindToLifecycle] call, or
-     * by using multiple [bindToLifecycle] calls. Using a single call that includes all the use
-     * cases helps to set up a camera session correctly for all uses cases, such as by allowing
+     * Multiple use cases can be bound via adding them all to a single [bindToLifecycle] call, or by
+     * using multiple [bindToLifecycle] calls. Using a single call that includes all the use cases
+     * helps to set up a camera session correctly for all uses cases, such as by allowing
      * determination of resolutions depending on all the use cases bound being bound. If the use
      * cases are bound separately, it will find the supported resolution with the priority depending
      * on the binding sequence. If the use cases are bound with a single call, it will find the
@@ -452,18 +455,18 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * [Lifecycle] will be stopped.
      *
      * @param lifecycleOwner The [LifecycleOwner] which controls the lifecycle transitions of the
-     * use cases.
+     *   use cases.
      * @param cameraSelector The camera selector which determines the camera to use for set of use
-     * cases.
+     *   cases.
      * @param viewPort The viewPort which represents the visible camera sensor rect.
      * @param effects The effects applied to the camera outputs.
      * @param useCases The use cases to bind to a lifecycle.
      * @return The [Camera] instance which is determined by the camera selector and internal
-     * requirements.
+     *   requirements.
      * @throws IllegalStateException If the use case has already been bound to another lifecycle or
-     * method is not called on main thread.
+     *   method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
-     * camera to be used for the given use cases.
+     *   camera to be used for the given use cases.
      */
     @Suppress("unused")
     internal fun bindToLifecycle(
@@ -480,17 +483,17 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         val cameraInternal = cameraSelector.select(mCameraX!!.cameraRepository.cameras)
         val restrictedCameraInfo = getCameraInfo(cameraSelector) as RestrictedCameraInfo
 
-        var lifecycleCameraToBind = mLifecycleCameraRepository.getLifecycleCamera(
-            lifecycleOwner,
-            CameraUseCaseAdapter.generateCameraId(restrictedCameraInfo)
-        )
+        var lifecycleCameraToBind =
+            mLifecycleCameraRepository.getLifecycleCamera(
+                lifecycleOwner,
+                CameraUseCaseAdapter.generateCameraId(restrictedCameraInfo)
+            )
 
         // Check if there's another camera that has already been bound.
         val lifecycleCameras = mLifecycleCameraRepository.lifecycleCameras
         useCases.filterNotNull().forEach { useCase ->
-                    for (lifecycleCamera: LifecycleCamera in lifecycleCameras) {
-                if (lifecycleCamera.isBound(useCase) &&
-                    lifecycleCamera != lifecycleCameraToBind) {
+            for (lifecycleCamera: LifecycleCamera in lifecycleCameras) {
+                if (lifecycleCamera.isBound(useCase) && lifecycleCamera != lifecycleCameraToBind) {
                     throw IllegalStateException(
                         String.format(
                             "Use case %s already bound to a different lifecycle.",
@@ -503,16 +506,17 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
 
         // Create the LifecycleCamera if there's no existing one that can be used.
         if (lifecycleCameraToBind == null) {
-            lifecycleCameraToBind = mLifecycleCameraRepository.createLifecycleCamera(
-                lifecycleOwner,
-                CameraUseCaseAdapter(
-                    cameraInternal,
-                    restrictedCameraInfo,
-                    mCameraX!!.cameraFactory.cameraCoordinator,
-                    mCameraX!!.cameraDeviceSurfaceManager,
-                    mCameraX!!.defaultConfigFactory
+            lifecycleCameraToBind =
+                mLifecycleCameraRepository.createLifecycleCamera(
+                    lifecycleOwner,
+                    CameraUseCaseAdapter(
+                        cameraInternal,
+                        restrictedCameraInfo,
+                        mCameraX!!.cameraFactory.cameraCoordinator,
+                        mCameraX!!.cameraDeviceSurfaceManager,
+                        mCameraX!!.defaultConfigFactory
+                    )
                 )
-            )
         }
 
         if (useCases.isEmpty()) {
@@ -530,13 +534,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         return lifecycleCameraToBind
     }
 
-    /**
-     * Returns `true` if the [UseCase] is bound to a lifecycle. Otherwise returns `false`.
-     *
-     * After binding a use case with [bindToLifecycle], use cases remain bound until the lifecycle
-     * reaches a [Lifecycle.State.DESTROYED] state or if is unbound by calls to [unbind] or
-     * [unbindAll].
-     */
     override fun isBound(useCase: UseCase): Boolean {
         for (lifecycleCamera: LifecycleCamera in mLifecycleCameraRepository.lifecycleCameras) {
             if (lifecycleCamera.isBound(useCase)) {
@@ -575,13 +572,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         mLifecycleCameraRepository.unbind(listOf(*useCases))
     }
 
-    /**
-     * Unbinds all use cases from the lifecycle and removes them from CameraX.
-     *
-     * This will initiate a close of every currently open camera.
-     *
-     * @throws IllegalStateException If not called on main thread.
-     */
     @MainThread
     override fun unbindAll() {
         Threads.checkMainThread()
@@ -589,7 +579,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         mLifecycleCameraRepository.unbindAll()
     }
 
-    /** {@inheritDoc}  */
     @Throws(CameraInfoUnavailableException::class)
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         try {
@@ -604,8 +593,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
     /**
      * Returns [CameraInfo] instances of the available cameras.
      *
-     * The available cameras include all the available cameras on the device, or only those
-     * selected through [androidx.camera.core.CameraXConfig.Builder.setAvailableCamerasLimiter].
+     * The available cameras include all the available cameras on the device, or only those selected
+     * through [androidx.camera.core.CameraXConfig.Builder.setAvailableCamerasLimiter].
      *
      * While iterating through all the available [CameraInfo], if one of them meets some predefined
      * requirements, a [CameraSelector] that uniquely identifies its camera can be retrieved using
@@ -628,7 +617,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          * Returns list of [CameraInfo] instances of the available concurrent cameras.
          *
          * The available concurrent cameras include all combinations of cameras which could operate
-         * concurrently on the device. Each list maps to one combination of these camera's [CameraInfo].
+         * concurrently on the device. Each list maps to one combination of these camera's
+         * [CameraInfo].
          *
          * For example, to select a front camera and a back camera and bind to [LifecycleOwner] with
          * preview [UseCase], this function could be used with [bindToLifecycle].
@@ -660,28 +650,17 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             return availableConcurrentCameraInfos
         }
 
-    /**
-     * Returns the [CameraInfo] instance of the camera resulted from the specified [CameraSelector].
-     *
-     * The returned [CameraInfo] is corresponded to the camera that will be bound when calling
-     * [bindToLifecycle] with the specified [CameraSelector].
-     *
-     * @param cameraSelector The [CameraSelector] to get the [CameraInfo] that is corresponded to.
-     * @return The corresponding [CameraInfo].
-     * @throws UnsupportedOperationException If the camera provider is not implemented properly.
-     * @throws IllegalArgumentException If the given [CameraSelector] can't result in a
-     * valid camera to provide the [CameraInfo].
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
-        val cameraInfoInternal = cameraSelector.select(
-            mCameraX!!.cameraRepository.cameras
-        ).cameraInfoInternal
+        val cameraInfoInternal =
+            cameraSelector.select(mCameraX!!.cameraRepository.cameras).cameraInfoInternal
         val cameraConfig = getCameraConfig(cameraSelector, cameraInfoInternal)
 
-        val key = CameraUseCaseAdapter.CameraId.create(
-            cameraInfoInternal.cameraId, cameraConfig.compatibilityId
-        )
+        val key =
+            CameraUseCaseAdapter.CameraId.create(
+                cameraInfoInternal.cameraId,
+                cameraConfig.compatibilityId
+            )
         var restrictedCameraInfo: RestrictedCameraInfo?
         synchronized(mLock) {
             restrictedCameraInfo = mCameraInfoMap[key]
@@ -700,8 +679,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          *
          * @return `true` if there is a [ConcurrentCamera] bound, otherwise `false`.
          */
-        @MainThread
-        get() = cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT
+        @MainThread get() = cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT
 
     private fun getOrCreateCameraXInstance(context: Context): ListenableFuture<CameraX> {
         synchronized(mLock) {
@@ -714,14 +692,14 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                 CallbackToFutureAdapter.getFuture { completer ->
                     synchronized(mLock) {
                         val future: ListenableFuture<Void> =
-                            FutureChain.from(mCameraXShutdownFuture).transformAsync(
-                                { cameraX.initializeFuture },
-                                CameraXExecutors.directExecutor()
-                            )
+                            FutureChain.from(mCameraXShutdownFuture)
+                                .transformAsync(
+                                    { cameraX.initializeFuture },
+                                    CameraXExecutors.directExecutor()
+                                )
                         Futures.addCallback(
                             future,
-                            object :
-                                FutureCallback<Void?> {
+                            object : FutureCallback<Void?> {
                                 override fun onSuccess(result: Void?) {
                                     completer.set(cameraX)
                                 }
@@ -747,7 +725,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             Preconditions.checkState(
                 mCameraXConfigProvider == null,
                 "CameraX has already been configured. To use a different configuration, " +
-                    "shutdown() must be called.")
+                    "shutdown() must be called."
+            )
             mCameraXConfigProvider = CameraXConfig.Provider { cameraXConfig }
         }
     }
@@ -759,9 +738,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         var cameraConfig: CameraConfig? = null
         for (cameraFilter: CameraFilter in cameraSelector.cameraFilterSet) {
             if (cameraFilter.identifier != CameraFilter.DEFAULT_ID) {
-                val extendedCameraConfig = ExtendedCameraConfigProviderStore
-                    .getConfigProvider(cameraFilter.identifier)
-                    .getConfig(cameraInfo, (mContext)!!)
+                val extendedCameraConfig =
+                    ExtendedCameraConfigProviderStore.getConfigProvider(cameraFilter.identifier)
+                        .getConfig(cameraInfo, (mContext)!!)
                 if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
                     continue
                 }
@@ -843,19 +822,17 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          *
          * @sample androidx.camera.lifecycle.samples.configureAndGetInstanceSample
          *
-         * If no [CameraXConfig.Provider] is implemented by [Application], or if the
-         * singleton has not been configured via [configureInstance] a default
-         * configuration will be used.
-         *
-         * @return A future which will contain the ProcessCameraProvider. Cancellation of this
-         * future is a no-op. This future may fail with an [InitializationException] and
-         * associated cause that can be retrieved by [Throwable.cause]. The cause will be a
-         * [androidx.camera.core.CameraUnavailableException] if it fails to access any camera
-         * during initialization.
+         * If no [CameraXConfig.Provider] is implemented by [Application], or if the singleton has
+         * not been configured via [configureInstance] a default configuration will be used.
          *
          * @param context The application context.
+         * @return A future which will contain the ProcessCameraProvider. Cancellation of this
+         *   future is a no-op. This future may fail with an [InitializationException] and
+         *   associated cause that can be retrieved by [Throwable.cause]. The cause will be a
+         *   [androidx.camera.core.CameraUnavailableException] if it fails to access any camera
+         *   during initialization.
          * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
-         * [CameraXConfig.Provider].
+         *   [CameraXConfig.Provider].
          * @see configureInstance
          */
         @Suppress("AsyncSuffixFuture")
@@ -878,9 +855,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          * [CameraXConfig].
          *
          * This method allows configuration of the camera provider via [CameraXConfig]. All
-         * initialization tasks, such as communicating with the camera service, will be executed
-         * on the [java.util.concurrent.Executor] set by [CameraXConfig.Builder.setCameraExecutor],
-         * or by an internally defined executor if none is provided.
+         * initialization tasks, such as communicating with the camera service, will be executed on
+         * the [java.util.concurrent.Executor] set by [CameraXConfig.Builder.setCameraExecutor], or
+         * by an internally defined executor if none is provided.
          *
          * This method is not required for every application. If the method is not called and
          * [CameraXConfig.Provider] is not implemented in [Application], default configuration will
@@ -897,9 +874,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          * be in control of singleton configuration.
          *
          * @param cameraXConfig configuration options for the singleton process camera provider
-         * instance.
+         *   instance.
          * @throws IllegalStateException If the camera provider has already been configured by a
-         * previous call to `configureInstance()` or [getInstance].
+         *   previous call to `configureInstance()` or [getInstance].
          */
         @JvmStatic
         @ExperimentalCameraProviderConfiguration

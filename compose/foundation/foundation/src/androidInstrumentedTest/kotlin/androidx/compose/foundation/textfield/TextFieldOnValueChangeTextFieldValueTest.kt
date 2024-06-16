@@ -44,8 +44,7 @@ import org.mockito.kotlin.verify
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldOnValueChangeTextFieldValueTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
     private val onValueChange: (TextFieldValue) -> Unit = mock()
@@ -53,14 +52,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     @Before
     fun setUp() {
         inputMethodInterceptor.setContent {
-            val state = remember {
-                mutableStateOf(
-                    TextFieldValue(
-                        "abcde",
-                        TextRange.Zero
-                    )
-                )
-            }
+            val state = remember { mutableStateOf(TextFieldValue("abcde", TextRange.Zero)) }
             BasicTextField(
                 value = state.value,
                 onValueChange = {
@@ -71,27 +63,16 @@ class TextFieldOnValueChangeTextFieldValueTest {
         }
 
         // Perform click to focus in.
-        rule.onNode(hasSetTextAction())
-            .performTouchInput { click(Offset(1f, 1f)) }
+        rule.onNode(hasSetTextAction()).performTouchInput { click(Offset(1f, 1f)) }
     }
 
     @Test
     fun commitText_onValueChange_call_once() {
         // Committing text should be reported as value change
-        inputMethodInterceptor.withInputConnection {
-            commitText("ABCDE", 1)
-        }
+        inputMethodInterceptor.withInputConnection { commitText("ABCDE", 1) }
 
         rule.runOnIdle {
-            verify(onValueChange, times(1))
-                .invoke(
-                    eq(
-                        TextFieldValue(
-                            "ABCDEabcde",
-                            TextRange(5)
-                        )
-                    )
-                )
+            verify(onValueChange, times(1)).invoke(eq(TextFieldValue("ABCDEabcde", TextRange(5))))
         }
     }
 
@@ -99,12 +80,8 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setComposingRegion_onValueChange_call_once() {
         val textFieldValueCaptor = argumentCaptor<TextFieldValue>()
         // Composition change will be reported as a change
-        inputMethodInterceptor.withInputConnection {
-            setComposingRegion(0, 5)
-        }
-        inputMethodInterceptor.withInputConnection {
-            setComposingRegion(0, 5)
-        }
+        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 5) }
+        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 5) }
 
         rule.runOnIdle {
             verify(onValueChange, times(1)).invoke(textFieldValueCaptor.capture())
@@ -119,9 +96,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         val textFieldValueCaptor = argumentCaptor<TextFieldValue>()
         val composingText = "ABCDE"
 
-        inputMethodInterceptor.withInputConnection {
-            setComposingText(composingText, 1)
-        }
+        inputMethodInterceptor.withInputConnection { setComposingText(composingText, 1) }
 
         rule.runOnIdle {
             verify(onValueChange, times(1)).invoke(textFieldValueCaptor.capture())
@@ -134,19 +109,10 @@ class TextFieldOnValueChangeTextFieldValueTest {
     @Test
     fun setSelection_onValueChange_call_once() {
         // Selection change is a part of value-change in EditorModel text field
-        inputMethodInterceptor.withInputConnection {
-            setSelection(1, 1)
-        }
+        inputMethodInterceptor.withInputConnection { setSelection(1, 1) }
 
         rule.runOnIdle {
-            verify(onValueChange, times(1)).invoke(
-                eq(
-                    TextFieldValue(
-                        "abcde",
-                        TextRange(1)
-                    )
-                )
-            )
+            verify(onValueChange, times(1)).invoke(eq(TextFieldValue("abcde", TextRange(1))))
         }
     }
 
@@ -155,25 +121,20 @@ class TextFieldOnValueChangeTextFieldValueTest {
         val textFieldValueCaptor = argumentCaptor<TextFieldValue>()
         val composingText = "ABCDE"
 
-        inputMethodInterceptor.withInputConnection {
-            setComposingText(composingText, 1)
-        }
+        inputMethodInterceptor.withInputConnection { setComposingText(composingText, 1) }
 
         rule.runOnIdle {
             verify(onValueChange, times(1)).invoke(textFieldValueCaptor.capture())
             assertThat(textFieldValueCaptor.firstValue.text).isEqualTo("ABCDEabcde")
             assertThat(textFieldValueCaptor.firstValue.selection).isEqualTo(TextRange(5))
-            assertThat(textFieldValueCaptor.firstValue.composition).isEqualTo(
-                TextRange(0, composingText.length)
-            )
+            assertThat(textFieldValueCaptor.firstValue.composition)
+                .isEqualTo(TextRange(0, composingText.length))
         }
 
         // Composition change will be reported as a change
         clearInvocations(onValueChange)
         val compositionClearCaptor = argumentCaptor<TextFieldValue>()
-        inputMethodInterceptor.withInputConnection {
-            finishComposingText()
-        }
+        inputMethodInterceptor.withInputConnection { finishComposingText() }
         rule.runOnIdle {
             verify(onValueChange, times(1)).invoke(compositionClearCaptor.capture())
             assertThat(compositionClearCaptor.firstValue.text).isEqualTo("ABCDEabcde")
@@ -184,19 +145,10 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
     @Test
     fun deleteSurroundingText_onValueChange_call_once() {
-        inputMethodInterceptor.withInputConnection {
-            deleteSurroundingText(0, 1)
-        }
+        inputMethodInterceptor.withInputConnection { deleteSurroundingText(0, 1) }
 
         rule.runOnIdle {
-            verify(onValueChange, times(1)).invoke(
-                eq(
-                    TextFieldValue(
-                        "bcde",
-                        TextRange.Zero
-                    )
-                )
-            )
+            verify(onValueChange, times(1)).invoke(eq(TextFieldValue("bcde", TextRange.Zero)))
         }
     }
 }

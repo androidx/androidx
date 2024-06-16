@@ -23,27 +23,22 @@ import kotlin.math.min
 // TODO: We should probably move this to androidx.collection
 
 /**
- * Interval in an [IntervalTree]. The interval is defined between a [start] and an [end]
- * coordinate, whose meanings are defined by the caller. An interval can also hold
- * arbitrary [data] to be used to looking at the result of queries with
- * [IntervalTree.findOverlaps].
+ * Interval in an [IntervalTree]. The interval is defined between a [start] and an [end] coordinate,
+ * whose meanings are defined by the caller. An interval can also hold arbitrary [data] to be used
+ * to looking at the result of queries with [IntervalTree.findOverlaps].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 open class Interval<T>(val start: Float, val end: Float, val data: T? = null) {
-    /**
-     * Returns trues if this interval overlaps with another interval.
-     */
+    /** Returns trues if this interval overlaps with another interval. */
     fun overlaps(other: Interval<T>) = start <= other.end && end >= other.start
 
     /**
-     * Returns trues if this interval overlaps with the interval defined by [start]
-     * and [end]. [start] must be less than or equal to [end].
+     * Returns trues if this interval overlaps with the interval defined by [start] and [end].
+     * [start] must be less than or equal to [end].
      */
     fun overlaps(start: Float, end: Float) = this.start <= end && this.end >= start
 
-    /**
-     * Returns true if this interval contains [value].
-     */
+    /** Returns true if this interval contains [value]. */
     operator fun contains(value: Float) = value in start..end
 
     override fun equals(other: Any?): Boolean {
@@ -71,16 +66,13 @@ open class Interval<T>(val start: Float, val end: Float, val data: T? = null) {
     }
 }
 
-/**
- * Represents an empty/invalid interval.
- */
+/** Represents an empty/invalid interval. */
 internal val EmptyInterval: Interval<Any?> = Interval(Float.MAX_VALUE, Float.MIN_VALUE, null)
 
 /**
- * An interval tree holds a list of intervals and allows for fast queries of intervals
- * that overlap any given interval. This can be used for instance to perform fast spatial
- * queries like finding all the segments in a path that overlap with a given vertical
- * interval.
+ * An interval tree holds a list of intervals and allows for fast queries of intervals that overlap
+ * any given interval. This can be used for instance to perform fast spatial queries like finding
+ * all the segments in a path that overlap with a given vertical interval.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class IntervalTree<T> {
@@ -94,41 +86,37 @@ class IntervalTree<T> {
     private val stack = ArrayList<Node>()
 
     /**
-     * Clears this tree and prepares it for reuse. After calling [clear], any call to
-     * [findOverlaps] returns false.
+     * Clears this tree and prepares it for reuse. After calling [clear], any call to [findOverlaps]
+     * returns false.
      */
     fun clear() {
         root = terminator
     }
 
     /**
-     * Finds the first interval that overlaps with the specified [interval]. If no overlap can
-     * be found, return [EmptyInterval].
+     * Finds the first interval that overlaps with the specified [interval]. If no overlap can be
+     * found, return [EmptyInterval].
      */
     fun findFirstOverlap(interval: ClosedFloatingPointRange<Float>) =
         findFirstOverlap(interval.start, interval.endInclusive)
 
     /**
-     * Finds the first interval that overlaps with the interval defined by [start] and [end].
-     * If no overlap can be found, return [EmptyInterval]. [start] *must* be lesser than or
-     * equal to [end].
+     * Finds the first interval that overlaps with the interval defined by [start] and [end]. If no
+     * overlap can be found, return [EmptyInterval]. [start] *must* be lesser than or equal to
+     * [end].
      */
-    fun findFirstOverlap(
-        start: Float,
-        end: Float = start
-    ): Interval<T> {
+    fun findFirstOverlap(start: Float, end: Float = start): Interval<T> {
         if (root !== terminator) {
             forEach(start, end) { interval ->
                 return interval
             }
         }
-        @Suppress("UNCHECKED_CAST")
-        return EmptyInterval as Interval<T>
+        @Suppress("UNCHECKED_CAST") return EmptyInterval as Interval<T>
     }
 
     /**
-     * Finds all the intervals that overlap with the specified [interval]. If [results]
-     * is specified, [results] is returned, otherwise a new [MutableList] is returned.
+     * Finds all the intervals that overlap with the specified [interval]. If [results] is
+     * specified, [results] is returned, otherwise a new [MutableList] is returned.
      */
     fun findOverlaps(
         interval: ClosedFloatingPointRange<Float>,
@@ -136,38 +124,30 @@ class IntervalTree<T> {
     ) = findOverlaps(interval.start, interval.endInclusive, results)
 
     /**
-     * Finds all the intervals that overlap with the interval defined by [start] and [end].
-     * [start] *must* be lesser than or equal to [end]. If [results] is specified, [results]
-     * is returned, otherwise a new [MutableList] is returned.
+     * Finds all the intervals that overlap with the interval defined by [start] and [end]. [start]
+     * *must* be lesser than or equal to [end]. If [results] is specified, [results] is returned,
+     * otherwise a new [MutableList] is returned.
      */
     fun findOverlaps(
         start: Float,
         end: Float = start,
         results: MutableList<Interval<T>> = mutableListOf()
     ): MutableList<Interval<T>> {
-        forEach(start, end) { interval ->
-            results.add(interval)
-        }
+        forEach(start, end) { interval -> results.add(interval) }
         return results
     }
 
-    /**
-     * Executes [block] for each interval that overlaps the specified [interval].
-     */
+    /** Executes [block] for each interval that overlaps the specified [interval]. */
     internal inline fun forEach(
         interval: ClosedFloatingPointRange<Float>,
         block: (Interval<T>) -> Unit
     ) = forEach(interval.start, interval.endInclusive, block)
 
     /**
-     * Executes [block] for each interval that overlaps with the interval defined by [start]
-     * and [end]. [start] *must* be lesser than or equal to [end].
+     * Executes [block] for each interval that overlaps with the interval defined by [start] and
+     * [end]. [start] *must* be lesser than or equal to [end].
      */
-    internal inline fun forEach(
-        start: Float,
-        end: Float = start,
-        block: (Interval<T>) -> Unit
-    ) {
+    internal inline fun forEach(start: Float, end: Float = start, block: (Interval<T>) -> Unit) {
         if (root !== terminator) {
             val s = stack
             s.add(root)
@@ -185,15 +165,10 @@ class IntervalTree<T> {
         }
     }
 
-    /**
-     * Returns true if [value] is inside any of the intervals in this tree.
-     */
+    /** Returns true if [value] is inside any of the intervals in this tree. */
     operator fun contains(value: Float) = findFirstOverlap(value, value) !== EmptyInterval
 
-    /**
-     * Returns true if the specified [interval] overlaps with any of the intervals
-     * in this tree.
-     */
+    /** Returns true if the specified [interval] overlaps with any of the intervals in this tree. */
     operator fun contains(interval: ClosedFloatingPointRange<Float>) =
         findFirstOverlap(interval.start, interval.endInclusive) !== EmptyInterval
 
@@ -213,9 +188,7 @@ class IntervalTree<T> {
         }
     }
 
-    /**
-     * Adds the specified [Interval] to the interval tree.
-     */
+    /** Adds the specified [Interval] to the interval tree. */
     operator fun plusAssign(interval: Interval<T>) {
         addInterval(interval.start, interval.end, interval.data)
     }
@@ -236,11 +209,12 @@ class IntervalTree<T> {
 
         while (current !== terminator) {
             parent = current
-            current = if (node.start <= current.start) {
-                current.left
-            } else {
-                current.right
-            }
+            current =
+                if (node.start <= current.start) {
+                    current.left
+                } else {
+                    current.right
+                }
         }
 
         node.parent = parent
@@ -365,15 +339,12 @@ class IntervalTree<T> {
     }
 
     internal enum class TreeColor {
-        Red, Black
+        Red,
+        Black
     }
 
-    internal inner class Node(
-        start: Float,
-        end: Float,
-        data: T?,
-        var color: TreeColor
-    ) : Interval<T>(start, end, data) {
+    internal inner class Node(start: Float, end: Float, data: T?, var color: TreeColor) :
+        Interval<T>(start, end, data) {
         var min: Float = start
         var max: Float = end
 

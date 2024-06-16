@@ -37,8 +37,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class SupportingPaneScaffoldNavigatorTest {
-    @get:Rule
-    val composeRule = createComposeRule()
+    @get:Rule val composeRule = createComposeRule()
 
     @Test
     fun singlePaneLayout_navigateTo_makeDestinationPaneExpanded() {
@@ -46,26 +45,24 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<Int>(
-                scaffoldDirective = MockSinglePaneScaffoldDirective
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator<Int>(
+                    scaffoldDirective = MockSinglePaneScaffoldDirective
+                )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Hidden)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Supporting, 0)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
@@ -77,26 +74,24 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<Int>(
-                scaffoldDirective = MockDualPaneScaffoldDirective
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator<Int>(
+                    scaffoldDirective = MockDualPaneScaffoldDirective
+                )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main])
+                .isEqualTo(PaneAdaptedValue.Expanded)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             assertThat(canNavigateBack).isFalse()
         }
@@ -108,34 +103,35 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0)
-                ),
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                isDestinationHistoryAware = false
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            )
+                        ),
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    isDestinationHistoryAware = false
+                )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Extra, 1)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Hidden)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Extra)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
             assertThat(canNavigateBack).isTrue()
         }
@@ -147,34 +143,35 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0)
-                ),
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                isDestinationHistoryAware = true
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            )
+                        ),
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    isDestinationHistoryAware = true
+                )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Extra, 1)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Extra)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
             assertThat(canNavigateBack).isTrue()
         }
@@ -186,9 +183,10 @@ class SupportingPaneScaffoldNavigatorTest {
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<Int>(
-                scaffoldDirective = MockSinglePaneScaffoldDirective
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator<Int>(
+                    scaffoldDirective = MockSinglePaneScaffoldDirective
+                )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
 
@@ -197,24 +195,20 @@ class SupportingPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
             scaffoldNavigator.navigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
-            ).isEqualTo(PaneAdaptedValue.Hidden)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Supporting])
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             assertThat(canNavigateBack).isFalse()
         }
@@ -225,19 +219,23 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             assertThat(scaffoldNavigator.canNavigateBack()).isFalse()
         }
@@ -248,34 +246,35 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             assertThat(scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopLatest)).isTrue()
             scaffoldNavigator.navigateBack(BackNavigationBehavior.PopLatest)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
         }
     }
@@ -285,33 +284,40 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, null),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 1),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, null),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                1
+                            ),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
             assertThat(
-                scaffoldNavigator.canNavigateBack(
-                    BackNavigationBehavior.PopUntilCurrentDestinationChange
+                    scaffoldNavigator.canNavigateBack(
+                        BackNavigationBehavior.PopUntilCurrentDestinationChange
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
         }
     }
@@ -321,25 +327,27 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 1),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0),
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 1),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
             assertThat(
-                scaffoldNavigator.canNavigateBack(
-                    BackNavigationBehavior.PopUntilCurrentDestinationChange
+                    scaffoldNavigator.canNavigateBack(
+                        BackNavigationBehavior.PopUntilCurrentDestinationChange
+                    )
                 )
-            ).isFalse()
+                .isFalse()
         }
     }
 
@@ -348,31 +356,38 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, null),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 1),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, null),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                1
+                            ),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
             assertThat(
-                scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
-            ).isTrue()
+                    scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
+                )
+                .isTrue()
             scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilContentChange)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
         }
     }
@@ -382,31 +397,35 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, 0),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, 0),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Extra)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(
-                scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
-            ).isTrue()
+                    scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
+                )
+                .isTrue()
             scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilContentChange)
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
         }
     }
@@ -416,23 +435,28 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                        )
                 )
-            )
         }
 
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(
-                scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
-            ).isFalse()
+                    scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
+                )
+                .isFalse()
         }
     }
 
@@ -441,14 +465,19 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, 1),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                ),
-                isDestinationHistoryAware = true
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, 1),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                        ),
+                    isDestinationHistoryAware = true
+                )
         }
 
         composeRule.runOnIdle {
@@ -457,9 +486,8 @@ class SupportingPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
             )
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
         }
@@ -470,9 +498,8 @@ class SupportingPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             )
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             scaffoldNavigator.navigateBack()
         }
@@ -483,9 +510,8 @@ class SupportingPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
             )
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
         }
     }
@@ -495,14 +521,19 @@ class SupportingPaneScaffoldNavigatorTest {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = MockDualPaneScaffoldDirective,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, 1),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                ),
-                isDestinationHistoryAware = false
-            )
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = MockDualPaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, 1),
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                        ),
+                    isDestinationHistoryAware = false
+                )
         }
 
         composeRule.runOnIdle {
@@ -511,9 +542,8 @@ class SupportingPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             )
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Supporting)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Supporting)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
         }
@@ -524,9 +554,8 @@ class SupportingPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             )
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             scaffoldNavigator.navigateBack()
         }
@@ -537,9 +566,8 @@ class SupportingPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
             )
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Extra)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
         }
     }
@@ -550,21 +578,24 @@ class SupportingPaneScaffoldNavigatorTest {
         val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)
 
         composeRule.setContent {
-            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
-                scaffoldDirective = mockCurrentScaffoldDirective.value,
-                initialDestinationHistory = listOf(
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, 0),
-                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main),
+            scaffoldNavigator =
+                rememberSupportingPaneScaffoldNavigator(
+                    scaffoldDirective = mockCurrentScaffoldDirective.value,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(
+                                SupportingPaneScaffoldRole.Supporting,
+                                0
+                            ),
+                            ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main),
+                        )
                 )
-            )
         }
         composeRule.runOnIdle {
-            assertThat(
-                scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main]
-            ).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.scaffoldValue[SupportingPaneScaffoldRole.Main])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             // Switches to dual pane
             mockCurrentScaffoldDirective.value = MockDualPaneScaffoldDirective
@@ -572,9 +603,8 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.canNavigateBack()).isFalse()
-            assertThat(
-                scaffoldNavigator.currentDestination?.pane
-            ).isEqualTo(SupportingPaneScaffoldRole.Main)
+            assertThat(scaffoldNavigator.currentDestination?.pane)
+                .isEqualTo(SupportingPaneScaffoldRole.Main)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
         }
     }
@@ -582,10 +612,11 @@ class SupportingPaneScaffoldNavigatorTest {
 
 private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective.Default
 
-private val MockDualPaneScaffoldDirective = PaneScaffoldDirective.Default.copy(
-    maxHorizontalPartitions = 2,
-    horizontalPartitionSpacerSize = 16.dp,
-)
+private val MockDualPaneScaffoldDirective =
+    PaneScaffoldDirective.Default.copy(
+        maxHorizontalPartitions = 2,
+        horizontalPartitionSpacerSize = 16.dp,
+    )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun ThreePaneScaffoldValue.assert(
@@ -594,8 +625,7 @@ private fun ThreePaneScaffoldValue.assert(
     expectedExtraPaneAdaptedValue: PaneAdaptedValue
 ) {
     assertThat(this[SupportingPaneScaffoldRole.Main]).isEqualTo(expectedMainPaneAdaptedValue)
-    assertThat(this[SupportingPaneScaffoldRole.Supporting]).isEqualTo(
-        expectedSupportingPaneAdaptedValue
-    )
+    assertThat(this[SupportingPaneScaffoldRole.Supporting])
+        .isEqualTo(expectedSupportingPaneAdaptedValue)
     assertThat(this[SupportingPaneScaffoldRole.Extra]).isEqualTo(expectedExtraPaneAdaptedValue)
 }

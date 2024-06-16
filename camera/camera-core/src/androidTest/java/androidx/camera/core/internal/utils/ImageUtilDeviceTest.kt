@@ -50,9 +50,7 @@ private const val CROP_WIDTH = 100
 private const val CROP_HEIGHT = 100
 private const val DEFAULT_JPEG_QUALITY = 100
 
-/**
- * Unit tests for {@link ImageUtil}.
- */
+/** Unit tests for {@link ImageUtil}. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -63,21 +61,12 @@ class ImageUtilDeviceTest {
         // Arrange.
         val planeProxy: ImageProxy.PlaneProxy =
             FakePlaneProxy(
-                ImageUtil.createDirectByteBuffer(
-                    TestImageUtil.createBitmap(
-                        WIDTH,
-                        HEIGHT
-                    )
-                ),
+                ImageUtil.createDirectByteBuffer(TestImageUtil.createBitmap(WIDTH, HEIGHT)),
                 (WIDTH - 1) * ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE, // Wrong row stride.
                 ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE
             )
         // Act.
-        ImageUtil.createBitmapFromPlane(
-            arrayOf(planeProxy),
-            WIDTH,
-            HEIGHT
-        )
+        ImageUtil.createBitmapFromPlane(arrayOf(planeProxy), WIDTH, HEIGHT)
     }
 
     @Test(expected = java.lang.IllegalArgumentException::class)
@@ -85,21 +74,12 @@ class ImageUtilDeviceTest {
         // Arrange.
         val planeProxy: ImageProxy.PlaneProxy =
             FakePlaneProxy(
-                ImageUtil.createDirectByteBuffer(
-                    TestImageUtil.createBitmap(
-                        WIDTH,
-                        HEIGHT
-                    )
-                ),
+                ImageUtil.createDirectByteBuffer(TestImageUtil.createBitmap(WIDTH, HEIGHT)),
                 WIDTH * ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE,
                 3
             ) // Wrong pixel stride.
         // Act.
-        ImageUtil.createBitmapFromPlane(
-            arrayOf(planeProxy),
-            WIDTH,
-            HEIGHT
-        )
+        ImageUtil.createBitmapFromPlane(arrayOf(planeProxy), WIDTH, HEIGHT)
     }
 
     @Test
@@ -116,11 +96,7 @@ class ImageUtilDeviceTest {
                 ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE
             )
         // Act.
-        val restored = ImageUtil.createBitmapFromPlane(
-            arrayOf(planeProxy),
-            WIDTH,
-            HEIGHT
-        )
+        val restored = ImageUtil.createBitmapFromPlane(arrayOf(planeProxy), WIDTH, HEIGHT)
         // Assert.
         assertThat(getAverageDiff(original, restored)).isEqualTo(0)
     }
@@ -130,29 +106,22 @@ class ImageUtilDeviceTest {
         // Arrange.
         val planeProxy: ImageProxy.PlaneProxy =
             FakePlaneProxy(
-                ImageUtil.createDirectByteBuffer(
-                    TestImageUtil.createBitmap(
-                        WIDTH,
-                        HEIGHT
-                    )
-                ),
+                ImageUtil.createDirectByteBuffer(TestImageUtil.createBitmap(WIDTH, HEIGHT)),
                 WIDTH * ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE,
                 ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE
             )
         // Act.
-        ImageUtil.createBitmapFromPlane(
-            arrayOf(planeProxy, planeProxy),
-            WIDTH,
-            HEIGHT
-        )
+        ImageUtil.createBitmapFromPlane(arrayOf(planeProxy, planeProxy), WIDTH, HEIGHT)
     }
 
     @Test
     fun createBitmapFromImageProxy_yuv420() {
-        val fakeImageProxy = TestImageUtil.createYuvFakeImageProxy(
-            ImmutableImageInfo.create(
-            TagBundle.emptyBundle(), 0, 0, Matrix()
-        ), WIDTH, HEIGHT)
+        val fakeImageProxy =
+            TestImageUtil.createYuvFakeImageProxy(
+                ImmutableImageInfo.create(TagBundle.emptyBundle(), 0, 0, Matrix()),
+                WIDTH,
+                HEIGHT
+            )
 
         val bitmap = ImageUtil.createBitmapFromImageProxy(fakeImageProxy)
 
@@ -163,22 +132,23 @@ class ImageUtilDeviceTest {
 
     @Test
     fun createBitmapFromImageProxy_rgba() {
-        val fakeYuvImageProxy = TestImageUtil.createYuvFakeImageProxy(
-            ImmutableImageInfo.create(
-                TagBundle.emptyBundle(), 0, 0, Matrix()
-            ), WIDTH, HEIGHT)
+        val fakeYuvImageProxy =
+            TestImageUtil.createYuvFakeImageProxy(
+                ImmutableImageInfo.create(TagBundle.emptyBundle(), 0, 0, Matrix()),
+                WIDTH,
+                HEIGHT
+            )
 
-        val fakeRgbaImageProxy = ImageProcessingUtil.convertYUVToRGB(
-            fakeYuvImageProxy,
-            SafeCloseImageReaderProxy(
-                ImageReaderProxys.createIsolatedReader(
-                    WIDTH,
-                    HEIGHT,
-                    PixelFormat.RGBA_8888,
-                    2)),
-            ByteBuffer.allocateDirect(WIDTH * HEIGHT * 4),
-            0,
-            false)
+        val fakeRgbaImageProxy =
+            ImageProcessingUtil.convertYUVToRGB(
+                fakeYuvImageProxy,
+                SafeCloseImageReaderProxy(
+                    ImageReaderProxys.createIsolatedReader(WIDTH, HEIGHT, PixelFormat.RGBA_8888, 2)
+                ),
+                ByteBuffer.allocateDirect(WIDTH * HEIGHT * 4),
+                0,
+                false
+            )
         assertThat(fakeRgbaImageProxy).isNotNull()
 
         val bitmap = ImageUtil.createBitmapFromImageProxy(fakeRgbaImageProxy!!)
@@ -229,11 +199,7 @@ class ImageUtilDeviceTest {
         val jpegBytes = TestImageUtil.createJpegBytes(WIDTH, HEIGHT)
         val fakeJpegImageProxy = TestImageUtil.createJpegFakeImageProxy(jpegBytes)
 
-        fakeJpegImageProxy.planes = arrayOf(
-            FakeJpegPlaneProxy(
-                byteArrayOf(0)
-            )
-        )
+        fakeJpegImageProxy.planes = arrayOf(FakeJpegPlaneProxy(byteArrayOf(0)))
 
         assertThrows<UnsupportedOperationException> {
             ImageUtil.createBitmapFromImageProxy(fakeJpegImageProxy)
@@ -242,18 +208,13 @@ class ImageUtilDeviceTest {
 
     @Test
     fun createBitmapFromImageProxy_invalidFormat() {
-        val image = FakeImageProxy(
-            ImmutableImageInfo.create(
-                TagBundle.emptyBundle(), 0, 0, Matrix()
-            )
-        )
+        val image =
+            FakeImageProxy(ImmutableImageInfo.create(TagBundle.emptyBundle(), 0, 0, Matrix()))
         image.format = ImageFormat.PRIVATE
         image.width = WIDTH
         image.height = HEIGHT
 
-        assertThrows<IllegalArgumentException> {
-            ImageUtil.createBitmapFromImageProxy(image)
-        }
+        assertThrows<IllegalArgumentException> { ImageUtil.createBitmapFromImageProxy(image) }
     }
 
     @SdkSuppress(minSdkVersion = 34)
@@ -269,11 +230,12 @@ class ImageUtilDeviceTest {
         assertThat(fakeJpegrImageProxy.format).isEqualTo(ImageFormat.JPEG_R)
 
         // Act.
-        val byteArray = ImageUtil.jpegImageToJpegByteArray(
-            fakeJpegrImageProxy,
-            Rect(0, 0, CROP_WIDTH, CROP_HEIGHT),
-            DEFAULT_JPEG_QUALITY
-        )
+        val byteArray =
+            ImageUtil.jpegImageToJpegByteArray(
+                fakeJpegrImageProxy,
+                Rect(0, 0, CROP_WIDTH, CROP_HEIGHT),
+                DEFAULT_JPEG_QUALITY
+            )
 
         // Assert.
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)

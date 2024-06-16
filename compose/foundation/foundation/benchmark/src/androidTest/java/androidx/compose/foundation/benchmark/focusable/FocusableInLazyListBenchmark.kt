@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FocusableInLazyListBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val itemCount = 10000
 
@@ -54,14 +53,7 @@ class FocusableInLazyListBenchmark {
     fun lazyListWithNoFocusTarget() {
         benchmarkRule.toggleAndMeasureRepeated { state ->
             LazyRow(state = state) {
-                items(itemCount) {
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                    ) {
-                        Text("Hello There")
-                    }
-                }
+                items(itemCount) { Box(modifier = Modifier.size(100.dp)) { Text("Hello There") } }
             }
         }
     }
@@ -71,13 +63,7 @@ class FocusableInLazyListBenchmark {
         benchmarkRule.toggleAndMeasureRepeated { state ->
             LazyRow(state = state) {
                 items(itemCount) {
-                    Box(
-                        modifier = Modifier
-                            .focusable()
-                            .size(100.dp)
-                    ) {
-                        Text("Hello There")
-                    }
+                    Box(modifier = Modifier.focusable().size(100.dp)) { Text("Hello There") }
                 }
             }
         }
@@ -86,9 +72,7 @@ class FocusableInLazyListBenchmark {
     private fun ComposeBenchmarkRule.toggleAndMeasureRepeated(
         content: @Composable (LazyListState) -> Unit
     ) {
-        runBenchmarkFor({
-            LazyListTestCase(itemCount) { state -> content(state) }
-        }) {
+        runBenchmarkFor({ LazyListTestCase(itemCount) { state -> content(state) } }) {
             measureRepeatedOnUiThread {
                 runWithTimingDisabled {
                     doFramesUntilNoChangesPending()

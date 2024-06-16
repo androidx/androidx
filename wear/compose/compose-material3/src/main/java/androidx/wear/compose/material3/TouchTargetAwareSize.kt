@@ -24,13 +24,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 
-/**
- * Modifier to set both the size and recommended touch target for
- * [IconButton] and TextButton.
- */
+/** Modifier to set both the size and recommended touch target for [IconButton] and TextButton. */
 fun Modifier.touchTargetAwareSize(size: Dp): Modifier =
-    this
-        .padding(PaddingValues(max(0.dp, (minimumTouchTarget - size) * 0.5f)))
-        .size(size)
+    this.padding(PaddingValues(max(0.dp, (minimumTouchTarget - size) * 0.5f))).size(size)
 
 private val minimumTouchTarget = 48.dp

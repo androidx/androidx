@@ -25,19 +25,20 @@ class UsingOnClickInXmlDetectorTest {
 
     @Test
     fun checkActivityWithClick() {
-        val input = arrayOf(
-            javaSample("com.example.android.appcompat.ActivityWithClick"),
-            xmlSample("layout.view_with_click")
-        )
+        val input =
+            arrayOf(
+                javaSample("com.example.android.appcompat.ActivityWithClick"),
+                xmlSample("layout.view_with_click")
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 res/layout/view_with_click.xml:26: Warning: Use databinding or explicit wiring of click listener in code [UsingOnClickInXml]
         android:onClick="myButtonClick"
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
         check(*input).expect(expected)
     }

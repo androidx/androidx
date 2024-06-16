@@ -23,16 +23,18 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://material.io/design/shape/about-shape.html" class="external" target="_blank">Material Design shape</a>.
+ * <a href="https://material.io/design/shape/about-shape.html" class="external"
+ * target="_blank">Material Design shape</a>.
  *
  * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
  * components, communicate state, and express brand.
  *
- * ![Shape image](https://developer.android.com/images/reference/androidx/compose/material/shape.png)
+ * ![Shape
+ * image](https://developer.android.com/images/reference/androidx/compose/material/shape.png)
  *
- * Components are grouped into shape categories based on their size. These categories provide a
- * way to change multiple component values at once, by changing the category’s values.
- * Shape categories include:
+ * Components are grouped into shape categories based on their size. These categories provide a way
+ * to change multiple component values at once, by changing the category’s values. Shape categories
+ * include:
  * - Small components
  * - Medium components
  * - Large components
@@ -43,33 +45,23 @@ import androidx.compose.ui.unit.dp
 class Shapes(
     /**
      * Shape used by small components like [Button] or [Snackbar]. Components like
-     * [FloatingActionButton], [ExtendedFloatingActionButton] use this shape, but override
-     * the corner size to be 50%. [TextField] uses this shape with overriding the bottom corners
-     * to zero.
+     * [FloatingActionButton], [ExtendedFloatingActionButton] use this shape, but override the
+     * corner size to be 50%. [TextField] uses this shape with overriding the bottom corners to
+     * zero.
      */
     val small: CornerBasedShape = RoundedCornerShape(4.dp),
-    /**
-     * Shape used by medium components like [Card] or [AlertDialog].
-     */
+    /** Shape used by medium components like [Card] or [AlertDialog]. */
     val medium: CornerBasedShape = RoundedCornerShape(4.dp),
-    /**
-     * Shape used by large components like [ModalDrawer] or [ModalBottomSheetLayout].
-     */
+    /** Shape used by large components like [ModalDrawer] or [ModalBottomSheetLayout]. */
     val large: CornerBasedShape = RoundedCornerShape(0.dp)
 ) {
 
-    /**
-     * Returns a copy of this Shapes, optionally overriding some of the values.
-     */
+    /** Returns a copy of this Shapes, optionally overriding some of the values. */
     fun copy(
         small: CornerBasedShape = this.small,
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large
-    ): Shapes = Shapes(
-        small = small,
-        medium = medium,
-        large = large
-    )
+    ): Shapes = Shapes(small = small, medium = medium, large = large)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -94,7 +86,5 @@ class Shapes(
     }
 }
 
-/**
- * CompositionLocal used to specify the default shapes for the surfaces.
- */
+/** CompositionLocal used to specify the default shapes for the surfaces. */
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

@@ -53,7 +53,8 @@ class PowerRailTest {
     @Test
     fun hasMetrics_false() {
         // The test is using a mocked output of `dumpsys powerstats`
-        val output = """
+        val output =
+            """
                 kernel_uid_readers_throttle_time=1000
                 external_stats_collection_rate_limit_ms=600000
                 battery_level_collection_delay_ms=300000
@@ -64,7 +65,8 @@ class PowerRailTest {
 
             On battery measured charge stats (microcoulombs)
                 Not supported on this device.
-        """.trimIndent()
+        """
+                .trimIndent()
 
         assertFailsWith<UnsupportedOperationException> {
             PowerRail.hasMetrics(output, throwOnMissingMetrics = true)
@@ -76,7 +78,8 @@ class PowerRailTest {
     @Test
     fun hasMetrics() {
         // The test is using a mocked output of `dumpsys powerstats`
-        val output = """
+        val output =
+            """
             ChannelId: 10, ChannelName: S9S_VDD_AOC, ChannelSubsystem: AOC
             PowerStatsService dumpsys: available Channels
             ChannelId: 0, ChannelName: S10M_VDD_TPU, ChannelSubsystem: TPU
@@ -84,7 +87,8 @@ class PowerRailTest {
             ChannelId: 2, ChannelName: VSYS_PWR_RFFE, ChannelSubsystem: Cellular
             ChannelId: 3, ChannelName: S2M_VDD_CPUCL2, ChannelSubsystem: CPU(BIG)
             ChannelId: 4, ChannelName: S3M_VDD_CPUCL1, ChannelSubsystem: CPU(MID)
-        """.trimIndent()
+        """
+                .trimIndent()
 
         assertTrue(PowerRail.hasMetrics(output, throwOnMissingMetrics = false))
     }

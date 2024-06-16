@@ -26,7 +26,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.runner.RunWith
 
-/* ktlint-disable max-line-length */
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PathSvgTest {
@@ -37,7 +36,8 @@ class PathSvgTest {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0.0 0.0 0.0 0.0">
             </svg>
 
-            """.trimIndent(),
+            """
+                .trimIndent(),
             Path().toSvg(asDocument = true)
         )
 
@@ -55,17 +55,21 @@ class PathSvgTest {
               <path d="M10.0 10.0"/>
             </svg>
 
-            """.trimIndent(),
+            """
+                .trimIndent(),
             svg
         )
     }
 
     @Test
     fun twoPaths() {
-        val svg = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }.toSvg(asDocument = true)
+        val svg =
+            Path()
+                .apply {
+                    addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
+                    addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+                }
+                .toSvg(asDocument = true)
 
         assertEquals(
             """
@@ -73,18 +77,22 @@ class PathSvgTest {
               <path d="M0.0 0.0L10.0 0.0 10.0 10.0 0.0 10.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z"/>
             </svg>
 
-            """.trimIndent(),
+            """
+                .trimIndent(),
             svg
         )
     }
 
     @Test
     fun bezier() {
-        val svg = Path().apply {
-            moveTo(10.0f, 10.0f)
-            cubicTo(20.0f, 20.0f, 30.0f, 30.0f, 40.0f, 40.0f)
-            quadraticTo(50.0f, 50.0f, 60.0f, 60.0f)
-        }.toSvg(asDocument = true)
+        val svg =
+            Path()
+                .apply {
+                    moveTo(10.0f, 10.0f)
+                    cubicTo(20.0f, 20.0f, 30.0f, 30.0f, 40.0f, 40.0f)
+                    quadraticTo(50.0f, 50.0f, 60.0f, 60.0f)
+                }
+                .toSvg(asDocument = true)
 
         assertEquals(
             """
@@ -92,17 +100,21 @@ class PathSvgTest {
               <path d="M10.0 10.0C20.0 20.0 30.0 30.0 40.0 40.0Q50.0 50.0 60.0 60.0"/>
             </svg>
 
-            """.trimIndent(),
+            """
+                .trimIndent(),
             svg
         )
     }
 
     @Test
     fun dataOnly() {
-        val svg = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }.toSvg()
+        val svg =
+            Path()
+                .apply {
+                    addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
+                    addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+                }
+                .toSvg()
 
         assertEquals(
             "M0.0 0.0L10.0 0.0 10.0 10.0 0.0 10.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z",
@@ -112,10 +124,11 @@ class PathSvgTest {
 
     @Test
     fun hole() {
-        val hole = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 80.0f, 80.0f), Path.Direction.Clockwise)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }
+        val hole =
+            Path().apply {
+                addRect(Rect(0.0f, 0.0f, 80.0f, 80.0f), Path.Direction.Clockwise)
+                addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+            }
 
         assertEquals(
             """
@@ -123,7 +136,8 @@ class PathSvgTest {
               <path d="M0.0 0.0L80.0 0.0 80.0 80.0 0.0 80.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z"/>
             </svg>
 
-            """.trimIndent(),
+            """
+                .trimIndent(),
             hole.toSvg(asDocument = true)
         )
 
@@ -135,20 +149,25 @@ class PathSvgTest {
               <path fill-rule="evenodd" d="M0.0 0.0L80.0 0.0 80.0 80.0 0.0 80.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z"/>
             </svg>
 
-            """.trimIndent(),
+            """
+                .trimIndent(),
             hole.toSvg(asDocument = true)
         )
     }
 
     @Test
     fun addSvg() {
-        val twoRects = Path().apply {
-            addSvg("M0.0 0.0L10.0 0.0 10.0 10.0 0.0 10.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z")
-        }
-        val reference = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }
+        val twoRects =
+            Path().apply {
+                addSvg(
+                    "M0.0 0.0L10.0 0.0 10.0 10.0 0.0 10.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z"
+                )
+            }
+        val reference =
+            Path().apply {
+                addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
+                addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+            }
         assertPathEquals(reference, twoRects)
     }
 
@@ -162,17 +181,17 @@ class PathSvgTest {
 
     @Test
     fun roundTrip() {
-        val original = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }
+        val original =
+            Path().apply {
+                addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
+                addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+            }
         val svg = original.toSvg()
         val path = Path().apply { addSvg(svg) }
 
         assertPathEquals(original, path)
     }
 }
-/* ktlint-enable max-line-length */
 
 private fun assertPathEquals(a: Path, b: Path) {
     val ita = a.iterator()

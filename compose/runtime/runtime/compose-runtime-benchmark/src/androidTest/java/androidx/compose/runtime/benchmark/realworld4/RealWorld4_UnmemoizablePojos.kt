@@ -20,7 +20,6 @@ package androidx.compose.runtime.benchmark.realworld4
  * RealWorld4 is a performance test that attempts to simulate a real-world application of reasonably
  * large scale (eg. gmail-sized application).
  */
-
 import androidx.compose.ui.graphics.Color
 
 class RealWorld4_UnmemoizablePojo_0() {

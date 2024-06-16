@@ -17,26 +17,21 @@
 package androidx.room.compiler.processing.util
 
 /**
- * A [Sequence] implementation that caches values so that another collector can avoid
- * re-computing the source sequence.
+ * A [Sequence] implementation that caches values so that another collector can avoid re-computing
+ * the source sequence.
  *
  * Note that collecting on these sequence is not thread safe.
  */
-internal class MemoizedSequence<T>(
-    private val buildSequence: () -> Sequence<T>
-) : Sequence<T> {
+internal class MemoizedSequence<T>(private val buildSequence: () -> Sequence<T>) : Sequence<T> {
 
-    /**
-     * Shared cache between iterators.
-     */
+    /** Shared cache between iterators. */
     private val cache = mutableListOf<T>()
 
-    private val delegateIterator by lazy {
-        buildSequence().iterator()
-    }
+    private val delegateIterator by lazy { buildSequence().iterator() }
 
     private inner class CachedIterator : Iterator<T> {
         private var yieldedCount = 0
+
         override fun hasNext(): Boolean {
             return yieldedCount < cache.size || delegateIterator.hasNext()
         }
@@ -47,9 +42,7 @@ internal class MemoizedSequence<T>(
                 // previous hasNext call.
                 cache.add(delegateIterator.next())
             }
-            return cache[yieldedCount].also {
-                yieldedCount++
-            }
+            return cache[yieldedCount].also { yieldedCount++ }
         }
     }
 

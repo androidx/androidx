@@ -41,25 +41,21 @@ class AfRegionFlipHorizontallyQuirkTest(
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Brand: {0} LensFacing = {1}")
-        fun data() = listOf(
-            arrayOf("Samsung", CameraCharacteristics.LENS_FACING_BACK, false),
-            arrayOf("Samsung", CameraCharacteristics.LENS_FACING_FRONT, true),
-            arrayOf("SAMSUNG", CameraCharacteristics.LENS_FACING_FRONT, true),
-            arrayOf("Google", CameraCharacteristics.LENS_FACING_BACK, false),
-            arrayOf("Google", CameraCharacteristics.LENS_FACING_FRONT, false),
-            arrayOf("Moto", CameraCharacteristics.LENS_FACING_BACK, false),
-        )
+        fun data() =
+            listOf(
+                arrayOf("Samsung", CameraCharacteristics.LENS_FACING_BACK, false),
+                arrayOf("Samsung", CameraCharacteristics.LENS_FACING_FRONT, true),
+                arrayOf("SAMSUNG", CameraCharacteristics.LENS_FACING_FRONT, true),
+                arrayOf("Google", CameraCharacteristics.LENS_FACING_BACK, false),
+                arrayOf("Google", CameraCharacteristics.LENS_FACING_FRONT, false),
+                arrayOf("Moto", CameraCharacteristics.LENS_FACING_BACK, false),
+            )
     }
 
-    private fun getCameraQuirks(
-        lensFacing: Int
-    ): Quirks {
+    private fun getCameraQuirks(lensFacing: Int): Quirks {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
-        shadowCharacteristics.set(
-            CameraCharacteristics.LENS_FACING,
-            lensFacing
-        )
+        shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing)
         val cameraId = "0" /* don't care */
         val characteristicsCompat =
             CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, cameraId)

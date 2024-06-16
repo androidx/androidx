@@ -55,43 +55,44 @@ interface EvCompCompat {
 
     @Module
     abstract class Bindings {
-        @Binds
-        abstract fun bindEvCompImpl(impl: EvCompImpl): EvCompCompat
+        @Binds abstract fun bindEvCompImpl(impl: EvCompImpl): EvCompCompat
     }
 }
 
 internal val EMPTY_RANGE: Range<Int> = Range(0, 0)
 
 /**
- * The implementation of the [EvCompCompat]. The [applyAsync] update the new exposure index value
- * to the camera, and wait for the exposure value of the camera reach to the new target.
- * It receives the [FrameInfo] via the [ComboRequestListener] to monitor the capture result.
+ * The implementation of the [EvCompCompat]. The [applyAsync] update the new exposure index value to
+ * the camera, and wait for the exposure value of the camera reach to the new target. It receives
+ * the [FrameInfo] via the [ComboRequestListener] to monitor the capture result.
  */
 @CameraScope
-class EvCompImpl @Inject constructor(
+class EvCompImpl
+@Inject
+constructor(
     private val cameraProperties: CameraProperties,
     private val threads: UseCaseThreads,
     private val comboRequestListener: ComboRequestListener,
 ) : EvCompCompat {
     override val supported: Boolean
         get() = range.upper != 0 && range.lower != 0
+
     override val range: Range<Int> by lazy {
         cameraProperties.metadata.getOrDefault(CONTROL_AE_COMPENSATION_RANGE, EMPTY_RANGE)
     }
     override val step: Rational
-        get() = if (!supported) {
-            Rational.ZERO
-        } else {
-            cameraProperties.metadata[CONTROL_AE_COMPENSATION_STEP]!!
-        }
+        get() =
+            if (!supported) {
+                Rational.ZERO
+            } else {
+                cameraProperties.metadata[CONTROL_AE_COMPENSATION_STEP]!!
+            }
 
     private var updateSignal: CompletableDeferred<Int>? = null
     private var updateListener: Request.Listener? = null
 
     override fun stopRunningTask(throwable: Throwable) {
-        threads.sequentialScope.launch {
-            updateSignal?.completeExceptionally(throwable)
-        }
+        threads.sequentialScope.launch { updateSignal?.completeExceptionally(throwable) }
     }
 
     override fun applyAsync(
@@ -124,35 +125,43 @@ class EvCompImpl @Inject constructor(
             camera.setParameterAsync(CONTROL_AE_EXPOSURE_COMPENSATION, evCompIndex)
 
             // Prepare the listener to wait for the exposure value to reach the target.
-            updateListener = object : Request.Listener {
-                override fun onComplete(
-                    requestMetadata: RequestMetadata,
-                    frameNumber: FrameNumber,
-                    result: FrameInfo,
-                ) {
-                    val state = result.metadata[CaptureResult.CONTROL_AE_STATE]
-                    val evResult = result.metadata[CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION]
-                    if (state != null && evResult != null) {
-                        when (state) {
-                            CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
-                            CaptureResult.CONTROL_AE_STATE_CONVERGED,
-                            CaptureResult.CONTROL_AE_STATE_LOCKED ->
-                                if (evResult == evCompIndex) {
-                                    signal.complete(evCompIndex)
+            updateListener =
+                object : Request.Listener {
+                        override fun onComplete(
+                            requestMetadata: RequestMetadata,
+                            frameNumber: FrameNumber,
+                            result: FrameInfo,
+                        ) {
+                            val state = result.metadata[CaptureResult.CONTROL_AE_STATE]
+                            val evResult =
+                                result.metadata[CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION]
+                            if (state != null && evResult != null) {
+                                when (state) {
+                                    CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                                    CaptureResult.CONTROL_AE_STATE_LOCKED ->
+                                        if (evResult == evCompIndex) {
+                                            signal.complete(evCompIndex)
+                                        }
+                                    else -> {}
                                 }
-                            else -> {
+                            } else if (evResult != null && evResult == evCompIndex) {
+                                // If AE state is null, only wait for the exposure result to the
+                                // desired
+                                // value.
+                                signal.complete(evCompIndex)
                             }
                         }
-                    } else if (evResult != null && evResult == evCompIndex) {
-                        // If AE state is null, only wait for the exposure result to the desired
-                        // value.
-                        signal.complete(evCompIndex)
                     }
-                }
-            }.also { requestListener ->
-                comboRequestListener.addListener(requestListener, threads.sequentialExecutor)
-                signal.invokeOnCompletion { comboRequestListener.removeListener(requestListener) }
-            }
+                    .also { requestListener ->
+                        comboRequestListener.addListener(
+                            requestListener,
+                            threads.sequentialExecutor
+                        )
+                        signal.invokeOnCompletion {
+                            comboRequestListener.removeListener(requestListener)
+                        }
+                    }
         }
 
         return signal

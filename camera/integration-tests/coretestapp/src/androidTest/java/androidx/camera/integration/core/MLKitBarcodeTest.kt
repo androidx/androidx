@@ -55,17 +55,15 @@ import org.junit.runners.Parameterized
 */
 @LargeTest
 @RunWith(Parameterized::class)
-class MLKitBarcodeTest(
-    private val resolution: Size
-) {
+class MLKitBarcodeTest(private val resolution: Size) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     companion object {
         private const val DETECT_TIMEOUT = 10_000L
@@ -73,9 +71,7 @@ class MLKitBarcodeTest(
         private val size480p = Size(640, 480)
         private val size720p = Size(1280, 720)
 
-        @JvmStatic
-        @Parameterized.Parameters
-        fun data() = listOf(size480p, size720p)
+        @JvmStatic @Parameterized.Parameters fun data() = listOf(size480p, size720p)
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -92,9 +88,10 @@ class MLKitBarcodeTest(
     fun setup(): Unit = runBlocking {
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-        barcodeScanner = BarcodeScanning.getClient(
-            BarcodeScannerOptions.Builder().setBarcodeFormats(FORMAT_QR_CODE).build()
-        )
+        barcodeScanner =
+            BarcodeScanning.getClient(
+                BarcodeScannerOptions.Builder().setBarcodeFormats(FORMAT_QR_CODE).build()
+            )
 
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner()
@@ -105,9 +102,7 @@ class MLKitBarcodeTest(
     @After
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
 
         if (::barcodeScanner.isInitialized) {
@@ -147,27 +142,30 @@ class MLKitBarcodeTest(
 
     private fun assertBarcodeDetect(imageAnalysis: ImageAnalysis) {
         val latchForBarcodeDetect = CountDownLatch(2)
-        val mlKitAnalyzer = MlKitAnalyzer(
-            listOf(barcodeScanner),
-            ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
-            ioExecutor()
-        ) { result ->
-            result.getValue(barcodeScanner)?.forEach {
-                if ("Hi, CamX!" == it.displayValue) {
-                    latchForBarcodeDetect.countDown()
+        val mlKitAnalyzer =
+            MlKitAnalyzer(
+                listOf(barcodeScanner),
+                ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
+                ioExecutor()
+            ) { result ->
+                result.getValue(barcodeScanner)?.forEach {
+                    if ("Hi, CamX!" == it.displayValue) {
+                        latchForBarcodeDetect.countDown()
+                    }
+                    Log.d(TAG, "barcode display value: {${it.displayValue}} ")
                 }
-                Log.d(TAG, "barcode display value: {${it.displayValue}} ")
             }
-        }
         imageAnalysis.setAnalyzer(ioExecutor(), mlKitAnalyzer)
 
         // Verify it is the CameraX lab test environment and can detect qr-code.
         assertWithMessage(
-            "Fail to detect qrcode, target resolution: $resolution, " +
-                "image resolution: $imageResolution, " +
-                "target rotation: $targetRotation, " +
-                "image rotation: $imageRotation "
-        ).that(latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+                "Fail to detect qrcode, target resolution: $resolution, " +
+                    "image resolution: $imageResolution, " +
+                    "target rotation: $targetRotation, " +
+                    "image rotation: $imageRotation "
+            )
+            .that(latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS))
+            .isTrue()
     }
 
     @Suppress("DEPRECATION") // legacy resolution API

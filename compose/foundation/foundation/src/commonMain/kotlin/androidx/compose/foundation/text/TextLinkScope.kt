@@ -47,7 +47,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -67,9 +66,7 @@ internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
 internal class TextLinkScope(internal val initialText: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
 
-    /**
-     * [initialText] with applied links styling [LinkAnnotation.styles] to it].
-     */
+    /** [initialText] with applied links styling to it from [LinkAnnotation.styles] */
     internal var text: AnnotatedString = initialText
 
     // Additional span style annotations applied to the AnnotatedString. These SpanStyles are coming
@@ -86,14 +83,16 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      * Causes the modified element to be measured with fixed constraints equal to the bounds of the
      * text range [[start], [end]) and placed over that range of text.
      */
-    private fun Modifier.textRange(start: Int, end: Int): Modifier = this.then(
-        TextRangeLayoutModifier {
-            val layoutResult = textLayoutResult
-                ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-            val bounds = layoutResult.getPathForRange(start, end).getBounds().roundToIntRect()
-            layout(bounds.width, bounds.height) { bounds.topLeft }
-        }
-    )
+    private fun Modifier.textRange(start: Int, end: Int): Modifier =
+        this.then(
+            TextRangeLayoutModifier {
+                val layoutResult =
+                    textLayoutResult
+                        ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
+                val bounds = layoutResult.getPathForRange(start, end).getBounds().roundToIntRect()
+                layout(bounds.width, bounds.height) { bounds.topLeft }
+            }
+        )
 
     private fun shapeForRange(range: LinkRange): Shape? =
         pathForRangeInRangeCoordinates(range)?.let {
@@ -109,7 +108,8 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
         }
 
     private fun pathForRangeInRangeCoordinates(range: LinkRange): Path? {
-        return if (!shouldMeasureLinks()) null else {
+        return if (!shouldMeasureLinks()) null
+        else {
             textLayoutResult?.let {
                 val path = it.getPathForRange(range.start, range.end)
 
@@ -119,15 +119,17 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 val rangeStartLine = it.getLineForOffset(range.start)
                 val rangeEndLine = it.getLineForOffset(range.end)
 
-                val xOffset = if (rangeStartLine == rangeEndLine) {
-                    // if the link occupies a single line, we take the left most position of the
-                    // link's range
-                    minOf(lastCharBoundingBox.left, firstCharBoundingBox.left)
-                } else {
-                    // if the link occupies more than one line, the left sides of the link node and
-                    // text node match so we don't need to do anything
-                    0f
-                }
+                val xOffset =
+                    if (rangeStartLine == rangeEndLine) {
+                        // if the link occupies a single line, we take the left most position of the
+                        // link's range
+                        minOf(lastCharBoundingBox.left, firstCharBoundingBox.left)
+                    } else {
+                        // if the link occupies more than one line, the left sides of the link node
+                        // and
+                        // text node match so we don't need to do anything
+                        0f
+                    }
 
                 // the top of the top-most (first) character
                 val yOffset = firstCharBoundingBox.top
@@ -140,12 +142,12 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
 
     /**
      * This composable responsible for creating layout nodes for each link annotation. Since
-     * [TextLinkScope] object created *only* when there are links present in the text, we don't
-     * need to do any additional guarding inside this composable function.
+     * [TextLinkScope] object created *only* when there are links present in the text, we don't need
+     * to do any additional guarding inside this composable function.
      */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun LinksComposables(textStyle: TextStyle) {
+    fun LinksComposables() {
         val uriHandler = LocalUriHandler.current
 
         val links = text.getLinkAnnotations(0, text.length)
@@ -178,59 +180,49 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 range.item.styles?.focusedStyle,
                 range.item.styles?.hoveredStyle,
                 range.item.styles?.pressedStyle,
-                textStyle.linkStyles
             ) {
-                // merge styling from the link annotation (in case it's set directly) and from the
-                // theming (aka TextStyle). If a link annotation has defined its styling, the
-                // theming will not fully override it but instead apply on top the _missing_ fields
-                val themedLinkStyle =
-                    textStyle.linkStyles?.merge(range.item.styles) ?: range.item.styles
-
                 // we calculate the latest style based on the link state and apply it to the
                 // initialText's style. This allows us to merge the style with the original instead
                 // of fully replacing it
-                val mergedStyle = themedLinkStyle?.style.mergeOrUse(
-                    if (isFocused) themedLinkStyle?.focusedStyle else null
-                ).mergeOrUse(
-                    if (isHovered) themedLinkStyle?.hoveredStyle else null
-                ).mergeOrUse(
-                    if (isPressed) themedLinkStyle?.pressedStyle else null
-                )
-                mergedStyle?.let {
-                    replaceStyle(it, range.start, range.end)
-                }
+                val mergedStyle =
+                    range.item.styles
+                        ?.style
+                        .mergeOrUse(if (isFocused) range.item.styles?.focusedStyle else null)
+                        .mergeOrUse(if (isHovered) range.item.styles?.hoveredStyle else null)
+                        .mergeOrUse(if (isPressed) range.item.styles?.pressedStyle else null)
+                mergedStyle?.let { replaceStyle(it, range.start, range.end) }
             }
         }
     }
 
     private fun SpanStyle?.mergeOrUse(other: SpanStyle?) = this?.merge(other) ?: other
 
-    private fun handleLink(
-        link: LinkAnnotation,
-        uriHandler: UriHandler
-    ) {
+    private fun handleLink(link: LinkAnnotation, uriHandler: UriHandler) {
         when (link) {
-            is LinkAnnotation.Url -> link.linkInteractionListener?.onClick(link) ?: try {
-                uriHandler.openUri(link.url)
-            } catch (_: IllegalArgumentException) {
-                // we choose to silently fail when the uri can't be opened to avoid crashes
-                // for users. This is the case where developer don't provide the link
-                // handlers themselves and therefore I suspect are less likely to test them
-                // manually.
-            }
+            is LinkAnnotation.Url ->
+                link.linkInteractionListener?.onClick(link)
+                    ?: try {
+                        uriHandler.openUri(link.url)
+                    } catch (_: IllegalArgumentException) {
+                        // we choose to silently fail when the uri can't be opened to avoid crashes
+                        // for users. This is the case where developer don't provide the link
+                        // handlers themselves and therefore I suspect are less likely to test them
+                        // manually.
+                    }
             is LinkAnnotation.Clickable -> link.linkInteractionListener?.onClick(link)
         }
     }
 
     /** Returns [text] with additional styles from [LinkAnnotation] based on link's state */
     internal fun applyAnnotators(): AnnotatedString {
-        val styledText = if (annotators.isEmpty()) text else buildAnnotatedString {
-            append(initialText)
-            val scope = TextAnnotatorScope(this)
-            annotators.fastForEach {
-                it.invoke(scope)
-            }
-        }
+        val styledText =
+            if (annotators.isEmpty()) text
+            else
+                buildAnnotatedString {
+                    append(initialText)
+                    val scope = TextAnnotatorScope(this)
+                    annotators.fastForEach { it.invoke(scope) }
+                }
         text = styledText
         return styledText
     }
@@ -240,25 +232,18 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     private fun StyleAnnotation(vararg keys: Any?, block: TextAnnotatorScope.() -> Unit) {
         DisposableEffect(block, *keys) {
             annotators += block
-            onDispose {
-                annotators -= block
-            }
+            onDispose { annotators -= block }
         }
     }
 }
 
-/**
- * Interface holding the width, height and positioning logic.
- */
-internal class TextRangeLayoutMeasureResult internal constructor(
-    val width: Int,
-    val height: Int,
-    val place: () -> IntOffset
-)
+/** Interface holding the width, height and positioning logic. */
+internal class TextRangeLayoutMeasureResult
+internal constructor(val width: Int, val height: Int, val place: () -> IntOffset)
 
 /**
- * The receiver scope of a text range layout's measure lambda. The return value of the
- * measure lambda is [TextRangeLayoutMeasureResult], which should be returned by [layout]
+ * The receiver scope of a text range layout's measure lambda. The return value of the measure
+ * lambda is [TextRangeLayoutMeasureResult], which should be returned by [layout]
  */
 internal class TextRangeLayoutMeasureScope {
     fun layout(width: Int, height: Int, place: () -> IntOffset): TextRangeLayoutMeasureResult =
@@ -275,9 +260,7 @@ internal class TextRangeLayoutModifier(val measurePolicy: TextRangeScopeMeasureP
     override fun Density.modifyParentData(parentData: Any?) = this@TextRangeLayoutModifier
 }
 
-/**
- * Provides methods to add styles to text inside a [TextLinkScope.StyleAnnotation] function.
- */
+/** Provides methods to add styles to text inside a [TextLinkScope.StyleAnnotation] function. */
 private class TextAnnotatorScope(private val builder: AnnotatedString.Builder) {
     fun replaceStyle(style: SpanStyle, start: Int, end: Int) {
         builder.addStyle(style, start, end)

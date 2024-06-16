@@ -55,7 +55,8 @@ internal class AvailabilityResponse(
                         DataTypeAvailability.fromProto(proto.availability.dataTypeAvailability)
                     LOCATION_AVAILABILITY ->
                         LocationAvailability.fromProto(proto.availability.locationAvailability)
-                    null, AVAILABILITY_NOT_SET -> DataTypeAvailability.UNKNOWN
+                    null,
+                    AVAILABILITY_NOT_SET -> DataTypeAvailability.UNKNOWN
                 }
 
             AvailabilityResponse(DataType.deltaFromProto(proto.dataType), availability)

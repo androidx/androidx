@@ -62,17 +62,17 @@ class NetworkRequestConstraintControllerTest {
     // should be similarly mocked, thus it is just simply inferior version of shadows.
     @Test
     fun kindaButNotReallyATest() {
-        val connectivityManager = getApplicationContext<Context>()
-            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val connManagerShadow = Shadow.extract<ExtendedShadowConnectivityManager>(
-            connectivityManager
-        )
+        val connectivityManager =
+            getApplicationContext<Context>().getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
+        val connManagerShadow =
+            Shadow.extract<ExtendedShadowConnectivityManager>(connectivityManager)
 
         val controller = NetworkRequestConstraintController(connectivityManager)
         // doesn't bother to set it up, because it is ignored by shadow anyway.
         val request = NetworkRequest.Builder().build()
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkRequest(request, NetworkType.CONNECTED).build()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkRequest(request, NetworkType.CONNECTED).build()
         runBlocking {
             val results = mutableListOf<ConstraintsState>()
             val deferred = CompletableDeferred<Unit>()
@@ -92,36 +92,38 @@ class NetworkRequestConstraintControllerTest {
                 job.join()
             }
 
-            assertThat(results).isEqualTo(
-                listOf(ConstraintsMet, ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
-            )
+            assertThat(results)
+                .isEqualTo(
+                    listOf(ConstraintsMet, ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
+                )
         }
     }
 
     @Test
     fun testInitialValueIfNoNetwork() {
-        val connectivityManager = getApplicationContext<Context>()
-            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getApplicationContext<Context>().getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
         val controller = NetworkRequestConstraintController(connectivityManager, 0)
-        val connManagerShadow = Shadow.extract<ExtendedShadowConnectivityManager>(
-            connectivityManager
-        )
+        val connManagerShadow =
+            Shadow.extract<ExtendedShadowConnectivityManager>(connectivityManager)
         connManagerShadow.setDefaultNetworkActive(false)
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkRequest(NetworkRequest.Builder().build(), NetworkType.CONNECTED)
-            .build()
+        val constraints =
+            Constraints.Builder()
+                .setRequiredNetworkRequest(NetworkRequest.Builder().build(), NetworkType.CONNECTED)
+                .build()
         runBlocking {
             val constraintsState = controller.track(constraints).first()
-            assertThat(constraintsState).isEqualTo(
-                ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY)
-            )
+            assertThat(constraintsState)
+                .isEqualTo(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
         }
     }
 
     @Test
     fun testIsCurrentlyConstrained() {
-        val connectivityManager = getApplicationContext<Context>()
-            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getApplicationContext<Context>().getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
         val controller = NetworkRequestConstraintController(connectivityManager, 0)
         val workSpec = WorkSpec(id = UUID.randomUUID().toString(), workerClassName = "Foo")
         assertThat(controller.isCurrentlyConstrained(workSpec)).isFalse()

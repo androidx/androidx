@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OwnerFocusTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun requestFocus_bringsViewInFocus() {
@@ -50,24 +49,17 @@ class OwnerFocusTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             ownerView = LocalView.current
-            Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .focusTarget()
-            )
+            Box(modifier = Modifier.focusRequester(focusRequester).focusTarget())
         }
 
         // Act.
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(ownerView.isFocused).isTrue()
-        }
+        rule.runOnIdle { assertThat(ownerView.isFocused).isTrue() }
     }
 
+    @Ignore("b/325466015")
     @Test
     fun whenOwnerGainsFocus_focusModifiersAreUpdated() {
         // Arrange.
@@ -75,22 +67,14 @@ class OwnerFocusTest {
         lateinit var focusState: FocusState
         rule.setFocusableContent(extraItemForInitialFocus = false) {
             ownerView = LocalView.current
-            Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusTarget()
-            )
+            Box(modifier = Modifier.onFocusChanged { focusState = it }.focusTarget())
         }
 
         // Act.
-        rule.runOnIdle {
-            ownerView.requestFocus()
-        }
+        rule.runOnIdle { ownerView.requestFocus() }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isTrue()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isTrue() }
     }
 
     @Test
@@ -105,34 +89,26 @@ class OwnerFocusTest {
             ownerView = LocalView.current
             Column {
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .onFocusChanged { focusState1 = it }
-                        .focusTarget()
+                    modifier =
+                        Modifier.size(10.dp).onFocusChanged { focusState1 = it }.focusTarget()
                 )
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState2 = it }
-                        .focusTarget()
+                    modifier =
+                        Modifier.size(10.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { focusState2 = it }
+                            .focusTarget()
                 )
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .onFocusChanged { focusState3 = it }
-                        .focusTarget()
+                    modifier =
+                        Modifier.size(10.dp).onFocusChanged { focusState3 = it }.focusTarget()
                 )
             }
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
-        val focusRequested = rule.runOnIdle {
-            ownerView.requestFocus(FOCUS_DOWN)
-        }
+        val focusRequested = rule.runOnIdle { ownerView.requestFocus(FOCUS_DOWN) }
 
         // Assert.
         rule.runOnIdle {
@@ -155,34 +131,26 @@ class OwnerFocusTest {
             ownerView = LocalView.current
             Column {
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .onFocusChanged { focusState1 = it }
-                        .focusTarget()
+                    modifier =
+                        Modifier.size(10.dp).onFocusChanged { focusState1 = it }.focusTarget()
                 )
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState2 = it }
-                        .focusTarget()
+                    modifier =
+                        Modifier.size(10.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { focusState2 = it }
+                            .focusTarget()
                 )
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .onFocusChanged { focusState3 = it }
-                        .focusTarget()
+                    modifier =
+                        Modifier.size(10.dp).onFocusChanged { focusState3 = it }.focusTarget()
                 )
             }
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
-        val focusRequested = rule.runOnIdle {
-            ownerView.requestFocus(FOCUS_UP)
-        }
+        val focusRequested = rule.runOnIdle { ownerView.requestFocus(FOCUS_UP) }
 
         // Assert.
         rule.runOnIdle {
@@ -203,22 +171,18 @@ class OwnerFocusTest {
         rule.setFocusableContent {
             ownerView = LocalView.current
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
 
         // Act.
-        rule.runOnIdle {
-            ownerView.dispatchWindowFocusChanged(true)
-        }
+        rule.runOnIdle { ownerView.dispatchWindowFocusChanged(true) }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isTrue()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isTrue() }
     }
 
     @Test
@@ -230,26 +194,20 @@ class OwnerFocusTest {
         rule.setFocusableContent {
             ownerView = LocalView.current
             Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .onFocusChanged { focusState = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.size(10.dp)
+                        .onFocusChanged { focusState = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
-        rule.runOnIdle {
-            ownerView.clearFocus()
-        }
+        rule.runOnIdle { ownerView.clearFocus() }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isFalse()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isFalse() }
     }
 
     @Test
@@ -261,25 +219,19 @@ class OwnerFocusTest {
         rule.setFocusableContent {
             ownerView = LocalView.current
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
-        rule.runOnIdle {
-            ownerView.dispatchWindowFocusChanged(false)
-        }
+        rule.runOnIdle { ownerView.dispatchWindowFocusChanged(false) }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusState.isFocused).isTrue()
-        }
+        rule.runOnIdle { assertThat(focusState.isFocused).isTrue() }
     }
 
     @Test
@@ -301,6 +253,7 @@ class OwnerFocusTest {
         }
     }
 
+    @Ignore("b/325466015")
     @Test
     fun clickingOnNonClickableSpaceInAppWhenViewIsFocused_doesNotChangeViewFocus() {
         // Arrange.

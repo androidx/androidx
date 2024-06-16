@@ -32,7 +32,8 @@ class SpannedStringTest {
 
     @Test fun toSpanned() = assertTrue("Hello, World".toSpanned() is SpannedString)
 
-    @Test fun getSpans() {
+    @Test
+    fun getSpans() {
         val bold = StyleSpan(BOLD)
         val underline = UnderlineSpan()
 

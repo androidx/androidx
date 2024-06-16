@@ -28,27 +28,29 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://material.io/components/cards" class="external" target="_blank">Material Design card</a>.
+ * <a href="https://material.io/components/cards" class="external" target="_blank">Material Design
+ * card</a>.
  *
  * Cards contain content and actions about a single subject.
  *
- * ![Cards image](https://developer.android.com/images/reference/androidx/compose/material/cards.png)
+ * ![Cards
+ * image](https://developer.android.com/images/reference/androidx/compose/material/cards.png)
  *
- * This version of Card will block clicks behind it. For clickable card, please use another
- * overload that accepts `onClick` as a parameter.
+ * This version of Card will block clicks behind it. For clickable card, please use another overload
+ * that accepts `onClick` as a parameter.
  *
  * @sample androidx.compose.material.samples.CardSample
  *
  * @param modifier Modifier to be applied to the layout of the card.
- * @param shape Defines the card's shape as well its shadow. A shadow is only
- *  displayed if the [elevation] is greater than zero.
+ * @param shape Defines the card's shape as well its shadow. A shadow is only displayed if the
+ *   [elevation] is greater than zero.
  * @param backgroundColor The background color.
- * @param contentColor The preferred content color provided by this card to its children.
- * Defaults to either the matching content color for [backgroundColor], or if [backgroundColor]
- * is not a color from the theme, this will keep the same value set above this card.
+ * @param contentColor The preferred content color provided by this card to its children. Defaults
+ *   to either the matching content color for [backgroundColor], or if [backgroundColor] is not a
+ *   color from the theme, this will keep the same value set above this card.
  * @param border Optional border to draw on top of the card
- * @param elevation The z-coordinate at which to place this card. This controls
- *  the size of the shadow below the card.
+ * @param elevation The z-coordinate at which to place this card. This controls the size of the
+ *   shadow below the card.
  */
 @Composable
 @NonRestartableComposable
@@ -75,28 +77,28 @@ fun Card(
 /**
  * Cards are [Surface]s that display content and actions on a single topic.
  *
- * This version of Card provides click handling as well. If you do not want Card to handle
- * clicks, consider using another overload.
+ * This version of Card provides click handling as well. If you do not want Card to handle clicks,
+ * consider using another overload.
  *
  * @sample androidx.compose.material.samples.ClickableCardSample
  *
  * @param onClick callback to be called when the card is clicked
  * @param modifier Modifier to be applied to the layout of the card.
- * @param enabled Controls the enabled state of the card. When `false`, this card will not
- * be clickable
- * @param shape Defines the card's shape as well its shadow. A shadow is only
- *  displayed if the [elevation] is greater than zero.
+ * @param enabled Controls the enabled state of the card. When `false`, this card will not be
+ *   clickable
+ * @param shape Defines the card's shape as well its shadow. A shadow is only displayed if the
+ *   [elevation] is greater than zero.
  * @param backgroundColor The background color.
- * @param contentColor The preferred content color provided by this card to its children.
- * Defaults to either the matching content color for [backgroundColor], or if [backgroundColor]
- * is not a color from the theme, this will keep the same value set above this card.
+ * @param contentColor The preferred content color provided by this card to its children. Defaults
+ *   to either the matching content color for [backgroundColor], or if [backgroundColor] is not a
+ *   color from the theme, this will keep the same value set above this card.
  * @param border Optional border to draw on top of the card
- * @param elevation The z-coordinate at which to place this card. This controls
- *  the size of the shadow below the card.
+ * @param elevation The z-coordinate at which to place this card. This controls the size of the
+ *   shadow below the card.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this card. You can use this to change the card's
- * appearance or preview the card in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  */
 @ExperimentalMaterialApi
 @Composable

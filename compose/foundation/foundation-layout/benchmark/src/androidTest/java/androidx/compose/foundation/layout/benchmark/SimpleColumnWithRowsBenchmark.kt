@@ -38,17 +38,18 @@ import org.junit.runners.Parameterized
 class SimpleColumnWithRowsBenchmark(private val numberOfBoxes: Int) {
 
     private val subLayouts = 5
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "numberOfBoxes={0}")
         fun initParameters(): Array<Int> = arrayOf(10, 100)
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
-    private val simpleColumnWithRowsFactory =
-        { SimpleColumnWithRowsTestCase(subLayouts, numberOfBoxes) }
+    private val simpleColumnWithRowsFactory = {
+        SimpleColumnWithRowsTestCase(subLayouts, numberOfBoxes)
+    }
 
     @Test
     fun first_compose() {

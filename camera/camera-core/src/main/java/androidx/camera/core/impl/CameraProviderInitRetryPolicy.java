@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import static androidx.camera.core.impl.CameraValidator.CameraIdListIncorrectException;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalRetryPolicy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.RetryPolicy;
@@ -31,7 +30,6 @@ import androidx.camera.core.RetryPolicy;
  * {@link RetryConfig#DEFAULT_DELAY_RETRY} delay for any failure status except
  * {@link ExecutionState#STATUS_CONFIGURATION_FAIL}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalRetryPolicy
 public final class CameraProviderInitRetryPolicy implements RetryPolicyInternal {
 

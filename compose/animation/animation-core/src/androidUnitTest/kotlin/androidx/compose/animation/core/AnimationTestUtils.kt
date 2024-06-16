@@ -17,12 +17,8 @@
 package androidx.compose.animation.core
 
 internal fun VectorizedAnimationSpec<AnimationVector1D>.at(time: Long): Float =
-    getValueFromMillis(
-        time,
-        AnimationVector1D(0f),
-        AnimationVector1D(1f),
-        AnimationVector1D(0f)
-    ).value
+    getValueFromMillis(time, AnimationVector1D(0f), AnimationVector1D(1f), AnimationVector1D(0f))
+        .value
 
 internal fun VectorizedAnimationSpec<AnimationVector1D>.at(time: Int): Float = at(time.toLong())
 
@@ -31,24 +27,28 @@ internal fun VectorizedAnimationSpec<AnimationVector1D>.getValue(
     start: Number,
     end: Number,
     startVelocity: Number
-) = getValueFromMillis(
-    playTime,
-    AnimationVector1D(start.toFloat()),
-    AnimationVector1D(end.toFloat()),
-    AnimationVector1D(startVelocity.toFloat())
-).value
+) =
+    getValueFromMillis(
+            playTime,
+            AnimationVector1D(start.toFloat()),
+            AnimationVector1D(end.toFloat()),
+            AnimationVector1D(startVelocity.toFloat())
+        )
+        .value
 
 internal fun VectorizedAnimationSpec<AnimationVector1D>.getVelocity(
     playTime: Long,
     start: Number,
     end: Number,
     startVelocity: Number
-) = getVelocityFromNanos(
-    playTime * MillisToNanos,
-    AnimationVector1D(start.toFloat()),
-    AnimationVector1D(end.toFloat()),
-    AnimationVector1D(startVelocity.toFloat())
-).value
+) =
+    getVelocityFromNanos(
+            playTime * MillisToNanos,
+            AnimationVector1D(start.toFloat()),
+            AnimationVector1D(end.toFloat()),
+            AnimationVector1D(startVelocity.toFloat())
+        )
+        .value
 
 /**
  * Returns the value of the animation at the given play time.
@@ -87,8 +87,8 @@ internal fun FloatAnimationSpec.getDurationMillis(
 ): Long = getDurationNanos(start, end, startVelocity) / MillisToNanos
 
 /**
- * Calculates the value of the animation at given the playtime, with the provided start/end
- * values, and start velocity.
+ * Calculates the value of the animation at given the playtime, with the provided start/end values,
+ * and start velocity.
  *
  * @param playTimeMillis time since the start of the animation
  * @param start start value of the animation
@@ -120,27 +120,21 @@ internal fun FloatAnimationSpec.getVelocityFromMillis(
     startVelocity: Float
 ): Float = getVelocityFromNanos(playTimeMillis * MillisToNanos, start, end, startVelocity)
 
-/**
- * Creates a TwoWayConverter for FloatArray and the given AnimationVector type.
- */
+/** Creates a TwoWayConverter for FloatArray and the given AnimationVector type. */
 internal inline fun <reified V : AnimationVector> createFloatArrayConverter():
     TwoWayConverter<FloatArray, V> =
     object : TwoWayConverter<FloatArray, V> {
         override val convertToVector: (FloatArray) -> V = {
             when (V::class) {
                 AnimationVector1D::class -> {
-                    AnimationVector(
-                        it.getOrElse(0) { 0f }
-                    )
+                    AnimationVector(it.getOrElse(0) { 0f })
                 }
-
                 AnimationVector2D::class -> {
                     AnimationVector(
                         it.getOrElse(0) { 0f },
                         it.getOrElse(1) { 0f },
                     )
                 }
-
                 AnimationVector3D::class -> {
                     AnimationVector(
                         it.getOrElse(0) { 0f },
@@ -148,7 +142,6 @@ internal inline fun <reified V : AnimationVector> createFloatArrayConverter():
                         it.getOrElse(2) { 0f }
                     )
                 }
-
                 else -> { // 4D
                     AnimationVector(
                         it.getOrElse(0) { 0f },
@@ -157,20 +150,20 @@ internal inline fun <reified V : AnimationVector> createFloatArrayConverter():
                         it.getOrElse(3) { 0f }
                     )
                 }
-            } as V
+            }
+                as V
         }
         override val convertFromVector: (V) -> FloatArray = { vector ->
             FloatArray(vector.size, vector::get)
         }
     }
 
-/**
- * Returns an [AnimationVector] of type [V] filled with the given [value].
- */
+/** Returns an [AnimationVector] of type [V] filled with the given [value]. */
 internal inline fun <reified V : AnimationVector> createFilledVector(value: Float): V =
     when (V::class) {
         AnimationVector1D::class -> AnimationVector1D(value)
         AnimationVector2D::class -> AnimationVector2D(value, value)
         AnimationVector3D::class -> AnimationVector3D(value, value, value)
         else -> AnimationVector4D(value, value, value, value)
-    } as V
+    }
+        as V

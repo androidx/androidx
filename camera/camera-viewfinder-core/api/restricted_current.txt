@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.viewfinder.core {
 
-  @RequiresApi(21) public final class ZoomGestureDetector {
+  public final class ZoomGestureDetector {
     ctor public ZoomGestureDetector(android.content.Context context, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
     ctor public ZoomGestureDetector(android.content.Context context, optional @Px int spanSlop, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
     ctor public ZoomGestureDetector(android.content.Context context, optional @Px int spanSlop, optional @Px int minSpan, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
@@ -51,7 +51,7 @@ package androidx.camera.viewfinder.core {
 
 }
 
-package @RequiresApi(21) androidx.camera.viewfinder.surface {
+package androidx.camera.viewfinder.surface {
 
   public enum ImplementationMode {
     enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode EMBEDDED;
@@ -135,7 +135,7 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
   }
 
   public final class ViewfinderSurfaceRequestUtil {
-    method @RequiresApi(21) public static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
+    method public static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
   }
 
 }

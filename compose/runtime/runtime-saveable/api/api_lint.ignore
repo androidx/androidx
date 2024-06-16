@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+NullableCollectionElement: androidx.compose.runtime.saveable.SaveableStateRegistry#performSave():
+    Collection java.util.List<java.lang.Object> should not have a nullable element type (java.lang.Object) in method androidx.compose.runtime.saveable.SaveableStateRegistry.performSave()

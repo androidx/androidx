@@ -197,6 +197,68 @@ class ChangeTrackerTest {
         assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(1, 3))
     }
 
+    @Test
+    fun multipleFullyNestedChanges() {
+        val buffer = SimpleBuffer("")
+
+        buffer.replace(0, 0, "abcdefg")
+
+        assertThat(buffer.toString()).isEqualTo("abcdefg")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 7))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+
+        buffer.replace(0, 4, "hijk") // hijkefg
+        buffer.replace(3, 6, "abc") // hijabcg
+
+        assertThat(buffer.toString()).isEqualTo("hijabcg")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 7))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+    }
+
+    @Test
+    fun multipleFullyNestedDeletes() {
+        val buffer = SimpleBuffer("")
+
+        buffer.replace(0, 0, "abcdefg")
+
+        assertThat(buffer.toString()).isEqualTo("abcdefg")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 7))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+
+        buffer.replace(0, 1, "") // bcdefg
+        buffer.replace(1, 2, "") // bdefg
+        buffer.replace(2, 3, "") // bdfg
+
+        assertThat(buffer.toString()).isEqualTo("bdfg")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+    }
+
+    @Test
+    fun multipleFullyNestedDeletes_inReverse() {
+        val buffer = SimpleBuffer("")
+
+        buffer.replace(0, 0, "abcdefg")
+
+        assertThat(buffer.toString()).isEqualTo("abcdefg")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 7))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+
+        buffer.replace(6, 7, "") // abcdef
+        buffer.replace(4, 5, "") // abcdf
+        buffer.replace(2, 3, "") // abdf
+
+        assertThat(buffer.toString()).isEqualTo("abdf")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+    }
+
     private class SimpleBuffer(initialText: String = "") {
         private val builder = StringBuilder(initialText)
         val changes = ChangeTracker()

@@ -29,36 +29,39 @@ class HtmlTest {
     private val imageGetter = ImageGetter { null }
     private val tagHandler = TagHandler { _, _, _, _ -> }
 
-    @Test fun parseAsHtml() {
+    @Test
+    fun parseAsHtml() {
         val parsed = "<b>Hi</b> © > <".parseAsHtml().toString()
         assertEquals("Hi \u00a9 > <", parsed)
     }
 
-    @Test fun parseAsHtmlFlags() {
+    @Test
+    fun parseAsHtmlFlags() {
         val parsed = "<b>Hi</b> © > <".parseAsHtml(FROM_HTML_MODE_COMPACT).toString()
         assertEquals("Hi \u00a9 > <", parsed)
     }
 
-    @Test fun parseAsHtmlImageGetterTagHandler() {
-        val parsed = "<b>Hi</b> © > <"
-            .parseAsHtml(FROM_HTML_MODE_COMPACT, imageGetter, tagHandler)
-            .toString()
+    @Test
+    fun parseAsHtmlImageGetterTagHandler() {
+        val parsed =
+            "<b>Hi</b> © > <"
+                .parseAsHtml(FROM_HTML_MODE_COMPACT, imageGetter, tagHandler)
+                .toString()
         assertEquals("Hi \u00a9 > <", parsed)
     }
 
-    @Test fun parseAsHtmlFlagsImageGetterTagHandler() {
-        val parsed = "<b>Hi</b> © > <"
-            .parseAsHtml(imageGetter = imageGetter, tagHandler = tagHandler)
-            .toString()
+    @Test
+    fun parseAsHtmlFlagsImageGetterTagHandler() {
+        val parsed =
+            "<b>Hi</b> © > <"
+                .parseAsHtml(imageGetter = imageGetter, tagHandler = tagHandler)
+                .toString()
         assertEquals("Hi \u00a9 > <", parsed)
     }
 
-    @Test fun convertToHtml() {
-        val html = buildSpannedString {
-            bold {
-                append("Hi")
-            }
-        }.toHtml()
+    @Test
+    fun convertToHtml() {
+        val html = buildSpannedString { bold { append("Hi") } }.toHtml()
         assertTrue(html, html.contains("<b>Hi</b>"))
     }
 }

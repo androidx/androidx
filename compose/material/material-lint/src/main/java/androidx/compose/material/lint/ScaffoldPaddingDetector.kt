@@ -37,27 +37,26 @@ import org.jetbrains.uast.ULambdaExpression
 /**
  * [Detector] that checks `Scaffold` usages for correctness.
  *
- * Scaffold provides an padding parameter to the `content` lambda. If this value is unused,
- * then the content may be obscured by app bars defined by the scaffold.
+ * Scaffold provides an padding parameter to the `content` lambda. If this value is unused, then the
+ * content may be obscured by app bars defined by the scaffold.
  */
 class ScaffoldPaddingDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> = listOf(Scaffold.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(Material.PackageName)) {
-            val contentArgument = computeKotlinArgumentMapping(node, method)
-                .orEmpty()
-                .filter { (_, parameter) ->
-                    parameter.name == "content"
-                }
-                .keys
-                .filterIsInstance<ULambdaExpression>()
-                .firstOrNull() ?: return
+            val contentArgument =
+                computeKotlinArgumentMapping(node, method)
+                    .orEmpty()
+                    .filter { (_, parameter) -> parameter.name == "content" }
+                    .keys
+                    .filterIsInstance<ULambdaExpression>()
+                    .firstOrNull() ?: return
 
             contentArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
-                val location = unreferencedParameter.parameter
-                    ?.let { context.getLocation(it) }
-                    ?: context.getLocation(contentArgument)
+                val location =
+                    unreferencedParameter.parameter?.let { context.getLocation(it) }
+                        ?: context.getLocation(contentArgument)
                 val name = unreferencedParameter.name
                 context.report(
                     UnusedMaterialScaffoldPaddingParameter,
@@ -70,19 +69,22 @@ class ScaffoldPaddingDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val UnusedMaterialScaffoldPaddingParameter = Issue.create(
-            "UnusedMaterialScaffoldPaddingParameter",
-            "Scaffold content should use the padding provided as a lambda parameter",
-            "The `content` lambda in Scaffold has a padding parameter " +
-                "which will include any inner padding for the content due to app bars. If this " +
-                "parameter is ignored, then content may be obscured by the app bars resulting in " +
-                "visual issues or elements that can't be interacted with.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ScaffoldPaddingDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val UnusedMaterialScaffoldPaddingParameter =
+            Issue.create(
+                "UnusedMaterialScaffoldPaddingParameter",
+                "Scaffold content should use the padding provided as a lambda parameter",
+                "The `content` lambda in Scaffold has a padding parameter " +
+                    "which will include any inner padding for the content due to app bars. If this " +
+                    "parameter is ignored, then content may be obscured by the app bars resulting in " +
+                    "visual issues or elements that can't be interacted with.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ScaffoldPaddingDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

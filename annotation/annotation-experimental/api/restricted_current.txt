@@ -8,7 +8,9 @@ package androidx.annotation {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS) public @interface RequiresOptIn {
     method public abstract androidx.annotation.RequiresOptIn.Level level() default androidx.annotation.RequiresOptIn.Level.ERROR;
+    method public abstract String message() default "";
     property public abstract androidx.annotation.RequiresOptIn.Level level;
+    property public abstract String message;
   }
 
   public enum RequiresOptIn.Level {

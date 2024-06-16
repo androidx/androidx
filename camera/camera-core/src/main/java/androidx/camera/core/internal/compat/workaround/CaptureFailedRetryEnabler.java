@@ -16,7 +16,6 @@
 
 package androidx.camera.core.internal.compat.workaround;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.internal.compat.quirk.CaptureFailedRetryQuirk;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
@@ -27,7 +26,6 @@ import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
  *
  * @see CaptureFailedRetryQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CaptureFailedRetryEnabler {
 
     private final CaptureFailedRetryQuirk mCaptureFailedRetryQuirk = DeviceQuirks.get(

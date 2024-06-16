@@ -27,14 +27,12 @@ import androidx.health.connect.client.changes.Change
  * @property nextChangesToken Changes-token to keep for future calls.
  * @property hasMore Whether there are more changes available to be fetched again.
  * @property changesTokenExpired Whether requested Changes-Token has expired.
- *
  * @see [androidx.health.connect.client.HealthConnectClient.getChanges]
  */
 class ChangesResponse
 internal constructor(
     public val changes: List<Change>,
     public val nextChangesToken: String,
-    @get:JvmName("hasMore")
-    public val hasMore: Boolean,
+    @get:JvmName("hasMore") public val hasMore: Boolean,
     public val changesTokenExpired: Boolean,
 )

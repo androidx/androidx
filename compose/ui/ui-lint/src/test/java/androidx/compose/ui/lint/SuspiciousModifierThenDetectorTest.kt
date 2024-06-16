@@ -26,11 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
-/**
- * Test for [SuspiciousModifierThenDetector].
- */
+/** Test for [SuspiciousModifierThenDetector]. */
 @RunWith(JUnit4::class)
 class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = SuspiciousModifierThenDetector()
@@ -40,9 +36,10 @@ class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
 
     @Test
     fun clean() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -74,18 +71,19 @@ class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
                     return this.then(lambda())
                 }
 """
-            ),
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Modifier
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.Modifier
@@ -100,9 +98,9 @@ class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
 
                 fun Modifier.test4() = this.then(if (true) test() else TestModifier)
 """
-            ),
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Modifier
+            )
             .run()
             .expect(
                 """
@@ -120,4 +118,3 @@ src/test/TestModifier.kt:14: Error: Using Modifier.then with a Modifier factory 
             )
     }
 }
-/* ktlint-enable max-line-length */

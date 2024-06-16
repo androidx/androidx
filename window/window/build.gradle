@@ -58,7 +58,17 @@ dependencies {
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
     def extensions_version = "androidx.window.extensions:extensions:1.2.0"
-    implementation(extensions_core_version)
+    // A compile only dependency on extnensions.core so that other libraries do not expose it
+    // transitively.
+    compileOnly(extensions_core_version)
+    // A compile only dependency on extnensions.core so that other libraries do not expose it
+    // transitively. The testCompile is added because tests are not getting the dependency
+    // transitively.
+    testCompileOnly(extensions_core_version)
+    // A compile only dependency on extnensions.core so that other libraries do not expose it
+    // transitively. The androidTestCompile is added because tests are not getting the dependency
+    // transitively.
+    androidTestCompileOnly(extensions_core_version)
     compileOnly(project(":window:sidecar:sidecar"))
     compileOnly(extensions_version)
 
@@ -101,5 +111,6 @@ androidx {
     // Suppressing deprecation warnings, since there is a need to maintain compatibility with old
     // Sidecar interface.
     failOnDeprecationWarnings = false
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":window:window-samples"))
 }

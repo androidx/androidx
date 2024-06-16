@@ -52,38 +52,28 @@ sealed interface IntervalList<out T> {
     operator fun get(index: Int): Interval<T>
 
     /**
-     * Iterates through all the intervals starting from the one containing [fromIndex]
-     * until the one containing [toIndex].
+     * Iterates through all the intervals starting from the one containing [fromIndex] until the one
+     * containing [toIndex].
      *
      * @param fromIndex we will start iterating from the interval containing this index.
      * @param toIndex the last interval we iterate through will contain this index. This index
-     * should be not smaller than [fromIndex].
-     *
+     *   should be not smaller than [fromIndex].
      * @throws IndexOutOfBoundsException if the indexes are not within 0..[size] - 1 range.
      */
-    fun forEach(
-        fromIndex: Int = 0,
-        toIndex: Int = size - 1,
-        block: (Interval<T>) -> Unit
-    )
+    fun forEach(fromIndex: Int = 0, toIndex: Int = size - 1, block: (Interval<T>) -> Unit)
 
     /**
      * The interval holder.
      *
      * @see get
      */
-    class Interval<out T> internal constructor(
-        /**
-         * The index of the first item in the interval.
-         */
+    class Interval<out T>
+    internal constructor(
+        /** The index of the first item in the interval. */
         val startIndex: Int,
-        /**
-         * The amount of items in the interval.
-         */
+        /** The amount of items in the interval. */
         val size: Int,
-        /**
-         * The value representing this interval.
-         */
+        /** The value representing this interval. */
         val value: T
     ) {
         init {
@@ -107,8 +97,8 @@ class MutableIntervalList<T> : IntervalList<T> {
         private set
 
     /**
-     * Caches the last interval we binary searched for. We might not need to recalculate
-     * for subsequent queries, as they tend to be localised.
+     * Caches the last interval we binary searched for. We might not need to recalculate for
+     * subsequent queries, as they tend to be localised.
      */
     private var lastInterval: IntervalList.Interval<T>? = null
 
@@ -119,18 +109,12 @@ class MutableIntervalList<T> : IntervalList<T> {
      * @param value the value representing this interval.
      */
     fun addInterval(size: Int, value: T) {
-        require(size >= 0) {
-            "size should be >=0, but was $size"
-        }
+        require(size >= 0) { "size should be >=0, but was $size" }
         if (size == 0) {
             return
         }
 
-        val interval = IntervalList.Interval(
-            startIndex = this.size,
-            size = size,
-            value = value
-        )
+        val interval = IntervalList.Interval(startIndex = this.size, size = size, value = value)
         this.size += size
         intervals.add(interval)
     }
@@ -141,8 +125,7 @@ class MutableIntervalList<T> : IntervalList<T> {
      *
      * @param fromIndex we will start iterating from the interval containing this index.
      * @param toIndex the last interval we iterate through will contain this index. This index
-     * should be not smaller than [fromIndex].
-     *
+     *   should be not smaller than [fromIndex].
      * @throws IndexOutOfBoundsException if the indexes are not within 0..[size] - 1 range.
      */
     override fun forEach(fromIndex: Int, toIndex: Int, block: (IntervalList.Interval<T>) -> Unit) {
@@ -172,9 +155,7 @@ class MutableIntervalList<T> : IntervalList<T> {
         return if (lastInterval != null && lastInterval.contains(itemIndex)) {
             lastInterval
         } else {
-            intervals[intervals.binarySearch(itemIndex)].also {
-                this.lastInterval = it
-            }
+            intervals[intervals.binarySearch(itemIndex)].also { this.lastInterval = it }
         }
     }
 

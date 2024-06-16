@@ -64,8 +64,7 @@ private const val DEFAULT_LENS_FACING_SELECTOR = CameraSelector.LENS_FACING_BACK
 @SdkSuppress(minSdkVersion = 21)
 class CaptureConfigAdapterDeviceTest {
 
-    @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    @get:Rule val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     private var cameraControl: CameraControlAdapter? = null
     private var camera: CameraUseCaseAdapter? = null
@@ -76,28 +75,25 @@ class CaptureConfigAdapterDeviceTest {
     fun setUp() = runBlocking {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING_SELECTOR))
         testDeferrableSurface = TestDeferrableSurface()
-        fakeUseCase = FakeTestUseCase(
-            FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
-        ).apply {
-            setupSessionConfig(SessionConfig.Builder().also { sessionConfigBuilder ->
-                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                sessionConfigBuilder.addSurface(testDeferrableSurface)
-            })
-        }
+        fakeUseCase =
+            FakeTestUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig)
+                .apply {
+                    setupSessionConfig(
+                        SessionConfig.Builder().also { sessionConfigBuilder ->
+                            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                            sessionConfigBuilder.addSurface(testDeferrableSurface)
+                        }
+                    )
+                }
 
         val context: Context = ApplicationProvider.getApplicationContext()
-        CameraXUtil.initialize(
-            context, CameraPipeConfig.defaultConfig()
-        )
-        camera = CameraUtil.createCameraUseCaseAdapter(
-            context, CameraSelector.Builder().requireLensFacing(
-                DEFAULT_LENS_FACING_SELECTOR
-            ).build()
-        ).apply {
-            withContext(Dispatchers.Main) {
-                addUseCases(listOf(fakeUseCase))
-            }
-        }
+        CameraXUtil.initialize(context, CameraPipeConfig.defaultConfig())
+        camera =
+            CameraUtil.createCameraUseCaseAdapter(
+                    context,
+                    CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING_SELECTOR).build()
+                )
+                .apply { withContext(Dispatchers.Main) { addUseCases(listOf(fakeUseCase)) } }
 
         cameraControl = camera!!.cameraControl.toCameraControlAdapter()
     }
@@ -117,30 +113,35 @@ class CaptureConfigAdapterDeviceTest {
         val deferred = CompletableDeferred<CameraCaptureResult>()
         val tagKey = "TestTagBundleKey"
         val tagValue = "testing"
-        val captureConfig = CaptureConfig.Builder().apply {
-            templateType = CameraDevice.TEMPLATE_PREVIEW
-            addTag(tagKey, tagValue)
-            addSurface(testDeferrableSurface)
-            addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCompleted(
-                    captureConfigId: Int,
-                    cameraCaptureResult: CameraCaptureResult
-                ) {
-                    deferred.complete(cameraCaptureResult)
-                }
+        val captureConfig =
+            CaptureConfig.Builder()
+                .apply {
+                    templateType = CameraDevice.TEMPLATE_PREVIEW
+                    addTag(tagKey, tagValue)
+                    addSurface(testDeferrableSurface)
+                    addCameraCaptureCallback(
+                        object : CameraCaptureCallback() {
+                            override fun onCaptureCompleted(
+                                captureConfigId: Int,
+                                cameraCaptureResult: CameraCaptureResult
+                            ) {
+                                deferred.complete(cameraCaptureResult)
+                            }
 
-                override fun onCaptureFailed(
-                    captureConfigId: Int,
-                    failure: CameraCaptureFailure
-                ) {
-                    deferred.completeExceptionally(Throwable(failure.reason.toString()))
-                }
+                            override fun onCaptureFailed(
+                                captureConfigId: Int,
+                                failure: CameraCaptureFailure
+                            ) {
+                                deferred.completeExceptionally(Throwable(failure.reason.toString()))
+                            }
 
-                override fun onCaptureCancelled(captureConfigId: Int) {
-                    deferred.cancel()
+                            override fun onCaptureCancelled(captureConfigId: Int) {
+                                deferred.cancel()
+                            }
+                        }
+                    )
                 }
-            })
-        }.build()
+                .build()
 
         // Act
         cameraControl!!.submitStillCaptureRequests(
@@ -151,10 +152,9 @@ class CaptureConfigAdapterDeviceTest {
 
         // Assert
         Truth.assertThat(
-            withTimeoutOrNull(timeMillis = 5000) {
-                deferred.await()
-            }!!.tagBundle.getTag(tagKey)
-        ).isEqualTo(tagValue)
+                withTimeoutOrNull(timeMillis = 5000) { deferred.await() }!!.tagBundle.getTag(tagKey)
+            )
+            .isEqualTo(tagValue)
     }
 
     @Test
@@ -163,23 +163,28 @@ class CaptureConfigAdapterDeviceTest {
         val deferredCompleted = CompletableDeferred<Int>()
         val deferredStarted = CompletableDeferred<Int>()
         val expectedCaptureConfigId = 101
-        val captureConfig = CaptureConfig.Builder().apply {
-            templateType = CameraDevice.TEMPLATE_PREVIEW
-            setId(expectedCaptureConfigId)
-            addSurface(testDeferrableSurface)
-            addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCompleted(
-                    captureConfigId: Int,
-                    cameraCaptureResult: CameraCaptureResult
-                ) {
-                    deferredCompleted.complete(captureConfigId)
-                }
+        val captureConfig =
+            CaptureConfig.Builder()
+                .apply {
+                    templateType = CameraDevice.TEMPLATE_PREVIEW
+                    setId(expectedCaptureConfigId)
+                    addSurface(testDeferrableSurface)
+                    addCameraCaptureCallback(
+                        object : CameraCaptureCallback() {
+                            override fun onCaptureCompleted(
+                                captureConfigId: Int,
+                                cameraCaptureResult: CameraCaptureResult
+                            ) {
+                                deferredCompleted.complete(captureConfigId)
+                            }
 
-                override fun onCaptureStarted(captureConfigId: Int) {
-                    deferredStarted.complete(captureConfigId)
+                            override fun onCaptureStarted(captureConfigId: Int) {
+                                deferredStarted.complete(captureConfigId)
+                            }
+                        }
+                    )
                 }
-            })
-        }.build()
+                .build()
 
         // Act
         cameraControl!!.submitStillCaptureRequests(
@@ -189,16 +194,10 @@ class CaptureConfigAdapterDeviceTest {
         )
 
         // Assert
-        Truth.assertThat(
-            withTimeoutOrNull(timeMillis = 5000) {
-                deferredStarted.await()
-            }
-        ).isEqualTo(expectedCaptureConfigId)
-        Truth.assertThat(
-            withTimeoutOrNull(timeMillis = 5000) {
-                deferredCompleted.await()
-            }
-        ).isEqualTo(expectedCaptureConfigId)
+        Truth.assertThat(withTimeoutOrNull(timeMillis = 5000) { deferredStarted.await() })
+            .isEqualTo(expectedCaptureConfigId)
+        Truth.assertThat(withTimeoutOrNull(timeMillis = 5000) { deferredCompleted.await() })
+            .isEqualTo(expectedCaptureConfigId)
     }
 
     private class FakeTestUseCase(
@@ -213,14 +212,10 @@ class CaptureConfigAdapterDeviceTest {
 
     private class TestDeferrableSurface : DeferrableSurface() {
         init {
-            terminationFuture.addListener(
-                { cleanUp() }, Dispatchers.IO.asExecutor()
-            )
+            terminationFuture.addListener({ cleanUp() }, Dispatchers.IO.asExecutor())
         }
 
-        private val surfaceTexture = SurfaceTexture(0).also {
-            it.setDefaultBufferSize(640, 480)
-        }
+        private val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
         val testSurface = Surface(surfaceTexture)
 
         override fun provideSurface(): ListenableFuture<Surface> {

@@ -22,17 +22,16 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
 
-/**
- * Truth extension for ClipData.
- */
-internal class ClipDataSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: ClipData?
-) : Subject(failureMetadata, subject) {
+/** Truth extension for ClipData. */
+internal class ClipDataSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: ClipData?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<ClipDataSubject?, ClipData?> =
-            Factory { failureMetadata, subject -> ClipDataSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                ClipDataSubject(failureMetadata, subject)
+            }
     }
 
     /**
@@ -40,24 +39,26 @@ internal class ClipDataSubject private constructor(
      *
      * @param clipData the [ClipData] to be matched.
      */
-    fun isEqualToClipData(
-        clipData: ClipData,
-        ignoreClipDescription: Boolean = false
-    ) {
+    fun isEqualToClipData(clipData: ClipData, ignoreClipDescription: Boolean = false) {
         if (subject === clipData) return
         check("isNotNull()").that(subject).isNotNull()
         check("getItemCount()").that(subject!!.itemCount).isEqualTo(clipData.itemCount)
         for (i in 0 until subject.itemCount) {
-            check("getItemAt($i).getUri()").that(subject.getItemAt(i).uri)
+            check("getItemAt($i).getUri()")
+                .that(subject.getItemAt(i).uri)
                 .isEqualTo(clipData.getItemAt(i).uri)
-            check("getItemAt($i).getText()").that(subject.getItemAt(i).text)
+            check("getItemAt($i).getText()")
+                .that(subject.getItemAt(i).text)
                 .isEqualTo(clipData.getItemAt(i).text)
-            check("getItemAt($i).getHtmlText()").that(subject.getItemAt(i).htmlText)
+            check("getItemAt($i).getHtmlText()")
+                .that(subject.getItemAt(i).htmlText)
                 .isEqualTo(clipData.getItemAt(i).htmlText)
-            check("getItemAt($i).getIntent()").that(subject.getItemAt(i).intent)
+            check("getItemAt($i).getIntent()")
+                .that(subject.getItemAt(i).intent)
                 .isEqualTo(clipData.getItemAt(i).intent)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                check("getItemAt($i).getTextLinks()").that(subject.getItemAt(i).textLinks)
+                check("getItemAt($i).getTextLinks()")
+                    .that(subject.getItemAt(i).textLinks)
                     .isEqualTo(clipData.getItemAt(i).textLinks)
             }
         }

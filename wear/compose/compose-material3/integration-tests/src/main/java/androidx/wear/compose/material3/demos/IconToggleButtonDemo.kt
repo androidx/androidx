@@ -48,11 +48,7 @@ fun IconToggleButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Icon Toggle Button", textAlign = TextAlign.Center)
-            }
-        }
+        item { ListHeader { Text("Icon Toggle Button", textAlign = TextAlign.Center) } }
         item {
             Row {
                 IconToggleButtonSample() // Enabled & checked
@@ -67,11 +63,7 @@ fun IconToggleButtonDemo() {
                 IconToggleButtonsDemo(enabled = false, initialChecked = false)
             }
         }
-        item {
-            ListHeader {
-                Text("Sizes")
-            }
-        }
+        item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${IconButtonDefaults.LargeButtonSize.value.toInt()}dp")

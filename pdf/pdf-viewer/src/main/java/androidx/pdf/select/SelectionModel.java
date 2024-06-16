@@ -16,6 +16,7 @@
 
 package androidx.pdf.select;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.util.ObservableValue;
@@ -36,6 +37,7 @@ public abstract class SelectionModel<S> {
     /**
      *
      */
+    @NonNull
     public ObservableValue<S> selection() {
         return mSelection;
     }
@@ -43,6 +45,7 @@ public abstract class SelectionModel<S> {
     /**
      *
      */
+    @NonNull
     public abstract String getText();
 
     /** Synchronous update - the exact selection is already known. */
@@ -53,7 +56,8 @@ public abstract class SelectionModel<S> {
     /**
      *
      */
-    public void updateSelectionAsync(SelectionBoundary start, SelectionBoundary stop) {
+    public void updateSelectionAsync(@NonNull SelectionBoundary start,
+            @NonNull SelectionBoundary stop) {
         throw new UnsupportedOperationException("No support for updating selection");
     }
 }

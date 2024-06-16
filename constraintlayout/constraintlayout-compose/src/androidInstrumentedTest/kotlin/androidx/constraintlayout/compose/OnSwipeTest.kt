@@ -44,8 +44,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OnSwipeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setup() {
@@ -76,19 +75,12 @@ class OnSwipeTest {
         motionSemantic
             .assertExists()
             .performSwipe(
-                from = {
-                    Offset(right * 0.25f, centerY)
-                },
-                to = {
-                    Offset(right * 0.5f, centerY)
-                },
+                from = { Offset(right * 0.25f, centerY) },
+                to = { Offset(right * 0.5f, centerY) },
                 endWithUp = false
             )
         rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(51.6.dp, 128.3.dp)
-        motionSemantic
-            .performTouchInput {
-                up()
-            }
+        motionSemantic.performTouchInput { up() }
         // Wait a frame for the Touch Up animation to start
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
@@ -99,11 +91,11 @@ class OnSwipeTest {
 @Composable
 private fun OnSwipeTestJson() {
     MotionLayout(
-        modifier = Modifier
-            .testTag("MyMotion")
-            .size(200.dp),
-        motionScene = MotionScene(
-            content = """
+        modifier = Modifier.testTag("MyMotion").size(200.dp),
+        motionScene =
+            MotionScene(
+                content =
+                    """
        {
          ConstraintSets: {
            start: {
@@ -137,59 +129,51 @@ private fun OnSwipeTestJson() {
            }
          }
        }
-        """.trimIndent()
-        ),
+        """
+                        .trimIndent()
+            ),
         progress = 0.0f
     ) {
-        Box(
-            modifier = Modifier
-                .background(Color.Red)
-                .layoutId("box")
-                .testTag("box")
-        )
+        Box(modifier = Modifier.background(Color.Red).layoutId("box").testTag("box"))
     }
 }
 
 @Composable
 private fun OnSwipeTestDsl() {
     MotionLayout(
-        modifier = Modifier
-            .testTag("MyMotion")
-            .size(200.dp),
-        motionScene = MotionScene {
-            val box = createRefFor("box")
-            val from: ConstraintSetRef = constraintSet {
-                constrain(box) {
-                    width = Dimension.value(20.dp)
-                    height = Dimension.value(20.dp)
-                    bottom.linkTo(parent.bottom, 10.dp)
-                    start.linkTo(parent.start, 10.dp)
+        modifier = Modifier.testTag("MyMotion").size(200.dp),
+        motionScene =
+            MotionScene {
+                val box = createRefFor("box")
+                val from: ConstraintSetRef = constraintSet {
+                    constrain(box) {
+                        width = Dimension.value(20.dp)
+                        height = Dimension.value(20.dp)
+                        bottom.linkTo(parent.bottom, 10.dp)
+                        start.linkTo(parent.start, 10.dp)
+                    }
                 }
-            }
-            val to = constraintSet(extendConstraintSet = from) {
-                constrain(box) {
-                    clearConstraints()
-                    top.linkTo(parent.top, 10.dp)
-                    end.linkTo(parent.end, 10.dp)
+                val to =
+                    constraintSet(extendConstraintSet = from) {
+                        constrain(box) {
+                            clearConstraints()
+                            top.linkTo(parent.top, 10.dp)
+                            end.linkTo(parent.end, 10.dp)
+                        }
+                    }
+                defaultTransition(from, to) {
+                    onSwipe =
+                        OnSwipe(
+                            anchor = box,
+                            direction = SwipeDirection.End,
+                            side = SwipeSide.End,
+                            mode = SwipeMode.spring(threshold = 0.0001f),
+                            onTouchUp = SwipeTouchUp.NeverCompleteStart,
+                        )
                 }
-            }
-            defaultTransition(from, to) {
-                onSwipe = OnSwipe(
-                    anchor = box,
-                    direction = SwipeDirection.End,
-                    side = SwipeSide.End,
-                    mode = SwipeMode.spring(threshold = 0.0001f),
-                    onTouchUp = SwipeTouchUp.NeverCompleteStart,
-                )
-            }
-        },
+            },
         progress = 0.0f
     ) {
-        Box(
-            modifier = Modifier
-                .background(Color.Red)
-                .layoutId("box")
-                .testTag("box")
-        )
+        Box(modifier = Modifier.background(Color.Red).layoutId("box").testTag("box"))
     }
 }

@@ -17,40 +17,46 @@
 package androidx.compose.ui.graphics.colorspace
 
 /**
- * Defines the parameters for the ICC parametric curve type 4, as
- * defined in ICC.1:2004-10, section 10.15.
+ * Defines the parameters for the ICC parametric curve type 4, as defined in ICC.1:2004-10, section
+ * 10.15.
  *
- * [The EOTF is of the form linked here](https://d.android.com/reference/android/graphics/ColorSpace.Rgb.TransferParameters)
+ * [The EOTF is of the form linked
+ * here](https://d.android.com/reference/android/graphics/ColorSpace.Rgb.TransferParameters)
  *
  * The corresponding OETF is simply the inverse function.
  *
- * The parameters defined by this class form a valid transfer
- * function only if all the following conditions are met:
- *
- *  * No parameter is a [Not-a-Number][Double.isNaN]
- *  * `d` is in the range `[0..1]`
- *  * The function is not constant
- *  * The function is positive and increasing
+ * The parameters defined by this class form a valid transfer function only if all the following
+ * conditions are met:
+ * * No parameter is a [Not-a-Number][Double.isNaN]
+ * * `d` is in the range `[0..1]`
+ * * The function is not constant
+ * * The function is positive and increasing
  */
 data class TransferParameters(
-    /** Value g in the equation of the EOTF described above.  */
+    /** Value g in the equation of the EOTF described above. */
     val gamma: Double,
-    /** Value a in the equation of the EOTF described above.  */
+    /** Value a in the equation of the EOTF described above. */
     val a: Double,
-    /** Value b in the equation of the EOTF described above.  */
+    /** Value b in the equation of the EOTF described above. */
     val b: Double,
-    /** Value c in the equation of the EOTF described above.  */
+    /** Value c in the equation of the EOTF described above. */
     val c: Double,
-    /** Value d in the equation of the EOTF described above.  */
+    /** Value d in the equation of the EOTF described above. */
     val d: Double,
-    /** Value e in the equation of the EOTF described above.  */
+    /** Value e in the equation of the EOTF described above. */
     val e: Double = 0.0,
-    /** Value f in the equation of the EOTF described above.  */
+    /** Value f in the equation of the EOTF described above. */
     val f: Double = 0.0
 ) {
     init {
-        if (a.isNaN() || b.isNaN() || c.isNaN() || d.isNaN() || e.isNaN() || f.isNaN() ||
-            gamma.isNaN()
+        if (
+            a.isNaN() ||
+                b.isNaN() ||
+                c.isNaN() ||
+                d.isNaN() ||
+                e.isNaN() ||
+                f.isNaN() ||
+                gamma.isNaN()
         ) {
             throw IllegalArgumentException("Parameters cannot be NaN")
         }
@@ -58,10 +64,7 @@ data class TransferParameters(
         // Next representable float after 1.0
         // We use doubles here but the representation inside our native code is often floats
         if (!(d >= 0.0 && d <= 1.0)) {
-            throw IllegalArgumentException(
-                "Parameter d must be in the range [0..1], was " +
-                    "$d"
-            )
+            throw IllegalArgumentException("Parameter d must be in the range [0..1], was " + "$d")
         }
 
         if (d == 0.0 && (a == 0.0 || gamma == 0.0)) {
@@ -71,15 +74,12 @@ data class TransferParameters(
         }
 
         if (d >= 1.0 && c == 0.0) {
-            throw IllegalArgumentException(
-                "Parameter c is zero, the transfer function is constant"
-            )
+            throw IllegalArgumentException("Parameter c is zero, the transfer function is constant")
         }
 
         if ((a == 0.0 || gamma == 0.0) && c == 0.0) {
             throw IllegalArgumentException(
-                "Parameter a or g is zero," +
-                    " and c is zero, the transfer function is constant"
+                "Parameter a or g is zero," + " and c is zero, the transfer function is constant"
             )
         }
 
@@ -89,10 +89,7 @@ data class TransferParameters(
 
         if (a < 0.0 || gamma < 0.0) {
             throw IllegalArgumentException(
-                (
-                    "The transfer function must be " +
-                        "positive or increasing"
-                    )
+                ("The transfer function must be " + "positive or increasing")
             )
         }
     }

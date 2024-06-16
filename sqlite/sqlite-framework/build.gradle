@@ -92,19 +92,21 @@ androidXMultiplatform {
         }
         nativeMain {
             dependsOn(commonMain)
+            // For usage of C interop APIs
+            // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
+            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
         }
         nativeTest {
             dependsOn(commonTest)
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 def main = target.compilations["main"]
                 main.defaultSourceSet {
                     dependsOn(nativeMain)
+                    // Aligns dependants of nativeMain to have same language settings.
+                    languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
                 }
-                // For usage of C interop APIs
-                // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
-                main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
                     sqlite3 { cInteropSettings ->
                         includeDirs(configurations.sqliteSources.incoming.files)
@@ -132,6 +134,8 @@ androidXMultiplatform {
             }
         }
     }
+
+    enableBinaryCompatibilityValidator = true
 }
 
 dependencies {
@@ -145,6 +149,7 @@ androidx {
     inceptionYear = "2017"
     description = "The implementation of SQLite library using the framework code."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

@@ -51,9 +51,7 @@ class SwipeMultiTouchTest {
     @Test
     fun test() = runComposeUiTest {
         setContent {
-            Box(Modifier.fillMaxSize()) {
-                ClickableTestBox(modifier = recorder, tag = TAG)
-            }
+            Box(Modifier.fillMaxSize()) { ClickableTestBox(modifier = recorder, tag = TAG) }
         }
 
         // Move three fingers over the box from left to right simultaneously
@@ -65,10 +63,7 @@ class SwipeMultiTouchTest {
         val curve3 = line(fromX = 10f, toX = 90f, y = 80f, DURATION)
 
         onNodeWithTag(TAG).performTouchInput {
-            multiTouchSwipe(
-                curves = listOf(curve1, curve2, curve3),
-                durationMillis = DURATION
-            )
+            multiTouchSwipe(curves = listOf(curve1, curve2, curve3), durationMillis = DURATION)
         }
 
         val pointer1 = PointerId(0)

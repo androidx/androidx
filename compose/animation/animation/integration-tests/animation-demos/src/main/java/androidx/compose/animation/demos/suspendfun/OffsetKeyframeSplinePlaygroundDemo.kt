@@ -98,47 +98,28 @@ fun OffsetKeyframeSplinePlaygroundDemo() {
 
     Column(Modifier.fillMaxSize()) {
         Text(text = "Touch and drag to move anchors. DSL is printed in Logcat.")
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f, true)
-        ) {
+        Box(Modifier.fillMaxWidth().weight(1f, true)) {
             dslText.value?.let {
-                Popup(
-                    alignment = Alignment.Center,
-                    onDismissRequest = { dslText.value = null }
-                ) {
+                Popup(alignment = Alignment.Center, onDismissRequest = { dslText.value = null }) {
                     Text(text = it)
                 }
-            } ?: kotlin.run {
-                playgroundModel.DrawContent(Modifier.fillMaxSize())
-            }
+            } ?: kotlin.run { playgroundModel.DrawContent(Modifier.fillMaxSize()) }
         }
         Column(Modifier.padding(start = 12.dp, end = 12.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button(onClick = playgroundModel::onRun) {
-                    Text(text = "Run")
-                }
+                Button(onClick = playgroundModel::onRun) { Text(text = "Run") }
                 Button(
-                    onClick = {
-                        dslText.value = playgroundModel.getDslText()
-                    },
+                    onClick = { dslText.value = playgroundModel.getDslText() },
                     enabled = dslText.value == null
                 ) {
                     Text(text = "DSL")
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = {
-                        playgroundModel.addAnchor(density)
-                    }) {
-                        Text(text = "Add")
-                    }
-                    Button(onClick = playgroundModel::removeAnchor) {
-                        Text(text = "Remove")
-                    }
+                    Button(onClick = { playgroundModel.addAnchor(density) }) { Text(text = "Add") }
+                    Button(onClick = playgroundModel::removeAnchor) { Text(text = "Remove") }
                 }
             }
             Text("Duration: ${playgroundModel.totalDuration.roundToInt()}ms")
@@ -153,9 +134,7 @@ fun OffsetKeyframeSplinePlaygroundDemo() {
 
 @Suppress("PrimitiveInCollection")
 @OptIn(ExperimentalAnimationSpecApi::class)
-private class SplineKeyframesPlaygroundModel(
-    private val scope: CoroutineScope
-) {
+private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) {
     private val zero2DVector = AnimationVector2D(0f, 0f)
 
     // TODO: This is extremely hacky, find a way to improve
@@ -177,6 +156,7 @@ private class SplineKeyframesPlaygroundModel(
     val totalDuration by derivedStateOf { anchors.size * durationPerAnchor.floatValue }
 
     private var isInit = false
+
     private fun init(density: Density) {
         if (!isInit) {
             repeat((pointCount.toFloat() / 2f).roundToInt()) {
@@ -241,19 +221,13 @@ private class SplineKeyframesPlaygroundModel(
                     if (anchors.isEmpty()) {
                         return@drawBehind
                     }
-                    val textOffsetPx = with(this) {
-                        Offset(textOffset.toPx(), textOffset.toPx())
-                    }
+                    val textOffsetPx = with(this) { Offset(textOffset.toPx(), textOffset.toPx()) }
 
                     // Draw anchors
                     translate(center.x, center.y) {
                         anchors.forEachIndexed { index, anchorPosition ->
                             translate(anchorPosition.x, anchorPosition.y) {
-                                drawPath(
-                                    path = diamondPath,
-                                    color = diamondColor,
-                                    style = Fill
-                                )
+                                drawPath(path = diamondPath, color = diamondColor, style = Fill)
                                 val text = getTextForAnchor(index)
                                 drawText(
                                     textLayoutResult = textMeasurer.measure(text),
@@ -266,9 +240,7 @@ private class SplineKeyframesPlaygroundModel(
                 }
                 .pointerInput(Unit) {
                     detectDragGestures(
-                        onDragStart = {
-                            onDragStart(it, size)
-                        },
+                        onDragStart = { onDragStart(it, size) },
                         onDragEnd = this@SplineKeyframesPlaygroundModel::onDragEnd,
                         onDragCancel = this@SplineKeyframesPlaygroundModel::onDragEnd,
                         onDrag = this@SplineKeyframesPlaygroundModel::onDrag
@@ -278,16 +250,14 @@ private class SplineKeyframesPlaygroundModel(
             Text(
                 text = "✈",
                 fontSize = 42.sp,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .graphicsLayer {
-                        translationX = -13f
-                        translationY = 5f
-                    }
-                    .offset {
-                        animatedOffset.value.round()
-                    }
-                    .graphicsLayer { rotationZ = angle.floatValue - 90f }
+                modifier =
+                    Modifier.align(Alignment.Center)
+                        .graphicsLayer {
+                            translationX = -13f
+                            translationY = 5f
+                        }
+                        .offset { animatedOffset.value.round() }
+                        .graphicsLayer { rotationZ = angle.floatValue - 90f }
             )
         }
 
@@ -295,24 +265,27 @@ private class SplineKeyframesPlaygroundModel(
         LaunchedEffect(modificationIndicator) {
             samplePoints.clear()
             var i = 0
-            val vectorized = keyframesWithSpline(0.5f) {
-                durationMillis = totalDuration.roundToInt()
+            val vectorized =
+                keyframesWithSpline(0.5f) {
+                        durationMillis = totalDuration.roundToInt()
 
-                anchors.forEachIndexed { index, offset ->
-                    val fraction = (index + 1f) / (anchorCount + 1)
-                    offset atFraction fraction
-                }
-            }.vectorize(Offset.VectorConverter)
+                        anchors.forEachIndexed { index, offset ->
+                            val fraction = (index + 1f) / (anchorCount + 1)
+                            offset atFraction fraction
+                        }
+                    }
+                    .vectorize(Offset.VectorConverter)
 
             var timeMillis = 0f
             val step = vectorized.durationMillis.toFloat() / sampleCount
             while (isActive && i < sampleCount) {
-                val vectorValue = vectorized.getValueFromNanos(
-                    playTimeNanos = timeMillis.roundToLong() * 1_000_000,
-                    initialValue = zero2DVector,
-                    targetValue = zero2DVector,
-                    initialVelocity = zero2DVector
-                )
+                val vectorValue =
+                    vectorized.getValueFromNanos(
+                        playTimeNanos = timeMillis.roundToLong() * 1_000_000,
+                        initialValue = zero2DVector,
+                        targetValue = zero2DVector,
+                        initialVelocity = zero2DVector
+                    )
                 samplePoints.add(Offset(vectorValue.v1, vectorValue.v2))
                 timeMillis += step
                 i++
@@ -364,17 +337,18 @@ private class SplineKeyframesPlaygroundModel(
             animatedOffset.snapTo(Offset.Zero)
             animatedOffset.animateTo(
                 targetValue = Offset.Zero,
-                animationSpec = InfiniteRepeatableSpec(
-                    keyframesWithSpline(0.5f) {
-                        durationMillis = totalDuration.roundToInt()
+                animationSpec =
+                    InfiniteRepeatableSpec(
+                        keyframesWithSpline(0.5f) {
+                            durationMillis = totalDuration.roundToInt()
 
-                        anchors.forEachIndexed { index, offset ->
-                            val fraction = (index + 1f) / (anchorCount + 1)
-                            offset atFraction fraction
-                        }
-                    },
-                    RepeatMode.Restart
-                )
+                            anchors.forEachIndexed { index, offset ->
+                                val fraction = (index + 1f) / (anchorCount + 1)
+                                offset atFraction fraction
+                            }
+                        },
+                        RepeatMode.Restart
+                    )
             ) {
                 angle.floatValue =
                     Math.toDegrees(atan2(y = velocity.y, x = velocity.x).toDouble()).toFloat() + 90f
@@ -387,16 +361,18 @@ private class SplineKeyframesPlaygroundModel(
     private val last = 90
     private val length = last - first + 1 // inclusive
     private val textCache = mutableMapOf<Int, String>()
+
     private fun getTextForAnchor(anchorIndex: Int): String {
         if (textCache.containsKey(anchorIndex)) {
             return textCache[anchorIndex]!!
         }
         var text = ""
-        val textLength = if (anchorIndex == 0) {
-            1
-        } else {
-            log(anchorIndex.toFloat(), length.toFloat()).toInt() + 1
-        }
+        val textLength =
+            if (anchorIndex == 0) {
+                1
+            } else {
+                log(anchorIndex.toFloat(), length.toFloat()).toInt() + 1
+            }
         var value = anchorIndex
         for (i in 0 until textLength) {
             val codeOffset = value % length
@@ -413,9 +389,7 @@ private class SplineKeyframesPlaygroundModel(
     private val angleStep = 1f / pointCount
     private val angleInitialOff = angleStep / 2f // Offset to visually center the angles
 
-    /**
-     * Get the next offset, relative to the center of the layout.
-     */
+    /** Get the next offset, relative to the center of the layout. */
     private fun getNextPosition(density: Density): Offset {
         val nextPointIndex = anchors.size
         val posInAngle = nextPointIndex % pointCount
@@ -438,10 +412,8 @@ private class SplineKeyframesPlaygroundModel(
     //   private val diffThreshold = 10 * 10 * 2
     private fun onDragStart(position: Offset, size: IntSize) {
         scope.launch { animatedOffset.snapTo(Offset.Zero) }
-        val relPosition = Offset(
-            position.x - (size.width * 0.5f),
-            position.y - (size.height * 0.5f)
-        )
+        val relPosition =
+            Offset(position.x - (size.width * 0.5f), position.y - (size.height * 0.5f))
         var closestIndex = -1
         var smallestDiff = Long.MAX_VALUE
 

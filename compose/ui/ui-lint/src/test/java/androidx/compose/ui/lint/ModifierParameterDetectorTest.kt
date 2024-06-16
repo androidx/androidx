@@ -26,25 +26,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
-/**
- * Test for [ModifierParameterDetector].
- */
+/** Test for [ModifierParameterDetector]. */
 @RunWith(JUnit4::class)
 class ModifierParameterDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ModifierParameterDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(
-            ModifierParameterDetector.ModifierParameter
-        )
+        mutableListOf(ModifierParameterDetector.ModifierParameter)
 
     @Test
     fun modifierParameterNaming() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -58,10 +53,10 @@ class ModifierParameterDetectorTest : LintDetectorTest() {
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expect(
                 """
@@ -83,9 +78,10 @@ Fix for src/androidx/compose/ui/foo/test.kt line 10: Change name to modifier:
 
     @Test
     fun modifierParameterType() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -99,10 +95,10 @@ Fix for src/androidx/compose/ui/foo/test.kt line 10: Change name to modifier:
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expect(
                 """
@@ -124,9 +120,10 @@ Fix for src/androidx/compose/ui/foo/test.kt line 10: Change type to Modifier:
 
     @Test
     fun modifierParameterDefaultValue() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -142,10 +139,10 @@ Fix for src/androidx/compose/ui/foo/test.kt line 10: Change type to Modifier:
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expect(
                 """
@@ -167,9 +164,10 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 12: Change default valu
 
     @Test
     fun modifierParameterOrdering() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -183,10 +181,10 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 12: Change default valu
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expect(
                 """
@@ -200,9 +198,10 @@ src/androidx/compose/ui/foo/test.kt:11: Warning: Modifier parameter should be th
 
     @Test
     fun multipleErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -218,10 +217,10 @@ src/androidx/compose/ui/foo/test.kt:11: Warning: Modifier parameter should be th
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expect(
                 """
@@ -260,9 +259,10 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
 
     @Test
     fun ignoreNonComposableFunctions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -273,10 +273,10 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
                     buttonModifier: TestModifier = TestModifier,
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expectClean()
     }
@@ -287,9 +287,10 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
      */
     @Test
     fun ignoreOrderingIfNoDefaultValue() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -302,19 +303,20 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
@@ -336,12 +338,11 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
                     content: @Composable () -> Unit
                 ) {}
             """
-            ),
-            Stubs.Composable,
-            Stubs.Modifier
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Modifier
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

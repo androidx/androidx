@@ -25,27 +25,26 @@ import androidx.credentials.exceptions.GetCredentialException
 import java.util.concurrent.Executor
 
 /**
- * Provider interface to be implemented by system credential providers that
- * will fulfill Credential Manager requests. The implementation **must** have a constructor that
- * takes in a context.
+ * Provider interface to be implemented by system credential providers that will fulfill Credential
+ * Manager requests. The implementation **must** have a constructor that takes in a context.
  *
- * <p>Note that for SDK version 33 and below, this interface can be implemented by any OEM
- * provider that wishes to return credentials. The implementation must have a constructor with a
- * context parameter. A provider must :
+ * <p>Note that for SDK version 33 and below, this interface can be implemented by any OEM provider
+ * that wishes to return credentials. The implementation must have a constructor with a context
+ * parameter. A provider must :
  * <ol>
- *     <li>Release a dedicated provider library that developers can add as a dependency.
- *     <li>Include an empty CredentialProviderService in the provider library for the purposes of
- *     exposing a meta-data tag in the Android Manifest file.
- *     <li>Add the name of the class that is implementing this interface, as a value
- *     to the meta-data tag described above.
- *     <li>Make sure that there is only one provider implementation on the device. If the device
- *     already has a provider installed, and the developer specifies more than one provider
- *     dependencies, credential manager will error out.
- *</ol>
+ * <li>Release a dedicated provider library that developers can add as a dependency.
+ * <li>Include an empty CredentialProviderService in the provider library for the purposes of
+ *   exposing a meta-data tag in the Android Manifest file.
+ * <li>Add the name of the class that is implementing this interface, as a value to the meta-data
+ *   tag described above.
+ * <li>Make sure that there is only one provider implementation on the device. If the device already
+ *   has a provider installed, and the developer specifies more than one provider dependencies,
+ *   credential manager will error out.
+ * </ol>
  *
- * <p>For SDK version 34 and above, this interface will only be implemented by an internal
- * class that will route all requests to the android framework. Providers will need
- * to register directly with the framework to provide credentials.
+ * <p>For SDK version 34 and above, this interface will only be implemented by an internal class
+ * that will route all requests to the android framework. Providers will need to register directly
+ * with the framework to provide credentials.
  */
 interface CredentialProvider {
     /**

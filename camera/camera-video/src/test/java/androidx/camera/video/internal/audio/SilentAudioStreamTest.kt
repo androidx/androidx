@@ -51,12 +51,13 @@ class SilentAudioStreamTest {
 
     @Before
     fun setUp() {
-        val audioSettings = AudioSettings.builder()
-            .setAudioSource(AUDIO_SOURCE)
-            .setSampleRate(SAMPLE_RATE)
-            .setChannelCount(CHANNEL_COUNT)
-            .setAudioFormat(AUDIO_FORMAT)
-            .build()
+        val audioSettings =
+            AudioSettings.builder()
+                .setAudioSource(AUDIO_SOURCE)
+                .setSampleRate(SAMPLE_RATE)
+                .setChannelCount(CHANNEL_COUNT)
+                .setAudioFormat(AUDIO_FORMAT)
+                .build()
         audioStream = SilentAudioStream(audioSettings)
         audioStreamCallback = FakeAudioStreamCallback()
         audioStream.setCallback(audioStreamCallback, ioExecutor())
@@ -72,26 +73,20 @@ class SilentAudioStreamTest {
 
     @Test
     fun readBeforeStart_throwException() {
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.read(byteBuffer)
-        }
+        assertThrows(IllegalStateException::class.java) { audioStream.read(byteBuffer) }
     }
 
     @Test
     fun readAfterStop_throwException() {
         audioStream.start()
         audioStream.stop()
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.read(byteBuffer)
-        }
+        assertThrows(IllegalStateException::class.java) { audioStream.read(byteBuffer) }
     }
 
     @Test
     fun startAfterReleased_throwException() {
         audioStream.release()
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.start()
-        }
+        assertThrows(IllegalStateException::class.java) { audioStream.start() }
     }
 
     @Test

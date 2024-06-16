@@ -18,8 +18,11 @@ package androidx.compose.animation.core
 
 @RequiresOptIn(message = "This API is internal to library.")
 @Target(
-    AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY,
-    AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.PROPERTY_GETTER
 )
 @Retention(AnnotationRetention.BINARY)
 annotation class InternalAnimationApi

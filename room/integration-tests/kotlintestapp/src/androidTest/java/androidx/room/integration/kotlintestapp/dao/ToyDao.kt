@@ -24,21 +24,15 @@ import androidx.room.integration.kotlintestapp.vo.Toy
 
 @Dao
 interface ToyDao {
-    @Insert
-    fun insert(vararg toys: Toy)
+    @Insert fun insert(vararg toys: Toy)
 
-    @Query("SELECT * FROM Toy WHERE mId = :id")
-    fun getToy(id: Int): Toy?
+    @Query("SELECT * FROM Toy WHERE mId = :id") fun getToy(id: Int): Toy?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrReplace(toy: Toy)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertOrReplace(toy: Toy)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertOrIgnore(toy: Toy)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insertOrIgnore(toy: Toy)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateOrReplace(toy: Toy): Int
+    @Update(onConflict = OnConflictStrategy.REPLACE) fun updateOrReplace(toy: Toy): Int
 
-    @Update(onConflict = OnConflictStrategy.IGNORE)
-    fun updateOrIgnore(toy: Toy): Int
+    @Update(onConflict = OnConflictStrategy.IGNORE) fun updateOrIgnore(toy: Toy): Int
 }

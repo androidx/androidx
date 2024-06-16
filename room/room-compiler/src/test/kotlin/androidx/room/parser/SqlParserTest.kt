@@ -27,10 +27,7 @@ import org.junit.runners.JUnit4
 class SqlParserTest {
     @Test
     fun multipleQueries() {
-        assertErrors(
-            "SELECT * FROM users; SELECT * FROM books;",
-            ParserErrors.NOT_ONE_QUERY
-        )
+        assertErrors("SELECT * FROM users; SELECT * FROM books;", ParserErrors.NOT_ONE_QUERY)
     }
 
     @Test
@@ -62,20 +59,20 @@ class SqlParserTest {
 
     @Test
     fun insertQuery() {
-        val parsed = SqlParser.parse(
-            "INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)"
-        )
+        val parsed =
+            SqlParser.parse("INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)")
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
     }
 
     @Test
     fun upsertQuery() {
-        val parsed = SqlParser.parse(
-            "INSERT INTO notes (id, content) VALUES (:id, :content) " +
-                "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
-                "revision = revision + 1, modifiedTime = strftime('%s','now')"
-        )
+        val parsed =
+            SqlParser.parse(
+                "INSERT INTO notes (id, content) VALUES (:id, :content) " +
+                    "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
+                    "revision = revision + 1, modifiedTime = strftime('%s','now')"
+            )
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
     }
@@ -91,12 +88,26 @@ class SqlParserTest {
     @Test
     fun validColumnNames() {
         listOf(
-            "f", "fo", "f2", "f 2", "foo_2", "foo-2", "_", "foo bar baz",
-            "foo 2 baz", "_baz", "fooBar", "2", "*", "foo*2", "dsa$", "\$fsa",
-            "-bar", "şoöğüı"
-        ).forEach {
-            assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true))
-        }
+                "f",
+                "fo",
+                "f2",
+                "f 2",
+                "foo_2",
+                "foo-2",
+                "_",
+                "foo bar baz",
+                "foo 2 baz",
+                "_baz",
+                "fooBar",
+                "2",
+                "*",
+                "foo*2",
+                "dsa$",
+                "\$fsa",
+                "-bar",
+                "şoöğüı"
+            )
+            .forEach { assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true)) }
     }
 
     @Test
@@ -159,33 +170,17 @@ class SqlParserTest {
     fun tablePrefixInSelect_projection() {
         val query = SqlParser.parse("SELECT a.name, b.last_name from user a, book b")
         assertThat(query.errors, `is`(emptyList()))
-        assertThat(
-            query.tables,
-            `is`(
-                setOf(
-                    Table("user", "a"),
-                    Table("book", "b")
-                )
-            )
-        )
+        assertThat(query.tables, `is`(setOf(Table("user", "a"), Table("book", "b"))))
     }
 
     @Test
     fun tablePrefixInSelect_where() {
-        val query = SqlParser.parse(
-            "SELECT a.name, b.last_name from user a, book b" +
-                " WHERE a.name = b.name"
-        )
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(
-            query.tables,
-            `is`(
-                setOf(
-                    Table("user", "a"),
-                    Table("book", "b")
-                )
+        val query =
+            SqlParser.parse(
+                "SELECT a.name, b.last_name from user a, book b" + " WHERE a.name = b.name"
             )
-        )
+        assertThat(query.errors, `is`(emptyList()))
+        assertThat(query.tables, `is`(setOf(Table("user", "a"), Table("book", "b"))))
     }
 
     @Test
@@ -214,10 +209,7 @@ class SqlParserTest {
 
     @Test
     fun indexedVariablesError() {
-        assertErrors(
-            "select * from users where name like ?",
-            ParserErrors.ANONYMOUS_BIND_ARGUMENT
-        )
+        assertErrors("select * from users where name like ?", ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors(
             "select * from users where name like ? or last_name like ?",
             ParserErrors.ANONYMOUS_BIND_ARGUMENT
@@ -276,9 +268,7 @@ class SqlParserTest {
 
     @Test
     fun hasTopStarProjection() {
-        SqlParser.parse("SELECT * FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isTrue()
-        }
+        SqlParser.parse("SELECT * FROM Foo").let { assertThat(it.hasTopStarProjection).isTrue() }
         SqlParser.parse("SELECT Foo.* FROM Foo").let {
             assertThat(it.hasTopStarProjection).isTrue()
         }
@@ -288,9 +278,7 @@ class SqlParserTest {
         SqlParser.parse("SELECT f.* FROM Foo f").let {
             assertThat(it.hasTopStarProjection).isTrue()
         }
-        SqlParser.parse("SELECT id FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isFalse()
-        }
+        SqlParser.parse("SELECT id FROM Foo").let { assertThat(it.hasTopStarProjection).isFalse() }
         SqlParser.parse("SELECT id FROM (SELECT * FROM Foo)").let {
             assertThat(it.hasTopStarProjection).isFalse()
         }

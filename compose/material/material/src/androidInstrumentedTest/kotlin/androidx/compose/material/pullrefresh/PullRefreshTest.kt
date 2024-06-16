@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterialApi::class)
 class PullRefreshTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val pullRefreshNode = rule.onNodeWithTag(PullRefreshTag)
 
@@ -57,9 +56,7 @@ class PullRefreshTest {
         val touchSlop = setPullRefreshAndReturnSlop(::onPull) { 0f }
         val pullAmount = 400f
 
-        pullRefreshNode.performTouchInput {
-            swipeDown(endY = pullAmount + touchSlop)
-        }
+        pullRefreshNode.performTouchInput { swipeDown(endY = pullAmount + touchSlop) }
 
         rule.runOnIdle { assertThat(distancePulled).isEqualTo(pullAmount) }
     }
@@ -68,7 +65,10 @@ class PullRefreshTest {
     fun onRelease_calledWhen_pullEnds() {
         var releaseCount = 0
 
-        setPullRefreshAndReturnSlop({ it }) { releaseCount++; 0f }
+        setPullRefreshAndReturnSlop({ it }) {
+            releaseCount++
+            0f
+        }
 
         pullRefreshNode.performTouchInput {
             down(Offset.Zero)
@@ -96,7 +96,11 @@ class PullRefreshTest {
             return consumed
         }
 
-        val touchSlop = setPullRefreshAndReturnSlop(::onPull) { releaseCount++; 0f }
+        val touchSlop =
+            setPullRefreshAndReturnSlop(::onPull) {
+                releaseCount++
+                0f
+            }
 
         pullRefreshNode.performTouchInput {
             down(Offset(0f, 800f))
@@ -109,9 +113,7 @@ class PullRefreshTest {
             assertThat(releaseCount).isEqualTo(0)
         }
 
-        pullRefreshNode.performTouchInput {
-            moveBy(Offset(0f, 200f))
-        }
+        pullRefreshNode.performTouchInput { moveBy(Offset(0f, 200f)) }
 
         rule.runOnIdle {
             assertThat(deltaGiven).isEqualTo(-400f)
@@ -119,9 +121,7 @@ class PullRefreshTest {
             assertThat(releaseCount).isEqualTo(0)
         }
 
-        pullRefreshNode.performTouchInput {
-            moveBy(Offset(0f, 200f))
-        }
+        pullRefreshNode.performTouchInput { moveBy(Offset(0f, 200f)) }
 
         rule.runOnIdle {
             assertThat(deltaGiven).isEqualTo(-400f)
@@ -155,7 +155,11 @@ class PullRefreshTest {
             return consumed
         }
 
-        val touchSlop = setPullRefreshAndReturnSlop(::onPull) { releaseCount++; 0f }
+        val touchSlop =
+            setPullRefreshAndReturnSlop(::onPull) {
+                releaseCount++
+                0f
+            }
 
         pullRefreshNode.performTouchInput {
             down(Offset.Zero)
@@ -168,9 +172,7 @@ class PullRefreshTest {
             assertThat(releaseCount).isEqualTo(0)
         }
 
-        pullRefreshNode.performTouchInput {
-            moveBy(Offset(0f, -200f))
-        }
+        pullRefreshNode.performTouchInput { moveBy(Offset(0f, -200f)) }
 
         rule.runOnIdle {
             assertThat(deltaGiven).isEqualTo(200f)
@@ -178,9 +180,7 @@ class PullRefreshTest {
             assertThat(releaseCount).isEqualTo(0)
         }
 
-        pullRefreshNode.performTouchInput {
-            moveBy(Offset(0f, -200f))
-        }
+        pullRefreshNode.performTouchInput { moveBy(Offset(0f, -200f)) }
 
         rule.runOnIdle {
             assertThat(deltaGiven).isEqualTo(0f)
@@ -207,15 +207,8 @@ class PullRefreshTest {
         var slop = 0f
         rule.setContent {
             slop = LocalViewConfiguration.current.touchSlop
-            Box(
-                Modifier
-                    .pullRefresh({ onPull(it) }, { onRelease(it) })
-                    .testTag(PullRefreshTag)) {
-                LazyColumn {
-                    items(100) {
-                        Text("item $it")
-                    }
-                }
+            Box(Modifier.pullRefresh({ onPull(it) }, { onRelease(it) }).testTag(PullRefreshTag)) {
+                LazyColumn { items(100) { Text("item $it") } }
             }
         }
         return slop

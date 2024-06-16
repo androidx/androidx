@@ -77,12 +77,13 @@ fun ModalNavigationDrawer() {
             Box(modifier = Modifier.weight(1f)) {
                 androidx.tv.material3.ModalNavigationDrawer(
                     drawerContent = { Sidebar(direction = direction) },
-                    scrimBrush = Brush.verticalGradient(
-                        listOf(
-                            Color.DarkGray.copy(alpha = 0.2f),
-                            Color.LightGray.copy(alpha = 0.2f)
+                    scrimBrush =
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.DarkGray.copy(alpha = 0.2f),
+                                Color.LightGray.copy(alpha = 0.2f)
+                            )
                         )
-                    )
                 ) {
                     CommonBackground(startPadding = 90.dp)
                 }
@@ -93,12 +94,8 @@ fun ModalNavigationDrawer() {
 
 @Composable
 private fun CommonBackground(startPadding: Dp = 10.dp) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Blue.copy(alpha = 0.3f))) {
-        Row(modifier = Modifier.padding(start = startPadding)) {
-            Card(backgroundColor = Color.Red)
-        }
+    Box(modifier = Modifier.fillMaxSize().background(Color.Blue.copy(alpha = 0.3f))) {
+        Row(modifier = Modifier.padding(start = startPadding)) { Card(backgroundColor = Color.Red) }
     }
 }
 
@@ -108,36 +105,33 @@ private fun NavigationDrawerScope.Sidebar(direction: MutableState<LayoutDirectio
     val selectedIndex = remember { mutableStateOf(0) }
 
     LaunchedEffect(selectedIndex.value) {
-        direction.value = when (selectedIndex.value) {
-            0 -> LayoutDirection.Ltr
-            else -> LayoutDirection.Rtl
-        }
+        direction.value =
+            when (selectedIndex.value) {
+                0 -> LayoutDirection.Ltr
+                else -> LayoutDirection.Rtl
+            }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .background(pageColor.copy(alpha = 0.5f))
-            .padding(12.dp)
-            .selectableGroup(),
+        modifier =
+            Modifier.fillMaxHeight()
+                .background(pageColor.copy(alpha = 0.5f))
+                .padding(12.dp)
+                .selectableGroup(),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         NavigationDrawerItem(
             selected = true,
-            onClick = { },
+            onClick = {},
             leadingContent = {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = null,
                 )
             },
-            supportingContent = {
-                Text("Switch account")
-            },
-            trailingContent = {
-                NavigationDrawerItemDefaults.TrailingBadge("NEW")
-            }
+            supportingContent = { Text("Switch account") },
+            trailingContent = { NavigationDrawerItemDefaults.TrailingBadge("NEW") }
         ) {
             Text(text = "Hi there")
         }

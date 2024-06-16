@@ -23,9 +23,7 @@ import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-/**
- * Empty Implementation for devices that do not support the [WindowAreaController] functionality
- */
+/** Empty Implementation for devices that do not support the [WindowAreaController] functionality */
 @ExperimentalWindowApi
 internal class EmptyWindowAreaControllerImpl : WindowAreaController {
 
@@ -38,8 +36,7 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController {
         executor: Executor,
         windowAreaSessionCallback: WindowAreaSessionCallback
     ) {
-        windowAreaSessionCallback.onSessionEnded(
-            IllegalStateException("There are no WindowAreas"))
+        windowAreaSessionCallback.onSessionEnded(IllegalStateException("There are no WindowAreas"))
     }
 
     override fun presentContentOnWindowArea(
@@ -49,6 +46,7 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController {
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
     ) {
         windowAreaPresentationSessionCallback.onSessionEnded(
-            IllegalStateException("There are no WindowAreas"))
+            IllegalStateException("There are no WindowAreas")
+        )
     }
 }

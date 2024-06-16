@@ -33,11 +33,8 @@ import java.time.Duration
  * @param interval The interval, as a [Duration] over which the frequency cap is calculated
  */
 @ExperimentalFeatures.Ext8OptIn
-class KeyedFrequencyCap public constructor(
-    val adCounterKey: Int,
-    val maxCount: Int,
-    val interval: Duration
-) {
+class KeyedFrequencyCap
+public constructor(val adCounterKey: Int, val maxCount: Int, val interval: Duration) {
     /** Checks whether two [KeyedFrequencyCap] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -65,10 +62,7 @@ class KeyedFrequencyCap public constructor(
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     internal fun convertToAdServices(): android.adservices.common.KeyedFrequencyCap {
-        return android.adservices.common.KeyedFrequencyCap.Builder(
-            adCounterKey,
-            maxCount,
-            interval)
+        return android.adservices.common.KeyedFrequencyCap.Builder(adCounterKey, maxCount, interval)
             .build()
     }
 }

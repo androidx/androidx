@@ -18,47 +18,45 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Immutable
 
-/**
- * Quality levels for image filters.
- * See [Paint.filterQuality].
- */
+/** Quality levels for image filters. See [Paint.filterQuality]. */
 @Immutable
 @kotlin.jvm.JvmInline
 value class FilterQuality internal constructor(val value: Int) {
 
     companion object {
         /**
-         * Fastest possible filtering, albeit also the lowest quality
-         * Typically this implies nearest-neighbour filtering.
+         * Fastest possible filtering, albeit also the lowest quality Typically this implies
+         * nearest-neighbour filtering.
          */
         val None = FilterQuality(0)
 
         /**
-         * Better quality than [None], faster than [Medium].
-         * Typically this implies bilinear interpolation.
+         * Better quality than [None], faster than [Medium]. Typically this implies bilinear
+         * interpolation.
          */
         val Low = FilterQuality(1)
 
         /**
          * Better quality than [Low], faster than [High].
          *
-         * Typically this implies a combination of bilinear interpolation and
-         * pyramidal parametric prefiltering (mipmaps).
+         * Typically this implies a combination of bilinear interpolation and pyramidal parametric
+         * prefiltering (mipmaps).
          */
         val Medium = FilterQuality(2)
 
         /**
-         * Best possible quality filtering, albeit also the slowest.
-         * Typically this implies bicubic interpolation or better.
+         * Best possible quality filtering, albeit also the slowest. Typically this implies bicubic
+         * interpolation or better.
          */
         val High = FilterQuality(3)
     }
 
-    override fun toString() = when (this) {
-        None -> "None"
-        Low -> "Low"
-        Medium -> "Medium"
-        High -> "High"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            None -> "None"
+            Low -> "Low"
+            Medium -> "Medium"
+            High -> "High"
+            else -> "Unknown"
+        }
 }

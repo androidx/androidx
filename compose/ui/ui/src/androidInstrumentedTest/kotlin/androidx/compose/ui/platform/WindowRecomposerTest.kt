@@ -69,17 +69,18 @@ import org.junit.runner.RunWith
 class WindowRecomposerTest {
 
     /**
-     * Test that a Recomposer that doesn't shut down with the activity doesn't inadvertently
-     * keep a reference to the Activity
+     * Test that a Recomposer that doesn't shut down with the activity doesn't inadvertently keep a
+     * reference to the Activity
      */
     @kotlin.OptIn(DelicateCoroutinesApi::class, InternalComposeUiApi::class)
     @Test
     @LargeTest
     fun activityGarbageCollected() {
         val localRecomposer = Recomposer(AndroidUiDispatcher.Main)
-        val recomposerJob = GlobalScope.launch(AndroidUiDispatcher.Main) {
-            localRecomposer.runRecomposeAndApplyChanges()
-        }
+        val recomposerJob =
+            GlobalScope.launch(AndroidUiDispatcher.Main) {
+                localRecomposer.runRecomposeAndApplyChanges()
+            }
         lateinit var weakActivityRef: WeakReference<Activity>
         try {
             WindowRecomposerPolicy.withFactory({ localRecomposer }) {
@@ -88,33 +89,27 @@ class WindowRecomposerTest {
                         weakActivityRef = WeakReference(activity)
                         activity.setContentView(
                             ComposeView(activity).apply {
-                                setContent {
-                                    Box(Modifier.background(Color.Blue).fillMaxSize())
-                                }
+                                setContent { Box(Modifier.background(Color.Blue).fillMaxSize()) }
                             }
                         )
                     }
                     assertNotNull(weakActivityRef.get())
                 }
-                repeat(10) {
-                    Runtime.getRuntime().gc()
-                }
+                repeat(10) { Runtime.getRuntime().gc() }
                 assertNull("expected Activity to have been collected", weakActivityRef.get())
             }
         } finally {
             localRecomposer.cancel()
-            runBlocking {
-                recomposerJob.join()
-            }
+            runBlocking { recomposerJob.join() }
         }
     }
 
     /**
-     * The Android framework may reuse the window decor views in some cases of activity
-     * recreation for configuration changes, notably during dynamic window resizing in
-     * multi-window modes. Confirm that the [windowRecomposer] extension returns a recomposer
-     * based in the content views, not in the decor itself, as this can cause a recomposer to
-     * become decoupled from its `DESTROYED` host lifecycle - the old Activity instance.
+     * The Android framework may reuse the window decor views in some cases of activity recreation
+     * for configuration changes, notably during dynamic window resizing in multi-window modes.
+     * Confirm that the [windowRecomposer] extension returns a recomposer based in the content
+     * views, not in the decor itself, as this can cause a recomposer to become decoupled from its
+     * `DESTROYED` host lifecycle - the old Activity instance.
      *
      * Regression test for https://issuetracker.google.com/issues/184293033
      */
@@ -124,9 +119,7 @@ class WindowRecomposerTest {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             var firstRecomposer: Recomposer? = null
             scenario.onActivity {
-                it.setContent {
-                    BasicText("Hello, world")
-                }
+                it.setContent { BasicText("Hello, world") }
                 val contentParent = it.findViewById<ViewGroup>(android.R.id.content)
                 assertEquals("child count of @android:id/content", 1, contentParent.childCount)
                 firstRecomposer = contentParent[0].windowRecomposer
@@ -136,9 +129,7 @@ class WindowRecomposerTest {
             scenario.onActivity {
                 // force removal of the old composition host view and don't reuse
                 it.setContentView(View(it))
-                it.setContent {
-                    BasicText("Hello, again!")
-                }
+                it.setContent { BasicText("Hello, again!") }
                 val contentParent = it.findViewById<ViewGroup>(android.R.id.content)
                 assertEquals("child count of @android:id/content", 1, contentParent.childCount)
                 secondRecomposer = contentParent[0].windowRecomposer
@@ -158,22 +149,21 @@ class WindowRecomposerTest {
         lateinit var view: View
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                view = ComposeView(activity).apply {
-                    setContent {
-                        val value by input.collectAsState()
-                        output = "one $value"
+                view =
+                    ComposeView(activity).apply {
+                        setContent {
+                            val value by input.collectAsState()
+                            output = "one $value"
+                        }
                     }
-                }
                 activity.setContentView(view)
             }
 
             delay(3_000)
 
             suspend fun assertOutput(expected: String) {
-                withTimeoutOrNull(1_000) {
-                    snapshotFlow { output }
-                        .first { it == expected }
-                } ?: fail("unexpected output; $output expected $expected")
+                withTimeoutOrNull(1_000) { snapshotFlow { output }.first { it == expected } }
+                    ?: fail("unexpected output; $output expected $expected")
             }
 
             assertOutput("one 0")
@@ -182,9 +172,7 @@ class WindowRecomposerTest {
 
             assertOutput("one 1")
 
-            scenario.onActivity { activity ->
-                activity.setContentView(view)
-            }
+            scenario.onActivity { activity -> activity.setContentView(view) }
 
             assertOutput("one 1")
 
@@ -202,15 +190,11 @@ class WindowRecomposerTest {
             val effectContext = CompletableDeferred<CoroutineContext>()
             scenario.onActivity { activity ->
                 val view = ComposeView(activity)
-                val recomposer = view.createLifecycleAwareWindowRecomposer(
-                    expectedElement,
-                    activity.lifecycle
-                )
+                val recomposer =
+                    view.createLifecycleAwareWindowRecomposer(expectedElement, activity.lifecycle)
                 view.setParentCompositionContext(recomposer)
                 view.setContent {
-                    LaunchedEffect(Unit) {
-                        effectContext.complete(coroutineContext)
-                    }
+                    LaunchedEffect(Unit) { effectContext.complete(coroutineContext) }
                 }
 
                 activity.setContentView(view)
@@ -228,18 +212,12 @@ class WindowRecomposerTest {
             val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
             scenario.onActivity { activity ->
                 val view = View(activity)
-                recomposer = view.createLifecycleAwareWindowRecomposer(
-                    lifecycle = lifecycleOwner.lifecycle
-                )
+                recomposer =
+                    view.createLifecycleAwareWindowRecomposer(lifecycle = lifecycleOwner.lifecycle)
                 activity.setContentView(view)
                 (view.parent as ViewGroup).removeView(view)
             }
-            assertNotNull(
-                "recomposer did not join",
-                withTimeoutOrNull(3_000) {
-                    recomposer.join()
-                }
-            )
+            assertNotNull("recomposer did not join", withTimeoutOrNull(3_000) { recomposer.join() })
 
             // LifecycleRegistry enforces main thread checks for observerCount
             withContext(Dispatchers.Main) {
@@ -261,18 +239,12 @@ class WindowRecomposerTest {
             scenario.onActivity { activity ->
                 val view = View(activity)
                 val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
-                recomposer = view.createLifecycleAwareWindowRecomposer(
-                    lifecycle = lifecycleOwner.lifecycle
-                )
+                recomposer =
+                    view.createLifecycleAwareWindowRecomposer(lifecycle = lifecycleOwner.lifecycle)
                 activity.setContentView(view)
                 lifecycleOwner.lifecycle.currentState = Lifecycle.State.DESTROYED
             }
-            assertNotNull(
-                "recomposer did not join",
-                withTimeoutOrNull(3_000) {
-                    recomposer.join()
-                }
-            )
+            assertNotNull("recomposer did not join", withTimeoutOrNull(3_000) { recomposer.join() })
         }
     }
 }

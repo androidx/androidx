@@ -16,18 +16,26 @@
 
 package androidx.camera.integration.antelope
 
-/**
- * Convenience class to access device information
- */
+/** Convenience class to access device information */
 class DeviceInfo() {
     /** Detailed string with device and OS information */
-    val device: String = android.os.Build.MANUFACTURER + " " +
-        android.os.Build.BRAND + " " +
-        android.os.Build.DEVICE + " " +
-        android.os.Build.MODEL + " " +
-        android.os.Build.PRODUCT + " " +
-        "(" + android.os.Build.VERSION.RELEASE + android.os.Build.VERSION.INCREMENTAL + ") " +
-        "\nSDK: " + android.os.Build.VERSION.SDK_INT
+    val device: String =
+        android.os.Build.MANUFACTURER +
+            " " +
+            android.os.Build.BRAND +
+            " " +
+            android.os.Build.DEVICE +
+            " " +
+            android.os.Build.MODEL +
+            " " +
+            android.os.Build.PRODUCT +
+            " " +
+            "(" +
+            android.os.Build.VERSION.RELEASE +
+            android.os.Build.VERSION.INCREMENTAL +
+            ") " +
+            "\nSDK: " +
+            android.os.Build.VERSION.SDK_INT
 
     /** Short string with device information */
     val deviceShort: String = android.os.Build.DEVICE

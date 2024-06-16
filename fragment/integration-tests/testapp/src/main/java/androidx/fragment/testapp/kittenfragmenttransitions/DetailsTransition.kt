@@ -24,8 +24,8 @@ import androidx.transition.ChangeImageTransform
 import androidx.transition.TransitionSet
 
 /**
- * Transition that performs almost exactly like [android.transition.AutoTransition], but has
- * an added [ChangeImageTransform] to support properly scaling up our gorgeous kittens.
+ * Transition that performs almost exactly like [android.transition.AutoTransition], but has an
+ * added [ChangeImageTransform] to support properly scaling up our gorgeous kittens.
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class DetailsTransition : TransitionSet {
@@ -33,9 +33,7 @@ class DetailsTransition : TransitionSet {
         init()
     }
 
-    /**
-     * This constructor allows us to use this transition in XML
-     */
+    /** This constructor allows us to use this transition in XML */
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init()
     }
@@ -43,7 +41,6 @@ class DetailsTransition : TransitionSet {
     private fun init() {
         ordering = ORDERING_TOGETHER
         duration = 500
-        addTransition(ChangeBounds())
-            .addTransition(ChangeImageTransform())
+        addTransition(ChangeBounds()).addTransition(ChangeImageTransform())
     }
 }

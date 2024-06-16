@@ -42,287 +42,290 @@ import androidx.glance.testing.GlanceNodeMatcher
 import androidx.glance.testing.unit.MappedNode
 
 /**
- * Returns a matcher that matches if a node is checkable (e.g. radio button, switch, checkbox)
- * and is checked.
+ * Returns a matcher that matches if a node is checkable (e.g. radio button, switch, checkbox) and
+ * is checked.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "is checked"
-) { node ->
-    val emittable = node.value.emittable
-    emittable is EmittableCheckable && emittable.checked
-}
+fun isChecked(): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(description = "is checked") { node ->
+        val emittable = node.value.emittable
+        emittable is EmittableCheckable && emittable.checked
+    }
 
 /**
- * Returns a matcher that matches if a node is checkable (e.g. radio button, switch, checkbox)
- * but is not checked.
+ * Returns a matcher that matches if a node is checkable (e.g. radio button, switch, checkbox) but
+ * is not checked.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isNotChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "is not checked"
-) { node ->
-    val emittable = node.value.emittable
-    emittable is EmittableCheckable && !emittable.checked
-}
+fun isNotChecked(): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(description = "is not checked") { node ->
+        val emittable = node.value.emittable
+        emittable is EmittableCheckable && !emittable.checked
+    }
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that runs a callback.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param callbackClass an implementation of [ActionCallback] that is expected to have been passed
- *                      in the `actionRunCallback` method call
+ *   in the `actionRunCallback` method call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionRunCallback` method call
+ *   in the `actionRunCallback` method call
  */
 @PublishedApi // See b/316353540; a reified version of this is available in the public api.
 internal fun <T : ActionCallback> hasRunCallbackClickAction(
     callbackClass: Class<T>,
     parameters: ActionParameters = actionParametersOf()
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    "has run callback click action with callback class: ${callbackClass.name} and " +
-        "parameters: $parameters"
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is RunCallbackAction) {
-                return@any action.callbackClass == callbackClass && action.parameters == parameters
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        "has run callback click action with callback class: ${callbackClass.name} and " +
+            "parameters: $parameters"
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is RunCallbackAction) {
+                    return@any action.callbackClass == callbackClass &&
+                        action.parameters == parameters
+                }
             }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that runs a callback.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param T callback class that is expected to have been passed in the `actionRunCallback` method
- *          call
+ *   call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionRunCallback` method call
+ *   in the `actionRunCallback` method call
  */
 inline fun <reified T : ActionCallback> hasRunCallbackClickAction(
     parameters: ActionParameters = actionParametersOf()
-): GlanceNodeMatcher<MappedNode> = hasRunCallbackClickAction(
-    callbackClass = T::class.java,
-    parameters = parameters
-)
+): GlanceNodeMatcher<MappedNode> =
+    hasRunCallbackClickAction(callbackClass = T::class.java, parameters = parameters)
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts an activity.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param intent the intent for launching an activity that is expected to have been passed in the
- *               `actionStartActivity` method call. Note: Only matches if intents are same per
- *               `filterEquals`.
+ *   `actionStartActivity` method call. Note: Only matches if intents are same per `filterEquals`.
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionStartActivity` method call
+ *   in the `actionStartActivity` method call
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
- *                        an activity start.
+ *   an activity start.
  */
 // Other variants in the base layer (glance-testing).
 fun hasStartActivityClickAction(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    if (activityOptions != null) {
-        "has start activity click action with intent: $intent, " +
-            "parameters: $parameters and bundle: $activityOptions"
-    } else {
-        "has start activity click action with intent: $intent and parameters: $parameters"
-    }
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is StartActivityIntentAction) {
-                var result = action.intent.filterEquals(intent) &&
-                    action.parameters == parameters
-                if (activityOptions != null) {
-                    result = result && activityOptions == action.activityOptions
-                }
-                return@any result
-            }
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        if (activityOptions != null) {
+            "has start activity click action with intent: $intent, " +
+                "parameters: $parameters and bundle: $activityOptions"
+        } else {
+            "has start activity click action with intent: $intent and parameters: $parameters"
         }
-        false
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is StartActivityIntentAction) {
+                    var result =
+                        action.intent.filterEquals(intent) && action.parameters == parameters
+                    if (activityOptions != null) {
+                        result = result && activityOptions == action.activityOptions
+                    }
+                    return@any result
+                }
+            }
+            false
+        }
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param serviceClass class of the service to launch that is expected to have been passed in the
- *                    `actionStartService` method call.
+ *   `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  */
 @PublishedApi // See b/316353540; a reified version of this is available in the public api.
 internal fun hasStartServiceAction(
     serviceClass: Class<out Service>,
     isForegroundService: Boolean = false
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = if (isForegroundService) {
-        "has start service action for foreground service: ${serviceClass.name}"
-    } else {
-        "has start service action for non-foreground service: ${serviceClass.name}"
-    }
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is StartServiceClassAction) {
-                return@any action.serviceClass == serviceClass &&
-                    action.isForegroundService == isForegroundService
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description =
+            if (isForegroundService) {
+                "has start service action for foreground service: ${serviceClass.name}"
+            } else {
+                "has start service action for non-foreground service: ${serviceClass.name}"
             }
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is StartServiceClassAction) {
+                    return@any action.serviceClass == serviceClass &&
+                        action.isForegroundService == isForegroundService
+                }
+            }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param T class of the service to launch that is expected to have been passed in the
- *          `actionStartService` method call.
+ *   `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  */
 inline fun <reified T : Service> hasStartServiceAction(
     isForegroundService: Boolean = false
-): GlanceNodeMatcher<MappedNode> = hasStartServiceAction(
-    serviceClass = T::class.java,
-    isForegroundService = isForegroundService
-)
+): GlanceNodeMatcher<MappedNode> =
+    hasStartServiceAction(serviceClass = T::class.java, isForegroundService = isForegroundService)
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param componentName component of the service to launch that is expected to have been passed in
- *                      the `actionStartService` method call.
+ *   the `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  */
 internal fun hasStartServiceAction(
     componentName: ComponentName,
     isForegroundService: Boolean = false
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = if (isForegroundService) {
-        "has start service action for foreground service component: $componentName"
-    } else {
-        "has start service action for non-foreground service component: $componentName"
-    }
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is StartServiceComponentAction) {
-                return@any action.componentName == componentName &&
-                    action.isForegroundService == isForegroundService
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description =
+            if (isForegroundService) {
+                "has start service action for foreground service component: $componentName"
+            } else {
+                "has start service action for non-foreground service component: $componentName"
             }
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is StartServiceComponentAction) {
+                    return@any action.componentName == componentName &&
+                        action.isForegroundService == isForegroundService
+                }
+            }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
- * @param intent the intent for launching the service that is expected to have been passed in
- *               the `actionStartService` method call.
+ * @param intent the intent for launching the service that is expected to have been passed in the
+ *   `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  */
 fun hasStartServiceAction(
     intent: Intent,
     isForegroundService: Boolean = false
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = if (isForegroundService) {
-        "has start service action for foreground service: $intent"
-    } else {
-        "has start service action for non-foreground service: $intent"
-    }
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is StartServiceIntentAction) {
-                return@any action.intent == intent &&
-                    action.isForegroundService == isForegroundService
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description =
+            if (isForegroundService) {
+                "has start service action for foreground service: $intent"
+            } else {
+                "has start service action for non-foreground service: $intent"
             }
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is StartServiceIntentAction) {
+                    return@any action.intent == intent &&
+                        action.isForegroundService == isForegroundService
+                }
+            }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param receiverClass class of the broadcast receiver that is expected to have been passed in the
- *                      actionSendBroadcast` method call.
+ *   actionSendBroadcast` method call.
  */
 @PublishedApi // See b/316353540; a reified version of this is available in the public api.
 internal fun hasSendBroadcastAction(
     receiverClass: Class<out BroadcastReceiver>
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "has send broadcast action for receiver class: ${receiverClass.name}"
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is SendBroadcastClassAction) {
-                return@any action.receiverClass == receiverClass
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description = "has send broadcast action for receiver class: ${receiverClass.name}"
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is SendBroadcastClassAction) {
+                    return@any action.receiverClass == receiverClass
+                }
             }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param T class of the broadcast receiver that is expected to have been passed in the
- *          actionSendBroadcast` method call.
+ *   actionSendBroadcast` method call.
  */
 inline fun <reified T : BroadcastReceiver> hasSendBroadcastAction(): GlanceNodeMatcher<MappedNode> =
     hasSendBroadcastAction(T::class.java)
@@ -331,137 +334,132 @@ inline fun <reified T : BroadcastReceiver> hasSendBroadcastAction(): GlanceNodeM
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
- * @param intentAction the intent action of the broadcast receiver that is expected to  have been
- *                     passed in the `actionSendBroadcast` method call.
+ * @param intentAction the intent action of the broadcast receiver that is expected to have been
+ *   passed in the `actionSendBroadcast` method call.
  * @param componentName optional [ComponentName] of the target broadcast receiver that is expected
- *                      to have been passed in the actionSendBroadcast` method call.
+ *   to have been passed in the actionSendBroadcast` method call.
  */
 fun hasSendBroadcastAction(
     intentAction: String,
     componentName: ComponentName? = null
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description =
-    if (componentName != null) {
-        "has send broadcast action with intent action: $intentAction and component: $componentName"
-    } else {
-        "has send broadcast action with intent action: $intentAction"
-    }
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is SendBroadcastActionAction) {
-                var result = action.action == intentAction
-                if (componentName != null) {
-                    result = result && action.componentName == componentName
-                }
-                return@any result
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description =
+            if (componentName != null) {
+                "has send broadcast action with intent action: $intentAction and component: $componentName"
+            } else {
+                "has send broadcast action with intent action: $intentAction"
             }
+    ) { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is SendBroadcastActionAction) {
+                    var result = action.action == intentAction
+                    if (componentName != null) {
+                        result = result && action.componentName == componentName
+                    }
+                    return@any result
+                }
+            }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param componentName [ComponentName] of the target broadcast receiver that is expected to have
- *                      been passed in the actionSendBroadcast` method call.
+ *   been passed in the actionSendBroadcast` method call.
  */
-fun hasSendBroadcastAction(
-    componentName: ComponentName
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "has send broadcast action with component: $componentName"
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is SendBroadcastComponentAction) {
-                return@any action.componentName == componentName
+fun hasSendBroadcastAction(componentName: ComponentName): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(description = "has send broadcast action with component: $componentName") {
+        node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is SendBroadcastComponentAction) {
+                    return@any action.componentName == componentName
+                }
             }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
- * @param intent the intent for sending broadcast  that is expected to  have been passed in the
- *              `actionSendBroadcast` method call. Note: intent is only matched using filterEquals.
+ * @param intent the intent for sending broadcast that is expected to have been passed in the
+ *   `actionSendBroadcast` method call. Note: intent is only matched using filterEquals.
  */
-fun hasSendBroadcastAction(
-    intent: Intent
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "has send broadcast action with intent: $intent"
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is SendBroadcastIntentAction) {
-                return@any action.intent.filterEquals(intent)
+fun hasSendBroadcastAction(intent: Intent): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(description = "has send broadcast action with intent: $intent") { node ->
+        node.value.emittable.modifier.any {
+            if (it is ActionModifier) {
+                val action = it.action
+                if (action is SendBroadcastIntentAction) {
+                    return@any action.intent.filterEquals(intent)
+                }
             }
+            false
         }
-        false
     }
-}
 
 /**
  * Returns a matcher that matches if a given node is a linear progress indicator with given progress
  * value.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param progress the expected value of the current progress
  */
 fun isLinearProgressIndicator(
     /*@FloatRange(from = 0.0, to = 1.0)*/
     progress: Float
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "is a linear progress indicator with progress value: $progress"
-) { node ->
-    val emittable = node.value.emittable
-    emittable is EmittableLinearProgressIndicator &&
-        !emittable.indeterminate &&
-        emittable.progress == progress
-}
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description = "is a linear progress indicator with progress value: $progress"
+    ) { node ->
+        val emittable = node.value.emittable
+        emittable is EmittableLinearProgressIndicator &&
+            !emittable.indeterminate &&
+            emittable.progress == progress
+    }
 
 /**
  * Returns a matcher that matches if a given node is an indeterminate progress bar.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "is an indeterminate linear progress indicator"
-) { node ->
-    val emittable = node.value.emittable
-    emittable is EmittableLinearProgressIndicator && emittable.indeterminate
-}
+fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(description = "is an indeterminate linear progress indicator") { node ->
+        val emittable = node.value.emittable
+        emittable is EmittableLinearProgressIndicator && emittable.indeterminate
+    }
 
 /**
  * Returns a matcher that matches if a given node is an indeterminate circular progress indicator.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
+ * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isIndeterminateCircularProgressIndicator(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    description = "is an indeterminate circular progress indicator"
-) { node ->
-    node.value.emittable is EmittableCircularProgressIndicator
-}
+fun isIndeterminateCircularProgressIndicator(): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(description = "is an indeterminate circular progress indicator") { node ->
+        node.value.emittable is EmittableCircularProgressIndicator
+    }

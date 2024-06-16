@@ -84,4 +84,5 @@ androidx {
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
+    legacyDisableKotlinStrictApiMode = true
 }

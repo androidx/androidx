@@ -22,9 +22,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 
-/**
- * Helper class to parse a single statement out of a query.
- */
+/** Helper class to parse a single statement out of a query. */
 object SingleQuerySqlParser {
     fun <T> parse(
         input: String,
@@ -36,26 +34,28 @@ object SingleQuerySqlParser {
         val tokenStream = CommonTokenStream(lexer)
         val parser = SQLiteParser(tokenStream)
         val syntaxErrors = arrayListOf<String>()
-        parser.addErrorListener(object : BaseErrorListener() {
-            override fun syntaxError(
-                recognizer: Recognizer<*, *>,
-                offendingSymbol: Any,
-                line: Int,
-                charPositionInLine: Int,
-                msg: String,
-                e: RecognitionException?
-            ) {
-                syntaxErrors.add(msg)
+        parser.addErrorListener(
+            object : BaseErrorListener() {
+                override fun syntaxError(
+                    recognizer: Recognizer<*, *>,
+                    offendingSymbol: Any,
+                    line: Int,
+                    charPositionInLine: Int,
+                    msg: String,
+                    e: RecognitionException?
+                ) {
+                    syntaxErrors.add(msg)
+                }
             }
-        })
+        )
         try {
             val parsed = parser.parse()
             val statementList = parsed.sql_stmt_list()
             if (statementList.isEmpty()) {
                 return fallback(listOf(ParserErrors.NOT_ONE_QUERY))
             }
-            val statements = statementList.first().children
-                .filterIsInstance<SQLiteParser.Sql_stmtContext>()
+            val statements =
+                statementList.first().children.filterIsInstance<SQLiteParser.Sql_stmtContext>()
             if (statements.size != 1) {
                 syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
             }

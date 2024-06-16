@@ -20,7 +20,7 @@ package androidx.compose.ui.input.key
  * Represents keys on a keyboard.
  *
  * @param keyCode a Long value representing the key pressed. Note: This keycode can be used to
- * uniquely identify a hardware key. It is different from the native keycode.
+ *   uniquely identify a hardware key. It is different from the native keycode.
  *
  * @sample androidx.compose.ui.samples.KeyEventIsAltPressedSample
  */
@@ -33,18 +33,16 @@ expect value class Key(val keyCode: Long) {
         /**
          * Soft Left key.
          *
-         * Usually situated below the display on phones and used as a multi-function
-         * feature key for selecting a software defined function shown on the bottom left
-         * of the display.
+         * Usually situated below the display on phones and used as a multi-function feature key for
+         * selecting a software defined function shown on the bottom left of the display.
          */
         val SoftLeft: Key
 
         /**
          * Soft Right key.
          *
-         * Usually situated below the display on phones and used as a multi-function
-         * feature key for selecting a software defined function shown on the bottom right
-         * of the display.
+         * Usually situated below the display on phones and used as a multi-function feature key for
+         * selecting a software defined function shown on the bottom right of the display.
          */
         val SoftRight: Key
 
@@ -170,7 +168,7 @@ expect value class Key(val keyCode: Long) {
          */
         val VolumeDown: Key
 
-        /** Power key.  */
+        /** Power key. */
         val Power: Key
 
         /**
@@ -401,16 +399,16 @@ expect value class Key(val keyCode: Long) {
         /**
          * Home Movement key.
          *
-         * Used for scrolling or moving the cursor around to the start of a line
-         * or to the top of a list.
+         * Used for scrolling or moving the cursor around to the start of a line or to the top of a
+         * list.
          */
         val MoveHome: Key
 
         /**
          * End Movement key.
          *
-         * Used for scrolling or moving the cursor around to the end of a line
-         * or to the bottom of a list.
+         * Used for scrolling or moving the cursor around to the end of a line or to the bottom of a
+         * list.
          */
         val MoveEnd: Key
 
@@ -457,8 +455,7 @@ expect value class Key(val keyCode: Long) {
         /**
          * Number modifier key.
          *
-         * Used to enter numeric symbols.
-         * This key is not Num Lock; it is more like  [AltLeft].
+         * Used to enter numeric symbols. This key is not Num Lock; it is more like [AltLeft].
          */
         val Number: Key
 
@@ -508,96 +505,96 @@ expect value class Key(val keyCode: Long) {
         /**
          * A Button key.
          *
-         * On a game controller, the A button should be either the button labeled A
-         * or the first button on the bottom row of controller buttons.
+         * On a game controller, the A button should be either the button labeled A or the first
+         * button on the bottom row of controller buttons.
          */
         val ButtonA: Key
 
         /**
          * B Button key.
          *
-         * On a game controller, the B button should be either the button labeled B
-         * or the second button on the bottom row of controller buttons.
+         * On a game controller, the B button should be either the button labeled B or the second
+         * button on the bottom row of controller buttons.
          */
         val ButtonB: Key
 
         /**
          * C Button key.
          *
-         * On a game controller, the C button should be either the button labeled C
-         * or the third button on the bottom row of controller buttons.
+         * On a game controller, the C button should be either the button labeled C or the third
+         * button on the bottom row of controller buttons.
          */
         val ButtonC: Key
 
         /**
          * X Button key.
          *
-         * On a game controller, the X button should be either the button labeled X
-         * or the first button on the upper row of controller buttons.
+         * On a game controller, the X button should be either the button labeled X or the first
+         * button on the upper row of controller buttons.
          */
         val ButtonX: Key
 
         /**
          * Y Button key.
          *
-         * On a game controller, the Y button should be either the button labeled Y
-         * or the second button on the upper row of controller buttons.
+         * On a game controller, the Y button should be either the button labeled Y or the second
+         * button on the upper row of controller buttons.
          */
         val ButtonY: Key
 
         /**
          * Z Button key.
          *
-         * On a game controller, the Z button should be either the button labeled Z
-         * or the third button on the upper row of controller buttons.
+         * On a game controller, the Z button should be either the button labeled Z or the third
+         * button on the upper row of controller buttons.
          */
         val ButtonZ: Key
 
         /**
          * L1 Button key.
          *
-         * On a game controller, the L1 button should be either the button labeled L1 (or L)
-         * or the top left trigger button.
+         * On a game controller, the L1 button should be either the button labeled L1 (or L) or the
+         * top left trigger button.
          */
         val ButtonL1: Key
 
         /**
          * R1 Button key.
          *
-         * On a game controller, the R1 button should be either the button labeled R1 (or R)
-         * or the top right trigger button.
+         * On a game controller, the R1 button should be either the button labeled R1 (or R) or the
+         * top right trigger button.
          */
         val ButtonR1: Key
 
         /**
          * L2 Button key.
          *
-         * On a game controller, the L2 button should be either the button labeled L2
-         * or the bottom left trigger button.
+         * On a game controller, the L2 button should be either the button labeled L2 or the bottom
+         * left trigger button.
          */
         val ButtonL2: Key
 
         /**
          * R2 Button key.
          *
-         * On a game controller, the R2 button should be either the button labeled R2
-         * or the bottom right trigger button.
+         * On a game controller, the R2 button should be either the button labeled R2 or the bottom
+         * right trigger button.
          */
         val ButtonR2: Key
 
         /**
          * Left Thumb Button key.
          *
-         * On a game controller, the left thumb button indicates that the left (or only)
-         * joystick is pressed.
+         * On a game controller, the left thumb button indicates that the left (or only) joystick is
+         * pressed.
          */
         val ButtonThumbLeft: Key
 
         /**
          * Right Thumb Button key.
          *
-         * On a game controller, the right thumb button indicates that the right
-         * joystick is pressed.
+         * On a game controller, the right thumb button indicates that the right joystick is
+         * pressed.
          */
         val ButtonThumbRight: Key
 
@@ -716,8 +713,8 @@ expect value class Key(val keyCode: Long) {
         /**
          * Num Lock key.
          *
-         * This is the Num Lock key; it is different from [Number].
-         * This key alters the behavior of other keys on the numeric keypad.
+         * This is the Num Lock key; it is different from [Number]. This key alters the behavior of
+         * other keys on the numeric keypad.
          */
         val NumLock: Key
 
@@ -868,16 +865,16 @@ expect value class Key(val keyCode: Long) {
          *
          * Mutes the speaker, unlike [MicrophoneMute].
          *
-         * This key should normally be implemented as a toggle such that the first press
-         * mutes the speaker and the second press restores the original volume.
+         * This key should normally be implemented as a toggle such that the first press mutes the
+         * speaker and the second press restores the original volume.
          */
         val VolumeMute: Key
 
         /**
          * Info key.
          *
-         * Common on TV remotes to show additional information related to what is
-         * currently being viewed.
+         * Common on TV remotes to show additional information related to what is currently being
+         * viewed.
          */
         val Info: Key
 
@@ -911,8 +908,8 @@ expect value class Key(val keyCode: Long) {
         /**
          * Window key.
          *
-         * On TV remotes, toggles picture-in-picture mode or other windowing functions.
-         * On Android Wear devices, triggers a display offset.
+         * On TV remotes, toggles picture-in-picture mode or other windowing functions. On Android
+         * Wear devices, triggers a display offset.
          */
         val Window: Key
 
@@ -1031,18 +1028,18 @@ expect value class Key(val keyCode: Long) {
         /**
          * Language Switch key.
          *
-         * Toggles the current input language such as switching between English and Japanese on
-         * a QWERTY keyboard.  On some devices, the same function may be performed by
-         * pressing Shift+Space.
+         * Toggles the current input language such as switching between English and Japanese on a
+         * QWERTY keyboard. On some devices, the same function may be performed by pressing
+         * Shift+Space.
          */
         val LanguageSwitch: Key
 
         /**
          * Manner Mode key.
          *
-         * Toggles silent or vibrate mode on and off to make the device behave more politely
-         * in certain settings such as on a crowded train.  On some devices, the key may only
-         * operate when long-pressed.
+         * Toggles silent or vibrate mode on and off to make the device behave more politely in
+         * certain settings such as on a crowded train. On some devices, the key may only operate
+         * when long-pressed.
          */
         val MannerMode: Key
 
@@ -1108,7 +1105,7 @@ expect value class Key(val keyCode: Long) {
         /**
          * Assist key.
          *
-         * Launches the global assist activity.  Not delivered to applications.
+         * Launches the global assist activity. Not delivered to applications.
          */
         val Assist: Key
 
@@ -1129,28 +1126,27 @@ expect value class Key(val keyCode: Long) {
         /**
          * Sleep key.
          *
-         * Puts the device to sleep. Behaves somewhat like [Power] but it
-         * has no effect if the device is already asleep.
+         * Puts the device to sleep. Behaves somewhat like [Power] but it has no effect if the
+         * device is already asleep.
          */
         val Sleep: Key
 
         /**
          * Wakeup key.
          *
-         * Wakes up the device.  Behaves somewhat like [Power] but it
-         * has no effect if the device is already awake.
+         * Wakes up the device. Behaves somewhat like [Power] but it has no effect if the device is
+         * already awake.
          */
         val WakeUp: Key
 
-        /** Put device to sleep unless a wakelock is held.  */
+        /** Put device to sleep unless a wakelock is held. */
         val SoftSleep: Key
 
         /**
          * Pairing key.
          *
-         * Initiates peripheral pairing mode. Useful for pairing remote control
-         * devices or game controllers, especially if no other input mode is
-         * available.
+         * Initiates peripheral pairing mode. Useful for pairing remote control devices or game
+         * controllers, especially if no other input mode is available.
          */
         val Pairing: Key
 
@@ -1192,9 +1188,9 @@ expect value class Key(val keyCode: Long) {
         /**
          * Number entry key.
          *
-         * Initiates to enter multi-digit channel number when each digit key is assigned
-         * for selecting separate channel. Corresponds to Number Entry Mode (0x1D) of CEC
-         * User Control Code.
+         * Initiates to enter multi-digit channel number when each digit key is assigned for
+         * selecting separate channel. Corresponds to Number Entry Mode (0x1D) of CEC User Control
+         * Code.
          */
         val TvNumberEntry: Key
 
@@ -1355,16 +1351,16 @@ expect value class Key(val keyCode: Long) {
         /**
          * Media context menu key.
          *
-         * Goes to the context menu of media contents. Corresponds to Media Context-sensitive
-         * Menu (0x11) of CEC User Control Code.
+         * Goes to the context menu of media contents. Corresponds to Media Context-sensitive Menu
+         * (0x11) of CEC User Control Code.
          */
         val TvMediaContextMenu: Key
 
         /**
          * Timer programming key.
          *
-         * Goes to the timer recording menu. Corresponds to Timer Programming (0x54) of
-         * CEC User Control Code.
+         * Goes to the timer recording menu. Corresponds to Timer Programming (0x54) of CEC User
+         * Control Code.
          */
         val TvTimerProgramming: Key
 
@@ -1397,8 +1393,8 @@ expect value class Key(val keyCode: Long) {
         val ThumbsDown: Key
 
         /**
-         * Used to switch current [account][android.accounts.Account] that is
-         * consuming content. May be consumed by system to set account globally.
+         * Used to switch current [account][android.accounts.Account] that is consuming content. May
+         * be consumed by system to set account globally.
          */
         val ProfileSwitch: Key
     }

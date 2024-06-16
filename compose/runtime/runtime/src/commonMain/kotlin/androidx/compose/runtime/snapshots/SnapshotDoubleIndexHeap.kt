@@ -24,8 +24,8 @@ import androidx.compose.runtime.TestOnly
  * can be later used to remove the number also with at worst O(log N).
  *
  * The data structure used is a heap, the first stage of a heap sort. As values are added and
- * removed the heap invariants are reestablished for the new value by either shifting values up
- * or down in the heap.
+ * removed the heap invariants are reestablished for the new value by either shifting values up or
+ * down in the heap.
  *
  * This class is used to track the lowest pinning snapshot id. A pinning snapshot id is either the
  * lowest snapshot in its invalid list or its own id if its invalid list is empty.
@@ -37,6 +37,7 @@ import androidx.compose.runtime.TestOnly
 internal class SnapshotDoubleIndexHeap {
     var size = 0
         private set
+
     // An array of values which are the snapshot ids
     private var values = IntArray(INITIAL_CAPACITY)
 
@@ -55,8 +56,8 @@ internal class SnapshotDoubleIndexHeap {
     fun lowestOrDefault(default: Int = 0) = if (size > 0) values[0] else default
 
     /**
-     * Add a value to the heap by adding it to the end of the heap and then shifting it up until
-     * it is either at the root or its parent is less or equal to it.
+     * Add a value to the heap by adding it to the end of the heap and then shifting it up until it
+     * is either at the root or its parent is less or equal to it.
      */
     fun add(value: Int): Int {
         ensure(size + 1)
@@ -71,8 +72,8 @@ internal class SnapshotDoubleIndexHeap {
 
     /**
      * Remove a value by using the index to locate where it is in the heap then replacing its
-     * location with the last member of the heap and shifting it up or down depending to restore
-     * the heap invariants.
+     * location with the last member of the heap and shifting it up or down depending to restore the
+     * heap invariants.
      */
     fun remove(handle: Int) {
         val i = handles[handle]
@@ -83,9 +84,7 @@ internal class SnapshotDoubleIndexHeap {
         freeHandle(handle)
     }
 
-    /**
-     * Validate that the heap invariants hold.
-     */
+    /** Validate that the heap invariants hold. */
     @TestOnly
     fun validate() {
         for (index in 1 until size) {
@@ -94,9 +93,7 @@ internal class SnapshotDoubleIndexHeap {
         }
     }
 
-    /**
-     * Validate that the handle refers to the expected value.
-     */
+    /** Validate that the handle refers to the expected value. */
     @TestOnly
     fun validateHandle(handle: Int, value: Int) {
         val i = handles[handle]
@@ -105,9 +102,7 @@ internal class SnapshotDoubleIndexHeap {
             error("Value for handle $handle was ${values[i]} but was supposed to be $value")
     }
 
-    /**
-     * Shift a value at [index] until its parent is less than it is or it is at index 0.
-     */
+    /** Shift a value at [index] until its parent is less than it is or it is at index 0. */
     private fun shiftUp(index: Int) {
         val values = values
         val value = values[index]
@@ -138,13 +133,11 @@ internal class SnapshotDoubleIndexHeap {
                 if (values[right] < values[current]) {
                     swap(right, current)
                     current = right
-                } else
-                    return
+                } else return
             } else if (values[left] < values[current]) {
                 swap(left, current)
                 current = left
-            } else
-                return
+            } else return
         }
     }
 
@@ -167,9 +160,7 @@ internal class SnapshotDoubleIndexHeap {
         handles[index[b]] = b
     }
 
-    /**
-     * Ensure that the heap can contain at least [atLeast] elements.
-     */
+    /** Ensure that the heap can contain at least [atLeast] elements. */
     private fun ensure(atLeast: Int) {
         val capacity = values.size
         if (atLeast <= capacity) return
@@ -182,9 +173,7 @@ internal class SnapshotDoubleIndexHeap {
         index = newIndex
     }
 
-    /**
-     * Allocate a free handle, growing the list of handles if necessary.
-     */
+    /** Allocate a free handle, growing the list of handles if necessary. */
     private fun allocateHandle(): Int {
         val capacity = handles.size
         if (firstFreeHandle >= capacity) {

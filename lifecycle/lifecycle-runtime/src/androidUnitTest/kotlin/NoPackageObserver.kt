@@ -21,6 +21,5 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 
 open class NoPackageObserver : LifecycleObserver {
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    open fun onCreate() {}
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE) open fun onCreate() {}
 }

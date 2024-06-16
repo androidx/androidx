@@ -31,7 +31,5 @@ import androidx.compose.ui.unit.dp
 fun DarkThemeSample() {
     val dark = isSystemInDarkTheme()
     val color = if (dark) Color.White else Color.Black
-    Box {
-        Box(Modifier.size(50.dp).background(color = color))
-    }
+    Box { Box(Modifier.size(50.dp).background(color = color)) }
 }

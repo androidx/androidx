@@ -50,57 +50,52 @@ import kotlin.random.Random
 @Composable
 fun ContextualFlowRowMaxLineDynamicSeeMore() {
     val totalCount = 300
-    var maxLines by remember {
-        mutableStateOf(2)
-    }
+    var maxLines by remember { mutableStateOf(2) }
 
-    Text(modifier = Modifier
-        .fillMaxWidth(1f)
-        .padding(20.dp)
-        .wrapContentHeight(align = Alignment.Top),
-        text = "ContextualFlowRow (based on Subcompose)" +
-            " is great for Large Items & +N dynamic labels",
+    Text(
+        modifier =
+            Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
+        text =
+            "ContextualFlowRow (based on Subcompose)" +
+                " is great for Large Items & +N dynamic labels",
         fontWeight = FontWeight.Bold
     )
-    val moreOrCollapseIndicator = @Composable { scope: ContextualFlowRowOverflowScope ->
-        val remainingItems = totalCount - scope.shownItemCount
-        DynamicSeeMore(
-            isHorizontal = true,
-            remainingItems = remainingItems
-        ) {
-            if (remainingItems == 0) {
-                maxLines = 2
-            } else {
-                maxLines += 5
+    val moreOrCollapseIndicator =
+        @Composable { scope: ContextualFlowRowOverflowScope ->
+            val remainingItems = totalCount - scope.shownItemCount
+            DynamicSeeMore(isHorizontal = true, remainingItems = remainingItems) {
+                if (remainingItems == 0) {
+                    maxLines = 2
+                } else {
+                    maxLines += 5
+                }
             }
         }
-    }
     ContextualFlowRow(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .padding(20.dp)
-            .wrapContentHeight(align = Alignment.Top),
+        modifier =
+            Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         maxLines = maxLines,
-        overflow = ContextualFlowRowOverflow.expandOrCollapseIndicator(
-            minRowsToShowCollapse = 4,
-            expandIndicator = moreOrCollapseIndicator,
-            collapseIndicator = moreOrCollapseIndicator
-        ),
+        overflow =
+            ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                minRowsToShowCollapse = 4,
+                expandIndicator = moreOrCollapseIndicator,
+                collapseIndicator = moreOrCollapseIndicator
+            ),
         itemCount = totalCount
     ) {
         Box(
-            Modifier
-                .align(Alignment.CenterVertically)
+            Modifier.align(Alignment.CenterVertically)
                 .width(50.dp)
                 .height(50.dp)
                 .background(Color.Green)
         ) {
-            Text(text = it.toString(), fontSize = 18.sp, modifier =
-            Modifier
-                .padding(3.dp)
-                .align(Alignment.Center))
+            Text(
+                text = it.toString(),
+                fontSize = 18.sp,
+                modifier = Modifier.padding(3.dp).align(Alignment.Center)
+            )
         }
     }
 }
@@ -111,10 +106,7 @@ fun ContextualFlowRowMaxLineDynamicSeeMore() {
 fun ContextualFlowRow_ItemPosition() {
     Text("Ln: Line No\nPs: Position No. in Line", modifier = Modifier.padding(20.dp))
     ContextualFlowRow(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .height(210.dp)
-            .padding(20.dp),
+        modifier = Modifier.fillMaxWidth(1f).height(210.dp).padding(20.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         maxItemsInEachRow = 4,
@@ -123,14 +115,14 @@ fun ContextualFlowRow_ItemPosition() {
         val width = Random.nextInt(80, 100).dp.coerceAtMost(maxWidthInLine)
         val height = 50.dp.coerceAtMost(maxHeight)
         Box(
-            Modifier
-                .width(width)
+            Modifier.width(width)
                 .height(height)
                 .background(MatchingColors.getByIndex(indexInLine)!!.color)
         ) {
             Text(
-                text = "Ln: ${this@ContextualFlowRow.lineIndex}" +
-                    "\nPs: ${this@ContextualFlowRow.indexInLine}",
+                text =
+                    "Ln: ${this@ContextualFlowRow.lineIndex}" +
+                        "\nPs: ${this@ContextualFlowRow.indexInLine}",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(3.dp)
             )
@@ -152,23 +144,16 @@ enum class MatchingColors(val index: Int, val color: Color) {
 }
 
 @Composable
-internal fun DynamicSeeMore(
-    isHorizontal: Boolean,
-    remainingItems: Int,
-    onClick: () -> Unit
-) {
+internal fun DynamicSeeMore(isHorizontal: Boolean, remainingItems: Int, onClick: () -> Unit) {
     Box(
-        Modifier
-            .clickable(onClick = onClick)
+        Modifier.clickable(onClick = onClick)
             .wrapContentWidth()
             .height(50.dp)
             .background(Color.Green)
     ) {
         val collapseText = if (isHorizontal) "^" else "<"
         Text(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(3.dp),
+            modifier = Modifier.align(Alignment.Center).padding(3.dp),
             text = if (remainingItems == 0) collapseText else "+$remainingItems",
             fontSize = 18.sp
         )

@@ -35,8 +35,7 @@ class LoadSdkCompatExceptionTest {
 
         val loadSdkException = loadSdkCompatException.toLoadSdkException()
 
-        assertThat(loadSdkException.cause)
-            .isSameInstanceAs(loadSdkCompatException.cause)
+        assertThat(loadSdkException.cause).isSameInstanceAs(loadSdkCompatException.cause)
         assertThat(loadSdkException.extraInformation)
             .isSameInstanceAs(loadSdkCompatException.extraInformation)
         assertThat(loadSdkException.loadSdkErrorCode)
@@ -45,15 +44,11 @@ class LoadSdkCompatExceptionTest {
 
     @Test
     fun toLoadCompatSdkException_returnLoadCompatSdkException() {
-        val loadSdkException = LoadSdkException(
-            RuntimeException(),
-            Bundle()
-        )
+        val loadSdkException = LoadSdkException(RuntimeException(), Bundle())
 
         val loadCompatSdkException = toLoadCompatSdkException(loadSdkException)
 
-        assertThat(loadCompatSdkException.cause)
-            .isSameInstanceAs(loadSdkException.cause)
+        assertThat(loadCompatSdkException.cause).isSameInstanceAs(loadSdkException.cause)
         assertThat(loadCompatSdkException.extraInformation)
             .isSameInstanceAs(loadSdkException.extraInformation)
         assertThat(loadCompatSdkException.loadSdkErrorCode)

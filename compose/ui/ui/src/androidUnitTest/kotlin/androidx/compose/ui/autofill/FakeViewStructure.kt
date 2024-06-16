@@ -39,16 +39,12 @@ import androidx.annotation.RequiresApi
  * @param children A list of [ViewStructure]s that are children of the current [ViewStructure].
  * @param bounds The bounds (Dimensions) of the component represented by this [ViewStructure].
  * @param autofillId The [autofillId] for the parent component. The same autofillId is used for
- * other child components.
- * @param autofillType The data type. Can be one of the following:
- * [View.AUTOFILL_TYPE_DATE],
- * [View.AUTOFILL_TYPE_LIST],
- * [View.AUTOFILL_TYPE_TEXT],
- * [View.AUTOFILL_TYPE_TOGGLE] or
- * [View.AUTOFILL_TYPE_NONE].
+ *   other child components.
+ * @param autofillType The data type. Can be one of the following: [View.AUTOFILL_TYPE_DATE],
+ *   [View.AUTOFILL_TYPE_LIST], [View.AUTOFILL_TYPE_TEXT], [View.AUTOFILL_TYPE_TOGGLE] or
+ *   [View.AUTOFILL_TYPE_NONE].
  * @param autofillHints The autofill hint. If this value not specified, we use heuristics to
- * determine what data to use while performing autofill.
- *
+ *   determine what data to use while performing autofill.
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal data class FakeAndroidViewStructure(
@@ -64,8 +60,7 @@ internal data class FakeAndroidViewStructure(
 ) : ViewStructure() {
 
     internal companion object {
-        @GuardedBy("this")
-        private var previousId = 0
+        @GuardedBy("this") private var previousId = 0
         private val NO_SESSION = 0
 
         @Synchronized
@@ -123,112 +118,193 @@ internal data class FakeAndroidViewStructure(
         this.bounds = Rect(left, top, width - left, height - top)
     }
 
-    override fun equals(other: Any?) = other is FakeAndroidViewStructure &&
-        other.virtualId == virtualId &&
-        other.packageName == packageName &&
-        other.typeName == typeName &&
-        other.entryName == entryName &&
-        other.autofillType == autofillType &&
-        other.autofillHints.contentEquals(autofillHints) &&
-        other.bounds.contentEquals(bounds) &&
-        other.children == children
+    override fun equals(other: Any?) =
+        other is FakeAndroidViewStructure &&
+            other.virtualId == virtualId &&
+            other.packageName == packageName &&
+            other.typeName == typeName &&
+            other.entryName == entryName &&
+            other.autofillType == autofillType &&
+            other.autofillHints.contentEquals(autofillHints) &&
+            other.bounds.contentEquals(bounds) &&
+            other.children == children
 
     override fun hashCode() = super.hashCode()
 
     // Unimplemented methods.
 
-    override fun setOpaque(p0: Boolean) { TODO("not implemented") }
+    override fun setOpaque(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setHint(p0: CharSequence?) { TODO("not implemented") }
+    override fun setHint(p0: CharSequence?) {
+        TODO("not implemented")
+    }
 
-    override fun setElevation(p0: Float) { TODO("not implemented") }
+    override fun setElevation(p0: Float) {
+        TODO("not implemented")
+    }
 
-    override fun getText(): CharSequence { TODO("not implemented") }
+    override fun getText(): CharSequence {
+        TODO("not implemented")
+    }
 
-    override fun setText(p0: CharSequence?) { TODO("not implemented") }
+    override fun setText(p0: CharSequence?) {
+        TODO("not implemented")
+    }
 
-    override fun setText(p0: CharSequence?, p1: Int, p2: Int) { TODO("not implemented") }
+    override fun setText(p0: CharSequence?, p1: Int, p2: Int) {
+        TODO("not implemented")
+    }
 
-    override fun asyncCommit() { TODO("not implemented") }
+    override fun asyncCommit() {
+        TODO("not implemented")
+    }
 
-    override fun setEnabled(p0: Boolean) { TODO("not implemented") }
+    override fun setEnabled(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setLocaleList(p0: LocaleList?) { TODO("not implemented") }
+    override fun setLocaleList(p0: LocaleList?) {
+        TODO("not implemented")
+    }
 
-    override fun setChecked(p0: Boolean) { TODO("not implemented") }
+    override fun setChecked(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setContextClickable(p0: Boolean) { TODO("not implemented") }
+    override fun setContextClickable(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setAccessibilityFocused(p0: Boolean) { TODO("not implemented") }
+    override fun setAccessibilityFocused(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setAlpha(p0: Float) { TODO("not implemented") }
+    override fun setAlpha(p0: Float) {
+        TODO("not implemented")
+    }
 
-    override fun setTransformation(p0: Matrix?) { TODO("not implemented") }
+    override fun setTransformation(p0: Matrix?) {
+        TODO("not implemented")
+    }
 
-    override fun setClassName(p0: String?) { TODO("not implemented") }
+    override fun setClassName(p0: String?) {
+        TODO("not implemented")
+    }
 
-    override fun setLongClickable(p0: Boolean) { TODO("not implemented") }
+    override fun setLongClickable(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun getHint(): CharSequence { TODO("not implemented") }
+    override fun getHint(): CharSequence {
+        TODO("not implemented")
+    }
 
-    override fun setInputType(p0: Int) { TODO("not implemented") }
+    override fun setInputType(p0: Int) {
+        TODO("not implemented")
+    }
 
-    override fun setWebDomain(p0: String?) { TODO("not implemented") }
+    override fun setWebDomain(p0: String?) {
+        TODO("not implemented")
+    }
 
-    override fun setAutofillOptions(p0: Array<out CharSequence>?) { TODO("not implemented") }
+    override fun setAutofillOptions(p0: Array<out CharSequence>?) {
+        TODO("not implemented")
+    }
 
-    override fun setTextStyle(p0: Float, p1: Int, p2: Int, p3: Int) { TODO("not implemented") }
+    override fun setTextStyle(p0: Float, p1: Int, p2: Int, p3: Int) {
+        TODO("not implemented")
+    }
 
-    override fun setVisibility(p0: Int) { TODO("not implemented") }
+    override fun setVisibility(p0: Int) {
+        TODO("not implemented")
+    }
 
-    override fun setHtmlInfo(p0: HtmlInfo) { TODO("not implemented") }
+    override fun setHtmlInfo(p0: HtmlInfo) {
+        TODO("not implemented")
+    }
 
-    override fun setTextLines(p0: IntArray?, p1: IntArray?) { TODO("not implemented") }
+    override fun setTextLines(p0: IntArray?, p1: IntArray?) {
+        TODO("not implemented")
+    }
 
-    override fun getExtras(): Bundle { TODO("not implemented") }
+    override fun getExtras(): Bundle {
+        TODO("not implemented")
+    }
 
-    override fun setClickable(p0: Boolean) { TODO("not implemented") }
+    override fun setClickable(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun newHtmlInfoBuilder(p0: String): HtmlInfo.Builder { TODO("not implemented") }
+    override fun newHtmlInfoBuilder(p0: String): HtmlInfo.Builder {
+        TODO("not implemented")
+    }
 
-    override fun getTextSelectionEnd(): Int { TODO("not implemented") }
+    override fun getTextSelectionEnd(): Int {
+        TODO("not implemented")
+    }
 
-    override fun setAutofillId(p0: AutofillId) { TODO("not implemented") }
+    override fun setAutofillId(p0: AutofillId) {
+        TODO("not implemented")
+    }
 
-    override fun hasExtras(): Boolean { TODO("not implemented") }
+    override fun hasExtras(): Boolean {
+        TODO("not implemented")
+    }
 
-    override fun setActivated(p0: Boolean) { TODO("not implemented") }
+    override fun setActivated(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setFocused(p0: Boolean) { TODO("not implemented") }
+    override fun setFocused(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun getTextSelectionStart(): Int { TODO("not implemented") }
+    override fun getTextSelectionStart(): Int {
+        TODO("not implemented")
+    }
 
-    override fun setChildCount(p0: Int) { TODO("not implemented") }
+    override fun setChildCount(p0: Int) {
+        TODO("not implemented")
+    }
 
-    override fun setAutofillValue(p0: AutofillValue?) { TODO("not implemented") }
+    override fun setAutofillValue(p0: AutofillValue?) {
+        TODO("not implemented")
+    }
 
-    override fun setContentDescription(p0: CharSequence?) { TODO("not implemented") }
+    override fun setContentDescription(p0: CharSequence?) {
+        TODO("not implemented")
+    }
 
-    override fun setFocusable(p0: Boolean) { TODO("not implemented") }
+    override fun setFocusable(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setCheckable(p0: Boolean) { TODO("not implemented") }
+    override fun setCheckable(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun asyncNewChild(p0: Int): ViewStructure { TODO("not implemented") }
+    override fun asyncNewChild(p0: Int): ViewStructure {
+        TODO("not implemented")
+    }
 
-    override fun setSelected(p0: Boolean) { TODO("not implemented") }
+    override fun setSelected(p0: Boolean) {
+        TODO("not implemented")
+    }
 
-    override fun setDataIsSensitive(p0: Boolean) { TODO("not implemented") }
+    override fun setDataIsSensitive(p0: Boolean) {
+        TODO("not implemented")
+    }
 }
 
-private fun Rect?.contentEquals(other: Rect?) = when {
-    (other == null && this == null) -> true
-    (other == null || this == null) -> false
-    else ->
-        other.left == left &&
-            other.right == right &&
-            other.bottom == bottom &&
-            other.top == top
-}
+private fun Rect?.contentEquals(other: Rect?) =
+    when {
+        (other == null && this == null) -> true
+        (other == null || this == null) -> false
+        else ->
+            other.left == left && other.right == right && other.bottom == bottom && other.top == top
+    }
 
 /** Obtains a parcel and then recycles it correctly whether an exception is thrown or not. */
 private fun useParcel(block: (Parcel) -> Unit) {

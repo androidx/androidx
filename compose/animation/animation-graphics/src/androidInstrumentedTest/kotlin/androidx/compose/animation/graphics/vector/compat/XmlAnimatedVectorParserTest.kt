@@ -39,11 +39,7 @@ class XmlAnimatedVectorParserTest {
     fun load() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val resources = context.resources
-        val avd = loadAnimatedVectorResource(
-            context.theme,
-            resources,
-            R.drawable.avd_complex
-        )
+        val avd = loadAnimatedVectorResource(context.theme, resources, R.drawable.avd_complex)
 
         val delta = 0.001f
         assertThat(avd.imageVector.defaultWidth).isEqualTo(24.dp)

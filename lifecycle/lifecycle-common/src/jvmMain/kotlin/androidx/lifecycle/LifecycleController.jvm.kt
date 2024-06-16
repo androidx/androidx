@@ -19,9 +19,7 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import kotlinx.coroutines.Job
 
-/**
- * Attaches to a lifecycle and controls the [DispatchQueue]'s execution.
- */
+/** Attaches to a lifecycle and controls the [DispatchQueue]'s execution. */
 @MainThread
 internal class LifecycleController(
     private val lifecycle: Lifecycle,

@@ -18,7 +18,6 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.ReadableConfig;
@@ -28,7 +27,6 @@ import androidx.camera.core.impl.ReadableConfig;
  *
  * @param <T> The type of the object being configured.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface TargetConfig<T> extends ReadableConfig {
 
     // Option Declarations:

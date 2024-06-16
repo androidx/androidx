@@ -24,12 +24,10 @@ import androidx.compose.foundation.MutatePriority
 /**
  * Scroll by [value] pixels with animation.
  *
- * Cancels the currently running scroll, if any, and suspends until the cancellation is
- * complete.
+ * Cancels the currently running scroll, if any, and suspends until the cancellation is complete.
  *
  * @param value number of pixels to scroll by
  * @param animationSpec [AnimationSpec] to be used for this scrolling
- *
  * @return the amount of scroll consumed
  */
 suspend fun ScrollableState.animateScrollBy(
@@ -48,19 +46,15 @@ suspend fun ScrollableState.animateScrollBy(
 /**
  * Jump instantly by [value] pixels.
  *
- * Cancels the currently running scroll, if any, and suspends until the cancellation is
- * complete.
- *
- * @see animateScrollBy for an animated version
+ * Cancels the currently running scroll, if any, and suspends until the cancellation is complete.
  *
  * @param value number of pixels to scroll by
  * @return the amount of scroll consumed
+ * @see animateScrollBy for an animated version
  */
 suspend fun ScrollableState.scrollBy(value: Float): Float {
     var consumed = 0f
-    scroll {
-        consumed = scrollBy(value)
-    }
+    scroll { consumed = scrollBy(value) }
     return consumed
 }
 

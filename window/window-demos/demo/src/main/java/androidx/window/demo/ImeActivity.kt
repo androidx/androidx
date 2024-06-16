@@ -23,9 +23,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
-/**
- * Demo app that shows various IME-related features.
- */
+/** Demo app that shows various IME-related features. */
 class ImeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

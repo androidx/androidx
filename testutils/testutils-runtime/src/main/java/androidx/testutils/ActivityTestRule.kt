@@ -22,8 +22,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * Wait for execution, by default waiting 2 cycles to ensure that posted transitions are
- * executed and have had a chance to run.
+ * Wait for execution, by default waiting 2 cycles to ensure that posted transitions are executed
+ * and have had a chance to run.
  */
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out Activity>.waitForExecution(cycles: Int = 2) {
@@ -49,9 +49,7 @@ fun androidx.test.rule.ActivityTestRule<out Activity>.waitForExecution(cycles: I
 fun androidx.test.rule.ActivityTestRule<out Activity>.waitForFutureFrame(frames: Int = 1) {
     repeat(frames) {
         val countDownLatch = CountDownLatch(1)
-        activity.window.decorView.postOnAnimation {
-            countDownLatch.countDown()
-        }
+        activity.window.decorView.postOnAnimation { countDownLatch.countDown() }
         countDownLatch.await(1L, TimeUnit.SECONDS)
         runOnUiThreadRethrow {}
     }
@@ -63,9 +61,7 @@ fun androidx.test.rule.ActivityTestRule<out Activity>.runOnUiThreadRethrow(block
         block()
     } else {
         try {
-            runOnUiThread {
-                block()
-            }
+            runOnUiThread { block() }
         } catch (t: Throwable) {
             throw RuntimeException(t)
         }

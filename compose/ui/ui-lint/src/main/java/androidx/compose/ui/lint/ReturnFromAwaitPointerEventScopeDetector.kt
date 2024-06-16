@@ -45,8 +45,8 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
         if (!method.isInPackageName(Names.Ui.Pointer.PackageName)) return
         val methodParent = skipParenthesizedExprUp(node.uastParent)
         val isAssignedToVariable = methodParent is ULocalVariable
-        val isReturnExpression = methodParent is UReturnExpression &&
-            !methodParent.isIncorrectImplicitReturnInLambda()
+        val isReturnExpression =
+            methodParent is UReturnExpression && !methodParent.isIncorrectImplicitReturnInLambda()
 
         if (isAssignedToVariable || isReturnExpression) {
             context.report(
@@ -60,21 +60,24 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
 
     companion object {
         const val IssueId: String = "ReturnFromAwaitPointerEventScope"
-        const val ErrorMessage = "Returning from awaitPointerEventScope may cause some input " +
-            "events to be dropped"
-        val ExitAwaitPointerEventScope = Issue.create(
-            IssueId,
-            ErrorMessage,
-            "Pointer Input events are queued inside awaitPointerEventScope. " +
-                "By using the return value of awaitPointerEventScope one might unexpectedly lose " +
-                "events. If another awaitPointerEventScope is restarted " +
-                "there is no guarantee that the events will persist between those calls. In this " +
-                "case you should keep all events inside the awaitPointerEventScope block",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                ReturnFromAwaitPointerEventScopeDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        const val ErrorMessage =
+            "Returning from awaitPointerEventScope may cause some input " + "events to be dropped"
+        val ExitAwaitPointerEventScope =
+            Issue.create(
+                IssueId,
+                ErrorMessage,
+                "Pointer Input events are queued inside awaitPointerEventScope. " +
+                    "By using the return value of awaitPointerEventScope one might unexpectedly lose " +
+                    "events. If another awaitPointerEventScope is restarted " +
+                    "there is no guarantee that the events will persist between those calls. In this " +
+                    "case you should keep all events inside the awaitPointerEventScope block",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    ReturnFromAwaitPointerEventScopeDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

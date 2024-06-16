@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RestorationInVariousScenariosTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val restorationTester = StateRestorationTester(rule)
 
@@ -72,9 +71,7 @@ class RestorationInVariousScenariosTest {
         val states = arrayOfNulls<MutableState<Int>>(2)
         restorationTester.setContent {
             for (i in 0..1) {
-                key(i) {
-                    states[i] = rememberSaveable { mutableStateOf(0) }
-                }
+                key(i) { states[i] = rememberSaveable { mutableStateOf(0) } }
             }
         }
 
@@ -133,9 +130,7 @@ class RestorationInVariousScenariosTest {
         val statesInLoop = arrayOfNulls<MutableState<Int>?>(2)
         var stateOutside: MutableState<String>? = null
         restorationTester.setContent {
-            repeat(number) {
-                statesInLoop[it] = rememberSaveable { mutableStateOf(0) }
-            }
+            repeat(number) { statesInLoop[it] = rememberSaveable { mutableStateOf(0) } }
             stateOutside = rememberSaveable { mutableStateOf("0") }
         }
 

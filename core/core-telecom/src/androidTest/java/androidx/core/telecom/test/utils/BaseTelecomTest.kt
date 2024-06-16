@@ -28,6 +28,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.extensions.ExtensionInitializationScope
+import androidx.core.telecom.extensions.addCallWithExtensions
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -69,9 +72,7 @@ abstract class BaseTelecomTest {
         mPackagePhoneAccountHandle = mCallsManager.getPhoneAccountHandleForPackage()
         mPreviousDefaultDialer = TestUtils.getDefaultDialer()
         TestUtils.setDefaultDialer(TestUtils.TEST_PACKAGE)
-        runBlocking {
-            maybeCleanupStuckCalls()
-        }
+        runBlocking { maybeCleanupStuckCalls() }
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
     }
@@ -82,15 +83,16 @@ abstract class BaseTelecomTest {
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
         TestUtils.setDefaultDialer(mPreviousDefaultDialer)
-        runBlocking {
-            maybeCleanupStuckCalls()
-        }
+        runBlocking { maybeCleanupStuckCalls() }
     }
 
-    fun setInCallService(ics: InCallServiceType) {
+    @ExperimentalAppActions
+    fun setInCallService(ics: InCallServiceType, extensions: Set<Capability> = emptySet()) {
         MockInCallServiceDelegate.mInCallServiceType = ics
+        MockInCallServiceDelegate.mExtensions = extensions
     }
 
+    @OptIn(ExperimentalAppActions::class)
     fun setUpV2Test() {
         Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs")
         Utils.setUtils(TestUtils.mV2Build)
@@ -99,11 +101,12 @@ abstract class BaseTelecomTest {
         logTelecomState()
     }
 
-    fun setUpV2TestWithExtensions() {
+    @ExperimentalAppActions
+    fun setUpV2TestWithExtensions(capabilities: Set<Capability> = emptySet()) {
         Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs + Extension support")
         Utils.setUtils(TestUtils.mV2Build)
         mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
-        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS)
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS, capabilities)
         logTelecomState()
     }
 
@@ -118,12 +121,15 @@ abstract class BaseTelecomTest {
         val telecomDumpsysString = TestUtils.runShellCommand(TestUtils.COMMAND_DUMP_TELECOM)
         val isInCallXmCallsDump = isInCallFromTelDumpsys(telecomDumpsysString)
 
-        Log.i(L_TAG, "logTelecomState: " +
-            "hasTelecomFeature=[${hasTelecomFeature()}]," +
-            "isInCall=[${isInCallXmCallsDump.first}], " +
-            "mCalls={${isInCallXmCallsDump.second}}, " +
-            "sdkInt=[${Build.VERSION.SDK_INT}], " +
-            "phoneAccounts=[${getPhoneAccountsFromTelDumpsys(telecomDumpsysString)}]")
+        Log.i(
+            L_TAG,
+            "logTelecomState: " +
+                "hasTelecomFeature=[${hasTelecomFeature()}]," +
+                "isInCall=[${isInCallXmCallsDump.first}], " +
+                "mCalls={${isInCallXmCallsDump.second}}, " +
+                "sdkInt=[${Build.VERSION.SDK_INT}], " +
+                "phoneAccounts=[${getPhoneAccountsFromTelDumpsys(telecomDumpsysString)}]"
+        )
     }
 
     private fun hasTelecomFeature(): Boolean {
@@ -141,9 +147,8 @@ abstract class BaseTelecomTest {
     }
 
     private fun isInCallFromTelDumpsys(telecomDumpsysString: String): Pair<Boolean, String> {
-        val allCallsText = telecomDumpsysString
-            .substringBefore("mCallAudioManager")
-            .substringAfter("mCalls:")
+        val allCallsText =
+            telecomDumpsysString.substringBefore("mCallAudioManager").substringAfter("mCalls:")
         if (allCallsText.contains("Call")) {
             return Pair(true, allCallsText)
         }
@@ -151,15 +156,13 @@ abstract class BaseTelecomTest {
     }
 
     private fun getPhoneAccountsFromTelDumpsys(telecomDumpsysString: String): String {
-        return telecomDumpsysString
-            .substringBefore("Analytics")
-            .substringAfter("phoneAccounts:")
+        return telecomDumpsysString.substringBefore("Analytics").substringAfter("phoneAccounts:")
     }
 
     /**
-     * This helper requires an asserBlock (a set of assert statements), creates a timer, and
-     * either halts execution until all the asserts are completed or times out if the asserts
-     * are not completed in time. It's important to do this
+     * This helper requires an asserBlock (a set of assert statements), creates a timer, and either
+     * halts execution until all the asserts are completed or times out if the asserts are not
+     * completed in time. It's important to do this
      */
     suspend fun assertWithinTimeout_addCall(
         attributes: CallAttributesCompat,
@@ -184,6 +187,31 @@ abstract class BaseTelecomTest {
             Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: reached timeout; dumping telecom")
             TestUtils.dumpTelecom()
             callControlScope?.disconnect(DisconnectCause(DisconnectCause.LOCAL, "timeout in test"))
+            Assert.fail(TestUtils.VERIFICATION_TIMEOUT_MSG)
+        }
+    }
+
+    @ExperimentalAppActions
+    suspend fun assertWithinTimeout_addCallWithExtensions(
+        attributes: CallAttributesCompat,
+        assertBlock: ExtensionInitializationScope.() -> (Unit)
+    ) {
+        Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCallWithExtensions")
+        try {
+            withTimeout(TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT) {
+                mCallsManager.addCallWithExtensions(
+                    attributes,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
+                    assertBlock()
+                }
+            }
+        } catch (timeout: TimeoutCancellationException) {
+            Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: reached timeout; dumping telecom")
+            TestUtils.dumpTelecom()
             Assert.fail(TestUtils.VERIFICATION_TIMEOUT_MSG)
         }
     }

@@ -22,13 +22,11 @@ import android.media.Image;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.TagBundle;
 
 import java.nio.ByteBuffer;
 
 /** An {@link ImageProxy} which wraps around an {@link Image}. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class AndroidImageProxy implements ImageProxy {
     private final Image mImage;
 

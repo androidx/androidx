@@ -30,11 +30,12 @@ internal fun Float.toStringAsFixed(digits: Int): String {
     val decimal = shifted - shifted.toInt() // obtain the decimal of the shifted value
     // Manually round up if the decimal value is greater than or equal to 0.5f.
     // because kotlin.math.round(0.5f) rounds down
-    val roundedShifted = if (decimal >= 0.5f) {
-        shifted.toInt() + 1
-    } else {
-        shifted.toInt()
-    }
+    val roundedShifted =
+        if (decimal >= 0.5f) {
+            shifted.toInt() + 1
+        } else {
+            shifted.toInt()
+        }
 
     val rounded = roundedShifted / pow // divide off the corresponding power of 10 to shift back
     return if (clampedDigits > 0) {

@@ -19,8 +19,8 @@ package androidx.core.performance
 import android.os.Build
 
 /**
- * Reports the media performance class of the device. Contains statically specified values
- * and can be used as a fallback alternative to suppliers with dynamic values.
+ * Reports the media performance class of the device. Contains statically specified values and can
+ * be used as a fallback alternative to suppliers with dynamic values.
  */
 class DefaultDevicePerformance() : DevicePerformance {
     private val PERFCLASS_11: Int = Build.VERSION_CODES.R
@@ -28,24 +28,25 @@ class DefaultDevicePerformance() : DevicePerformance {
     private val PERFCLASS_13: Int = Build.VERSION_CODES.TIRAMISU
     private val PERFCLASS_NONE: Int = 0
 
-    private val fingerprints: HashMap<String, Int> = hashMapOf(
-        // for unit testing, no actual products with these
-        "robolectric-BrandX/ProductX/Device30:11" to PERFCLASS_11,
-        "robolectric-BrandX/ProductX/Device31:12" to PERFCLASS_12,
+    private val fingerprints: HashMap<String, Int> =
+        hashMapOf(
+            // for unit testing, no actual products with these
+            "robolectric-BrandX/ProductX/Device30:11" to PERFCLASS_11,
+            "robolectric-BrandX/ProductX/Device31:12" to PERFCLASS_12,
 
-        // actual devices in the field
-        "OPPO/CPH2025EEA/OP4BA2L1:12" to PERFCLASS_11,
-        "OPPO/CPH2207EEA/OP4F0BL1:12" to PERFCLASS_11,
-        "OPPO/PENM00/OP4EC1:11" to PERFCLASS_11,
-        "OnePlus/OnePlus7TTMO/OnePlus7TTMO:11" to PERFCLASS_11,
-        "OnePlus/OnePlus8_BETA/OnePlus8:11" to PERFCLASS_11,
-        "Xiaomi/umi_global/umi:11" to PERFCLASS_11,
-        "realme/RMX2085/RMX2085L1:11" to PERFCLASS_11,
-        "samsung/c1qsqw/c1q:12" to PERFCLASS_11,
-        "samsung/o1quew/o1q:12" to PERFCLASS_11,
-        "samsung/r0quew/r0q:12" to PERFCLASS_11,
-        "samsung/r0sxxx/r0s:12" to PERFCLASS_11,
-    )
+            // actual devices in the field
+            "OPPO/CPH2025EEA/OP4BA2L1:12" to PERFCLASS_11,
+            "OPPO/CPH2207EEA/OP4F0BL1:12" to PERFCLASS_11,
+            "OPPO/PENM00/OP4EC1:11" to PERFCLASS_11,
+            "OnePlus/OnePlus7TTMO/OnePlus7TTMO:11" to PERFCLASS_11,
+            "OnePlus/OnePlus8_BETA/OnePlus8:11" to PERFCLASS_11,
+            "Xiaomi/umi_global/umi:11" to PERFCLASS_11,
+            "realme/RMX2085/RMX2085L1:11" to PERFCLASS_11,
+            "samsung/c1qsqw/c1q:12" to PERFCLASS_11,
+            "samsung/o1quew/o1q:12" to PERFCLASS_11,
+            "samsung/r0quew/r0q:12" to PERFCLASS_11,
+            "samsung/r0sxxx/r0s:12" to PERFCLASS_11,
+        )
 
     override val mediaPerformanceClass = getCalculatedMediaPerformanceClass()
 
@@ -78,15 +79,13 @@ class DefaultDevicePerformance() : DevicePerformance {
     private fun getCalculatedMediaPerformanceClass(): Int {
 
         // device's declared property takes precedence over our in-library table.
-        val mpcViaProperty: Int =
-            getMediaPerformanceClassFromProperty()
+        val mpcViaProperty: Int = getMediaPerformanceClassFromProperty()
 
         if (isPerformanceClassValid(mpcViaProperty)) {
             return mpcViaProperty
         }
 
-        val mpcViaFingerprint: Int =
-            getMediaPerformanceClassFromFingerprint()
+        val mpcViaFingerprint: Int = getMediaPerformanceClassFromFingerprint()
 
         if (isPerformanceClassValid(mpcViaFingerprint)) {
             return mpcViaFingerprint

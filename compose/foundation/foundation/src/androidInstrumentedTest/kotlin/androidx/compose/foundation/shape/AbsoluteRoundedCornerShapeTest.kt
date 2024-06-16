@@ -38,10 +38,8 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<LayoutDirection> = arrayOf(
-            LayoutDirection.Ltr,
-            LayoutDirection.Rtl
-        )
+        fun initParameters(): Array<LayoutDirection> =
+            arrayOf(LayoutDirection.Ltr, LayoutDirection.Rtl)
     }
 
     private val density = Density(2f)
@@ -53,9 +51,7 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
 
         val expectedRadius = CornerRadius(25f)
         val outline = rounded.toOutline() as Outline.Rounded
-        assertThat(outline.roundRect).isEqualTo(
-            RoundRect(size.toRect(), expectedRadius)
-        )
+        assertThat(outline.roundRect).isEqualTo(RoundRect(size.toRect(), expectedRadius))
     }
 
     @Test
@@ -64,141 +60,127 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
         val radius2 = 22f
         val radius3 = 32f
         val radius4 = 42f
-        val rounded = AbsoluteRoundedCornerShape(
-            radius1,
-            radius2,
-            radius3,
-            radius4
-        )
+        val rounded = AbsoluteRoundedCornerShape(radius1, radius2, radius3, radius4)
 
         val outline = rounded.toOutline() as Outline.Rounded
-        assertThat(outline.roundRect).isEqualTo(
-            RoundRect(
-                size.toRect(),
-                CornerRadius(radius1),
-                CornerRadius(radius2),
-                CornerRadius(radius3),
-                CornerRadius(radius4)
+        assertThat(outline.roundRect)
+            .isEqualTo(
+                RoundRect(
+                    size.toRect(),
+                    CornerRadius(radius1),
+                    CornerRadius(radius2),
+                    CornerRadius(radius3),
+                    CornerRadius(radius4)
+                )
             )
-        )
     }
 
     @Test
     fun createsRectangleOutlineForZeroSizedCorners() {
-        val rounded = AbsoluteRoundedCornerShape(
-            0.0f,
-            0.0f,
-            0.0f,
-            0.0f
-        )
+        val rounded = AbsoluteRoundedCornerShape(0.0f, 0.0f, 0.0f, 0.0f)
 
-        assertThat(rounded.toOutline())
-            .isEqualTo(Outline.Rectangle(size.toRect()))
+        assertThat(rounded.toOutline()).isEqualTo(Outline.Rectangle(size.toRect()))
     }
 
     @Test
     fun roundedCornerShapesAreEquals() {
-        assertThat(AbsoluteRoundedCornerShape(12.dp))
-            .isEqualTo(AbsoluteRoundedCornerShape(12.dp))
+        assertThat(AbsoluteRoundedCornerShape(12.dp)).isEqualTo(AbsoluteRoundedCornerShape(12.dp))
     }
 
     @Test
     fun roundedCornerUpdateAllCornerSize() {
-        assertThat(
-            AbsoluteRoundedCornerShape(10.0f).copy(
-                CornerSize(
-                    5.dp
-                )
-            )
-        )
+        assertThat(AbsoluteRoundedCornerShape(10.0f).copy(CornerSize(5.dp)))
             .isEqualTo(AbsoluteRoundedCornerShape(5.dp))
     }
 
     @Test
     fun roundedCornerUpdateTwoCornerSizes() {
-        val original = AbsoluteRoundedCornerShape(10.0f)
-            .copy(
-                topStart = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
-            )
+        val original =
+            AbsoluteRoundedCornerShape(10.0f)
+                .copy(topStart = CornerSize(3.dp), bottomEnd = CornerSize(50))
 
         assertEquals(CornerSize(3.dp), original.topStart)
         assertEquals(CornerSize(10.0f), original.topEnd)
         assertEquals(CornerSize(50), original.bottomEnd)
         assertEquals(CornerSize(10f), original.bottomStart)
         assertThat(
-            AbsoluteRoundedCornerShape(10.0f).copy(
-                topStart = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
+                AbsoluteRoundedCornerShape(10.0f)
+                    .copy(topStart = CornerSize(3.dp), bottomEnd = CornerSize(50))
             )
-        ).isEqualTo(
-            AbsoluteRoundedCornerShape(
-                topLeft = CornerSize(3.dp),
-                topRight = CornerSize(10.0f),
-                bottomRight = CornerSize(50),
-                bottomLeft = CornerSize(10.0f)
+            .isEqualTo(
+                AbsoluteRoundedCornerShape(
+                    topLeft = CornerSize(3.dp),
+                    topRight = CornerSize(10.0f),
+                    bottomRight = CornerSize(50),
+                    bottomLeft = CornerSize(10.0f)
+                )
             )
-        )
     }
 
     @Test
     fun objectsWithTheSameCornersAreEquals() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            AbsoluteRoundedCornerShape(
-                topLeft = CornerSize(4.0f),
-                topRight = CornerSize(3.0f),
-                bottomRight = CornerSize(3.dp),
-                bottomLeft = CornerSize(50)
-            ).equals(
                 AbsoluteRoundedCornerShape(
-                    topLeft = CornerSize(4.0f),
-                    topRight = CornerSize(3.0f),
-                    bottomRight = CornerSize(3.dp),
-                    bottomLeft = CornerSize(50)
-                )
+                        topLeft = CornerSize(4.0f),
+                        topRight = CornerSize(3.0f),
+                        bottomRight = CornerSize(3.dp),
+                        bottomLeft = CornerSize(50)
+                    )
+                    .equals(
+                        AbsoluteRoundedCornerShape(
+                            topLeft = CornerSize(4.0f),
+                            topRight = CornerSize(3.0f),
+                            bottomRight = CornerSize(3.dp),
+                            bottomLeft = CornerSize(50)
+                        )
+                    )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun objectsWithDifferentCornersAreNotEquals() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            AbsoluteRoundedCornerShape(
-                topLeft = CornerSize(4.0f),
-                topRight = CornerSize(3.0f),
-                bottomRight = CornerSize(3.dp),
-                bottomLeft = CornerSize(50)
-            ).equals(
                 AbsoluteRoundedCornerShape(
-                    topLeft = CornerSize(4.0f),
-                    topRight = CornerSize(5.0f),
-                    bottomRight = CornerSize(3.dp),
-                    bottomLeft = CornerSize(50)
-                )
+                        topLeft = CornerSize(4.0f),
+                        topRight = CornerSize(3.0f),
+                        bottomRight = CornerSize(3.dp),
+                        bottomLeft = CornerSize(50)
+                    )
+                    .equals(
+                        AbsoluteRoundedCornerShape(
+                            topLeft = CornerSize(4.0f),
+                            topRight = CornerSize(5.0f),
+                            bottomRight = CornerSize(3.dp),
+                            bottomLeft = CornerSize(50)
+                        )
+                    )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun notEqualsToCutCornersWithTheSameSizes() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            AbsoluteRoundedCornerShape(
-                topLeft = CornerSize(4.0f),
-                topRight = CornerSize(3.0f),
-                bottomRight = CornerSize(3.dp),
-                bottomLeft = CornerSize(50)
-            ).equals(
-                AbsoluteCutCornerShape(
-                    topLeft = CornerSize(4.0f),
-                    topRight = CornerSize(3.0f),
-                    bottomRight = CornerSize(3.dp),
-                    bottomLeft = CornerSize(50)
-                )
+                AbsoluteRoundedCornerShape(
+                        topLeft = CornerSize(4.0f),
+                        topRight = CornerSize(3.0f),
+                        bottomRight = CornerSize(3.dp),
+                        bottomLeft = CornerSize(50)
+                    )
+                    .equals(
+                        AbsoluteCutCornerShape(
+                            topLeft = CornerSize(4.0f),
+                            topRight = CornerSize(3.0f),
+                            bottomRight = CornerSize(3.dp),
+                            bottomLeft = CornerSize(50)
+                        )
+                    )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
@@ -211,11 +193,12 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                 bottomLeft = 4.dp
             ),
             AbsoluteRoundedCornerShape(
-                topLeft = 1.dp,
-                topRight = 2.dp,
-                bottomRight = 3.dp,
-                bottomLeft = 4.dp
-            ).copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
+                    topLeft = 1.dp,
+                    topRight = 2.dp,
+                    bottomRight = 3.dp,
+                    bottomLeft = 4.dp
+                )
+                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
         )
         assertEquals(
             AbsoluteRoundedCornerShape(
@@ -225,14 +208,14 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                 bottomLeft = 6.dp
             ),
             AbsoluteRoundedCornerShape(
-                topLeft = 1.dp,
-                topRight = 2.dp,
-                bottomRight = 3.dp,
-                bottomLeft = 4.dp
-            ).copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
+                    topLeft = 1.dp,
+                    topRight = 2.dp,
+                    bottomRight = 3.dp,
+                    bottomLeft = 4.dp
+                )
+                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
         )
     }
 
-    private fun Shape.toOutline() =
-        createOutline(size, layoutDirection, density)
+    private fun Shape.toOutline() = createOutline(size, layoutDirection, density)
 }

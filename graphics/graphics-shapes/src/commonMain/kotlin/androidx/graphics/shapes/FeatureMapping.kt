@@ -17,16 +17,14 @@
 package androidx.graphics.shapes
 
 /**
- * MeasuredFeatures contains a list of all features in a polygon along with the [0..1] progress
- * at that feature
+ * MeasuredFeatures contains a list of all features in a polygon along with the [0..1] progress at
+ * that feature
  */
 internal typealias MeasuredFeatures = List<ProgressableFeature>
 
 internal data class ProgressableFeature(val progress: Float, val feature: Feature)
 
-/**
- * featureMapper creates a mapping between the "features" (rounded corners) of two shapes
- */
+/** featureMapper creates a mapping between the "features" (rounded corners) of two shapes */
 internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatures): DoubleMapper {
     // We only use corners for this mapping.
     val filteredFeatures1 = buildList {
@@ -48,11 +46,12 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
         }
     }
 
-    val (m1, m2) = if (filteredFeatures1.size > filteredFeatures2.size) {
-        doMapping(filteredFeatures2, filteredFeatures1) to filteredFeatures2
-    } else {
-        filteredFeatures1 to doMapping(filteredFeatures1, filteredFeatures2)
-    }
+    val (m1, m2) =
+        if (filteredFeatures1.size > filteredFeatures2.size) {
+            doMapping(filteredFeatures2, filteredFeatures1) to filteredFeatures2
+        } else {
+            filteredFeatures1 to doMapping(filteredFeatures1, filteredFeatures2)
+        }
 
     // Performance: Equivalent to `m1.zip(m2).map { (f1, f2) -> f1.progress to f2.progress }` and
     // done to zip and create a Pairs list without creating unnecessary Iterators.
@@ -63,9 +62,7 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
         }
     }
 
-    debugLog(LOG_TAG) {
-        mm.joinToString { "${it.first} -> ${it.second}" }
-    }
+    debugLog(LOG_TAG) { mm.joinToString { "${it.first} -> ${it.second}" } }
     return DoubleMapper(*mm.toTypedArray()).also { dm ->
         debugLog(LOG_TAG) {
             val N = 10
@@ -78,9 +75,9 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
 }
 
 /**
- * Returns distance along overall shape between two Features on the two different shapes.
- * This information is used to determine how to map features (and the curves that make up
- * those features).
+ * Returns distance along overall shape between two Features on the two different shapes. This
+ * information is used to determine how to map features (and the curves that make up those
+ * features).
  */
 internal fun featureDistSquared(f1: Feature, f2: Feature): Float {
     // TODO: We might want to enable concave-convex matching in some situations. If so, the
@@ -101,12 +98,11 @@ internal fun featureDistSquared(f1: Feature, f2: Feature): Float {
 }
 
 /**
- * Returns a mapping of the features in f2 that best map to the features in f1. The result
- * will be a list of features in f2 that is the size of f1. This is done to figure out
- * what the best features are in f2 that map to the existing features in f1. For example, if
- * f1 has 3 features and f2 has 4, we want to know what the 3 features are in f2 that map to
- * the features in f1 (then we will create a placeholder feature in the smaller shape for
- * the morph).
+ * Returns a mapping of the features in f2 that best map to the features in f1. The result will be a
+ * list of features in f2 that is the size of f1. This is done to figure out what the best features
+ * are in f2 that map to the existing features in f1. For example, if f1 has 3 features and f2 has
+ * 4, we want to know what the 3 features are in f2 that map to the features in f1 (then we will
+ * create a placeholder feature in the smaller shape for the morph).
  */
 internal fun doMapping(f1: MeasuredFeatures, f2: MeasuredFeatures): MeasuredFeatures {
     // Pick the first mapping in a greedy way.
@@ -121,9 +117,8 @@ internal fun doMapping(f1: MeasuredFeatures, f2: MeasuredFeatures): MeasuredFeat
         // Check the indices we can pick, which one is better.
         // Leave enough items in f2 to pick matches for the items left in f1.
         val last = (ix - (m - i)).let { if (it > lastPicked) it else it + n }
-        val best = (lastPicked + 1..last).minBy {
-            featureDistSquared(f1[i].feature, f2[it % n].feature)
-        }
+        val best =
+            (lastPicked + 1..last).minBy { featureDistSquared(f1[i].feature, f2[it % n].feature) }
         ret.add(f2[best % n])
         lastPicked = best
     }

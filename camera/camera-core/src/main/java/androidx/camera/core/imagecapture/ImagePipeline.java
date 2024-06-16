@@ -27,13 +27,11 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.ImageFormat;
 import android.media.ImageReader;
-import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ForwardingImageProxy;
@@ -60,7 +58,6 @@ import java.util.List;
  * <p>This class is responsible for building the entire pipeline, from creating camera request to
  * post-processing the output.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ImagePipeline {
 
     static final byte JPEG_QUALITY_MAX_QUALITY = 100;

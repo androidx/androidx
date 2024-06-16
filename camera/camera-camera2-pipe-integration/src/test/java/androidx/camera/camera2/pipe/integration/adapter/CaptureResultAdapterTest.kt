@@ -59,9 +59,10 @@ class CaptureResultAdapterTest {
 
     @Test
     fun getAfMode_withAfModeOff() {
-        val metadata = mapOf<CaptureResult.Key<*>, Any?>(
-            CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
-        )
+        val metadata =
+            mapOf<CaptureResult.Key<*>, Any?>(
+                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
+            )
         val cameraCaptureResult = createCaptureResultAdapter(resultMetadata = metadata)
         val partialResult = createPartialCaptureResultAdapter(resultMetadata = metadata)
 
@@ -71,325 +72,371 @@ class CaptureResultAdapterTest {
 
     @Test
     fun getAfMode_withAfModeEdof() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_EDOF
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_EDOF)
             )
-        )
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.OFF)
     }
 
     @Test
     fun getAfMode_withAfModeAuto() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO)
             )
-        )
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.ON_MANUAL_AUTO)
     }
 
     @Test
     fun getAfMode_withAfModeMacro() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_MACRO
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_MACRO)
             )
-        )
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.ON_MANUAL_AUTO)
     }
 
     @Test
     fun getAfMode_withAfModeContinuousPicture() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.ON_CONTINUOUS_AUTO)
     }
 
     @Test
     fun getAfMode_withAfModeContinuousVideo() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.ON_CONTINUOUS_AUTO)
     }
 
     @Test
     fun getAfState_withNull() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.CONTROL_AF_STATE to null)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata = mapOf(CaptureResult.CONTROL_AF_STATE to null)
+            )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.UNKNOWN)
     }
 
     @Test
     fun getAfState_withAfStateInactive() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_INACTIVE
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_INACTIVE)
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.INACTIVE)
     }
 
     @Test
     fun getAfState_withAfStateActiveScan() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.SCANNING)
     }
 
     @Test
     fun getAfState_withAfStatePassiveScan() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.SCANNING)
     }
 
     @Test
     fun getAfState_withAfStatePassiveUnfocused() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.PASSIVE_NOT_FOCUSED)
     }
 
     @Test
     fun getAfState_withAfStatePassiveFocused() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.PASSIVE_FOCUSED)
     }
 
     @Test
     fun getAfState_withAfStateFocusedLocked() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.LOCKED_FOCUSED)
     }
 
     @Test
     fun getAfState_withAfStateNotFocusedLocked() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.afState).isEqualTo(AfState.LOCKED_NOT_FOCUSED)
     }
 
     @Test
     fun getAeState_withNull() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.CONTROL_AE_STATE to null)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata = mapOf(CaptureResult.CONTROL_AE_STATE to null)
+            )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.UNKNOWN)
     }
 
     @Test
     fun getAeState_withAeStateInactive() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_INACTIVE
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_INACTIVE)
             )
-        )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.INACTIVE)
     }
 
     @Test
     fun getAeState_withAeStateSearching() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_SEARCHING
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_SEARCHING
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.SEARCHING)
     }
 
     @Test
     fun getAeState_withAeStatePrecapture() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_PRECAPTURE
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_PRECAPTURE
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.SEARCHING)
     }
 
     @Test
     fun getAeState_withAeStateFlashRequired() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.FLASH_REQUIRED)
     }
 
     @Test
     fun getAeState_withAeStateConverged() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.CONVERGED)
     }
 
     @Test
     fun getAeState_withAeStateLocked() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED)
             )
-        )
 
         assertThat(cameraCaptureResult.aeState).isEqualTo(AeState.LOCKED)
     }
 
     @Test
     fun getAwbState_withNull() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.CONTROL_AWB_STATE to null)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata = mapOf(CaptureResult.CONTROL_AWB_STATE to null)
+            )
 
         assertThat(cameraCaptureResult.awbState).isEqualTo(AwbState.UNKNOWN)
     }
 
     @Test
     fun getAwbState_withAwbStateInactive() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_INACTIVE
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_INACTIVE
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.awbState).isEqualTo(AwbState.INACTIVE)
     }
 
     @Test
     fun getAwbState_withAwbStateSearching() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_SEARCHING
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_SEARCHING
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.awbState).isEqualTo(AwbState.METERING)
     }
 
     @Test
     fun getAwbState_withAwbStateConverged() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED
+                    )
             )
-        )
 
         assertThat(cameraCaptureResult.awbState).isEqualTo(AwbState.CONVERGED)
     }
 
     @Test
     fun getAwbState_withAwbStateLocked() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_LOCKED
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_LOCKED)
             )
-        )
 
         assertThat(cameraCaptureResult.awbState).isEqualTo(AwbState.LOCKED)
     }
 
     @Test
     fun getFlashState_withNull() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.FLASH_STATE to null)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(resultMetadata = mapOf(CaptureResult.FLASH_STATE to null))
 
         assertThat(cameraCaptureResult.flashState).isEqualTo(FlashState.UNKNOWN)
     }
 
     @Test
     fun getFlashState_withFlashStateUnavailable() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_UNAVAILABLE
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_UNAVAILABLE)
             )
-        )
 
         assertThat(cameraCaptureResult.flashState).isEqualTo(FlashState.NONE)
     }
 
     @Test
     fun getFlashState_withFlashStateCharging() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_CHARGING)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_CHARGING)
+            )
 
         assertThat(cameraCaptureResult.flashState).isEqualTo(FlashState.NONE)
     }
 
     @Test
     fun getFlashState_withFlashStateReady() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_READY)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata = mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_READY)
+            )
 
         assertThat(cameraCaptureResult.flashState).isEqualTo(FlashState.READY)
     }
 
     @Test
     fun getFlashState_withFlashStateFired() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_FIRED)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata = mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_FIRED)
+            )
 
         assertThat(cameraCaptureResult.flashState).isEqualTo(FlashState.FIRED)
     }
 
     @Test
     fun getFlashState_withFlashStatePartial() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_PARTIAL)
-        )
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mapOf(CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_PARTIAL)
+            )
 
         assertThat(cameraCaptureResult.flashState).isEqualTo(FlashState.FIRED)
     }
@@ -400,44 +447,51 @@ class CaptureResultAdapterTest {
         val exposureTime = TimeUnit.SECONDS.toNanos(5)
         val aperture = 1.8f
         val iso = 200
-        val postRawSensitivityBoost = if (Build.VERSION.SDK_INT >= 24) {
-            200 // Add boost for API >= 24
-        } else {
-            100 // No boost for API < 24
-        }
-        val focalLength = 4200f
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any?>(
-                CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_FIRED,
-                CaptureResult.JPEG_ORIENTATION to 270,
-                CaptureResult.SENSOR_EXPOSURE_TIME to exposureTime,
-                CaptureResult.LENS_APERTURE to aperture,
-                CaptureResult.SENSOR_SENSITIVITY to iso,
-                CaptureResult.LENS_FOCAL_LENGTH to focalLength,
-                CaptureResult.CONTROL_AWB_MODE to CameraMetadata.CONTROL_AWB_MODE_OFF,
-            ).apply {
-                if (Build.VERSION.SDK_INT >= 24) {
-                    put(CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST, postRawSensitivityBoost)
-                }
+        val postRawSensitivityBoost =
+            if (Build.VERSION.SDK_INT >= 24) {
+                200 // Add boost for API >= 24
+            } else {
+                100 // No boost for API < 24
             }
-        )
+        val focalLength = 4200f
+        val cameraCaptureResult =
+            createCaptureResultAdapter(
+                resultMetadata =
+                    mutableMapOf<CaptureResult.Key<*>, Any?>(
+                            CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_FIRED,
+                            CaptureResult.JPEG_ORIENTATION to 270,
+                            CaptureResult.SENSOR_EXPOSURE_TIME to exposureTime,
+                            CaptureResult.LENS_APERTURE to aperture,
+                            CaptureResult.SENSOR_SENSITIVITY to iso,
+                            CaptureResult.LENS_FOCAL_LENGTH to focalLength,
+                            CaptureResult.CONTROL_AWB_MODE to CameraMetadata.CONTROL_AWB_MODE_OFF,
+                        )
+                        .apply {
+                            if (Build.VERSION.SDK_INT >= 24) {
+                                put(
+                                    CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST,
+                                    postRawSensitivityBoost
+                                )
+                            }
+                        }
+            )
 
         // Act
-        val exifData = ExifData.builderForDevice().also { exifBuilder ->
-            cameraCaptureResult.populateExifData(exifBuilder)
-        }.build()
+        val exifData =
+            ExifData.builderForDevice()
+                .also { exifBuilder -> cameraCaptureResult.populateExifData(exifBuilder) }
+                .build()
 
         // Assert
-        assertThat(exifData.getAttribute(ExifInterface.TAG_FLASH)!!.toShort()).isEqualTo(
-            FLAG_FLASH_FIRED
-        )
-        assertThat(exifData.getAttribute(ExifInterface.TAG_ORIENTATION)).isEqualTo(
-            ExifInterface.ORIENTATION_ROTATE_270.toString()
-        )
+        assertThat(exifData.getAttribute(ExifInterface.TAG_FLASH)!!.toShort())
+            .isEqualTo(FLAG_FLASH_FIRED)
+        assertThat(exifData.getAttribute(ExifInterface.TAG_ORIENTATION))
+            .isEqualTo(ExifInterface.ORIENTATION_ROTATE_270.toString())
 
         val exposureTimeString = exifData.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)
         assertThat(exposureTimeString).isNotNull()
-        assertThat(exposureTimeString!!.toFloat()).isWithin(0.1f)
+        assertThat(exposureTimeString!!.toFloat())
+            .isWithin(0.1f)
             .of(TimeUnit.NANOSECONDS.toSeconds(exposureTime).toFloat())
 
         assertThat(exifData.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo(aperture.toString())
@@ -446,16 +500,14 @@ class CaptureResultAdapterTest {
 
         val focalLengthString = exifData.getAttribute(ExifInterface.TAG_FOCAL_LENGTH)
         assertThat(focalLengthString).isNotNull()
-        val fractionValues = focalLengthString!!.split("/".toRegex()).dropLastWhile {
-            it.isEmpty()
-        }.toTypedArray()
+        val fractionValues =
+            focalLengthString!!.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val numerator = fractionValues[0].toLong()
         val denominator = fractionValues[1].toLong()
         assertThat(numerator / denominator.toFloat()).isWithin(0.1f).of(focalLength)
 
-        assertThat(exifData.getAttribute(ExifInterface.TAG_WHITE_BALANCE)!!.toShort()).isEqualTo(
-            ExifInterface.WHITE_BALANCE_MANUAL
-        )
+        assertThat(exifData.getAttribute(ExifInterface.TAG_WHITE_BALANCE)!!.toShort())
+            .isEqualTo(ExifInterface.WHITE_BALANCE_MANUAL)
     }
 
     private fun createCaptureResultAdapter(
@@ -463,14 +515,13 @@ class CaptureResultAdapterTest {
         resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
         frameNumber: FrameNumber = FrameNumber(101L)
     ): CameraCaptureResult {
-        val requestMetadata = FakeRequestMetadata(
-            requestParameters = requestParams,
-            requestNumber = RequestNumber(1)
-        )
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = resultMetadata,
-            frameNumber = frameNumber,
-        )
+        val requestMetadata =
+            FakeRequestMetadata(requestParameters = requestParams, requestNumber = RequestNumber(1))
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata = resultMetadata,
+                frameNumber = frameNumber,
+            )
         return CaptureResultAdapter(
             requestMetadata = requestMetadata,
             frameNumber,
@@ -486,14 +537,13 @@ class CaptureResultAdapterTest {
         resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
         frameNumber: FrameNumber = FrameNumber(101L)
     ): CameraCaptureResult {
-        val requestMetadata = FakeRequestMetadata(
-            requestParameters = requestParams,
-            requestNumber = RequestNumber(1)
-        )
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = resultMetadata,
-            frameNumber = frameNumber,
-        )
+        val requestMetadata =
+            FakeRequestMetadata(requestParameters = requestParams, requestNumber = RequestNumber(1))
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata = resultMetadata,
+                frameNumber = frameNumber,
+            )
         return PartialCaptureResultAdapter(
             requestMetadata = requestMetadata,
             frameNumber,

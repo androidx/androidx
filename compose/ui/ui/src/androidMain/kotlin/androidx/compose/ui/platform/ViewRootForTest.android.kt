@@ -21,39 +21,30 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.node.RootForTest
 
 /**
- * The marker interface to be implemented by the [View] backing the composition.
- * To be used in tests.
+ * The marker interface to be implemented by the [View] backing the composition. To be used in
+ * tests.
  */
 @VisibleForTesting
 interface ViewRootForTest : RootForTest {
 
-    /**
-     * The view backing this Owner.
-     */
+    /** The view backing this Owner. */
     val view: View
 
-    /**
-     * Returns true when the associated LifecycleOwner is in the resumed state
-     */
+    /** Returns true when the associated LifecycleOwner is in the resumed state */
     val isLifecycleInResumedState: Boolean
 
-    /**
-     * Whether the Owner has pending layout work.
-     */
+    /** Whether the Owner has pending layout work. */
     val hasPendingMeasureOrLayout: Boolean
 
-    /**
-     * Called to invalidate the Android [View] sub-hierarchy handled by this [View].
-     */
+    /** Called to invalidate the Android [View] sub-hierarchy handled by this [View]. */
     fun invalidateDescendants()
 
     companion object {
         /**
          * Called after an View implementing [ViewRootForTest] is created. Used by
-         * AndroidComposeTestRule to keep track of all attached ComposeViews. Not to be
-         * set or used by any other component.
+         * AndroidComposeTestRule to keep track of all attached ComposeViews. Not to be set or used
+         * by any other component.
          */
-        @VisibleForTesting
-        var onViewCreatedCallback: ((ViewRootForTest) -> Unit)? = null
+        @VisibleForTesting var onViewCreatedCallback: ((ViewRootForTest) -> Unit)? = null
     }
 }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.view
 
 import android.graphics.Matrix
@@ -27,7 +25,6 @@ import android.util.Size
 import android.view.Surface
 import android.view.Surface.ROTATION_0
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
@@ -69,9 +66,7 @@ private const val BACK_CAMERA = false
 
 private const val ARBITRARY_ROTATION = Surface.ROTATION_0
 
-/**
- * Instrument tests for [PreviewTransformation].
- */
+/** Instrument tests for [PreviewTransformation]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -89,39 +84,33 @@ class PreviewTransformationTest {
     @Test
     fun cropRectWidthOffByOnePixel_match() {
         assertThat(
-            isCropRectAspectRatioMatchPreviewView(
-                Rect(
-                    0,
-                    0,
-                    PREVIEW_VIEW_SIZE.height + 1,
-                    PREVIEW_VIEW_SIZE.width - 1
+                isCropRectAspectRatioMatchPreviewView(
+                    Rect(0, 0, PREVIEW_VIEW_SIZE.height + 1, PREVIEW_VIEW_SIZE.width - 1)
                 )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun cropRectWidthOffByTwoPixels_mismatch() {
         assertThat(
-            isCropRectAspectRatioMatchPreviewView(
-                Rect(
-                    0,
-                    0,
-                    PREVIEW_VIEW_SIZE.height + 2,
-                    PREVIEW_VIEW_SIZE.width - 2
+                isCropRectAspectRatioMatchPreviewView(
+                    Rect(0, 0, PREVIEW_VIEW_SIZE.height + 2, PREVIEW_VIEW_SIZE.width - 2)
                 )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     private fun isCropRectAspectRatioMatchPreviewView(cropRect: Rect): Boolean {
         mPreviewTransform.setTransformationInfo(
             // Height and width is swapped because rotation is 90°.
             SurfaceRequest.TransformationInfo.of(
-                cropRect, 90, ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                cropRect,
+                90,
+                ARBITRARY_ROTATION,
+                /*hasCameraTransform=*/ true,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
             SURFACE_SIZE,
             BACK_CAMERA
@@ -144,36 +133,40 @@ class PreviewTransformationTest {
         val surfaceSize = Size(640, 480)
         val sensorSize = Size(320, 240)
         val viewSize = Size(1280, 960)
-        val sensorToBuffer = getRectToRect(
-            RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
-            RectF(0f, 0f, surfaceSize.width.toFloat(), surfaceSize.height.toFloat()),
-            /*rotationDegrees=*/0
-        )
+        val sensorToBuffer =
+            getRectToRect(
+                RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
+                RectF(0f, 0f, surfaceSize.width.toFloat(), surfaceSize.height.toFloat()),
+                /*rotationDegrees=*/ 0
+            )
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
                 Rect(0, 0, surfaceSize.width, surfaceSize.height),
-                /*rotationDegrees*/0,
+                /*rotationDegrees*/ 0,
                 ROTATION_0,
-                /*hasCameraTransform=*/true,
+                /*hasCameraTransform=*/ true,
                 sensorToBuffer,
-                /*mirroring=*/false
+                /*mirroring=*/ false
             ),
             surfaceSize,
             isFrontCamera
         )
 
         // Act: apply the PreviewView size
-        val sensorToView = mPreviewTransform.getSensorToViewTransform(
-            Size(viewSize.width, viewSize.height),
-            LayoutDirection.LTR
-        )
+        val sensorToView =
+            mPreviewTransform.getSensorToViewTransform(
+                Size(viewSize.width, viewSize.height),
+                LayoutDirection.LTR
+            )
 
         // Assert: the overall transformation is sensor -> view
-        val expected = getRectToRect(
-            RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
-            RectF(0f, 0f, viewSize.width.toFloat(), viewSize.height.toFloat()),
-            /*rotationDegrees=*/0, /*mirroring=*/isFrontCamera
-        )
+        val expected =
+            getRectToRect(
+                RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
+                RectF(0f, 0f, viewSize.width.toFloat(), viewSize.height.toFloat()),
+                /*rotationDegrees=*/ 0,
+                /*mirroring=*/ isFrontCamera
+            )
         assertThat(sensorToView).isEqualTo(expected)
     }
 
@@ -185,23 +178,25 @@ class PreviewTransformationTest {
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
                 Rect(0, 0, croppedSize.width, croppedSize.height),
-                /*rotationDegrees*/0,
+                /*rotationDegrees*/ 0,
                 ROTATION_NOT_SPECIFIED,
-                /*hasCameraTransform=*/false,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                /*hasCameraTransform=*/ false,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
             croppedSize,
-            /*isFrontCamera=*/false
+            /*isFrontCamera=*/ false
         )
 
         // Act.
         mPreviewTransform.transformView(PREVIEW_VIEW_SIZE, LayoutDirection.LTR, mView)
 
         // Assert: PreviewView simply scales the output.
-        assertThat(mView.scaleX).isWithin(FLOAT_ERROR)
+        assertThat(mView.scaleX)
+            .isWithin(FLOAT_ERROR)
             .of(PREVIEW_VIEW_SIZE.width / croppedSize.width.toFloat())
-        assertThat(mView.scaleY).isWithin(FLOAT_ERROR)
+        assertThat(mView.scaleY)
+            .isWithin(FLOAT_ERROR)
             .of(PREVIEW_VIEW_SIZE.height / croppedSize.height.toFloat())
         assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0f)
         assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(0f)
@@ -211,75 +206,77 @@ class PreviewTransformationTest {
 
     @Test
     fun correctTextureViewWith0Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_0)).isEqualTo(
-            intArrayOf(
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height
+        assertThat(getTextureViewCorrection(Surface.ROTATION_0))
+            .isEqualTo(
+                intArrayOf(
+                    0,
+                    0,
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height
+                )
             )
-        )
     }
 
     @Test
     fun correctTextureViewWith90Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_90)).isEqualTo(
-            intArrayOf(
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height
+        assertThat(getTextureViewCorrection(Surface.ROTATION_90))
+            .isEqualTo(
+                intArrayOf(
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0,
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height
+                )
             )
-        )
     }
 
     @Test
     fun correctTextureViewWith180Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_180)).isEqualTo(
-            intArrayOf(
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0
+        assertThat(getTextureViewCorrection(Surface.ROTATION_180))
+            .isEqualTo(
+                intArrayOf(
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0,
+                    SURFACE_SIZE.width,
+                    0
+                )
             )
-        )
     }
 
     @Test
     fun correctTextureViewWith270Rotation() {
-        assertThat(getTextureViewCorrection(Surface.ROTATION_270)).isEqualTo(
-            intArrayOf(
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0
+        assertThat(getTextureViewCorrection(Surface.ROTATION_270))
+            .isEqualTo(
+                intArrayOf(
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0
+                )
             )
-        )
     }
 
     private fun getTextureViewCorrection(@RotationValue rotation: Int): IntArray {
         return getTextureViewCorrection(rotation, BACK_CAMERA)
     }
 
-    /**
-     * Corrects TextureView based on target rotation and return the corrected vertices.
-     */
+    /** Corrects TextureView based on target rotation and return the corrected vertices. */
     private fun getTextureViewCorrection(
         @RotationValue rotation: Int,
         isFrontCamera: Boolean
@@ -290,9 +287,9 @@ class PreviewTransformationTest {
                 CROP_RECT,
                 90,
                 rotation,
-                /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                /*hasCameraTransform=*/ true,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
             SURFACE_SIZE,
             isFrontCamera
@@ -322,11 +319,12 @@ class PreviewTransformationTest {
                 CROP_RECT,
                 90,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                /*hasCameraTransform=*/ true,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
-            SURFACE_SIZE, BACK_CAMERA
+            SURFACE_SIZE,
+            BACK_CAMERA
         )
 
         // Act.
@@ -335,13 +333,14 @@ class PreviewTransformationTest {
         // Assert.
         val correctCropRectWidth =
             CROP_RECT.height().toFloat() / SURFACE_SIZE.height * SURFACE_SIZE.width
-        assertThat(mView.scaleX).isWithin(FLOAT_ERROR)
+        assertThat(mView.scaleX)
+            .isWithin(FLOAT_ERROR)
             .of(PREVIEW_VIEW_SIZE.width / correctCropRectWidth)
         val correctCropRectHeight: Float =
             CROP_RECT.width().toFloat() / SURFACE_SIZE.width * SURFACE_SIZE.height
-        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(
-            PREVIEW_VIEW_SIZE.height / correctCropRectHeight
-        )
+        assertThat(mView.scaleY)
+            .isWithin(FLOAT_ERROR)
+            .of(PREVIEW_VIEW_SIZE.height / correctCropRectHeight)
         assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0f)
         assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-200f)
     }
@@ -456,9 +455,9 @@ class PreviewTransformationTest {
                 MISMATCHED_CROP_RECT,
                 90,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                /*hasCameraTransform=*/ true,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
             FIT_SURFACE_SIZE,
             isFrontCamera
@@ -499,9 +498,7 @@ class PreviewTransformationTest {
 
     @Test
     fun frontCameraRotated90_transformationIsMirrored() {
-        testOffCenterCropRectMirroring(
-            FRONT_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90
-        )
+        testOffCenterCropRectMirroring(FRONT_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90)
 
         // Assert:
         assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(6.666F)
@@ -512,9 +509,7 @@ class PreviewTransformationTest {
 
     @Test
     fun previewViewSizeIs0_noOps() {
-        testOffCenterCropRectMirroring(
-            FRONT_CAMERA, CROP_RECT_90, Size(0, 0), 90
-        )
+        testOffCenterCropRectMirroring(FRONT_CAMERA, CROP_RECT_90, Size(0, 0), 90)
 
         // Assert: no transform applied.
         assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(1F)
@@ -545,9 +540,9 @@ class PreviewTransformationTest {
                 cropRect,
                 rotationDegrees,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true,
-                /*sensorToBufferTransform=*/Matrix(),
-                /*mirroring=*/false
+                /*hasCameraTransform=*/ true,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false
             ),
             SURFACE_SIZE,
             isFrontCamera

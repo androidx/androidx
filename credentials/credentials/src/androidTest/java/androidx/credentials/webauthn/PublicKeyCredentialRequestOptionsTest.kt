@@ -26,12 +26,12 @@ import org.junit.runner.RunWith
 @SmallTest
 class PublicKeyCredentialRequestOptionsTest {
 
-  @Test
-  fun constructor() {
-    val rawId = byteArrayOf(1)
+    @Test
+    fun constructor() {
+        val rawId = byteArrayOf(1)
 
-    val json =
-      """
+        val json =
+            """
              {
                  "challenge": "AQ",
                  "rpId": "rp id",
@@ -39,67 +39,67 @@ class PublicKeyCredentialRequestOptionsTest {
                  "userVerification": "enabled"
              }
           """
-    var options = PublicKeyCredentialRequestOptions(json)
-    assertThat(options.challenge).isEqualTo(rawId)
-    assertThat(options.rpId).isEqualTo("rp id")
-    assertThat(options.timeout).isEqualTo(10)
-    assertThat(options.userVerification).isEqualTo("enabled")
-  }
+        var options = PublicKeyCredentialRequestOptions(json)
+        assertThat(options.challenge).isEqualTo(rawId)
+        assertThat(options.rpId).isEqualTo("rp id")
+        assertThat(options.timeout).isEqualTo(10)
+        assertThat(options.userVerification).isEqualTo("enabled")
+    }
 
-  @Test
-  fun constructor_optionalTimeout() {
-    val rawId = byteArrayOf(1)
+    @Test
+    fun constructor_optionalTimeout() {
+        val rawId = byteArrayOf(1)
 
-    val json =
-      """
+        val json =
+            """
              {
                  "challenge": "AQ",
                  "rpId": "rp id",
                  "userVerification": "enabled"
              }
           """
-    var options = PublicKeyCredentialRequestOptions(json)
-    assertThat(options.challenge).isEqualTo(rawId)
-    assertThat(options.rpId).isEqualTo("rp id")
-    assertThat(options.timeout).isEqualTo(0)
-    assertThat(options.userVerification).isEqualTo("enabled")
-  }
+        var options = PublicKeyCredentialRequestOptions(json)
+        assertThat(options.challenge).isEqualTo(rawId)
+        assertThat(options.rpId).isEqualTo("rp id")
+        assertThat(options.timeout).isEqualTo(0)
+        assertThat(options.userVerification).isEqualTo("enabled")
+    }
 
-  @Test
-  fun constructor_optionalRpId() {
-    val rawId = byteArrayOf(1)
+    @Test
+    fun constructor_optionalRpId() {
+        val rawId = byteArrayOf(1)
 
-    val json =
-      """
+        val json =
+            """
              {
                  "challenge": "AQ",
                  "timeout": 10,
                  "userVerification": "enabled"
              }
           """
-    var options = PublicKeyCredentialRequestOptions(json)
-    assertThat(options.challenge).isEqualTo(rawId)
-    assertThat(options.rpId).isEqualTo("")
-    assertThat(options.timeout).isEqualTo(10)
-    assertThat(options.userVerification).isEqualTo("enabled")
-  }
+        var options = PublicKeyCredentialRequestOptions(json)
+        assertThat(options.challenge).isEqualTo(rawId)
+        assertThat(options.rpId).isEqualTo("")
+        assertThat(options.timeout).isEqualTo(10)
+        assertThat(options.userVerification).isEqualTo("enabled")
+    }
 
-  @Test
-  fun constructor_optionalUserVerification() {
-    val rawId = byteArrayOf(1)
+    @Test
+    fun constructor_optionalUserVerification() {
+        val rawId = byteArrayOf(1)
 
-    val json =
-      """
+        val json =
+            """
              {
                  "challenge": "AQ",
                  "rpId": "rp id",
                  "timeout": 10
              }
           """
-    var options = PublicKeyCredentialRequestOptions(json)
-    assertThat(options.challenge).isEqualTo(rawId)
-    assertThat(options.rpId).isEqualTo("rp id")
-    assertThat(options.timeout).isEqualTo(10)
-    assertThat(options.userVerification).isEqualTo("preferred")
-  }
+        var options = PublicKeyCredentialRequestOptions(json)
+        assertThat(options.challenge).isEqualTo(rawId)
+        assertThat(options.rpId).isEqualTo("rp id")
+        assertThat(options.timeout).isEqualTo(10)
+        assertThat(options.userVerification).isEqualTo("preferred")
+    }
 }

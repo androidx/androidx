@@ -29,11 +29,7 @@ import org.gradle.api.logging.Logger
  * plugins that need to interact with adb.
  */
 class Adb {
-    data class ProcessResult(
-        val exitValue: Int,
-        val stdout: String,
-        val stderr: String
-    )
+    data class ProcessResult(val exitValue: Int, val stdout: String, val stderr: String)
 
     private val adbPath: String
     private val logger: Logger
@@ -55,9 +51,7 @@ class Adb {
         return defaultUser.contains("uid=0(root)")
     }
 
-    /**
-     * Check if the `su` binary is installed.
-     */
+    /** Check if the `su` binary is installed. */
     fun isSuInstalled(): Boolean {
         // Not all devices / methods of rooting support su -c, but sh -c is usually supported.
         // Although the root group is su's default, using syntax different from "su gid cmd", can

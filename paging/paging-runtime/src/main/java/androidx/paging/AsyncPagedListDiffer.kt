@@ -42,8 +42,8 @@ import java.util.concurrent.CopyOnWriteArrayList
  * adapter. It listens to PagedList loading callbacks, and uses DiffUtil on a background thread to
  * compute updates as new PagedLists are received.
  *
- * It provides a simple list-like API with [getItem] and [itemCount] for an adapter to acquire
- * and present data objects.
+ * It provides a simple list-like API with [getItem] and [itemCount] for an adapter to acquire and
+ * present data objects.
  *
  * A complete usage pattern with Room would look like this:
  * ```
@@ -116,10 +116,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 @Deprecated(
     message = "AsyncPagedListDiffer is deprecated and has been replaced by AsyncPagingDataDiffer",
-    replaceWith = ReplaceWith(
-        "AsyncPagingDataDiffer<T>",
-        "androidx.paging.AsyncPagingDataDiffer"
-    )
+    replaceWith = ReplaceWith("AsyncPagingDataDiffer<T>", "androidx.paging.AsyncPagingDataDiffer")
 )
 open class AsyncPagedListDiffer<T : Any> {
     /**
@@ -137,15 +134,11 @@ open class AsyncPagedListDiffer<T : Any> {
     @VisibleForTesting
     internal val listeners = CopyOnWriteArrayList<PagedListListener<T>>()
 
-    @Suppress("DEPRECATION")
-    private var pagedList: PagedList<T>? = null
+    @Suppress("DEPRECATION") private var pagedList: PagedList<T>? = null
 
-    @Suppress("DEPRECATION")
-    private var snapshot: PagedList<T>? = null
+    @Suppress("DEPRECATION") private var snapshot: PagedList<T>? = null
 
-    /**
-     *  Max generation of currently scheduled runnable
-     */
+    /** Max generation of currently scheduled runnable */
     @Suppress("MemberVisibilityCanBePrivate") // synthetic access
     internal var maxScheduledGeneration: Int = 0
 
@@ -164,18 +157,19 @@ open class AsyncPagedListDiffer<T : Any> {
         CopyOnWriteArrayList()
 
     @Suppress("DEPRECATION")
-    private val pagedListCallback: PagedList.Callback = object : PagedList.Callback() {
-        override fun onInserted(position: Int, count: Int) =
-            updateCallback.onInserted(position, count)
+    private val pagedListCallback: PagedList.Callback =
+        object : PagedList.Callback() {
+            override fun onInserted(position: Int, count: Int) =
+                updateCallback.onInserted(position, count)
 
-        override fun onRemoved(position: Int, count: Int) =
-            updateCallback.onRemoved(position, count)
+            override fun onRemoved(position: Int, count: Int) =
+                updateCallback.onRemoved(position, count)
 
-        override fun onChanged(position: Int, count: Int) {
-            // NOTE: pass a null payload to convey null -> item
-            updateCallback.onChanged(position, count, null)
+            override fun onChanged(position: Int, count: Int) {
+                // NOTE: pass a null payload to convey null -> item
+                updateCallback.onChanged(position, count, null)
+            }
         }
-    }
 
     /**
      * Get the number of items currently presented by this Differ. This value can be directly
@@ -247,16 +241,17 @@ open class AsyncPagedListDiffer<T : Any> {
      */
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
-        replaceWith = ReplaceWith(
-            """AsyncPagingDataDiffer(
+        replaceWith =
+            ReplaceWith(
+                """AsyncPagingDataDiffer(
                 Dispatchers.Main,
                 Dispatchers.IO,
                 diffCallback,
                 listUpdateCallback
             )""",
-            "androidx.paging.AsyncPagingDataDiffer",
-            "kotlinx.coroutines.Dispatchers"
-        )
+                "androidx.paging.AsyncPagingDataDiffer",
+                "kotlinx.coroutines.Dispatchers"
+            )
     )
     constructor(adapter: RecyclerView.Adapter<*>, diffCallback: DiffUtil.ItemCallback<T>) {
         updateCallback = AdapterListUpdateCallback(adapter)
@@ -265,21 +260,21 @@ open class AsyncPagedListDiffer<T : Any> {
 
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
-        replaceWith = ReplaceWith(
-            """AsyncPagingDataDiffer(
+        replaceWith =
+            ReplaceWith(
+                """AsyncPagingDataDiffer(
                 Dispatchers.Main,
                 Dispatchers.IO,
                 config.diffCallback,
                 listUpdateCallback
             )""",
-            "androidx.paging.AsyncPagingDataDiffer",
-            "kotlinx.coroutines.Dispatchers"
-        )
+                "androidx.paging.AsyncPagingDataDiffer",
+                "kotlinx.coroutines.Dispatchers"
+            )
     )
     constructor(
         listUpdateCallback: ListUpdateCallback,
-        @Suppress("ListenerLast")
-        config: AsyncDifferConfig<T>
+        @Suppress("ListenerLast") config: AsyncDifferConfig<T>
     ) {
         updateCallback = listUpdateCallback
         this.config = config
@@ -292,7 +287,6 @@ open class AsyncPagedListDiffer<T : Any> {
      *
      * @param index Index of item to get, must be >= 0, and < `getItemCount`.
      * @return The item, or null, if a null placeholder is at the specified position.
-     *
      * @throws IndexOutOfBoundsException if [itemCount] is 0.
      */
     open fun getItem(index: Int): T? {
@@ -329,14 +323,13 @@ open class AsyncPagedListDiffer<T : Any> {
      * [ListUpdateCallback]), and the new PagedList will be swapped in as the
      * [current list][currentList].
      *
-     * The commit callback can be used to know when the PagedList is committed, but note that it
-     * may not be executed. If PagedList B is submitted immediately after PagedList A, and is
-     * committed directly, the callback associated with PagedList A will not be run.
+     * The commit callback can be used to know when the PagedList is committed, but note that it may
+     * not be executed. If PagedList B is submitted immediately after PagedList A, and is committed
+     * directly, the callback associated with PagedList A will not be run.
      *
      * @param pagedList The new [PagedList].
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
-     * it is committed.
-     *
+     *   it is committed.
      * @throws IllegalStateException if previous PagedList wasn't snapshotted correctly.
      */
     open fun submitList(
@@ -417,15 +410,14 @@ open class AsyncPagedListDiffer<T : Any> {
             throw IllegalStateException("must be in snapshot state to diff")
         }
 
-        @Suppress("DEPRECATION")
-        val newSnapshot = pagedList.snapshot() as PagedList<T>
+        @Suppress("DEPRECATION") val newSnapshot = pagedList.snapshot() as PagedList<T>
         val recordingCallback = RecordingCallback()
         pagedList.addWeakCallback(recordingCallback)
         config.backgroundThreadExecutor.execute {
-            val result = oldSnapshot.getPlaceholderPaddedList().computeDiff(
-                newSnapshot.getPlaceholderPaddedList(),
-                config.diffCallback
-            )
+            val result =
+                oldSnapshot
+                    .getPlaceholderPaddedList()
+                    .computeDiff(newSnapshot.getPlaceholderPaddedList(), config.diffCallback)
 
             mainThreadExecutor.execute {
                 if (maxScheduledGeneration == runGeneration) {
@@ -461,11 +453,13 @@ open class AsyncPagedListDiffer<T : Any> {
         snapshot = null
 
         // dispatch updates to UI from previousSnapshot -> newSnapshot
-        previousSnapshot.getPlaceholderPaddedList().dispatchDiff(
-            callback = updateCallback,
-            newList = diffSnapshot.getPlaceholderPaddedList(),
-            diffResult = diffResult
-        )
+        previousSnapshot
+            .getPlaceholderPaddedList()
+            .dispatchDiff(
+                callback = updateCallback,
+                newList = diffSnapshot.getPlaceholderPaddedList(),
+                diffResult = diffResult
+            )
 
         // dispatch updates to UI from newSnapshot -> currentList
         // after this, the callback will be up to date with current pagedList...
@@ -481,11 +475,14 @@ open class AsyncPagedListDiffer<T : Any> {
             // Note: we don't take into account loads between new list snapshot and new list, but
             // this is only a problem in rare cases when placeholders are disabled, and a load
             // starts (for some reason) and finishes before diff completes.
-            val newPosition = previousSnapshot.getPlaceholderPaddedList().transformAnchorIndex(
-                diffResult,
-                diffSnapshot.getPlaceholderPaddedList(),
-                lastAccessIndex
-            )
+            val newPosition =
+                previousSnapshot
+                    .getPlaceholderPaddedList()
+                    .transformAnchorIndex(
+                        diffResult,
+                        diffSnapshot.getPlaceholderPaddedList(),
+                        lastAccessIndex
+                    )
 
             // Trigger load in new list at this position, clamped to list bounds.
             // This is a load, not just an update of last load position, since the new list may be
@@ -510,7 +507,6 @@ open class AsyncPagedListDiffer<T : Any> {
      * Add a [PagedListListener] to receive updates when the current [PagedList] changes.
      *
      * @param listener Listener to receive updates.
-     *
      * @see currentList
      * @see removePagedListListener
      */
@@ -522,7 +518,6 @@ open class AsyncPagedListDiffer<T : Any> {
      * Add a callback to receive updates when the current [PagedList] changes.
      *
      * @param callback to receive updates.
-     *
      * @see currentList
      * @see removePagedListListener
      */
@@ -536,7 +531,6 @@ open class AsyncPagedListDiffer<T : Any> {
      * Remove a previously registered [PagedListListener].
      *
      * @param listener Previously registered listener.
-     *
      * @see currentList
      * @see addPagedListListener
      */
@@ -548,7 +542,6 @@ open class AsyncPagedListDiffer<T : Any> {
      * Remove a previously registered callback via [addPagedListListener].
      *
      * @param callback Previously registered callback.
-     *
      * @see currentList
      * @see addPagedListListener
      */
@@ -565,7 +558,6 @@ open class AsyncPagedListDiffer<T : Any> {
      * current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
      * @param listener [LoadState] listener to receive updates.
-     *
      * @see removeLoadStateListener
      */
     open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
@@ -582,7 +574,6 @@ open class AsyncPagedListDiffer<T : Any> {
      * Remove a previously registered [LoadState] listener.
      *
      * @param listener Previously registered listener.
-     *
      * @see currentList
      * @see addPagedListListener
      */

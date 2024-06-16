@@ -35,16 +35,14 @@ import androidx.fragment.app.commit
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 
 /**
- * [PreferenceHeaderFragmentCompat] implements a two-pane fragment for preferences. The list
- * pane is a container of preference headers. Tapping on a preference header swaps out the fragment
- * shown in the detail pane. Subclasses are expected to implement [onCreatePreferenceHeader] to
- * provide your own [PreferenceFragmentCompat] in the list pane. The preference header hierarchy
- * is defined by either providing an XML resource or build in code through
- * [PreferenceFragmentCompat]. In both cases, users need to use a [PreferenceScreen] as the root
- * component in the hierarchy.
+ * [PreferenceHeaderFragmentCompat] implements a two-pane fragment for preferences. The list pane is
+ * a container of preference headers. Tapping on a preference header swaps out the fragment shown in
+ * the detail pane. Subclasses are expected to implement [onCreatePreferenceHeader] to provide your
+ * own [PreferenceFragmentCompat] in the list pane. The preference header hierarchy is defined by
+ * either providing an XML resource or build in code through [PreferenceFragmentCompat]. In both
+ * cases, users need to use a [PreferenceScreen] as the root component in the hierarchy.
  *
  * Usage:
- *
  * ```
  * class TwoPanePreference : PreferenceHeaderFragmentCompat() {
  *     override fun onCreatePreferenceHeader(): PreferenceFragmentCompat {
@@ -53,15 +51,14 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
  * }
  * ```
  *
- * [PreferenceHeaderFragmentCompat] handles the fragment transaction when users defines a
- * fragment or intent associated with the preference header. By default, the initial state fragment
- * for the detail pane is set to the associated fragment that first found in preference
- * headers. You can override [onCreateInitialDetailFragment] to provide the custom empty state
- * fragment for the detail pane.
+ * [PreferenceHeaderFragmentCompat] handles the fragment transaction when users defines a fragment
+ * or intent associated with the preference header. By default, the initial state fragment for the
+ * detail pane is set to the associated fragment that first found in preference headers. You can
+ * override [onCreateInitialDetailFragment] to provide the custom empty state fragment for the
+ * detail pane.
  */
 abstract class PreferenceHeaderFragmentCompat :
-    Fragment(),
-    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+    Fragment(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     private var onBackPressedCallback: OnBackPressedCallback? = null
 
     /**
@@ -84,10 +81,11 @@ abstract class PreferenceHeaderFragmentCompat :
         }
         if (caller.id == R.id.preferences_detail) {
             // Opens an preference in detail pane.
-            val frag = childFragmentManager.fragmentFactory.instantiate(
-                requireContext().classLoader,
-                pref.fragment!!
-            )
+            val frag =
+                childFragmentManager.fragmentFactory.instantiate(
+                    requireContext().classLoader,
+                    pref.fragment!!
+                )
             frag.arguments = pref.extras
 
             childFragmentManager.commit {
@@ -101,11 +99,8 @@ abstract class PreferenceHeaderFragmentCompat :
         return false
     }
 
-    private class InnerOnBackPressedCallback(
-        private val caller: PreferenceHeaderFragmentCompat
-    ) :
-        OnBackPressedCallback(true),
-        SlidingPaneLayout.PanelSlideListener {
+    private class InnerOnBackPressedCallback(private val caller: PreferenceHeaderFragmentCompat) :
+        OnBackPressedCallback(true), SlidingPaneLayout.PanelSlideListener {
 
         init {
             caller.slidingPaneLayout.addPanelSlideListener(this)
@@ -144,9 +139,7 @@ abstract class PreferenceHeaderFragmentCompat :
     ): View {
         val slidingPaneLayout = buildContentView(inflater)
         // Now create the header fragment
-        val existingHeaderFragment = childFragmentManager.findFragmentById(
-            R.id.preferences_header
-        )
+        val existingHeaderFragment = childFragmentManager.findFragmentById(R.id.preferences_header)
         if (existingHeaderFragment == null) {
             onCreatePreferenceHeader().also { newHeaderFragment ->
                 childFragmentManager.commit {
@@ -160,45 +153,42 @@ abstract class PreferenceHeaderFragmentCompat :
     }
 
     private fun buildContentView(inflater: LayoutInflater): SlidingPaneLayout {
-        val slidingPaneLayout = SlidingPaneLayout(inflater.context).apply {
-            id = R.id.preferences_sliding_pane_layout
-        }
+        val slidingPaneLayout =
+            SlidingPaneLayout(inflater.context).apply { id = R.id.preferences_sliding_pane_layout }
         // Add Preference Header Pane
-        val headerContainer = FragmentContainerView(inflater.context).apply {
-            id = R.id.preferences_header
-        }
-        val headerLayoutParams = SlidingPaneLayout.LayoutParams(
-            resources.getDimensionPixelSize(R.dimen.preferences_header_width),
-            MATCH_PARENT
-        ).apply {
-            weight = resources.getInteger(R.integer.preferences_header_pane_weight).toFloat()
-        }
-        slidingPaneLayout.addView(
-            headerContainer,
-            headerLayoutParams
-        )
+        val headerContainer =
+            FragmentContainerView(inflater.context).apply { id = R.id.preferences_header }
+        val headerLayoutParams =
+            SlidingPaneLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.preferences_header_width),
+                    MATCH_PARENT
+                )
+                .apply {
+                    weight =
+                        resources.getInteger(R.integer.preferences_header_pane_weight).toFloat()
+                }
+        slidingPaneLayout.addView(headerContainer, headerLayoutParams)
 
         // Add Preference Detail Pane
-        val detailContainer = FragmentContainerView(inflater.context).apply {
-            id = R.id.preferences_detail
-        }
-        val detailLayoutParams = SlidingPaneLayout.LayoutParams(
-            resources.getDimensionPixelSize(R.dimen.preferences_detail_width),
-            MATCH_PARENT
-        ).apply {
-            weight = resources.getInteger(R.integer.preferences_detail_pane_weight).toFloat()
-        }
-        slidingPaneLayout.addView(
-            detailContainer,
-            detailLayoutParams
-        )
+        val detailContainer =
+            FragmentContainerView(inflater.context).apply { id = R.id.preferences_detail }
+        val detailLayoutParams =
+            SlidingPaneLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.preferences_detail_width),
+                    MATCH_PARENT
+                )
+                .apply {
+                    weight =
+                        resources.getInteger(R.integer.preferences_detail_pane_weight).toFloat()
+                }
+        slidingPaneLayout.addView(detailContainer, detailLayoutParams)
         return slidingPaneLayout
     }
 
     /**
-     * Called to supply the preference header for this fragment. The subclasses are expected
-     * to call [setPreferenceScreen(PreferenceScreen)] either directly or via helper methods
-     * such as [setPreferenceFromResource(int)] to set headers.
+     * Called to supply the preference header for this fragment. The subclasses are expected to call
+     * [setPreferenceScreen(PreferenceScreen)] either directly or via helper methods such as
+     * [setPreferenceFromResource(int)] to set headers.
      */
     abstract fun onCreatePreferenceHeader(): PreferenceFragmentCompat
 
@@ -214,10 +204,9 @@ abstract class PreferenceHeaderFragmentCompat :
             onBackPressedCallback!!.isEnabled = childFragmentManager.backStackEntryCount == 0
         }
         val onBackPressedDispatcherOwner = view.findViewTreeOnBackPressedDispatcherOwner()
-        onBackPressedDispatcherOwner?.onBackPressedDispatcher?.addCallback(
-            viewLifecycleOwner,
-            onBackPressedCallback!!
-        )
+        onBackPressedDispatcherOwner
+            ?.onBackPressedDispatcher
+            ?.addCallback(viewLifecycleOwner, onBackPressedCallback!!)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -234,14 +223,14 @@ abstract class PreferenceHeaderFragmentCompat :
 
     /**
      * Override this method to set initial detail fragment that to be shown. The default
-     * implementation returns the first preference that has a fragment defined on
-     * it.
+     * implementation returns the first preference that has a fragment defined on it.
      *
      * @return Fragment The first fragment that found in the list of preference headers.
      */
     open fun onCreateInitialDetailFragment(): Fragment? {
-        val headerFragment = childFragmentManager.findFragmentById(R.id.preferences_header)
-            as PreferenceFragmentCompat
+        val headerFragment =
+            childFragmentManager.findFragmentById(R.id.preferences_header)
+                as PreferenceFragmentCompat
         if (headerFragment.preferenceScreen.preferenceCount <= 0) {
             return null
         }
@@ -250,15 +239,14 @@ abstract class PreferenceHeaderFragmentCompat :
             if (header.fragment == null) {
                 continue
             }
-            val fragment = header.fragment?.let {
-                childFragmentManager.fragmentFactory.instantiate(
-                    requireContext().classLoader,
-                    it
-                )
-            }
-            fragment?.apply {
-                arguments = header.extras
-            }
+            val fragment =
+                header.fragment?.let {
+                    childFragmentManager.fragmentFactory.instantiate(
+                        requireContext().classLoader,
+                        it
+                    )
+                }
+            fragment?.apply { arguments = header.extras }
             return fragment
         }
         return null
@@ -275,16 +263,12 @@ abstract class PreferenceHeaderFragmentCompat :
             openPreferenceHeader(header.intent)
             return
         }
-        val fragment = header.fragment?.let {
-            childFragmentManager.fragmentFactory.instantiate(
-                requireContext().classLoader,
-                it
-            )
-        }
+        val fragment =
+            header.fragment?.let {
+                childFragmentManager.fragmentFactory.instantiate(requireContext().classLoader, it)
+            }
 
-        fragment?.apply {
-            arguments = header.extras
-        }
+        fragment?.apply { arguments = header.extras }
 
         // Clear back stack
         if (childFragmentManager.backStackEntryCount > 0) {

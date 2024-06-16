@@ -16,8 +16,10 @@
 
 @file:JvmName("PrimitiveSnapshotStateKt")
 @file:JvmMultifileClass
+
 package androidx.compose.runtime
 
+import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.internal.equalsWithNanFix
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
@@ -42,7 +44,6 @@ import kotlin.reflect.KProperty
  * when using `MutableState<Float>`.
  *
  * @param value the initial value for the [MutableFloatState]
- *
  * @see FloatState
  * @see MutableFloatState
  * @see mutableStateOf
@@ -51,9 +52,7 @@ import kotlin.reflect.KProperty
  * @see mutableDoubleStateOf
  */
 @StateFactoryMarker
-fun mutableFloatStateOf(
-    value: Float
-): MutableFloatState = createSnapshotMutableFloatState(value)
+fun mutableFloatStateOf(value: Float): MutableFloatState = createSnapshotMutableFloatState(value)
 
 /**
  * A value holder where reads to the [floatValue] property during the execution of a [Composable]
@@ -72,18 +71,16 @@ interface FloatState : State<Float> {
     val floatValue: Float
 }
 
-/**
- * Permits property delegation of `val`s using `by` for [FloatState].
- */
+/** Permits property delegation of `val`s using `by` for [FloatState]. */
 @Suppress("NOTHING_TO_INLINE")
 inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): Float = floatValue
 
 /**
  * A value holder where reads to the [floatValue] property during the execution of a [Composable]
  * function cause the current [RecomposeScope] to subscribe to changes of that value. When the
- * [floatValue] property is written to and changed, a recomposition of any subscribed [RecomposeScope]s
- * will be scheduled. If [floatValue] is written to with the same value, no recompositions will be
- * scheduled.
+ * [floatValue] property is written to and changed, a recomposition of any subscribed
+ * [RecomposeScope]s will be scheduled. If [floatValue] is written to with the same value, no
+ * recompositions will be scheduled.
  *
  * @see [FloatState]
  * @see [mutableDoubleStateOf]
@@ -95,14 +92,14 @@ interface MutableFloatState : FloatState, MutableState<Float> {
     @set:AutoboxingStateValueProperty("floatValue")
     override var value: Float
         @Suppress("AutoBoxing") get() = floatValue
-        set(value) { floatValue = value }
+        set(value) {
+            floatValue = value
+        }
 
     override var floatValue: Float
 }
 
-/**
- * Permits property delegation of `var`s using `by` for [MutableFloatState].
- */
+/** Permits property delegation of `var`s using `by` for [MutableFloatState]. */
 @Suppress("NOTHING_TO_INLINE")
 inline operator fun MutableFloatState.setValue(
     thisObj: Any?,
@@ -112,9 +109,7 @@ inline operator fun MutableFloatState.setValue(
     this.floatValue = value
 }
 
-internal expect fun createSnapshotMutableFloatState(
-    value: Float
-): MutableFloatState
+internal expect fun createSnapshotMutableFloatState(value: Float): MutableFloatState
 
 /**
  * A single value holder whose reads and writes are observed by Compose.
@@ -122,31 +117,32 @@ internal expect fun createSnapshotMutableFloatState(
  * Additionally, writes to it are transacted as part of the [Snapshot] system.
  *
  * @param value the wrapped value
- *
  * @see [mutableDoubleStateOf]
  */
-internal open class SnapshotMutableFloatStateImpl(
-    value: Float
-) : StateObjectImpl(), MutableFloatState, SnapshotMutableState<Float> {
+internal open class SnapshotMutableFloatStateImpl(value: Float) :
+    StateObjectImpl(), MutableFloatState, SnapshotMutableState<Float> {
 
-    private var next = FloatStateStateRecord(value).also {
-        if (Snapshot.isInSnapshot) {
-            it.next = FloatStateStateRecord(value).also { next ->
-                next.snapshotId = Snapshot.PreexistingSnapshotId
+    private var next =
+        FloatStateStateRecord(value).also {
+            if (Snapshot.isInSnapshot) {
+                it.next =
+                    FloatStateStateRecord(value).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
             }
         }
-    }
 
     override val firstStateRecord: StateRecord
         get() = next
 
     override var floatValue: Float
         get() = next.readable(this).value
-        set(value) = next.withCurrent {
-            if (!it.value.equalsWithNanFix(value)) {
-                next.overwritable(this, it) { this.value = value }
+        set(value) =
+            next.withCurrent {
+                if (!it.value.equalsWithNanFix(value)) {
+                    next.overwritable(this, it) { this.value = value }
+                }
             }
-        }
 
     // Arbitrary policies are not allowed. The underlying `==` implementation
     // for primitive types corresponds to structural equality
@@ -175,13 +171,10 @@ internal open class SnapshotMutableFloatStateImpl(
         }
     }
 
-    override fun toString(): String = next.withCurrent {
-        "MutableFloatState(value=${it.value})@${hashCode()}"
-    }
+    override fun toString(): String =
+        next.withCurrent { "MutableFloatState(value=${it.value})@${hashCode()}" }
 
-    private class FloatStateStateRecord(
-        var value: Float
-    ) : StateRecord() {
+    private class FloatStateStateRecord(var value: Float) : StateRecord() {
         override fun assign(value: StateRecord) {
             this.value = (value as FloatStateStateRecord).value
         }

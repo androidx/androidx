@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -25,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -45,7 +43,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebViewWebMessageCompatTest {
     private static final String BASE_URI = "http://www.example.com";
     private static final String ECHO_MESSAGE = "<!DOCTYPE html><html><body>"

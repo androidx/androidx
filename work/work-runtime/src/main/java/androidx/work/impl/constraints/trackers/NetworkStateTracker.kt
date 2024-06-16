@@ -38,17 +38,14 @@ import androidx.work.impl.utils.unregisterNetworkCallbackCompat
 /**
  * A [ConstraintTracker] for monitoring network state.
  *
- *
  * For API 24 and up: Network state is tracked using a registered [NetworkCallback] with
  * [ConnectivityManager.registerDefaultNetworkCallback], added in API 24.
  *
+ * For API 23 and below: Network state is tracked using a [android.content.BroadcastReceiver]. Much
+ * less efficient than tracking with [NetworkCallback]s and [ConnectivityManager].
  *
- * For API 23 and below: Network state is tracked using a [android.content.BroadcastReceiver].
- * Much less efficient than tracking with [NetworkCallback]s and [ConnectivityManager].
- *
- *
- * Based on [android.app.job.JobScheduler]'s ConnectivityController on API 26.
- * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
+ * Based on [android.app.job.JobScheduler]'s ConnectivityController on API 26. {@see
+ * https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun NetworkStateTracker(
@@ -66,17 +63,20 @@ fun NetworkStateTracker(
 private val TAG = Logger.tagWithPrefix("NetworkStateTracker")
 
 internal val ConnectivityManager.isActiveNetworkValidated: Boolean
-    get() = if (Build.VERSION.SDK_INT < 23) {
-        false // NET_CAPABILITY_VALIDATED not available until API 23. Used on API 26+.
-    } else try {
-        val network = getActiveNetworkCompat()
-        val capabilities = getNetworkCapabilitiesCompat(network)
-        (capabilities?.hasCapabilityCompat(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) ?: false
-    } catch (exception: SecurityException) {
-        // b/163342798
-        Logger.get().error(TAG, "Unable to validate active network", exception)
-        false
-    }
+    get() =
+        if (Build.VERSION.SDK_INT < 23) {
+            false // NET_CAPABILITY_VALIDATED not available until API 23. Used on API 26+.
+        } else
+            try {
+                val network = getActiveNetworkCompat()
+                val capabilities = getNetworkCapabilitiesCompat(network)
+                (capabilities?.hasCapabilityCompat(NetworkCapabilities.NET_CAPABILITY_VALIDATED))
+                    ?: false
+            } catch (exception: SecurityException) {
+                // b/163342798
+                Logger.get().error(TAG, "Unable to validate active network", exception)
+                false
+            }
 
 @Suppress("DEPRECATION")
 internal val ConnectivityManager.activeNetworkState: NetworkState
@@ -120,17 +120,23 @@ internal class NetworkStateTracker24(context: Context, taskExecutor: TaskExecuto
 
     override fun readSystemState(): NetworkState = connectivityManager.activeNetworkState
 
-    private val networkCallback = object : NetworkCallback() {
-        override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
-            // The Network parameter is unreliable when a VPN app is running - use active network.
-            Logger.get().debug(TAG, "Network capabilities changed: $capabilities")
-            state = connectivityManager.activeNetworkState
+    private val networkCallback =
+        object : NetworkCallback() {
+            override fun onCapabilitiesChanged(
+                network: Network,
+                capabilities: NetworkCapabilities
+            ) {
+                // The Network parameter is unreliable when a VPN app is running - use active
+                // network.
+                Logger.get().debug(TAG, "Network capabilities changed: $capabilities")
+                state = connectivityManager.activeNetworkState
+            }
+
+            override fun onLost(network: Network) {
+                Logger.get().debug(TAG, "Network connection lost")
+                state = connectivityManager.activeNetworkState
+            }
         }
-        override fun onLost(network: Network) {
-            Logger.get().debug(TAG, "Network connection lost")
-            state = connectivityManager.activeNetworkState
-        }
-    }
 
     override fun startTracking() {
         try {

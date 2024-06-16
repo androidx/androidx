@@ -33,6 +33,7 @@ class SandboxDeathFragment : BaseFragment() {
     override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
         sandboxedSdkView.orderProviderUiAboveClientUi(!isDrawerOpen)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,10 +49,9 @@ class SandboxDeathFragment : BaseFragment() {
         sandboxedSdkView = inflatedView.findViewById(R.id.remote_view)
         sandboxedSdkView.addStateChangedListener()
         sandboxedSdkView.setAdapter(
-            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadTestAd("Test Ad")))
+            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadTestAd("Test Ad"))
+        )
         val unloadSdksButton: Button = inflatedView.findViewById(R.id.unload_all_sdks_button)
-        unloadSdksButton.setOnClickListener {
-            unloadAllSdks()
-        }
+        unloadSdksButton.setOnClickListener { unloadAllSdks() }
     }
 }

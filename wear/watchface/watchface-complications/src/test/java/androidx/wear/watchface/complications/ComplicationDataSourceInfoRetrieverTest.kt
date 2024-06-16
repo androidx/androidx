@@ -369,7 +369,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
             )
 
         // Test two identical ComplicationDataSourceInfo with different references.
-        // The icon's equals was added from Android P(see IconKt.kt#iconEquals), so this assertion only works from Android P.
+        // The icon's equals was added from Android P(see IconKt.kt#iconEquals), so this assertion
+        // only works from Android P.
         assertThat(a).isEqualTo(b)
 
         // Test two ComplicationDataSourceInfos with different contents.

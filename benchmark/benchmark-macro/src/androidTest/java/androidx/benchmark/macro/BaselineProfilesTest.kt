@@ -30,11 +30,13 @@ import org.junit.runner.RunWith
 class BaselineProfilesTest {
     @Test
     fun filterBaselineProfileRules() {
-        val profile = """
+        val profile =
+            """
             Landroidx/Foo/Bar;
             [Landroidx/Foo/Bar;
             HSPLjava/io/DataOutputStream;->writeByte(I)V+]Ljava/io/OutputStream;missing_types
-        """.trimIndent()
+        """
+                .trimIndent()
 
         val filtered = filterProfileRulesToTargetP(profile, sortRules = false) { true }
         assertEquals(filtered.lines().size, 1)
@@ -43,36 +45,43 @@ class BaselineProfilesTest {
 
     @Test
     fun filterBaselineRulesWithSorting() {
-        val profile = """
+        val profile =
+            """
             HPLandroidx/lifecycle/Lifecycle${dollar}Event;->downFrom(Landroidx/lifecycle/Lifecycle${dollar}State;)Landroidx/lifecycle/Lifecycle${dollar}Event;
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;-><init>(Ljava/util/Map;)V
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;->invokeCallbacks(Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle${dollar}Event;Ljava/lang/Object;)V
-        """.trimIndent()
+        """
+                .trimIndent()
         val sorted = filterProfileRulesToTargetP(profile, sortRules = true) { true }
         assertEquals(sorted.lines().size, 3)
-        val expected = """
+        val expected =
+            """
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;-><init>(Ljava/util/Map;)V
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;->invokeCallbacks(Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle${dollar}Event;Ljava/lang/Object;)V
             HPLandroidx/lifecycle/Lifecycle${dollar}Event;->downFrom(Landroidx/lifecycle/Lifecycle${dollar}State;)Landroidx/lifecycle/Lifecycle${dollar}Event;
-        """.trimIndent()
+        """
+                .trimIndent()
         assertEquals(expected, sorted)
     }
 
     @Test
     fun filterBaselineRulesWithSortingAndCustomFilter() {
-        val profile = """
+        val profile =
+            """
             HPLandroidx/lifecycle/Lifecycle${dollar}Event;->downFrom(Landroidx/lifecycle/Lifecycle${dollar}State;)Landroidx/lifecycle/Lifecycle${dollar}Event;
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;->invokeCallbacks(Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle${dollar}Event;Ljava/lang/Object;)V
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;-><init>(Ljava/util/Map;)V
-        """.trimIndent()
-        val sorted = filterProfileRulesToTargetP(profile, sortRules = true) {
-            it.startsWith("HSPL")
-        }
+        """
+                .trimIndent()
+        val sorted =
+            filterProfileRulesToTargetP(profile, sortRules = true) { it.startsWith("HSPL") }
         assertEquals(sorted.lines().size, 2)
-        val expected = """
+        val expected =
+            """
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;-><init>(Ljava/util/Map;)V
             HSPLandroidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo;->invokeCallbacks(Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle${dollar}Event;Ljava/lang/Object;)V
-        """.trimIndent()
+        """
+                .trimIndent()
         assertEquals(expected, sorted)
     }
 
@@ -86,6 +95,7 @@ class BaselineProfilesTest {
             assertNotEquals(deviceSpecifier, "-s  ")
         }
     }
+
     companion object {
         // https://youtrack.jetbrains.com/issue/KT-2425
         const val dollar = "$"

@@ -43,31 +43,33 @@ internal val Brown = Color(0xFF795548)
 internal val Grey = Color(0xFF9e9e9e)
 internal val BlueGrey = Color(0xFF607d8b)
 
-internal val Colors = listOf(
-    Red,
-    Pink,
-    Purple,
-    DeepPurple,
-    Indigo,
-    Blue,
-    LightBlue,
-    Cyan,
-    Teal,
-    Green,
-    LightGreen,
-    Lime,
-    Yellow,
-    Amber,
-    Orange,
-    DeepOrange,
-    Brown,
-    Grey,
-    BlueGrey
-)
+internal val Colors =
+    listOf(
+        Red,
+        Pink,
+        Purple,
+        DeepPurple,
+        Indigo,
+        Blue,
+        LightBlue,
+        Cyan,
+        Teal,
+        Green,
+        LightGreen,
+        Lime,
+        Yellow,
+        Amber,
+        Orange,
+        DeepOrange,
+        Brown,
+        Grey,
+        BlueGrey
+    )
 
 internal fun Color.anotherRandomColor() = Colors.random(this)
 
 internal fun Color.next() = Colors.inOrder(this, true)
+
 internal fun Color.prev() = Colors.inOrder(this, false)
 
 private fun List<Color>.random(exclude: Color?): Color {
@@ -75,13 +77,14 @@ private fun List<Color>.random(exclude: Color?): Color {
 
     val max = size - if (excludeIndex >= 0) 1 else 0
 
-    val random = Random.nextInt(max).run {
-        if (excludeIndex >= 0 && this >= excludeIndex) {
-            this + 1
-        } else {
-            this
+    val random =
+        Random.nextInt(max).run {
+            if (excludeIndex >= 0 && this >= excludeIndex) {
+                this + 1
+            } else {
+                this
+            }
         }
-    }
 
     return this[random]
 }

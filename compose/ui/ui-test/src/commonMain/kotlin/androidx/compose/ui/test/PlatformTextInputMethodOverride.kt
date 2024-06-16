@@ -25,10 +25,10 @@ import androidx.compose.ui.platform.PlatformTextInputSession
  * Installs a custom [PlatformTextInputSession] implementation to run when
  * [PlatformTextInputSession.startInputMethod] is called by text editors inside [content].
  *
- * @param sessionHandler The [PlatformTextInputSession] to use to handle input method requests.
- * This object does _not_ need to worry about synchronizing calls to
- * [PlatformTextInputSession.startInputMethod] – this composable will handle the session management
- * the same way as in production.
+ * @param sessionHandler The [PlatformTextInputSession] to use to handle input method requests. This
+ *   object does _not_ need to worry about synchronizing calls to
+ *   [PlatformTextInputSession.startInputMethod] – this composable will handle the session
+ *   management the same way as in production.
  * @param content The composable content for which to override the input method handler.
  */
 @OptIn(ExperimentalComposeUiApi::class)

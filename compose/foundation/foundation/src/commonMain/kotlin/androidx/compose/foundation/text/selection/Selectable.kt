@@ -26,23 +26,22 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Constraints
 
 /**
- * Provides [Selection] information for a composable to SelectionContainer. Composables who can
- * be selected should subscribe to [SelectionRegistrar] using this interface.
+ * Provides [Selection] information for a composable to SelectionContainer. Composables who can be
+ * selected should subscribe to [SelectionRegistrar] using this interface.
  */
-
 internal interface Selectable {
     /**
      * An ID used by [SelectionRegistrar] to identify this [Selectable]. This value should not be
-     * [SelectionRegistrar.InvalidSelectableId].
-     * When a [Selectable] is created, it can request an ID from [SelectionRegistrar] by
-     * calling [SelectionRegistrar.nextSelectableId].
+     * [SelectionRegistrar.InvalidSelectableId]. When a [Selectable] is created, it can request an
+     * ID from [SelectionRegistrar] by calling [SelectionRegistrar.nextSelectableId].
+     *
      * @see SelectionRegistrar.nextSelectableId
      */
     val selectableId: Long
 
     /**
-     * A function which adds [SelectableInfo] representing this [Selectable]
-     * to the [SelectionLayoutBuilder].
+     * A function which adds [SelectableInfo] representing this [Selectable] to the
+     * [SelectionLayoutBuilder].
      */
     fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder)
 
@@ -51,7 +50,7 @@ internal interface Selectable {
      * provided null should be returned.
      *
      * @return selectAll [Selection] information for a selectable composable. If no selection can be
-     * provided null should be returned.
+     *   provided null should be returned.
      */
     fun getSelectAllSelection(): Selection?
 
@@ -60,7 +59,6 @@ internal interface Selectable {
      *
      * @param selection [Selection] contains the [SelectionHandle]
      * @param isStartHandle true if it's the start handle, false if it's the end handle.
-     *
      * @return [Offset] of this handle, based on which the [SelectionHandle] will be drawn.
      */
     fun getHandlePosition(selection: Selection, isStartHandle: Boolean): Offset
@@ -69,7 +67,7 @@ internal interface Selectable {
      * Return the [LayoutCoordinates] of the [Selectable].
      *
      * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before
-     * composing.
+     *   composing.
      */
     fun getLayoutCoordinates(): LayoutCoordinates?
 
@@ -82,14 +80,13 @@ internal interface Selectable {
 
     /**
      * Return the bounding box of the character for given character offset. This is currently for
-     * text.
-     * In future when we implemented other selectable Composables, we can return the bounding box of
-     * the wanted rectangle. For example, for an image selectable, this should return the
+     * text. In future when we implemented other selectable Composables, we can return the bounding
+     * box of the wanted rectangle. For example, for an image selectable, this should return the
      * bounding box of the image.
      *
      * @param offset a character offset
      * @return the bounding box for the character in [Rect], or [Rect.Zero] if the selectable is
-     * empty.
+     *   empty.
      */
     fun getBoundingBox(offset: Int): Rect
 
@@ -112,8 +109,8 @@ internal interface Selectable {
     /**
      * Returns the center y coordinate of the line on which the specified text offset appears.
      *
-     * If you ask for a position before 0, you get the center of the first line;
-     * if you ask for a position beyond the end of the text, you get the center of the last line.
+     * If you ask for a position before 0, you get the center of the first line; if you ask for a
+     * position beyond the end of the text, you get the center of the last line.
      *
      * @param offset a character offset
      * @return the line center y coordinate of the line containing [offset]
@@ -124,9 +121,9 @@ internal interface Selectable {
      * Return the offsets of the start and end of the line containing [offset], or [TextRange.Zero]
      * if the selectable is empty. These offsets are in the same "coordinate space" as
      * [getBoundingBox], and despite being returned in a [TextRange], may not refer to offsets in
-     * actual text if the selectable contains other types of content. This function returns
-     * the last visible line's boundaries if offset is larger than text length or the character at
-     * given offset would fall on a line which is hidden by maxLines or Constraints.
+     * actual text if the selectable contains other types of content. This function returns the last
+     * visible line's boundaries if offset is larger than text length or the character at given
+     * offset would fall on a line which is hidden by maxLines or Constraints.
      */
     fun getRangeOfLineContaining(offset: Int): TextRange
 

@@ -18,9 +18,7 @@
 
 package androidx.preference
 
-/**
- * Returns the preference with `key`, or `null` if no preference with `key` is found.
- */
+/** Returns the preference with `key`, or `null` if no preference with `key` is found. */
 public inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T? =
     findPreference(key)
 
@@ -52,7 +50,8 @@ public inline operator fun PreferenceGroup.minusAssign(preference: Preference) {
 }
 
 /** Returns the number of preferences in this preference group. */
-public inline val PreferenceGroup.size: Int get() = preferenceCount
+public inline val PreferenceGroup.size: Int
+    get() = preferenceCount
 
 /** Returns true if this preference group contains no preferences. */
 public inline fun PreferenceGroup.isEmpty(): Boolean = size == 0
@@ -68,8 +67,8 @@ public inline fun PreferenceGroup.forEach(action: (preference: Preference) -> Un
 }
 
 /**
- * Performs the given action on each preference in this preference group,
- * providing its sequential index.
+ * Performs the given action on each preference in this preference group, providing its sequential
+ * index.
  */
 public inline fun PreferenceGroup.forEachIndexed(
     action: (index: Int, preference: Preference) -> Unit
@@ -83,8 +82,11 @@ public inline fun PreferenceGroup.forEachIndexed(
 public operator fun PreferenceGroup.iterator(): Iterator<Preference> =
     object : MutableIterator<Preference> {
         private var index = 0
+
         override fun hasNext() = index < size
+
         override fun next() = getPreference(index++)
+
         override fun remove() {
             removePreference(getPreference(--index))
         }
@@ -92,6 +94,7 @@ public operator fun PreferenceGroup.iterator(): Iterator<Preference> =
 
 /** Returns a [Sequence] over the preferences in this preference group. */
 public val PreferenceGroup.children: Sequence<Preference>
-    get() = object : Sequence<Preference> {
-        override fun iterator() = this@children.iterator()
-    }
+    get() =
+        object : Sequence<Preference> {
+            override fun iterator() = this@children.iterator()
+        }

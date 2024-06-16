@@ -28,8 +28,8 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
- * This Binder binds queries directly to native Paging3
- * PagingSource (i.e. [androidx.room.paging.LimitOffsetPagingSource]) or its subclasses such as
+ * This Binder binds queries directly to native Paging3 PagingSource (i.e.
+ * [androidx.room.paging.LimitOffsetPagingSource]) or its subclasses such as
  * [androidx.room.paging.guava.LimitOffsetListenableFuturePagingSource]. Used solely by Paging3.
  */
 class MultiTypedPagingSourceQueryResultBinder(
@@ -51,38 +51,40 @@ class MultiTypedPagingSourceQueryResultBinder(
     ) {
         scope.builder.apply {
             val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
-            val pagingSourceSpec = XTypeSpec.anonymousClassBuilder(
-                language = language,
-                argsFormat = "%L, %N, %L",
-                roomSQLiteQueryVar,
-                dbProperty,
-                tableNamesList
-            ).apply {
-                superclass(pagingSourceTypeName)
-                addFunction(createConvertRowsMethod(scope))
-            }.build()
+            val pagingSourceSpec =
+                XTypeSpec.anonymousClassBuilder(
+                        language = language,
+                        argsFormat = "%L, %N, %L",
+                        roomSQLiteQueryVar,
+                        dbProperty,
+                        tableNamesList
+                    )
+                    .apply {
+                        superclass(pagingSourceTypeName)
+                        addFunction(createConvertRowsMethod(scope))
+                    }
+                    .build()
             addStatement("return %L", pagingSourceSpec)
         }
     }
 
     private fun createConvertRowsMethod(scope: CodeGenScope): XFunSpec {
         return XFunSpec.builder(
-            language = scope.language,
-            name = "convertRows",
-            visibility = VisibilityModifier.PROTECTED,
-            isOverride = true
-        ).apply {
-            val cursorParamName = "cursor"
-            returns(CommonTypeNames.LIST.parametrizedBy(itemTypeName))
-            addParameter(
-                typeName = CURSOR,
-                name = cursorParamName
+                language = scope.language,
+                name = "convertRows",
+                visibility = VisibilityModifier.PROTECTED,
+                isOverride = true
             )
-            val resultVar = scope.getTmpVar("_result")
-            val rowsScope = scope.fork()
-            listAdapter?.convert(resultVar, cursorParamName, rowsScope)
-            addCode(rowsScope.generate())
-            addStatement("return %L", resultVar)
-        }.build()
+            .apply {
+                val cursorParamName = "cursor"
+                returns(CommonTypeNames.LIST.parametrizedBy(itemTypeName))
+                addParameter(typeName = CURSOR, name = cursorParamName)
+                val resultVar = scope.getTmpVar("_result")
+                val rowsScope = scope.fork()
+                listAdapter?.convert(resultVar, cursorParamName, rowsScope)
+                addCode(rowsScope.generate())
+                addStatement("return %L", resultVar)
+            }
+            .build()
     }
 }

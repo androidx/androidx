@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.callbackFlow
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface ScanImpl {
     val fwkSettings: FwkScanSettings
+
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult>
 }
 
@@ -41,37 +42,32 @@ internal fun getScanImpl(bluetoothLeScanner: FwkBluetoothLeScanner): ScanImpl {
 
 private open class ScanImplBase(val bluetoothLeScanner: FwkBluetoothLeScanner) : ScanImpl {
 
-    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder()
-        .build()
+    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder().build()
 
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     override fun scan(filters: List<ScanFilter>): Flow<ScanResult> = callbackFlow {
-        val callback = object : FwkScanCallback() {
-            override fun onScanResult(callbackType: Int, result: FwkScanResult) {
-                trySend(ScanResult(result))
-            }
+        val callback =
+            object : FwkScanCallback() {
+                override fun onScanResult(callbackType: Int, result: FwkScanResult) {
+                    trySend(ScanResult(result))
+                }
 
-            override fun onScanFailed(errorCode: Int) {
-                close(ScanException(errorCode))
+                override fun onScanFailed(errorCode: Int) {
+                    close(ScanException(errorCode))
+                }
             }
-        }
 
         val fwkFilters = filters.map { it.fwkScanFilter }
 
         bluetoothLeScanner.startScan(fwkFilters, fwkSettings, callback)
 
-        awaitClose {
-            bluetoothLeScanner.stopScan(callback)
-        }
+        awaitClose { bluetoothLeScanner.stopScan(callback) }
     }
 }
 
 @RequiresApi(26)
-private open class ScanImplApi26(
-    bluetoothLeScanner: FwkBluetoothLeScanner
-) : ScanImplBase(bluetoothLeScanner) {
+private open class ScanImplApi26(bluetoothLeScanner: FwkBluetoothLeScanner) :
+    ScanImplBase(bluetoothLeScanner) {
 
-    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder()
-        .setLegacy(false)
-        .build()
+    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder().setLegacy(false).build()
 }

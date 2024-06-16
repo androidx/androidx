@@ -19,25 +19,23 @@ package androidx.benchmark.perfetto
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class Slice(
-    val name: String,
-    val ts: Long,
-    val dur: Long
-) {
+data class Slice(val name: String, val ts: Long, val dur: Long) {
     val endTs: Long = ts + dur
 
     val frameId: Int?
 
     init {
         val firstSpaceIndex = name.indexOf(" ")
-        frameId = if (firstSpaceIndex >= 0) {
-            // if see a space, check for id from end of first space to next space (or end of String)
-            val secondSpaceIndex = name.indexOf(" ", firstSpaceIndex + 1)
-            val endFrameIdIndex = if (secondSpaceIndex < 0) name.length else secondSpaceIndex
-            name.substring(firstSpaceIndex + 1, endFrameIdIndex).toIntOrNull()
-        } else {
-            null
-        }
+        frameId =
+            if (firstSpaceIndex >= 0) {
+                // if see a space, check for id from end of first space to next space (or end of
+                // String)
+                val secondSpaceIndex = name.indexOf(" ", firstSpaceIndex + 1)
+                val endFrameIdIndex = if (secondSpaceIndex < 0) name.length else secondSpaceIndex
+                name.substring(firstSpaceIndex + 1, endFrameIdIndex).toIntOrNull()
+            } else {
+                null
+            }
     }
 
     fun contains(targetTs: Long): Boolean {
@@ -46,10 +44,8 @@ data class Slice(
 }
 
 /**
- * Convenient function to immediately retrieve a list of slices.
- * Note that this method is provided for convenience.
+ * Convenient function to immediately retrieve a list of slices. Note that this method is provided
+ * for convenience.
  */
 internal fun Sequence<Row>.toSlices(): List<Slice> =
-    map {
-        Slice(name = it.string("name"), ts = it.long("ts"), dur = it.long("dur"))
-    }.toList()
+    map { Slice(name = it.string("name"), ts = it.long("ts"), dur = it.long("dur")) }.toList()

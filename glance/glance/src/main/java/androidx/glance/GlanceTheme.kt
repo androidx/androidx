@@ -21,28 +21,21 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.glance.color.ColorProviders
 
-/**
- * Object that provides access to the current theme.
- */
+/** Object that provides access to the current theme. */
 object GlanceTheme {
     val colors: ColorProviders
-        @GlanceComposable @Composable
-        @ReadOnlyComposable
-        get() = LocalColors.current
+        @GlanceComposable @Composable @ReadOnlyComposable get() = LocalColors.current
 }
 
 /**
- * A top level theme for Glance code. Unlike a standard compose theme, this only provides
- * color. Like a standard compose theme, it should be at the top level of a compose hierarchy with
- * all themed UI provided as [content].
+ * A top level theme for Glance code. Unlike a standard compose theme, this only provides color.
+ * Like a standard compose theme, it should be at the top level of a compose hierarchy with all
+ * themed UI provided as [content].
  */
 @Composable
 fun GlanceTheme(
     colors: ColorProviders = LocalColors.current,
     content: @GlanceComposable @Composable () -> Unit
 ) {
-    CompositionLocalProvider(
-        LocalColors provides colors,
-        content = content
-    )
+    CompositionLocalProvider(LocalColors provides colors, content = content)
 }

@@ -30,8 +30,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 29)
 class BaselineProfileTest {
 
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     @Test
     fun startupBaselineProfile() {
@@ -51,7 +50,6 @@ class BaselineProfileTest {
     companion object {
         private const val PACKAGE_NAME =
             "androidx.benchmark.integration.baselineprofile.library.apptarget"
-        private const val ACTION =
-            "androidx.benchmark.integration.baselineprofile.EMPTY_ACTIVITY"
+        private const val ACTION = "androidx.benchmark.integration.baselineprofile.EMPTY_ACTIVITY"
     }
 }

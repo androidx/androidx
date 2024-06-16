@@ -46,8 +46,7 @@ value class TextAlign internal constructor(internal val value: Int) {
         val Center = TextAlign(3)
 
         /**
-         * Stretch lines of text that end with a soft line break to fill the width of
-         * the container.
+         * Stretch lines of text that end with a soft line break to fill the width of the container.
          *
          * Lines that end with hard line breaks are aligned towards the [Start] edge.
          */
@@ -58,7 +57,8 @@ value class TextAlign internal constructor(internal val value: Int) {
          *
          * For Left to Right text ([ResolvedTextDirection.Ltr]), this is the left edge.
          *
-         * For Right to Left text ([ResolvedTextDirection.Rtl]), like Arabic, this is the right edge.
+         * For Right to Left text ([ResolvedTextDirection.Rtl]), like Arabic, this is the right
+         * edge.
          */
         val Start = TextAlign(5)
 
@@ -71,14 +71,12 @@ value class TextAlign internal constructor(internal val value: Int) {
          */
         val End = TextAlign(6)
 
-        /**
-         * Return a list containing all possible values of TextAlign.
-         */
+        /** Return a list containing all possible values of TextAlign. */
         fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
 
         /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value
-         * is desired.
+         * This represents an unset value, a usual replacement for "null" when a primitive value is
+         * desired.
          */
         val Unspecified = TextAlign(Int.MIN_VALUE)
     }

@@ -34,8 +34,8 @@ class AmbientLifecycleObserverImplTest {
 
     @Before
     fun setUp() {
-        scenario = AmbientTestActivityUtil.launchActivity(
-            AmbientLifecycleObserverTestActivity::class.java)
+        scenario =
+            AmbientTestActivityUtil.launchActivity(AmbientLifecycleObserverTestActivity::class.java)
     }
 
     private fun resetState(controller: WearableActivityController) {

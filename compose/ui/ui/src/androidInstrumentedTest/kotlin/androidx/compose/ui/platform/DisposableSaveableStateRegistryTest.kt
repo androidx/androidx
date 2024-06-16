@@ -138,11 +138,7 @@ class DisposableSaveableStateRegistryTest {
         assertTrue(registry.canBeSaved(Size(5, 5)))
         assertTrue(registry.canBeSaved(SizeF(5f, 5f)))
         assertTrue(
-            registry.canBeSaved(
-                SparseArray<Parcelable>().apply {
-                    put(5, CustomParcelable())
-                }
-            )
+            registry.canBeSaved(SparseArray<Parcelable>().apply { put(5, CustomParcelable()) })
         )
         assertTrue(registry.canBeSaved(arrayListOf("String")))
     }
@@ -172,7 +168,7 @@ class DisposableSaveableStateRegistryTest {
         assertFalse(registry.canBeSaved(lambda))
         val lambdaWithArguments: (String, Int) -> Unit = { _, _ -> }
         assertFalse(registry.canBeSaved(lambdaWithArguments))
-        val lambdaWithReceiver: String.() -> Unit = { }
+        val lambdaWithReceiver: String.() -> Unit = {}
         assertFalse(registry.canBeSaved(lambdaWithReceiver))
     }
 
@@ -219,10 +215,12 @@ private class CustomParcelable(parcel: Parcel? = null) : Parcelable {
     companion object {
         @Suppress("unused")
         @JvmField
-        val CREATOR = object : Parcelable.Creator<CustomParcelable> {
-            override fun createFromParcel(parcel: Parcel) = CustomParcelable(parcel)
-            override fun newArray(size: Int) = arrayOfNulls<CustomParcelable?>(size)
-        }
+        val CREATOR =
+            object : Parcelable.Creator<CustomParcelable> {
+                override fun createFromParcel(parcel: Parcel) = CustomParcelable(parcel)
+
+                override fun newArray(size: Int) = arrayOfNulls<CustomParcelable?>(size)
+            }
     }
 }
 
@@ -245,20 +243,22 @@ private class CustomParcelableFunction(parcel: Parcel? = null) : Parcelable, (St
     companion object {
         @Suppress("unused")
         @JvmField
-        val CREATOR = object : Parcelable.Creator<CustomParcelableFunction> {
-            override fun createFromParcel(parcel: Parcel) = CustomParcelableFunction(parcel)
-            override fun newArray(size: Int) = arrayOfNulls<CustomParcelableFunction?>(size)
-        }
+        val CREATOR =
+            object : Parcelable.Creator<CustomParcelableFunction> {
+                override fun createFromParcel(parcel: Parcel) = CustomParcelableFunction(parcel)
+
+                override fun newArray(size: Int) = arrayOfNulls<CustomParcelableFunction?>(size)
+            }
     }
 }
 
-private class TestOwner(
-    restoredBundle: Bundle? = null
-) : SavedStateRegistryOwner, LifecycleOwner by TestLifecycleOwner(Lifecycle.State.INITIALIZED) {
+private class TestOwner(restoredBundle: Bundle? = null) :
+    SavedStateRegistryOwner, LifecycleOwner by TestLifecycleOwner(Lifecycle.State.INITIALIZED) {
 
-    private val controller = SavedStateRegistryController.create(this).apply {
-        performRestore(restoredBundle ?: Bundle())
-    }
+    private val controller =
+        SavedStateRegistryController.create(this).apply {
+            performRestore(restoredBundle ?: Bundle())
+        }
 
     init {
         (lifecycle as LifecycleRegistry).currentState = Lifecycle.State.RESUMED
@@ -267,7 +267,5 @@ private class TestOwner(
     override val savedStateRegistry: SavedStateRegistry
         get() = controller.savedStateRegistry
 
-    fun save() = Bundle().apply {
-        controller.performSave(this)
-    }
+    fun save() = Bundle().apply { controller.performSave(this) }
 }

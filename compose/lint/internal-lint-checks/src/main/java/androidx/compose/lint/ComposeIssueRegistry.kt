@@ -26,23 +26,26 @@ import com.android.tools.lint.detector.api.Issue
 class ComposeIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 14
-    override val issues get(): List<Issue> {
-        return listOf(
-            AsCollectionDetector.ISSUE,
-            ExceptionMessageDetector.ISSUE,
-            ListIteratorDetector.ISSUE,
-            SteppedForLoopDetector.ISSUE,
-            UnnecessaryLambdaCreationDetector.ISSUE,
-            CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
-            CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
-            CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE,
-            PrimitiveInCollectionDetector.ISSUE,
-            LambdaStructuralEqualityDetector.ISSUE
+    override val issues
+        get(): List<Issue> {
+            return listOf(
+                AsCollectionDetector.ISSUE,
+                ExceptionMessageDetector.ISSUE,
+                ListIteratorDetector.ISSUE,
+                SteppedForLoopDetector.ISSUE,
+                UnnecessaryLambdaCreationDetector.ISSUE,
+                CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
+                CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
+                CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE,
+                PrimitiveInCollectionDetector.ISSUE,
+                LambdaStructuralEqualityDetector.ISSUE
+            )
+        }
+
+    override val vendor =
+        Vendor(
+            vendorName = "Jetpack Compose",
+            identifier = "compose:lint:internal-lint-checks",
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
         )
-    }
-    override val vendor = Vendor(
-        vendorName = "Jetpack Compose",
-        identifier = "compose:lint:internal-lint-checks",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
-    )
 }

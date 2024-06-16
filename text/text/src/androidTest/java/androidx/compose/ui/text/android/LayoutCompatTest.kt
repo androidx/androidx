@@ -31,46 +31,56 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayoutCompatTest {
 
-    private val LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
-        "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim " +
-        "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo " +
-        "consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum " +
-        "dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
-        "sunt in culpa qui officia deserunt mollit anim id est laborum."
+    private val LOREM_IPSUM =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+            "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim " +
+            "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo " +
+            "consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum " +
+            "dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, " +
+            "sunt in culpa qui officia deserunt mollit anim id est laborum."
 
-    private val TEXT_PAINT = TextPaint().apply {
-        textSize = 48f
-    }
+    private val TEXT_PAINT = TextPaint().apply { textSize = 48f }
 
     private val MAX_INTRINSIC_WIDTH =
         Math.ceil(Layout.getDesiredWidth(LOREM_IPSUM, TEXT_PAINT).toDouble()).toInt()
 
     // Make about 10 lines of layout.
 
-    private fun getTestLayout(): Layout = if (Build.VERSION.SDK_INT < 23) {
-        @Suppress("DEPRECATION") StaticLayout(
-            LOREM_IPSUM, TEXT_PAINT, MAX_INTRINSIC_WIDTH / 10,
-            Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false
-        )
-    } else {
-        StaticLayout.Builder.obtain(
-            LOREM_IPSUM, 0, LOREM_IPSUM.length, TEXT_PAINT, MAX_INTRINSIC_WIDTH / 10
-        ).build()
-    }.also {
-        require(it.lineCount >= 3) {
-            "In these test cases, the test layout must have more than three lines"
-        }
-    }
+    private fun getTestLayout(): Layout =
+        if (Build.VERSION.SDK_INT < 23) {
+                @Suppress("DEPRECATION")
+                StaticLayout(
+                    LOREM_IPSUM,
+                    TEXT_PAINT,
+                    MAX_INTRINSIC_WIDTH / 10,
+                    Layout.Alignment.ALIGN_NORMAL,
+                    1f,
+                    0f,
+                    false
+                )
+            } else {
+                StaticLayout.Builder.obtain(
+                        LOREM_IPSUM,
+                        0,
+                        LOREM_IPSUM.length,
+                        TEXT_PAINT,
+                        MAX_INTRINSIC_WIDTH / 10
+                    )
+                    .build()
+            }
+            .also {
+                require(it.lineCount >= 3) {
+                    "In these test cases, the test layout must have more than three lines"
+                }
+            }
 
     @Test
     fun testLayoutLineForOffset_upstream_first_line() {
         val layout = getTestLayout()
         val lineEnd = layout.getLineEnd(0)
 
-        assertThat(layout.getLineForOffset(0, true /* upstream */))
-            .isEqualTo(0)
-        assertThat(layout.getLineForOffset(lineEnd, true /* upstream */))
-            .isEqualTo(0)
+        assertThat(layout.getLineForOffset(0, true /* upstream */)).isEqualTo(0)
+        assertThat(layout.getLineForOffset(lineEnd, true /* upstream */)).isEqualTo(0)
     }
 
     @Test
@@ -92,10 +102,8 @@ class LayoutCompatTest {
             val lineStart = layout.getLineStart(i)
             val lineEnd = layout.getLineEnd(i)
 
-            assertThat(layout.getLineForOffset(lineStart, true /* upstream */))
-                .isEqualTo(i - 1)
-            assertThat(layout.getLineForOffset(lineEnd, true /* upstream */))
-                .isEqualTo(i)
+            assertThat(layout.getLineForOffset(lineStart, true /* upstream */)).isEqualTo(i - 1)
+            assertThat(layout.getLineForOffset(lineEnd, true /* upstream */)).isEqualTo(i)
         }
     }
 
@@ -104,10 +112,8 @@ class LayoutCompatTest {
         val layout = getTestLayout()
         val lineEnd = layout.getLineEnd(0)
 
-        assertThat(layout.getLineForOffset(0, false /* upstream */))
-            .isEqualTo(0)
-        assertThat(layout.getLineForOffset(lineEnd, false /* upstream */))
-            .isEqualTo(1)
+        assertThat(layout.getLineForOffset(0, false /* upstream */)).isEqualTo(0)
+        assertThat(layout.getLineForOffset(lineEnd, false /* upstream */)).isEqualTo(1)
     }
 
     @Test
@@ -116,8 +122,7 @@ class LayoutCompatTest {
         val lastLineNo = layout.lineCount - 1
         val lineStart = layout.getLineStart(lastLineNo)
 
-        assertThat(layout.getLineForOffset(lineStart, false /* upstream */))
-            .isEqualTo(lastLineNo)
+        assertThat(layout.getLineForOffset(lineStart, false /* upstream */)).isEqualTo(lastLineNo)
         assertThat(layout.getLineForOffset(layout.text.length, false /* upstream */))
             .isEqualTo(lastLineNo)
     }
@@ -129,10 +134,8 @@ class LayoutCompatTest {
             val lineStart = layout.getLineStart(i)
             val lineEnd = layout.getLineEnd(i)
 
-            assertThat(layout.getLineForOffset(lineStart, false /* upstream */))
-                .isEqualTo(i)
-            assertThat(layout.getLineForOffset(lineEnd, false /* upstream */))
-                .isEqualTo(i + 1)
+            assertThat(layout.getLineForOffset(lineStart, false /* upstream */)).isEqualTo(i)
+            assertThat(layout.getLineForOffset(lineEnd, false /* upstream */)).isEqualTo(i + 1)
         }
     }
 }

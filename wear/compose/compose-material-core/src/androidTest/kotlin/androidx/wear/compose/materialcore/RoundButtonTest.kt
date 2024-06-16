@@ -61,16 +61,14 @@ import org.junit.Rule
 import org.junit.Test
 
 class RoundButtonTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag_on_button() {
         rule.setContent {
             RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-            ) {
-            }
+            ) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -79,11 +77,7 @@ class RoundButtonTest {
     @Test
     fun has_clickaction_when_enabled() {
         rule.setContent {
-            RoundButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            RoundButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -92,11 +86,7 @@ class RoundButtonTest {
     @Test
     fun has_clickaction_when_disabled() {
         rule.setContent {
-            RoundButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            RoundButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -105,11 +95,7 @@ class RoundButtonTest {
     @Test
     fun is_correctly_enabled() {
         rule.setContent {
-            RoundButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            RoundButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -118,11 +104,7 @@ class RoundButtonTest {
     @Test
     fun is_correctly_disabled() {
         rule.setContent {
-            RoundButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            RoundButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
@@ -137,15 +119,12 @@ class RoundButtonTest {
                 onClick = { clicked = true },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            ) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            assertEquals(true, clicked)
-        }
+        rule.runOnIdle { assertEquals(true, clicked) }
     }
 
     @Test
@@ -157,33 +136,21 @@ class RoundButtonTest {
                 onClick = { clicked = true },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            ) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            assertEquals(false, clicked)
-        }
+        rule.runOnIdle { assertEquals(false, clicked) }
     }
 
     @Test
     fun has_role_button_for_button() {
-        rule.setContent {
-            RoundButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
-        }
+        rule.setContent { RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {} }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Button
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
@@ -191,8 +158,7 @@ class RoundButtonTest {
         rule.isShape(CircleShape, LayoutDirection.Ltr) {
             RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-            ) {
-            }
+            ) {}
         }
 
     @Test
@@ -200,56 +166,34 @@ class RoundButtonTest {
         rule.isShape(CircleShape, LayoutDirection.Rtl) {
             RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-            ) {
-            }
+            ) {}
         }
 
     @Test
     fun extra_small_button_meets_accessibility_tapsize() {
         verifyTapSize(48.dp) {
-            RoundButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(32.dp)
-            ) {
-            }
+            RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).size(32.dp)) {}
         }
     }
 
     @Test
     fun extra_small_button_has_correct_visible_size() {
         verifyVisibleSize(32.dp) {
-            RoundButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .requiredSize(32.dp)
-            ) {
-            }
+            RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).requiredSize(32.dp)) {}
         }
     }
 
     @Test
     fun default_button_has_correct_tapsize() {
         // Tap size for Button should be the min button size.
-        verifyTapSize(52.dp) {
-            RoundButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-            ) {
-            }
-        }
+        verifyTapSize(52.dp) { RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {} }
     }
 
     @Test
     fun default_button_has_correct_visible_size() {
         // Tap size for Button should be the min button size.
         verifyVisibleSize(52.dp) {
-            RoundButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(52.dp)
-            ) {
-            }
+            RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).size(52.dp)) {}
         }
     }
 
@@ -258,11 +202,7 @@ class RoundButtonTest {
         val shape = CutCornerShape(4.dp)
 
         rule.isShape(shape, LayoutDirection.Ltr) {
-            RoundButtonWithDefaults(
-                shape = shape,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
+            RoundButtonWithDefaults(shape = shape, modifier = Modifier.testTag(TEST_TAG)) {}
         }
     }
 
@@ -327,18 +267,11 @@ class RoundButtonTest {
     ) {
         val testBackground = Color.White
         val expectedColor = { color: Color ->
-            if (color != Color.Transparent)
-                color.compositeOver(testBackground)
-            else
-                testBackground
+            if (color != Color.Transparent) color.compositeOver(testBackground) else testBackground
         }
 
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(testBackground)
-            ) {
+            Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
                 RoundButtonWithDefaults(
                     backgroundColor = { enabled ->
                         if (enabled) enabledBackgroundColor else disabledBackgroundColor
@@ -348,43 +281,33 @@ class RoundButtonTest {
                     },
                     enabled = status.enabled(),
                     modifier = Modifier.testTag(TEST_TAG)
-                ) {
-                }
+                ) {}
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(expectedColor(expectedBackgroundColor), backgroundThreshold)
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(expectedColor(expectedBorderColor), borderThreshold)
     }
 
-    private fun verifyTapSize(
-        expected: Dp,
-        content: @Composable () -> Unit
-    ) {
-        rule.setContent {
-            content()
-        }
+    private fun verifyTapSize(expected: Dp, content: @Composable () -> Unit) {
+        rule.setContent { content() }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assertTouchHeightIsEqualTo(expected)
             .assertTouchWidthIsEqualTo(expected)
     }
 
-    private fun verifyVisibleSize(
-        expected: Dp,
-        content: @Composable () -> Unit
-    ) {
-        rule.setContent {
-            content()
-        }
+    private fun verifyVisibleSize(expected: Dp, content: @Composable () -> Unit) {
+        rule.setContent { content() }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertHeightIsEqualTo(expected)
-            .assertWidthIsEqualTo(expected)
+        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(expected).assertWidthIsEqualTo(expected)
     }
 
     @Composable
@@ -397,18 +320,19 @@ class RoundButtonTest {
         shape: Shape = CircleShape,
         border: @Composable (enabled: Boolean) -> BorderStroke? = { null },
         content: @Composable BoxScope.() -> Unit
-    ) = RoundButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        backgroundColor = backgroundColor,
-        interactionSource = interactionSource,
-        shape = shape,
-        border = border,
-        buttonSize = 52.dp,
-        ripple = EmptyIndication,
-        content = content
-    )
+    ) =
+        RoundButton(
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            backgroundColor = backgroundColor,
+            interactionSource = interactionSource,
+            shape = shape,
+            border = border,
+            buttonSize = 52.dp,
+            ripple = EmptyIndication,
+            content = content
+        )
 }
 
 internal object EmptyIndication : IndicationNodeFactory {

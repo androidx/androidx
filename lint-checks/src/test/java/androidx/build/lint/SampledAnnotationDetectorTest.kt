@@ -26,27 +26,26 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /**
  * Test for [SampledAnnotationDetector]
  *
  * This tests the following module setup:
  *
- * Module 'foo', which lives in foo
- * Module 'foo:samples', which lives in foo/samples, and depends on 'foo'
+ * Module 'foo', which lives in foo Module 'foo:samples', which lives in foo/samples, and depends on
+ * 'foo'
  */
 @RunWith(JUnit4::class)
 class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     override fun getDetector() = SampledAnnotationDetector()
 
-    override fun getIssues() = mutableListOf(
-        SampledAnnotationDetector.OBSOLETE_SAMPLED_ANNOTATION,
-        SampledAnnotationDetector.UNRESOLVED_SAMPLE_LINK,
-        SampledAnnotationDetector.MULTIPLE_FUNCTIONS_FOUND,
-        SampledAnnotationDetector.INVALID_SAMPLES_LOCATION
-    )
+    override fun getIssues() =
+        mutableListOf(
+            SampledAnnotationDetector.OBSOLETE_SAMPLED_ANNOTATION,
+            SampledAnnotationDetector.UNRESOLVED_SAMPLE_LINK,
+            SampledAnnotationDetector.MULTIPLE_FUNCTIONS_FOUND,
+            SampledAnnotationDetector.INVALID_SAMPLES_LOCATION
+        )
 
     private val fooModuleName = "foo"
     private val sampleModuleName = "samples"
@@ -54,24 +53,26 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
     private val barFilePath = "src/foo/Bar.kt"
     private val sampleFilePath = "samples/src/foo/samples/test.kt"
 
-    private val sampledStub = compiled(
-        "libs/sampled.jar",
-        kotlin(
-            """
+    private val sampledStub =
+        compiled(
+            "libs/sampled.jar",
+            kotlin(
+                    """
             package androidx.annotation
 
             @Target(AnnotationTarget.FUNCTION)
             @Retention(AnnotationRetention.SOURCE)
             annotation class Sampled
         """
-        ).to("androidx/annotation/Sampled.kt"),
-        0x9dd4162c,
-"""
+                )
+                .to("androidx/annotation/Sampled.kt"),
+            0x9dd4162c,
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3AJcrFnZafr1ecmFuQk1osxBaSWlzi
         XaLEoMUAAClM+YMvAAAA
         """,
-        """
+            """
         androidx/annotation/Sampled.class:
         H4sIAAAAAAAAAIVSyU4CQRB9NYggbriDuGv0Jki8cXLBSKJiEL1wapmOGWlm
         CNOg3rj5Tx4M8ehHGatdgMNE+1D9qvq96qrqfv94eQWwj01CSrh203Psx7Rw
@@ -84,24 +85,27 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
         JMYxgclvGGc4ZeAXZxozmGXVXAWhAuYLWGCLhDHJAhaRYpaPJSxXYPlY8bH6
         CeBn7eLsAgAA
         """
-    )
+        )
 
-    private val emptySampleFile = kotlin(
-        """
+    private val emptySampleFile =
+        kotlin(
+            """
             package foo.samples
         """
-    )
+        )
 
-    private val unannotatedSampleFile = kotlin(
-        """
+    private val unannotatedSampleFile =
+        kotlin(
+            """
             package foo.samples
 
             fun sampleBar() {}
         """
-    )
+        )
 
-    private val multipleMatchingSampleFile = kotlin(
-        """
+    private val multipleMatchingSampleFile =
+        kotlin(
+            """
             package foo.samples
 
             import androidx.annotation.Sampled
@@ -112,10 +116,11 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
             @Sampled
             fun sampleBar(param: Boolean = false) {}
         """
-    )
+        )
 
-    private val correctlyAnnotatedSampleFile = kotlin(
-        """
+    private val correctlyAnnotatedSampleFile =
+        kotlin(
+            """
             package foo.samples
 
             import androidx.annotation.Sampled
@@ -123,7 +128,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
             @Sampled
             fun sampleBar() {}
         """
-    )
+        )
 
     private fun checkKotlin(
         fooFile: TestFile? = null,
@@ -132,20 +137,22 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
         requiresPartialAnalysis: Boolean = true
     ) {
         val projectDescriptions = mutableListOf<ProjectDescription>()
-        val fooProject = ProjectDescription().apply {
-            name = fooModuleName
-            type = ProjectDescription.Type.LIBRARY
-            fooFile?.let { addFile(fooFile) }
-        }
+        val fooProject =
+            ProjectDescription().apply {
+                name = fooModuleName
+                type = ProjectDescription.Type.LIBRARY
+                fooFile?.let { addFile(fooFile) }
+            }
         projectDescriptions += fooProject
 
-        val sampleProject = ProjectDescription().apply {
-            name = sampleModuleName
-            type = ProjectDescription.Type.LIBRARY
-            under = fooProject
-            files = arrayOf(sampleFile, sampledStub)
-            dependsOn(fooProject)
-        }
+        val sampleProject =
+            ProjectDescription().apply {
+                name = sampleModuleName
+                type = ProjectDescription.Type.LIBRARY
+                under = fooProject
+                files = arrayOf(sampleFile, sampledStub)
+                dependsOn(fooProject)
+            }
         projectDescriptions += sampleProject
 
         lint().run {
@@ -173,8 +180,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unresolvedSampleLink_Function() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -184,7 +192,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               fun bar() {}
             }
         """
-        )
+            )
 
         val sampleFile = emptySampleFile
 
@@ -200,8 +208,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unannotatedSampleFunction_Function() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -211,7 +220,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               fun bar() {}
             }
         """
-        )
+            )
 
         val sampleFile = unannotatedSampleFile
 
@@ -227,8 +236,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun multipleMatchingSampleFunctions_Function() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -238,7 +248,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               fun bar() {}
             }
         """
-        )
+            )
 
         val sampleFile = multipleMatchingSampleFile
 
@@ -261,8 +271,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun correctlyAnnotatedSampleFunction_Function() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -272,7 +283,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               fun bar() {}
             }
         """
-        )
+            )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
@@ -281,8 +292,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unresolvedSampleLink_Class() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             /**
@@ -290,7 +302,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
              */
             class Bar
         """
-        )
+            )
 
         val sampleFile = emptySampleFile
 
@@ -306,8 +318,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unannotatedSampleFunction_Class() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             /**
@@ -315,7 +328,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
              */
             class Bar
         """
-        )
+            )
 
         val sampleFile = unannotatedSampleFile
 
@@ -331,8 +344,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun multipleMatchingSampleFunctions_Class() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             /**
@@ -340,7 +354,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
              */
             class Bar
         """
-        )
+            )
 
         val sampleFile = multipleMatchingSampleFile
 
@@ -363,8 +377,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun correctlyAnnotatedSampleFunction_Class() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             /**
@@ -372,7 +387,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
              */
             class Bar
         """
-        )
+            )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
@@ -381,8 +396,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unresolvedSampleLink_Field() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -392,7 +408,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               const val bar = 0
             }
         """
-        )
+            )
 
         val sampleFile = emptySampleFile
 
@@ -408,8 +424,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unannotatedSampleFunction_Field() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -419,7 +436,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               const val bar = 0
             }
         """
-        )
+            )
 
         val sampleFile = unannotatedSampleFile
 
@@ -435,8 +452,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun multipleMatchingSampleFunctions_Field() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -446,7 +464,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               const val bar = 0
             }
         """
-        )
+            )
 
         val sampleFile = multipleMatchingSampleFile
 
@@ -469,8 +487,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun correctlyAnnotatedSampleFunction_Field() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -480,7 +499,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               const val bar = 0
             }
         """
-        )
+            )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
@@ -489,8 +508,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unresolvedSampleLink_PropertyWithGetter() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -500,7 +520,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               val bar get() = 0
             }
         """
-        )
+            )
 
         val sampleFile = emptySampleFile
 
@@ -516,8 +536,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun unannotatedSampleFunction_PropertyWithGetter() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -527,7 +548,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               val bar get() = 0
             }
         """
-        )
+            )
 
         val sampleFile = unannotatedSampleFile
 
@@ -543,8 +564,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun multipleMatchingSampleFunctions_PropertyWithGetter() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -554,7 +576,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               val bar get() = 0
             }
         """
-        )
+            )
 
         val sampleFile = multipleMatchingSampleFile
 
@@ -577,8 +599,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun correctlyAnnotatedSampleFunction_PropertyWithGetter() {
-        val fooFile = kotlin(
-            """
+        val fooFile =
+            kotlin(
+                """
             package foo
 
             class Bar {
@@ -588,7 +611,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
               val bar get() = 0
             }
         """
-        )
+            )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
@@ -612,8 +635,9 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
 
     @Test
     fun invalidSampleLocation() {
-        val sampleFile = kotlin(
-            """
+        val sampleFile =
+            kotlin(
+                """
             package foo.wrong.location
 
             import androidx.annotation.Sampled
@@ -621,7 +645,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
             @Sampled
             fun sampleBar() {}
         """
-        )
+            )
 
         val expected =
             """samples/src/foo/wrong/location/test.kt:7: Error: foo.wrong.location.sampleBar is annotated with @Sampled, but is not linked to from a @sample tag. [ObsoleteSampledAnnotation]
@@ -634,4 +658,3 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
         checkKotlin(sampleFile = sampleFile, expectedText = expected)
     }
 }
-/* ktlint-enable max-line-length */

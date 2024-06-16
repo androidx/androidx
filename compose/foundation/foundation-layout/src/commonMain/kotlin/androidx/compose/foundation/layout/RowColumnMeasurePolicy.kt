@@ -29,7 +29,9 @@ import kotlin.math.sign
 
 internal interface RowColumnMeasurePolicy {
     fun Placeable.mainAxisSize(): Int
+
     fun Placeable.crossAxisSize(): Int
+
     fun populateMainAxisPositions(
         mainAxisLayoutSize: Int,
         childrenMainAxisSize: IntArray,
@@ -63,13 +65,11 @@ internal interface RowColumnMeasurePolicy {
  * Measures the row and column
  *
  * @param measureScope The measure scope to retrieve density
- * @param startIndex The startIndex (inclusive) when examining measurables, placeable
- * and parentData
- * @param endIndex The ending index (exclusive) when examining measurable, placeable
- * and parentData
+ * @param startIndex The startIndex (inclusive) when examining measurables, placeable and parentData
+ * @param endIndex The ending index (exclusive) when examining measurable, placeable and parentData
  * @param crossAxisOffset The offset to apply to the cross axis when placing
  * @param currentLineIndex The index of the current line if in a multi-row/column setting like
- * [FlowRow]
+ *   [FlowRow]
  */
 internal fun RowColumnMeasurePolicy.measure(
     mainAxisMin: Int,
@@ -111,31 +111,34 @@ internal fun RowColumnMeasurePolicy.measure(
             totalWeight += weight
             ++weightChildrenCount
         } else {
-            val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
-                parentData?.flowLayoutData?.let {
-                    (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
-                }
+            val crossAxisDesiredSize =
+                if (crossAxisMax == Constraints.Infinity) null
+                else
+                    parentData?.flowLayoutData?.let {
+                        (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
+                    }
             val remaining = mainAxisMax - fixedSpace
-            val placeable = placeables[i] ?: child.measure(
-                // Ask for preferred main axis size.
-                createConstraints(
-                    mainAxisMin = 0,
-                    crossAxisMin = crossAxisDesiredSize ?: 0,
-                    mainAxisMax = if (mainAxisMax == Constraints.Infinity) {
-                        Constraints.Infinity
-                    } else {
-                        remaining.coerceAtLeast(0)
-                    },
-                    crossAxisMax = crossAxisDesiredSize ?: crossAxisMax
-                )
-            )
+            val placeable =
+                placeables[i]
+                    ?: child.measure(
+                        // Ask for preferred main axis size.
+                        createConstraints(
+                            mainAxisMin = 0,
+                            crossAxisMin = crossAxisDesiredSize ?: 0,
+                            mainAxisMax =
+                                if (mainAxisMax == Constraints.Infinity) {
+                                    Constraints.Infinity
+                                } else {
+                                    remaining.coerceAtLeast(0)
+                                },
+                            crossAxisMax = crossAxisDesiredSize ?: crossAxisMax
+                        )
+                    )
             val placeableMainAxisSize = placeable.mainAxisSize()
             val placeableCrossAxisSize = placeable.crossAxisSize()
             childrenMainAxisSize[i - startIndex] = placeableMainAxisSize
-            spaceAfterLastNoWeight = min(
-                arrangementSpacingInt,
-                (remaining - placeableMainAxisSize).coerceAtLeast(0)
-            )
+            spaceAfterLastNoWeight =
+                min(arrangementSpacingInt, (remaining - placeableMainAxisSize).coerceAtLeast(0))
             fixedSpace += placeableMainAxisSize + spaceAfterLastNoWeight
             crossAxisSpace = max(crossAxisSpace, placeableCrossAxisSize)
             placeables[i] = placeable
@@ -168,25 +171,37 @@ internal fun RowColumnMeasurePolicy.measure(
                 remainder -= weightedSize.fastRoundToInt()
             } catch (e: IllegalArgumentException) {
                 throw IllegalArgumentException(
-                    "This log indicates a hard-to-reproduce Compose issue, " +
-                        "modified with additional debugging details. " +
-                        "Please help us by adding your experiences to the bug link provided. " +
-                        "Thank you for helping us improve Compose. " +
-                        "https://issuetracker.google.com/issues/297974033 " +
-                        "mainAxisMax " + mainAxisMax +
-                        "mainAxisMin " + mainAxisMin +
-                        "targetSpace " + targetSpace +
-                        "arrangementSpacingPx " + arrangementSpacingPx +
-                        "weightChildrenCount " + weightChildrenCount +
-                        "fixedSpace " + fixedSpace +
-                        "arrangementSpacingTotal " + arrangementSpacingTotal +
-                        "remainingToTarget " + remainingToTarget +
-                        "totalWeight " + totalWeight +
-                        "weightUnitSpace " + weightUnitSpace +
-                        "itemWeight " + itemWeight +
-                        "weightedSize " + weightedSize,
-                    e
-                )
+                        "This log indicates a hard-to-reproduce Compose issue, " +
+                            "modified with additional debugging details. " +
+                            "Please help us by adding your experiences to the bug link provided. " +
+                            "Thank you for helping us improve Compose. " +
+                            "https://issuetracker.google.com/issues/297974033 " +
+                            "mainAxisMax " +
+                            mainAxisMax +
+                            "mainAxisMin " +
+                            mainAxisMin +
+                            "targetSpace " +
+                            targetSpace +
+                            "arrangementSpacingPx " +
+                            arrangementSpacingPx +
+                            "weightChildrenCount " +
+                            weightChildrenCount +
+                            "fixedSpace " +
+                            fixedSpace +
+                            "arrangementSpacingTotal " +
+                            arrangementSpacingTotal +
+                            "remainingToTarget " +
+                            remainingToTarget +
+                            "totalWeight " +
+                            totalWeight +
+                            "weightUnitSpace " +
+                            weightUnitSpace +
+                            "itemWeight " +
+                            itemWeight +
+                            "weightedSize " +
+                            weightedSize,
+                        e
+                    )
             }
         }
 
@@ -195,10 +210,12 @@ internal fun RowColumnMeasurePolicy.measure(
                 val child = measurables[i]
                 val parentData = child.rowColumnParentData
                 val weight = parentData.weight
-                val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
-                    parentData?.flowLayoutData?.let {
-                        (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
-                    }
+                val crossAxisDesiredSize =
+                    if (crossAxisMax == Constraints.Infinity) null
+                    else
+                        parentData?.flowLayoutData?.let {
+                            (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
+                        }
                 check(weight > 0) { "All weights <= 0 should have placeables" }
                 // After the weightUnitSpace rounding, the total space going to be occupied
                 // can be smaller or larger than remainingToTarget. Here we distribute the
@@ -206,50 +223,62 @@ internal fun RowColumnMeasurePolicy.measure(
                 val remainderUnit = remainder.sign
                 remainder -= remainderUnit
                 val weightedSize = (weightUnitSpace * weight)
-                val childMainAxisSize = max(
-                    0,
-                    weightedSize.fastRoundToInt() + remainderUnit
-                )
+                val childMainAxisSize = max(0, weightedSize.fastRoundToInt() + remainderUnit)
 
                 val childConstraints: Constraints
                 try {
-                     childConstraints = createConstraints(
-                        mainAxisMin = if (parentData.fill &&
-                            childMainAxisSize != Constraints.Infinity
-                        ) {
-                            childMainAxisSize
-                        } else {
-                            0
-                        },
-                        crossAxisMin = crossAxisDesiredSize ?: 0,
-                        mainAxisMax = childMainAxisSize,
-                        crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
-                        isPrioritizing = true
-                    )
+                    childConstraints =
+                        createConstraints(
+                            mainAxisMin =
+                                if (parentData.fill && childMainAxisSize != Constraints.Infinity) {
+                                    childMainAxisSize
+                                } else {
+                                    0
+                                },
+                            crossAxisMin = crossAxisDesiredSize ?: 0,
+                            mainAxisMax = childMainAxisSize,
+                            crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
+                            isPrioritizing = true
+                        )
                 } catch (e: IllegalArgumentException) {
                     throw IllegalArgumentException(
-                        "This log indicates a hard-to-reproduce Compose issue, " +
-                            "modified with additional debugging details. " +
-                            "Please help us by adding your experiences to the bug link provided. " +
-                            "Thank you for helping us improve Compose. " +
-                            "https://issuetracker.google.com/issues/300280216 " +
-                            "mainAxisMax " + mainAxisMax +
-                            "mainAxisMin " + mainAxisMin +
-                            "targetSpace " + targetSpace +
-                            "arrangementSpacingPx " + arrangementSpacingPx +
-                            "weightChildrenCount " + weightChildrenCount +
-                            "fixedSpace " + fixedSpace +
-                            "arrangementSpacingTotal " + arrangementSpacingTotal +
-                            "remainingToTarget " + remainingToTarget +
-                            "totalWeight " + totalWeight +
-                            "weightUnitSpace " + weightUnitSpace +
-                            "weight " + weight +
-                            "weightedSize " + weightedSize +
-                            "crossAxisDesiredSize " + crossAxisDesiredSize +
-                            "remainderUnit " + remainderUnit +
-                            "childMainAxisSize " + childMainAxisSize,
-                        e
-                    )
+                            "This log indicates a hard-to-reproduce Compose issue, " +
+                                "modified with additional debugging details. " +
+                                "Please help us by adding your experiences to the bug link provided. " +
+                                "Thank you for helping us improve Compose. " +
+                                "https://issuetracker.google.com/issues/300280216 " +
+                                "mainAxisMax " +
+                                mainAxisMax +
+                                "mainAxisMin " +
+                                mainAxisMin +
+                                "targetSpace " +
+                                targetSpace +
+                                "arrangementSpacingPx " +
+                                arrangementSpacingPx +
+                                "weightChildrenCount " +
+                                weightChildrenCount +
+                                "fixedSpace " +
+                                fixedSpace +
+                                "arrangementSpacingTotal " +
+                                arrangementSpacingTotal +
+                                "remainingToTarget " +
+                                remainingToTarget +
+                                "totalWeight " +
+                                totalWeight +
+                                "weightUnitSpace " +
+                                weightUnitSpace +
+                                "weight " +
+                                weight +
+                                "weightedSize " +
+                                weightedSize +
+                                "crossAxisDesiredSize " +
+                                crossAxisDesiredSize +
+                                "remainderUnit " +
+                                remainderUnit +
+                                "childMainAxisSize " +
+                                childMainAxisSize,
+                            e
+                        )
                 }
                 val placeable = child.measure(childConstraints)
                 val placeableMainAxisSize = placeable.mainAxisSize()
@@ -260,9 +289,8 @@ internal fun RowColumnMeasurePolicy.measure(
                 placeables[i] = placeable
             }
         }
-        weightedSpace = (weightedSpace + arrangementSpacingTotal)
-            .toInt()
-            .coerceIn(0, mainAxisMax - fixedSpace)
+        weightedSpace =
+            (weightedSpace + arrangementSpacingTotal).toInt().coerceIn(0, mainAxisMax - fixedSpace)
     }
 
     // we've done this check in weights as to avoid going through another loop
@@ -270,35 +298,36 @@ internal fun RowColumnMeasurePolicy.measure(
         for (i in startIndex until endIndex) {
             val placeable = placeables[i]
             val parentData = placeable!!.rowColumnParentData
-            val alignmentLinePosition = parentData.crossAxisAlignment
-                ?.calculateAlignmentLinePosition(placeable)
+            val alignmentLinePosition =
+                parentData.crossAxisAlignment?.calculateAlignmentLinePosition(placeable)
             alignmentLinePosition?.let {
                 val placeableCrossAxisSize = placeable.crossAxisSize()
-                beforeCrossAxisAlignmentLine = max(
-                    beforeCrossAxisAlignmentLine,
-                    if (it != AlignmentLine.Unspecified) alignmentLinePosition else 0
-                )
-                afterCrossAxisAlignmentLine = max(
-                    afterCrossAxisAlignmentLine,
-                    placeableCrossAxisSize - if (it != AlignmentLine.Unspecified) {
-                        it
-                    } else {
-                        placeableCrossAxisSize
-                    }
-                )
+                beforeCrossAxisAlignmentLine =
+                    max(
+                        beforeCrossAxisAlignmentLine,
+                        if (it != AlignmentLine.Unspecified) alignmentLinePosition else 0
+                    )
+                afterCrossAxisAlignmentLine =
+                    max(
+                        afterCrossAxisAlignmentLine,
+                        placeableCrossAxisSize -
+                            if (it != AlignmentLine.Unspecified) {
+                                it
+                            } else {
+                                placeableCrossAxisSize
+                            }
+                    )
             }
         }
     }
 
     // Compute the Row or Column size and position the children.
-    val mainAxisLayoutSize = max(
-        (fixedSpace + weightedSpace).coerceAtLeast(0),
-        mainAxisMin
-    )
-    val crossAxisLayoutSize = max(
-        crossAxisSpace,
-        max(crossAxisMin, beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine)
-    )
+    val mainAxisLayoutSize = max((fixedSpace + weightedSpace).coerceAtLeast(0), mainAxisMin)
+    val crossAxisLayoutSize =
+        max(
+            crossAxisSpace,
+            max(crossAxisMin, beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine)
+        )
     val mainAxisPositions = IntArray(subSize) { 0 }
     populateMainAxisPositions(
         mainAxisLayoutSize,

@@ -47,8 +47,10 @@ class DisplayInfoManagerTest {
         val displayId = ShadowDisplayManager.addDisplay(displayStr)
 
         if (state != Display.STATE_ON) {
-            val displayManager = (ApplicationProvider.getApplicationContext() as Context)
-                .getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            val displayManager =
+                (ApplicationProvider.getApplicationContext() as Context).getSystemService(
+                    Context.DISPLAY_SERVICE
+                ) as DisplayManager
             (Shadow.extract(displayManager.getDisplay(displayId)) as ShadowDisplay).setState(state)
         }
 
@@ -65,8 +67,10 @@ class DisplayInfoManagerTest {
 
     @After
     fun tearDown() {
-        val displayManager = (ApplicationProvider.getApplicationContext() as Context)
-            .getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
+        val displayManager =
+            (ApplicationProvider.getApplicationContext() as Context).getSystemService(
+                Context.DISPLAY_SERVICE
+            ) as DisplayManager?
 
         displayManager?.let {
             for (display in it.displays) {
@@ -78,8 +82,10 @@ class DisplayInfoManagerTest {
     @Test
     fun defaultDisplayIsDeviceDisplay_whenOneDisplay() {
         // Arrange
-        val displayManager = (ApplicationProvider.getApplicationContext() as Context)
-            .getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayManager =
+            (ApplicationProvider.getApplicationContext() as Context).getSystemService(
+                Context.DISPLAY_SERVICE
+            ) as DisplayManager
         val currentDisplaySize = Point()
         displayManager.displays[0].getRealSize(currentDisplaySize)
 

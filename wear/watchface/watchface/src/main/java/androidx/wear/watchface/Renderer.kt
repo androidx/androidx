@@ -72,15 +72,15 @@ public object CanvasType {
     public const val SOFTWARE: Int = 0
 
     /**
-     * A hardware canvas will be requested. This is usually faster than software rendering,
-     * however it can sometimes increase battery usage by rendering at a higher frame rate.
+     * A hardware canvas will be requested. This is usually faster than software rendering, however
+     * it can sometimes increase battery usage by rendering at a higher frame rate.
      *
-     * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
-     * to a software canvas.
+     * NOTE this is only supported on API level 26 and above. On lower API levels we fall back to a
+     * software canvas.
      *
-     * NOTE the system takes screenshots for use in the watch face picker UI and these will be
-     * taken using software rendering for API level 27 and below. This means on API level 27 and
-     * below [Bitmap]s with [Bitmap.Config.HARDWARE] must be avoided.
+     * NOTE the system takes screenshots for use in the watch face picker UI and these will be taken
+     * using software rendering for API level 27 and below. This means on API level 27 and below
+     * [Bitmap]s with [Bitmap.Config.HARDWARE] must be avoided.
      */
     public const val HARDWARE: Int = 1
 }
@@ -551,8 +551,8 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is used,
-     *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
+     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is
+     *   used, screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
      *   interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
@@ -588,8 +588,7 @@ constructor(
                     surfaceHolder.lockHardwareCanvas()
                 } else {
                     surfaceHolder.lockCanvas()
-                })
-                    ?: return
+                }) ?: return
             try {
                 if (Build.VERSION.SDK_INT >= 30 || watchState.isVisible.value!!) {
                     renderAndComposite(canvas, zonedDateTime)
@@ -685,18 +684,20 @@ constructor(
                         }
                         renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
                         picture.endRecording()
-                        highlightLayerBitmap = Api28CreateBitmapHelper.createBitmap(
-                            picture,
-                            screenBounds.width(),
-                            screenBounds.height(),
-                            Bitmap.Config.ARGB_8888
-                        )
+                        highlightLayerBitmap =
+                            Api28CreateBitmapHelper.createBitmap(
+                                picture,
+                                screenBounds.width(),
+                                screenBounds.height(),
+                                Bitmap.Config.ARGB_8888
+                            )
                     } else {
-                        highlightLayerBitmap = Bitmap.createBitmap(
-                            screenBounds.width(),
-                            screenBounds.height(),
-                            Bitmap.Config.ARGB_8888
-                        )
+                        highlightLayerBitmap =
+                            Bitmap.createBitmap(
+                                screenBounds.width(),
+                                screenBounds.height(),
+                                Bitmap.Config.ARGB_8888
+                            )
                         val highlightCanvas = Canvas(highlightLayerBitmap)
                         if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
                             highlightCanvas.drawColor(highlightLayer.backgroundTint)
@@ -834,8 +835,8 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is used,
-     *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
+     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is
+     *   used, screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
      *   interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
@@ -1008,7 +1009,8 @@ constructor(
         private val eglConfigAttribListList: List<IntArray>,
         private val eglSurfaceAttribList: IntArray,
         private val eglContextAttribList: IntArray
-    ) : Renderer(
+    ) :
+        Renderer(
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
@@ -1163,7 +1165,8 @@ constructor(
 
             // Select the first successful config.
             for ((i, eglConfigAttribList) in eglConfigAttribListList.withIndex()) {
-                if (!EGL14.eglChooseConfig(
+                if (
+                    !EGL14.eglChooseConfig(
                         eglDisplay,
                         eglConfigAttribList,
                         0,
@@ -1172,7 +1175,7 @@ constructor(
                         eglConfigs.size,
                         numEglConfigs,
                         0
-                     )
+                    )
                 ) {
                     if (this is GlesRenderer2<*>) {
                         selectedEglConfigAttribListIndexInternal = Integer(i)
@@ -1909,10 +1912,6 @@ constructor(
 /** Helper to allow class verification. */
 @RequiresApi(28)
 internal object Api28CreateBitmapHelper {
-    fun createBitmap(
-        picture: Picture,
-        width: Int,
-        height: Int,
-        config: Bitmap.Config
-    ) = Bitmap.createBitmap(picture, width, height, config)
+    fun createBitmap(picture: Picture, width: Int, height: Int, config: Bitmap.Config) =
+        Bitmap.createBitmap(picture, width, height, config)
 }

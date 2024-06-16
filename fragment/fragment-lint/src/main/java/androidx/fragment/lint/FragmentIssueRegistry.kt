@@ -20,28 +20,30 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * Issue Registry containing Fragment specific lint Issues.
- */
+/** Issue Registry containing Fragment specific lint Issues. */
 @Suppress("UnstableApiUsage")
 class FragmentIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        FragmentTagDetector.ISSUE,
-        UnsafeFragmentLifecycleObserverDetector.ADD_MENU_PROVIDER_ISSUE,
-        UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE,
-        UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE,
-        UseRequireInsteadOfGet.ISSUE,
-        UseGetLayoutInflater.ISSUE,
-        OnCreateDialogIncorrectCallbackDetector.ISSUE,
-        UnsafeRepeatOnLifecycleDetector.ISSUE,
-        AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE
-    )
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460964",
-        identifier = "androidx.fragment",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues
+        get() =
+            listOf(
+                FragmentTagDetector.ISSUE,
+                UnsafeFragmentLifecycleObserverDetector.ADD_MENU_PROVIDER_ISSUE,
+                UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE,
+                UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE,
+                UseRequireInsteadOfGet.ISSUE,
+                UseGetLayoutInflater.ISSUE,
+                OnCreateDialogIncorrectCallbackDetector.ISSUE,
+                UnsafeRepeatOnLifecycleDetector.ISSUE,
+                AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE
+            )
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=460964",
+            identifier = "androidx.fragment",
+            vendorName = "Android Open Source Project",
+        )
 }

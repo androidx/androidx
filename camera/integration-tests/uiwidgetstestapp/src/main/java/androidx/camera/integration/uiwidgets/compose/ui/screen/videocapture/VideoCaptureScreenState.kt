@@ -60,9 +60,7 @@ import kotlinx.coroutines.launch
 
 private const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
 
-class VideoCaptureScreenState(
-    initialLensFacing: Int = DEFAULT_LENS_FACING
-) {
+class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
     var lensFacing by mutableIntStateOf(initialLensFacing)
         private set
 
@@ -120,11 +118,12 @@ class VideoCaptureScreenState(
 
     fun toggleLensFacing() {
         Log.d(TAG, "Toggling Lens")
-        lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) {
-            CameraSelector.LENS_FACING_FRONT
-        } else {
-            CameraSelector.LENS_FACING_BACK
-        }
+        lensFacing =
+            if (lensFacing == CameraSelector.LENS_FACING_BACK) {
+                CameraSelector.LENS_FACING_FRONT
+            } else {
+                CameraSelector.LENS_FACING_BACK
+            }
     }
 
     fun startTapToFocus(meteringPoint: MeteringPoint) {
@@ -136,42 +135,45 @@ class VideoCaptureScreenState(
         Log.d(TAG, "Starting Camera")
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
+        cameraProviderFuture.addListener(
+            {
+                val cameraProvider = cameraProviderFuture.get()
 
-            // Create a new recorder. CameraX currently does not support re-use of Recorder
-            recorder =
-                Recorder.Builder().setQualitySelector(QualitySelector.from(Quality.HIGHEST)).build()
-            videoCapture = VideoCapture.withOutput(recorder)
+                // Create a new recorder. CameraX currently does not support re-use of Recorder
+                recorder =
+                    Recorder.Builder()
+                        .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+                        .build()
+                videoCapture = VideoCapture.withOutput(recorder)
 
-            val cameraSelector = CameraSelector
-                .Builder()
-                .requireLensFacing(lensFacing)
-                .build()
+                val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
-            // Remove observers from the old camera instance
-            removeZoomStateObservers(lifecycleOwner)
+                // Remove observers from the old camera instance
+                removeZoomStateObservers(lifecycleOwner)
 
-            // Reset internal State of Camera
-            camera = null
-            isCameraReady = false
+                // Reset internal State of Camera
+                camera = null
+                isCameraReady = false
 
-            try {
-                cameraProvider.unbindAll()
-                val camera = cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    videoCapture
-                )
+                try {
+                    cameraProvider.unbindAll()
+                    val camera =
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            preview,
+                            videoCapture
+                        )
 
-                this.camera = camera
-                setupZoomStateObserver(lifecycleOwner)
-                isCameraReady = true
-            } catch (exc: Exception) {
-                Log.e(TAG, "Use Cases binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(context))
+                    this.camera = camera
+                    setupZoomStateObserver(lifecycleOwner)
+                    isCameraReady = true
+                } catch (exc: Exception) {
+                    Log.e(TAG, "Use Cases binding failed", exc)
+                }
+            },
+            ContextCompat.getMainExecutor(context)
+        )
     }
 
     fun captureVideo(context: Context) {
@@ -194,69 +196,76 @@ class VideoCaptureScreenState(
         Log.d(TAG, "Start recording video")
         val mediaStoreOutputOptions = getMediaStoreOutputOptions(context)
 
-        recording = videoCapture.output
-            .prepareRecording(context, mediaStoreOutputOptions)
-            .apply {
-                val recordAudioPermission = PermissionChecker.checkSelfPermission(
-                    context,
-                    Manifest.permission.RECORD_AUDIO
-                )
+        recording =
+            videoCapture.output
+                .prepareRecording(context, mediaStoreOutputOptions)
+                .apply {
+                    val recordAudioPermission =
+                        PermissionChecker.checkSelfPermission(
+                            context,
+                            Manifest.permission.RECORD_AUDIO
+                        )
 
-                if (recordAudioPermission == PermissionChecker.PERMISSION_GRANTED) {
-                    withAudioEnabled()
-                }
-            }
-            .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
-                // Update record stats
-                val recordingStats = recordEvent.recordingStats
-                val durationMs = TimeUnit.NANOSECONDS.toMillis(recordingStats.recordedDurationNanos)
-                val sizeMb = recordingStats.numBytesRecorded / (1000f * 1000f)
-                val msg = "%.2f s\n%.2f MB".format(durationMs / 1000f, sizeMb)
-                recordingStatsMsg = msg
-
-                when (recordEvent) {
-                    is VideoRecordEvent.Start -> {
-                        recordState = RecordState.RECORDING
+                    if (recordAudioPermission == PermissionChecker.PERMISSION_GRANTED) {
+                        withAudioEnabled()
                     }
-                    is VideoRecordEvent.Finalize -> {
-                        // Once finalized, save the file if it is created
-                        val cause = recordEvent.cause
-                        when (val errorCode = recordEvent.error) {
-                            ERROR_NONE, ERROR_SOURCE_INACTIVE -> { // Save Output
-                                val uri = recordEvent.outputResults.outputUri
-                                val successMsg = "Video saved at $uri. Code: $errorCode"
-                                Log.d(TAG, successMsg, cause)
-                                Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
-                            }
-                            else -> { // Handle Error
-                                val failureMsg = "VideoCapture Error($errorCode): $cause"
-                                Log.e(TAG, failureMsg, cause)
-                            }
+                }
+                .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
+                    // Update record stats
+                    val recordingStats = recordEvent.recordingStats
+                    val durationMs =
+                        TimeUnit.NANOSECONDS.toMillis(recordingStats.recordedDurationNanos)
+                    val sizeMb = recordingStats.numBytesRecorded / (1000f * 1000f)
+                    val msg = "%.2f s\n%.2f MB".format(durationMs / 1000f, sizeMb)
+                    recordingStatsMsg = msg
+
+                    when (recordEvent) {
+                        is VideoRecordEvent.Start -> {
+                            recordState = RecordState.RECORDING
                         }
+                        is VideoRecordEvent.Finalize -> {
+                            // Once finalized, save the file if it is created
+                            val cause = recordEvent.cause
+                            when (val errorCode = recordEvent.error) {
+                                ERROR_NONE,
+                                ERROR_SOURCE_INACTIVE -> { // Save Output
+                                    val uri = recordEvent.outputResults.outputUri
+                                    val successMsg = "Video saved at $uri. Code: $errorCode"
+                                    Log.d(TAG, successMsg, cause)
+                                    Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
+                                }
+                                else -> { // Handle Error
+                                    val failureMsg = "VideoCapture Error($errorCode): $cause"
+                                    Log.e(TAG, failureMsg, cause)
+                                }
+                            }
 
-                        // Tear down recording
-                        recordState = RecordState.IDLE
-                        recording = null
-                        recordingStatsMsg = ""
+                            // Tear down recording
+                            recordState = RecordState.IDLE
+                            recording = null
+                            recordingStatsMsg = ""
+                        }
                     }
                 }
-            }
     }
 
     private fun getMediaStoreOutputOptions(context: Context): MediaStoreOutputOptions {
         val contentResolver = context.contentResolver
-        val displayName = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-            .format(System.currentTimeMillis())
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
+        val displayName =
+            SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
+        val contentValues =
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
+                }
             }
-        }
 
-        return MediaStoreOutputOptions
-            .Builder(contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        return MediaStoreOutputOptions.Builder(
+                contentResolver,
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            )
             .setContentValues(contentValues)
             .build()
     }
@@ -296,16 +305,11 @@ class VideoCaptureScreenState(
     companion object {
         private const val TAG = "VideoCaptureScreenState"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        val saver: Saver<VideoCaptureScreenState, *> = listSaver(
-            save = {
-                listOf(it.lensFacing)
-            },
-            restore = {
-                VideoCaptureScreenState(
-                    initialLensFacing = it[0]
-                )
-            }
-        )
+        val saver: Saver<VideoCaptureScreenState, *> =
+            listSaver(
+                save = { listOf(it.lensFacing) },
+                restore = { VideoCaptureScreenState(initialLensFacing = it[0]) }
+            )
     }
 }
 
@@ -313,12 +317,7 @@ class VideoCaptureScreenState(
 fun rememberVideoCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING
 ): VideoCaptureScreenState {
-    return rememberSaveable(
-        initialLensFacing,
-        saver = VideoCaptureScreenState.saver
-    ) {
-        VideoCaptureScreenState(
-            initialLensFacing = initialLensFacing
-        )
+    return rememberSaveable(initialLensFacing, saver = VideoCaptureScreenState.saver) {
+        VideoCaptureScreenState(initialLensFacing = initialLensFacing)
     }
 }

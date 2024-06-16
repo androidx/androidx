@@ -19,9 +19,7 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XTypeElement
 import java.lang.ref.WeakReference
 
-/**
- * Utility class to cache type element wrappers.
- */
+/** Utility class to cache type element wrappers. */
 internal class XTypeElementStore<BackingType, T : XTypeElement>(
     private val findElement: (qName: String) -> BackingType?,
     private val getQName: (BackingType) -> String?,

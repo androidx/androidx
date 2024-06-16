@@ -42,11 +42,12 @@ internal fun LazyLayoutItemProvider.calculateLazyLayoutPinnedIndices(
         return emptyList()
     } else {
         val pinnedItems = mutableListOf<Int>()
-        val beyondBoundsRange = if (beyondBoundsInfo.hasIntervals()) {
-            beyondBoundsInfo.start..min(beyondBoundsInfo.end, itemCount - 1)
-        } else {
-            IntRange.EMPTY
-        }
+        val beyondBoundsRange =
+            if (beyondBoundsInfo.hasIntervals()) {
+                beyondBoundsInfo.start..min(beyondBoundsInfo.end, itemCount - 1)
+            } else {
+                IntRange.EMPTY
+            }
         pinnedItemList.fastForEach {
             val index = findIndexByKey(it.key, it.index)
             if (index in beyondBoundsRange) return@fastForEach

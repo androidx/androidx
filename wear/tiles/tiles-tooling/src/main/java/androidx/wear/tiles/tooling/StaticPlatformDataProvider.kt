@@ -22,9 +22,8 @@ import androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver
 import java.util.concurrent.Executor
 
 /** A [PlatformDataProvider] that provides [values] as static data. */
-internal class StaticPlatformDataProvider(
-    private val values: PlatformDataValues
-) : PlatformDataProvider {
+internal class StaticPlatformDataProvider(private val values: PlatformDataValues) :
+    PlatformDataProvider {
 
     private var receiver: PlatformDataReceiver? = null
 

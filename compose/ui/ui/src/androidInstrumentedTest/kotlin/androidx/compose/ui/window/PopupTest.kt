@@ -78,8 +78,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PopupTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private val testTag = "testedPopup"
     private val offset = IntOffset(10, 10)
@@ -102,22 +101,14 @@ class PopupTest {
 
     @Test
     fun hasActualSize() {
-        val popupWidthDp = with(rule.density) {
-            popupSize.width.toDp()
-        }
-        val popupHeightDp = with(rule.density) {
-            popupSize.height.toDp()
-        }
+        val popupWidthDp = with(rule.density) { popupSize.width.toDp() }
+        val popupHeightDp = with(rule.density) { popupSize.height.toDp() }
 
         rule.setContent {
             SimpleContainer {
                 PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        SimpleContainer(
-                            width = popupWidthDp,
-                            height = popupHeightDp,
-                            content = {}
-                        )
+                        SimpleContainer(width = popupWidthDp, height = popupHeightDp, content = {})
                     }
                 }
             }
@@ -137,10 +128,7 @@ class PopupTest {
 
             // TODO(b/141101446): Find a way to match the window used by the popup
             override fun matchesSafely(item: Root?): Boolean {
-                val isPopup = item != null && isPopupLayout(
-                    item.decorView,
-                    testTag
-                )
+                val isPopup = item != null && isPopupLayout(item.decorView, testTag)
                 if (isPopup) {
                     popupsFound++
                 }
@@ -161,10 +149,10 @@ class PopupTest {
                         // This is called after the OnChildPosition method in Popup() which
                         // updates the popup to its final position
                         Box(
-                            modifier = Modifier.requiredWidth(200.dp).requiredHeight(200.dp)
-                                .onGloballyPositioned {
-                                    measureLatch.countDown()
-                                }
+                            modifier =
+                                Modifier.requiredWidth(200.dp)
+                                    .requiredHeight(200.dp)
+                                    .onGloballyPositioned { measureLatch.countDown() }
                         ) {}
                     }
                 }
@@ -173,7 +161,7 @@ class PopupTest {
         measureLatch.await(1, TimeUnit.SECONDS)
 
         fun assertSinglePopupExists() {
-            rule.runOnIdle { }
+            rule.runOnIdle {}
             val counterMatcher = PopupsCounterMatcher()
             Espresso.onView(instanceOf(Owner::class.java))
                 .inRoot(counterMatcher)
@@ -184,9 +172,7 @@ class PopupTest {
 
         assertSinglePopupExists()
 
-        rule.runOnUiThread {
-            focusable = true
-        }
+        rule.runOnUiThread { focusable = true }
 
         // If we have a leak, this will crash on multiple popups found
         assertSinglePopupExists()
@@ -194,24 +180,22 @@ class PopupTest {
 
     @Test
     fun hasViewTreeLifecycleOwner() {
-        rule.setContent {
-            PopupTestTag(testTag) {
-                Popup {}
-            }
-        }
+        rule.setContent { PopupTestTag(testTag) { Popup {} } }
 
         Espresso.onView(instanceOf(Owner::class.java))
             .inRoot(PopupLayoutMatcher(testTag))
             .check(
-                matches(object : TypeSafeMatcher<View>() {
-                    override fun describeTo(description: Description?) {
-                        description?.appendText("view.findViewTreeLifecycleOwner() != null")
-                    }
+                matches(
+                    object : TypeSafeMatcher<View>() {
+                        override fun describeTo(description: Description?) {
+                            description?.appendText("view.findViewTreeLifecycleOwner() != null")
+                        }
 
-                    override fun matchesSafely(item: View): Boolean {
-                        return item.findViewTreeLifecycleOwner() != null
+                        override fun matchesSafely(item: View): Boolean {
+                            return item.findViewTreeLifecycleOwner() != null
+                        }
                     }
-                })
+                )
             )
     }
 
@@ -221,14 +205,10 @@ class PopupTest {
         var value = 0f
         rule.setContent {
             CompositionLocalProvider(compositionLocal provides 1f) {
-                Popup {
-                    value = compositionLocal.current
-                }
+                Popup { value = compositionLocal.current }
             }
         }
-        rule.runOnIdle {
-            assertThat(value).isEqualTo(1f)
-        }
+        rule.runOnIdle { assertThat(value).isEqualTo(1f) }
     }
 
     @Test
@@ -236,14 +216,10 @@ class PopupTest {
         var value = LayoutDirection.Ltr
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Popup {
-                    value = LocalLayoutDirection.current
-                }
+                Popup { value = LocalLayoutDirection.current }
             }
         }
-        rule.runOnIdle {
-            assertThat(value).isEqualTo(LayoutDirection.Rtl)
-        }
+        rule.runOnIdle { assertThat(value).isEqualTo(LayoutDirection.Rtl) }
     }
 
     @Test
@@ -264,9 +240,11 @@ class PopupTest {
 
         // Click outside the popup
         val outsideX = 0
-        val outsideY = with(rule.density) {
-            rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 2
-        }
+        val outsideY =
+            with(rule.density) {
+                rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() /
+                    2
+            }
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
         // Popup should not exist
@@ -280,10 +258,11 @@ class PopupTest {
             Box(Modifier.fillMaxSize()) {
                 if (showPopup) {
                     Popup(
-                        properties = PopupProperties(
-                            // Needs to be focusable to intercept back press
-                            focusable = true
-                        ),
+                        properties =
+                            PopupProperties(
+                                // Needs to be focusable to intercept back press
+                                focusable = true
+                            ),
                         alignment = Alignment.Center,
                         onDismissRequest = { showPopup = false }
                     ) {
@@ -324,9 +303,11 @@ class PopupTest {
 
         // Click outside the popup
         val outsideX = 0
-        val outsideY = with(rule.density) {
-            rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 2
-        }
+        val outsideY =
+            with(rule.density) {
+                rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() /
+                    2
+            }
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
         // Popup should still be visible
@@ -340,11 +321,12 @@ class PopupTest {
             Box(Modifier.fillMaxSize()) {
                 if (showPopup) {
                     Popup(
-                        properties = PopupProperties(
-                            // Needs to be focusable to intercept back press
-                            focusable = true,
-                            dismissOnBackPress = false
-                        ),
+                        properties =
+                            PopupProperties(
+                                // Needs to be focusable to intercept back press
+                                focusable = true,
+                                dismissOnBackPress = false
+                            ),
                         alignment = Alignment.Center,
                         onDismissRequest = { showPopup = false }
                     ) {
@@ -368,18 +350,17 @@ class PopupTest {
         var box1Width = 0
         var box2Width = 0
         rule.setContent {
-            Popup {
-                Box(Modifier.fillMaxSize().onSizeChanged { box1Width = it.width })
-            }
+            Popup { Box(Modifier.fillMaxSize().onSizeChanged { box1Width = it.width }) }
             Popup(properties = PopupProperties(usePlatformDefaultWidth = true)) {
                 Box(Modifier.fillMaxSize().onSizeChanged { box2Width = it.width })
             }
         }
         rule.runOnIdle {
-            assertThat(box1Width).isEqualTo(
-                (rule.activity.resources.configuration.screenWidthDp * rule.density.density)
-                    .roundToInt()
-            )
+            assertThat(box1Width)
+                .isEqualTo(
+                    (rule.activity.resources.configuration.screenWidthDp * rule.density.density)
+                        .roundToInt()
+                )
             assertThat(box2Width).isLessThan(box1Width)
         }
     }
@@ -391,9 +372,7 @@ class PopupTest {
         var actualWidth = 0
 
         rule.setContent {
-            Popup(
-                properties = PopupProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
-            ) {
+            Popup(properties = PopupProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)) {
                 Box(Modifier.size(width, 150.dp).onSizeChanged { actualWidth = it.width })
             }
         }
@@ -419,18 +398,20 @@ class PopupTest {
 
     @Test
     fun customFlags() {
-        val flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-            WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
-            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+        val flags =
+            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
+                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 
         rule.setContent {
             PopupTestTag(testTag) {
                 Popup(
-                    properties = PopupProperties(
-                        flags = flags,
-                        inheritSecurePolicy = false,
-                    )
+                    properties =
+                        PopupProperties(
+                            flags = flags,
+                            inheritSecurePolicy = false,
+                        )
                 ) {
                     Box(Modifier.size(50.dp))
                 }
@@ -438,7 +419,7 @@ class PopupTest {
         }
 
         // Make sure that current measurement/drawing is finished
-        rule.runOnIdle { }
+        rule.runOnIdle {}
         val popupMatcher = PopupLayoutMatcher(testTag)
         Espresso.onView(instanceOf(Owner::class.java))
             .inRoot(popupMatcher)
@@ -450,13 +431,7 @@ class PopupTest {
 
     @Test
     fun didNotMeasureTooSmallLast() {
-        rule.setContent {
-            PopupTestTag(testTag) {
-                Popup {
-                    Box(Modifier.fillMaxWidth())
-                }
-            }
-        }
+        rule.setContent { PopupTestTag(testTag) { Popup { Box(Modifier.fillMaxWidth()) } } }
 
         rule.popupMatches(
             testTag,
@@ -487,9 +462,7 @@ class PopupTest {
                 }
             }
         }
-        rule.runOnIdle {
-            assertThat(measurements).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(measurements).isEqualTo(1) }
     }
 
     @Test
@@ -499,9 +472,7 @@ class PopupTest {
         var size by mutableStateOf(size1)
         rule.setContent {
             PopupTestTag(testTag) {
-                Popup {
-                    Box(Modifier.size(with(rule.density) { size.toDp() }))
-                }
+                Popup { Box(Modifier.size(with(rule.density) { size.toDp() })) }
             }
         }
         rule.popupMatches(testTag, matchesSize(20, 20))
@@ -515,22 +486,20 @@ class PopupTest {
         rule.setContent {
             AndroidView(
                 factory = { context ->
-                    FrameLayout(context).apply {
-                        addView(ComposeView(context).apply {
-                            setContent {
-                                Box {
-                                    Popup { Box(Modifier.size(20.dp)) }
+                    FrameLayout(context)
+                        .apply {
+                            addView(
+                                ComposeView(context).apply {
+                                    setContent { Box { Popup { Box(Modifier.size(20.dp)) } } }
                                 }
-                            }
-                        })
-                    }.also { parent = it }
+                            )
+                        }
+                        .also { parent = it }
                 }
             )
         }
 
-        rule.runOnIdle {
-            parent!!.removeAllViews()
-        }
+        rule.runOnIdle { parent!!.removeAllViews() }
 
         rule.waitForIdle()
 

@@ -19,19 +19,18 @@ package androidx.room.processor
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.query.result.QueryResultAdapter
 
-/**
- * Interface to rewrite user queries
- */
+/** Interface to rewrite user queries */
 interface QueryRewriter {
     /**
-     * Rewrites the user given query. This is a place where we can run optimizations etc on the
-     * user query.
+     * Rewrites the user given query. This is a place where we can run optimizations etc on the user
+     * query.
      */
     fun rewrite(query: ParsedQuery, resultAdapter: QueryResultAdapter): ParsedQuery
 
     companion object {
-        val NoOpRewriter = object : QueryRewriter {
-            override fun rewrite(query: ParsedQuery, resultAdapter: QueryResultAdapter) = query
-        }
+        val NoOpRewriter =
+            object : QueryRewriter {
+                override fun rewrite(query: ParsedQuery, resultAdapter: QueryResultAdapter) = query
+            }
     }
 }

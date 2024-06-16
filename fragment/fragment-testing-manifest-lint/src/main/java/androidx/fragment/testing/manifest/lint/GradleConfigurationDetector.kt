@@ -32,21 +32,24 @@ import com.android.tools.lint.detector.api.Severity
  */
 class GradleConfigurationDetector : Detector(), GradleScanner {
     companion object {
-        val ISSUE = Issue.create(
-            id = "FragmentGradleConfiguration",
-            briefDescription = "Include the fragment-testing-manifest library using the " +
-                "debugImplementation configuration.",
-            explanation = """The fragment-testing-manifest library defines an EmptyActivity\
+        val ISSUE =
+            Issue.create(
+                    id = "FragmentGradleConfiguration",
+                    briefDescription =
+                        "Include the fragment-testing-manifest library using the " +
+                            "debugImplementation configuration.",
+                    explanation =
+                        """The fragment-testing-manifest library defines an EmptyActivity\
                 used when using FragmentScenario. Howver, it only needs to be present in testing\
                 configurations therefore use this dependency with the debugImplementation\
                 configuration.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                GradleConfigurationDetector::class.java, Scope.GRADLE_SCOPE
-            ),
-            androidSpecific = true
-        ).addMoreInfo("https://d.android.com/training/basics/fragments/testing#configure")
+                    category = Category.CORRECTNESS,
+                    severity = Severity.ERROR,
+                    implementation =
+                        Implementation(GradleConfigurationDetector::class.java, Scope.GRADLE_SCOPE),
+                    androidSpecific = true
+                )
+                .addMoreInfo("https://d.android.com/training/basics/fragments/testing#configure")
     }
 
     override fun checkDslPropertyAssignment(
@@ -63,19 +66,16 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
         // Non-string values cannot be resolved so invalid imports via functions, variables, etc.
         // will not be detected.
         val library = getStringLiteralValue(value)
-        if (library.startsWith("androidx.fragment:fragment-testing-manifest") &&
-            property != "debugImplementation"
+        if (
+            library.startsWith("androidx.fragment:fragment-testing-manifest") &&
+                property != "debugImplementation"
         ) {
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getLocation(statementCookie))
-                .message("Replace with debugImplementation.")
-                .fix(
-                    fix().replace()
-                        .text(property)
-                        .with("debugImplementation")
-                        .build()
-                )
+            val incident =
+                Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getLocation(statementCookie))
+                    .message("Replace with debugImplementation.")
+                    .fix(fix().replace().text(property).with("debugImplementation").build())
             context.report(incident)
         }
     }
@@ -86,10 +86,10 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
      * Returns an empty string if [value] is not a string literal.
      */
     private fun getStringLiteralValue(value: String): String {
-        if (value.length > 2 && (
-            value.startsWith("'") && value.endsWith("'") ||
-                value.startsWith("\"") && value.endsWith("\"")
-            )
+        if (
+            value.length > 2 &&
+                (value.startsWith("'") && value.endsWith("'") ||
+                    value.startsWith("\"") && value.endsWith("\""))
         ) {
             return value.substring(1, value.length - 1)
         }

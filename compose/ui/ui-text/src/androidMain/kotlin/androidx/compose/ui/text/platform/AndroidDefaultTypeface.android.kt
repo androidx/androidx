@@ -26,9 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.TypefaceHelperMethodsApi28
 import androidx.compose.ui.text.font.getAndroidTypefaceStyle
 
-/**
- * An implementation of [AndroidTypeface] for [DefaultFontFamily]
- */
+/** An implementation of [AndroidTypeface] for [DefaultFontFamily] */
 @Deprecated("This path for preloading fonts is not supported")
 internal class AndroidDefaultTypeface : AndroidTypeface {
 
@@ -40,9 +38,7 @@ internal class AndroidDefaultTypeface : AndroidTypeface {
         synthesis: FontSynthesis
     ): Typeface {
         return if (Build.VERSION.SDK_INT < 28) {
-            Typeface.defaultFromStyle(
-                getAndroidTypefaceStyle(fontWeight, fontStyle)
-            )
+            Typeface.defaultFromStyle(getAndroidTypefaceStyle(fontWeight, fontStyle))
         } else {
             TypefaceHelperMethodsApi28.create(
                 Typeface.DEFAULT,

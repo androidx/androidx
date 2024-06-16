@@ -31,8 +31,8 @@ import java.util.WeakHashMap
 
 /**
  * This class converts [UrlAnnotation]s to [URLSpan]s, ensuring that the same instance of [URLSpan]
- * will be returned for every instance of [UrlAnnotation]. This is required for [URLSpan]s (and
- * any ClickableSpan) to be handled correctly by accessibility services, which require every
+ * will be returned for every instance of [UrlAnnotation]. This is required for [URLSpan]s (and any
+ * ClickableSpan) to be handled correctly by accessibility services, which require every
  * ClickableSpan to have a stable ID across reads from the accessibility node. A11y services convert
  * these spans to parcelable ones, then look them up later using their ID. Since the ID is a hidden
  * property, the only way to satisfy this constraint is to actually use the same [URLSpan] instance
@@ -66,9 +66,7 @@ class URLSpanCache {
      * This method takes a [linkRange] which is an annotation that occupies range in Compose text
      * and converts it into a ClickableSpan
      */
-    fun toClickableSpan(
-        linkRange: AnnotatedString.Range<LinkAnnotation>
-    ): ClickableSpan? =
+    fun toClickableSpan(linkRange: AnnotatedString.Range<LinkAnnotation>): ClickableSpan? =
         linkSpansWithListenerByAnnotation.getOrPut(linkRange) {
             ComposeClickableSpan(linkRange.item)
         }

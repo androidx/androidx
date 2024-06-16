@@ -1,5 +1,3 @@
-// ktlint-disable filename
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -20,7 +18,10 @@ package androidx.compose.ui.text
 
 internal expect class AtomicReference<V>(value: V) {
     fun get(): V
+
     fun set(value: V)
+
     fun getAndSet(value: V): V
+
     fun compareAndSet(expect: V, newValue: V): Boolean
 }

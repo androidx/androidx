@@ -21,25 +21,23 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 
-/**
- * Database entity that defines a mapping from a tag to a [WorkSpec] id.
- *
- */
+/** Database entity that defines a mapping from a tag to a [WorkSpec] id. */
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = WorkSpec::class,
-        parentColumns = ["id"],
-        childColumns = ["work_spec_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-    )], primaryKeys = ["tag", "work_spec_id"], indices = [Index(value = ["work_spec_id"])]
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = WorkSpec::class,
+                parentColumns = ["id"],
+                childColumns = ["work_spec_id"],
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE
+            )
+        ],
+    primaryKeys = ["tag", "work_spec_id"],
+    indices = [Index(value = ["work_spec_id"])]
 )
-@RestrictTo(
-    RestrictTo.Scope.LIBRARY_GROUP
-)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class WorkTag(
-    @ColumnInfo(name = "tag")
-    val tag: String,
-    @ColumnInfo(name = "work_spec_id")
-    val workSpecId: String
+    @ColumnInfo(name = "tag") val tag: String,
+    @ColumnInfo(name = "work_spec_id") val workSpecId: String
 )

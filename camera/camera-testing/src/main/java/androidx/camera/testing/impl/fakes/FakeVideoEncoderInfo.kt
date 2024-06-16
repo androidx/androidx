@@ -17,10 +17,8 @@
 package androidx.camera.testing.impl.fakes
 
 import android.util.Range
-import androidx.annotation.RequiresApi
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeVideoEncoderInfo(
     @JvmField var canSwapWidthHeight: Boolean = true,
     @JvmField var supportedWidths: Range<Int> = Range.create(0, Integer.MAX_VALUE),
@@ -35,8 +33,10 @@ class FakeVideoEncoderInfo(
     }
 
     override fun isSizeSupported(width: Int, height: Int) =
-        supportedWidths.contains(width) && supportedHeights.contains(height) &&
-            width.mod(widthAlignment) == 0 && height.mod(heightAlignment) == 0
+        supportedWidths.contains(width) &&
+            supportedHeights.contains(height) &&
+            width.mod(widthAlignment) == 0 &&
+            height.mod(heightAlignment) == 0
 
     override fun getSupportedWidths(): Range<Int> {
         return supportedWidths

@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
@@ -42,7 +41,6 @@ import java.util.TreeMap;
 /**
  * This class implements the video capabilities query logic related to quality and resolution.
  */
-@RequiresApi(21)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CapabilitiesByQuality {
     private static final String TAG = "CapabilitiesByQuality";

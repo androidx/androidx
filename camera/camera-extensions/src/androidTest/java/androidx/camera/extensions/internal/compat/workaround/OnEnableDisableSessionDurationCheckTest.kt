@@ -46,7 +46,7 @@ class OnEnableDisableSessionDurationCheckTest {
     @Test
     fun enabled_ensureMinimalDuration() = runBlocking {
         // Arrange
-        val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */true)
+        val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */ true)
 
         val duration = 80L
         // Act
@@ -54,24 +54,22 @@ class OnEnableDisableSessionDurationCheckTest {
         val elapsedTime: Long
         val totalTime = measureTimeMillis {
             delay(duration)
-            elapsedTime = measureTimeMillis {
-                check.onDisableSessionInvoked()
-            }
+            elapsedTime = measureTimeMillis { check.onDisableSessionInvoked() }
         }
         // |----------|--|---|
         // ^-delay           ^--totalTime
         //               ^--check.onDisableSessionInvoked()
         // Assert
         val min =
-            (MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - (totalTime - elapsedTime) - 2 /*tolerance*/
-                ).coerceAtLeast(0)
+            (MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - (totalTime - elapsedTime) - 2 /*tolerance*/)
+                .coerceAtLeast(0)
         assertThat(elapsedTime).isAtLeast(min)
     }
 
     @Test
     fun enabled_doNotWaitExtraIfDurationExceeds() = runBlocking {
         // 1. Arrange
-        val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */true)
+        val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */ true)
 
         // make the duration of onEnable to onDisable to be the minimal duration.
         val duration = MIN_DURATION_FOR_ENABLE_DISABLE_SESSION
@@ -80,9 +78,7 @@ class OnEnableDisableSessionDurationCheckTest {
         check.onEnableSessionInvoked()
         // make the duration of onEnable to onDisable to be the minimal duration.
         delay(duration)
-        val elapsedTime = measureTimeMillis {
-            check.onDisableSessionInvoked()
-        }
+        val elapsedTime = measureTimeMillis { check.onDisableSessionInvoked() }
 
         // 3. Assert: no extra time waited.
         assertThat(elapsedTime).isLessThan(TOLERANCE)

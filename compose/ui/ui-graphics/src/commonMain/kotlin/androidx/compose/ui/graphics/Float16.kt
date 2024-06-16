@@ -20,17 +20,16 @@ import kotlin.jvm.JvmInline
 
 /**
  * The `Float16` class is a wrapper and a utility class to manipulate half-precision 16-bit
- * [IEEE 754](https://en.wikipedia.org/wiki/Half-precision_floating-point_format)
- * floating point data types (also called fp16 or binary16). A half-precision float can be
- * created from or converted to single-precision floats, and is stored in a short data type.
- * To distinguish short values holding half-precision floats from regular short values,
- * it is recommended to use the `@HalfFloat` annotation.
+ * [IEEE 754](https://en.wikipedia.org/wiki/Half-precision_floating-point_format) floating point
+ * data types (also called fp16 or binary16). A half-precision float can be created from or
+ * converted to single-precision floats, and is stored in a short data type. To distinguish short
+ * values holding half-precision floats from regular short values, it is recommended to use the
+ * `@HalfFloat` annotation.
  *
  * The IEEE 754 standard specifies an fp16 as having the following format:
- *
- *  - Sign bit: 1 bit
- *  - Exponent width: 5 bits
- *  - Significand: 10 bits
+ * - Sign bit: 1 bit
+ * - Exponent width: 5 bits
+ * - Significand: 10 bits
  *
  * The format is laid out as follows:
  * ```
@@ -41,15 +40,12 @@ import kotlin.jvm.JvmInline
  *     -- exponent
  * ```
  *
- * Half-precision floating points can be useful to save memory and/or
- * bandwidth at the expense of range and precision when compared to single-precision
- * floating points (fp32).
+ * Half-precision floating points can be useful to save memory and/or bandwidth at the expense of
+ * range and precision when compared to single-precision floating points (fp32).
  *
- * To help you decide whether fp16 is the right storage type for you need, please
- * refer to the table below that shows the available precision throughout the range of
- * possible values. The *precision* column indicates the step size between two
- * consecutive numbers in a specific part of the range.
- *
+ * To help you decide whether fp16 is the right storage type for you need, please refer to the table
+ * below that shows the available precision throughout the range of possible values. The *precision*
+ * column indicates the step size between two consecutive numbers in a specific part of the range.
  * <table summary="Precision of fp16 across the range">
  * <tr><th>Range start</th><th>Precision</th></tr>
  * <tr><td>0</td><td>1/16,777,216</td></tr>
@@ -82,131 +78,114 @@ import kotlin.jvm.JvmInline
  * <tr><td>4,096</td><td>4</td></tr>
  * <tr><td>8,192</td><td>8</td></tr>
  * <tr><td>16,384</td><td>16</td></tr>
- * <tr><td>32,768</td><td>32</td></tr>
- * </table>
+ * <tr><td>32,768</td><td>32</td></tr> </table>
  *
  * This table shows that numbers higher than 1024 lose all fractional precision.
  */
 @JvmInline
 internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     /**
-     * Constructs a newly allocated `Float16` object that represents the
-     * argument converted to a half-precision float.
+     * Constructs a newly allocated `Float16` object that represents the argument converted to a
+     * half-precision float.
      *
      * @param value The value to be represented by the `Float16`
      */
     constructor(value: Float) : this(floatToHalf(value))
 
     /**
-     * Constructs a newly allocated `Float16` object that
-     * represents the argument converted to a half-precision float.
+     * Constructs a newly allocated `Float16` object that represents the argument converted to a
+     * half-precision float.
      *
      * @param value The value to be represented by the `Float16`
      */
     constructor(value: Double) : this(value.toFloat())
 
     /**
-     * Returns the value of this `Float16` as a `Byte` after
-     * a narrowing primitive conversion.
+     * Returns the value of this `Float16` as a `Byte` after a narrowing primitive conversion.
      *
-     * @return The half-precision float value represented by this object
-     * converted to type `Byte`
+     * @return The half-precision float value represented by this object converted to type `Byte`
      */
     fun toByte(): Byte = toFloat().toInt().toByte()
 
     /**
-     * Returns the value of this `Float16` as a `Short` after
-     * a narrowing primitive conversion.
+     * Returns the value of this `Float16` as a `Short` after a narrowing primitive conversion.
      *
-     * @return The half-precision float value represented by this object
-     * converted to type `Short`
+     * @return The half-precision float value represented by this object converted to type `Short`
      */
     fun toShort(): Short = toFloat().toInt().toShort()
 
     /**
-     * Returns the value of this `Float16` as a `Int` after
-     * a narrowing primitive conversion.
+     * Returns the value of this `Float16` as a `Int` after a narrowing primitive conversion.
      *
-     * @return The half-precision float value represented by this object
-     * converted to type `Int`
+     * @return The half-precision float value represented by this object converted to type `Int`
      */
     fun toInt(): Int = toFloat().toInt()
 
     /**
-     * Returns the value of this `Float16` as a `Long` after
-     * a narrowing primitive conversion.
+     * Returns the value of this `Float16` as a `Long` after a narrowing primitive conversion.
      *
-     * @return The half-precision float value represented by this object
-     * converted to type `Long`
+     * @return The half-precision float value represented by this object converted to type `Long`
      */
     fun toLong(): Long = toFloat().toLong()
 
     /**
-     * Returns the value of this `Float16` as a `Float` after
-     * a widening primitive conversion.
+     * Returns the value of this `Float16` as a `Float` after a widening primitive conversion.
      *
-     * @return The half-precision float value represented by this object
-     * converted to type `Float`
+     * @return The half-precision float value represented by this object converted to type `Float`
      */
     fun toFloat(): Float = halfToFloat(halfValue)
 
     /**
-     * Returns the value of this `Float16` as a `Double` after
-     * a widening primitive conversion.
+     * Returns the value of this `Float16` as a `Double` after a widening primitive conversion.
      *
-     * @return The half-precision float value represented by this object
-     * converted to type `Double`
+     * @return The half-precision float value represented by this object converted to type `Double`
      */
     fun toDouble(): Double = toFloat().toDouble()
 
     /**
-     * Returns a representation of the half-precision float value
-     * according to the bit layout described in [Float16].
+     * Returns a representation of the half-precision float value according to the bit layout
+     * described in [Float16].
      *
-     * Unlike [toRawBits], this method collapses all
-     * possible Not-a-Number values to a single canonical Not-a-Number value
-     * defined by [NaN].
+     * Unlike [toRawBits], this method collapses all possible Not-a-Number values to a single
+     * canonical Not-a-Number value defined by [NaN].
      *
      * @return The bits that represent the half-precision float value
      */
-    fun toBits(): Int = if (isNaN()) {
-        NaN.halfValue.toInt()
-    } else {
-        halfValue.toInt() and 0xffff
-    }
+    fun toBits(): Int =
+        if (isNaN()) {
+            NaN.halfValue.toInt()
+        } else {
+            halfValue.toInt() and 0xffff
+        }
 
     /**
-     * Returns a representation of the half-precision float value
-     * according to the bit layout described in [Float16].
+     * Returns a representation of the half-precision float value according to the bit layout
+     * described in [Float16].
      *
      * @return The bits that represent the half-precision float value
      */
     fun toRawBits(): Int = halfValue.toInt() and 0xffff
 
     /**
-     * Returns a string representation of the specified half-precision
-     * float value. See [toString] for more information.
+     * Returns a string representation of the specified half-precision float value. See [toString]
+     * for more information.
      *
      * @return A string representation of this `Float16` object
      */
     override fun toString(): String = toFloat().toString()
 
     /**
-     * Compares to another half-precision float value. The following
-     * conditions apply during the comparison:
-     *
-     *  * [NaN] is considered by this method to be equal to itself and greater
-     * than all other half-precision float values (including [PositiveInfinity])
-     *  * [PositiveZero] is considered by this method to be greater than
-     * [NegativeZero].
+     * Compares to another half-precision float value. The following conditions apply during the
+     * comparison:
+     * * [NaN] is considered by this method to be equal to itself and greater than all other
+     *   half-precision float values (including [PositiveInfinity])
+     * * [PositiveZero] is considered by this method to be greater than [NegativeZero].
      *
      * @param other The half-precision float value to compare to the half-precision value
-     * represented by this `Float16` object
-     *
-     * @return The value `0` if `this` is numerically equal to [other]; a
-     * value less than `0` if `this` is numerically less than [other];
-     * and a value greater than `0` if `this` is numerically greater
-     * than [other]
+     *   represented by this `Float16` object
+     * @return The value `0` if `this` is numerically equal to [other]; a value less than `0` if
+     *   `this` is numerically less than [other]; and a value greater than `0` if `this` is
+     *   numerically greater than [other]
      */
     override operator fun compareTo(other: Float16): Int {
         if (isNaN()) {
@@ -227,51 +206,45 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * * `NaN.sign` is `NaN`
      */
     val sign: Float16
-        get() = when {
-            isNaN() -> NaN
-            this < NegativeZero -> NegativeOne
-            this > PositiveZero -> One
-            else -> this // this is zero, either positive or negative
-        }
+        get() =
+            when {
+                isNaN() -> NaN
+                this < NegativeZero -> NegativeOne
+                this > PositiveZero -> One
+                else -> this // this is zero, either positive or negative
+            }
 
-    /**
-     * Returns a [Float16] with the magnitude of this and the sign of [sign]
-     */
+    /** Returns a [Float16] with the magnitude of this and the sign of [sign] */
     fun withSign(sign: Float16): Float16 =
         Float16(
-            (
-                sign.halfValue.toInt() and Fp16SignMask or
-                    (halfValue.toInt() and Fp16Combined)
-            ).toShort()
+            (sign.halfValue.toInt() and Fp16SignMask or (halfValue.toInt() and Fp16Combined))
+                .toShort()
         )
 
     /**
-     * Returns the absolute value of the half-precision float.
-     * Special values are handled in the following ways:
-     *
-     *  * If the specified half-precision float is [NaN], the result is [NaN]
-     *  * If the specified half-precision float is zero (negative or positive),
-     * the result is positive zero (see [PositiveZero])
-     *  * If the specified half-precision float is infinity (negative or positive),
-     * the result is positive infinity (see [PositiveInfinity])
+     * Returns the absolute value of the half-precision float. Special values are handled in the
+     * following ways:
+     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is zero (negative or positive), the result is
+     *   positive zero (see [PositiveZero])
+     * * If the specified half-precision float is infinity (negative or positive), the result is
+     *   positive infinity (see [PositiveInfinity])
      */
     fun absoluteValue(): Float16 {
         return Float16((halfValue.toInt() and Fp16Combined).toShort())
     }
 
     /**
-     * Returns the closest integral half-precision float value to the this
-     * half-precision float value. Special values are handled in the
-     * following ways:
+     * Returns the closest integral half-precision float value to the this half-precision float
+     * value. Special values are handled in the following ways:
+     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is infinity (negative or positive), the result is
+     *   infinity (with the same sign)
+     * * If the specified half-precision float is zero (negative or positive), the result is zero
+     *   (with the same sign)
      *
-     *  * If the specified half-precision float is [NaN], the result is [NaN]
-     *  * If the specified half-precision float is infinity (negative or positive),
-     * the result is infinity (with the same sign)
-     *  * If the specified half-precision float is zero (negative or positive),
-     * the result is zero (with the same sign)
-     *
-     * @return The value of the specified half-precision float rounded to the nearest
-     * half-precision float value
+     * @return The value of the specified half-precision float rounded to the nearest half-precision
+     *   float value
      */
     fun round(): Float16 {
         val bits = halfValue.toInt() and 0xffff
@@ -292,18 +265,16 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     /**
-     * Returns the smallest half-precision float value toward negative infinity
-     * greater than or equal to this half-precision float value.
-     * Special values are handled in the following ways:
+     * Returns the smallest half-precision float value toward negative infinity greater than or
+     * equal to this half-precision float value. Special values are handled in the following ways:
+     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is infinity (negative or positive), the result is
+     *   infinity (with the same sign)
+     * * If the specified half-precision float is zero (negative or positive), the result is zero
+     *   (with the same sign)
      *
-     *  * If the specified half-precision float is [NaN], the result is [NaN]
-     *  * If the specified half-precision float is infinity (negative or positive),
-     * the result is infinity (with the same sign)
-     *  * If the specified half-precision float is zero (negative or positive),
-     * the result is zero (with the same sign)
-     *
-     * @return The smallest half-precision float value toward negative infinity
-     * greater than or equal to the half-precision float value
+     * @return The smallest half-precision float value toward negative infinity greater than or
+     *   equal to the half-precision float value
      */
     fun ceil(): Float16 {
         val bits = halfValue.toInt() and 0xffff
@@ -324,18 +295,16 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     /**
-     * Returns the largest half-precision float value toward positive infinity
-     * less than or equal to this half-precision float value.
-     * Special values are handled in the following ways:
+     * Returns the largest half-precision float value toward positive infinity less than or equal to
+     * this half-precision float value. Special values are handled in the following ways:
+     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is infinity (negative or positive), the result is
+     *   infinity (with the same sign)
+     * * If the specified half-precision float is zero (negative or positive), the result is zero
+     *   (with the same sign)
      *
-     *  * If the specified half-precision float is [NaN], the result is [NaN]
-     *  * If the specified half-precision float is infinity (negative or positive),
-     * the result is infinity (with the same sign)
-     *  * If the specified half-precision float is zero (negative or positive),
-     * the result is zero (with the same sign)
-     *
-     * @return The largest half-precision float value toward positive infinity
-     * less than or equal to the half-precision float value
+     * @return The largest half-precision float value toward positive infinity less than or equal to
+     *   the half-precision float value
      */
     fun floor(): Float16 {
         val bits = halfValue.toInt() and 0xffff
@@ -356,17 +325,15 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     /**
-     * Returns the truncated half-precision float value of this
-     * half-precision float value. Special values are handled in the following ways:
+     * Returns the truncated half-precision float value of this half-precision float value. Special
+     * values are handled in the following ways:
+     * * If the specified half-precision float is NaN, the result is NaN
+     * * If the specified half-precision float is infinity (negative or positive), the result is
+     *   infinity (with the same sign)
+     * * If the specified half-precision float is zero (negative or positive), the result is zero
+     *   (with the same sign)
      *
-     *  * If the specified half-precision float is NaN, the result is NaN
-     *  * If the specified half-precision float is infinity (negative or positive),
-     * the result is infinity (with the same sign)
-     *  * If the specified half-precision float is zero (negative or positive),
-     * the result is zero (with the same sign)
-     *
-     * @return The truncated half-precision float value of the
-     * half-precision float value
+     * @return The truncated half-precision float value of the half-precision float value
      */
     fun trunc(): Float16 {
         val bits = halfValue.toInt() and 0xffff
@@ -385,55 +352,44 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     /**
-     * The unbiased exponent used in the representation of
-     * the specified  half-precision float value. if the value is NaN
-     * or infinite, this* method returns [MaxExponent] + 1.
-     * If the argument is 0 or a subnormal representation, this method
-     * returns [MinExponent] - 1.
+     * The unbiased exponent used in the representation of the specified half-precision float value.
+     * if the value is NaN or infinite, this* method returns [MaxExponent] + 1. If the argument is 0
+     * or a subnormal representation, this method returns [MinExponent] - 1.
      */
     val exponent: Int
-        get() = (halfValue.toInt().ushr(Fp16ExponentShift) and Fp16ExponentMask) -
-            Fp16ExponentBias
+        get() = (halfValue.toInt().ushr(Fp16ExponentShift) and Fp16ExponentMask) - Fp16ExponentBias
 
     /**
-     * The significand, or mantissa, used in the representation
-     * of this half-precision float value.
+     * The significand, or mantissa, used in the representation of this half-precision float value.
      */
     val significand: Int
         get() = halfValue.toInt() and Fp16SignificandMask
 
     /**
-     * Returns true if this `Float16` value represents a Not-a-Number,
-     * false otherwise.
+     * Returns true if this `Float16` value represents a Not-a-Number, false otherwise.
      *
      * @return True if the value is a NaN, false otherwise
      */
     fun isNaN(): Boolean = halfValue.toInt() and Fp16Combined > Fp16ExponentMax
 
     /**
-     * Returns true if the half-precision float value represents
-     * infinity, false otherwise.
+     * Returns true if the half-precision float value represents infinity, false otherwise.
      *
-     * @return True if the value is positive infinity or negative infinity,
-     * false otherwise
+     * @return True if the value is positive infinity or negative infinity, false otherwise
      */
     fun isInfinite(): Boolean = halfValue.toInt() and Fp16Combined == Fp16ExponentMax
 
     /**
-     * Returns false if the half-precision float value represents
-     * infinity, true otherwise.
+     * Returns false if the half-precision float value represents infinity, true otherwise.
      *
-     * @return False if the value is positive infinity or negative infinity,
-     * true otherwise
+     * @return False if the value is positive infinity or negative infinity, true otherwise
      */
     fun isFinite(): Boolean = halfValue.toInt() and Fp16Combined != Fp16ExponentMax
 
     /**
-     * Returns true if the half-precision float value is normalized
-     * (does not have a subnormal representation). If the specified value is
-     * [PositiveInfinity], [NegativeInfinity],
-     * [PositiveZero], [NegativeZero], [NaN] or any subnormal
-     * number, this method returns false.
+     * Returns true if the half-precision float value is normalized (does not have a subnormal
+     * representation). If the specified value is [PositiveInfinity], [NegativeInfinity],
+     * [PositiveZero], [NegativeZero], [NaN] or any subnormal number, this method returns false.
      *
      * @return True if the value is normalized, false otherwise
      */
@@ -443,27 +399,21 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     /**
-     *
-     * Returns a hexadecimal string representation of the half-precision
-     * float value. If the value is a NaN, the result is `"NaN"`,
-     * otherwise the result follows this format:
-     *
-     *  * If the sign is positive, no sign character appears in the result
-     *  * If the sign is negative, the first character is `'-'`
-     *  * If the value is inifinity, the string is `"Infinity"`
-     *  * If the value is 0, the string is `"0x0.0p0"`
-     *  * If the value has a normalized representation, the exponent and
-     * significand are represented in the string in two fields. The significand
-     * starts with `"0x1."` followed by its lowercase hexadecimal
-     * representation. Trailing zeroes are removed unless all digits are 0, then
-     * a single zero is used. The significand representation is followed by the
-     * exponent, represented by `"p"`, itself followed by a decimal
-     * string of the unbiased exponent
-     *  * If the value has a subnormal representation, the significand starts
-     * with `"0x0."` followed by its lowercase hexadecimal
-     * representation. Trailing zeroes are removed unless all digits are 0, then
-     * a single zero is used. The significand representation is followed by the
-     * exponent, represented by `"p-14"`
+     * Returns a hexadecimal string representation of the half-precision float value. If the value
+     * is a NaN, the result is `"NaN"`, otherwise the result follows this format:
+     * * If the sign is positive, no sign character appears in the result
+     * * If the sign is negative, the first character is `'-'`
+     * * If the value is inifinity, the string is `"Infinity"`
+     * * If the value is 0, the string is `"0x0.0p0"`
+     * * If the value has a normalized representation, the exponent and significand are represented
+     *   in the string in two fields. The significand starts with `"0x1."` followed by its lowercase
+     *   hexadecimal representation. Trailing zeroes are removed unless all digits are 0, then a
+     *   single zero is used. The significand representation is followed by the exponent,
+     *   represented by `"p"`, itself followed by a decimal string of the unbiased exponent
+     * * If the value has a subnormal representation, the significand starts with `"0x0."` followed
+     *   by its lowercase hexadecimal representation. Trailing zeroes are removed unless all digits
+     *   are 0, then a single zero is used. The significand representation is followed by the
+     *   exponent, represented by `"p-14"`
      *
      * @return A hexadecimal string representation of the specified value
      */
@@ -506,61 +456,37 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     companion object {
-        /**
-         * The number of bits used to represent a half-precision float value.
-         */
+        /** The number of bits used to represent a half-precision float value. */
         const val Size = 16
 
         /**
-         * Epsilon is the difference between 1.0 and the next value representable
-         * by a half-precision floating-point.
+         * Epsilon is the difference between 1.0 and the next value representable by a
+         * half-precision floating-point.
          */
         val Epsilon = Float16(0x1400.toShort())
 
-        /**
-         * Maximum exponent a finite half-precision float may have.
-         */
+        /** Maximum exponent a finite half-precision float may have. */
         const val MaxExponent = 15
-        /**
-         * Minimum exponent a normalized half-precision float may have.
-         */
+        /** Minimum exponent a normalized half-precision float may have. */
         const val MinExponent = -14
 
-        /**
-         * Smallest negative value a half-precision float may have.
-         */
+        /** Smallest negative value a half-precision float may have. */
         val LowestValue = Float16(0xfbff.toShort())
-        /**
-         * Maximum positive finite value a half-precision float may have.
-         */
+        /** Maximum positive finite value a half-precision float may have. */
         val MaxValue = Float16(0x7bff.toShort())
-        /**
-         * Smallest positive normal value a half-precision float may have.
-         */
+        /** Smallest positive normal value a half-precision float may have. */
         val MinNormal = Float16(0x0400.toShort())
-        /**
-         * Smallest positive non-zero value a half-precision float may have.
-         */
+        /** Smallest positive non-zero value a half-precision float may have. */
         val MinValue = Float16(0x0001.toShort())
-        /**
-         * A Not-a-Number representation of a half-precision float.
-         */
+        /** A Not-a-Number representation of a half-precision float. */
         val NaN = Float16(0x7e00.toShort())
-        /**
-         * Negative infinity of type half-precision float.
-         */
+        /** Negative infinity of type half-precision float. */
         val NegativeInfinity = Float16(0xfc00.toShort())
-        /**
-         * Negative 0 of type half-precision float.
-         */
+        /** Negative 0 of type half-precision float. */
         val NegativeZero = Float16(0x8000.toShort())
-        /**
-         * Positive infinity of type half-precision float.
-         */
+        /** Positive infinity of type half-precision float. */
         val PositiveInfinity = Float16(0x7c00.toShort())
-        /**
-         * Positive 0 of type half-precision float.
-         */
+        /** Positive 0 of type half-precision float. */
         val PositiveZero = Float16(0x0000.toShort())
     }
 }
@@ -597,8 +523,8 @@ private inline fun toCompareValue(value: Short): Int {
 }
 
 /**
- * Convert a single-precision float to a half-precision float, stored as
- * [Short] data type to hold its 16 bits.
+ * Convert a single-precision float to a half-precision float, stored as [Short] data type to hold
+ * its 16 bits.
  */
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun floatToHalf(f: Float): Short {
@@ -642,9 +568,7 @@ internal inline fun floatToHalf(f: Float): Short {
     return (s shl Fp16SignShift or (outE shl Fp16ExponentShift) or outM).toShort()
 }
 
-/**
- * Convert a half-precision float to a single-precision float.
- */
+/** Convert a half-precision float to a single-precision float. */
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun halfToFloat(h: Short): Float {
     val bits = h.toInt() and 0xffff
@@ -679,11 +603,10 @@ internal inline fun halfToFloat(h: Short): Float {
 }
 
 /**
- * Returns the smaller of two half-precision float values (the value closest
- * to negative infinity). Special values are handled in the following ways:
- *
- *  * If either value is [Float16.NaN], the result is [Float16.NaN]
- *  * [Float16.NegativeZero] is smaller than [Float16.PositiveZero]
+ * Returns the smaller of two half-precision float values (the value closest to negative infinity).
+ * Special values are handled in the following ways:
+ * * If either value is [Float16.NaN], the result is [Float16.NaN]
+ * * [Float16.NegativeZero] is smaller than [Float16.PositiveZero]
  *
  * @param x The first half-precision value
  * @param y The second half-precision value
@@ -697,15 +620,13 @@ internal fun min(x: Float16, y: Float16): Float16 {
 }
 
 /**
- * Returns the larger of two half-precision float values (the value closest
- * to positive infinity). Special values are handled in the following ways:
- *
- *  * If either value is [Float16.NaN], the result is [Float16.NaN]
- *  * [Float16.PositiveZero] is greater than [Float16.NegativeZero]
+ * Returns the larger of two half-precision float values (the value closest to positive infinity).
+ * Special values are handled in the following ways:
+ * * If either value is [Float16.NaN], the result is [Float16.NaN]
+ * * [Float16.PositiveZero] is greater than [Float16.NegativeZero]
  *
  * @param x The first half-precision value
  * @param y The second half-precision value
- *
  * @return The larger of the two specified half-precision values
  */
 internal fun max(x: Float16, y: Float16): Float16 {

@@ -48,8 +48,7 @@ import org.junit.Test
 //  supports property nested scrolling, but the tests should all still be valid.
 @OptIn(ExperimentalWearMaterialApi::class)
 class SwipeableTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun hasHorizontalScrollSemantics_atMaxValue_whenUnswiped() {
@@ -63,7 +62,8 @@ class SwipeableTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(hasScrollRangeCloseTo(Horizontal, value = 1f, maxValue = 1f))
             .assert(keyNotDefined(VerticalScrollAxisRange))
     }
@@ -80,7 +80,8 @@ class SwipeableTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(hasScrollRangeCloseTo(Vertical, value = 1f, maxValue = 1f))
             .assert(keyNotDefined(HorizontalScrollAxisRange))
     }
@@ -97,19 +98,17 @@ class SwipeableTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .performTouchInput {
-                down(centerLeft)
-                moveTo(centerLeft + percentOffset(.25f, 0f))
-            }
-        rule.onNodeWithTag(TEST_TAG)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(centerLeft)
+            moveTo(centerLeft + percentOffset(.25f, 0f))
+        }
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(hasScrollRangeCloseTo(Horizontal, value = 0.75f, maxValue = 1f))
 
-        rule.onNodeWithTag(TEST_TAG)
-            .performTouchInput {
-                moveTo(center)
-            }
-        rule.onNodeWithTag(TEST_TAG)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { moveTo(center) }
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(hasScrollRangeCloseTo(Horizontal, value = 0.5f, maxValue = 1f))
     }
 
@@ -126,12 +125,12 @@ class SwipeableTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .performTouchInput {
-                down(centerRight)
-                moveTo(centerRight - percentOffset(.25f, 0f))
-            }
-        rule.onNodeWithTag(TEST_TAG)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(centerRight)
+            moveTo(centerRight - percentOffset(.25f, 0f))
+        }
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(
                 hasScrollRangeCloseTo(
                     orientation = Horizontal,
@@ -141,11 +140,9 @@ class SwipeableTest {
                 )
             )
 
-        rule.onNodeWithTag(TEST_TAG)
-            .performTouchInput {
-                moveTo(center)
-            }
-        rule.onNodeWithTag(TEST_TAG)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { moveTo(center) }
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(
                 hasScrollRangeCloseTo(
                     orientation = Horizontal,
@@ -169,7 +166,8 @@ class SwipeableTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assert(keyNotDefined(HorizontalScrollAxisRange))
             .assert(keyNotDefined(VerticalScrollAxisRange))
     }
@@ -181,11 +179,12 @@ class SwipeableTest {
     @Composable
     private fun SimpleSwipeableBox(swipeableModifier: (Size) -> Modifier) {
         val originalViewConfiguration = LocalViewConfiguration.current
-        val viewConfiguration = remember(originalViewConfiguration) {
-            object : ViewConfiguration by originalViewConfiguration {
-                override val touchSlop: Float = 0f
+        val viewConfiguration =
+            remember(originalViewConfiguration) {
+                object : ViewConfiguration by originalViewConfiguration {
+                    override val touchSlop: Float = 0f
+                }
             }
-        }
 
         with(LocalDensity.current) {
             val size = 100.dp
@@ -193,8 +192,7 @@ class SwipeableTest {
 
             CompositionLocalProvider(LocalViewConfiguration provides viewConfiguration) {
                 Box(
-                    Modifier
-                        .testTag(TEST_TAG)
+                    Modifier.testTag(TEST_TAG)
                         .requiredSize(size)
                         .then(remember { swipeableModifier(Size(sizePx, sizePx)) })
                 )
@@ -211,19 +209,22 @@ class SwipeableTest {
         value: Float,
         maxValue: Float,
         reverseScrolling: Boolean = false
-    ): SemanticsMatcher = SemanticsMatcher(
-        "has $orientation scroll range [0,$maxValue] with " +
-            "value=$value" + if (reverseScrolling) " (reversed)" else ""
-    ) { node ->
-        val threshold = .1f
-        val property = when (orientation) {
-            Horizontal -> HorizontalScrollAxisRange
-            Vertical -> VerticalScrollAxisRange
+    ): SemanticsMatcher =
+        SemanticsMatcher(
+            "has $orientation scroll range [0,$maxValue] with " +
+                "value=$value" +
+                if (reverseScrolling) " (reversed)" else ""
+        ) { node ->
+            val threshold = .1f
+            val property =
+                when (orientation) {
+                    Horizontal -> HorizontalScrollAxisRange
+                    Vertical -> VerticalScrollAxisRange
+                }
+            node.config.getOrNull(property)?.let { range ->
+                (range.value() - value).absoluteValue <= threshold &&
+                    range.maxValue() == maxValue &&
+                    range.reverseScrolling == reverseScrolling
+            } ?: false
         }
-        node.config.getOrNull(property)?.let { range ->
-            (range.value() - value).absoluteValue <= threshold &&
-                range.maxValue() == maxValue &&
-                range.reverseScrolling == reverseScrolling
-        } ?: false
-    }
 }

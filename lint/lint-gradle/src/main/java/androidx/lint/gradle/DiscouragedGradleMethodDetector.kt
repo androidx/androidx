@@ -31,47 +31,53 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 
 /**
- * Checks for usages of [eager APIs](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html)
- * and [project isolation unsafe APIs](https://docs.gradle.org/nightly/userguide/isolated_projects.html)
+ * Checks for usages of
+ * [eager APIs](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html) and
+ * [project isolation unsafe APIs](https://docs.gradle.org/nightly/userguide/isolated_projects.html)
  */
 class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
 
-    override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
-        UCallExpression::class.java
-    )
+    override fun getApplicableUastTypes(): List<Class<out UElement>> =
+        listOf(UCallExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext): UElementHandler = object :
-        UElementHandler() {
-        override fun visitCallExpression(node: UCallExpression) {
-            val methodName = node.methodName
-            val (containingClassName, replacementMethod, issue) = REPLACEMENTS[methodName] ?: return
-            val containingClass = (node.receiverType as? PsiClassType)?.resolve() ?: return
-            // Check that the called method is from the expected class (or a child class) and not an
-            // unrelated method with the same name).
-            if (!containingClass.isInstanceOf(containingClassName)) return
+    override fun createUastHandler(context: JavaContext): UElementHandler =
+        object : UElementHandler() {
+            override fun visitCallExpression(node: UCallExpression) {
+                val methodName = node.methodName
+                val (containingClassName, replacementMethod, issue) =
+                    REPLACEMENTS[methodName] ?: return
+                val containingClass = (node.receiverType as? PsiClassType)?.resolve() ?: return
+                // Check that the called method is from the expected class (or a child class) and
+                // not an
+                // unrelated method with the same name).
+                if (!containingClass.isInstanceOf(containingClassName)) return
 
-            val fix = replacementMethod?.let {
-                fix()
-                    .replace()
-                    .with(it)
-                    .reformat(true)
-                    // Don't auto-fix from the command line because the replacement methods don't
-                    // have the same return types, so the fixed code likely won't compile.
-                    .autoFix(robot = false, independent = false)
-                    .build()
+                val fix =
+                    replacementMethod?.let {
+                        fix()
+                            .replace()
+                            .with(it)
+                            .reformat(true)
+                            // Don't auto-fix from the command line because the replacement methods
+                            // don't
+                            // have the same return types, so the fixed code likely won't compile.
+                            .autoFix(robot = false, independent = false)
+                            .build()
+                    }
+                val message =
+                    replacementMethod?.let { "Use $it instead of $methodName" }
+                        ?: "Avoid using method $methodName"
+
+                val incident =
+                    Incident(context)
+                        .issue(issue)
+                        .location(context.getNameLocation(node))
+                        .message(message)
+                        .fix(fix)
+                        .scope(node)
+                context.report(incident)
             }
-            val message = replacementMethod?.let { "Use $it instead of $methodName" }
-                ?: "Avoid using method $methodName"
-
-            val incident = Incident(context)
-                .issue(issue)
-                .location(context.getNameLocation(node))
-                .message(message)
-                .fix(fix)
-                .scope(node)
-            context.report(incident)
         }
-    }
 
     /** Checks if the class is [qualifiedName] or has [qualifiedName] as a super type. */
     fun PsiClass.isInstanceOf(qualifiedName: String): Boolean =
@@ -87,65 +93,74 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         private const val NAMED_DOMAIN_OBJECT_COLLECTION =
             "org.gradle.api.NamedDomainObjectCollection"
 
-        val EAGER_CONFIGURATION_ISSUE = Issue.create(
-            "EagerGradleConfiguration",
-            "Avoid using eager task APIs",
-            """
+        val EAGER_CONFIGURATION_ISSUE =
+            Issue.create(
+                "EagerGradleConfiguration",
+                "Avoid using eager task APIs",
+                """
                 Lazy APIs defer creating and configuring objects until they are needed instead of
                 doing unnecessary work in the configuration phase.
                 See https://docs.gradle.org/current/userguide/task_configuration_avoidance.html for
                 more details.
             """,
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                DiscouragedGradleMethodDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(DiscouragedGradleMethodDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
 
-        val PROJECT_ISOLATION_ISSUE = Issue.create(
-            "GradleProjectIsolation",
-            "Avoid using APIs that are not project isolation safe",
-            """
+        val PROJECT_ISOLATION_ISSUE =
+            Issue.create(
+                "GradleProjectIsolation",
+                "Avoid using APIs that are not project isolation safe",
+                """
                 Using APIs that reach out cross projects makes it not safe for Gradle project
                 isolation.
                 See https://docs.gradle.org/nightly/userguide/isolated_projects.html for
                 more details.
             """,
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                DiscouragedGradleMethodDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(DiscouragedGradleMethodDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
 
         // A map from eager method name to the containing class of the method and the name of the
         // replacement method, if there is a direct equivalent.
-        private val REPLACEMENTS = mapOf(
-            "all" to
-                Replacement(DOMAIN_OBJECT_COLLECTION, "configureEach", EAGER_CONFIGURATION_ISSUE),
-            "create" to Replacement(TASK_CONTAINER, "register", EAGER_CONFIGURATION_ISSUE),
-            "findAll" to
-                Replacement(NAMED_DOMAIN_OBJECT_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
-            "findByName" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
-            "findByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
-            "findProperty" to
-                Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
-            "property" to
-                Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
-            "iterator" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
-            "get" to Replacement(TASK_PROVIDER, null, EAGER_CONFIGURATION_ISSUE),
-            "getAt" to Replacement(TASK_COLLECTION, "named", EAGER_CONFIGURATION_ISSUE),
-            "getByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
-            "getByName" to Replacement(TASK_CONTAINER, "named", EAGER_CONFIGURATION_ISSUE),
-            "matching" to Replacement(TASK_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
-            "replace" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
-            "remove" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
-            "whenTaskAdded" to
-                Replacement(TASK_CONTAINER, "configureEach", EAGER_CONFIGURATION_ISSUE),
-            "whenObjectAdded" to
-                Replacement(DOMAIN_OBJECT_COLLECTION, "configureEach", EAGER_CONFIGURATION_ISSUE),
-        )
+        private val REPLACEMENTS =
+            mapOf(
+                "all" to
+                    Replacement(
+                        DOMAIN_OBJECT_COLLECTION,
+                        "configureEach",
+                        EAGER_CONFIGURATION_ISSUE
+                    ),
+                "create" to Replacement(TASK_CONTAINER, "register", EAGER_CONFIGURATION_ISSUE),
+                "findAll" to
+                    Replacement(NAMED_DOMAIN_OBJECT_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
+                "findByName" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "findByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "findProperty" to
+                    Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "property" to
+                    Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "iterator" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "get" to Replacement(TASK_PROVIDER, null, EAGER_CONFIGURATION_ISSUE),
+                "getAt" to Replacement(TASK_COLLECTION, "named", EAGER_CONFIGURATION_ISSUE),
+                "getByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "getByName" to Replacement(TASK_CONTAINER, "named", EAGER_CONFIGURATION_ISSUE),
+                "matching" to Replacement(TASK_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
+                "replace" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "remove" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "whenTaskAdded" to
+                    Replacement(TASK_CONTAINER, "configureEach", EAGER_CONFIGURATION_ISSUE),
+                "whenObjectAdded" to
+                    Replacement(
+                        DOMAIN_OBJECT_COLLECTION,
+                        "configureEach",
+                        EAGER_CONFIGURATION_ISSUE
+                    ),
+            )
     }
 }
 

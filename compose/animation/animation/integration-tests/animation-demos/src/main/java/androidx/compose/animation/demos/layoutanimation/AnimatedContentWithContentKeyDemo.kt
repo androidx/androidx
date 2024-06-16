@@ -65,9 +65,7 @@ fun AnimatedContentWithContentKeyDemo() {
                         Arrangement.Center,
                         Alignment.CenterHorizontally
                     ) {
-                        Button(onClick = { count++ }) {
-                            Text("+1")
-                        }
+                        Button(onClick = { count++ }) { Text("+1") }
                         Spacer(Modifier.size(20.dp))
                         Text("Count: $count", fontSize = 20.sp)
                     }
@@ -84,7 +82,10 @@ fun AnimatedContentWithContentKeyDemo() {
 }
 
 sealed class MyScreen {
-    enum class Type { Count, Blank }
+    enum class Type {
+        Count,
+        Blank
+    }
 
     abstract val type: Type
 }

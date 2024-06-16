@@ -16,10 +16,7 @@
 
 package androidx.camera.core.imagecapture;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
@@ -36,7 +33,6 @@ import androidx.camera.core.processing.Packet;
  * in the {@link ProcessingInput2Packet} processor, and the transformation info should be updated
  * by upstream processors.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class JpegImage2Result implements Operation<Packet<ImageProxy>, ImageProxy> {
 
     @NonNull

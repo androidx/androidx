@@ -1,18 +1,18 @@
 // Signature format: 4.0
 package androidx.camera.core {
 
-  @RequiresApi(21) public class AspectRatio {
+  public class AspectRatio {
     field public static final int RATIO_16_9 = 1; // 0x1
     field public static final int RATIO_4_3 = 0; // 0x0
     field public static final int RATIO_DEFAULT = -1; // 0xffffffff
   }
 
-  @RequiresApi(21) public interface Camera {
+  public interface Camera {
     method public androidx.camera.core.CameraControl getCameraControl();
     method public androidx.camera.core.CameraInfo getCameraInfo();
   }
 
-  @RequiresApi(21) public interface CameraControl {
+  public interface CameraControl {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelFocusAndMetering();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> setExposureCompensationIndex(int);
@@ -24,7 +24,7 @@ package androidx.camera.core {
   public static final class CameraControl.OperationCanceledException extends java.lang.Exception {
   }
 
-  @RequiresApi(21) public abstract class CameraEffect {
+  public abstract class CameraEffect {
     ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor, androidx.core.util.Consumer<java.lang.Throwable!>);
     ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor, androidx.core.util.Consumer<java.lang.Throwable!>);
     method public androidx.core.util.Consumer<java.lang.Throwable!> getErrorListener();
@@ -36,11 +36,11 @@ package androidx.camera.core {
     field public static final int VIDEO_CAPTURE = 2; // 0x2
   }
 
-  @RequiresApi(21) public interface CameraFilter {
+  public interface CameraFilter {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
   }
 
-  @RequiresApi(21) public interface CameraInfo {
+  public interface CameraInfo {
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public androidx.camera.core.ExposureState getExposureState();
@@ -60,15 +60,15 @@ package androidx.camera.core {
     method public default java.util.Set<androidx.camera.core.DynamicRange!> querySupportedDynamicRanges(java.util.Set<androidx.camera.core.DynamicRange!>);
   }
 
-  @RequiresApi(21) public final class CameraInfoUnavailableException extends java.lang.Exception {
+  public final class CameraInfoUnavailableException extends java.lang.Exception {
   }
 
-  @RequiresApi(21) public interface CameraProvider {
+  public interface CameraProvider {
     method public java.util.List<androidx.camera.core.CameraInfo!> getAvailableCameraInfos();
     method public boolean hasCamera(androidx.camera.core.CameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
   }
 
-  @RequiresApi(21) public final class CameraSelector {
+  public final class CameraSelector {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
     method public String? getPhysicalCameraId();
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
@@ -87,7 +87,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraSelector.Builder setPhysicalCameraId(String);
   }
 
-  @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class CameraState {
+  @com.google.auto.value.AutoValue public abstract class CameraState {
     ctor public CameraState();
     method public static androidx.camera.core.CameraState create(androidx.camera.core.CameraState.Type);
     method public static androidx.camera.core.CameraState create(androidx.camera.core.CameraState.Type, androidx.camera.core.CameraState.StateError?);
@@ -124,7 +124,7 @@ package androidx.camera.core {
     enum_constant public static final androidx.camera.core.CameraState.Type PENDING_OPEN;
   }
 
-  @RequiresApi(21) public class CameraUnavailableException extends java.lang.Exception {
+  public class CameraUnavailableException extends java.lang.Exception {
     ctor public CameraUnavailableException(int);
     ctor public CameraUnavailableException(int, String?);
     ctor public CameraUnavailableException(int, String?, Throwable?);
@@ -139,7 +139,7 @@ package androidx.camera.core {
     field public static final int CAMERA_UNKNOWN_ERROR = 0; // 0x0
   }
 
-  @RequiresApi(21) public final class CameraXConfig {
+  public final class CameraXConfig {
     method public androidx.camera.core.CameraSelector? getAvailableCamerasLimiter(androidx.camera.core.CameraSelector?);
     method public java.util.concurrent.Executor? getCameraExecutor(java.util.concurrent.Executor?);
     method public long getCameraOpenRetryMaxTimeoutInMillisWhileResuming();
@@ -163,7 +163,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig getCameraXConfig();
   }
 
-  @RequiresApi(21) public class ConcurrentCamera {
+  public class ConcurrentCamera {
     ctor public ConcurrentCamera(java.util.List<androidx.camera.core.Camera!>);
     method public java.util.List<androidx.camera.core.Camera!> getCameras();
   }
@@ -175,11 +175,11 @@ package androidx.camera.core {
     method public androidx.camera.core.UseCaseGroup getUseCaseGroup();
   }
 
-  @RequiresApi(21) public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
+  public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
-  @RequiresApi(21) public final class DynamicRange {
+  public final class DynamicRange {
     ctor public DynamicRange(int, int);
     method public int getBitDepth();
     method public int getEncoding();
@@ -203,13 +203,16 @@ package androidx.camera.core {
     field public static final androidx.camera.core.DynamicRange UNSPECIFIED;
   }
 
-  @SuppressCompatibility @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalImageCaptureOutputFormat {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalMirrorMode {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalRetryPolicy {
@@ -221,18 +224,18 @@ package androidx.camera.core {
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalZeroShutterLag {
   }
 
-  @RequiresApi(21) public interface ExposureState {
+  public interface ExposureState {
     method public int getExposureCompensationIndex();
     method public android.util.Range<java.lang.Integer!> getExposureCompensationRange();
     method public android.util.Rational getExposureCompensationStep();
     method public boolean isExposureCompensationSupported();
   }
 
-  @RequiresApi(21) public interface ExtendableBuilder<T> {
+  public interface ExtendableBuilder<T> {
     method public T build();
   }
 
-  @RequiresApi(21) public final class FocusMeteringAction {
+  public final class FocusMeteringAction {
     method public long getAutoCancelDurationInMillis();
     method public java.util.List<androidx.camera.core.MeteringPoint!> getMeteringPointsAe();
     method public java.util.List<androidx.camera.core.MeteringPoint!> getMeteringPointsAf();
@@ -253,11 +256,11 @@ package androidx.camera.core {
     method public androidx.camera.core.FocusMeteringAction.Builder setAutoCancelDuration(@IntRange(from=1) long, java.util.concurrent.TimeUnit);
   }
 
-  @RequiresApi(21) public final class FocusMeteringResult {
+  public final class FocusMeteringResult {
     method public boolean isFocusSuccessful();
   }
 
-  @RequiresApi(21) public final class ImageAnalysis extends androidx.camera.core.UseCase {
+  public final class ImageAnalysis extends androidx.camera.core.UseCase {
     method public void clearAnalyzer();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalUseCaseApi public java.util.concurrent.Executor? getBackgroundExecutor();
     method public int getBackpressureStrategy();
@@ -300,7 +303,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageAnalysis.Builder setTargetRotation(int);
   }
 
-  @RequiresApi(21) public final class ImageCapture extends androidx.camera.core.UseCase {
+  public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getCaptureMode();
     method public int getFlashMode();
     method public static androidx.camera.core.ImageCaptureCapabilities getImageCaptureCapabilities(androidx.camera.core.CameraInfo);
@@ -410,17 +413,17 @@ package androidx.camera.core {
     method public boolean isPostviewSupported();
   }
 
-  @RequiresApi(21) public class ImageCaptureException extends java.lang.Exception {
+  public class ImageCaptureException extends java.lang.Exception {
     ctor public ImageCaptureException(int, String, Throwable?);
     method public int getImageCaptureError();
   }
 
   public final class ImageCaptureExtKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? takePicture(androidx.camera.core.ImageCapture, androidx.camera.core.ImageCapture.OutputFileOptions outputFileOptions, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageCapture.OutputFileResults>);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? takePicture(androidx.camera.core.ImageCapture, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageProxy>);
+    method public static suspend Object? takePicture(androidx.camera.core.ImageCapture, androidx.camera.core.ImageCapture.OutputFileOptions outputFileOptions, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageCapture.OutputFileResults>);
+    method public static suspend Object? takePicture(androidx.camera.core.ImageCapture, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageProxy>);
   }
 
-  @RequiresApi(21) public class ImageCaptureLatencyEstimate {
+  public class ImageCaptureLatencyEstimate {
     ctor public ImageCaptureLatencyEstimate(long, long);
     method public long getCaptureLatencyMillis();
     method public long getProcessingLatencyMillis();
@@ -430,7 +433,7 @@ package androidx.camera.core {
     field public static final long UNDEFINED_PROCESSING_LATENCY = -1L; // 0xffffffffffffffffL
   }
 
-  @RequiresApi(21) public interface ImageInfo {
+  public interface ImageInfo {
     method public int getRotationDegrees();
     method public default android.graphics.Matrix getSensorToBufferTransformMatrix();
     method public long getTimestamp();
@@ -449,7 +452,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageProxy getOutputImage();
   }
 
-  @RequiresApi(21) public interface ImageProxy extends java.lang.AutoCloseable {
+  public interface ImageProxy extends java.lang.AutoCloseable {
     method public void close();
     method public android.graphics.Rect getCropRect();
     method public int getFormat();
@@ -468,29 +471,29 @@ package androidx.camera.core {
     method public int getRowStride();
   }
 
-  @RequiresApi(21) public class InitializationException extends java.lang.Exception {
+  public class InitializationException extends java.lang.Exception {
     ctor public InitializationException(String?);
     ctor public InitializationException(String?, Throwable?);
     ctor public InitializationException(Throwable?);
   }
 
-  @RequiresApi(21) public class MeteringPoint {
+  public class MeteringPoint {
     method public float getSize();
   }
 
-  @RequiresApi(21) public abstract class MeteringPointFactory {
+  public abstract class MeteringPointFactory {
     method public final androidx.camera.core.MeteringPoint createPoint(float, float);
     method public final androidx.camera.core.MeteringPoint createPoint(float, float, float);
     method public static float getDefaultPointSize();
   }
 
-  @RequiresApi(21) public class MirrorMode {
+  public class MirrorMode {
     field public static final int MIRROR_MODE_OFF = 0; // 0x0
     field public static final int MIRROR_MODE_ON = 1; // 0x1
     field public static final int MIRROR_MODE_ON_FRONT_ONLY = 2; // 0x2
   }
 
-  @RequiresApi(21) public final class Preview extends androidx.camera.core.UseCase {
+  public final class Preview extends androidx.camera.core.UseCase {
     method public androidx.camera.core.DynamicRange getDynamicRange();
     method public static androidx.camera.core.PreviewCapabilities getPreviewCapabilities(androidx.camera.core.CameraInfo);
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
@@ -507,6 +510,7 @@ package androidx.camera.core {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
     method public androidx.camera.core.Preview.Builder setDynamicRange(androidx.camera.core.DynamicRange);
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode public androidx.camera.core.Preview.Builder setMirrorMode(int);
     method public androidx.camera.core.Preview.Builder setPreviewStabilizationEnabled(boolean);
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);
@@ -520,7 +524,7 @@ package androidx.camera.core {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
   }
 
-  @RequiresApi(21) public interface PreviewCapabilities {
+  public interface PreviewCapabilities {
     method public boolean isStabilizationSupported();
   }
 
@@ -528,14 +532,14 @@ package androidx.camera.core {
     ctor public ProcessingException();
   }
 
-  @RequiresApi(21) public class ResolutionInfo {
+  public class ResolutionInfo {
     ctor public ResolutionInfo(android.util.Size, android.graphics.Rect, int);
     method public android.graphics.Rect getCropRect();
     method public android.util.Size getResolution();
     method public int getRotationDegrees();
   }
 
-  @SuppressCompatibility @RequiresApi(21) @androidx.camera.core.ExperimentalRetryPolicy public interface RetryPolicy {
+  @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public interface RetryPolicy {
     method public static long getDefaultRetryTimeoutInMillis();
     method public default long getTimeoutInMillis();
     method public androidx.camera.core.RetryPolicy.RetryConfig onRetryDecisionRequested(androidx.camera.core.RetryPolicy.ExecutionState);
@@ -576,7 +580,7 @@ package androidx.camera.core {
     method public androidx.camera.core.RetryPolicy.RetryConfig.Builder setShouldRetry(boolean);
   }
 
-  @RequiresApi(21) public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
+  public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public SurfaceOrientedMeteringPointFactory(float, float);
     ctor public SurfaceOrientedMeteringPointFactory(float, float, androidx.camera.core.UseCase);
   }
@@ -601,7 +605,7 @@ package androidx.camera.core {
     method public void onOutputSurface(androidx.camera.core.SurfaceOutput) throws androidx.camera.core.ProcessingException;
   }
 
-  @RequiresApi(21) public final class SurfaceRequest {
+  public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
     method public void clearTransformationInfoListener();
     method public androidx.camera.core.DynamicRange getDynamicRange();
@@ -634,16 +638,16 @@ package androidx.camera.core {
     method public void onTransformationInfoUpdate(androidx.camera.core.SurfaceRequest.TransformationInfo);
   }
 
-  @RequiresApi(21) public class TorchState {
+  public class TorchState {
     field public static final int OFF = 0; // 0x0
     field public static final int ON = 1; // 0x1
   }
 
-  @RequiresApi(21) public abstract class UseCase {
+  public abstract class UseCase {
     method public static int snapToSurfaceRotation(@IntRange(from=0, to=359) int);
   }
 
-  @RequiresApi(21) public final class UseCaseGroup {
+  public final class UseCaseGroup {
     method public java.util.List<androidx.camera.core.CameraEffect!> getEffects();
     method public java.util.List<androidx.camera.core.UseCase!> getUseCases();
     method public androidx.camera.core.ViewPort? getViewPort();
@@ -657,7 +661,7 @@ package androidx.camera.core {
     method public androidx.camera.core.UseCaseGroup.Builder setViewPort(androidx.camera.core.ViewPort);
   }
 
-  @RequiresApi(21) public final class ViewPort {
+  public final class ViewPort {
     method public android.util.Rational getAspectRatio();
     method public int getLayoutDirection();
     method public int getRotation();
@@ -675,7 +679,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ViewPort.Builder setScaleType(int);
   }
 
-  @RequiresApi(21) public interface ZoomState {
+  public interface ZoomState {
     method public float getLinearZoom();
     method public float getMaxZoomRatio();
     method public float getMinZoomRatio();
@@ -686,7 +690,7 @@ package androidx.camera.core {
 
 package androidx.camera.core.resolutionselector {
 
-  @RequiresApi(21) public final class AspectRatioStrategy {
+  public final class AspectRatioStrategy {
     ctor public AspectRatioStrategy(int, int);
     method public int getFallbackRule();
     method public int getPreferredAspectRatio();
@@ -696,11 +700,11 @@ package androidx.camera.core.resolutionselector {
     field public static final androidx.camera.core.resolutionselector.AspectRatioStrategy RATIO_4_3_FALLBACK_AUTO_STRATEGY;
   }
 
-  @RequiresApi(21) public interface ResolutionFilter {
+  public interface ResolutionFilter {
     method public java.util.List<android.util.Size!> filter(java.util.List<android.util.Size!>, int);
   }
 
-  @RequiresApi(21) public final class ResolutionSelector {
+  public final class ResolutionSelector {
     method public int getAllowedResolutionMode();
     method public androidx.camera.core.resolutionselector.AspectRatioStrategy getAspectRatioStrategy();
     method public androidx.camera.core.resolutionselector.ResolutionFilter? getResolutionFilter();
@@ -718,7 +722,7 @@ package androidx.camera.core.resolutionselector {
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setResolutionStrategy(androidx.camera.core.resolutionselector.ResolutionStrategy);
   }
 
-  @RequiresApi(21) public final class ResolutionStrategy {
+  public final class ResolutionStrategy {
     ctor public ResolutionStrategy(android.util.Size, int);
     method public android.util.Size? getBoundSize();
     method public int getFallbackRule();

@@ -22,7 +22,5 @@ import android.annotation.TargetApi
 @TargetApi(29)
 class TargetApiUsageKotlin {
 
-    @TargetApi(30)
-    fun someMethod() {
-    }
+    @TargetApi(30) fun someMethod() {}
 }

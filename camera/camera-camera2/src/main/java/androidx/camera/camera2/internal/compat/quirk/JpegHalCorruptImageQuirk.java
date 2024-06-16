@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 
@@ -45,7 +44,6 @@ import java.util.Set;
  *                   output images can produce correct Exif metadata to workaround this issue.
  *      Device(s):   Samsung Galaxy S7 (SM-G930T and SM-G930V variants), alps k61v1_basic_ref
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPreferredQuirk {
 
     private static final Set<String> KNOWN_AFFECTED_DEVICES = new HashSet<>(

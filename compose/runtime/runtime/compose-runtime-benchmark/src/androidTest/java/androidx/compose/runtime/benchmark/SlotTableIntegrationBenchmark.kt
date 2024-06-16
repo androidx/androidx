@@ -56,14 +56,8 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
     @Test
     fun create() = runBlockingTestWithFrameClock {
         measureCompose {
-            Column(
-                modifier = Modifier.size(width = 20.dp, height = 300.dp)
-            ) {
-                repeat(100) {
-                    key(it) {
-                        Pixel(color = Color.Blue)
-                    }
-                }
+            Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
+                repeat(100) { key(it) { Pixel(color = Color.Blue) } }
             }
         }
     }
@@ -74,15 +68,9 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var includeGroups by mutableStateOf(true)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
                     if (includeGroups) {
-                        repeat(100) {
-                            key(it) {
-                                Pixel(color = Color.Blue)
-                            }
-                        }
+                        repeat(100) { key(it) { Pixel(color = Color.Blue) } }
                     }
                 }
             }
@@ -97,14 +85,10 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var insertAlternatingGroups by mutableStateOf(true)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
                     repeat(100) { index ->
                         if (index % 2 == 0 || insertAlternatingGroups) {
-                            key(index) {
-                                Pixel(color = Color.Blue)
-                            }
+                            key(index) { Pixel(color = Color.Blue) }
                         }
                     }
                 }
@@ -120,16 +104,10 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var insertAlternatingGroups by mutableStateOf(true)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
                     repeat(100) { index ->
                         if (index % 2 == 0 || insertAlternatingGroups) {
-                            Pixel(color = Color(
-                                red = 0,
-                                green = 2 * index,
-                                blue = 0
-                            ))
+                            Pixel(color = Color(red = 0, green = 2 * index, blue = 0))
                         }
                     }
                 }
@@ -145,15 +123,9 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var includeGroups by mutableStateOf(false)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
                     if (includeGroups) {
-                        repeat(100) {
-                            key(it) {
-                                Pixel(color = Color.Blue)
-                            }
-                        }
+                        repeat(100) { key(it) { Pixel(color = Color.Blue) } }
                     }
                 }
             }
@@ -168,14 +140,10 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var insertAlternatingGroups by mutableStateOf(false)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
                     repeat(100) { index ->
                         if (index % 2 == 0 || insertAlternatingGroups) {
-                            key(index) {
-                                Pixel(color = Color.Blue)
-                            }
+                            key(index) { Pixel(color = Color.Blue) }
                         }
                     }
                 }
@@ -191,16 +159,10 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var insertAlternatingGroups by mutableStateOf(false)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
                     repeat(100) { index ->
                         if (index % 2 == 0 || insertAlternatingGroups) {
-                            Pixel(color = Color(
-                                red = 0,
-                                green = 2 * index,
-                                blue = 0
-                            ))
+                            Pixel(color = Color(red = 0, green = 2 * index, blue = 0))
                         }
                     }
                 }
@@ -226,9 +188,7 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
                             Pixel(color = Color.Green)
                             Pixel(color = Color.Blue)
                         }
-                        MinimalBox {
-                            NonRenderingText("abcdef")
-                        }
+                        MinimalBox { NonRenderingText("abcdef") }
                         NonRenderingText(
                             text = random.nextString(),
                             textColor = Color(random.nextInt()),
@@ -288,17 +248,11 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
             compose {
                 val random = remember(seed) { Random(seed) }
                 Pixel(PixelColorLocal.current)
-                CompositionLocalProvider(
-                    PixelColorLocal provides Color(random.nextInt())
-                ) {
+                CompositionLocalProvider(PixelColorLocal provides Color(random.nextInt())) {
                     Pixel(PixelColorLocal.current)
-                    CompositionLocalProvider(
-                        PixelColorLocal provides Color(random.nextInt())
-                    ) {
+                    CompositionLocalProvider(PixelColorLocal provides Color(random.nextInt())) {
                         Pixel(PixelColorLocal.current)
-                        CompositionLocalProvider(
-                            PixelColorLocal provides Color(random.nextInt())
-                        ) {
+                        CompositionLocalProvider(PixelColorLocal provides Color(random.nextInt())) {
                             Pixel(PixelColorLocal.current)
                             CompositionLocalProvider(
                                 PixelColorLocal provides Color(random.nextInt())
@@ -335,14 +289,8 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
         var keys by mutableStateOf(originalItems)
         measureRecomposeSuspending {
             compose {
-                Column(
-                    modifier = Modifier.size(width = 20.dp, height = 300.dp)
-                ) {
-                    keys.forEach {
-                        key(it) {
-                            Pixel(color = Color.Blue)
-                        }
-                    }
+                Column(modifier = Modifier.size(width = 20.dp, height = 300.dp)) {
+                    keys.forEach { key(it) { Pixel(color = Color.Blue) } }
                 }
             }
             update { keys = keys.reversed() }
@@ -353,11 +301,7 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
 
 @Composable
 private fun Pixel(color: Color) {
-    Layout(
-        modifier = Modifier.background(color)
-    ) { _, _ ->
-        layout(1, 1) {}
-    }
+    Layout(modifier = Modifier.background(color)) { _, _ -> layout(1, 1) {} }
 }
 
 @Composable
@@ -375,24 +319,16 @@ private fun NonRenderingText(
     use(ellipsize)
     use(minLines)
     use(maxLines)
-    Layout { _, _ ->
-        layout(1, 1) {}
-    }
+    Layout { _, _ -> layout(1, 1) {} }
 }
 
 @Composable
-private fun MinimalBox(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
+private fun MinimalBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(content, modifier, MinimalBoxMeasurePolicy)
 }
 
 @Composable
-private fun MatryoshkaLayout(
-    depth: Int,
-    content: @Composable (depth: Int) -> Unit
-) {
+private fun MatryoshkaLayout(depth: Int, content: @Composable (depth: Int) -> Unit) {
     if (depth <= 0) {
         content(0)
     } else {
@@ -408,30 +344,28 @@ private fun MatryoshkaLayout(
 
 private val MinimalBoxMeasurePolicy = MeasurePolicy { measurables, constraints ->
     val placeables = measurables.map { it.measure(constraints) }
-    val (usedWidth, usedHeight) = placeables.fold(
-        initial = IntOffset(0, 0)
-    ) { (maxWidth, maxHeight), placeable ->
-        IntOffset(
-            maxOf(maxWidth, placeable.measuredWidth),
-            maxOf(maxHeight, placeable.measuredHeight)
-        )
-    }
+    val (usedWidth, usedHeight) =
+        placeables.fold(initial = IntOffset(0, 0)) { (maxWidth, maxHeight), placeable ->
+            IntOffset(
+                maxOf(maxWidth, placeable.measuredWidth),
+                maxOf(maxHeight, placeable.measuredHeight)
+            )
+        }
 
-    layout(
-        width = usedWidth,
-        height = usedHeight
-    ) {
-        placeables.forEach { it.place(0, 0) }
-    }
+    layout(width = usedWidth, height = usedHeight) { placeables.forEach { it.place(0, 0) } }
 }
 
-private fun Random.nextString(length: Int = 16) = buildString(length) {
-    repeat(length) { append(nextInt('A'.code, 'z'.code).toChar()) }
-}
+private fun Random.nextString(length: Int = 16) =
+    buildString(length) { repeat(length) { append(nextInt('A'.code, 'z'.code).toChar()) } }
 
 @Suppress("UNUSED_PARAMETER") private fun use(value: Any?) {}
+
 @Suppress("UNUSED_PARAMETER") private fun use(value: Int) {}
+
 @Suppress("UNUSED_PARAMETER") private fun use(value: Long) {}
+
 @Suppress("UNUSED_PARAMETER") private fun use(value: Float) {}
+
 @Suppress("UNUSED_PARAMETER") private fun use(value: Double) {}
+
 @Suppress("UNUSED_PARAMETER") private fun use(value: Boolean) {}

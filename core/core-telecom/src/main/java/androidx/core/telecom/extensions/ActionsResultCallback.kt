@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallException
-import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -40,15 +39,19 @@ class ActionsResultCallback : IActionsResultCallback.Stub() {
 
     companion object {
         private val TAG = ActionsResultCallback::class.simpleName
+        internal const val ACTION_RESULT_RESPONSE_TIMEOUT = 1000L
     }
 
     suspend fun waitForResponse(): CallControlResult {
         try {
-            withTimeout(CapabilityExchangeUtils.ACTION_RESULT_RESPONSE_TIMEOUT) {
+            withTimeout(ACTION_RESULT_RESPONSE_TIMEOUT) {
                 // Wait for VOIP app to return the result
-                if (waitForActionResultLatch.await(
-                        CapabilityExchangeUtils.ACTION_RESULT_RESPONSE_TIMEOUT,
-                        TimeUnit.MILLISECONDS)) {
+                if (
+                    waitForActionResultLatch.await(
+                        ACTION_RESULT_RESPONSE_TIMEOUT,
+                        TimeUnit.MILLISECONDS
+                    )
+                ) {
                     Log.i(TAG, "waitForResponse: VoIP app returned a result")
                 }
             }

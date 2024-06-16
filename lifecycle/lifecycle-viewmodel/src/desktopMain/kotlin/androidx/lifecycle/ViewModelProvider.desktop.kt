@@ -23,7 +23,8 @@ import androidx.lifecycle.viewmodel.ViewModelProviderImpl
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
 
-public actual class ViewModelProvider private constructor(
+public actual class ViewModelProvider
+private constructor(
     private val impl: ViewModelProviderImpl,
 ) {
 

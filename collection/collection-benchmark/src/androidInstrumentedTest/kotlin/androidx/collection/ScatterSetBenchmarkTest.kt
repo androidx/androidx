@@ -26,8 +26,7 @@ import org.junit.runners.Parameterized
 class ScatterSetBenchmarkTest(size: Int) {
     private val sourceSet = createDataSet(size)
 
-    @get:Rule
-    val benchmark = BenchmarkRule()
+    @get:Rule val benchmark = BenchmarkRule()
 
     @Test
     fun insert() {
@@ -89,14 +88,9 @@ class ScatterSetBenchmarkTest(size: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
-        fun parameters() = buildParameters(
-            listOf(/*10, 100, */ 1_000 /*, 16_000*/)
-        )
+        fun parameters() = buildParameters(listOf(/*10, 100, */ 1_000 /*, 16_000*/))
 
-        internal fun createDataSet(
-            size: Int
-        ): Array<String> = Array(size) { index ->
-            (index * Random.Default.nextFloat()).toString()
-        }
+        internal fun createDataSet(size: Int): Array<String> =
+            Array(size) { index -> (index * Random.Default.nextFloat()).toString() }
     }
 }

@@ -32,18 +32,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Contains tests for [StreamConfigurationMapCompat].
- */
+/** Contains tests for [StreamConfigurationMapCompat]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class StreamConfigurationMapCompatTest {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     private val lensFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var streamConfigurationMap: StreamConfigurationMap
@@ -54,10 +53,8 @@ class StreamConfigurationMapCompatTest {
         val cameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing)!!
         streamConfigurationMap = cameraCharacteristics.get(SCALER_STREAM_CONFIGURATION_MAP)!!
         val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
-        streamConfigurationMapCompat = toStreamConfigurationMapCompat(
-            streamConfigurationMap,
-            OutputSizesCorrector(cameraId)
-        )
+        streamConfigurationMapCompat =
+            toStreamConfigurationMapCompat(streamConfigurationMap, OutputSizesCorrector(cameraId))
     }
 
     @Test

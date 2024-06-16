@@ -38,6 +38,7 @@ class ExposureStateAdapter(
     }
 
     override fun getExposureCompensationIndex(): Int = exposureCompensation
+
     override fun getExposureCompensationStep(): Rational {
         if (!isExposureCompensationSupported) {
             return Rational.ZERO

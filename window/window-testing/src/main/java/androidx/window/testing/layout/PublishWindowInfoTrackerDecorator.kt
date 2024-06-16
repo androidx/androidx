@@ -21,9 +21,8 @@ import androidx.window.layout.WindowInfoTrackerDecorator
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.flow.Flow
 
-internal class PublishWindowInfoTrackerDecorator(
-    private val flow: Flow<WindowLayoutInfo>
-) : WindowInfoTrackerDecorator {
+internal class PublishWindowInfoTrackerDecorator(private val flow: Flow<WindowLayoutInfo>) :
+    WindowInfoTrackerDecorator {
     override fun decorate(tracker: WindowInfoTracker): WindowInfoTracker {
         return PublishLayoutInfoTracker(tracker, flow)
     }

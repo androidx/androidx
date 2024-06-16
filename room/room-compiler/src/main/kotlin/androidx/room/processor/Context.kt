@@ -32,7 +32,8 @@ import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.Warning
 
-class Context private constructor(
+class Context
+private constructor(
     val processingEnv: XProcessingEnv,
     val logger: RLog,
     private val typeConverters: CustomConverterProcessor.ProcessResult,
@@ -57,7 +58,8 @@ class Context private constructor(
             TypeAdapterStore.copy(this, inheritedAdapterStore)
         } else {
             TypeAdapterStore.create(
-                this, typeConverters.builtInConverterFlags,
+                this,
+                typeConverters.builtInConverterFlags,
                 typeConverters.converters
             )
         }
@@ -75,9 +77,7 @@ class Context private constructor(
             if (canRewriteQueriesToDropUnusedColumns) {
                 RemoveUnusedColumnQueryRewriter
             } else if (BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)) {
-                ProjectionExpander(
-                    tables = verifier.entitiesAndViews
-                )
+                ProjectionExpander(tables = verifier.entitiesAndViews)
             } else {
                 QueryRewriter.NoOpRewriter
             }
@@ -100,9 +100,7 @@ class Context private constructor(
     }
 
     // Whether Java 8's lambda syntax is available to be emitted or not.
-    val javaLambdaSyntaxAvailable by lazy {
-        processingEnv.jvmVersion >= 8
-    }
+    val javaLambdaSyntaxAvailable by lazy { processingEnv.jvmVersion >= 8 }
 
     companion object {
         val ARG_OPTIONS by lazy {
@@ -112,42 +110,35 @@ class Context private constructor(
     }
 
     fun attachDatabaseVerifier(databaseVerifier: DatabaseVerifier) {
-        check(this.databaseVerifier == null) {
-            "database verifier is already set"
-        }
+        check(this.databaseVerifier == null) { "database verifier is already set" }
         this.databaseVerifier = databaseVerifier
     }
 
-    constructor(processingEnv: XProcessingEnv) : this(
+    constructor(
+        processingEnv: XProcessingEnv
+    ) : this(
         processingEnv = processingEnv,
         logger = RLog(processingEnv.messager, emptySet(), null),
         typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
         inheritedAdapterStore = null,
-        cache = Cache(
-            parent = null,
-            converters = LinkedHashSet(),
-            suppressedWarnings = emptySet(),
-            builtInConverterFlags = BuiltInConverterFlags.DEFAULT
-        ),
+        cache =
+            Cache(
+                parent = null,
+                converters = LinkedHashSet(),
+                suppressedWarnings = emptySet(),
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+            ),
         canRewriteQueriesToDropUnusedColumns = false
     )
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
-        val VOID: XType by lazy {
-            processingEnv.requireType(CommonTypeNames.VOID)
-        }
-        val STRING: XType by lazy {
-            processingEnv.requireType(CommonTypeNames.STRING)
-        }
+        val VOID: XType by lazy { processingEnv.requireType(CommonTypeNames.VOID) }
+        val STRING: XType by lazy { processingEnv.requireType(CommonTypeNames.STRING) }
         val READONLY_COLLECTION: XType by lazy {
             processingEnv.requireType(CommonTypeNames.COLLECTION)
         }
-        val LIST: XType by lazy {
-            processingEnv.requireType(CommonTypeNames.LIST)
-        }
-        val SET: XType by lazy {
-            processingEnv.requireType(CommonTypeNames.SET)
-        }
+        val LIST: XType by lazy { processingEnv.requireType(CommonTypeNames.LIST) }
+        val SET: XType by lazy { processingEnv.requireType(CommonTypeNames.SET) }
     }
 
     val schemaInFolderPath by lazy {
@@ -183,28 +174,29 @@ class Context private constructor(
 
     fun <T> collectLogs(handler: (Context) -> T): Pair<T, RLog.CollectingMessager> {
         val collector = RLog.CollectingMessager()
-        val subContext = Context(
-            processingEnv = processingEnv,
-            logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
-            typeConverters = this.typeConverters,
-            inheritedAdapterStore = typeAdapterStore,
-            cache = cache,
-            canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns
-        )
+        val subContext =
+            Context(
+                processingEnv = processingEnv,
+                logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
+                typeConverters = this.typeConverters,
+                inheritedAdapterStore = typeAdapterStore,
+                cache = cache,
+                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns
+            )
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
     }
 
     /**
-     * Forks the processor context adding suppressed warnings a type converters found in the
-     * given [element].
+     * Forks the processor context adding suppressed warnings a type converters found in the given
+     * [element].
      *
      * @param element the element from which to create the fork.
      * @param forceSuppressedWarnings the warning that will be silenced regardless if they are
-     * present or not in the [element].
+     *   present or not in the [element].
      * @param forceBuiltInConverters the built-in converter states that will be set regardless of
-     * the states found in the [element].
+     *   the states found in the [element].
      */
     fun fork(
         element: XElement,
@@ -223,36 +215,40 @@ class Context private constructor(
                     result
                 }
             }
-        val subBuiltInConverterFlags = typeConverters.builtInConverterFlags.withNext(
-            processConvertersResult.builtInConverterFlags
-        )
+        val subBuiltInConverterFlags =
+            typeConverters.builtInConverterFlags.withNext(
+                processConvertersResult.builtInConverterFlags
+            )
         val canReUseAdapterStore =
             subBuiltInConverterFlags == typeConverters.builtInConverterFlags &&
                 processConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
-        val subTypeConverters = if (canReUseAdapterStore) {
-            this.typeConverters
-        } else {
-            processConvertersResult + this.typeConverters
-        }
+        val subTypeConverters =
+            if (canReUseAdapterStore) {
+                this.typeConverters
+            } else {
+                processConvertersResult + this.typeConverters
+            }
         val subSuppressedWarnings =
             forceSuppressedWarnings + suppressedWarnings + logger.suppressedWarnings
-        val subCache = Cache(
-            parent = cache,
-            converters = subTypeConverters.classes,
-            suppressedWarnings = subSuppressedWarnings,
-            builtInConverterFlags = subBuiltInConverterFlags
-        )
-        val subCanRemoveUnusedColumns = canRewriteQueriesToDropUnusedColumns ||
-            element.hasRemoveUnusedColumnsAnnotation()
-        val subContext = Context(
-            processingEnv = processingEnv,
-            logger = RLog(logger.messager, subSuppressedWarnings, element),
-            typeConverters = subTypeConverters,
-            inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
-            cache = subCache,
-            canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns
-        )
+        val subCache =
+            Cache(
+                parent = cache,
+                converters = subTypeConverters.classes,
+                suppressedWarnings = subSuppressedWarnings,
+                builtInConverterFlags = subBuiltInConverterFlags
+            )
+        val subCanRemoveUnusedColumns =
+            canRewriteQueriesToDropUnusedColumns || element.hasRemoveUnusedColumnsAnnotation()
+        val subContext =
+            Context(
+                processingEnv = processingEnv,
+                logger = RLog(logger.messager, subSuppressedWarnings, element),
+                typeConverters = subTypeConverters,
+                inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
+                cache = subCache,
+                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns
+            )
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }
@@ -294,8 +290,8 @@ class Context private constructor(
         EXPORT_SCHEMA_RESOURCE("room.exportSchemaResource", defaultValue = false);
 
         /**
-         * Returns the value of this option passed through the [XProcessingEnv]. If the value
-         * is null or blank, it returns the default value instead.
+         * Returns the value of this option passed through the [XProcessingEnv]. If the value is
+         * null or blank, it returns the default value instead.
          */
         fun getValue(processingEnv: XProcessingEnv): Boolean {
             return getInputValue(processingEnv) ?: defaultValue
@@ -310,18 +306,15 @@ class Context private constructor(
         }
 
         private fun getInputValue(options: Map<String, String>): Boolean? {
-            return options[argName]?.takeIf {
-                it.isNotBlank()
-            }?.toBoolean()
+            return options[argName]?.takeIf { it.isNotBlank() }?.toBoolean()
         }
     }
 
     /**
      * Check if the target platform is only Android.
      *
-     * Note that there is no 'Android' target in the `targetPlatforms` list,
-     * so instead we check for JVM and also validate that an Android only class
-     * [Context] is in the classpath.
+     * Note that there is no 'Android' target in the `targetPlatforms` list, so instead we check for
+     * JVM and also validate that an Android only class [Context] is in the classpath.
      */
     fun isAndroidOnlyTarget(): Boolean {
         val targetPlatforms = this.processingEnv.targetPlatforms

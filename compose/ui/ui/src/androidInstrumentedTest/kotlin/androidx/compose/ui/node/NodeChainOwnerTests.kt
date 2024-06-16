@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(ExperimentalComposeUiApi::class)
+
 package androidx.compose.ui.node
 
 import androidx.compose.foundation.layout.Box
@@ -39,8 +40,7 @@ import org.junit.Test
 
 class NodeChainOwnerTests {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun getModifierNode_returnsLayers_whenGraphicsLayerIsTail() {
@@ -48,16 +48,12 @@ class NodeChainOwnerTests {
             // box gets the root graphics layer applied to it
             Box {
                 // test this, with no graphicsLayers added externally
-                Layout(
-                    modifier = Modifier.testTag("tag").graphicsLayer(),
-                    EmptyMeasurePolicy())
+                Layout(modifier = Modifier.testTag("tag").graphicsLayer(), EmptyMeasurePolicy())
             }
         }
 
-        val modifierInfo = rule.onNodeWithTag("tag")
-            .fetchSemanticsNode()
-            .layoutInfo
-            .getModifierInfo()
+        val modifierInfo =
+            rule.onNodeWithTag("tag").fetchSemanticsNode().layoutInfo.getModifierInfo()
         assertThat(modifierInfo.mapNotNull { it.extra }).hasSize(1)
     }
 
@@ -69,14 +65,13 @@ class NodeChainOwnerTests {
                 // test this, with no graphicsLayers added externally
                 Layout(
                     modifier = Modifier.graphicsLayer().semantics {}.testTag("tag"),
-                    EmptyMeasurePolicy())
+                    EmptyMeasurePolicy()
+                )
             }
         }
 
-        val modifierInfo = rule.onNodeWithTag("tag")
-            .fetchSemanticsNode()
-            .layoutInfo
-            .getModifierInfo()
+        val modifierInfo =
+            rule.onNodeWithTag("tag").fetchSemanticsNode().layoutInfo.getModifierInfo()
         assertThat(modifierInfo.mapNotNull { it.extra }).hasSize(2)
     }
 
@@ -88,14 +83,13 @@ class NodeChainOwnerTests {
                 // test this, with no graphicsLayers added externally
                 Layout(
                     modifier = Modifier.graphicsLayer().size(30.dp).testTag("tag"),
-                    EmptyMeasurePolicy())
+                    EmptyMeasurePolicy()
+                )
             }
         }
 
-        val modifierInfo = rule.onNodeWithTag("tag")
-            .fetchSemanticsNode()
-            .layoutInfo
-            .getModifierInfo()
+        val modifierInfo =
+            rule.onNodeWithTag("tag").fetchSemanticsNode().layoutInfo.getModifierInfo()
         assertThat(modifierInfo.mapNotNull { it.extra }).hasSize(1)
     }
 }

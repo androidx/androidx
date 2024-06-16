@@ -52,17 +52,13 @@ class MapSubjectTest {
     @Test
     fun containsExactlyEmpty_fails() {
         val actual = mapOf("jan" to 1)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsExactly()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsExactly() }
     }
 
     @Test
     fun containsExactlyEntriesInEmpty_fails() {
         val actual = mapOf("jan" to 1)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsExactlyEntriesIn(emptyMap())
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsExactlyEntriesIn(emptyMap()) }
     }
 
     @Test
@@ -206,16 +202,14 @@ class MapSubjectTest {
     @Test
     fun containsExactlyWrongValue_sameToStringForKeys() {
         assertFailsWith<AssertionError> {
-            assertThat(mapOf(1L to "jan", 1 to "feb"))
-                .containsExactly(1 to "jan", 1L to "feb")
+            assertThat(mapOf(1L to "jan", 1 to "feb")).containsExactly(1 to "jan", 1L to "feb")
         }
     }
 
     @Test
     fun containsExactlyExtraKeyAndMissingKey_failsWithSameToStringForKeys() {
         assertFailsWith<AssertionError> {
-            assertThat(mapOf(1L to "jan", 2 to "feb"))
-                .containsExactly(1 to "jan", 2 to "feb")
+            assertThat(mapOf(1L to "jan", 2 to "feb")).containsExactly(1 to "jan", 2 to "feb")
         }
     }
 
@@ -375,9 +369,7 @@ class MapSubjectTest {
 
     @Test
     fun isEmptyWithFailure() {
-        assertFailsWith<AssertionError> {
-            assertThat(mapOf(1 to 5)).isEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(mapOf(1 to 5)).isEmpty() }
     }
 
     @Test
@@ -387,9 +379,7 @@ class MapSubjectTest {
 
     @Test
     fun isNotEmptyWithFailure() {
-        assertFailsWith<AssertionError> {
-            assertThat(mapOf<Any, Any>()).isNotEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(mapOf<Any, Any>()).isNotEmpty() }
     }
 
     @Test
@@ -404,9 +394,7 @@ class MapSubjectTest {
 
     @Test
     fun hasSizeNegative() {
-        assertFailsWith<IllegalArgumentException> {
-            assertThat(mapOf(1 to 2)).hasSize(-1)
-        }
+        assertFailsWith<IllegalArgumentException> { assertThat(mapOf(1 to 2)).hasSize(-1) }
     }
 
     @Test
@@ -417,16 +405,12 @@ class MapSubjectTest {
     @Test
     fun containsKeyFailure() {
         val actual = mapOf("kurt" to "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsKey("greg")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsKey("greg") }
     }
 
     @Test
     fun containsKeyNullFailure() {
-        assertFailsWith<AssertionError> {
-            assertThat(mapOf("kurt" to "kluever")).containsKey(null)
-        }
+        assertFailsWith<AssertionError> { assertThat(mapOf("kurt" to "kluever")).containsKey(null) }
     }
 
     @Test
@@ -438,9 +422,7 @@ class MapSubjectTest {
 
     @Test
     fun containsKey_failsWithNullStringAndNull() {
-        assertFailsWith<AssertionError> {
-            assertThat(mapOf("null" to "value1")).containsKey(null)
-        }
+        assertFailsWith<AssertionError> { assertThat(mapOf("null" to "value1")).containsKey(null) }
     }
 
     @Test
@@ -458,17 +440,13 @@ class MapSubjectTest {
     @Test
     fun doesNotContainKeyFailure() {
         val actual = mapOf("kurt" to "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).doesNotContainKey("kurt")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).doesNotContainKey("kurt") }
     }
 
     @Test
     fun doesNotContainNullKey() {
         val actual = mapOf<String?, String>(null to "null")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).doesNotContainKey(null)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).doesNotContainKey(null) }
     }
 
     @Test
@@ -480,17 +458,13 @@ class MapSubjectTest {
     @Test
     fun containsEntryFailure() {
         val actual = mapOf("kurt" to "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("greg" to "kick")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("greg" to "kick") }
     }
 
     @Test
     fun containsEntry_failsWithSameToStringOfKey() {
         val actual = mapOf<Number, String>(1L to "value1", 2L to "value2")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry(1 to "value1")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry(1 to "value1") }
     }
 
     @Test
@@ -504,9 +478,7 @@ class MapSubjectTest {
     @Test
     fun containsNullKeyAndValue() {
         val actual = mapOf<String?, String?>("kurt" to "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry(null to null)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry(null to null) }
     }
 
     @Test
@@ -518,25 +490,19 @@ class MapSubjectTest {
     @Test
     fun containsNullEntryValue() {
         val actual = mapOf<String?, String?>(null to null)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("kurt" to null)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("kurt" to null) }
     }
 
     @Test
     fun containsNullEntryKey() {
         val actual = mapOf<String?, String?>(null to null)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry(null to "kluever")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry(null to "kluever") }
     }
 
     @Test
     fun containsExactly_bothExactAndToStringKeyMatches_showsExactKeyMatch() {
         val actual = mapOf<Number, String>(1 to "actual int", 1L to "actual long")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry(1L to "expected long")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry(1L to "expected long") }
     }
 
     @Test
@@ -566,22 +532,16 @@ class MapSubjectTest {
     @Test
     fun doesNotContainNullEntryFailure() {
         val actual = mapOf<String?, String?>(null to null)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).doesNotContainEntry(null to null)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).doesNotContainEntry(null to null) }
     }
 
     @Test
     fun failMapContainsKey() {
-        assertFailsWith<AssertionError> {
-            assertThat(mapOf("a" to "A")).containsKey("b")
-        }
+        assertFailsWith<AssertionError> { assertThat(mapOf("a" to "A")).containsKey("b") }
     }
 
     @Test
     fun failMapContainsKeyWithNull() {
-        assertFailsWith<AssertionError> {
-            assertThat(mapOf("a" to "A")).containsKey(null)
-        }
+        assertFailsWith<AssertionError> { assertThat(mapOf("a" to "A")).containsKey(null) }
     }
 }

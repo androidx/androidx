@@ -25,11 +25,12 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
-    private val LocaleStub: TestFile = bytecodeStub(
-        filename = "Locale.kt",
-        filepath = "androidx/compose/ui/text/intl",
-        checksum = 0xddb66f8c,
-        """
+    private val LocaleStub: TestFile =
+        bytecodeStub(
+            filename = "Locale.kt",
+            filepath = "androidx/compose/ui/text/intl",
+            checksum = 0xddb66f8c,
+            """
             package androidx.compose.ui.text.intl
             
             class Locale internal constructor(val value: Int) {
@@ -37,12 +38,12 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
             }
             
         """,
-        """
+            """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg4uNiKUktLhFiCwGS3iVKDFoMALlw
                 FOQoAAAA
                 """,
-        """
+            """
                 androidx/compose/ui/text/intl/Locale.class:
                 H4sIAAAAAAAA/41SS08TURT+7kwf02GgQwWEovgAoRRlCnGHIT4Sk0lqNUC6
                 YeNte1NuO50xM7cNy/4W125MNBgXpnHpjzKe2zaAkYXJzLnnfPOdx3zn/vr9
@@ -60,25 +61,26 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 GWJfjeJcjuJgAWv03SM/qye4NU6rjO0OKQD4hN6j9PunMH088PHQxzo2yMUj
                 H5vYOgVLUML2KewE+QTlBAtjW0g0Qk4mgZtg/g+5KP69IAQAAA==
                 """
-    )
+        )
 
-    private val LocaleListStub: TestFile = bytecodeStub(
-        filename = "LocaleList.kt",
-        filepath = "androidx/compose/ui/text/intl",
-        checksum = 0x843815c8,
-        """
+    private val LocaleListStub: TestFile =
+        bytecodeStub(
+            filename = "LocaleList.kt",
+            filepath = "androidx/compose/ui/text/intl",
+            checksum = 0x843815c8,
+            """
             package androidx.compose.ui.text.intl
             
             class LocaleList(val localeList: Int) {
                 constructor(languageTags: String) : this(5)
             }
         """,
-        """
+            """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg4uNiKUktLhFiCwGS3iVKDFoMALlw
                 FOQoAAAA
                 """,
-        """
+            """
                 androidx/compose/ui/text/intl/LocaleList.class:
                 H4sIAAAAAAAA/41STW/TQBB9a6eJYxzihra0KZSPFpqmUKcVt6IKioRkyRTU
                 VrlUHDbJKt3EsZG9iXrsb+HMBQlUxAFVHPlRiNkkSoroAcmenRnPvHl+s79+
@@ -96,18 +98,19 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 U8lS9ZSKM6HiYA4r9N0jP6cZ3Bq21YZ2kxQAfMreo/b7JzB9PPDx0Mcq1sjF
                 Ix+PsX4ClqKCjRPYKYopqinmhraU6gw52RRuitk/ysbdOTQEAAA=
                 """
-    )
+        )
 
     override fun getDetector() = LocaleInvalidLanguageTagDetector()
 
-    override fun getIssues() = mutableListOf(
-        LocaleInvalidLanguageTagDetector.InvalidLanguageTagDelimiter
-    )
+    override fun getIssues() =
+        mutableListOf(LocaleInvalidLanguageTagDetector.InvalidLanguageTagDelimiter)
 
     @Test
     fun hyphensDelimiter_locale_shouldNotWarn() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
                     package test
 
                     import androidx.compose.ui.text.intl.Locale
@@ -116,17 +119,19 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                         val locale = Locale("en-UK")
                     }
                 """
-            ),
-            LocaleStub
-        )
+                ),
+                LocaleStub
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun hyphensDelimiter_localeList_single_shouldNotWarn() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
                     package test
 
                     import androidx.compose.ui.text.intl.LocaleList
@@ -135,18 +140,20 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                         val locale = LocaleList("en-UK")
                     }
                 """
-            ),
-            LocaleStub,
-            LocaleListStub
-        )
+                ),
+                LocaleStub,
+                LocaleListStub
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun hyphensDelimiter_localeList_multiple_shouldNotWarn() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
                     package test
 
                     import androidx.compose.ui.text.intl.LocaleList
@@ -155,18 +162,20 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                         val locale = LocaleList("en-UK,en-US")
                     }
                 """
-            ),
-            LocaleStub,
-            LocaleListStub
-        )
+                ),
+                LocaleStub,
+                LocaleListStub
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun underscoreDelimiter_locale_shouldWarn() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
                     package test
 
                     import androidx.compose.ui.text.intl.Locale
@@ -176,15 +185,15 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                         bar(Locale("en_UK"))
                     }
                 """
-            ),
-            LocaleStub
-        )
+                ),
+                LocaleStub
+            )
             .run()
             .expect(
                 """
                 src/test/test.kt:8: Error: A hyphen (-), not an underscore (_) delimiter should be used in a language tag [InvalidLanguageTagDelimiter]
                                         bar(Locale("en_UK"))
-                                                    ~~~~~
+                                                   ~~~~~~~
                 1 errors, 0 warnings
             """
             )
@@ -192,8 +201,10 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
 
     @Test
     fun underscoreDelimiter_localeList_single_shouldWarn() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
                     package test
 
                     import androidx.compose.ui.text.intl.LocaleList
@@ -202,16 +213,16 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                         val locale = LocaleList("en_UK")
                     }
                 """
-            ),
-            LocaleStub,
-            LocaleListStub
-        )
+                ),
+                LocaleStub,
+                LocaleListStub
+            )
             .run()
             .expect(
                 """
                 src/test/test.kt:7: Error: A hyphen (-), not an underscore (_) delimiter should be used in a language tag [InvalidLanguageTagDelimiter]
                                         val locale = LocaleList("en_UK")
-                                                                 ~~~~~
+                                                                ~~~~~~~
                 1 errors, 0 warnings
             """
             )
@@ -219,8 +230,10 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
 
     @Test
     fun underscoreDelimiter_localeList_multiple_shouldWarn() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
                     package test
 
                     import androidx.compose.ui.text.intl.LocaleList
@@ -229,16 +242,16 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                         val locale = LocaleList("en_UK,en-US")
                     }
                 """
-            ),
-            LocaleStub,
-            LocaleListStub
-        )
+                ),
+                LocaleStub,
+                LocaleListStub
+            )
             .run()
             .expect(
                 """
                 src/test/test.kt:7: Error: A hyphen (-), not an underscore (_) delimiter should be used in a language tag [InvalidLanguageTagDelimiter]
                                         val locale = LocaleList("en_UK,en-US")
-                                                                 ~~~~~~~~~~~
+                                                                ~~~~~~~~~~~~~
                 1 errors, 0 warnings
             """
             )

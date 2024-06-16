@@ -107,45 +107,49 @@ private const val moveDuration = 700
 
 @Composable
 private fun NumberColumn(maxDigit: Int, digit: Int) {
-    val offsetY: Dp = animateDpAsState(
-        targetValue = ((9 - digit) * digitHeight).dp,
-        animationSpec = tween(moveDuration),
-    ).value
+    val offsetY: Dp =
+        animateDpAsState(
+                targetValue = ((9 - digit) * digitHeight).dp,
+                animationSpec = tween(moveDuration),
+            )
+            .value
     var circleOffset by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(digit) {
         if (digit == 0) return@LaunchedEffect // Don't animate for 0 as direction is reversed
-        animate(
-            initialValue = 0f,
-            targetValue = -1f,
-            animationSpec = tween(moveDuration)
-        ) { animationValue, _ -> circleOffset = animationValue }
+        animate(initialValue = 0f, targetValue = -1f, animationSpec = tween(moveDuration)) {
+            animationValue,
+            _ ->
+            circleOffset = animationValue
+        }
         animate(
             initialValue = -1f,
             targetValue = 0f,
             animationSpec = spring(dampingRatio = 0.6f)
-        ) { animationValue, _ -> circleOffset = animationValue }
+        ) { animationValue, _ ->
+            circleOffset = animationValue
+        }
     }
     var circleStretch by remember { mutableFloatStateOf(1f) }
     LaunchedEffect(digit) {
         if (digit == 0) return@LaunchedEffect // Don't animate for 0 as direction is reversed
-        animate(
-            initialValue = 1f,
-            targetValue = 2f,
-            animationSpec = tween(moveDuration)
-        ) { animationValue, _ -> circleStretch = animationValue }
-        animate(
-            initialValue = 2f,
-            targetValue = 1f,
-            animationSpec = spring(dampingRatio = 0.6f)
-        ) { animationValue, _ -> circleStretch = animationValue }
+        animate(initialValue = 1f, targetValue = 2f, animationSpec = tween(moveDuration)) {
+            animationValue,
+            _ ->
+            circleStretch = animationValue
+        }
+        animate(initialValue = 2f, targetValue = 1f, animationSpec = spring(dampingRatio = 0.6f)) {
+            animationValue,
+            _ ->
+            circleStretch = animationValue
+        }
     }
     Box(modifier = Modifier.padding(4.dp)) {
         // Draw an elevation shadow for the rounded column
         Surface(
             shape = RoundedCornerShape((digitHeight / 2).dp),
-            modifier = Modifier
-                .offset(y = offsetY)
-                .size(digitHeight.dp, ((maxDigit + 1) * digitHeight).dp),
+            modifier =
+                Modifier.offset(y = offsetY)
+                    .size(digitHeight.dp, ((maxDigit + 1) * digitHeight).dp),
             elevation = 12.dp
         ) {}
         // Draw circle that follows focused digit
@@ -154,10 +158,8 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
                 color = Color(0xffd2e7d6),
                 size = Size(24.dp.toPx(), (digitHeight * circleStretch).dp.toPx()),
                 topLeft = Offset(0f, ((9f + circleOffset) * digitHeight).dp.toPx()),
-                cornerRadius = CornerRadius(
-                    (digitHeight / 2).dp.toPx(),
-                    (digitHeight / 2).dp.toPx()
-                )
+                cornerRadius =
+                    CornerRadius((digitHeight / 2).dp.toPx(), (digitHeight / 2).dp.toPx())
             )
         }
         // Draw all the digits up to count

@@ -56,12 +56,10 @@ public class ComparisonType private constructor(public val id: Int, public val n
         // TODO(b/175064823): investigate adding EQUAL comparison type
 
         /** The comparison type is unknown, or this library version is too old to recognize it. */
-        @JvmField
-        public val UNKNOWN: ComparisonType = ComparisonType(0, "UNKNOWN")
+        @JvmField public val UNKNOWN: ComparisonType = ComparisonType(0, "UNKNOWN")
 
         /** The comparison should be `currentValue > threshold`. */
-        @JvmField
-        public val GREATER_THAN: ComparisonType = ComparisonType(1, "GREATER_THAN")
+        @JvmField public val GREATER_THAN: ComparisonType = ComparisonType(1, "GREATER_THAN")
 
         /** The comparison should be `currentValue >= threshold`. */
         @JvmField

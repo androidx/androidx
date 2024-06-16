@@ -31,9 +31,7 @@ import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.ColumnIndexVar
 import java.util.Locale
 
-/**
- * Creates the index variables to retrieve columns from a cursor for a [PojoRowAdapter].
- */
+/** Creates the index variables to retrieve columns from a cursor for a [PojoRowAdapter]. */
 class PojoIndexAdapter(
     private val mapping: PojoRowAdapter.PojoMapping,
     private val info: QueryResultInfo?,
@@ -43,54 +41,51 @@ class PojoIndexAdapter(
     private lateinit var columnIndexVars: List<ColumnIndexVar>
 
     override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
-        columnIndexVars = mapping.matchedFields.map {
-            val indexVar = scope.getTmpVar(
-                "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
-            )
-            if (info != null && query != null && query.hasTopStarProjection == false) {
-                // When result info is available and query does not have a top-level star
-                // projection we can generate column to field index since the column result order
-                // is deterministic.
-                val infoIndex = info.columns.indexOfFirst { columnInfo ->
-                    columnInfo.name == it.columnName
-                }
-                check(infoIndex != -1) {
-                    "Result column index not found for field '$it' with column name " +
-                        "'${it.columnName}'. Query: ${query.original}. Please file a bug at " +
-                        ProcessorErrors.ISSUE_TRACKER_LINK
-                }
-                scope.builder.addLocalVal(
-                    indexVar,
-                    XTypeName.PRIMITIVE_INT,
-                    "%L",
-                    infoIndex
-                )
-            } else {
-                val indexMethod = if (info == null) {
-                    "getColumnIndex"
+        columnIndexVars =
+            mapping.matchedFields.map {
+                val indexVar =
+                    scope.getTmpVar("_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}")
+                if (info != null && query != null && query.hasTopStarProjection == false) {
+                    // When result info is available and query does not have a top-level star
+                    // projection we can generate column to field index since the column result
+                    // order
+                    // is deterministic.
+                    val infoIndex =
+                        info.columns.indexOfFirst { columnInfo -> columnInfo.name == it.columnName }
+                    check(infoIndex != -1) {
+                        "Result column index not found for field '$it' with column name " +
+                            "'${it.columnName}'. Query: ${query.original}. Please file a bug at " +
+                            ProcessorErrors.ISSUE_TRACKER_LINK
+                    }
+                    scope.builder.addLocalVal(indexVar, XTypeName.PRIMITIVE_INT, "%L", infoIndex)
                 } else {
-                    "getColumnIndexOrThrow"
-                }
-                val packageMember = if (scope.useDriverApi) {
-                    STATEMENT_UTIL.packageMember(indexMethod)
-                } else {
-                    CURSOR_UTIL.packageMember(indexMethod)
-                }
-                scope.builder.addLocalVariable(
-                    name = indexVar,
-                    typeName = XTypeName.PRIMITIVE_INT,
-                    assignExpr = XCodeBlock.of(
-                        scope.language,
-                        "%M(%L, %S)",
-                        packageMember,
-                        cursorVarName,
-                        it.columnName
-
+                    val indexMethod =
+                        if (info == null) {
+                            "getColumnIndex"
+                        } else {
+                            "getColumnIndexOrThrow"
+                        }
+                    val packageMember =
+                        if (scope.useDriverApi) {
+                            STATEMENT_UTIL.packageMember(indexMethod)
+                        } else {
+                            CURSOR_UTIL.packageMember(indexMethod)
+                        }
+                    scope.builder.addLocalVariable(
+                        name = indexVar,
+                        typeName = XTypeName.PRIMITIVE_INT,
+                        assignExpr =
+                            XCodeBlock.of(
+                                scope.language,
+                                "%M(%L, %S)",
+                                packageMember,
+                                cursorVarName,
+                                it.columnName
+                            )
                     )
-                )
+                }
+                ColumnIndexVar(it.columnName, indexVar)
             }
-            ColumnIndexVar(it.columnName, indexVar)
-        }
     }
 
     override fun getIndexVars() = columnIndexVars

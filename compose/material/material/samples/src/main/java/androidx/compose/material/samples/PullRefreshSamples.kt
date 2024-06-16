@@ -59,21 +59,20 @@ fun PullRefreshSample() {
     var refreshing by remember { mutableStateOf(false) }
     var itemCount by remember { mutableStateOf(15) }
 
-    fun refresh() = refreshScope.launch {
-        refreshing = true
-        delay(1500)
-        itemCount += 5
-        refreshing = false
-    }
+    fun refresh() =
+        refreshScope.launch {
+            refreshing = true
+            delay(1500)
+            itemCount += 5
+            refreshing = false
+        }
 
     val state = rememberPullRefreshState(refreshing, ::refresh)
 
     Box(Modifier.pullRefresh(state)) {
         LazyColumn(Modifier.fillMaxSize()) {
             if (!refreshing) {
-                items(itemCount) {
-                    ListItem { Text(text = "Item ${itemCount - it}") }
-                }
+                items(itemCount) { ListItem { Text(text = "Item ${itemCount - it}") } }
             }
         }
 
@@ -82,8 +81,7 @@ fun PullRefreshSample() {
 }
 
 /**
- * An example to show how [pullRefresh] could be used to build a custom
- * pull to refresh component.
+ * An example to show how [pullRefresh] could be used to build a custom pull to refresh component.
  */
 @Sampled
 @Composable
@@ -98,22 +96,24 @@ fun CustomPullRefreshSample() {
 
     val progress = currentDistance / threshold
 
-    fun refresh() = refreshScope.launch {
-        refreshing = true
-        delay(1500)
-        itemCount += 5
-        refreshing = false
-    }
-
-    fun onPull(pullDelta: Float): Float = when {
-        refreshing -> 0f
-        else -> {
-            val newOffset = (currentDistance + pullDelta).coerceAtLeast(0f)
-            val dragConsumed = newOffset - currentDistance
-            currentDistance = newOffset
-            dragConsumed
+    fun refresh() =
+        refreshScope.launch {
+            refreshing = true
+            delay(1500)
+            itemCount += 5
+            refreshing = false
         }
-    }
+
+    fun onPull(pullDelta: Float): Float =
+        when {
+            refreshing -> 0f
+            else -> {
+                val newOffset = (currentDistance + pullDelta).coerceAtLeast(0f)
+                val dragConsumed = newOffset - currentDistance
+                currentDistance = newOffset
+                dragConsumed
+            }
+        }
 
     fun onRelease(velocity: Float): Float {
         if (refreshing) return 0f // Already refreshing - don't call refresh again.
@@ -136,9 +136,7 @@ fun CustomPullRefreshSample() {
     Box(Modifier.pullRefresh(::onPull, ::onRelease)) {
         LazyColumn {
             if (!refreshing) {
-                items(itemCount) {
-                    ListItem { Text(text = "Item ${itemCount - it}") }
-                }
+                items(itemCount) { ListItem { Text(text = "Item ${itemCount - it}") } }
             }
         }
 
@@ -154,8 +152,8 @@ fun CustomPullRefreshSample() {
 }
 
 /**
- * An example to show how [pullRefreshIndicatorTransform] can be given custom contents to create
- * a custom indicator.
+ * An example to show how [pullRefreshIndicatorTransform] can be given custom contents to create a
+ * custom indicator.
  */
 @Sampled
 @Composable
@@ -165,35 +163,30 @@ fun PullRefreshIndicatorTransformSample() {
     var refreshing by remember { mutableStateOf(false) }
     var itemCount by remember { mutableStateOf(15) }
 
-    fun refresh() = refreshScope.launch {
-        refreshing = true
-        delay(1500)
-        itemCount += 5
-        refreshing = false
-    }
+    fun refresh() =
+        refreshScope.launch {
+            refreshing = true
+            delay(1500)
+            itemCount += 5
+            refreshing = false
+        }
 
     val state = rememberPullRefreshState(refreshing, ::refresh)
     val rotation = animateFloatAsState(state.progress * 120)
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .pullRefresh(state)
-    ) {
+    Box(Modifier.fillMaxSize().pullRefresh(state)) {
         LazyColumn {
             if (!refreshing) {
-                items(itemCount) {
-                    ListItem { Text(text = "Item ${itemCount - it}") }
-                }
+                items(itemCount) { ListItem { Text(text = "Item ${itemCount - it}") } }
             }
         }
 
         Surface(
-            modifier = Modifier
-                .size(40.dp)
-                .align(Alignment.TopCenter)
-                .pullRefreshIndicatorTransform(state)
-                .rotate(rotation.value),
+            modifier =
+                Modifier.size(40.dp)
+                    .align(Alignment.TopCenter)
+                    .pullRefreshIndicatorTransform(state)
+                    .rotate(rotation.value),
             shape = RoundedCornerShape(10.dp),
             color = Color.DarkGray,
             elevation = if (state.progress > 0 || refreshing) 20.dp else 0.dp,
@@ -201,9 +194,7 @@ fun PullRefreshIndicatorTransformSample() {
             Box {
                 if (refreshing) {
                     CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(25.dp),
+                        modifier = Modifier.align(Alignment.Center).size(25.dp),
                         color = Color.White,
                         strokeWidth = 3.dp
                     )

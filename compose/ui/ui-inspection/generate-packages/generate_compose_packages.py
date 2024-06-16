@@ -25,9 +25,14 @@ SCRIPT_NAME = 'generate_compose_packages.py'
 # The file is formatted as one package per line.
 COMPOSE_PACKAGES_LIST_FILE = 'compose_packages_list.txt'
 
-# `frameworks/support/compose/` and `frameworks/support/navigation/`, relative to this script
-# directory, should be the root directories where we search for composables.
-TARGET_DIRECTORIES = ['../../..', '../../../../navigation']
+# `frameworks/support/compose/`, `frameworks/support/navigation/navigation-compose`, and
+# `frameworks/support/wear/compose`, relative to this script directory, should be the root
+# directories where we search for composables.
+TARGET_DIRECTORIES = [
+    '../../..',
+    '../../../../navigation/navigation-compose',
+    '../../../../wear/compose',
+]
 
 # Reads a source file with the given file_path and adds its package to the current set of packages
 # if the file contains at least one Composable.
@@ -116,11 +121,12 @@ def regenerate_packages_kt_file(packages):
         '    packageName.fold(0) { hash, char -> hash * 31 + char.code }.absoluteValue\n\n'
     )
     system_packages_val = (
-        'val systemPackages = intSetOf(\n'
-        '    -1,\n'
+        'val systemPackages =\n'
+        '    intSetOf(\n'
+        '        -1,\n'
         '%s\n'
-        ')\n' % (
-            '\n'.join(['    packageNameHash("' + package + '"),' for package in packages])
+        '    )\n' % (
+            '\n'.join(['        packageNameHash("' + package + '"),' for package in packages])
         )
     )
     with open(kt_file, 'w') as file:

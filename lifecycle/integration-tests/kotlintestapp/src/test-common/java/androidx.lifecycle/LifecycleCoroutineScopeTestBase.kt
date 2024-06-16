@@ -39,22 +39,23 @@ abstract class LifecycleCoroutineScopeTestBase {
         assertThat(owner.lifecycle.internalScopeRef.get()).isSameInstanceAs(scope)
         val scope2 = owner.lifecycleScope
         assertThat(scope).isSameInstanceAs(scope2)
-        runBlocking(Dispatchers.Main) {
-            assertThat(owner.observerCount).isEqualTo(1)
-        }
+        runBlocking(Dispatchers.Main) { assertThat(owner.observerCount).isEqualTo(1) }
     }
 
     @Test
     fun simpleLaunch() {
         val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher())
         assertThat(
-            runBlocking {
-                owner.lifecycleScope.async {
-                    // do nothing
-                    true
-                }.await()
-            }
-        ).isTrue()
+                runBlocking {
+                    owner.lifecycleScope
+                        .async {
+                            // do nothing
+                            true
+                        }
+                        .await()
+                }
+            )
+            .isTrue()
     }
 
     @Test
@@ -62,35 +63,27 @@ abstract class LifecycleCoroutineScopeTestBase {
         val owner = TestLifecycleOwner(Lifecycle.State.CREATED, UnconfinedTestDispatcher())
         owner.lifecycle.currentState = Lifecycle.State.DESTROYED
         runBlocking {
-            owner.lifecycleScope.launch {
-                // do nothing
-                throw AssertionError("should not run")
-            }.join()
+            owner.lifecycleScope
+                .launch {
+                    // do nothing
+                    throw AssertionError("should not run")
+                }
+                .join()
         }
     }
 
     @Test
     fun launchOnMain() {
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
-        assertThat(
-            runBlocking(Dispatchers.Main) {
-                owner.lifecycleScope.async {
-                    true
-                }.await()
-            }
-        ).isTrue()
+        assertThat(runBlocking(Dispatchers.Main) { owner.lifecycleScope.async { true }.await() })
+            .isTrue()
     }
 
     @Test
     fun launchOnIO() {
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
-        assertThat(
-            runBlocking(Dispatchers.IO) {
-                owner.lifecycleScope.async {
-                    true
-                }.await()
-            }
-        ).isTrue()
+        assertThat(runBlocking(Dispatchers.IO) { owner.lifecycleScope.async { true }.await() })
+            .isTrue()
     }
 
     @Test
@@ -98,10 +91,11 @@ abstract class LifecycleCoroutineScopeTestBase {
         val startMutex = Mutex(locked = true)
         val alwaysLocked = Mutex(locked = true)
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
-        val actionWasActive = owner.lifecycleScope.async(Dispatchers.IO) {
-            startMutex.unlock()
-            alwaysLocked.lock() // wait 4ever
-        }
+        val actionWasActive =
+            owner.lifecycleScope.async(Dispatchers.IO) {
+                startMutex.unlock()
+                alwaysLocked.lock() // wait 4ever
+            }
         runBlocking(Dispatchers.Main) {
             startMutex.lock() // wait until it starts
             owner.currentState = Lifecycle.State.DESTROYED
@@ -114,13 +108,11 @@ abstract class LifecycleCoroutineScopeTestBase {
     fun throwException() {
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
-            val action = owner.lifecycleScope.async {
-                throw RuntimeException("foo")
-            }
+            val action = owner.lifecycleScope.async { throw RuntimeException("foo") }
             action.join()
-            assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameInstanceAs(
-                "foo"
-            )
+            assertThat(action.getCompletionExceptionOrNull())
+                .hasMessageThat()
+                .isSameInstanceAs("foo")
         }
     }
 
@@ -129,16 +121,12 @@ abstract class LifecycleCoroutineScopeTestBase {
         val owner = TestLifecycleOwner(Lifecycle.State.CREATED, UnconfinedTestDispatcher())
         runBlocking {
             // TODO guarantee later execution
-            val action = owner.lifecycleScope.async {
-                throw RuntimeException("foo")
-            }
-            withContext(Dispatchers.Main) {
-                owner.currentState = Lifecycle.State.STARTED
-            }
+            val action = owner.lifecycleScope.async { throw RuntimeException("foo") }
+            withContext(Dispatchers.Main) { owner.currentState = Lifecycle.State.STARTED }
             action.join()
-            assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameInstanceAs(
-                "foo"
-            )
+            assertThat(action.getCompletionExceptionOrNull())
+                .hasMessageThat()
+                .isSameInstanceAs("foo")
         }
     }
 
@@ -146,58 +134,31 @@ abstract class LifecycleCoroutineScopeTestBase {
     fun runAnotherAfterCancellation_cancelOutside() {
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
-            val action = owner.lifecycleScope.async {
-                delay(20000)
-            }
+            val action = owner.lifecycleScope.async { delay(20000) }
             action.cancel()
             action.join()
         }
-        assertThat(
-            runBlocking {
-                owner.lifecycleScope.async {
-                    true
-                }.await()
-            }
-        ).isTrue()
+        assertThat(runBlocking { owner.lifecycleScope.async { true }.await() }).isTrue()
     }
 
     @Test
     fun runAnotherAfterCancellation_cancelInside() {
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
-            val action = owner.lifecycleScope.async {
-                throw CancellationException("")
-            }
+            val action = owner.lifecycleScope.async { throw CancellationException("") }
             action.join()
         }
-        assertThat(
-            runBlocking {
-                owner.lifecycleScope.async {
-                    true
-                }.await()
-            }
-        ).isTrue()
+        assertThat(runBlocking { owner.lifecycleScope.async { true }.await() }).isTrue()
     }
 
     @Test
     fun runAnotherAfterFailure() {
         val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
-            val action = owner.lifecycleScope.async {
-                throw IllegalArgumentException("why not ?")
-            }
-            val result = kotlin.runCatching {
-                action.await()
-            }
-            assertThat(result.exceptionOrNull())
-                .isInstanceOf(IllegalArgumentException::class.java)
+            val action = owner.lifecycleScope.async { throw IllegalArgumentException("why not ?") }
+            val result = kotlin.runCatching { action.await() }
+            assertThat(result.exceptionOrNull()).isInstanceOf(IllegalArgumentException::class.java)
         }
-        assertThat(
-            runBlocking {
-                owner.lifecycleScope.async {
-                    true
-                }.await()
-            }
-        ).isTrue()
+        assertThat(runBlocking { owner.lifecycleScope.async { true }.await() }).isTrue()
     }
 }

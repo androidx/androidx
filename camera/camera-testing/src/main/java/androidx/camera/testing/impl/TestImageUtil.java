@@ -74,7 +74,6 @@ import java.io.ByteArrayOutputStream;
  * ------------------
  * </pre>
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class TestImageUtil {
 
     @VisibleForTesting

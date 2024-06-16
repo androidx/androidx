@@ -18,7 +18,6 @@ package androidx.camera.core.impl.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.impl.SessionProcessor;
@@ -29,7 +28,6 @@ import java.util.List;
 /**
  * Utility class for session processor related operations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionProcessorUtil {
     private SessionProcessorUtil() {
 

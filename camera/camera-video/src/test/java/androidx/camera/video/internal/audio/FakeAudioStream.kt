@@ -16,7 +16,6 @@
 
 package androidx.camera.video.internal.audio
 
-import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.video.internal.audio.AudioStream.PacketInfo
@@ -25,7 +24,6 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import kotlin.math.min
 
-@RequiresApi(21)
 class FakeAudioStream(
     private val audioDataProvider: (index: Int) -> AudioData,
     isSilenced: Boolean = false,
@@ -39,6 +37,7 @@ class FakeAudioStream(
                 notifySilence()
             }
         }
+
     private val _audioDataList = mutableListOf<AudioData>()
     private val startCalls = MockConsumer<Unit>()
     private val stopCalls = MockConsumer<Unit>()
@@ -127,53 +126,55 @@ class FakeAudioStream(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false
-    ) = startCalls.verifyAcceptCall(
-        Unit::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-    )
+    ) =
+        startCalls.verifyAcceptCall(
+            Unit::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+        )
 
     fun verifyStopCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false
-    ) = stopCalls.verifyAcceptCall(
-        Unit::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-    )
+    ) =
+        stopCalls.verifyAcceptCall(
+            Unit::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+        )
 
     fun verifyReleaseCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false
-    ) = releaseCalls.verifyAcceptCall(
-        Unit::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-    )
+    ) =
+        releaseCalls.verifyAcceptCall(
+            Unit::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+        )
 
     fun verifyReadCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false
-    ) = readCalls.verifyAcceptCall(
-        Unit::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-    )
+    ) =
+        readCalls.verifyAcceptCall(
+            Unit::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+        )
 
     private fun notifySilence() {
         if (!isStarted || isReleased) {
             return
         }
-        callbackExecutor?.execute {
-            audioStreamCallback?.onSilenceStateChanged(isSilenced)
-        }
+        callbackExecutor?.execute { audioStreamCallback?.onSilenceStateChanged(isSilenced) }
     }
 
     data class AudioData(val byteBuffer: ByteBuffer, val timestampNs: Long)

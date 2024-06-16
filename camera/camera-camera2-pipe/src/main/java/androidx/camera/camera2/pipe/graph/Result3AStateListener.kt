@@ -40,7 +40,9 @@ import kotlinx.coroutines.Deferred
  */
 internal interface Result3AStateListener {
     fun onRequestSequenceCreated(requestNumber: RequestNumber)
+
     fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
+
     fun onRequestSequenceStopped()
 }
 
@@ -64,14 +66,11 @@ internal class Result3AStateListenerImpl(
     val result: Deferred<Result3A>
         get() = _result
 
-    @Volatile
-    private var frameNumberOfFirstUpdate: FrameNumber? = null
+    @Volatile private var frameNumberOfFirstUpdate: FrameNumber? = null
 
-    @Volatile
-    private var timestampOfFirstUpdateNs: Long? = null
+    @Volatile private var timestampOfFirstUpdateNs: Long? = null
 
-    @GuardedBy("this")
-    private var initialRequestNumber: RequestNumber? = null
+    @GuardedBy("this") private var initialRequestNumber: RequestNumber? = null
 
     override fun onRequestSequenceCreated(requestNumber: RequestNumber) {
         synchronized(this) {
@@ -103,10 +102,11 @@ internal class Result3AStateListenerImpl(
         }
 
         val timestampOfFirstUpdateNs = timestampOfFirstUpdateNs
-        if (timeLimitNs != null &&
-            timestampOfFirstUpdateNs != null &&
-            currentTimestampNs != null &&
-            currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
+        if (
+            timeLimitNs != null &&
+                timestampOfFirstUpdateNs != null &&
+                currentTimestampNs != null &&
+                currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
         ) {
             _result.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED, frameMetadata))
             return true
@@ -117,9 +117,10 @@ internal class Result3AStateListenerImpl(
         }
 
         val frameNumberOfFirstUpdate = frameNumberOfFirstUpdate
-        if (frameNumberOfFirstUpdate != null &&
-            frameLimit != null &&
-            currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
+        if (
+            frameNumberOfFirstUpdate != null &&
+                frameLimit != null &&
+                currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
         ) {
             _result.complete(Result3A(Result3A.Status.FRAME_LIMIT_REACHED, frameMetadata))
             return true

@@ -29,19 +29,21 @@ import kotlin.jvm.JvmName
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it
- * modifies. [composed] may be used to implement **stateful modifiers** that have
- * instance-specific state for each modified element, allowing the same [Modifier] instance to be
- * safely reused for multiple elements while maintaining element-specific state.
+ * modifies. [composed] may be used to implement **stateful modifiers** that have instance-specific
+ * state for each modified element, allowing the same [Modifier] instance to be safely reused for
+ * multiple elements while maintaining element-specific state.
  *
  * If [inspectorInfo] is specified this modifier will be visible to tools during development.
  * Specify the name and arguments of the original modifier.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
- * [materialize] must be called to create instance-specific modifiers if you are directly
- * applying a [Modifier] to an element tree node.
+ * [materialize] must be called to create instance-specific modifiers if you are directly applying a
+ * [Modifier] to an element tree node.
  */
 fun Modifier.composed(
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
@@ -50,24 +52,26 @@ fun Modifier.composed(
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it
- * modifies. [composed] may be used to implement **stateful modifiers** that have
- * instance-specific state for each modified element, allowing the same [Modifier] instance to be
- * safely reused for multiple elements while maintaining element-specific state.
+ * modifies. [composed] may be used to implement **stateful modifiers** that have instance-specific
+ * state for each modified element, allowing the same [Modifier] instance to be safely reused for
+ * multiple elements while maintaining element-specific state.
  *
- * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to
- * another modifier constructed with the same keys in order to take advantage of caching and
- * skipping optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for
- * your modifier factory function, e.g. `com.example.myapp.ui.fancyPadding`.
+ * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to another
+ * modifier constructed with the same keys in order to take advantage of caching and skipping
+ * optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for your modifier
+ * factory function, e.g. `com.example.myapp.ui.fancyPadding`.
  *
  * If [inspectorInfo] is specified this modifier will be visible to tools during development.
  * Specify the name and arguments of the original modifier.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
- * [materialize] must be called to create instance-specific modifiers if you are directly
- * applying a [Modifier] to an element tree node.
+ * [materialize] must be called to create instance-specific modifiers if you are directly applying a
+ * [Modifier] to an element tree node.
  */
 @ExperimentalComposeUiApi
 fun Modifier.composed(
@@ -75,30 +79,30 @@ fun Modifier.composed(
     key1: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
     factory: @Composable Modifier.() -> Modifier
-): Modifier = this.then(
-    KeyedComposedModifier1(fullyQualifiedName, key1, inspectorInfo, factory)
-)
+): Modifier = this.then(KeyedComposedModifier1(fullyQualifiedName, key1, inspectorInfo, factory))
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it
- * modifies. [composed] may be used to implement **stateful modifiers** that have
- * instance-specific state for each modified element, allowing the same [Modifier] instance to be
- * safely reused for multiple elements while maintaining element-specific state.
+ * modifies. [composed] may be used to implement **stateful modifiers** that have instance-specific
+ * state for each modified element, allowing the same [Modifier] instance to be safely reused for
+ * multiple elements while maintaining element-specific state.
  *
- * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to
- * another modifier constructed with the same keys in order to take advantage of caching and
- * skipping optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for
- * your modifier factory function, e.g. `com.example.myapp.ui.fancyPadding`.
+ * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to another
+ * modifier constructed with the same keys in order to take advantage of caching and skipping
+ * optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for your modifier
+ * factory function, e.g. `com.example.myapp.ui.fancyPadding`.
  *
  * If [inspectorInfo] is specified this modifier will be visible to tools during development.
  * Specify the name and arguments of the original modifier.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
- * [materialize] must be called to create instance-specific modifiers if you are directly
- * applying a [Modifier] to an element tree node.
+ * [materialize] must be called to create instance-specific modifiers if you are directly applying a
+ * [Modifier] to an element tree node.
  */
 @ExperimentalComposeUiApi
 fun Modifier.composed(
@@ -107,30 +111,31 @@ fun Modifier.composed(
     key2: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
     factory: @Composable Modifier.() -> Modifier
-): Modifier = this.then(
-    KeyedComposedModifier2(fullyQualifiedName, key1, key2, inspectorInfo, factory)
-)
+): Modifier =
+    this.then(KeyedComposedModifier2(fullyQualifiedName, key1, key2, inspectorInfo, factory))
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it
- * modifies. [composed] may be used to implement **stateful modifiers** that have
- * instance-specific state for each modified element, allowing the same [Modifier] instance to be
- * safely reused for multiple elements while maintaining element-specific state.
+ * modifies. [composed] may be used to implement **stateful modifiers** that have instance-specific
+ * state for each modified element, allowing the same [Modifier] instance to be safely reused for
+ * multiple elements while maintaining element-specific state.
  *
- * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to
- * another modifier constructed with the same keys in order to take advantage of caching and
- * skipping optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for
- * your modifier factory function, e.g. `com.example.myapp.ui.fancyPadding`.
+ * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to another
+ * modifier constructed with the same keys in order to take advantage of caching and skipping
+ * optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for your modifier
+ * factory function, e.g. `com.example.myapp.ui.fancyPadding`.
  *
  * If [inspectorInfo] is specified this modifier will be visible to tools during development.
  * Specify the name and arguments of the original modifier.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
- * [materialize] must be called to create instance-specific modifiers if you are directly
- * applying a [Modifier] to an element tree node.
+ * [materialize] must be called to create instance-specific modifiers if you are directly applying a
+ * [Modifier] to an element tree node.
  */
 @ExperimentalComposeUiApi
 fun Modifier.composed(
@@ -140,30 +145,31 @@ fun Modifier.composed(
     key3: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
     factory: @Composable Modifier.() -> Modifier
-): Modifier = this.then(
-    KeyedComposedModifier3(fullyQualifiedName, key1, key2, key3, inspectorInfo, factory)
-)
+): Modifier =
+    this.then(KeyedComposedModifier3(fullyQualifiedName, key1, key2, key3, inspectorInfo, factory))
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it
- * modifies. [composed] may be used to implement **stateful modifiers** that have
- * instance-specific state for each modified element, allowing the same [Modifier] instance to be
- * safely reused for multiple elements while maintaining element-specific state.
+ * modifies. [composed] may be used to implement **stateful modifiers** that have instance-specific
+ * state for each modified element, allowing the same [Modifier] instance to be safely reused for
+ * multiple elements while maintaining element-specific state.
  *
- * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to
- * another modifier constructed with the same keys in order to take advantage of caching and
- * skipping optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for
- * your modifier factory function, e.g. `com.example.myapp.ui.fancyPadding`.
+ * When keys are provided, [composed] produces a [Modifier] that will compare [equals] to another
+ * modifier constructed with the same keys in order to take advantage of caching and skipping
+ * optimizations. [fullyQualifiedName] should be the fully-qualified `import` name for your modifier
+ * factory function, e.g. `com.example.myapp.ui.fancyPadding`.
  *
  * If [inspectorInfo] is specified this modifier will be visible to tools during development.
  * Specify the name and arguments of the original modifier.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
+ *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
- * [materialize] must be called to create instance-specific modifiers if you are directly
- * applying a [Modifier] to an element tree node.
+ * [materialize] must be called to create instance-specific modifiers if you are directly applying a
+ * [Modifier] to an element tree node.
  */
 @ExperimentalComposeUiApi
 fun Modifier.composed(
@@ -185,8 +191,9 @@ private class KeyedComposedModifier1(
     inspectorInfo: InspectorInfo.() -> Unit,
     factory: @Composable Modifier.() -> Modifier
 ) : ComposedModifier(inspectorInfo, factory) {
-    override fun equals(other: Any?) = other is KeyedComposedModifier1 &&
-        fqName == other.fqName && key1 == other.key1
+    override fun equals(other: Any?) =
+        other is KeyedComposedModifier1 && fqName == other.fqName && key1 == other.key1
+
     override fun hashCode(): Int = 31 * fqName.hashCode() + key1.hashCode()
 }
 
@@ -198,8 +205,11 @@ private class KeyedComposedModifier2(
     inspectorInfo: InspectorInfo.() -> Unit,
     factory: @Composable Modifier.() -> Modifier
 ) : ComposedModifier(inspectorInfo, factory) {
-    override fun equals(other: Any?) = other is KeyedComposedModifier2 &&
-        fqName == other.fqName && key1 == other.key1 && key2 == other.key2
+    override fun equals(other: Any?) =
+        other is KeyedComposedModifier2 &&
+            fqName == other.fqName &&
+            key1 == other.key1 &&
+            key2 == other.key2
 
     override fun hashCode(): Int {
         var result = fqName.hashCode()
@@ -218,8 +228,12 @@ private class KeyedComposedModifier3(
     inspectorInfo: InspectorInfo.() -> Unit,
     factory: @Composable Modifier.() -> Modifier
 ) : ComposedModifier(inspectorInfo, factory) {
-    override fun equals(other: Any?) = other is KeyedComposedModifier3 &&
-        fqName == other.fqName && key1 == other.key1 && key2 == other.key2 && key3 == other.key3
+    override fun equals(other: Any?) =
+        other is KeyedComposedModifier3 &&
+            fqName == other.fqName &&
+            key1 == other.key1 &&
+            key2 == other.key2 &&
+            key3 == other.key3
 
     override fun hashCode(): Int {
         var result = fqName.hashCode()
@@ -237,20 +251,31 @@ private class KeyedComposedModifierN(
     inspectorInfo: InspectorInfo.() -> Unit,
     factory: @Composable Modifier.() -> Modifier
 ) : ComposedModifier(inspectorInfo, factory) {
-    override fun equals(other: Any?) = other is KeyedComposedModifierN &&
-        fqName == other.fqName && keys.contentEquals(other.keys)
+    override fun equals(other: Any?) =
+        other is KeyedComposedModifierN && fqName == other.fqName && keys.contentEquals(other.keys)
+
     override fun hashCode() = 31 * fqName.hashCode() + keys.contentHashCode()
 }
 
 /**
  * Materialize any instance-specific [composed modifiers][composed] for applying to a raw tree node.
- * Call right before setting the returned modifier on an emitted node.
- * You almost certainly do not need to call this function directly.
+ * Call right before setting the returned modifier on an emitted node. You almost certainly do not
+ * need to call this function directly.
  */
 @Suppress("ModifierFactoryExtensionFunction")
 // "materialize" JVM name is taken below to solve a backwards-incompatibility
 @JvmName("materializeModifier")
 fun Composer.materialize(modifier: Modifier): Modifier {
+    // A group is required here so the number of slot added to the caller's group
+    // is unconditionally the same (in this case, none) as is now required by the runtime.
+    startReplaceGroup(0x1a365f2c) // Random number for fake group key. Chosen by fair die roll.
+    val result = materializeImpl(modifier)
+    endReplaceGroup()
+    return result
+}
+
+@Suppress("ModifierFactoryExtensionFunction")
+private fun Composer.materializeImpl(modifier: Modifier): Modifier {
     if (modifier.all { it !is ComposedModifier }) {
         return modifier
     }
@@ -263,18 +288,19 @@ fun Composer.materialize(modifier: Modifier): Modifier {
     // Random number for fake group key. Chosen by fair die roll.
     startReplaceableGroup(0x48ae8da7)
 
-    val result = modifier.foldIn<Modifier>(Modifier) { acc, element ->
-        acc.then(
-            if (element is ComposedModifier) {
-                @Suppress("UNCHECKED_CAST")
-                val factory = element.factory as Modifier.(Composer, Int) -> Modifier
-                val composedMod = factory(Modifier, this, 0)
-                materialize(composedMod)
-            } else {
-                element
-            }
-        )
-    }
+    val result =
+        modifier.foldIn<Modifier>(Modifier) { acc, element ->
+            acc.then(
+                if (element is ComposedModifier) {
+                    @Suppress("UNCHECKED_CAST")
+                    val factory = element.factory as Modifier.(Composer, Int) -> Modifier
+                    val composedMod = factory(Modifier, this, 0)
+                    materializeImpl(composedMod)
+                } else {
+                    element
+                }
+            )
+        }
 
     endReplaceableGroup()
     return result
@@ -291,6 +317,7 @@ internal class CompositionLocalMapInjectionNode(map: CompositionLocalMap) : Modi
             field = value
             requireLayoutNode().compositionLocalMap = value
         }
+
     override fun onAttach() {
         requireLayoutNode().compositionLocalMap = map
     }
@@ -301,24 +328,29 @@ internal class CompositionLocalMapInjectionNode(map: CompositionLocalMap) : Modi
  * into LayoutNodes that were created by inlined code of older versions of the Layout composable.
  * More details can be found at https://issuetracker.google.com/275067189
  */
-internal class CompositionLocalMapInjectionElement(
-    val map: CompositionLocalMap
-) : ModifierNodeElement<CompositionLocalMapInjectionNode>() {
+internal class CompositionLocalMapInjectionElement(val map: CompositionLocalMap) :
+    ModifierNodeElement<CompositionLocalMapInjectionNode>() {
     override fun create() = CompositionLocalMapInjectionNode(map)
-    override fun update(node: CompositionLocalMapInjectionNode) { node.map = map }
+
+    override fun update(node: CompositionLocalMapInjectionNode) {
+        node.map = map
+    }
+
     override fun hashCode(): Int = map.hashCode()
+
     override fun equals(other: Any?): Boolean {
         return other is CompositionLocalMapInjectionElement && other.map == map
     }
+
     override fun InspectorInfo.inspectableProperties() {
         name = "<Injected CompositionLocalMap>"
     }
 }
 
 /**
- * This function exists solely for solving a backwards-incompatibility with older compilations
- * that used an older version of the `Layout` composable. New code paths should not call this.
- * More details can be found at https://issuetracker.google.com/275067189
+ * This function exists solely for solving a backwards-incompatibility with older compilations that
+ * used an older version of the `Layout` composable. New code paths should not call this. More
+ * details can be found at https://issuetracker.google.com/275067189
  */
 @Suppress("ModifierFactoryExtensionFunction")
 @JvmName("materialize")
@@ -335,8 +367,6 @@ fun Composer.materializeWithCompositionLocalInjection(modifier: Modifier): Modif
 internal fun Composer.materializeWithCompositionLocalInjectionInternal(
     modifier: Modifier
 ): Modifier {
-    return if (modifier === Modifier)
-        modifier
-    else
-        materialize(CompositionLocalMapInjectionElement(currentCompositionLocalMap).then(modifier))
+    return if (modifier === Modifier) modifier
+    else materialize(CompositionLocalMapInjectionElement(currentCompositionLocalMap).then(modifier))
 }

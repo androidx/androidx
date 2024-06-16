@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.hardware.camera2.params.OutputConfiguration;
 import android.os.Build;
 import android.view.Surface;
 
@@ -30,7 +31,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.params.DynamicRangeConversions;
 import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
@@ -40,10 +40,12 @@ import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
 import androidx.camera.camera2.internal.compat.quirk.CaptureNoResponseQuirk;
 import androidx.camera.camera2.internal.compat.workaround.RequestMonitor;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
+import androidx.camera.camera2.internal.compat.workaround.TemplateParamsOverride;
 import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -69,7 +71,6 @@ import java.util.concurrent.CancellationException;
  * A basic implementation of {@link CaptureSessionInterface} for capturing images from the camera
  * which is tied to a specific {@link CameraDevice}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class CaptureSession implements CaptureSessionInterface {
     private static final String TAG = "CaptureSession";
 
@@ -121,6 +122,7 @@ final class CaptureSession implements CaptureSessionInterface {
     private final TorchStateReset mTorchStateReset = new TorchStateReset();
     private final RequestMonitor mRequestMonitor;
     private final DynamicRangesCompat mDynamicRangesCompat;
+    private final TemplateParamsOverride mTemplateParamsOverride;
 
     /**
      * Constructor for CaptureSession without CameraQuirk.
@@ -139,6 +141,7 @@ final class CaptureSession implements CaptureSessionInterface {
         mCaptureSessionStateCallback = new StateCallback();
         mRequestMonitor = new RequestMonitor(
                 cameraQuirks != null && cameraQuirks.contains(CaptureNoResponseQuirk.class));
+        mTemplateParamsOverride = new TemplateParamsOverride(cameraQuirks);
     }
 
     @Override
@@ -336,7 +339,8 @@ final class CaptureSession implements CaptureSessionInterface {
                     try {
                         CaptureRequest captureRequest =
                                 Camera2CaptureRequestBuilder.buildWithoutTarget(
-                                        sessionParameterConfigBuilder.build(), cameraDevice);
+                                        sessionParameterConfigBuilder.build(), cameraDevice,
+                                        mTemplateParamsOverride);
                         if (captureRequest != null) {
                             sessionConfigCompat.setSessionParameters(captureRequest);
                         }
@@ -389,6 +393,14 @@ final class CaptureSession implements CaptureSessionInterface {
         } else {
             outputConfiguration.setPhysicalCameraId(
                     outputConfig.getPhysicalCameraId());
+        }
+
+        // No need to map MIRROR_MODE_ON_FRONT_ONLY to MIRROR_MODE_AUTO
+        // since its default value in framework
+        if (outputConfig.getMirrorMode() == MirrorMode.MIRROR_MODE_OFF) {
+            outputConfiguration.setMirrorMode(OutputConfiguration.MIRROR_MODE_NONE);
+        } else if (outputConfig.getMirrorMode() == MirrorMode.MIRROR_MODE_ON) {
+            outputConfiguration.setMirrorMode(OutputConfiguration.MIRROR_MODE_H);
         }
 
         if (!outputConfig.getSharedSurfaces().isEmpty()) {
@@ -578,6 +590,13 @@ final class CaptureSession implements CaptureSessionInterface {
         }
     }
 
+    @Override
+    public boolean isInOpenState() {
+        synchronized (mSessionLock) {
+            return mState == State.OPENED || mState == State.OPENING;
+        }
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mSessionLock")
     void finishClose() {
@@ -632,7 +651,7 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.d(TAG, "Issuing request for session.");
                 CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                         captureConfig, mSynchronizedCaptureSession.getDevice(),
-                        mConfiguredSurfaceMap, true);
+                        mConfiguredSurfaceMap, true, mTemplateParamsOverride);
                 if (captureRequest == null) {
                     Logger.d(TAG, "Skipping issuing empty request for session.");
                     return -1;
@@ -742,7 +761,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                             captureConfigBuilder.build(), mSynchronizedCaptureSession.getDevice(),
-                            mConfiguredSurfaceMap, false);
+                            mConfiguredSurfaceMap, false, mTemplateParamsOverride);
                     if (captureRequest == null) {
                         Logger.d(TAG, "Skipping issuing request without surface.");
                         return -1;

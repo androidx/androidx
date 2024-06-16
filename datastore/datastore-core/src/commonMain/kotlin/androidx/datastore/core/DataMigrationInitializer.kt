@@ -16,9 +16,7 @@
 
 package androidx.datastore.core
 
-/**
- * Returns an initializer function created from a list of DataMigrations.
- */
+/** Returns an initializer function created from a list of DataMigrations. */
 internal class DataMigrationInitializer<T>() {
     companion object {
         /**
@@ -26,12 +24,11 @@ internal class DataMigrationInitializer<T>() {
          *
          * @param migrations A list of migrations that will be included in the initializer.
          * @return The initializer which includes the data migrations returned from the factory
-         * functions.
+         *   functions.
          */
-        fun <T> getInitializer(migrations: List<DataMigration<T>>):
-            suspend (api: InitializerApi<T>) -> Unit = { api ->
-                runMigrations(migrations, api)
-            }
+        fun <T> getInitializer(
+            migrations: List<DataMigration<T>>
+        ): suspend (api: InitializerApi<T>) -> Unit = { api -> runMigrations(migrations, api) }
 
         private suspend fun <T> runMigrations(
             migrations: List<DataMigration<T>>,

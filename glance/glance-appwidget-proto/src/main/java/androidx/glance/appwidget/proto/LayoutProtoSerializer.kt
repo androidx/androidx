@@ -23,9 +23,7 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-/**
- * Serializes the proto for use with DataStore.
- */
+/** Serializes the proto for use with DataStore. */
 public object LayoutProtoSerializer : Serializer<LayoutConfig> {
 
     override val defaultValue: LayoutConfig = LayoutConfig.getDefaultInstance()

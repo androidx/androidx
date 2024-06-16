@@ -31,11 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 @Sampled
 @Composable
 fun SurfaceSample() {
-    Surface(
-        color = MaterialTheme.colors.background
-    ) {
-        Text("Text color is `onBackground`")
-    }
+    Surface(color = MaterialTheme.colors.background) { Text("Text color is `onBackground`") }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -43,10 +39,7 @@ fun SurfaceSample() {
 @Composable
 fun ClickableSurfaceSample() {
     var count by remember { mutableStateOf(0) }
-    Surface(
-        onClick = { count++ },
-        color = MaterialTheme.colors.background
-    ) {
+    Surface(onClick = { count++ }, color = MaterialTheme.colors.background) {
         Text("Clickable surface Text with `onBackground` color and count: $count")
     }
 }
@@ -61,10 +54,7 @@ fun SelectableSurfaceSample() {
         onClick = { selected = !selected },
         color = MaterialTheme.colors.background
     ) {
-        Text(
-            text = if (selected) "Selected" else "Not Selected",
-            textAlign = TextAlign.Center
-        )
+        Text(text = if (selected) "Selected" else "Not Selected", textAlign = TextAlign.Center)
     }
 }
 
@@ -76,15 +66,13 @@ fun ToggleableSurfaceSample() {
     Surface(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        color = if (checked) {
-            MaterialTheme.colors.primary
-        } else {
-            MaterialTheme.colors.background
-        }
+        color =
+            if (checked) {
+                MaterialTheme.colors.primary
+            } else {
+                MaterialTheme.colors.background
+            }
     ) {
-        Text(
-            text = if (checked) "ON" else "OFF",
-            textAlign = TextAlign.Center
-        )
+        Text(text = if (checked) "ON" else "OFF", textAlign = TextAlign.Center)
     }
 }

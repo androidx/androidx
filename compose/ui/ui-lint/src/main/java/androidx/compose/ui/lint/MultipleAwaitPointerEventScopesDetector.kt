@@ -60,12 +60,14 @@ class MultipleAwaitPointerEventScopesDetector : Detector(), SourceCodeScanner {
         val containingDeclaration = node.getContainingDeclaration()
 
         // The element we will look inside
-        val boundaryElement = node.withContainingElements.first {
-            // Reached the containing function / lambda
-            // or Found a modifier expression - don't look outside the scope of this modifier
-            it == containingDeclaration || (it is UExpression) && it.getExpressionType()
-                ?.inheritsFrom(Names.Ui.Modifier) == true
-        }
+        val boundaryElement =
+            node.withContainingElements.first {
+                // Reached the containing function / lambda
+                // or Found a modifier expression - don't look outside the scope of this modifier
+                it == containingDeclaration ||
+                    (it is UExpression) &&
+                        it.getExpressionType()?.inheritsFrom(Names.Ui.Modifier) == true
+            }
 
         val awaitPointerEventCalls = searchAwaitPointerScopeCalls(boundaryElement)
 
@@ -87,17 +89,19 @@ class MultipleAwaitPointerEventScopesDetector : Detector(), SourceCodeScanner {
 
     private fun searchAwaitPointerScopeCalls(parent: UElement): Int {
         var awaitPointerEventCallsCount = 0
-        parent.accept(object : AbstractUastVisitor() {
-            override fun visitCallExpression(node: UCallExpression): Boolean {
-                val method = node.tryResolve() as? PsiMethod ?: return false
-                if (!method.isInPackageName(Names.Ui.Pointer.PackageName)) return false
+        parent.accept(
+            object : AbstractUastVisitor() {
+                override fun visitCallExpression(node: UCallExpression): Boolean {
+                    val method = node.tryResolve() as? PsiMethod ?: return false
+                    if (!method.isInPackageName(Names.Ui.Pointer.PackageName)) return false
 
-                if (method.name == Names.Ui.Pointer.AwaitPointerEventScope.shortName) {
-                    awaitPointerEventCallsCount++
+                    if (method.name == Names.Ui.Pointer.AwaitPointerEventScope.shortName) {
+                        awaitPointerEventCallsCount++
+                    }
+                    return false
                 }
-                return false
             }
-        })
+        )
 
         return awaitPointerEventCallsCount
     }
@@ -107,19 +111,22 @@ class MultipleAwaitPointerEventScopesDetector : Detector(), SourceCodeScanner {
         const val ErrorMessage =
             "Suspicious use of multiple awaitPointerEventScope blocks. Using " +
                 "multiple awaitPointerEventScope blocks may cause some input events to be dropped."
-        val MultipleAwaitPointerEventScopes = Issue.create(
-            IssueId,
-            ErrorMessage,
-            "Pointer Input events are queued inside awaitPointerEventScope. Multiple " +
-                "calls to awaitPointerEventScope may exit the scope. During this time " +
-                "there is no guarantee that the events will be queued and some " +
-                "events may be dropped. It is recommended to use a single top-level block and " +
-                "perform the pointer events processing within such block.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                MultipleAwaitPointerEventScopesDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val MultipleAwaitPointerEventScopes =
+            Issue.create(
+                IssueId,
+                ErrorMessage,
+                "Pointer Input events are queued inside awaitPointerEventScope. Multiple " +
+                    "calls to awaitPointerEventScope may exit the scope. During this time " +
+                    "there is no guarantee that the events will be queued and some " +
+                    "events may be dropped. It is recommended to use a single top-level block and " +
+                    "perform the pointer events processing within such block.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    MultipleAwaitPointerEventScopesDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

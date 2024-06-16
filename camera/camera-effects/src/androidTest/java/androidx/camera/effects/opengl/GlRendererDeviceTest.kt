@@ -47,9 +47,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumentation tests for [GlRenderer].
- */
+/** Instrumentation tests for [GlRenderer]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -74,14 +72,9 @@ class GlRendererDeviceTest {
     private lateinit var outputSurface: Surface
     private lateinit var outputTexture: SurfaceTexture
 
-    private val identityMatrix = FloatArray(16).apply {
-        Matrix.setIdentityM(this, 0)
-    }
+    private val identityMatrix = FloatArray(16).apply { Matrix.setIdentityM(this, 0) }
 
-    @Before
-    fun setUp() = runBlocking {
-        inputExecutor = Executors.newSingleThreadExecutor()
-    }
+    @Before fun setUp() = runBlocking { inputExecutor = Executors.newSingleThreadExecutor() }
 
     @After
     fun tearDown() {
@@ -110,124 +103,100 @@ class GlRendererDeviceTest {
     }
 
     @Test
-    fun drawInputToQueue_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
-        // Arrange: draw overlay with queue.
-        initGlRenderer(1)
-        drawOverlay()
-        drawInputSurface(input)
-        val queue = glRenderer.createBufferTextureIds(Size(WIDTH, HEIGHT))
-        // Act: draw input to the queue and then to the output.
-        glRenderer.renderInputToQueueTexture(queue[0])
-        val bitmap =
-            glRenderer.renderQueueTextureToBitmap(queue[0], WIDTH, HEIGHT, identityMatrix)
-        // Assert: the output is the input with overlay.
-        assertOverlayColor(bitmap)
-    }
+    fun drawInputToQueue_snapshot() =
+        runBlocking(inputExecutor.asCoroutineDispatcher()) {
+            // Arrange: draw overlay with queue.
+            initGlRenderer(1)
+            drawOverlay()
+            drawInputSurface(input)
+            val queue = glRenderer.createBufferTextureIds(Size(WIDTH, HEIGHT))
+            // Act: draw input to the queue and then to the output.
+            glRenderer.renderInputToQueueTexture(queue[0])
+            val bitmap =
+                glRenderer.renderQueueTextureToBitmap(queue[0], WIDTH, HEIGHT, identityMatrix)
+            // Assert: the output is the input with overlay.
+            assertOverlayColor(bitmap)
+        }
 
     @Test
-    fun drawInputWithOverlay_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
-        // Arrange: draw overlay with no queue.
-        initGlRenderer(NO_QUEUE)
-        drawOverlay()
-        drawInputSurface(input)
-        // Act.
-        val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
-        // Assert: the output is the input with overlay.
-        assertOverlayColor(output)
-    }
+    fun drawInputWithOverlay_snapshot() =
+        runBlocking(inputExecutor.asCoroutineDispatcher()) {
+            // Arrange: draw overlay with no queue.
+            initGlRenderer(NO_QUEUE)
+            drawOverlay()
+            drawInputSurface(input)
+            // Act.
+            val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
+            // Assert: the output is the input with overlay.
+            assertOverlayColor(output)
+        }
 
     @Test
-    fun drawInputWithoutOverlay_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
-        // Arrange: draw transparent overlay with queue.
-        initGlRenderer(NO_QUEUE)
-        drawTransparentOverlay()
-        drawInputSurface(input)
-        // Act.
-        val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
-        // Assert: the output is the same as the input.
-        assertThat(getAverageDiff(output, input)).isEqualTo(0)
-    }
+    fun drawInputWithoutOverlay_snapshot() =
+        runBlocking(inputExecutor.asCoroutineDispatcher()) {
+            // Arrange: draw transparent overlay with queue.
+            initGlRenderer(NO_QUEUE)
+            drawTransparentOverlay()
+            drawInputSurface(input)
+            // Act.
+            val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
+            // Assert: the output is the same as the input.
+            assertThat(getAverageDiff(output, input)).isEqualTo(0)
+        }
 
     @Test(expected = IllegalStateException::class)
-    fun drawInputWithQueue_throwsException() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
-        initGlRenderer(1)
-        glRenderer.renderInputToSurface(TIMESTAMP_NS, identityMatrix, outputSurface)
-    }
+    fun drawInputWithQueue_throwsException() =
+        runBlocking(inputExecutor.asCoroutineDispatcher()) {
+            initGlRenderer(1)
+            glRenderer.renderInputToSurface(TIMESTAMP_NS, identityMatrix, outputSurface)
+        }
 
     @Test(expected = IllegalStateException::class)
     fun drawTextureWithoutQueue_throwsException() =
         runBlocking(inputExecutor.asCoroutineDispatcher()) {
             initGlRenderer(NO_QUEUE)
-            glRenderer.renderQueueTextureToSurface(
-                0,
-                TIMESTAMP_NS,
-                identityMatrix,
-                outputSurface
-            )
+            glRenderer.renderQueueTextureToSurface(0, TIMESTAMP_NS, identityMatrix, outputSurface)
         }
 
     private suspend fun initGlRenderer(queueDepth: Int) {
         glRenderer = GlRenderer(queueDepth)
         withContext(inputExecutor.asCoroutineDispatcher()) {
             glRenderer.init()
-            inputTexture = SurfaceTexture(glRenderer.inputTextureId).apply {
-                setDefaultBufferSize(WIDTH, HEIGHT)
-            }
+            inputTexture =
+                SurfaceTexture(glRenderer.inputTextureId).apply {
+                    setDefaultBufferSize(WIDTH, HEIGHT)
+                }
             inputSurface = Surface(inputTexture)
-            overlayTexture = SurfaceTexture(glRenderer.overlayTextureId).apply {
-                setDefaultBufferSize(WIDTH, HEIGHT)
-            }
+            overlayTexture =
+                SurfaceTexture(glRenderer.overlayTextureId).apply {
+                    setDefaultBufferSize(WIDTH, HEIGHT)
+                }
             overlaySurface = Surface(overlayTexture)
         }
-        outputTexture = SurfaceTexture(0).apply {
-            setDefaultBufferSize(WIDTH, HEIGHT)
-        }
+        outputTexture = SurfaceTexture(0).apply { setDefaultBufferSize(WIDTH, HEIGHT) }
         outputSurface = Surface(outputTexture)
     }
 
-    /**
-     * Tests that the input is rendered to the output surface with the overlay.
-     */
+    /** Tests that the input is rendered to the output surface with the overlay. */
     private fun assertOverlayColor(bitmap: Bitmap) {
         // Top left quadrant is white.
-        assertThat(
-            getAverageDiff(
-                bitmap,
-                Rect(0, 0, WIDTH / 2, HEIGHT / 2),
-                Color.WHITE
-            )
-        ).isEqualTo(0)
-        assertThat(
-            getAverageDiff(
-                bitmap,
-                Rect(WIDTH / 2, 0, WIDTH, HEIGHT / 2),
-                Color.GREEN
-            )
-        ).isEqualTo(0)
-        assertThat(
-            getAverageDiff(
-                bitmap,
-                Rect(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT),
-                Color.YELLOW
-            )
-        ).isEqualTo(0)
-        assertThat(
-            getAverageDiff(
-                bitmap,
-                Rect(0, HEIGHT / 2, WIDTH / 2, HEIGHT),
-                Color.BLUE
-            )
-        ).isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(0, 0, WIDTH / 2, HEIGHT / 2), Color.WHITE))
+            .isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(WIDTH / 2, 0, WIDTH, HEIGHT / 2), Color.GREEN))
+            .isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT), Color.YELLOW))
+            .isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(0, HEIGHT / 2, WIDTH / 2, HEIGHT), Color.BLUE))
+            .isEqualTo(0)
     }
 
-    /**
-     * Draws the bitmap to the input surface and waits for the frame to be available.
-     */
+    /** Draws the bitmap to the input surface and waits for the frame to be available. */
     private suspend fun drawInputSurface(bitmap: Bitmap) {
         val deferredOnFrameAvailable = CompletableDeferred<Unit>()
-        inputTexture.setOnFrameAvailableListener({
-            deferredOnFrameAvailable.complete(Unit)
-        }, Handler(Looper.getMainLooper()))
+        inputTexture.setOnFrameAvailableListener(
+            { deferredOnFrameAvailable.complete(Unit) },
+            Handler(Looper.getMainLooper())
+        )
 
         // Draw bitmap to inputSurface.
         val canvas = lockCanvas(inputSurface)
@@ -235,17 +204,17 @@ class GlRendererDeviceTest {
         inputSurface.unlockCanvasAndPost(canvas)
 
         // Wait for frame available and update texture.
-        withTimeoutOrNull(5_000) {
-            deferredOnFrameAvailable.await()
-        } ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
+        withTimeoutOrNull(5_000) { deferredOnFrameAvailable.await() }
+            ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
         inputTexture.updateTexImage()
     }
 
     private suspend fun drawOverlay() {
         val deferredOnFrameAvailable = CompletableDeferred<Unit>()
-        overlayTexture.setOnFrameAvailableListener({
-            deferredOnFrameAvailable.complete(Unit)
-        }, Handler(Looper.getMainLooper()))
+        overlayTexture.setOnFrameAvailableListener(
+            { deferredOnFrameAvailable.complete(Unit) },
+            Handler(Looper.getMainLooper())
+        )
 
         val canvas = lockCanvas(overlaySurface)
         val centerX = (WIDTH / 2).toFloat()
@@ -259,25 +228,24 @@ class GlRendererDeviceTest {
         overlaySurface.unlockCanvasAndPost(canvas)
 
         // Wait for frame available and update texture.
-        withTimeoutOrNull(5_000) {
-            deferredOnFrameAvailable.await()
-        } ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
+        withTimeoutOrNull(5_000) { deferredOnFrameAvailable.await() }
+            ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
         overlayTexture.updateTexImage()
     }
 
     private suspend fun drawTransparentOverlay() {
         val deferredOnFrameAvailable = CompletableDeferred<Unit>()
-        overlayTexture.setOnFrameAvailableListener({
-            deferredOnFrameAvailable.complete(Unit)
-        }, Handler(Looper.getMainLooper()))
+        overlayTexture.setOnFrameAvailableListener(
+            { deferredOnFrameAvailable.complete(Unit) },
+            Handler(Looper.getMainLooper())
+        )
         val canvas = lockCanvas(overlaySurface)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
         overlaySurface.unlockCanvasAndPost(canvas)
 
         // Wait for frame available and update texture.
-        withTimeoutOrNull(5_000) {
-            deferredOnFrameAvailable.await()
-        } ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
+        withTimeoutOrNull(5_000) { deferredOnFrameAvailable.await() }
+            ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
         overlayTexture.updateTexImage()
     }
 }

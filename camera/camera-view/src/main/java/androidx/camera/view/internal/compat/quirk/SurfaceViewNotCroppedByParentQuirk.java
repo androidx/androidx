@@ -18,7 +18,6 @@ package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -32,7 +31,6 @@ import androidx.camera.core.impl.Quirk;
  *                  elements.
  *     Device(s): XIAOMI M2101K7AG
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewNotCroppedByParentQuirk implements Quirk {
 
     private static final String XIAOMI = "XIAOMI";

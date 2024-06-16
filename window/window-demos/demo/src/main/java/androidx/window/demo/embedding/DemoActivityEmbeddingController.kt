@@ -38,13 +38,10 @@ class DemoActivityEmbeddingController private constructor() {
             }
         }
         set(value) {
-            lock.withLock {
-                layoutDirectionLocked = value
-            }
+            lock.withLock { layoutDirectionLocked = value }
         }
 
-    @GuardedBy("lock")
-    private var layoutDirectionLocked = SplitAttributes.LayoutDirection.LOCALE
+    @GuardedBy("lock") private var layoutDirectionLocked = SplitAttributes.LayoutDirection.LOCALE
 
     internal var customizedSplitType: SplitAttributes.SplitType
         get() {
@@ -53,22 +50,16 @@ class DemoActivityEmbeddingController private constructor() {
             }
         }
         set(value) {
-            lock.withLock {
-                splitTypeLocked = value
-            }
+            lock.withLock { splitTypeLocked = value }
         }
 
-    @GuardedBy("lock")
-    private var splitTypeLocked = SplitAttributes.SplitType.SPLIT_TYPE_EQUAL
+    @GuardedBy("lock") private var splitTypeLocked = SplitAttributes.SplitType.SPLIT_TYPE_EQUAL
 
     companion object {
-        @Volatile
-        private var globalInstance: DemoActivityEmbeddingController? = null
+        @Volatile private var globalInstance: DemoActivityEmbeddingController? = null
         private val globalLock = ReentrantLock()
 
-        /**
-         * Obtains the singleton instance of [DemoActivityEmbeddingController].
-         */
+        /** Obtains the singleton instance of [DemoActivityEmbeddingController]. */
         @JvmStatic
         fun getInstance(): DemoActivityEmbeddingController {
             if (globalInstance == null) {

@@ -18,17 +18,13 @@ package androidx.glance.text
 
 import androidx.compose.runtime.Stable
 
-/**
- * Defines a horizontal line to be drawn on the text.
- */
+/** Defines a horizontal line to be drawn on the text. */
 @JvmInline
 value class TextDecoration internal constructor(private val mask: Int) {
     companion object {
         val None: TextDecoration = TextDecoration(0x0)
 
-        /**
-         * Draws a horizontal line below the text.
-         */
+        /** Draws a horizontal line below the text. */
         val Underline: TextDecoration = TextDecoration(0x1)
 
         /**
@@ -44,23 +40,18 @@ value class TextDecoration internal constructor(private val mask: Int) {
          * @param decorations The decorations to be added
          */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
-            val mask = decorations.fold(0) { acc, decoration ->
-                acc or decoration.mask
-            }
+            val mask = decorations.fold(0) { acc, decoration -> acc or decoration.mask }
             return TextDecoration(mask)
         }
     }
-    /**
-     * Creates a decoration that includes both of the TextDecorations.
-     */
+
+    /** Creates a decoration that includes both of the TextDecorations. */
     @Stable
     operator fun plus(decoration: TextDecoration): TextDecoration {
         return TextDecoration(this.mask or decoration.mask)
     }
 
-    /**
-     * Check whether this [TextDecoration] contains the given decoration.
-     */
+    /** Check whether this [TextDecoration] contains the given decoration. */
     @Stable
     operator fun contains(other: TextDecoration): Boolean {
         return (mask or other.mask) == mask

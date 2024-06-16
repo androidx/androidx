@@ -18,9 +18,7 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 
-/**
- * Defines an interactable undo history.
- */
+/** Defines an interactable undo history. */
 @ExperimentalFoundationApi
 class UndoState internal constructor(private val state: TextFieldState) {
 
@@ -50,16 +48,12 @@ class UndoState internal constructor(private val state: TextFieldState) {
         state.textUndoManager.undo(state)
     }
 
-    /**
-     * Re-applies a change that was previously reverted via [undo].
-     */
+    /** Re-applies a change that was previously reverted via [undo]. */
     fun redo() {
         state.textUndoManager.redo(state)
     }
 
-    /**
-     * Clears all undo and redo history up to this point.
-     */
+    /** Clears all undo and redo history up to this point. */
     fun clearHistory() {
         state.textUndoManager.clearHistory()
     }

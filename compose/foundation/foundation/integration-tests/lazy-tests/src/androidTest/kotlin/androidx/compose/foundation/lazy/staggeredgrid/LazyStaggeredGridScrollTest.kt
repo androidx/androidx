@@ -42,16 +42,16 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
-class LazyStaggeredGridScrollTest(
-    private val orientation: Orientation
-) : BaseLazyStaggeredGridWithOrientation(orientation) {
+class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
+    BaseLazyStaggeredGridWithOrientation(orientation) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(
-            Orientation.Vertical,
-            Orientation.Horizontal,
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                Orientation.Vertical,
+                Orientation.Horizontal,
+            )
     }
 
     internal lateinit var state: LazyStaggeredGridState
@@ -62,20 +62,13 @@ class LazyStaggeredGridScrollTest(
 
     @Before
     fun initSizes() {
-        itemSizeDp = with(rule.density) {
-            itemSizePx.toDp()
-        }
+        itemSizeDp = with(rule.density) { itemSizePx.toDp() }
     }
 
-    fun setContent(
-        containerSizePx: Int = itemSizePx * 5,
-        afterContentPaddingPx: Int = 0
-    ) {
+    fun setContent(containerSizePx: Int = itemSizePx * 5, afterContentPaddingPx: Int = 0) {
         rule.setContent {
             state = rememberLazyStaggeredGridState()
-            with(rule.density) {
-                TestContent(containerSizePx.toDp(), afterContentPaddingPx.toDp())
-            }
+            with(rule.density) { TestContent(containerSizePx.toDp(), afterContentPaddingPx.toDp()) }
         }
     }
 
@@ -86,16 +79,13 @@ class LazyStaggeredGridScrollTest(
         assertThat(state.firstVisibleItemIndex).isEqualTo(0)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
 
-        rule.onNodeWithTag("0")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("0").assertIsDisplayed()
     }
 
     @Test
     fun scrollToItem_byIndexAndOffset_outsideBounds() {
         setContent()
-        runBlocking(AutoTestFrameClock() + Dispatchers.Main) {
-            state.scrollToItem(10, 10)
-        }
+        runBlocking(AutoTestFrameClock() + Dispatchers.Main) { state.scrollToItem(10, 10) }
         assertThat(state.firstVisibleItemIndex).isEqualTo(10)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
     }
@@ -103,9 +93,7 @@ class LazyStaggeredGridScrollTest(
     @Test
     fun scrollToItem_byIndexAndOffset_inBounds() {
         setContent()
-        runBlocking(AutoTestFrameClock() + Dispatchers.Main) {
-            state.scrollToItem(2, 10)
-        }
+        runBlocking(AutoTestFrameClock() + Dispatchers.Main) { state.scrollToItem(2, 10) }
         assertThat(state.firstVisibleItemIndex).isEqualTo(1)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(110)
     }
@@ -113,9 +101,7 @@ class LazyStaggeredGridScrollTest(
     @Test
     fun scrollToItem_byIndexAndOffset_inBounds_secondLane() {
         setContent()
-        runBlocking(AutoTestFrameClock() + Dispatchers.Main) {
-            state.scrollToItem(4, 10)
-        }
+        runBlocking(AutoTestFrameClock() + Dispatchers.Main) { state.scrollToItem(4, 10) }
 
         assertThat(state.firstVisibleItemIndex).isEqualTo(3)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
@@ -124,9 +110,7 @@ class LazyStaggeredGridScrollTest(
     @Test
     fun scrollToItem_byIndexAndNegativeOffset() {
         setContent()
-        runBlocking(AutoTestFrameClock() + Dispatchers.Main) {
-            state.scrollToItem(4, -10)
-        }
+        runBlocking(AutoTestFrameClock() + Dispatchers.Main) { state.scrollToItem(4, -10) }
 
         assertThat(state.firstVisibleItemIndex).isEqualTo(1)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(itemSizePx * 2 - 10)
@@ -164,28 +148,28 @@ class LazyStaggeredGridScrollTest(
 
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
         assertThat(lastItem.index).isEqualTo(99)
-        val mainAxisOffset = if (orientation == Orientation.Vertical) {
-            lastItem.offset.y
-        } else {
-            lastItem.offset.x
-        }
+        val mainAxisOffset =
+            if (orientation == Orientation.Vertical) {
+                lastItem.offset.y
+            } else {
+                lastItem.offset.x
+            }
         assertThat(mainAxisOffset).isEqualTo(itemSizePx * 3) // x5 (grid) - x2 (item)
     }
 
     @Test
     fun scrollToItem_beyondItemCount() {
         setContent()
-        runBlocking(AutoTestFrameClock() + Dispatchers.Main) {
-            state.scrollToItem(420)
-        }
+        runBlocking(AutoTestFrameClock() + Dispatchers.Main) { state.scrollToItem(420) }
 
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
         assertThat(lastItem.index).isEqualTo(99)
-        val mainAxisOffset = if (orientation == Orientation.Vertical) {
-            lastItem.offset.y
-        } else {
-            lastItem.offset.x
-        }
+        val mainAxisOffset =
+            if (orientation == Orientation.Vertical) {
+                lastItem.offset.y
+            } else {
+                lastItem.offset.x
+            }
         assertThat(mainAxisOffset).isEqualTo(itemSizePx * 3) // x5 (grid) - x2 (item)
     }
 
@@ -203,15 +187,14 @@ class LazyStaggeredGridScrollTest(
     fun canScrollBackward() {
         setContent()
         runBlocking {
-            withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                state.scrollToItem(99)
-            }
+            withContext(Dispatchers.Main + AutoTestFrameClock()) { state.scrollToItem(99) }
             val lastItem = state.layoutInfo.visibleItemsInfo.last()
-            val mainAxisOffset = if (orientation == Orientation.Vertical) {
-                lastItem.offset.y
-            } else {
-                lastItem.offset.x
-            }
+            val mainAxisOffset =
+                if (orientation == Orientation.Vertical) {
+                    lastItem.offset.y
+                } else {
+                    lastItem.offset.x
+                }
             assertThat(mainAxisOffset).isEqualTo(itemSizePx * 3) // x5 (grid) - x2 (item)
             assertThat(state.canScrollForward).isFalse()
             assertThat(state.canScrollBackward).isTrue()
@@ -222,9 +205,7 @@ class LazyStaggeredGridScrollTest(
     fun canScrollForwardAndBackward() {
         setContent()
         runBlocking {
-            withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                state.scrollToItem(10)
-            }
+            withContext(Dispatchers.Main + AutoTestFrameClock()) { state.scrollToItem(10) }
             assertThat(state.firstVisibleItemIndex).isEqualTo(10)
             assertThat(state.canScrollForward).isTrue()
             assertThat(state.canScrollBackward).isTrue()
@@ -235,9 +216,7 @@ class LazyStaggeredGridScrollTest(
     fun scrollToItem_fullSpan() {
         setContent()
         runBlocking {
-            withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                state.scrollToItem(49, 10)
-            }
+            withContext(Dispatchers.Main + AutoTestFrameClock()) { state.scrollToItem(49, 10) }
 
             assertThat(state.firstVisibleItemIndex).isEqualTo(49)
             assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
@@ -251,7 +230,8 @@ class LazyStaggeredGridScrollTest(
         rule.runOnIdle {
             runBlocking {
                 withContext(AutoTestFrameClock()) {
-                    // small enough scroll to not cause any new items to be composed or old ones disposed.
+                    // small enough scroll to not cause any new items to be composed or old ones
+                    // disposed.
                     state.scrollBy(delta.toFloat())
                 }
             }
@@ -295,7 +275,8 @@ class LazyStaggeredGridScrollTest(
         rule.runOnIdle {
             runBlocking {
                 withContext(AutoTestFrameClock()) {
-                    // small enough scroll to not cause any new items to be composed or old ones disposed.
+                    // small enough scroll to not cause any new items to be composed or old ones
+                    // disposed.
                     state.scrollBy(delta.toFloat())
                 }
             }
@@ -307,9 +288,7 @@ class LazyStaggeredGridScrollTest(
         rule.runOnIdle {
             runBlocking {
                 // and scroll back to the end
-                withContext(AutoTestFrameClock()) {
-                    state.scrollBy(-delta.toFloat())
-                }
+                withContext(AutoTestFrameClock()) { state.scrollBy(-delta.toFloat()) }
             }
         }
         rule.runOnIdle {
@@ -334,7 +313,8 @@ class LazyStaggeredGridScrollTest(
                     assertThat(state.canScrollForward).isFalse()
                     assertThat(state.canScrollBackward).isTrue()
 
-                    // small enough scroll to not cause any new items to be composed or old ones disposed.
+                    // small enough scroll to not cause any new items to be composed or old ones
+                    // disposed.
                     state.scrollBy(delta.toFloat())
                 }
             }
@@ -368,13 +348,9 @@ class LazyStaggeredGridScrollTest(
                 mainAxisSpacing = spacingDp,
                 modifier = Modifier.size(itemSizeDp),
             ) {
-                item {
-                    Box(Modifier.size(itemSizeDp).testTag("0").debugBorder())
-                }
-                item { } // empty item surrounded by spacings
-                item {
-                    Box(Modifier.size(itemSizeDp).testTag("2").debugBorder())
-                }
+                item { Box(Modifier.size(itemSizeDp).testTag("0").debugBorder()) }
+                item {} // empty item surrounded by spacings
+                item { Box(Modifier.size(itemSizeDp).testTag("2").debugBorder()) }
             }
         }
         rule.runOnIdle {
@@ -386,7 +362,8 @@ class LazyStaggeredGridScrollTest(
                 state.scrollBy(20f)
             }
         }
-        rule.onNodeWithTag("2")
+        rule
+            .onNodeWithTag("2")
             .assertMainAxisStartPositionInRootIsEqualTo(
                 itemSizeDp - with(rule.density) { 20.toDp() }
             )
@@ -407,11 +384,12 @@ class LazyStaggeredGridScrollTest(
             lanes = 2,
             state = state,
             modifier = Modifier.axisSize(itemSizeDp * 2, containerSizeDp),
-            contentPadding = if (vertical) {
-                PaddingValues(bottom = afterContentPaddingDp)
-            } else {
-                PaddingValues(end = afterContentPaddingDp)
-            },
+            contentPadding =
+                if (vertical) {
+                    PaddingValues(bottom = afterContentPaddingDp)
+                } else {
+                    PaddingValues(end = afterContentPaddingDp)
+                },
         ) {
             items(
                 count = itemCount,
@@ -425,10 +403,7 @@ class LazyStaggeredGridScrollTest(
             ) {
                 BasicText(
                     "$it",
-                    Modifier
-                        .mainAxisSize(itemSizeDp * ((it % 2) + 1))
-                        .testTag("$it")
-                        .debugBorder()
+                    Modifier.mainAxisSize(itemSizeDp * ((it % 2) + 1)).testTag("$it").debugBorder()
                 )
             }
         }

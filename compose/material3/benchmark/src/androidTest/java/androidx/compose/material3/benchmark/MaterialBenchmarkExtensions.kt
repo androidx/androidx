@@ -53,9 +53,7 @@ internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
 
                 draw()
 
-                runWithTimingDisabled {
-                    drawFinish()
-                }
+                runWithTimingDisabled { drawFinish() }
             }
 
             if (loopCount == 1) {
@@ -176,9 +174,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstRenderUntilStable(
                 drawPrepare()
                 draw()
 
-                runWithTimingDisabled {
-                    drawFinish()
-                }
+                runWithTimingDisabled { drawFinish() }
             }
 
             if (loopCount == 1) {

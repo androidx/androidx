@@ -39,11 +39,13 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
         mutableListOf(ArcAnimationSpecTypeDetector.ArcAnimationSpecTypeIssue)
 
     // Simplified version of Arc animation classes in AnimationSpec.kt
-    private val ArcAnimationSpecStub = bytecodeStub(
-        filename = "AnimationSpec.kt",
-        filepath = "androidx/compose/animation/core",
-        checksum = 0x9d0cdf8f,
-        source = """
+    private val ArcAnimationSpecStub =
+        bytecodeStub(
+            filename = "AnimationSpec.kt",
+            filepath = "androidx/compose/animation/core",
+            checksum = 0x9d0cdf8f,
+            source =
+                """
             package androidx.compose.animation.core
 
             class ArcAnimationSpec<T>(val mode: ArcMode, val durationMillis: Int = 400)
@@ -52,12 +54,12 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
 
             object ArcAbove : ArcMode()
         """,
-        """
+            """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg4uViTsvPF2ILSS0u8S5RYtBiAACf
                 q36HJwAAAA==
                 """,
-        """
+            """
                 androidx/compose/animation/core/ArcAbove.class:
                 H4sIAAAAAAAA/41SS2/TQBD+1knzhqbllVDe5ZH0gJuKWyukEECylORAqkio
                 p42zwDb2brXeRD3mxA/hH1QcKoGEIrjxoxCzJoUDl9jyzM4333yzM/LPX1++
@@ -72,7 +74,7 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 f4X39hyXP2PjLAU8PEztXTxKf22GK9T06hEyAa4FuB5QaY2OqAe4ia0jsAS3
                 cJvyCcoJ7iTI/QY7flqdFwMAAA==
                 """,
-        """
+            """
                 androidx/compose/animation/core/ArcAnimationSpec.class:
                 H4sIAAAAAAAA/5VSS28TVxT+7vg1HgyMXUKCCRQID8cujONCH5gipSCkkeyA
                 cJRNurkZ35obj2eiudcRqyo/odtuWbMACUTVRRV12R9V9Vx7EvLowt3c87jf
@@ -94,7 +96,7 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 JJ8T5iZhbm0i4+O2jzs+algmFXUfDXy1CaZwF/c2UVJYVPAUmgpFhQsK8xO9
                 oHBDYUnhmsL1fwEMDsmpAwYAAA==
                 """,
-        """
+            """
                 androidx/compose/animation/core/ArcMode.class:
                 H4sIAAAAAAAA/5VRXWsTQRQ9s9lu0jW229aP1O+KYFOx2xbRh4oQK0IgUbCS
                 lzzIZDPqJLszZXY29DH4U/wHfRJ8kNBHf5R4Z5Pia4Xlfpwz596Zs7///PwF
@@ -108,25 +110,27 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 QiBiVF1ZiJ9S9hbi+llpoxPcmINzQVldxUp59EG54A62KL8gZJW4qI9KG2tt
                 rLexgWtU4nqbZtzsg+VoYLMPP0eY41aOIMftv/zlm/jsAgAA
                 """
-    )
+        )
 
     // Simplified version of Offset.kt in geometry package
-    private val GeometryStub = bytecodeStub(
-        filename = "Offset.kt",
-        filepath = "androidx/compose/ui/geometry",
-        checksum = 0x471b639e,
-        source = """
+    private val GeometryStub =
+        bytecodeStub(
+            filename = "Offset.kt",
+            filepath = "androidx/compose/ui/geometry",
+            checksum = 0x471b639e,
+            source =
+                """
             package androidx.compose.ui.geometry
 
             class Offset
         """,
-        """
+            """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgMuKST8xLKcrPTKnQS87PLcgvTtVL
                 zMvMTSzJzM8DihSlCvE7wvjBBanJ3iVcvFzMafn5QmwhqcUl3iVKDFoMAHnM
                 zO9bAAAA
                 """,
-        """
+            """
                 androidx/compose/ui/geometry/Offset.class:
                 H4sIAAAAAAAA/41RzS5DQRg937S9uIr6r9+NSLBwETsiQSJpUiRIN1bT3sFo
                 74zcmQq7Pos3sJJYSGPpocR3Lw9gc3J+vpk5M/P1/f4BYBdLhBVp4tTq+Clq
@@ -138,27 +142,29 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 MM8XcpzFYv5RhGHOytco1DBSw2gNY6gwxXgNE5i8BjlMYZpzh9BhxiH4AWXo
                 H/7lAQAA
                 """
-    )
+        )
 
     // Simplified classes of ui/unit package
-    private val UnitStub = bytecodeStub(
-        filename = "Units.kt",
-        filepath = "androidx/compose/ui/unit",
-        checksum = 0x137591fb,
-        source = """
+    private val UnitStub =
+        bytecodeStub(
+            filename = "Units.kt",
+            filepath = "androidx/compose/ui/unit",
+            checksum = 0x137591fb,
+            source =
+                """
             package androidx.compose.ui.unit
 
             class IntOffset
 
             class DpOffset
         """,
-        """
+            """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgMuKST8xLKcrPTKnQS87PLcgvTtVL
                 zMvMTSzJzM8DihSlCvE7wvjBBanJ3iVcvFzMafn5QmwhqcUl3iVKDFoMAHnM
                 zO9bAAAA
                 """,
-        """
+            """
                 androidx/compose/ui/unit/DpOffset.class:
                 H4sIAAAAAAAA/4VRy0oDMRQ9N7VjHavWd32CuFEXjoo7RfCBUKgKPrpxlXZS
                 jW0TaTList/iH7gSXEhx6UeJd0b3bg7ncZOcJF/f7x8AdrFEWJEm7lodP0cN
@@ -170,7 +176,7 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 8oUMZ7GY/RFhmLPiLXIVjFQwWsEYSkwxXsEEJm9BDlOY5twhdJhxCH4AObkh
                 xeABAAA=
                 """,
-        """
+            """
                 androidx/compose/ui/unit/IntOffset.class:
                 H4sIAAAAAAAA/4VRTS9rQRh+3ml71FHUd3FZiAUWDmJHJEhucpIiwe3Gatoz
                 ZbSdkc4csexv8Q+sJBbS3KUfJd5z2Ns8eT7emXlm5uPz7R3APlYIa9IkfauT
@@ -182,12 +188,14 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 RhHm+XKOC/iT/xJhjLPKDQoxxmNMxJhElSmmYkxj5gbkMIs5zh1Ch3mH4Au3
                 DmZN4gEAAA==
                 """
-    )
+        )
 
     @Test
     fun testPreferredTypeIssue() {
-        lint().files(
-            kotlin("""
+        lint()
+            .files(
+                kotlin(
+                    """
 package foo
 
 import androidx.compose.animation.core.ArcAnimationSpec
@@ -203,12 +211,15 @@ fun test() {
     ArcAnimationSpec<Float>(ArcAbove)
     ArcAnimationSpec<String>(ArcAbove)
 }
-            """),
-            ArcAnimationSpecStub,
-            GeometryStub,
-            UnitStub
-        ).run()
-            .expect("""src/foo/test.kt:14: Information: Arc animation is intended for 2D values such as Offset, IntOffset or DpOffset.
+            """
+                ),
+                ArcAnimationSpecStub,
+                GeometryStub,
+                UnitStub
+            )
+            .run()
+            .expect(
+                """src/foo/test.kt:14: Information: Arc animation is intended for 2D values such as Offset, IntOffset or DpOffset.
 Otherwise, the animation might not be what you expect. [ArcAnimationSpecTypeIssue]
     ArcAnimationSpec<Float>(ArcAbove)
     ~~~~~~~~~~~~~~~~
@@ -216,6 +227,7 @@ src/foo/test.kt:15: Information: Arc animation is intended for 2D values such as
 Otherwise, the animation might not be what you expect. [ArcAnimationSpecTypeIssue]
     ArcAnimationSpec<String>(ArcAbove)
     ~~~~~~~~~~~~~~~~
-0 errors, 0 warnings""")
+0 errors, 0 warnings"""
+            )
     }
 }

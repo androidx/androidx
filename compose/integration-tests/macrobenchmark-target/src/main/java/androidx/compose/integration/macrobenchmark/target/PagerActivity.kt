@@ -45,16 +45,12 @@ class PagerActivity : ComponentActivity() {
 
         setContent {
             val pagerState = rememberPagerState { itemCount }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 HorizontalPager(
-                    modifier = Modifier
-                        .height(400.dp)
-                        .semantics { contentDescription = "Pager" }
-                        .background(Color.White),
+                    modifier =
+                        Modifier.height(400.dp)
+                            .semantics { contentDescription = "Pager" }
+                            .background(Color.White),
                     state = pagerState,
                     pageSize = PageSize.Fill
                 ) {
@@ -73,11 +69,7 @@ class PagerActivity : ComponentActivity() {
 
 @Composable
 private fun PagerItem(index: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         Text(text = index.toString(), color = Color.White)
     }
 }

@@ -28,9 +28,8 @@ import org.junit.runner.RunWith
 class MetricResultTest {
     @Test
     fun constructorThrowsIfEmpty() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            MetricResult("test", emptyList())
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> { MetricResult("test", emptyList()) }
 
         assertEquals("At least one result is necessary, 0 found for test.", exception.message!!)
     }

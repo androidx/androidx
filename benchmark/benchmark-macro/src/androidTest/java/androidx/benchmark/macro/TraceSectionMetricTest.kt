@@ -25,82 +25,87 @@ import org.junit.Test
 @MediumTest
 @OptIn(ExperimentalMetricApi::class)
 class TraceSectionMetricTest {
-    private val api24ColdStart = createTempFileFromAsset(
-        prefix = "api24_startup_cold",
-        suffix = ".perfetto-trace"
-    ).absolutePath
+    private val api24ColdStart =
+        createTempFileFromAsset(prefix = "api24_startup_cold", suffix = ".perfetto-trace")
+            .absolutePath
 
-    private val commasInSliceNames = createTempFileFromAsset(
-        prefix = "api24_commas_in_slice_names",
-        suffix = ".perfetto-trace"
-    ).absolutePath
+    private val commasInSliceNames =
+        createTempFileFromAsset(prefix = "api24_commas_in_slice_names", suffix = ".perfetto-trace")
+            .absolutePath
 
     @Test
-    fun activityThreadMain() = verifyFirstSum(
-        tracePath = api24ColdStart,
-        packageName = Packages.TARGET,
-        sectionName = "ActivityThreadMain",
-        expectedFirstMs = 12.639
-    )
+    fun activityThreadMain() =
+        verifyFirstSum(
+            tracePath = api24ColdStart,
+            packageName = Packages.TARGET,
+            sectionName = "ActivityThreadMain",
+            expectedFirstMs = 12.639
+        )
 
     @Test
-    fun activityStart() = verifyFirstSum(
-        tracePath = api24ColdStart,
-        packageName = Packages.TARGET,
-        sectionName = "activityStart",
-        expectedFirstMs = 81.979
-    )
+    fun activityStart() =
+        verifyFirstSum(
+            tracePath = api24ColdStart,
+            packageName = Packages.TARGET,
+            sectionName = "activityStart",
+            expectedFirstMs = 81.979
+        )
 
     @Test
-    fun startActivityAndWait() = verifyFirstSum(
-        tracePath = api24ColdStart,
-        packageName = "androidx.benchmark.integration.macrobenchmark.test",
-        sectionName = "startActivityAndWait",
-        expectedFirstMs = 1_110.689,
-    )
+    fun startActivityAndWait() =
+        verifyFirstSum(
+            tracePath = api24ColdStart,
+            packageName = "androidx.benchmark.integration.macrobenchmark.test",
+            sectionName = "startActivityAndWait",
+            expectedFirstMs = 1_110.689,
+        )
 
     @Test
-    fun launching() = verifyFirstSum(
-        tracePath = api24ColdStart,
-        packageName = Packages.TARGET,
-        sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
-        expectedFirstMs = 269.947,
-        targetPackageOnly = false // slice from system_server
-    )
+    fun launching() =
+        verifyFirstSum(
+            tracePath = api24ColdStart,
+            packageName = Packages.TARGET,
+            sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
+            expectedFirstMs = 269.947,
+            targetPackageOnly = false // slice from system_server
+        )
 
     @Test
-    fun section1_2() = verifyFirstSum(
-        tracePath = commasInSliceNames,
-        packageName = Packages.TARGET,
-        sectionName = "section1,2",
-        expectedFirstMs = 0.006615
-    )
+    fun section1_2() =
+        verifyFirstSum(
+            tracePath = commasInSliceNames,
+            packageName = Packages.TARGET,
+            sectionName = "section1,2",
+            expectedFirstMs = 0.006615
+        )
 
     @Test
-    fun multiSection_targetOnly() = verifyFirstSum(
-        tracePath = api24ColdStart,
-        packageName = Packages.TARGET,
-        sectionName = "inflate",
-        expectedFirstMs = 4.949,
-        expectedMinMs = 4.588,
-        expectedMaxMs = 10.242,
-        expectedSumMs = 19.779,
-        expectedSumCount = 3,
-        targetPackageOnly = true,
-    )
+    fun multiSection_targetOnly() =
+        verifyFirstSum(
+            tracePath = api24ColdStart,
+            packageName = Packages.TARGET,
+            sectionName = "inflate",
+            expectedFirstMs = 4.949,
+            expectedMinMs = 4.588,
+            expectedMaxMs = 10.242,
+            expectedSumMs = 19.779,
+            expectedSumCount = 3,
+            targetPackageOnly = true,
+        )
 
     @Test
-    fun multiSection_unfiltered() = verifyFirstSum(
-        tracePath = api24ColdStart,
-        packageName = Packages.TARGET,
-        sectionName = "inflate",
-        expectedFirstMs = 13.318, // first inflation, in diff process
-        expectedMinMs = 0.836,
-        expectedMaxMs = 13.318,
-        expectedSumMs = 43.128,
-        expectedSumCount = 8,
-        targetPackageOnly = false,
-    )
+    fun multiSection_unfiltered() =
+        verifyFirstSum(
+            tracePath = api24ColdStart,
+            packageName = Packages.TARGET,
+            sectionName = "inflate",
+            expectedFirstMs = 13.318, // first inflation, in diff process
+            expectedMinMs = 0.836,
+            expectedMaxMs = 13.318,
+            expectedSumMs = 43.128,
+            expectedSumCount = 8,
+            targetPackageOnly = false,
+        )
 
     companion object {
         private fun verifyMetric(
@@ -117,37 +122,36 @@ class TraceSectionMetricTest {
             val metric = TraceSectionMetric(sectionName, mode, "testLabel", targetPackageOnly)
             metric.configure(packageName = packageName)
 
-            val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                metric.getMeasurements(
-                    // note that most args are incorrect here, but currently
-                    // only targetPackageName matters in this context
-                    captureInfo = Metric.CaptureInfo(
-                        targetPackageName = packageName,
-                        testPackageName = Packages.TEST,
-                        startupMode = StartupMode.COLD,
-                        apiLevel = 24
-                    ),
-                    traceSession = this
-                )
-            }
+            val result =
+                PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
+                    metric.getMeasurements(
+                        // note that most args are incorrect here, but currently
+                        // only targetPackageName matters in this context
+                        captureInfo =
+                            Metric.CaptureInfo(
+                                targetPackageName = packageName,
+                                testPackageName = Packages.TEST,
+                                startupMode = StartupMode.COLD,
+                                apiLevel = 24
+                            ),
+                        traceSession = this
+                    )
+                }
 
-            var measurements = if (mode != TraceSectionMetric.Mode.Count) {
-                listOf(Metric.Measurement("testLabel${mode.name}Ms", expectedMs))
-            } else {
-                emptyList()
-            }
+            var measurements =
+                if (mode != TraceSectionMetric.Mode.Count) {
+                    listOf(Metric.Measurement("testLabel${mode.name}Ms", expectedMs))
+                } else {
+                    emptyList()
+                }
 
             if (mode == TraceSectionMetric.Mode.Sum || mode == TraceSectionMetric.Mode.Count) {
-                measurements = measurements + listOf(
-                    Metric.Measurement("testLabelCount", expectedCount.toDouble())
-                )
+                measurements =
+                    measurements +
+                        listOf(Metric.Measurement("testLabelCount", expectedCount.toDouble()))
             }
 
-            assertEqualMeasurements(
-                expected = measurements,
-                observed = result,
-                threshold = 0.001
-            )
+            assertEqualMeasurements(expected = measurements, observed = result, threshold = 0.001)
         }
 
         private fun verifyFirstSum(

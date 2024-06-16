@@ -28,8 +28,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 /**
  * Convert a job into a ListenableFuture<Void>.
  *
- * The return value of the Future is null, and canceling the future will not cancel the Job.
- * The tag field may be used to help debug futures.
+ * The return value of the Future is null, and canceling the future will not cancel the Job. The tag
+ * field may be used to help debug futures.
  */
 fun Job.asListenableFuture(tag: Any? = "Job.asListenableFuture"): ListenableFuture<Void> {
     val resolver: CallbackToFutureAdapter.Resolver<Void> =
@@ -50,9 +50,7 @@ fun Job.asListenableFuture(tag: Any? = "Job.asListenableFuture"): ListenableFutu
     return CallbackToFutureAdapter.getFuture(resolver)
 }
 
-/**
- * Convert a job into a ListenableFuture<T>.
- */
+/** Convert a job into a ListenableFuture<T>. */
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <T> Deferred<T>.asListenableFuture(
     tag: Any? = "Deferred.asListenableFuture"
@@ -77,9 +75,7 @@ fun <T> Deferred<T>.asListenableFuture(
 }
 
 fun <T> Deferred<T>.propagateTo(destination: CompletableDeferred<T>) {
-    invokeOnCompletion {
-        propagateOnceTo(destination, it)
-    }
+    invokeOnCompletion { propagateOnceTo(destination, it) }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

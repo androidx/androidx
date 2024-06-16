@@ -47,9 +47,7 @@ import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 
-/**
- * Initializes SplitController with a set of statically defined rules.
- */
+/** Initializes SplitController with a set of statically defined rules. */
 class ExampleWindowInitializer : Initializer<RuleController> {
 
     private val mDemoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
@@ -77,11 +75,11 @@ class ExampleWindowInitializer : Initializer<RuleController> {
     ): SplitAttributes {
         val tag = params.splitRuleTag
         // The SplitAttributes to occupy the whole task bounds
-        val expandContainersAttrs = SplitAttributes.Builder()
-            .setSplitType(SPLIT_TYPE_EXPAND)
-            .build()
-        if (tag?.startsWith(PREFIX_FULLSCREEN_TOGGLE) == true &&
-            mDemoActivityEmbeddingController.shouldExpandSecondaryContainer.get()
+        val expandContainersAttrs =
+            SplitAttributes.Builder().setSplitType(SPLIT_TYPE_EXPAND).build()
+        if (
+            tag?.startsWith(PREFIX_FULLSCREEN_TOGGLE) == true &&
+                mDemoActivityEmbeddingController.shouldExpandSecondaryContainer.get()
         ) {
             return expandContainersAttrs
         }
@@ -93,16 +91,18 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
         // Make a copy of the default splitAttributes, but replace the animation background
         // color to what is configured in the Demo app.
-        val defaultSplitAttributes = SplitAttributes.Builder()
-            .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
-            .setSplitType(params.defaultSplitAttributes.splitType)
-            .build()
-        when (tag
-            ?.removePrefix(PREFIX_FULLSCREEN_TOGGLE)
-            ?.removePrefix(PREFIX_PLACEHOLDER)
-            ?.removeSuffix(SUFFIX_REVERSED)
+        val defaultSplitAttributes =
+            SplitAttributes.Builder()
+                .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
+                .setSplitType(params.defaultSplitAttributes.splitType)
+                .build()
+        when (
+            tag?.removePrefix(PREFIX_FULLSCREEN_TOGGLE)
+                ?.removePrefix(PREFIX_PLACEHOLDER)
+                ?.removeSuffix(SUFFIX_REVERSED)
         ) {
-            TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
+            TAG_USE_DEFAULT_SPLIT_ATTRIBUTES,
+            null -> {
                 return if (params.areDefaultConstraintsSatisfied) {
                     defaultSplitAttributes
                 } else {
@@ -206,11 +206,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                             } else {
                                 SplitAttributes.SplitType.ratio(0.3f)
                             }
-                        ).setLayoutDirection(
-                            if (
-                                foldingState.orientation
-                                    == FoldingFeature.Orientation.HORIZONTAL
-                            ) {
+                        )
+                        .setLayoutDirection(
+                            if (foldingState.orientation == FoldingFeature.Orientation.HORIZONTAL) {
                                 if (shouldReversed) BOTTOM_TO_TOP else TOP_TO_BOTTOM
                             } else {
                                 if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
@@ -229,8 +227,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         return defaultSplitAttributes
     }
 
-    private fun WindowMetrics.isPortrait(): Boolean =
-        bounds.height() > bounds.width()
+    private fun WindowMetrics.isPortrait(): Boolean = bounds.height() > bounds.width()
 
     private fun WindowLayoutInfo.isTabletop(): Boolean {
         val foldingFeature = getFoldingFeature()

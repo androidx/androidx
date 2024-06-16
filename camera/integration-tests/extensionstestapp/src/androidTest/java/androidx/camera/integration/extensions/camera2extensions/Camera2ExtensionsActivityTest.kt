@@ -53,9 +53,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Auto validation tests for Camera2 Extensions with [Camera2ExtensionsActivity]
- */
+/** Auto validation tests for Camera2 Extensions with [Camera2ExtensionsActivity] */
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 31)
@@ -63,15 +61,15 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     @get:Rule
     val permissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     @Before
     fun setup() {
@@ -96,8 +94,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     }
 
     companion object {
-        @ClassRule
-        @JvmField val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
@@ -107,9 +104,8 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @LabTestRule.LabTestOnly
     @Test
     fun checkPreviewUpdated() {
-        val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            config
-        )
+        val activityScenario =
+            launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
                 // Waits for preview to receive enough frames for its IdlingResource to idle.
@@ -121,9 +117,8 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @LabTestRule.LabTestOnly
     @Test
     fun canCaptureSingleImage() {
-        val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            config
-        )
+        val activityScenario =
+            launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
                 // Triggers the capture function and waits for the image being saved
@@ -135,9 +130,8 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @LabTestRule.LabTestOnly
     @Test
     fun checkPreviewUpdated_afterPauseResume() {
-        val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            config
-        )
+        val activityScenario =
+            launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
                 // Waits for preview to receive enough frames for its IdlingResource to idle.
@@ -156,9 +150,8 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @LabTestRule.LabTestOnly
     @Test
     fun canCaptureImage_afterPauseResume() {
-        val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-           config
-        )
+        val activityScenario =
+            launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
                 // Triggers the capture function and waits for the image being saved
@@ -180,9 +173,8 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @LabTestRule.LabTestOnly
     @Test
     fun canCaptureMultipleImages() {
-        val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            config
-        )
+        val activityScenario =
+            launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
                 repeat(5) {
@@ -199,8 +191,8 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         val (cameraId, extensionMode) = config
         val context = ApplicationProvider.getApplicationContext<Context>()
         assumeTrue(isCamera2ExtensionModeSupported(context, cameraId, extensionMode))
-        val intent = context.packageManager
-            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)!!.apply {
+        val intent =
+            context.packageManager.getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)!!.apply {
                 putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
                 putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
                 setClassName(context, Camera2ExtensionsActivity::class.java.name)

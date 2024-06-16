@@ -18,6 +18,7 @@ package androidx.pdf.util.overlays;
 
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -29,5 +30,5 @@ public interface ViewWithOverlays {
     /**
      * Adds the comment overlay to the view with a key identifying the type.
      */
-    void addOverlay(String key, Drawable overlay);
+    void addOverlay(@NonNull String key, @NonNull Drawable overlay);
 }

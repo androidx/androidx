@@ -31,17 +31,14 @@ import androidx.compose.ui.geometry.Rect
  *
  * @constructor create an instance of [Posture]
  * @property isTabletop `true` if the current window is considered as in the table top mode, i.e.
- *           there is one half-opened horizontal hinge in the middle of the current window. When
- *           this is `true` it usually means it's hard for users to interact with the window area
- *           around the hinge and developers may consider separating the layout along the hinge and
- *           show software keyboard or other controls in the bottom half of the window.
+ *   there is one half-opened horizontal hinge in the middle of the current window. When this is
+ *   `true` it usually means it's hard for users to interact with the window area around the hinge
+ *   and developers may consider separating the layout along the hinge and show software keyboard or
+ *   other controls in the bottom half of the window.
  * @property hingeList a list of all hinges that are relevant to the posture.
  */
 @Immutable
-class Posture(
-    val isTabletop: Boolean = false,
-    val hingeList: List<HingeInfo> = emptyList()
-) {
+class Posture(val isTabletop: Boolean = false, val hingeList: List<HingeInfo> = emptyList()) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Posture) return false
@@ -58,41 +55,31 @@ class Posture(
 
     override fun toString(): String {
         @Suppress("ListIterator")
-        return "Posture(isTabletop=$isTabletop, " +
-            "hinges=[${hingeList.joinToString(", ")}])"
+        return "Posture(isTabletop=$isTabletop, " + "hinges=[${hingeList.joinToString(", ")}])"
     }
 }
 
-/**
- * Returns the list of vertical hinge bounds that are separating.
- */
-val Posture.separatingVerticalHingeBounds get() = hingeList.getBounds { isVertical && isSeparating }
+/** Returns the list of vertical hinge bounds that are separating. */
+val Posture.separatingVerticalHingeBounds
+    get() = hingeList.getBounds { isVertical && isSeparating }
 
-/**
- *  Returns the list of vertical hinge bounds that are occluding.
- */
-val Posture.occludingVerticalHingeBounds get() = hingeList.getBounds { isVertical && isOccluding }
+/** Returns the list of vertical hinge bounds that are occluding. */
+val Posture.occludingVerticalHingeBounds
+    get() = hingeList.getBounds { isVertical && isOccluding }
 
-/**
- *  Returns the list of all vertical hinge bounds.
- */
-val Posture.allVerticalHingeBounds get() = hingeList.getBounds { isVertical }
+/** Returns the list of all vertical hinge bounds. */
+val Posture.allVerticalHingeBounds
+    get() = hingeList.getBounds { isVertical }
 
-/**
- * Returns the list of horizontal hinge bounds that are separating.
- */
+/** Returns the list of horizontal hinge bounds that are separating. */
 val Posture.separatingHorizontalHingeBounds
     get() = hingeList.getBounds { !isVertical && isSeparating }
 
-/**
- * Returns the list of horizontal hinge bounds that are occluding.
- */
+/** Returns the list of horizontal hinge bounds that are occluding. */
 val Posture.occludingHorizontalHingeBounds
     get() = hingeList.getBounds { !isVertical && isOccluding }
 
-/**
- *  Returns the list of all horizontal hinge bounds.
- */
+/** Returns the list of all horizontal hinge bounds. */
 val Posture.allHorizontalHingeBounds
     get() = hingeList.getBounds { !isVertical }
 
@@ -101,10 +88,10 @@ val Posture.allHorizontalHingeBounds
  *
  * @param bounds the bounds of the hinge in the relevant viewport.
  * @param isFlat `true` if the hinge is fully open and the relevant window space presented to the
- *        user is flat.
+ *   user is flat.
  * @param isVertical `true` if the hinge is a vertical one, i.e., it separates the viewport into
- *        left and right; `false` if the hinge is horizontal, i.e., it separates the viewport
- *        into top and bottom.
+ *   left and right; `false` if the hinge is horizontal, i.e., it separates the viewport into top
+ *   and bottom.
  * @param isSeparating `true` if the hinge creates two logical display areas.
  * @param isOccluding `true` if the hinge conceals part of the display.
  */
@@ -146,5 +133,4 @@ class HingeInfo(
 }
 
 private inline fun List<HingeInfo>.getBounds(predicate: HingeInfo.() -> Boolean): List<Rect> =
-    @Suppress("ListIterator")
-    mapNotNull { if (it.predicate()) it.bounds else null }
+    @Suppress("ListIterator") mapNotNull { if (it.predicate()) it.bounds else null }

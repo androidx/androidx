@@ -43,18 +43,18 @@ class MediaSpecTest {
     @Test
     fun canConfigureVideo_fromMediaSpecBuilder() {
         val testFrameRate = Range(15, 30)
-        val mediaSpec = MediaSpec.builder().configureVideo {
-            it.setFrameRate(testFrameRate)
-        }.build()
+        val mediaSpec =
+            MediaSpec.builder().configureVideo { it.setFrameRate(testFrameRate) }.build()
 
         assertThat(mediaSpec.videoSpec.frameRate).isEqualTo(testFrameRate)
     }
 
     @Test
     fun canConfigureAudio_fromMediaSpecBuilder() {
-        val mediaSpec = MediaSpec.builder().configureAudio {
-            it.setChannelCount(AudioSpec.CHANNEL_COUNT_STEREO)
-        }.build()
+        val mediaSpec =
+            MediaSpec.builder()
+                .configureAudio { it.setChannelCount(AudioSpec.CHANNEL_COUNT_STEREO) }
+                .build()
 
         assertThat(mediaSpec.audioSpec.channelCount).isEqualTo(AudioSpec.CHANNEL_COUNT_STEREO)
     }

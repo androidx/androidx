@@ -30,19 +30,18 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Small integration test base that helps verify that [SnapHelper]s that implement "center"
- * snapping define "center" correctly.
+ * Small integration test base that helps verify that [SnapHelper]s that implement "center" snapping
+ * define "center" correctly.
  *
- * For now, all the test actually does is verify that
- * [SnapHelper.calculateDistanceToFinalSnap] and [SnapHelper.findSnapView] always
- * take padding into account when determining what "center" is and that the value of
- * [RecyclerView.getClipToPadding] is irrelevant in making that determination.
+ * For now, all the test actually does is verify that [SnapHelper.calculateDistanceToFinalSnap] and
+ * [SnapHelper.findSnapView] always take padding into account when determining what "center" is and
+ * that the value of [RecyclerView.getClipToPadding] is irrelevant in making that determination.
  *
  * The test sets up padding on the RecyclerView such that if the padding were ignored when
  * clipToPadding is false, the results of the tests would be wrong.
  *
- * The test tests in both orientations, where padding is added to either, both, or neither side
- * of the RV's orientation, and turns clipToPadding on and off.
+ * The test tests in both orientations, where padding is added to either, both, or neither side of
+ * the RV's orientation, and turns clipToPadding on and off.
  */
 @RunWith(Parameterized::class)
 @LargeTest
@@ -105,10 +104,11 @@ abstract class BaseSnapHelperCenterTest(
             val xOffset = if (vertical) 0 else mainAxisOffset
             val yOffset = if (vertical) mainAxisOffset else 0
 
-            val actualResult = snapHelper.calculateDistanceToFinalSnap(
-                recyclerView.layoutManager!!,
-                recyclerView.getChildAt(i)
-            )
+            val actualResult =
+                snapHelper.calculateDistanceToFinalSnap(
+                    recyclerView.layoutManager!!,
+                    recyclerView.getChildAt(i)
+                )
 
             assertThat(actualResult, `is`(intArrayOf(xOffset, yOffset)))
         }
@@ -136,12 +136,7 @@ abstract class BaseSnapHelperCenterTest(
                         for (endPadding in trueFalse) {
                             for (clipToPadding in trueFalse) {
                                 result.add(
-                                    arrayOf(
-                                        vertical,
-                                        startPadding,
-                                        endPadding,
-                                        clipToPadding
-                                    )
+                                    arrayOf(vertical, startPadding, endPadding, clipToPadding)
                                 )
                             }
                         }
@@ -176,7 +171,7 @@ private class TestAdapter(
         return TestViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: TestViewHolder, position: Int) { }
+    override fun onBindViewHolder(holder: TestViewHolder, position: Int) {}
 
     override fun getItemCount() = itemCount
 }

@@ -19,7 +19,7 @@ package androidx.datastore.preferences
 /**
  * Placeholder class for eventual preferences datastore delegate utils in common.
  *
- * This is needed to have the native artifacts build. Otherwise there is no code in common and
- * the 'buildOnServer' task fails during our presubmits.
+ * This is needed to have the native artifacts build. Otherwise there is no code in common and the
+ * 'buildOnServer' task fails during our presubmits.
  */
 internal class PreferencesDataStoreDelegateUtils

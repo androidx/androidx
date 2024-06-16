@@ -32,11 +32,13 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
     sourceSets {
         darwinMain {
+            dependsOn(commonMain)
             dependencies {
                 api(libs.kotlinStdlib)
             }
         }
         darwinTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)

@@ -32,10 +32,7 @@ class ActivityStackTestingTest {
     fun testActivityStackDefaultValue() {
         val activityStack = TestActivityStack()
 
-        assertEquals(
-            ActivityStack(emptyList(), isEmpty = false),
-            activityStack
-        )
+        assertEquals(ActivityStack(emptyList(), isEmpty = false), activityStack)
     }
 
     /** Verifies [TestActivityStack] */

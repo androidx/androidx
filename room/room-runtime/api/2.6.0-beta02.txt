@@ -39,7 +39,7 @@ package androidx.room {
 
   public abstract static class InvalidationTracker.Observer {
     ctor protected InvalidationTracker.Observer(String firstTable, java.lang.String... rest);
-    ctor public InvalidationTracker.Observer(String![] tables);
+    ctor public InvalidationTracker.Observer(String[] tables);
     method public abstract void onInvalidated(java.util.Set<java.lang.String> tables);
   }
 
@@ -65,6 +65,7 @@ package androidx.room {
     method protected abstract androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration config);
     method @Deprecated public void endTransaction();
     method public androidx.room.InvalidationTracker getInvalidationTracker();
+    method @Deprecated @kotlin.jvm.Volatile protected androidx.sqlite.db.SupportSQLiteDatabase? getMDatabase();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();
     method public java.util.concurrent.Executor getTransactionExecutor();
@@ -75,12 +76,14 @@ package androidx.room {
     method public boolean isOpen();
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
-    method public android.database.Cursor query(String query, Object![]? args);
+    method public android.database.Cursor query(String query, Object?[]? args);
     method public void runInTransaction(Runnable body);
     method public <V> V runInTransaction(java.util.concurrent.Callable<V> body);
+    method @Deprecated @kotlin.jvm.Volatile protected void setMDatabase(androidx.sqlite.db.SupportSQLiteDatabase?);
     method @Deprecated public void setTransactionSuccessful();
     property public androidx.room.InvalidationTracker invalidationTracker;
     property public boolean isOpen;
+    property @Deprecated @kotlin.jvm.Volatile protected androidx.sqlite.db.SupportSQLiteDatabase? mDatabase;
     property public androidx.sqlite.db.SupportSQLiteOpenHelper openHelper;
     property public java.util.concurrent.Executor queryExecutor;
     property public java.util.concurrent.Executor transactionExecutor;
@@ -125,8 +128,6 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
-    method public static androidx.room.RoomDatabase.JournalMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
@@ -147,7 +148,7 @@ package androidx.room {
   }
 
   public static fun interface RoomDatabase.QueryCallback {
-    method public void onQuery(String sqlQuery, java.util.List<?> bindArgs);
+    method public void onQuery(String sqlQuery, java.util.List<? extends java.lang.Object?> bindArgs);
   }
 
 }

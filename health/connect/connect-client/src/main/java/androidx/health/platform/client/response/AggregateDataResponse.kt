@@ -21,9 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
-/**
- * Internal wrapper to help transfer protos over ipc.
- */
+/** Internal wrapper to help transfer protos over ipc. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class AggregateDataResponse(override val proto: ResponseProto.AggregateDataResponse) :
     ProtoParcelable<ResponseProto.AggregateDataResponse>() {

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.testing.impl
 
 import android.graphics.Rect
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
@@ -39,8 +36,7 @@ import kotlinx.coroutines.async
 private const val TAG = "CaptureSimulation"
 
 /** Simulates a capture frame being drawn on all of the provided surfaces. */
-suspend fun List<DeferrableSurface>.simulateCaptureFrame() =
-    forEach { it.simulateCaptureFrame() }
+suspend fun List<DeferrableSurface>.simulateCaptureFrame() = forEach { it.simulateCaptureFrame() }
 
 /**
  * Simulates a capture frame being drawn on the provided surface.
@@ -50,26 +46,31 @@ suspend fun List<DeferrableSurface>.simulateCaptureFrame() =
 suspend fun DeferrableSurface.simulateCaptureFrame() {
     val deferred = CompletableDeferred<Unit>()
 
-    Futures.addCallback(surface, object : FutureCallback<Surface?> {
-        override fun onSuccess(surface: Surface?) {
-            if (surface == null) {
-                deferred.completeExceptionally(
-                    IllegalStateException("Null surface obtained from ${this@simulateCaptureFrame}")
-                )
-                return
+    Futures.addCallback(
+        surface,
+        object : FutureCallback<Surface?> {
+            override fun onSuccess(surface: Surface?) {
+                if (surface == null) {
+                    deferred.completeExceptionally(
+                        IllegalStateException(
+                            "Null surface obtained from ${this@simulateCaptureFrame}"
+                        )
+                    )
+                    return
+                }
+                val canvas =
+                    surface.lockCanvas(Rect(0, 0, prescribedSize.width, prescribedSize.height))
+                // TODO: Draw something on the canvas (e.g. fake image bitmap or alternating color).
+                surface.unlockCanvasAndPost(canvas)
+                deferred.complete(Unit)
             }
-            val canvas = surface.lockCanvas(
-                Rect(0, 0, prescribedSize.width, prescribedSize.height)
-            )
-            // TODO: Draw something on the canvas (e.g. fake image bitmap or alternating color).
-            surface.unlockCanvasAndPost(canvas)
-            deferred.complete(Unit)
-        }
 
-        override fun onFailure(t: Throwable) {
-            deferred.completeExceptionally(t)
-        }
-    }, CameraXExecutors.directExecutor())
+            override fun onFailure(t: Throwable) {
+                deferred.completeExceptionally(t)
+            }
+        },
+        CameraXExecutors.directExecutor()
+    )
 
     deferred.await()
 }

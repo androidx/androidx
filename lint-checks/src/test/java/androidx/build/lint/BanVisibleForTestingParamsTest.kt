@@ -23,20 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanVisibleForTestingParamsTest : AbstractLintDetectorTest(
-    useDetector = BanVisibleForTestingParams(),
-    useIssues = listOf(BanVisibleForTestingParams.ISSUE),
-    stubs = arrayOf(Stubs.VisibleForTesting),
-) {
+class BanVisibleForTestingParamsTest :
+    AbstractLintDetectorTest(
+        useDetector = BanVisibleForTestingParams(),
+        useIssues = listOf(BanVisibleForTestingParams.ISSUE),
+        stubs = arrayOf(Stubs.VisibleForTesting),
+    ) {
 
     @Test
     fun `Detection of @VisibleForTesting usage in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.VisibleForTestingUsageJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.VisibleForTestingUsageJava"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/VisibleForTestingUsageJava.java:23: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,9 +52,11 @@ src/androidx/VisibleForTestingUsageJava.java:32: Error: Found non-default otherw
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 4 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val fixDiffs = """
+        val fixDiffs =
+            """
 Fix for src/androidx/VisibleForTestingUsageJava.java line 23: Remove non-default `otherwise` value:
 @@ -23 +23
 -     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -67,77 +71,78 @@ Fix for src/androidx/VisibleForTestingUsageJava.java line 32: Remove non-default
 @@ -32 +32
 -     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
 +     @VisibleForTesting
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(fixDiffs)
+        check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }
+
     @Test
     fun `Detection of @VisibleForTesting usage in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.VisibleForTestingUsageKotlin"),
-        )
+        val input =
+            arrayOf(
+                ktSample("androidx.VisibleForTestingUsageKotlin"),
+            )
 
-        /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/VisibleForTestingUsageKotlin.kt:26: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) fun testMethodPrivate() {}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/VisibleForTestingUsageKotlin.kt:29: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
+src/androidx/VisibleForTestingUsageKotlin.kt:28: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
     @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/VisibleForTestingUsageKotlin.kt:32: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
-    @VisibleForTesting(VisibleForTesting.PRIVATE)
+src/androidx/VisibleForTestingUsageKotlin.kt:31: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
+    @VisibleForTesting(VisibleForTesting.PRIVATE) fun testMethodValuePrivate() {}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/VisibleForTestingUsageKotlin.kt:35: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
+src/androidx/VisibleForTestingUsageKotlin.kt:33: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/VisibleForTestingUsageKotlin.kt:38: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+src/androidx/VisibleForTestingUsageKotlin.kt:36: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) fun testMethodProtected() {}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/VisibleForTestingUsageKotlin.kt:41: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+src/androidx/VisibleForTestingUsageKotlin.kt:38: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE) fun testMethodPackageNone() {}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/VisibleForTestingUsageKotlin.kt:47: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
-    @get:VisibleForTesting(NONE)
+src/androidx/VisibleForTestingUsageKotlin.kt:42: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
+    @get:VisibleForTesting(NONE) val testPropertyGet = "test"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 7 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val fixDiffs = """
+        val fixDiffs =
+            """
 Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 26: Remove non-default `otherwise` value:
 @@ -26 +26
--     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-+     @VisibleForTesting
-Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 29: Remove non-default `otherwise` value:
-@@ -29 +29
+-     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) fun testMethodPrivate() {}
++     @VisibleForTesting fun testMethodPrivate() {}
+Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 28: Remove non-default `otherwise` value:
+@@ -28 +28
 -     @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)
 +     @VisibleForTesting
-Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 32: Remove non-default `otherwise` value:
-@@ -32 +32
--     @VisibleForTesting(VisibleForTesting.PRIVATE)
-+     @VisibleForTesting
-Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 35: Remove @VisibleForTesting annotation:
-@@ -35 +35
+Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 31: Remove non-default `otherwise` value:
+@@ -31 +31
+-     @VisibleForTesting(VisibleForTesting.PRIVATE) fun testMethodValuePrivate() {}
++     @VisibleForTesting fun testMethodValuePrivate() {}
+Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 33: Remove @VisibleForTesting annotation:
+@@ -33 +33
 -     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 38: Remove @VisibleForTesting annotation:
+Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 36: Remove @VisibleForTesting annotation:
+@@ -36 +36
+-     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) fun testMethodProtected() {}
++      fun testMethodProtected() {}
+Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 38: Remove non-default `otherwise` value:
 @@ -38 +38
--     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 41: Remove non-default `otherwise` value:
-@@ -41 +41
--     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-+     @VisibleForTesting
-Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 47: Remove non-default `otherwise` value:
-@@ -47 +47
--     @get:VisibleForTesting(NONE)
-+     @get:VisibleForTesting
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
+-     @VisibleForTesting(otherwise = VisibleForTesting.NONE) fun testMethodPackageNone() {}
++     @VisibleForTesting fun testMethodPackageNone() {}
+Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 42: Remove non-default `otherwise` value:
+@@ -42 +42
+-     @get:VisibleForTesting(NONE) val testPropertyGet = "test"
++     @get:VisibleForTesting val testPropertyGet = "test"
+        """
+                .trimIndent()
 
-        check(*input)
-            .expect(expected)
-            .expectFixDiffs(fixDiffs)
+        check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }
 }

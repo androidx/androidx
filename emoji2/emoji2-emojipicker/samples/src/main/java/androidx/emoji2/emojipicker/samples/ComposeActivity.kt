@@ -40,9 +40,7 @@ class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context = this
-        setContent {
-            EmojiPicker()
-        }
+        setContent { EmojiPicker() }
     }
 
     @Composable
@@ -50,20 +48,22 @@ class ComposeActivity : ComponentActivity() {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                val view = LayoutInflater.from(context).inflate(
-                    R.layout.main, /* root= */ null, /* attachToRoot= */ false)
+                val view =
+                    LayoutInflater.from(context)
+                        .inflate(R.layout.main, /* root= */ null, /* attachToRoot= */ false)
                 val emojiPickerView = view.findViewById<EmojiPickerView>(R.id.emoji_picker)
                 emojiPickerView.setOnEmojiPickedListener(this::updateEditText)
-                view.findViewById<ToggleButton>(R.id.toggle_button)
-                    .setOnCheckedChangeListener { _, isChecked ->
-                        if (isChecked) {
-                            emojiPickerView.emojiGridColumns = 8
-                            emojiPickerView.emojiGridRows = 8.3f
-                        } else {
-                            emojiPickerView.emojiGridColumns = 9
-                            emojiPickerView.emojiGridRows = 15f
-                        }
+                view.findViewById<ToggleButton>(R.id.toggle_button).setOnCheckedChangeListener {
+                    _,
+                    isChecked ->
+                    if (isChecked) {
+                        emojiPickerView.emojiGridColumns = 8
+                        emojiPickerView.emojiGridRows = 8.3f
+                    } else {
+                        emojiPickerView.emojiGridColumns = 9
+                        emojiPickerView.emojiGridRows = 15f
                     }
+                }
                 view.findViewById<Button>(R.id.button).visibility = View.GONE
                 val activityButton = view.findViewById<ToggleButton>(R.id.activity_button)
                 activityButton.isChecked = true

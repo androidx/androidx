@@ -85,9 +85,7 @@ class CoroutineBroadcastReceiverTest {
         assertWithMessage("Broadcast receiver did not execute")
             .that(broadcastReceiver.broadcastExecuted.await(5, TimeUnit.SECONDS))
             .isTrue()
-        waitFor(Duration.ofSeconds(5)) {
-            !broadcastReceiver.coroutineScopeUsed.get().isActive
-        }
+        waitFor(Duration.ofSeconds(5)) { !broadcastReceiver.coroutineScopeUsed.get().isActive }
         assertWithMessage("Coroutine scope did not get cancelled")
             .that(broadcastReceiver.coroutineScopeUsed.get().isActive)
             .isFalse()

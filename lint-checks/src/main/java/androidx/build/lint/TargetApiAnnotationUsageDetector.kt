@@ -30,9 +30,7 @@ import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.namePsiElement
 
-/**
- * Enforces policy banning use of the `@TargetApi` annotation.
- */
+/** Enforces policy banning use of the `@TargetApi` annotation. */
 class TargetApiAnnotationUsageDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
@@ -49,37 +47,43 @@ class TargetApiAnnotationUsageDetector : Detector(), Detector.UastScanner {
                 // instead of a constant ("TargetApi") to pass Lint's IMPORT_ALIAS test mode. In the
                 // case where namePsiElement returns null (which shouldn't happen), fall back to the
                 // RegEx check.
-                val searchPattern = node.namePsiElement?.text
-                    ?: "(?:android\\.annotation\\.)?TargetApi"
+                val searchPattern =
+                    node.namePsiElement?.text ?: "(?:android\\.annotation\\.)?TargetApi"
 
-                val lintFix = fix().name("Replace with `@RequiresApi`")
-                    .replace()
-                    .pattern(searchPattern)
-                    .with("androidx.annotation.RequiresApi")
-                    .shortenNames()
-                    .autoFix(true, true)
-                    .build()
-                val incident = Incident(context)
-                    .fix(lintFix)
-                    .issue(ISSUE)
-                    .location(context.getNameLocation(node))
-                    .message("Use `@RequiresApi` instead of `@TargetApi`")
-                    .scope(node)
+                val lintFix =
+                    fix()
+                        .name("Replace with `@RequiresApi`")
+                        .replace()
+                        .pattern(searchPattern)
+                        .with("androidx.annotation.RequiresApi")
+                        .shortenNames()
+                        .autoFix(true, true)
+                        .build()
+                val incident =
+                    Incident(context)
+                        .fix(lintFix)
+                        .issue(ISSUE)
+                        .location(context.getNameLocation(node))
+                        .message("Use `@RequiresApi` instead of `@TargetApi`")
+                        .scope(node)
                 context.report(incident)
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "BanTargetApiAnnotation",
-            "Replace usage of `@TargetApi` with `@RequiresApi`",
-            "The `@TargetApi` annotation satisfies the `NewApi` lint check, but it does " +
-                "not ensure that calls to the annotated API are correctly guarded on an `SDK_INT`" +
-                " (or equivalent) check. Instead, use the `@RequiresApi` annotation to ensure " +
-                "that all calls are correctly guarded.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(TargetApiAnnotationUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "BanTargetApiAnnotation",
+                "Replace usage of `@TargetApi` with `@RequiresApi`",
+                "The `@TargetApi` annotation satisfies the `NewApi` lint check, but it does " +
+                    "not ensure that calls to the annotated API are correctly guarded on an `SDK_INT`" +
+                    " (or equivalent) check. Instead, use the `@RequiresApi` annotation to ensure " +
+                    "that all calls are correctly guarded.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(TargetApiAnnotationUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

@@ -61,21 +61,13 @@ class LocalSdkRegistryTest {
 
     @Test
     fun loadSdk_whenLocalSdkExists_returnsLocallyLoadedSdk() {
-        val result = localSdkRegistry.loadSdk(
-            TestSdkConfigs.CURRENT.packageName,
-            Bundle()
-        )
+        val result = localSdkRegistry.loadSdk(TestSdkConfigs.CURRENT.packageName, Bundle())
 
         assertThat(result.getInterface()!!.javaClass.classLoader)
             .isNotSameInstanceAs(localSdkRegistry.javaClass.classLoader)
 
         assertThat(result.getSdkInfo())
-            .isEqualTo(
-                SandboxedSdkInfo(
-                    name = TestSdkConfigs.CURRENT.packageName,
-                    version = 42
-                )
-            )
+            .isEqualTo(SandboxedSdkInfo(name = TestSdkConfigs.CURRENT.packageName, version = 42))
 
         assertThat(localSdkRegistry.getLoadedSdks()).containsExactly(result)
     }
@@ -85,32 +77,29 @@ class LocalSdkRegistryTest {
         val params = Bundle()
         params.putBoolean("needFail", true)
 
-        val result = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            localSdkRegistry.loadSdk(
-                TestSdkConfigs.CURRENT.packageName,
-                params
-            )
-        }
+        val result =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                localSdkRegistry.loadSdk(TestSdkConfigs.CURRENT.packageName, params)
+            }
 
         assertThat(result.extraInformation).isEqualTo(params)
-        assertThat(result.loadSdkErrorCode).isEqualTo(
-            LoadSdkCompatException.LOAD_SDK_SDK_DEFINED_ERROR
-        )
+        assertThat(result.loadSdkErrorCode)
+            .isEqualTo(LoadSdkCompatException.LOAD_SDK_SDK_DEFINED_ERROR)
         assertThat(localSdkRegistry.getLoadedSdks()).isEmpty()
     }
 
     @Test
     fun loadSdk_whenLocalSdkFailedToLoad_throwsInternalErrorException() {
-        val result = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            localSdkRegistry.loadSdk(
-                TestSdkConfigs.forSdkName("invalidEntryPoint").packageName,
-                Bundle()
-            )
-        }
+        val result =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                localSdkRegistry.loadSdk(
+                    TestSdkConfigs.forSdkName("invalidEntryPoint").packageName,
+                    Bundle()
+                )
+            }
 
-        assertThat(result.loadSdkErrorCode).isEqualTo(
-            LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR
-        )
+        assertThat(result.loadSdkErrorCode)
+            .isEqualTo(LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR)
         assertThat(result.message).isEqualTo("Failed to instantiate local SDK")
         assertThat(localSdkRegistry.getLoadedSdks()).isEmpty()
     }
@@ -120,24 +109,22 @@ class LocalSdkRegistryTest {
         val sdkName = TestSdkConfigs.CURRENT.packageName
         val firstTimeLoadedSdk = localSdkRegistry.loadSdk(sdkName, Bundle())
 
-        val result = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            localSdkRegistry.loadSdk(sdkName, Bundle())
-        }
+        val result =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                localSdkRegistry.loadSdk(sdkName, Bundle())
+            }
 
-        assertThat(result.loadSdkErrorCode).isEqualTo(
-            LoadSdkCompatException.LOAD_SDK_ALREADY_LOADED
-        )
+        assertThat(result.loadSdkErrorCode)
+            .isEqualTo(LoadSdkCompatException.LOAD_SDK_ALREADY_LOADED)
         assertThat(localSdkRegistry.getLoadedSdks()).containsExactly(firstTimeLoadedSdk)
     }
 
     @Test
     fun loadSdk_whenNoLocalSdkExists_throwsSdkNotFoundException() {
-        val result = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            localSdkRegistry.loadSdk(
-                "sdk-doesnt-exist",
-                Bundle()
-            )
-        }
+        val result =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                localSdkRegistry.loadSdk("sdk-doesnt-exist", Bundle())
+            }
 
         assertThat(result.loadSdkErrorCode).isEqualTo(LoadSdkCompatException.LOAD_SDK_NOT_FOUND)
         assertThat(localSdkRegistry.getLoadedSdks()).isEmpty()
@@ -151,10 +138,8 @@ class LocalSdkRegistryTest {
         localSdkRegistry.unloadSdk(sdkName)
         val reloadedSdk = localSdkRegistry.loadSdk(sdkName, Bundle())
 
-        assertThat(localSdkRegistry.getLoadedSdks())
-            .containsExactly(reloadedSdk)
-        assertThat(reloadedSdk.getInterface())
-            .isNotEqualTo(sdkToUnload.getInterface())
+        assertThat(localSdkRegistry.getLoadedSdks()).containsExactly(reloadedSdk)
+        assertThat(reloadedSdk.getInterface()).isNotEqualTo(sdkToUnload.getInterface())
     }
 
     @Test
@@ -165,9 +150,8 @@ class LocalSdkRegistryTest {
 
         localSdkRegistry.unloadSdk(sdkName)
 
-        val isBeforeUnloadSdkCalled = sdkProvider.extractSdkProviderFieldValue<Boolean>(
-            fieldName = "isBeforeUnloadSdkCalled"
-        )
+        val isBeforeUnloadSdkCalled =
+            sdkProvider.extractSdkProviderFieldValue<Boolean>(fieldName = "isBeforeUnloadSdkCalled")
         assertThat(isBeforeUnloadSdkCalled).isTrue()
         assertThat(localSdkRegistry.getLoadedSdks()).isEmpty()
     }
@@ -180,10 +164,7 @@ class LocalSdkRegistryTest {
     @Test
     fun unloadSdk_unregisterActivityHandlers() {
         val packageName = TestSdkConfigs.CURRENT.packageName
-        val localSdk = localSdkRegistry.loadSdk(
-            packageName,
-            Bundle()
-        )
+        val localSdk = localSdkRegistry.loadSdk(packageName, Bundle())
 
         val testSdk = localSdk.asTestSdk()
         val token = testSdk.registerSdkSandboxActivityHandler(CatchingSdkActivityHandler())

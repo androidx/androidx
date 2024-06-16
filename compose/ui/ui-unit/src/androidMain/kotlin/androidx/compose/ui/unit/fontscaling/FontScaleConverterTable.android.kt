@@ -29,7 +29,8 @@ import kotlin.math.sign
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class FontScaleConverterTable @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class FontScaleConverterTable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /**
  * Creates a lookup table for the given conversions.
  *
@@ -39,18 +40,12 @@ class FontScaleConverterTable @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
  *
  * @param fromSp array of dimensions in SP
  * @param toDp array of dimensions in DP that correspond to an SP value in fromSp
- *
  * @throws IllegalArgumentException if the array lengths don't match or are empty
  */
-constructor(
-    fromSp: FloatArray,
-    toDp: FloatArray
-) : FontScaleConverter {
-    @VisibleForTesting
-    val mFromSpValues: FloatArray
+constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
+    @VisibleForTesting val mFromSpValues: FloatArray
 
-    @VisibleForTesting
-    val mToDpValues: FloatArray
+    @VisibleForTesting val mToDpValues: FloatArray
 
     init {
         require(!(fromSp.size != toDp.size || fromSp.isEmpty())) {
@@ -84,8 +79,10 @@ constructor(
 
     override fun toString(): String {
         return ("FontScaleConverter{" +
-            "fromSpValues=" + mFromSpValues.contentToString() +
-            ", toDpValues=" + mToDpValues.contentToString() +
+            "fromSpValues=" +
+            mFromSpValues.contentToString() +
+            ", toDpValues=" +
+            mToDpValues.contentToString() +
             '}')
     }
 
@@ -98,7 +95,8 @@ constructor(
             val sourceValuePositive = Math.abs(sourceValue)
             // TODO(b/247861374): find a match at a higher index?
             val sign = sign(sourceValue)
-            // We search for exact matches only, even if it's just a little off. The interpolation will
+            // We search for exact matches only, even if it's just a little off. The interpolation
+            // will
             // handle any non-exact matches.
             val index = Arrays.binarySearch(sourceValues, sourceValuePositive)
             return if (index >= 0) {
@@ -112,7 +110,8 @@ constructor(
                 val startDp: Float
                 val endDp: Float
                 if (lowerIndex >= sourceValues.size - 1) {
-                    // It's past our lookup table. Determine the last elements' scaling factor and use.
+                    // It's past our lookup table. Determine the last elements' scaling factor and
+                    // use.
                     startSp = sourceValues[sourceValues.size - 1]
                     startDp = targetValues[sourceValues.size - 1]
                     if (startSp == 0f) return 0f
@@ -130,13 +129,7 @@ constructor(
                     startDp = targetValues[lowerIndex]
                     endDp = targetValues[lowerIndex + 1]
                 }
-                sign * MathUtils.constrainedMap(
-                    startDp,
-                    endDp,
-                    startSp,
-                    endSp,
-                    sourceValuePositive
-                )
+                sign * MathUtils.constrainedMap(startDp, endDp, startSp, endSp, sourceValuePositive)
             }
         }
     }

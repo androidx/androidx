@@ -231,4 +231,35 @@ public class WebSettingsAdapter {
         return mBoundaryInterface.getWebauthnSupport();
     }
 
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setSpeculativeLoadingStatus(WebSettings, int)}
+     */
+    public void setSpeculativeLoadingStatus(int speculativeLoadingStatus) {
+        mBoundaryInterface.setSpeculativeLoadingStatus(speculativeLoadingStatus);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getSpeculativeLoadingStatus(WebSettings)}
+     */
+    public int getSpeculativeLoadingStatus() {
+        return mBoundaryInterface.getSpeculativeLoadingStatus();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheEnabled(WebSettings, boolean)}
+     */
+    public void setBackForwardCacheEnabled(boolean backForwardCacheEnabled) {
+        mBoundaryInterface.setBackForwardCacheEnabled(backForwardCacheEnabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheEnabled(WebSettings)}
+     */
+    public boolean getBackForwardCacheEnabled() {
+        return mBoundaryInterface.getBackForwardCacheEnabled();
+    }
 }

@@ -24,17 +24,16 @@ import kotlin.jvm.JvmInline
 /**
  * An immutable snapshot of the contents of a [TextFieldState].
  *
- * This class is a [CharSequence] and directly represents the text being edited. It also stores
- * the current [selection] of the field, which may either represent the cursor (if the
- * selection is [collapsed][TextRange.collapsed]) or the selection range.
+ * This class is a [CharSequence] and directly represents the text being edited. It also stores the
+ * current [selection] of the field, which may either represent the cursor (if the selection is
+ * [collapsed][TextRange.collapsed]) or the selection range.
  *
  * This class also may contain the range being composed by the IME, if any, although this is not
  * exposed.
  *
  * @param text If this TextFieldCharSequence is actually a copy of another, make sure to use the
- * backing CharSequence object to stop unnecessary nesting and logic that depends on exact equality
- * of CharSequence comparison that's using [CharSequence.equals].
- *
+ *   backing CharSequence object to stop unnecessary nesting and logic that depends on exact
+ *   equality of CharSequence comparison that's using [CharSequence.equals].
  * @see TextFieldBuffer
  */
 internal class TextFieldCharSequence(
@@ -50,8 +49,8 @@ internal class TextFieldCharSequence(
     val text: CharSequence = if (text is TextFieldCharSequence) text.text else text
 
     /**
-     * The selection range. If the selection is collapsed, it represents cursor
-     * location. When selection range is out of bounds, it is constrained with the text length.
+     * The selection range. If the selection is collapsed, it represents cursor location. When
+     * selection range is out of bounds, it is constrained with the text length.
      */
     val selection: TextRange = selection.coerceIn(0, text.length)
 
@@ -103,8 +102,8 @@ internal class TextFieldCharSequence(
     fun shouldShowSelection(): Boolean = highlight == null
 
     /**
-     * Returns true if [other] is a [TextFieldCharSequence] with the same contents, text, and composition.
-     * To compare just the text, call [contentEquals].
+     * Returns true if [other] is a [TextFieldCharSequence] with the same contents, text, and
+     * composition. To compare just the text, call [contentEquals].
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -130,9 +129,7 @@ internal class TextFieldCharSequence(
     }
 }
 
-/**
- * A text range highlight type. The highlight styling depends on the type.
- */
+/** A text range highlight type. The highlight styling depends on the type. */
 @JvmInline
 internal value class TextHighlightType private constructor(private val value: Int) {
     companion object {
@@ -154,8 +151,7 @@ internal value class TextHighlightType private constructor(private val value: In
  * Returns the text before the selection.
  *
  * @param maxChars maximum number of characters (inclusive) before the minimum value in
- * [TextFieldCharSequence.selection].
- *
+ *   [TextFieldCharSequence.selection].
  * @see TextRange.min
  */
 internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
@@ -165,15 +161,12 @@ internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSe
  * Returns the text after the selection.
  *
  * @param maxChars maximum number of characters (exclusive) after the maximum value in
- * [TextFieldCharSequence.selection].
- *
+ *   [TextFieldCharSequence.selection].
  * @see TextRange.max
  */
 internal fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
     subSequence(selection.max, kotlin.math.min(selection.max + maxChars, length))
 
-/**
- * Returns the currently selected text.
- */
+/** Returns the currently selected text. */
 internal fun TextFieldCharSequence.getSelectedText(): CharSequence =
     subSequence(selection.min, selection.max)

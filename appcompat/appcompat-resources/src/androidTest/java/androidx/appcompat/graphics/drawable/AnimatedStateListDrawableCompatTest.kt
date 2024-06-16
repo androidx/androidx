@@ -123,10 +123,12 @@ class AnimatedStateListDrawableCompatTest {
 
     @Test
     fun testAnimationDrawableTransition() {
-        val asld = AnimatedStateListDrawableCompat.create(
-            mContext!!,
-            R.drawable.animated_state_list_density, mContext!!.theme
-        )
+        val asld =
+            AnimatedStateListDrawableCompat.create(
+                mContext!!,
+                R.drawable.animated_state_list_density,
+                mContext!!.theme
+            )
         Assert.assertNotNull(asld)
         Assert.assertTrue(asld!!.isVisible)
         // Missing public API to verify these.
@@ -138,10 +140,12 @@ class AnimatedStateListDrawableCompatTest {
 
     @Test
     fun testAnimatedVectorTransition() {
-        val asld = AnimatedStateListDrawableCompat.create(
-            mContext!!,
-            R.drawable.asl_heart, mContext!!.theme
-        )
+        val asld =
+            AnimatedStateListDrawableCompat.create(
+                mContext!!,
+                R.drawable.asl_heart,
+                mContext!!.theme
+            )
         // Check that 4 drawables were parsed
         Assert.assertNotNull(asld)
         Assert.assertEquals(4, asld!!.stateCount.toLong())
@@ -149,10 +153,12 @@ class AnimatedStateListDrawableCompatTest {
 
     @Test
     fun testChildAnimatedVectorTransition() {
-        val asld = AnimatedStateListDrawableCompat.create(
-            mContext!!,
-            R.drawable.animated_state_list_with_avd, mContext!!.theme
-        )
+        val asld =
+            AnimatedStateListDrawableCompat.create(
+                mContext!!,
+                R.drawable.animated_state_list_with_avd,
+                mContext!!.theme
+            )
         // Check that 6 drawables were parsed
         Assert.assertNotNull(asld)
         Assert.assertEquals(6, asld!!.stateCount.toLong())
@@ -160,10 +166,12 @@ class AnimatedStateListDrawableCompatTest {
 
     @Test
     fun testChildVectorItem() {
-        val asld = AnimatedStateListDrawableCompat.create(
-            mContext!!,
-            R.drawable.asl_heart_embedded, mContext!!.theme
-        )
+        val asld =
+            AnimatedStateListDrawableCompat.create(
+                mContext!!,
+                R.drawable.asl_heart_embedded,
+                mContext!!.theme
+            )
         // Check that 4 drawables were parsed
         Assert.assertNotNull(asld)
         Assert.assertEquals(4, asld!!.stateCount.toLong())
@@ -199,11 +207,13 @@ class AnimatedStateListDrawableCompatTest {
         assertTrue(dr.calledSetTintList)
     }
 
-    internal class MockTransition : MockDrawable(), Animatable,
-        Animatable2Compat {
+    internal class MockTransition : MockDrawable(), Animatable, Animatable2Compat {
         private val mCallbacks = HashSet<Animatable2Compat.AnimationCallback>()
+
         override fun start() {}
+
         override fun stop() {}
+
         override fun isRunning(): Boolean {
             return false
         }
@@ -235,6 +245,7 @@ class AnimatedStateListDrawableCompatTest {
         }
 
         override fun setAlpha(alpha: Int) {}
+
         override fun setColorFilter(cf: ColorFilter?) {}
 
         override fun setTint(tint: Int) {

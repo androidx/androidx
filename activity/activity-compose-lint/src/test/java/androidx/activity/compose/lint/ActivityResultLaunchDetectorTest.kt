@@ -28,35 +28,34 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ActivityResultLaunchDetector].
- */
+/** Test for [ActivityResultLaunchDetector]. */
 class ActivityResultLaunchDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ActivityResultLaunchDetector()
 
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ActivityResultLaunchDetector.LaunchDuringComposition)
 
-    private val MANAGED_ACTIVITY_RESULT_LAUNCHER = bytecodeStub(
-        filename = "ActivityResultRegistry.kt",
-        filepath = "androidx/activity/compose",
-        checksum = 0xef067b97,
-        source = """
+    private val MANAGED_ACTIVITY_RESULT_LAUNCHER =
+        bytecodeStub(
+            filename = "ActivityResultRegistry.kt",
+            filepath = "androidx/activity/compose",
+            checksum = 0xef067b97,
+            source =
+                """
     package androidx.activity.compose
 
     public class ManagedActivityResultLauncher<I> {
         fun launch(input: I) { }
     }
     """,
-        """
+            """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgEuXiTs7P1UutSMwtyEkVYgtJLS7x
     LlFi0GIAAJY6UNwvAAAA
     """,
-    """
+            """
     androidx/activity/compose/ManagedActivityResultLauncher.class:
     H4sIAAAAAAAA/51Ry24TMRQ9dpLJoy2ZtDSk5f2S0i6YNALxqiqVSohBKUhp
     lU1WTmKlbhJPNfZE7S7fwh+wQmKBIpZ8FOJ6mg0tK7w499zjc+177V+/v/8A
@@ -71,13 +70,14 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
     yvAJH6XuG8gsWAaP03gPTygekKNCJ6x2kQmxFuJmiHVUieJWiBo2umAGm7jd
     RcFgyeCOwV2DvMFySsoGK38AjaXx2SsDAAA=
     """
-    )
+        )
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -126,10 +126,10 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            MANAGED_ACTIVITY_RESULT_LAUNCHER
-        )
+                ),
+                Stubs.Composable,
+                MANAGED_ACTIVITY_RESULT_LAUNCHER
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -162,9 +162,10 @@ src/com/example/test.kt:46: Error: Calls to launch should happen inside of a Sid
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -210,12 +211,11 @@ src/com/example/test.kt:46: Error: Calls to launch should happen inside of a Sid
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            MANAGED_ACTIVITY_RESULT_LAUNCHER
-        )
+                ),
+                Stubs.Composable,
+                MANAGED_ACTIVITY_RESULT_LAUNCHER
+            )
             .run()
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

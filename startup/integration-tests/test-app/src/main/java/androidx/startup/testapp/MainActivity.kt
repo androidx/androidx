@@ -29,8 +29,6 @@ class MainActivity : AppCompatActivity() {
         val notice = findViewById<TextView>(R.id.txtNotice)
         notice.setText(R.string.app_notice)
         val secondary = findViewById<Button>(R.id.btnSecondary)
-        secondary.setOnClickListener {
-            SecondaryActivity.launchActivity(it.context)
-        }
+        secondary.setOnClickListener { SecondaryActivity.launchActivity(it.context) }
     }
 }

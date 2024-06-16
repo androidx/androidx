@@ -43,15 +43,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for RadioGroup-like layout (column of rows of text and radio buttons).
- */
+/** Benchmark for RadioGroup-like layout (column of rows of text and radio buttons). */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class RadioGroupBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val radioCaseFactory = { RadioGroupTestCase() }
 
@@ -114,10 +111,11 @@ internal class RadioGroupTestCase : LayeredComposeTestCase(), ToggleableTestCase
         Column {
             options.forEach { item ->
                 Row(
-                    modifier = Modifier.selectable(
-                        selected = (select.value == item),
-                        onClick = { select.value = item }
-                    ),
+                    modifier =
+                        Modifier.selectable(
+                            selected = (select.value == item),
+                            onClick = { select.value = item }
+                        ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(item.toString())
@@ -132,8 +130,6 @@ internal class RadioGroupTestCase : LayeredComposeTestCase(), ToggleableTestCase
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class ActivityInjectionTest {
 
-    @get:Rule
-    val rule = HiltAndroidRule(this)
+    @get:Rule val rule = HiltAndroidRule(this)
 
     @Test
     fun verifyInjection() {
@@ -62,13 +61,15 @@ class ActivityInjectionTest {
         val myViewModel by viewModels<MyViewModel>()
         val myInjectedViewModel by viewModels<MyInjectedViewModel>()
         val myNestedInjectedViewModel by viewModels<TopClass.MyNestedInjectedViewModel>()
-        val myAssistedInjectedViewModel by viewModels<MyAssistedInjectedViewModel>(
-            extrasProducer = {
-                defaultViewModelCreationExtras.withCreationCallback<
-                        MyAssistedInjectedViewModel.Factory> { factory ->
-                    factory.create(42)
+        val myAssistedInjectedViewModel by
+            viewModels<MyAssistedInjectedViewModel>(
+                extrasProducer = {
+                    defaultViewModelCreationExtras.withCreationCallback<
+                        MyAssistedInjectedViewModel.Factory
+                    > { factory ->
+                        factory.create(42)
+                    }
                 }
-            }
-        )
+            )
     }
 }

@@ -22,10 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProcessor;
 import androidx.camera.core.ImageProxy;
@@ -40,7 +38,6 @@ import androidx.camera.core.processing.Packet;
  * <p>The output packet will inherited the input packet's metadata, such as the crop rect. The
  * metadata of the image returned from the effect is ignored.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class BitmapEffect implements Operation<Packet<Bitmap>, Packet<Bitmap>> {
 
     private final InternalImageProcessor mProcessor;

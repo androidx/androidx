@@ -50,12 +50,15 @@ import kotlin.math.sin
  *
  * Example of a full screen [CircularProgressIndicator]. Note that the padding
  * [ProgressIndicatorDefaults.FullScreenPadding] should be applied:
+ *
  * @sample androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
  *
  * Example of progress showing overflow value (more than 1) by [CircularProgressIndicator]:
+ *
  * @sample androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
  *
  * Example of progress indicator wrapping media control by [CircularProgressIndicator]:
+ *
  * @sample androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
  *
  * Progress indicators express the proportion of completion of an ongoing task.
@@ -65,8 +68,8 @@ import kotlin.math.sin
  * @param modifier Modifier to be applied to the CircularProgressIndicator.
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180
- *   represent 6 o'clock and 9 o'clock respectively.
- *   Default is 270 degrees [ProgressIndicatorDefaults.StartAngle] (top of the screen).
+ *   represent 6 o'clock and 9 o'clock respectively. Default is 270 degrees
+ *   [ProgressIndicatorDefaults.StartAngle] (top of the screen).
  * @param endAngle The ending position of the progress arc, measured clockwise in degrees (0 to 360)
  *   from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180 represent 6
  *   o'clock and 9 o'clock respectively. By default equal to [startAngle].
@@ -102,8 +105,8 @@ fun CircularProgressIndicator(
                 val minSize = min(size.height, size.width)
                 // Sweep angle between two progress indicator segments.
                 val gapSweep =
-                    asin((stroke.width + gapSize.toPx()) / (minSize - stroke.width))
-                        .toDegrees() * 2f
+                    asin((stroke.width + gapSize.toPx()) / (minSize - stroke.width)).toDegrees() *
+                        2f
 
                 onDrawWithContent {
                     // Draw an indicator.
@@ -164,11 +167,10 @@ object ProgressIndicatorDefaults {
     val FullScreenPadding = 2.dp
 
     /**
-     * Creates a [ProgressIndicatorColors] that represents the default arc colors used in
-     * a [CircularProgressIndicator].
+     * Creates a [ProgressIndicatorColors] that represents the default arc colors used in a
+     * [CircularProgressIndicator].
      */
-    @Composable
-    fun colors() = MaterialTheme.colorScheme.defaultProgressIndicatorColors
+    @Composable fun colors() = MaterialTheme.colorScheme.defaultProgressIndicatorColors
 
     /**
      * Creates a [ProgressIndicatorColors] with modified colors used in a
@@ -200,12 +202,12 @@ object ProgressIndicatorDefaults {
 
     private val ColorScheme.defaultProgressIndicatorColors: ProgressIndicatorColors
         get() {
-            return defaultProgressIndicatorColorsCached ?: ProgressIndicatorColors(
-                indicatorBrush = SolidColor(fromToken(ColorSchemeKeyTokens.Primary)),
-                trackBrush = SolidColor(fromToken(ColorSchemeKeyTokens.SurfaceContainer)),
-            ).also {
-                defaultProgressIndicatorColorsCached = it
-            }
+            return defaultProgressIndicatorColorsCached
+                ?: ProgressIndicatorColors(
+                        indicatorBrush = SolidColor(fromToken(ColorSchemeKeyTokens.Primary)),
+                        trackBrush = SolidColor(fromToken(ColorSchemeKeyTokens.SurfaceContainer)),
+                    )
+                    .also { defaultProgressIndicatorColorsCached = it }
         }
 }
 
@@ -219,19 +221,21 @@ class ProgressIndicatorColors(val indicatorBrush: Brush, val trackBrush: Brush) 
     internal fun copy(
         indicatorColor: Color = Color.Unspecified,
         trackColor: Color = Color.Unspecified,
-    ) = ProgressIndicatorColors(
-        indicatorBrush =
-        if (indicatorColor.isSpecified) SolidColor(indicatorColor) else indicatorBrush,
-        trackBrush = if (trackColor.isSpecified) SolidColor(trackColor) else trackBrush
-    )
+    ) =
+        ProgressIndicatorColors(
+            indicatorBrush =
+                if (indicatorColor.isSpecified) SolidColor(indicatorColor) else indicatorBrush,
+            trackBrush = if (trackColor.isSpecified) SolidColor(trackColor) else trackBrush
+        )
 
     internal fun copy(
         indicatorBrush: Brush? = null,
         trackBrush: Brush? = null,
-    ) = ProgressIndicatorColors(
-        indicatorBrush = indicatorBrush ?: this.indicatorBrush,
-        trackBrush = trackBrush ?: this.trackBrush
-    )
+    ) =
+        ProgressIndicatorColors(
+            indicatorBrush = indicatorBrush ?: this.indicatorBrush,
+            trackBrush = trackBrush ?: this.trackBrush
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -278,10 +282,10 @@ private fun DrawScope.drawIndicatorSegment(
             brushWithAlpha,
             circleRadius,
             center =
-            Offset(
-                radius * cos(angle) + size.minDimension / 2,
-                radius * sin(angle) + size.minDimension / 2
-            )
+                Offset(
+                    radius * cos(angle) + size.minDimension / 2,
+                    radius * sin(angle) + size.minDimension / 2
+                )
         )
     } else {
         // To draw this circle we need a rect with edges that line up with the midpoint of the
@@ -297,10 +301,10 @@ private fun DrawScope.drawIndicatorSegment(
             sweepAngle = sweep - gapSweep,
             useCenter = false,
             topLeft =
-            Offset(
-                diameterOffset + (size.width - diameter) / 2,
-                diameterOffset + (size.height - diameter) / 2
-            ),
+                Offset(
+                    diameterOffset + (size.width - diameter) / 2,
+                    diameterOffset + (size.height - diameter) / 2
+                ),
             size = Size(arcDimen, arcDimen),
             style = stroke
         )

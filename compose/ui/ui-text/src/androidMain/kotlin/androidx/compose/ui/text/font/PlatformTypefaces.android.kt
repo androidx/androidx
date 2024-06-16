@@ -26,9 +26,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastJoinToString
 
-/**
- * Primary internal interface for resolving typefaces from Android platform
- */
+/** Primary internal interface for resolving typefaces from Android platform */
 internal interface PlatformTypefaces {
     /**
      * Resolve the system default font
@@ -56,7 +54,7 @@ internal interface PlatformTypefaces {
      * @param weight weight to load, if available, will fallback
      * @param style italic or not, will fallback
      * @return typeface from system cache if available, or null if the system doesn't know this font
-     * name
+     *   name
      */
     fun optionalOnDeviceFontFamilyByName(
         familyName: String,
@@ -102,13 +100,14 @@ private class PlatformTypefacesApi : PlatformTypefaces {
     ): Typeface? {
         // if the developer specified one of the named fonts, behave identically to the
         // GenericFontFamily behavior, return the same as createNamed always
-        val typeface = when (familyName) {
-            FontFamily.SansSerif.name -> createNamed(FontFamily.SansSerif, weight, style)
-            FontFamily.Serif.name -> createNamed(FontFamily.Serif, weight, style)
-            FontFamily.Monospace.name -> createNamed(FontFamily.Monospace, weight, style)
-            FontFamily.Cursive.name -> createNamed(FontFamily.Cursive, weight, style)
-            else -> loadNamedFromTypefaceCacheOrNull(familyName, weight, style)
-        }
+        val typeface =
+            when (familyName) {
+                FontFamily.SansSerif.name -> createNamed(FontFamily.SansSerif, weight, style)
+                FontFamily.Serif.name -> createNamed(FontFamily.Serif, weight, style)
+                FontFamily.Monospace.name -> createNamed(FontFamily.Monospace, weight, style)
+                FontFamily.Cursive.name -> createNamed(FontFamily.Cursive, weight, style)
+                else -> loadNamedFromTypefaceCacheOrNull(familyName, weight, style)
+            }
         return typeface.setFontVariationSettings(variationSettings, context)
     }
 
@@ -131,9 +130,10 @@ private class PlatformTypefacesApi : PlatformTypefaces {
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal
     ): Typeface {
-        if (fontStyle == FontStyle.Normal &&
-            fontWeight == FontWeight.Normal &&
-            genericFontFamily.isNullOrEmpty()
+        if (
+            fontStyle == FontStyle.Normal &&
+                fontWeight == FontWeight.Normal &&
+                genericFontFamily.isNullOrEmpty()
         ) {
             return Typeface.DEFAULT
         }
@@ -160,13 +160,14 @@ private class PlatformTypefacesApi28 : PlatformTypefaces {
     ): Typeface? {
         // if the developer specified one of the named fonts, behave identically to the
         // GenericFontFamily behavior, return the same as createNamed always
-        val result = when (familyName) {
-            FontFamily.SansSerif.name -> createNamed(FontFamily.SansSerif, weight, style)
-            FontFamily.Serif.name -> createNamed(FontFamily.Serif, weight, style)
-            FontFamily.Monospace.name -> createNamed(FontFamily.Monospace, weight, style)
-            FontFamily.Cursive.name -> createNamed(FontFamily.Cursive, weight, style)
-            else -> loadNamedFromTypefaceCacheOrNull(familyName, weight, style)
-        }
+        val result =
+            when (familyName) {
+                FontFamily.SansSerif.name -> createNamed(FontFamily.SansSerif, weight, style)
+                FontFamily.Serif.name -> createNamed(FontFamily.Serif, weight, style)
+                FontFamily.Monospace.name -> createNamed(FontFamily.Monospace, weight, style)
+                FontFamily.Cursive.name -> createNamed(FontFamily.Cursive, weight, style)
+                else -> loadNamedFromTypefaceCacheOrNull(familyName, weight, style)
+            }
         return result.setFontVariationSettings(variationSettings, context)
     }
 
@@ -203,30 +204,26 @@ private class PlatformTypefacesApi28 : PlatformTypefaces {
         fontWeight: FontWeight,
         fontStyle: FontStyle
     ): Typeface {
-        if (fontStyle == FontStyle.Normal &&
-            fontWeight == FontWeight.Normal &&
-            genericFontFamily.isNullOrEmpty()
+        if (
+            fontStyle == FontStyle.Normal &&
+                fontWeight == FontWeight.Normal &&
+                genericFontFamily.isNullOrEmpty()
         ) {
             return Typeface.DEFAULT
         }
 
-        val familyTypeface = if (genericFontFamily == null) {
-            Typeface.DEFAULT
-        } else {
-            Typeface.create(genericFontFamily, Typeface.NORMAL)
-        }
+        val familyTypeface =
+            if (genericFontFamily == null) {
+                Typeface.DEFAULT
+            } else {
+                Typeface.create(genericFontFamily, Typeface.NORMAL)
+            }
 
-        return Typeface.create(
-            familyTypeface,
-            fontWeight.weight,
-            fontStyle == FontStyle.Italic
-        )
+        return Typeface.create(familyTypeface, fontWeight.weight, fontStyle == FontStyle.Italic)
     }
 }
 
-/**
- * Apply font variation settings to a typeface on supported API levels (26+)
- */
+/** Apply font variation settings to a typeface on supported API levels (26+) */
 @ExperimentalTextApi
 internal fun Typeface?.setFontVariationSettings(
     variationSettings: FontVariation.Settings,
@@ -273,14 +270,11 @@ private object TypefaceCompatApi26 {
 }
 
 /**
- * Convert system family name like "sans-serif" to fallback family names like
- * "sans-serif-medium" for platforms <28.
+ * Convert system family name like "sans-serif" to fallback family names like "sans-serif-medium"
+ * for platforms <28.
  */
 @VisibleForTesting
-internal fun getWeightSuffixForFallbackFamilyName(
-    name: String,
-    fontWeight: FontWeight
-): String {
+internal fun getWeightSuffixForFallbackFamilyName(name: String, fontWeight: FontWeight): String {
     // logic for matching comes from FontFamily.cpp#computeMatch(FontStyle, FontStyle)
 
     // for our purposes, we expect full-coverage from 100-900 for system fonts, and can ignore

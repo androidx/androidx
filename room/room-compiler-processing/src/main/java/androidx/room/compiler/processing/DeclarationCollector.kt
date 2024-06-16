@@ -16,9 +16,7 @@
 
 package androidx.room.compiler.processing
 
-/**
- * see [XTypeElement.getAllFieldsIncludingPrivateSupers]
- */
+/** see [XTypeElement.getAllFieldsIncludingPrivateSupers] */
 internal fun collectFieldsIncludingPrivateSupers(
     xTypeElement: XTypeElement
 ): Sequence<XFieldElement> {
@@ -26,24 +24,19 @@ internal fun collectFieldsIncludingPrivateSupers(
         val existingFieldNames = mutableSetOf<String>()
         suspend fun SequenceScope<XFieldElement>.yieldAllFields(type: XTypeElement) {
             // yield all fields declared directly on this type
-            type.getDeclaredFields()
+            type
+                .getDeclaredFields()
                 .filter { existingFieldNames.add(it.name) }
                 .forEach { yield(it) }
             // visit all declared fields on super types
-            type.superClass?.typeElement?.let { parent ->
-                yieldAllFields(parent)
-            }
+            type.superClass?.typeElement?.let { parent -> yieldAllFields(parent) }
         }
         yieldAllFields(xTypeElement)
     }
 }
 
-/**
- * see [XTypeElement.getAllMethods]
- */
-internal fun collectAllMethods(
-    xTypeElement: XTypeElement
-): Sequence<XMethodElement> {
+/** see [XTypeElement.getAllMethods] */
+internal fun collectAllMethods(xTypeElement: XTypeElement): Sequence<XMethodElement> {
     return sequence {
         // group methods by name for faster override checks. Note that we are using name here
         // instead of jvmName because resolving jvmName is expensive and @JvmName is not allowed on
@@ -60,21 +53,18 @@ internal fun collectAllMethods(
                 }
             }
             // Next, visit all super class methods.
-            type.superClass?.typeElement?.let {
-                collectAllMethodsByName(it)
-            }
+            type.superClass?.typeElement?.let { collectAllMethodsByName(it) }
             // Finally, visit all methods declared in this type.
             if (type == xTypeElement) {
                 type.getDeclaredMethods().forEach {
                     methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
                 }
             } else {
-                type.getDeclaredMethods()
+                type
+                    .getDeclaredMethods()
                     .filter { it.isAccessibleFrom(xTypeElement.packageName) }
                     .filterNot { it.isStaticInterfaceMethod() }
-                    .forEach {
-                        methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
-                    }
+                    .forEach { methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it) }
             }
         }
         collectAllMethodsByName(xTypeElement)

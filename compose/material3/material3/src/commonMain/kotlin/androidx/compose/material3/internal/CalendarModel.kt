@@ -61,9 +61,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
     // A map for caching formatter related results for better performance
     internal val formatterCache = mutableMapOf<String, Any>()
 
-    /**
-     * A [CalendarDate] representing the current day.
-     */
+    /** A [CalendarDate] representing the current day. */
     abstract val today: CalendarDate
 
     /**
@@ -78,8 +76,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      * Each item in this list is a [Pair] that holds the full name of the day, and its short
      * abbreviation letter(s).
      *
-     * Newer APIs (i.e. API 26+), a [Pair] will hold a full name and the first letter of the
-     * day.
+     * Newer APIs (i.e. API 26+), a [Pair] will hold a full name and the first letter of the day.
      * Older APIs that predate API 26 will hold a full name and the first three letters of the day.
      */
     abstract val weekdayNames: List<Pair<String, String>>
@@ -87,18 +84,18 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
     /**
      * Returns a [DateInputFormat] for the given [CalendarLocale].
      *
-     * The input format represents the date with two digits for the day and the month, and
-     * four digits for the year.
+     * The input format represents the date with two digits for the day and the month, and four
+     * digits for the year.
      *
      * For example, the input format patterns, including delimiters, will hold 10-characters strings
      * in one of the following variations:
-     *  - yyyy/MM/dd
-     *  - yyyy-MM-dd
-     *  - yyyy.MM.dd
-     *  - dd/MM/yyyy
-     *  - dd-MM-yyyy
-     *  - dd.MM.yyyy
-     *  - MM/dd/yyyy
+     * - yyyy/MM/dd
+     * - yyyy-MM-dd
+     * - yyyy.MM.dd
+     * - dd/MM/yyyy
+     * - dd-MM-yyyy
+     * - dd.MM.yyyy
+     * - MM/dd/yyyy
      */
     abstract fun getDateInputFormat(locale: CalendarLocale = this.locale): DateInputFormat
 
@@ -122,8 +119,8 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
     /**
      * Returns a [CalendarMonth] from a given [CalendarDate].
      *
-     * Note: This function ignores the [CalendarDate.dayOfMonth] value and just uses the date's
-     * year and month to resolve a [CalendarMonth].
+     * Note: This function ignores the [CalendarDate.dayOfMonth] value and just uses the date's year
+     * and month to resolve a [CalendarMonth].
      *
      * @param date a [CalendarDate] to resolve into a month
      */
@@ -173,8 +170,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
         month: CalendarMonth,
         skeleton: String,
         locale: CalendarLocale = this.locale
-    ): String =
-        formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale, formatterCache)
+    ): String = formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale, formatterCache)
 
     /**
      * Formats a [CalendarDate] into a string with a given date format skeleton.
@@ -230,14 +226,11 @@ internal data class CalendarDate(
     override operator fun compareTo(other: CalendarDate): Int =
         this.utcTimeMillis.compareTo(other.utcTimeMillis)
 
-    /**
-     * Formats the date into a string with the given skeleton format and a [CalendarLocale].
-     */
+    /** Formats the date into a string with the given skeleton format and a [CalendarLocale]. */
     fun format(
         calendarModel: CalendarModel,
         skeleton: String,
-    ): String =
-        calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
+    ): String = calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
 }
 
 /**
@@ -247,7 +240,7 @@ internal data class CalendarDate(
  * @param month the calendar month as an integer (e.g. JANUARY as 1, December as 12)
  * @param numberOfDays the number of days in the month
  * @param daysFromStartOfWeekToFirstOfMonth the number of days from the start of the week to the
- * first day of the month
+ *   first day of the month
  * @param startUtcTimeMillis the first day of the month in _UTC_ milliseconds from the epoch
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -265,20 +258,13 @@ internal data class CalendarMonth(
      */
     val endUtcTimeMillis: Long = startUtcTimeMillis + (numberOfDays * MillisecondsIn24Hours) - 1
 
-    /**
-     * Returns the position of a [CalendarMonth] within given years range.
-     */
+    /** Returns the position of a [CalendarMonth] within given years range. */
     fun indexIn(years: IntRange): Int {
         return (year - years.first) * 12 + month - 1
     }
 
-    /**
-     * Formats the month into a string with the given skeleton format and a [CalendarLocale].
-     */
-    fun format(
-        calendarModel: CalendarModel,
-        skeleton: String
-    ): String =
+    /** Formats the month into a string with the given skeleton format and a [CalendarLocale]. */
+    fun format(calendarModel: CalendarModel, skeleton: String): String =
         calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
 }
 
@@ -289,10 +275,7 @@ internal data class CalendarMonth(
  * dates in a short format, as well as a date pattern with and without a delimiter.
  */
 @Immutable
-internal data class DateInputFormat(
-    val patternWithDelimiters: String,
-    val delimiter: Char
-) {
+internal data class DateInputFormat(val patternWithDelimiters: String, val delimiter: Char) {
     val patternWithoutDelimiters: String = patternWithDelimiters.replace(delimiter.toString(), "")
 }
 
@@ -301,34 +284,33 @@ internal data class DateInputFormat(
  * and parsed by the date parser.
  *
  * This function:
- *  - Removes all characters that don't match `d`, `M` and `y`, or any of the date format delimiters
- *    `.`, `/` and `-`.
- *  - Ensures that the format is for two digits day and month, and four digits year.
+ * - Removes all characters that don't match `d`, `M` and `y`, or any of the date format delimiters
+ *   `.`, `/` and `-`.
+ * - Ensures that the format is for two digits day and month, and four digits year.
  *
  * The output of this cleanup is always a 10 characters string in one of the following variations:
- *  - yyyy/MM/dd
- *  - yyyy-MM-dd
- *  - yyyy.MM.dd
- *  - dd/MM/yyyy
- *  - dd-MM-yyyy
- *  - dd.MM.yyyy
- *  - MM/dd/yyyy
+ * - yyyy/MM/dd
+ * - yyyy-MM-dd
+ * - yyyy.MM.dd
+ * - dd/MM/yyyy
+ * - dd-MM-yyyy
+ * - dd.MM.yyyy
+ * - MM/dd/yyyy
  */
 internal fun datePatternAsInputFormat(localeFormat: String): DateInputFormat {
-    val patternWithDelimiters = localeFormat.replace(Regex("[^dMy/\\-.]"), "")
-        .replace(Regex("d{1,2}"), "dd")
-        .replace(Regex("M{1,2}"), "MM")
-        .replace(Regex("y{1,4}"), "yyyy")
-        .replace("My", "M/y") // Edge case for the Kako locale
-        .removeSuffix(".") // Removes a dot suffix that appears in some formats
+    val patternWithDelimiters =
+        localeFormat
+            .replace(Regex("[^dMy/\\-.]"), "")
+            .replace(Regex("d{1,2}"), "dd")
+            .replace(Regex("M{1,2}"), "MM")
+            .replace(Regex("y{1,4}"), "yyyy")
+            .replace("My", "M/y") // Edge case for the Kako locale
+            .removeSuffix(".") // Removes a dot suffix that appears in some formats
 
     val delimiterRegex = Regex("[/\\-.]")
     val delimiterMatchResult = delimiterRegex.find(patternWithDelimiters)
     val delimiter = delimiterMatchResult!!.groups[0]!!.value
-    return DateInputFormat(
-        patternWithDelimiters = patternWithDelimiters,
-        delimiter = delimiter[0]
-    )
+    return DateInputFormat(patternWithDelimiters = patternWithDelimiters, delimiter = delimiter[0])
 }
 
 internal const val DaysInWeek: Int = 7

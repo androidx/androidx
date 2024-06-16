@@ -32,8 +32,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * This receiver responds to lambda action clicks for unmanaged sessions (created by
  * [GlanceAppWidget.runComposition]). In managed sessions that compose UI for a bound widget, the
  * widget's [GlanceAppWidgetReceiver] is used as the receiver for lambda actions. However, when
- * running a session with [GlanceAppWidget.runComposition], there is no guarantee that the widget
- * is attached to some GlanceAppWidgetReceiver. Instead, unmanaged sessions register themselves to
+ * running a session with [GlanceAppWidget.runComposition], there is no guarantee that the widget is
+ * attached to some GlanceAppWidgetReceiver. Instead, unmanaged sessions register themselves to
  * receive lambdas while they are running (with [UnmanagedSessionReceiver.registerSession]), and set
  * their lambda target to [UnmanagedSessionReceiver]. This is also used by
  * [GlanceRemoteViewsService] to provide list items for unmanaged sessions.
@@ -41,14 +41,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 internal class UnmanagedSessionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == LambdaActionBroadcasts.ActionTriggerLambda) {
-            val actionKey = intent.getStringExtra(LambdaActionBroadcasts.ExtraActionKey)
-                ?: error("Intent is missing ActionKey extra")
+            val actionKey =
+                intent.getStringExtra(LambdaActionBroadcasts.ExtraActionKey)
+                    ?: error("Intent is missing ActionKey extra")
             val id = intent.getIntExtra(LambdaActionBroadcasts.ExtraAppWidgetId, -1)
             if (id == -1) error("Intent is missing AppWidgetId extra")
             getSession(id)?.let { session ->
-                goAsync(Dispatchers.Main) {
-                    session.runLambda(actionKey)
-                }
+                goAsync(Dispatchers.Main) { session.runLambda(actionKey) }
             }
                 ?: Log.e(
                     GlanceAppWidgetTag,
@@ -61,6 +60,7 @@ internal class UnmanagedSessionReceiver : BroadcastReceiver() {
     companion object {
         @SuppressLint("PrimitiveInCollection")
         private val activeSessions = mutableMapOf<Int, Registration>()
+
         private class Registration(
             val session: AppWidgetSession,
             val coroutine: CancellableContinuation<Nothing>
@@ -80,26 +80,22 @@ internal class UnmanagedSessionReceiver : BroadcastReceiver() {
          * random fake IDs, so this could only happen if the user calls [runComposition] with two
          * identical real IDs.
          */
-        suspend fun registerSession(
-            appWidgetId: Int,
-            session: AppWidgetSession
-        ): Nothing = suspendCancellableCoroutine { coroutine ->
-            synchronized(UnmanagedSessionReceiver) {
-                activeSessions[appWidgetId]?.coroutine?.resumeWithException(
-                    IllegalStateException("Another session for $appWidgetId has started")
-                )
-                activeSessions[appWidgetId] = Registration(session, coroutine)
-            }
-            coroutine.invokeOnCancellation {
+        suspend fun registerSession(appWidgetId: Int, session: AppWidgetSession): Nothing =
+            suspendCancellableCoroutine { coroutine ->
                 synchronized(UnmanagedSessionReceiver) {
-                    activeSessions.remove(appWidgetId)
+                    activeSessions[appWidgetId]
+                        ?.coroutine
+                        ?.resumeWithException(
+                            IllegalStateException("Another session for $appWidgetId has started")
+                        )
+                    activeSessions[appWidgetId] = Registration(session, coroutine)
+                }
+                coroutine.invokeOnCancellation {
+                    synchronized(UnmanagedSessionReceiver) { activeSessions.remove(appWidgetId) }
                 }
             }
-        }
 
         fun getSession(appWidgetId: Int): AppWidgetSession? =
-            synchronized(UnmanagedSessionReceiver) {
-                activeSessions[appWidgetId]?.session
-            }
+            synchronized(UnmanagedSessionReceiver) { activeSessions[appWidgetId]?.session }
     }
 }

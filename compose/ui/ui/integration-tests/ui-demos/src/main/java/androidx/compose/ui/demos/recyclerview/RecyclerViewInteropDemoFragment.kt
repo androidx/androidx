@@ -48,6 +48,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerViewInteropDemoFragment : AbstractInteropDemoFragment(true)
+
 class RecyclerViewInteropOffDemoFragment : AbstractInteropDemoFragment(false)
 
 abstract class AbstractInteropDemoFragment(val interopOn: Boolean) :
@@ -100,17 +101,8 @@ fun ItemRow(index: Int, state: LazyListState) {
 
         LazyRow(state = state) {
             items(25) { colIdx ->
-                Column(
-                    Modifier
-                        .padding(8.dp)
-                        .size(96.dp, 144.dp)
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(0.75f)
-                            .background(Color(0xFF999999))
-                    )
+                Column(Modifier.padding(8.dp).size(96.dp, 144.dp)) {
+                    Box(Modifier.fillMaxWidth().weight(0.75f).background(Color(0xFF999999)))
                     Text("Item #$colIdx")
                 }
             }
@@ -118,11 +110,10 @@ fun ItemRow(index: Int, state: LazyListState) {
     }
 }
 
-class ComposeItemRow @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = 0
-) : AbstractComposeView(context, attrs, defStyle) {
+class ComposeItemRow
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
+    AbstractComposeView(context, attrs, defStyle) {
     var index by mutableIntStateOf(0)
     var rowState: LazyListState? by mutableStateOf(null)
 

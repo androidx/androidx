@@ -35,15 +35,18 @@ internal class TypeParser(private val logger: KSPLogger) {
         if (resolvedType.isError) {
             logger.error("Failed to resolve type for $debugName.")
         }
-        val typeArguments = typeReference.element?.typeArguments?.mapNotNull {
-            if (it.type == null) {
-                logger.error("Error in $debugName: null type argument.")
-            }
-            if (it.variance != Variance.INVARIANT) {
-                logger.error("Error in $debugName: only invariant type arguments are supported.")
-            }
-            it.type
-        } ?: emptyList()
+        val typeArguments =
+            typeReference.element?.typeArguments?.mapNotNull {
+                if (it.type == null) {
+                    logger.error("Error in $debugName: null type argument.")
+                }
+                if (it.variance != Variance.INVARIANT) {
+                    logger.error(
+                        "Error in $debugName: only invariant type arguments are supported."
+                    )
+                }
+                it.type
+            } ?: emptyList()
         return Type(
             packageName = resolvedType.declaration.packageName.getFullName(),
             simpleName = resolvedType.declaration.simpleName.getShortName(),

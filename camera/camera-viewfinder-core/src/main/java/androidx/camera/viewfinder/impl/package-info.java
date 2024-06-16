@@ -17,9 +17,7 @@
 /**
  *
  */
-@RequiresApi(21)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.camera.viewfinder.impl;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;

@@ -33,8 +33,7 @@ abstract class UnlockClocksTask : DefaultTask() {
         description = "unlocks clocks of device by rebooting"
     }
 
-    @get:Input
-    abstract val adbPath: Property<String>
+    @get:Input abstract val adbPath: Property<String>
 
     @TaskAction
     fun exec() {

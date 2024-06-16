@@ -19,15 +19,19 @@ package androidx.pdf.viewer;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.widget.MosaicView;
 import androidx.pdf.widget.ZoomView;
+
+import java.util.List;
 
 /**
  * Factory to create the appropriate {@link PageView}, determined by whether TalkBack is on or off.
@@ -53,6 +57,7 @@ public class PageViewFactory {
     public interface PageView {
 
         /** Returns the {@link PageMosaicView} associated with this PageView. */
+        @NonNull
         PageMosaicView getPageView();
 
         /** Return page number. */
@@ -61,12 +66,16 @@ public class PageViewFactory {
         /** Set page URL links. */
         void setPageUrlLinks(@Nullable LinkRects links);
 
+        /** Set page goto links. */
+        void setPageGotoLinks(@Nullable List<GotoLink> links);
+
         /**
          * Returns the base view that implements this interface.
          *
          * <p>NOTE: This is the view that should be added to the view hierarchy. May return the same
          * object as {@link #getPageView()}, e.g. for the {@link PageMosaicView} implementation.
          */
+        @NonNull
         View asView();
 
         /** Clear all bitmaps and reset the view overlay. */
@@ -78,13 +87,14 @@ public class PageViewFactory {
      * optionally a {@link FormAccessibilityView} in a {@link AccessibilityPageWrapper} if TalkBack
      * is on, otherwise returns a {@link PageMosaicView}.
      */
+    @NonNull
     public static PageView createPageView(
-            Context context,
+            @NonNull Context context,
             int pageNum,
-            Dimensions pageSize,
-            MosaicView.BitmapSource bitmapSource,
-            BitmapRecycler bitmapRecycler,
-            ObservableValue<ZoomView.ZoomScroll> zoomScroll) {
+            @NonNull Dimensions pageSize,
+            @NonNull MosaicView.BitmapSource bitmapSource,
+            @Nullable BitmapRecycler bitmapRecycler,
+            @NonNull ObservableValue<ZoomView.ZoomScroll> zoomScroll) {
         final PageMosaicView pageMosaicView =
                 new PageMosaicView(context, pageNum, pageSize, bitmapSource, bitmapRecycler);
         if (Accessibility.get().isTouchExplorationEnabled(context)) {

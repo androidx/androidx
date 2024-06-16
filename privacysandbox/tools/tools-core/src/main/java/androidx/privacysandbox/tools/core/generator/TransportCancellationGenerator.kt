@@ -37,31 +37,37 @@ class TransportCancellationGenerator(private val basePackageName: String) {
         val cancellationSignalStubName =
             ClassName(packageName, AidlGenerator.cancellationSignalName, "Stub")
 
-        val classSpec = TypeSpec.classBuilder(className).build {
-            superclass(cancellationSignalStubName)
-            addModifiers(KModifier.INTERNAL)
-            primaryConstructor(
-                listOf(
-                    PropertySpec.builder(
-                        "onCancel",
-                        LambdaTypeName.get(returnType = Unit::class.asTypeName()),
-                    ).addModifiers(KModifier.PRIVATE).build()
-                ), KModifier.INTERNAL
-            )
-            addProperty(
-                PropertySpec.builder(
-                    "hasCancelled", atomicBooleanClass, KModifier.PRIVATE
-                ).initializer("%T(false)", atomicBooleanClass).build()
-            )
-            addFunction(FunSpec.builder("cancel").build {
-                addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-                addCode {
-                    addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
-                        addStatement("onCancel()")
+        val classSpec =
+            TypeSpec.classBuilder(className).build {
+                superclass(cancellationSignalStubName)
+                addModifiers(KModifier.INTERNAL)
+                primaryConstructor(
+                    listOf(
+                        PropertySpec.builder(
+                                "onCancel",
+                                LambdaTypeName.get(returnType = Unit::class.asTypeName()),
+                            )
+                            .addModifiers(KModifier.PRIVATE)
+                            .build()
+                    ),
+                    KModifier.INTERNAL
+                )
+                addProperty(
+                    PropertySpec.builder("hasCancelled", atomicBooleanClass, KModifier.PRIVATE)
+                        .initializer("%T(false)", atomicBooleanClass)
+                        .build()
+                )
+                addFunction(
+                    FunSpec.builder("cancel").build {
+                        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                        addCode {
+                            addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
+                                addStatement("onCancel()")
+                            }
+                        }
                     }
-                }
-            })
-        }
+                )
+            }
 
         return FileSpec.builder(packageName, className).addType(classSpec).build()
     }

@@ -54,14 +54,16 @@ class FovDeviceTest(
     private val cameraXConfig: CameraXConfig
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraXConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraXConfig)
+        )
 
     companion object {
         @JvmStatic
@@ -93,22 +95,21 @@ class FovDeviceTest(
 
     @Before
     fun setUp() {
-        CameraXUtil.initialize(
-            context,
-            cameraXConfig
-        ).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
 
-        val cameraSelector = CameraSelector.Builder().addCameraFilter { cameraInfoList ->
-            val filteredList = ArrayList<CameraInfo>()
-            cameraInfoList.forEach { cameraInfo ->
-                if ((cameraInfo as CameraInfoInternal).cameraId == cameraId) {
-                    filteredList.add(cameraInfo)
+        val cameraSelector =
+            CameraSelector.Builder()
+                .addCameraFilter { cameraInfoList ->
+                    val filteredList = ArrayList<CameraInfo>()
+                    cameraInfoList.forEach { cameraInfo ->
+                        if ((cameraInfo as CameraInfoInternal).cameraId == cameraId) {
+                            filteredList.add(cameraInfo)
+                        }
+                    }
+                    filteredList
                 }
-            }
-            filteredList
-        }.build()
-        cameraUseCaseAdapter =
-            CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+                .build()
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
     }
 
     @After

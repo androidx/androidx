@@ -62,8 +62,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class AlertDialogTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun customStyleProperties_shouldApply() {
@@ -104,7 +103,8 @@ class AlertDialogTest {
         }
 
         // Assert background
-        rule.onNode(isDialog())
+        rule
+            .onNode(isDialog())
             .captureToImage()
             .assertContainsColor(Color.Yellow) // Background
             .assertContainsColor(Color.Blue) // Modifier border
@@ -118,9 +118,7 @@ class AlertDialogTest {
         }
     }
 
-    /**
-     * Ensure that Dialogs don't press up against the edges of the screen.
-     */
+    /** Ensure that Dialogs don't press up against the edges of the screen. */
     @Test
     fun alertDialog_doesNotConsumeFullScreenWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
@@ -136,9 +134,8 @@ class AlertDialogTest {
             }
 
             AlertDialog(
-                modifier = Modifier
-                    .onSizeChanged { dialogWidthCh.trySend(it.width) }
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier.onSizeChanged { dialogWidthCh.trySend(it.width) }.fillMaxWidth(),
                 onDismissRequest = {},
                 title = { Text(text = "Title") },
                 text = {
@@ -148,14 +145,10 @@ class AlertDialogTest {
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Confirm")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Dismiss")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
                 },
             )
         }
@@ -167,9 +160,7 @@ class AlertDialogTest {
         }
     }
 
-    /**
-     * Ensure that a dialog with custom content don't press up against the edges of the screen.
-     */
+    /** Ensure that a dialog with custom content don't press up against the edges of the screen. */
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun basicAlertDialog_customContentDoesNotConsumeFullScreenWidth() {
@@ -187,14 +178,15 @@ class AlertDialogTest {
 
             BasicAlertDialog(onDismissRequest = {}) {
                 Surface(
-                    modifier = Modifier
-                        .onSizeChanged { dialogWidthCh.trySend(it.width) }
-                        .wrapContentHeight()
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier.onSizeChanged { dialogWidthCh.trySend(it.width) }
+                            .wrapContentHeight()
+                            .fillMaxWidth()
                 ) {
                     Text(
-                        text = "This area typically contains the supportive text " +
-                            "which presents the details regarding the Dialog's purpose.",
+                        text =
+                            "This area typically contains the supportive text " +
+                                "which presents the details regarding the Dialog's purpose.",
                     )
                 }
             }
@@ -219,9 +211,7 @@ class AlertDialogTest {
                 title = { Text(text = "Title") },
                 text = { Text("Short") },
                 confirmButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Confirm")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                 }
             )
         }
@@ -241,10 +231,7 @@ class AlertDialogTest {
         rule.setContent {
             with(LocalDensity.current) { minDialogWidth = DialogMinWidth.roundToPx() }
             BasicAlertDialog(onDismissRequest = {}) {
-                Surface(
-                    modifier = Modifier
-                        .onSizeChanged { dialogWidthCh.trySend(it.width) }
-                ) {
+                Surface(modifier = Modifier.onSizeChanged { dialogWidthCh.trySend(it.width) }) {
                     Text("Short")
                 }
             }
@@ -264,14 +251,8 @@ class AlertDialogTest {
         var customMinDialogWidth = 0
         rule.setContent {
             with(LocalDensity.current) { customMinDialogWidth = 150.dp.roundToPx() }
-            BasicAlertDialog(
-                onDismissRequest = {},
-                Modifier.width(width = 150.dp)
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .onSizeChanged { dialogWidthCh.trySend(it.width) }
-                ) {
+            BasicAlertDialog(onDismissRequest = {}, Modifier.width(width = 150.dp)) {
+                Surface(modifier = Modifier.onSizeChanged { dialogWidthCh.trySend(it.width) }) {
                     Text("Short")
                 }
             }
@@ -300,9 +281,7 @@ class AlertDialogTest {
                 confirmButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(ConfirmButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Confirm")
                     }
@@ -310,9 +289,7 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(DismissButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Dismiss")
                     }
@@ -327,25 +304,29 @@ class AlertDialogTest {
         val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
         val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag(IconTestTag)
+        rule
+            .onNodeWithTag(IconTestTag)
             // Dialog's icon should be centered (icon size is 24dp)
             .assertLeftPositionInRootIsEqualTo((dialogBounds.width - 24.dp) / 2)
             // Dialog's icon should be 24dp from the top
             .assertTopPositionInRootIsEqualTo(24.dp)
 
-        rule.onNodeWithTag(TitleTestTag)
+        rule
+            .onNodeWithTag(TitleTestTag)
             // Title should be centered (default alignment when an icon presence)
             .assertLeftPositionInRootIsEqualTo((dialogBounds.width - titleBounds.width) / 2)
             // Title should be 16dp below the icon.
             .assertTopPositionInRootIsEqualTo(iconBounds.bottom + 16.dp)
 
-        rule.onNodeWithTag(TextTestTag)
+        rule
+            .onNodeWithTag(TextTestTag)
             // Text should be 24dp from the start.
             .assertLeftPositionInRootIsEqualTo(24.dp)
             // Text should be 16dp below the title.
             .assertTopPositionInRootIsEqualTo(titleBounds.bottom + 16.dp)
 
-        rule.onNodeWithTag(ConfirmButtonTestTag)
+        rule
+            .onNodeWithTag(ConfirmButtonTestTag)
             // Confirm button should be 24dp from the right.
             .assertLeftPositionInRootIsEqualTo(dialogBounds.right - 24.dp - confirmBtBounds.width)
             // Buttons should be 24dp from the bottom (test button default height is 48dp).
@@ -378,9 +359,7 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(DismissButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Dismiss")
                     }
@@ -393,19 +372,22 @@ class AlertDialogTest {
         val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
         val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag(TitleTestTag)
+        rule
+            .onNodeWithTag(TitleTestTag)
             // Title should 24dp from the left.
             .assertLeftPositionInRootIsEqualTo(24.dp)
             // Title should be 24dp from the top.
             .assertTopPositionInRootIsEqualTo(24.dp)
 
-        rule.onNodeWithTag(TextTestTag)
+        rule
+            .onNodeWithTag(TextTestTag)
             // Text should be 24dp from the start.
             .assertLeftPositionInRootIsEqualTo(24.dp)
             // Text should be 16dp below the title.
             .assertTopPositionInRootIsEqualTo(titleBounds.bottom + 16.dp)
 
-        rule.onNodeWithTag(DismissButtonTestTag)
+        rule
+            .onNodeWithTag(DismissButtonTestTag)
             // Dismiss button should be 24dp from the right.
             .assertLeftPositionInRootIsEqualTo(dialogBounds.right - 24.dp - dismissBtBounds.width)
             // Buttons should be 24dp from the bottom (test button default height is 48dp).
@@ -427,9 +409,7 @@ class AlertDialogTest {
                 confirmButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(ConfirmButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Confirm with a long text")
                     }
@@ -437,9 +417,7 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(DismissButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Dismiss with a long text")
                     }
@@ -463,20 +441,14 @@ class AlertDialogTest {
                 title = { Text(text = "Title", modifier = Modifier.testTag(TitleTestTag)) },
                 text = {
                     LazyColumn(modifier = Modifier.testTag(TextTestTag)) {
-                        items(100) {
-                            Text(
-                                text = "Message!"
-                            )
-                        }
+                        items(100) { Text(text = "Message!") }
                     }
                 },
                 confirmButton = {},
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier
-                            .testTag(DismissButtonTestTag)
-                            .semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
                     ) {
                         Text("Dismiss")
                     }
@@ -489,19 +461,22 @@ class AlertDialogTest {
         val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
         val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag(TitleTestTag)
+        rule
+            .onNodeWithTag(TitleTestTag)
             // Title should 24dp from the left.
             .assertLeftPositionInRootIsEqualTo(24.dp)
             // Title should be 24dp from the top.
             .assertTopPositionInRootIsEqualTo(24.dp)
 
-        rule.onNodeWithTag(TextTestTag)
+        rule
+            .onNodeWithTag(TextTestTag)
             // Text should be 24dp from the start.
             .assertLeftPositionInRootIsEqualTo(24.dp)
             // Text should be 16dp below the title.
             .assertTopPositionInRootIsEqualTo(titleBounds.bottom + 16.dp)
 
-        rule.onNodeWithTag(DismissButtonTestTag)
+        rule
+            .onNodeWithTag(DismissButtonTestTag)
             // Dismiss button should be 24dp from the right.
             .assertLeftPositionInRootIsEqualTo(dialogBounds.right - 24.dp - dismissBtBounds.width)
             // Buttons should be 24dp from the bottom (test button default height is 48dp).

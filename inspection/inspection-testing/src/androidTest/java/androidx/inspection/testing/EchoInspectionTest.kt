@@ -61,9 +61,7 @@ class EchoInspectionTest {
     fun testCancellation() = runBlocking {
         val inspectorTester = InspectorTester(ECHO_INSPECTION_ID)
         assertThat(inspectorTester.channel.isEmpty).isTrue()
-        val job = launch {
-            inspectorTester.sendCommand("<cancellation-test>".toByteArray())
-        }
+        val job = launch { inspectorTester.sendCommand("<cancellation-test>".toByteArray()) }
         val listenerEvent = inspectorTester.channel.receive()
         // wait till cancellation listener added, because we don't want to cancel this job
         // accidentally too early
@@ -89,19 +87,20 @@ class EchoInspectionTest {
     fun testInspectorTesterDisposeStopsHandlerThread() {
         lateinit var escapedEnvironment: InspectorEnvironment
         runBlocking {
-            val inspectorTester = InspectorTester(
-                ECHO_INSPECTION_ID,
-                factoryOverride = object :
-                    InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
-                    override fun createInspector(
-                        connection: Connection,
-                        environment: InspectorEnvironment
-                    ): EchoInspector {
-                        escapedEnvironment = environment
-                        return EchoInspector(connection)
-                    }
-                }
-            )
+            val inspectorTester =
+                InspectorTester(
+                    ECHO_INSPECTION_ID,
+                    factoryOverride =
+                        object : InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
+                            override fun createInspector(
+                                connection: Connection,
+                                environment: InspectorEnvironment
+                            ): EchoInspector {
+                                escapedEnvironment = environment
+                                return EchoInspector(connection)
+                            }
+                        }
+                )
             inspectorTester.dispose()
         }
         try {

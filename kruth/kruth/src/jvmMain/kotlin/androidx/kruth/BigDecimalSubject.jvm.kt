@@ -20,10 +20,9 @@ import androidx.kruth.Fact.Companion.fact
 import androidx.kruth.Fact.Companion.simpleFact
 import java.math.BigDecimal
 
-/**
- * Propositions for [BigDecimal] typed subjects.
- */
-class BigDecimalSubject internal constructor(
+/** Propositions for [BigDecimal] typed subjects. */
+class BigDecimalSubject
+internal constructor(
     actual: BigDecimal?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : ComparableSubject<BigDecimal>(actual, metadata = metadata) {
@@ -32,30 +31,30 @@ class BigDecimalSubject internal constructor(
      * Fails if the subject's value is not equal to the value of the given [BigDecimal]. (i.e.,
      * fails if `actual.compareTo(expected) != 0`).
      *
-     * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and
-     * the scales, use [isEqualTo].
+     * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and the
+     * scales, use [isEqualTo].
      */
     fun isEqualToIgnoringScale(expected: BigDecimal) {
         compareValues(expected)
     }
 
     /**
-     * Fails if the subject's value is not equal to the value of the [BigDecimal] created from
-     * the expected string (i.e., fails if `actual.compareTo(BigDecimal(expected)) != 0`).
+     * Fails if the subject's value is not equal to the value of the [BigDecimal] created from the
+     * expected string (i.e., fails if `actual.compareTo(BigDecimal(expected)) != 0`).
      *
-     * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and
-     * the scales, use [isEqualTo].
+     * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and the
+     * scales, use [isEqualTo].
      */
     fun isEqualToIgnoringScale(expected: String) {
         isEqualToIgnoringScale(BigDecimal(expected))
     }
 
     /**
-     * Fails if the subject's value is not equal to the value of the [BigDecimal] created from
-     * the expected `Long` (i.e., fails if `actual.compareTo(BigDecimal(expected)) != 0`).
+     * Fails if the subject's value is not equal to the value of the [BigDecimal] created from the
+     * expected `Long` (i.e., fails if `actual.compareTo(BigDecimal(expected)) != 0`).
      *
-     * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and
-     * the scales, use [isEqualTo].
+     * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and the
+     * scales, use [isEqualTo].
      */
     fun isEqualToIgnoringScale(expected: Long) {
         isEqualToIgnoringScale(BigDecimal(expected))
@@ -64,8 +63,8 @@ class BigDecimalSubject internal constructor(
     /**
      * Fails if the subject's value and scale is not equal to the given [BigDecimal].
      *
-     * **Note:** If you only want to compare the values of the BigDecimals and not their scales,
-     * use [isEqualToIgnoringScale] instead.
+     * **Note:** If you only want to compare the values of the BigDecimals and not their scales, use
+     * [isEqualToIgnoringScale] instead.
      */
     @Suppress("RedundantOverride") // To express more specific KDoc
     override fun isEqualTo(expected: Any?) {

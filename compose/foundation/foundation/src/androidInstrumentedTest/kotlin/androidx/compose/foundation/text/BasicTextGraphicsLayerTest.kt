@@ -32,14 +32,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicTextGraphicsLayerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun modifiersExposeGraphicsLayer() {
-        rule.setContent {
-            BasicText("Ok")
-        }
+        rule.setContent { BasicText("Ok") }
         // ui-inspector 3d view requires this to be emitted
         val owners = rule.onNodeWithText("Ok").fetchGraphicsLayerOwnerViewId()
         assertThat(owners).hasSize(1)
@@ -47,9 +44,7 @@ class BasicTextGraphicsLayerTest {
 
     @Test
     fun modifiersExposeGraphicsLayer_annotatedString() {
-        rule.setContent {
-            BasicText(AnnotatedString("Ok"))
-        }
+        rule.setContent { BasicText(AnnotatedString("Ok")) }
         // ui-inspector 3d view requires this to be emitted
         val owners = rule.onNodeWithText("Ok").fetchGraphicsLayerOwnerViewId()
         assertThat(owners).hasSize(1)

@@ -34,21 +34,22 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  *
  * @param seller AdTechIdentifier of the seller, for example "www.example-ssp.com".
  * @param adSelectionIds a list of ad selection ids passed by the SSP to participate in the ad
- *     selection from outcomes process.
+ *   selection from outcomes process.
  * @param adSelectionSignals signals given to the participating buyers in the ad selection and
- *     reporting processes.
- * @param selectionLogicUri the URI used to retrieve the JS code containing the seller/SSP
- *      function used during the ad selection.
+ *   reporting processes.
+ * @param selectionLogicUri the URI used to retrieve the JS code containing the seller/SSP function
+ *   used during the ad selection.
  */
 @ExperimentalFeatures.Ext10OptIn
-class AdSelectionFromOutcomesConfig public constructor(
+class AdSelectionFromOutcomesConfig
+public constructor(
     val seller: AdTechIdentifier,
     val adSelectionIds: List<Long>,
     val adSelectionSignals: AdSelectionSignals,
     var selectionLogicUri: Uri,
 ) {
 
-    /** Checks whether two [AdSelectionFromOutcomesConfig] objects contain the same information.  */
+    /** Checks whether two [AdSelectionFromOutcomesConfig] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AdSelectionFromOutcomesConfig) return false
@@ -58,7 +59,7 @@ class AdSelectionFromOutcomesConfig public constructor(
             this.selectionLogicUri == other.selectionLogicUri
     }
 
-    /** Returns the hash of the [AdSelectionFromOutcomesConfig] object's data.  */
+    /** Returns the hash of the [AdSelectionFromOutcomesConfig] object's data. */
     override fun hashCode(): Int {
         var hash = seller.hashCode()
         hash = 31 * hash + adSelectionIds.hashCode()
@@ -67,7 +68,7 @@ class AdSelectionFromOutcomesConfig public constructor(
         return hash
     }
 
-    /** Overrides the toString method.  */
+    /** Overrides the toString method. */
     override fun toString(): String {
         return "AdSelectionFromOutcomesConfig: seller=$seller, adSelectionIds='$adSelectionIds', " +
             "adSelectionSignals=$adSelectionSignals, selectionLogicUri=$selectionLogicUri"

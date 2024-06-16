@@ -25,6 +25,7 @@ import androidx.glance.GlanceModifier
  */
 internal fun GlanceModifier.clipToOutline(clip: Boolean): GlanceModifier =
     this.then(ClipToOutlineModifier(clip))
+
 internal data class ClipToOutlineModifier(val clip: Boolean) : GlanceModifier.Element
 
 /**
@@ -33,5 +34,6 @@ internal data class ClipToOutlineModifier(val clip: Boolean) : GlanceModifier.El
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun GlanceModifier.enabled(enabled: Boolean) = this.then(EnabledModifier(enabled))
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class EnabledModifier(val enabled: Boolean) : GlanceModifier.Element

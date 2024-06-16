@@ -16,24 +16,16 @@
 
 package androidx.camera.integration.extensions
 
-/**
- * Invalid extension mode
- */
+/** Invalid extension mode */
 const val INVALID_EXTENSION_MODE = -1
 
-/**
- * Extension is not enabled. Uses a non camera extension session (eg. camera2 or cameraX)
- */
+/** Extension is not enabled. Uses a non camera extension session (eg. camera2 or cameraX) */
 const val EXTENSION_MODE_NONE = -1
 
-/**
- * Invalid lens facing
- */
+/** Invalid lens facing */
 const val INVALID_LENS_FACING = -1
 
-/**
- * Intent extra keys to pass necessary information between the caller and callee activities.
- */
+/** Intent extra keys to pass necessary information between the caller and callee activities. */
 object IntentExtraKey {
     /**
      * Launches the activity with the specified direction of camera.
@@ -50,14 +42,10 @@ object IntentExtraKey {
      */
     const val INTENT_EXTRA_KEY_LENS_FACING = "LensFacing"
 
-    /**
-     * Launches the activity with the specified id of camera.
-     */
+    /** Launches the activity with the specified id of camera. */
     const val INTENT_EXTRA_KEY_CAMERA_ID = "camera_id"
 
-    /**
-     * Launches the activity with the specified extension mode.
-     */
+    /** Launches the activity with the specified extension mode. */
     const val INTENT_EXTRA_KEY_EXTENSION_MODE = "extension_mode"
 
     /**
@@ -73,9 +61,7 @@ object IntentExtraKey {
      */
     const val INTENT_EXTRA_KEY_TEST_TYPE = "TestType"
 
-    /**
-     * Used to pass the captured image Uri to the caller activity.
-     */
+    /** Used to pass the captured image Uri to the caller activity. */
     const val INTENT_EXTRA_KEY_IMAGE_URI = "ImageUri"
 
     /**
@@ -84,65 +70,41 @@ object IntentExtraKey {
      */
     const val INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES = "ImageRotationDegrees"
 
-    /**
-     * Used to pass the request code to the callee activity.
-     */
+    /** Used to pass the request code to the callee activity. */
     const val INTENT_EXTRA_KEY_REQUEST_CODE = "RequestCode"
 
-    /**
-     * Used to pass the error code to the caller activity.
-     */
+    /** Used to pass the error code to the caller activity. */
     const val INTENT_EXTRA_KEY_ERROR_CODE = "ErrorCode"
 }
 
-/**
- * Camera directions
- */
+/** Camera directions */
 object CameraDirection {
-    /**
-     * Backward direction
-     */
+    /** Backward direction */
     const val BACKWARD = "BACKWARD"
 
-    /**
-     * Forward direction
-     */
+    /** Forward direction */
     const val FORWARD = "FORWARD"
 }
 
-/**
- * Error Codes for validation activity results
- */
+/** Error Codes for validation activity results */
 object ValidationErrorCode {
-    /**
-     * No error
-     */
+    /** No error */
     const val ERROR_CODE_NONE = 0
 
-    /**
-     * Failed to bind the use cases to the lifecycle owner
-     */
+    /** Failed to bind the use cases to the lifecycle owner */
     const val ERROR_CODE_BIND_TO_LIFECYCLE_FAILED = 1
 
-    /**
-     * The specified extension mode is not supported
-     */
+    /** The specified extension mode is not supported */
     const val ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT = 2
 
-    /**
-     * Failed to take picture
-     */
+    /** Failed to take picture */
     const val ERROR_CODE_TAKE_PICTURE_FAILED = 3
 
-    /**
-     * Failed to save the captured image
-     */
+    /** Failed to save the captured image */
     const val ERROR_CODE_SAVE_IMAGE_FAILED = 4
 }
 
-/**
- * Extension test types.
- */
+/** Extension test types. */
 object ExtensionTestType {
     const val TEST_TYPE_CAMERAX_EXTENSION = "CameraX Extension"
     const val TEST_TYPE_CAMERA2_EXTENSION = "Camera2 Extension"
@@ -150,32 +112,20 @@ object ExtensionTestType {
         "Camera2 Extension Stream Config Latency"
 }
 
-/**
- * Test result types
- */
+/** Test result types */
 object TestResultType {
-    /**
-     * Extension mode is not supported on the camera device
-     */
+    /** Extension mode is not supported on the camera device */
     const val TEST_RESULT_NOT_SUPPORTED = -1
 
-    /**
-     * Not tested yet
-     */
+    /** Not tested yet */
     const val TEST_RESULT_NOT_TESTED = 0
 
-    /**
-     * Only part of the tests are tested
-     */
+    /** Only part of the tests are tested */
     const val TEST_RESULT_PARTIALLY_TESTED = 1
 
-    /**
-     * All tests have been run and all passed
-     */
+    /** All tests have been run and all passed */
     const val TEST_RESULT_PASSED = 2
 
-    /**
-     * All tests have been run and some items are failed
-     */
+    /** All tests have been run and some items are failed */
     const val TEST_RESULT_FAILED = 3
 }

@@ -46,8 +46,6 @@ class LatchTest {
         assertTrue("all awaiters still active") { awaiters.all { it.isActive } }
 
         latch.openLatch()
-        withTimeout(500) {
-            awaiters.map { it.join() }
-        }
+        withTimeout(500) { awaiters.map { it.join() } }
     }
 }

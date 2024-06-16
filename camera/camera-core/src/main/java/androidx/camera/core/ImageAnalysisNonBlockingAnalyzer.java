@@ -19,7 +19,6 @@ package androidx.camera.core;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -35,7 +34,6 @@ import java.util.concurrent.Executor;
  *
  * <p> Used with {@link ImageAnalysis}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
 
     // The executor for managing cached image.

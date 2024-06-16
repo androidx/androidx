@@ -110,6 +110,7 @@ androidx {
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
+    legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
 }
 

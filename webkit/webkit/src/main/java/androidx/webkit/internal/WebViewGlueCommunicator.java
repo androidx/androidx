@@ -72,26 +72,18 @@ public class WebViewGlueCommunicator {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @NonNull
     static WebViewProviderFactory createGlueProviderFactory() {
-        // We do not support pre-L devices since their WebView APKs cannot be updated.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return new IncompatibleApkWebViewProviderFactory();
-        }
         InvocationHandler invocationHandler;
         try {
             invocationHandler = fetchGlueProviderFactoryImpl();
             // The only way we should fail to fetch the provider-factory is if the class we are
             // calling into doesn't exist - any other kind of failure is unexpected and should cause
             // a run-time exception.
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
             // If WebView APK support library glue entry point doesn't exist then return a Provider
             // factory that declares that there are no features available.
             return new IncompatibleApkWebViewProviderFactory();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
         }
         return new WebViewProviderFactoryAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebViewProviderFactoryBoundaryInterface.class, invocationHandler));
@@ -115,11 +107,7 @@ public class WebViewGlueCommunicator {
             Method getFactoryMethod = WebView.class.getDeclaredMethod("getFactory");
             getFactoryMethod.setAccessible(true);
             return getFactoryMethod.invoke(null);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

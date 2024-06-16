@@ -16,12 +16,6 @@
 
 package androidx.pdf.util;
 
-
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -37,23 +31,10 @@ public class AppInfo {
     private final String mAppVersion;
     private final String mPackageName;
 
-    /** Bootstrap {@link AppInfo} from any {@link Context}. Can be called multiple times. */
-    public static synchronized void bootstrap(@NonNull Context context) {
-        sAppInfo = new AppInfo(context.getApplicationContext());
-    }
-
     /** Singleton-style getter for the {@link AppInfo} instance. Always non-null. */
     @NonNull
     public static AppInfo get() {
         return sAppInfo;
-    }
-
-    private AppInfo(Context appContext) {
-        PackageManager pm = appContext.getPackageManager();
-        String pkg = appContext.getPackageName();
-        PackageInfo pi = getPackageInfo(pm, pkg);
-        mAppVersion = pi.versionName != null ? pi.versionName : NO_VERSION;
-        mPackageName = pi.packageName != null ? pi.packageName : NO_PACKAGE_NAME;
     }
 
     private AppInfo() {
@@ -61,25 +42,13 @@ public class AppInfo {
         mAppVersion = NO_VERSION;
     }
 
+    @NonNull
     public String getAppVersion() {
         return mAppVersion;
     }
 
+    @NonNull
     public String getPackageName() {
         return mPackageName;
-    }
-
-    private static PackageInfo getPackageInfo(PackageManager pkgManager, String pkg) {
-        try {
-            return pkgManager.getPackageInfo(pkg, 0);
-        } catch (NameNotFoundException e) {
-            ErrorLog.log(TAG, String.format("Can't find our own package info?? %s", pkg), e);
-            return new PackageInfo() {
-                {
-                    packageName = NO_PACKAGE_NAME;
-                    versionName = NO_VERSION;
-                }
-            };
-        }
     }
 }

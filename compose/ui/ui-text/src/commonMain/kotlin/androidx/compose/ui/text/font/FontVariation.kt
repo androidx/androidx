@@ -35,9 +35,7 @@ object FontVariation {
      */
     @Immutable
     class Settings(vararg settings: Setting) {
-        /**
-         * All settings, unique by [FontVariation.Setting.axisName]
-         */
+        /** All settings, unique by [FontVariation.Setting.axisName] */
         val settings: List<Setting>
 
         /**
@@ -48,14 +46,17 @@ object FontVariation {
         internal val needsDensity: Boolean
 
         init {
-            this.settings = ArrayList(settings
-                .groupBy { it.axisName }
-                .flatMap { (key, value) ->
-                    require(value.size == 1) {
-                        "'$key' must be unique. Actual [ [${value.joinToString()}]"
-                    }
-                    value
-                })
+            this.settings =
+                ArrayList(
+                    settings
+                        .groupBy { it.axisName }
+                        .flatMap { (key, value) ->
+                            require(value.size == 1) {
+                                "'$key' must be unique. Actual [ [${value.joinToString()}]"
+                            }
+                            value
+                        }
+                )
 
             needsDensity = this.settings.fastAny { it.needsDensity }
         }
@@ -74,9 +75,7 @@ object FontVariation {
         }
     }
 
-    /**
-     * Represents a single point in a variation, such as 0.7 or 100
-     */
+    /** Represents a single point in a variation, such as 0.7 or 100 */
     @Immutable
     sealed interface Setting {
         /**
@@ -95,18 +94,14 @@ object FontVariation {
          */
         val needsDensity: Boolean
 
-        /**
-         * The font variation axis, such as 'wdth' or 'ital'
-         */
+        /** The font variation axis, such as 'wdth' or 'ital' */
         val axisName: String
     }
 
     @Immutable
-    private class SettingFloat(
-        override val axisName: String,
-        val value: Float
-    ) : Setting {
+    private class SettingFloat(override val axisName: String, val value: Float) : Setting {
         override fun toVariationValue(density: Density?): Float = value
+
         override val needsDensity: Boolean = false
 
         override fun equals(other: Any?): Boolean {
@@ -131,10 +126,7 @@ object FontVariation {
     }
 
     @Immutable
-    private class SettingTextUnit(
-        override val axisName: String,
-        val value: TextUnit
-    ) : Setting {
+    private class SettingTextUnit(override val axisName: String, val value: TextUnit) : Setting {
         override fun toVariationValue(density: Density?): Float {
             // we don't care about pixel density as 12sp is the same "visual" size on all devices
             // instead we only care about font scaling, which changes visual size
@@ -166,11 +158,9 @@ object FontVariation {
     }
 
     @Immutable
-    private class SettingInt(
-        override val axisName: String,
-        val value: Int
-    ) : Setting {
+    private class SettingInt(override val axisName: String, val value: Int) : Setting {
         override fun toVariationValue(density: Density?): Float = value.toFloat()
+
         override val needsDensity: Boolean = false
 
         override fun equals(other: Any?): Boolean {
@@ -206,7 +196,6 @@ object FontVariation {
      *
      * If you had a setting `fzzt` that set a variation setting called fizzable between 1 and 11,
      * define a function like this:
-     *
      * ```
      * fun FontVariation.fizzable(fiz: Int): FontVariation.Setting {
      *    require(fiz in 1..11) { "'fzzt' must be in 1..11" }
@@ -217,9 +206,7 @@ object FontVariation {
      * @param value value for axis, not validated and directly passed to font
      */
     fun Setting(name: String, value: Float): Setting {
-        require(name.length == 4) {
-            "Name must be exactly four characters. Actual: '$name'"
-        }
+        require(name.length == 4) { "Name must be exactly four characters. Actual: '$name'" }
         return SettingFloat(name, value)
     }
 
@@ -239,9 +226,7 @@ object FontVariation {
      * @param value [0.0f, 1.0f]
      */
     fun italic(value: Float): Setting {
-        require(value in 0.0f..1.0f) {
-            "'ital' must be in 0.0f..1.0f. Actual: $value"
-        }
+        require(value in 0.0f..1.0f) { "'ital' must be in 0.0f..1.0f. Actual: $value" }
         return SettingFloat("ital", value)
     }
 
@@ -263,9 +248,7 @@ object FontVariation {
      * @param textSize font-size at the expected display, must be in sp
      */
     fun opticalSizing(textSize: TextUnit): Setting {
-        require(textSize.isSp) {
-            "'opsz' must be provided in sp units"
-        }
+        require(textSize.isSp) { "'opsz' must be provided in sp units" }
         return SettingTextUnit("opsz", textSize)
     }
 
@@ -280,9 +263,7 @@ object FontVariation {
      * @param value -90f to 90f, represents an angle
      */
     fun slant(value: Float): Setting {
-        require(value in -90f..90f) {
-            "'slnt' must be in -90f..90f. Actual: $value"
-        }
+        require(value in -90f..90f) { "'slnt' must be in -90f..90f. Actual: $value" }
         return SettingFloat("slnt", value)
     }
 
@@ -298,9 +279,7 @@ object FontVariation {
      * @param value > 0.0f represents the width
      */
     fun width(value: Float): Setting {
-        require(value > 0.0f) {
-            "'wdth' must be strictly > 0.0f. Actual: $value"
-        }
+        require(value > 0.0f) { "'wdth' must be strictly > 0.0f. Actual: $value" }
         return SettingFloat("wdth", value)
     }
 
@@ -311,8 +290,8 @@ object FontVariation {
      * reflow see [grade]
      *
      * Adjust the style from lighter to bolder in typographic color, by varying stroke weights,
-     * spacing and kerning, and other aspects of the type. This typically changes overall width,
-     * and so may be used in conjunction with Width and Grade axes.
+     * spacing and kerning, and other aspects of the type. This typically changes overall width, and
+     * so may be used in conjunction with Width and Grade axes.
      *
      * This is equivalent to [FontWeight], and platforms _may_ support automatically setting 'wghts'
      * from [FontWeight] during font load.
@@ -325,9 +304,7 @@ object FontVariation {
      * @param value weight, in 1..1000
      */
     fun weight(value: Int): Setting {
-        require(value in 1..1000) {
-            "'wght' value must be in [1, 1000]. Actual: $value"
-        }
+        require(value in 1..1000) { "'wght' value must be in [1, 1000]. Actual: $value" }
         return SettingInt("wght", value)
     }
 
@@ -347,9 +324,7 @@ object FontVariation {
      * @param value grade, in -1000..1000
      */
     fun grade(value: Int): Setting {
-        require(value in -1000..1000) {
-            "'GRAD' must be in -1000..1000"
-        }
+        require(value in -1000..1000) { "'GRAD' must be in -1000..1000" }
         return SettingInt("GRAD", value)
     }
 
@@ -359,14 +334,10 @@ object FontVariation {
      * @param weight to set 'wght' with [weight]\([FontWeight.weight])
      * @param style to set 'ital' with [italic]\([FontStyle.value])
      * @param settings other settings to apply, must not contain 'wght' or 'ital'
-     * @return settings that configure [FontWeight] and [FontStyle] on a font that supports
-     * 'wght' and 'ital'
+     * @return settings that configure [FontWeight] and [FontStyle] on a font that supports 'wght'
+     *   and 'ital'
      */
-    fun Settings(
-        weight: FontWeight,
-        style: FontStyle,
-        vararg settings: Setting
-    ): Settings {
+    fun Settings(weight: FontWeight, style: FontStyle, vararg settings: Setting): Settings {
         return Settings(weight(weight.weight), italic(style.value.toFloat()), *settings)
     }
 }

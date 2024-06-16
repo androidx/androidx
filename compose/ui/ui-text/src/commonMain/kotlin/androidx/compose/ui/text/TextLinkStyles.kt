@@ -29,16 +29,16 @@ import androidx.compose.runtime.Immutable
  * will not get a specific link styling for this state. Instead it will be styled according to the
  * rest of the [AnnotatedString].
  *
- * The resulting style of the link is always a combination of all styles merged into one in
- * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`.
+ * The resulting style of the link is always a combination of all styles merged into one in the
+ * order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`.
  *
  * @param style style configuration for a link that is always applied
- * @param focusedStyle style configuration for a link applied on top of the [style] when the link
- * is focused
- * @param hoveredStyle style configuration for a link applied on top of the [style] when the link
- * is hovered
- * @param pressedStyle style configuration for a link applied on top of the [style] when the link
- * is pressed
+ * @param focusedStyle style configuration for a link applied on top of the [style] when the link is
+ *   focused
+ * @param hoveredStyle style configuration for a link applied on top of the [style] when the link is
+ *   hovered
+ * @param pressedStyle style configuration for a link applied on top of the [style] when the link is
+ *   pressed
  */
 @Immutable
 class TextLinkStyles(
@@ -47,28 +47,6 @@ class TextLinkStyles(
     val hoveredStyle: SpanStyle? = null,
     val pressedStyle: SpanStyle? = null
 ) {
-    /**
-     * Returns a new TextLinkStyles that is a combination of these styles and the
-     * given [other] styles.
-     *
-     * [other] text link styles' null or inherit properties are replaced with non-null properties
-     * of this text link styles object. Another way to think of it is that the "missing" properties
-     * of the [other] are _filled_ by the properties of this link text styles object.
-     *
-     * If the [other] is null or equal to this, then we return this instead of allocating a new
-     * result
-     */
-    fun merge(other: TextLinkStyles?): TextLinkStyles {
-        val requireAlloc = other != null && other != this
-        if (!requireAlloc) return this
-        return TextLinkStyles(
-            style = style?.mergeOrUse(other?.style),
-            focusedStyle = focusedStyle?.mergeOrUse(other?.focusedStyle),
-            hoveredStyle = hoveredStyle?.mergeOrUse(other?.hoveredStyle),
-            pressedStyle = pressedStyle?.mergeOrUse(other?.pressedStyle)
-        )
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is TextLinkStyles) return false
@@ -89,53 +67,3 @@ class TextLinkStyles(
         return result
     }
 }
-
-private fun SpanStyle?.mergeOrUse(other: SpanStyle?) = this?.merge(other) ?: other
-internal fun TextLinkStyles?.mergeOrUse(other: TextLinkStyles?) = this?.merge(other) ?: other
-
-private fun SpanStyle?.hasSameLayoutAffectingAttributes(other: SpanStyle?): Boolean {
-    if (this === other) return true
-    if (this == null || other == null) return false
-    return this.hasSameLayoutAffectingAttributes(other)
-}
-
-internal fun TextLinkStyles?.hasSameLayoutAffectingAttributes(other: TextLinkStyles?): Boolean {
-    if (this === other) return true
-    if (this == null || other == null) return false
-    return this.style.hasSameLayoutAffectingAttributes(other.style) &&
-            this.focusedStyle.hasSameLayoutAffectingAttributes(other.focusedStyle) &&
-            this.hoveredStyle.hasSameLayoutAffectingAttributes(other.hoveredStyle) &&
-            this.pressedStyle.hasSameLayoutAffectingAttributes(other.pressedStyle)
-}
-
-private fun SpanStyle?.hasSameNonLayoutAttributes(other: SpanStyle?): Boolean {
-    if (this === other) return true
-    if (this == null || other == null) return false
-    return this.hasSameLayoutAffectingAttributes(other)
-}
-
-internal fun TextLinkStyles?.hasSameNonLayoutAttributes(other: TextLinkStyles?): Boolean {
-    if (this === other) return true
-    if (this == null || other == null) return false
-    return this.style.hasSameNonLayoutAttributes(other.style) &&
-        this.focusedStyle.hasSameNonLayoutAttributes(other.focusedStyle) &&
-        this.hoveredStyle.hasSameNonLayoutAttributes(other.hoveredStyle) &&
-        this.pressedStyle.hasSameNonLayoutAttributes(other.pressedStyle)
-}
-
-internal fun lerp(start: TextLinkStyles?, stop: TextLinkStyles?, fraction: Float): TextLinkStyles? {
-    if (start == null && stop == null) return null
-    return TextLinkStyles(
-        style = lerp(start?.style, stop?.style, fraction),
-        focusedStyle = lerp(start?.focusedStyle, stop?.focusedStyle, fraction),
-        hoveredStyle = lerp(start?.hoveredStyle, stop?.hoveredStyle, fraction),
-        pressedStyle = lerp(start?.pressedStyle, stop?.pressedStyle, fraction)
-    )
-}
-
-private fun lerp(start: SpanStyle?, stop: SpanStyle?, fraction: Float): SpanStyle? {
-    if (start == null && stop == null) return null
-    return lerp(start ?: DefaultSpanStyle, stop ?: DefaultSpanStyle, fraction)
-}
-
-private val DefaultSpanStyle = SpanStyle()

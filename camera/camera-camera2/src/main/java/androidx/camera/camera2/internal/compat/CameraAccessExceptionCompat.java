@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraDevice;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
@@ -38,7 +37,6 @@ import java.util.Set;
 /**
  * Helper for accessing features in {@link CameraAccessException} in a backwards compatible fashion.
  */
-@RequiresApi(21)
 public class CameraAccessExceptionCompat extends Exception {
 
     // Start of the CameraAccessException error

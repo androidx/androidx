@@ -31,7 +31,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":compose:ui:ui"))
+    api("androidx.compose.ui:ui:1.7.0-beta02")
     api("androidx.compose.runtime:runtime:1.6.0")
     api("androidx.navigation:navigation-runtime:2.6.0")
     api(project(":wear:compose:compose-material"))
@@ -75,5 +75,6 @@ androidx {
             "functionality to support navigation. " +
             "It builds upon the Jetpack Compose libraries."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:compose:compose-navigation-samples"))
 }

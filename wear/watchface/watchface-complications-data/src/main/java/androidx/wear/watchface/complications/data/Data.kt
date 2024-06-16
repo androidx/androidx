@@ -325,8 +325,8 @@ internal constructor(
         placeholder?.tapAction,
         cachedWireComplicationData,
         dataSource = null,
-        persistencePolicy = placeholder?.persistencePolicy
-                ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
+        persistencePolicy =
+            placeholder?.persistencePolicy ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
         displayPolicy = placeholder?.displayPolicy ?: ComplicationDisplayPolicies.ALWAYS_DISPLAY,
         dynamicValueInvalidationFallback = placeholder,
     ) {
@@ -1194,7 +1194,7 @@ internal constructor(
     override fun getContentDescription(context: Context): TimeDependentText? =
         _contentDescription?.emptyToNull()?.toWireComplicationText()
             ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
-                ?: WireComplicationText(context.getString(R.string.a11y_template_range, value, max))
+            ?: WireComplicationText(context.getString(R.string.a11y_template_range, value, max))
 
     /** The content description field for accessibility. */
     val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
@@ -1549,7 +1549,7 @@ internal constructor(
     override fun getContentDescription(context: Context): TimeDependentText? =
         _contentDescription?.emptyToNull()?.toWireComplicationText()
             ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
-                ?: WireComplicationText(
+            ?: WireComplicationText(
                 context.getString(R.string.a11y_template_range, value, targetValue)
             )
 

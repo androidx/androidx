@@ -38,9 +38,7 @@ class FloatSubjectTest {
 
     @Test
     fun j2clCornerCaseDoubleVsFloat() {
-        assertFailsWith<AssertionError> {
-            assertThat(1.23f).isEqualTo(1.23)
-        }
+        assertFailsWith<AssertionError> { assertThat(1.23f).isEqualTo(1.23) }
     }
 
     @Test
@@ -58,9 +56,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsWithinFails(actual: Float, tolerance: Float, expected: Float) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isWithin(tolerance).of(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isWithin(tolerance).of(expected) }
     }
 
     @Test
@@ -78,9 +74,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsNotWithinFails(actual: Float, tolerance: Float, expected: Float) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNotWithin(tolerance).of(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNotWithin(tolerance).of(expected) }
     }
 
     @Test
@@ -320,9 +314,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsEqualToFails(actual: Float, expected: Float) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isEqualTo(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isEqualTo(expected) }
     }
 
     @Test
@@ -338,9 +330,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsNotEqualToFails(value: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isNotEqualTo(value)
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isNotEqualTo(value) }
     }
 
     @Test
@@ -355,9 +345,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsZeroFails(actual: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isZero()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isZero() }
     }
 
     @Test
@@ -372,9 +360,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsNonZeroFails(actual: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNonZero()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNonZero() }
     }
 
     @Test
@@ -387,9 +373,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsPositiveInfinityFails(actual: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isPositiveInfinity()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isPositiveInfinity() }
     }
 
     @Test
@@ -402,9 +386,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsNegativeInfinityFails(actual: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNegativeInfinity()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNegativeInfinity() }
     }
 
     @Test
@@ -417,9 +399,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsNaNFails(actual: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNaN()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNaN() }
     }
 
     @Test
@@ -434,9 +414,7 @@ class FloatSubjectTest {
     }
 
     private fun assertThatIsFiniteFails(actual: Float?) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isFinite()
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isFinite() }
     }
 
     @Test
@@ -450,72 +428,52 @@ class FloatSubjectTest {
 
     @Test
     fun isNotNaNIsNaN() {
-        assertFailsWith<AssertionError> {
-            assertThat(Float.NaN).isNotNaN()
-        }
+        assertFailsWith<AssertionError> { assertThat(Float.NaN).isNotNaN() }
     }
 
     @Test
     fun isNotNaNIsNull() {
-        assertFailsWith<AssertionError> {
-            assertThat(null as Float?).isNotNaN()
-        }
+        assertFailsWith<AssertionError> { assertThat(null as Float?).isNotNaN() }
     }
 
     @Test
     fun isGreaterThan_int_strictly() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0f).isGreaterThan(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0f).isGreaterThan(3) }
     }
 
     @Test
     fun isGreaterThan_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0f).isGreaterThan(2)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0f).isGreaterThan(2) }
     }
 
     @Test
     fun isLessThan_int_strictly() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0f).isLessThan(1)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0f).isLessThan(1) }
     }
 
     @Test
     fun isLessThan_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0f).isLessThan(2)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0f).isLessThan(2) }
     }
 
     @Test
     fun isAtLeast_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0f).isAtLeast(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0f).isAtLeast(3) }
     }
 
     @Test
     fun isAtLeast_int_withNoExactFloatRepresentation() {
-        assertFailsWith<AssertionError> {
-            assertThat(1.07374182E9f).isAtLeast((1 shl 30) + 1)
-        }
+        assertFailsWith<AssertionError> { assertThat(1.07374182E9f).isAtLeast((1 shl 30) + 1) }
     }
 
     @Test
     fun isAtMost_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0f).isAtMost(1)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0f).isAtMost(1) }
     }
 
     @Test
     fun isAtMost_int_withNoExactFloatRepresentation() {
-        assertFailsWith<AssertionError> {
-            assertThat(1.07374182E9f).isAtMost((1 shl 30) - 1)
-        }
+        assertFailsWith<AssertionError> { assertThat(1.07374182E9f).isAtMost((1 shl 30) - 1) }
     }
 }
 

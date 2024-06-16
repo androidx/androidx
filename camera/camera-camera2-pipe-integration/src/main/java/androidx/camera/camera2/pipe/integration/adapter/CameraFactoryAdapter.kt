@@ -38,8 +38,8 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
 
 /**
- * The [CameraFactoryAdapter] is responsible for creating the root dagger component that is used
- * to share resources across Camera instances.
+ * The [CameraFactoryAdapter] is responsible for creating the root dagger component that is used to
+ * share resources across Camera instances.
  */
 internal class CameraFactoryAdapter(
     lazyCameraPipe: Lazy<CameraPipe>,
@@ -52,39 +52,40 @@ internal class CameraFactoryAdapter(
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
         val timeSource = SystemTimeSource()
         val start = Timestamps.now(timeSource)
-        val result = DaggerCameraAppComponent.builder()
-            .config(
-                CameraAppConfig(
-                    context,
-                    threadConfig,
-                    lazyCameraPipe.value,
-                    camera2InteropCallbacks
+        val result =
+            DaggerCameraAppComponent.builder()
+                .config(
+                    CameraAppConfig(
+                        context,
+                        threadConfig,
+                        lazyCameraPipe.value,
+                        camera2InteropCallbacks
+                    )
                 )
-            )
-            .build()
+                .build()
         debug { "Created CameraFactoryAdapter in ${start.measureNow(timeSource).formatMs()}" }
         Debug.traceStop()
         result
     }
     private val availableCameraIds: LinkedHashSet<String>
-    private val cameraCoordinator: CameraCoordinatorAdapter = CameraCoordinatorAdapter(
-        appComponent.getCameraPipe(),
-        appComponent.getCameraDevices(),
-    )
+    private val cameraCoordinator: CameraCoordinatorAdapter =
+        CameraCoordinatorAdapter(
+            appComponent.getCameraPipe(),
+            appComponent.getCameraDevices(),
+        )
 
     init {
-        val optimizedCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
-            this,
-            availableCamerasSelector
-        )
+        val optimizedCameraIds =
+            CameraSelectionOptimizer.getSelectedAvailableCameraIds(this, availableCamerasSelector)
 
         // Use a LinkedHashSet to preserve order
-        availableCameraIds = LinkedHashSet(
-            CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
-                appComponent.getCameraDevices(),
-                optimizedCameraIds
+        availableCameraIds =
+            LinkedHashSet(
+                CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
+                    appComponent.getCameraDevices(),
+                    optimizedCameraIds
+                )
             )
-        )
     }
 
     /**
@@ -92,10 +93,12 @@ internal class CameraFactoryAdapter(
      * Use cameraId from set of cameraIds provided by [getAvailableCameraIds] method.
      */
     override fun getCamera(cameraId: String): CameraInternal {
-        val cameraInternal = appComponent.cameraBuilder()
-            .config(CameraConfig(CameraId(cameraId)))
-            .build()
-            .getCameraInternal()
+        val cameraInternal =
+            appComponent
+                .cameraBuilder()
+                .config(CameraConfig(CameraId(cameraId)))
+                .build()
+                .getCameraInternal()
         cameraCoordinator.registerCamera(cameraId, cameraInternal)
         return cameraInternal
     }

@@ -28,7 +28,6 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.espresso.idling.net.UriIdlingResource;
@@ -61,10 +60,9 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         }
 
         @Override
-        @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                                           WebResourceRequest request) {
-            Uri url = Api21Impl.getUrl(request);
+            Uri url = request.getUrl();
             mUriIdlingResource.beginLoad(url.toString());
             WebResourceResponse response = mAssetLoader.shouldInterceptRequest(url);
             mUriIdlingResource.endLoad(url.toString());

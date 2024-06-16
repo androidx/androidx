@@ -106,8 +106,8 @@ interface Frame : FrameReference, AutoCloseable {
     fun getImage(streamId: StreamId): OutputImage?
 
     /**
-     * Listener for non-coroutine based applications that may need to be notified when the state
-     * of this [Frame] changes.
+     * Listener for non-coroutine based applications that may need to be notified when the state of
+     * this [Frame] changes.
      */
     fun addListener(listener: Listener)
 
@@ -120,31 +120,22 @@ interface Frame : FrameReference, AutoCloseable {
          * @param frameNumber is the camera-provided identifier for this Frame.
          * @param frameTimestamp is the primary camera-provided timestamp for this Frame.
          */
-        fun onFrameStarted(
-            frameNumber: FrameNumber,
-            frameTimestamp: CameraTimestamp
-        )
+        fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp)
 
-        /**
-         * Invoked after [FrameInfo] is available, or has failed to be produced.
-         */
+        /** Invoked after [FrameInfo] is available, or has failed to be produced. */
         fun onFrameInfoAvailable()
 
-        /**
-         * Invoked after the output for a given [StreamId] has been produced.
-         */
+        /** Invoked after the output for a given [StreamId] has been produced. */
         fun onImageAvailable(streamId: StreamId)
 
         /**
-         * Invoked after *all* outputs for this [Frame] have been produced. This method will
-         * be invoked after [onImageAvailable] has been invoked for all relevant streams, and will
-         * be invoked immediately after [onFrameStarted] for frames that do not produce outputs.
+         * Invoked after *all* outputs for this [Frame] have been produced. This method will be
+         * invoked after [onImageAvailable] has been invoked for all relevant streams, and will be
+         * invoked immediately after [onFrameStarted] for frames that do not produce outputs.
          */
         fun onImagesAvailable()
 
-        /**
-         * Invoked after the [FrameInfo] and all outputs have been completed for this [Frame].
-         */
+        /** Invoked after the [FrameInfo] and all outputs have been completed for this [Frame]. */
         fun onFrameComplete()
     }
 
@@ -160,16 +151,10 @@ interface Frame : FrameReference, AutoCloseable {
     }
 }
 
-/**
- * A [FrameId] a unique identifier that represents the order a [Frame] was produced in.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-value class FrameId(val value: Long)
+/** A [FrameId] a unique identifier that represents the order a [Frame] was produced in. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline value class FrameId(val value: Long)
 
-/**
- * Represents the status of an output from the camera with enum-like values.
- */
+/** Represents the status of an output from the camera with enum-like values. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class OutputStatus internal constructor(val value: Int) {
@@ -211,8 +196,8 @@ value class OutputStatus internal constructor(val value: Int) {
 
 /**
  * A FrameCapture represents a [Request] that has been sent to the Camera, but that has not yet
- * started. This object serves as a placeholder until the Camera begins exposing the frame, at
- * which point all interactions should happen on the provided [Frame].
+ * started. This object serves as a placeholder until the Camera begins exposing the frame, at which
+ * point all interactions should happen on the provided [Frame].
  *
  * Closing this FrameCapture will *not* cancel or abort the [Request].
  *
@@ -220,7 +205,6 @@ value class OutputStatus internal constructor(val value: Int) {
  * stalls!
  *
  * Example:
- *
  * ```
  * /** Capture, process, and save a jpeg from the camera.  */
  * suspend fun captureFrame(cameraGraphSession: CameraGraph.Session): Boolean {
@@ -246,14 +230,10 @@ value class OutputStatus internal constructor(val value: Int) {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FrameCapture : AutoCloseable {
-    /**
-     * The [Request] that was used to issue this [FrameCapture].
-     */
+    /** The [Request] that was used to issue this [FrameCapture]. */
     val request: Request
 
-    /**
-     * Get the status of the pending [Frame].
-     */
+    /** Get the status of the pending [Frame]. */
     val status: OutputStatus
 
     /**
@@ -274,15 +254,13 @@ interface FrameCapture : AutoCloseable {
      */
     fun getFrame(): Frame?
 
-    /**
-     * Adds a [Frame.Listener] that will be invoked for each of the subsequent [Frame] events.
-     */
+    /** Adds a [Frame.Listener] that will be invoked for each of the subsequent [Frame] events. */
     fun addListener(listener: Frame.Listener)
 }
 
 /**
- * A FrameReference is a weak reference to a [Frame]. It will not prevent the underlying frame
- * from being closed or released unless the frame is acquired via [acquire] or [tryAcquire].
+ * A FrameReference is a weak reference to a [Frame]. It will not prevent the underlying frame from
+ * being closed or released unless the frame is acquired via [acquire] or [tryAcquire].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FrameReference {
@@ -306,14 +284,10 @@ interface FrameReference {
     /** The original camera provided [CameraTimestamp] from this [Frame] */
     val frameTimestamp: CameraTimestamp
 
-    /**
-     * Get the current [OutputStatus] for the FrameInfo of this Frame.
-     */
+    /** Get the current [OutputStatus] for the FrameInfo of this Frame. */
     val frameInfoStatus: OutputStatus
 
-    /**
-     * Get the current [OutputStatus] of the output for a given [streamId].
-     */
+    /** Get the current [OutputStatus] of the output for a given [streamId]. */
     fun imageStatus(streamId: StreamId): OutputStatus
 
     /**
@@ -325,8 +299,8 @@ interface FrameReference {
     val imageStreams: Set<StreamId>
 
     /**
-     * Acquire a reference to a [Frame] that can be independently managed or closed. A filter can
-     * be provided to limit which outputs are available.
+     * Acquire a reference to a [Frame] that can be independently managed or closed. A filter can be
+     * provided to limit which outputs are available.
      */
     fun tryAcquire(streamFilter: Set<StreamId>? = null): Frame?
 

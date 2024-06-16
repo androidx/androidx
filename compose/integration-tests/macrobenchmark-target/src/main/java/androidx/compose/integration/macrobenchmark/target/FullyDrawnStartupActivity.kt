@@ -30,22 +30,16 @@ import androidx.core.view.doOnPreDraw
 class FullyDrawnStartupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            TextBlock("Compose Macrobenchmark Target")
-        }
+        setContent { TextBlock("Compose Macrobenchmark Target") }
     }
 
     @Composable
-    fun ReportFullyDrawn(
-        text: String
-    ) {
+    fun ReportFullyDrawn(text: String) {
         val localView: View = LocalView.current
         LaunchedEffect(text) {
             val activity = localView.context as? Activity
             if (activity != null) {
-                localView.doOnPreDraw {
-                    activity.reportFullyDrawn()
-                }
+                localView.doOnPreDraw { activity.reportFullyDrawn() }
             }
         }
     }

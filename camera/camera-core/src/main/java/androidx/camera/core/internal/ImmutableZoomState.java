@@ -17,7 +17,6 @@
 package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ZoomState;
 
 import com.google.auto.value.AutoValue;
@@ -25,7 +24,6 @@ import com.google.auto.value.AutoValue;
 /**
  * An implementation of {@link ZoomState} that is immutable.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class ImmutableZoomState implements ZoomState {
     /** Create an immutable instance of {@link ZoomState}. */

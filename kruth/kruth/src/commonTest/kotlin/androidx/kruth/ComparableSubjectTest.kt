@@ -36,33 +36,23 @@ class ComparableSubjectTest {
         assertFailsWith<NullPointerException> {
             assertThat(6).isEquivalentAccordingToCompareTo(null)
         }
-        assertFailsWith<NullPointerException> {
-            assertThat(6).isGreaterThan(null)
-        }
-        assertFailsWith<NullPointerException> {
-            assertThat(6).isLessThan(null)
-        }
-        assertFailsWith<NullPointerException> {
-            assertThat(6).isAtLeast(null)
-        }
+        assertFailsWith<NullPointerException> { assertThat(6).isGreaterThan(null) }
+        assertFailsWith<NullPointerException> { assertThat(6).isLessThan(null) }
+        assertFailsWith<NullPointerException> { assertThat(6).isAtLeast(null) }
     }
 
     @Test
     fun isIn() {
         val oneToFive = 1..5
         assertThat(4).isIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat(6).isIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat(6).isIn(oneToFive) }
     }
 
     @Test
     fun isNotIn() {
         val oneToFive = 1..5
         assertThat(6).isNotIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat(4).isNotIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isNotIn(oneToFive) }
     }
 
     @Test
@@ -78,49 +68,37 @@ class ComparableSubjectTest {
     @Test
     fun isGreaterThan_failsEqual() {
         assertThat(5).isGreaterThan(4)
-        assertFailsWith<AssertionError> {
-            assertThat(4).isGreaterThan(4)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isGreaterThan(4) }
     }
 
     @Test
     fun isGreaterThan_failsSmaller() {
-        assertFailsWith<AssertionError> {
-            assertThat(3).isGreaterThan(4)
-        }
+        assertFailsWith<AssertionError> { assertThat(3).isGreaterThan(4) }
     }
 
     @Test
     fun isLessThan_failsEqual() {
         assertThat(4).isLessThan(5)
-        assertFailsWith<AssertionError> {
-            assertThat(4).isLessThan(4)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isLessThan(4) }
     }
 
     @Test
     fun isLessThan_failsGreater() {
-        assertFailsWith<AssertionError> {
-            assertThat(4).isLessThan(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isLessThan(3) }
     }
 
     @Test
     fun isAtMost() {
         assertThat(5).isAtMost(5)
         assertThat(5).isAtMost(6)
-        assertFailsWith<AssertionError> {
-            assertThat(4).isAtMost(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isAtMost(3) }
     }
 
     @Test
     fun isAtLeast() {
         assertThat(4).isAtLeast(3)
         assertThat(4).isAtLeast(4)
-        assertFailsWith<AssertionError> {
-            assertThat(4).isAtLeast(5)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isAtLeast(5) }
     }
 
     // Brief tests with other comparable types (no negative test cases)
@@ -136,7 +114,7 @@ class ComparableSubjectTest {
 
         val range = 2L..4L
         assertThat(3L).isIn(range)
-        assertThat(5L).isNotIn(range);
+        assertThat(5L).isNotIn(range)
     }
 
     @Test

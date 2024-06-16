@@ -29,18 +29,13 @@ interface UserDao {
     @Query("SELECT * FROM Users ORDER BY name COLLATE NOCASE ASC")
     fun allUsers(): PagingSource<Int, User>
 
-    @Insert
-    fun insert(user: User)
+    @Insert fun insert(user: User)
 
-    @Delete
-    fun delete(user: User)
+    @Delete fun delete(user: User)
 
-    @Update
-    fun update(user: User)
+    @Update fun update(user: User)
 
-    @Query("DELETE FROM users")
-    fun clearAll()
+    @Query("DELETE FROM users") fun clearAll()
 
-    @Query("SELECT * FROM users ORDER BY RANDOM() LIMIT 1")
-    fun getRandomUser(): User?
+    @Query("SELECT * FROM users ORDER BY RANDOM() LIMIT 1") fun getRandomUser(): User?
 }

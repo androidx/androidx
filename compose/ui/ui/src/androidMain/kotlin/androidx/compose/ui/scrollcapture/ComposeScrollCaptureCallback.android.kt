@@ -53,9 +53,9 @@ private const val TAG = "ScrollCapture"
 /**
  * Implementation of [ScrollCaptureCallback] that captures Compose scroll containers.
  *
- * This callback interacts with the scroll container via semantics, namely [ScrollByOffset],
- * and supports any container that publishes that action – whether the size of the scroll contents
- * are known or not (e.g. `LazyColumn`). Pixels are captured by drawing the node directly after each
+ * This callback interacts with the scroll container via semantics, namely [ScrollByOffset], and
+ * supports any container that publishes that action – whether the size of the scroll contents are
+ * known or not (e.g. `LazyColumn`). Pixels are captured by drawing the node directly after each
  * scroll operation.
  */
 @RequiresApi(31)
@@ -68,24 +68,27 @@ internal class ComposeScrollCaptureCallback(
     // Don't animate scrollByOffset calls.
     private val coroutineScope = coroutineScope + DisableAnimationMotionDurationScale
 
-    private val scrollTracker = RelativeScroller(
-        viewportSize = viewportBoundsInWindow.height,
-        scrollBy = { delta ->
-            val scrollByOffset = checkPreconditionNotNull(node.scrollCaptureScrollByAction)
-            val reverseScrolling = node.unmergedConfig[VerticalScrollAxisRange].reverseScrolling
+    private val scrollTracker =
+        RelativeScroller(
+            viewportSize = viewportBoundsInWindow.height,
+            scrollBy = { delta ->
+                val scrollByOffset = checkPreconditionNotNull(node.scrollCaptureScrollByAction)
+                val reverseScrolling = node.unmergedConfig[VerticalScrollAxisRange].reverseScrolling
 
-            val actualDelta = if (reverseScrolling) -delta else delta
-            if (DEBUG) Log.d(
-                TAG, "scrolling by delta $actualDelta " +
-                    "(reverseScrolling=$reverseScrolling, requested delta=$delta)"
-            )
+                val actualDelta = if (reverseScrolling) -delta else delta
+                if (DEBUG)
+                    Log.d(
+                        TAG,
+                        "scrolling by delta $actualDelta " +
+                            "(reverseScrolling=$reverseScrolling, requested delta=$delta)"
+                    )
 
-            // This action may animate, ensure any calls to this RelativeScroll are done with a
-            // coroutine context that disables animations.
-            val consumed = scrollByOffset(Offset(0f, actualDelta))
-            if (reverseScrolling) -consumed.y else consumed.y
-        }
-    )
+                // This action may animate, ensure any calls to this RelativeScroll are done with a
+                // coroutine context that disables animations.
+                val consumed = scrollByOffset(Offset(0f, actualDelta))
+                if (reverseScrolling) -consumed.y else consumed.y
+            }
+        )
 
     /** Only used when [DEBUG] is true. */
     private var requestCount = 0
@@ -136,10 +139,8 @@ internal class ComposeScrollCaptureCallback(
         val viewportClippedMin = scrollTracker.mapOffsetToViewport(targetMin)
         val viewportClippedMax = scrollTracker.mapOffsetToViewport(targetMax)
         if (DEBUG) Log.d(TAG, "drawing viewport $viewportClippedMin..$viewportClippedMax")
-        val viewportClippedRect = captureArea.copy(
-            top = viewportClippedMin,
-            bottom = viewportClippedMax
-        )
+        val viewportClippedRect =
+            captureArea.copy(top = viewportClippedMin, bottom = viewportClippedMax)
 
         if (viewportClippedMin == viewportClippedMax) {
             // Requested capture area is outside the bounds of scrollable content,
@@ -148,9 +149,10 @@ internal class ComposeScrollCaptureCallback(
         }
 
         // Draw a single frame of the content to a buffer that we can stamp out.
-        val coordinator = checkNotNull(node.findCoordinatorToGetBounds()) {
-            "Could not find coordinator for semantics node."
-        }
+        val coordinator =
+            checkNotNull(node.findCoordinatorToGetBounds()) {
+                "Could not find coordinator for semantics node."
+            }
 
         val androidCanvas = session.surface.lockHardwareCanvas()
         try {
@@ -196,28 +198,25 @@ internal class ComposeScrollCaptureCallback(
     private fun AndroidCanvas.drawDebugBackground() {
         drawColor(
             androidx.compose.ui.graphics.Color.hsl(
-                hue = Random.nextFloat() * 360f,
-                saturation = 0.75f,
-                lightness = 0.5f,
-                alpha = 1f
-            ).toArgb()
+                    hue = Random.nextFloat() * 360f,
+                    saturation = 0.75f,
+                    lightness = 0.5f,
+                    alpha = 1f
+                )
+                .toArgb()
         )
     }
 
     private fun AndroidCanvas.drawDebugOverlay() {
         val circleRadius = 20f
-        val circlePaint = Paint().apply {
-            color = Color.RED
-            textSize = 48f
-        }
+        val circlePaint =
+            Paint().apply {
+                color = Color.RED
+                textSize = 48f
+            }
         drawCircle(0f, 0f, circleRadius, circlePaint)
         drawCircle(width.toFloat(), 0f, circleRadius, circlePaint)
-        drawCircle(
-            width.toFloat(),
-            height.toFloat(),
-            circleRadius,
-            circlePaint
-        )
+        drawCircle(width.toFloat(), height.toFloat(), circleRadius, circlePaint)
         drawCircle(0f, height.toFloat(), circleRadius, circlePaint)
 
         drawText(requestCount.toString(), width / 2f, height / 2f, circlePaint)
@@ -226,6 +225,7 @@ internal class ComposeScrollCaptureCallback(
 
     interface ScrollCaptureSessionListener {
         fun onSessionStarted()
+
         fun onSessionEnded()
     }
 }
@@ -240,9 +240,7 @@ private fun CoroutineScope.launchWithCancellationSignal(
             signal.cancel()
         }
     }
-    signal.setOnCancelListener {
-        job.cancel()
-    }
+    signal.setOnCancelListener { job.cancel() }
     return job
 }
 
@@ -295,9 +293,7 @@ private class RelativeScroller(
         return (offset - scrollAmount.roundToInt()).coerceIn(0, viewportSize)
     }
 
-    /**
-     * Try to scroll to [offset] pixels past the original scroll position.
-     */
+    /** Try to scroll to [offset] pixels past the original scroll position. */
     suspend fun scrollTo(offset: Float) {
         scrollBy(offset - scrollAmount)
     }
@@ -305,10 +301,8 @@ private class RelativeScroller(
     private suspend fun scrollBy(delta: Float) {
         val consumed = scrollBy.invoke(delta)
         scrollAmount += consumed
-        if (DEBUG) Log.d(
-            TAG,
-            "scrolled $consumed of requested $delta, after scrollAmount=$scrollAmount"
-        )
+        if (DEBUG)
+            Log.d(TAG, "scrolled $consumed of requested $delta, after scrollAmount=$scrollAmount")
     }
 }
 

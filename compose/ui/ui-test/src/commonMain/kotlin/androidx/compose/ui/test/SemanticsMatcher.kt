@@ -23,10 +23,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
  * Wrapper for semantics matcher lambdas that allows to build string explaining to the developer
  * what conditions were being tested.
  */
-class SemanticsMatcher(
-    val description: String,
-    private val matcher: (SemanticsNode) -> Boolean
-) {
+class SemanticsMatcher(val description: String, private val matcher: (SemanticsNode) -> Boolean) {
 
     companion object {
         /**
@@ -39,35 +36,23 @@ class SemanticsMatcher(
             }
         }
 
-        /**
-         * Builds a predicate that tests whether the given [key] is defined in semantics.
-         */
+        /** Builds a predicate that tests whether the given [key] is defined in semantics. */
         fun <T> keyIsDefined(key: SemanticsPropertyKey<T>): SemanticsMatcher {
-            return SemanticsMatcher("${key.name} is defined") {
-                key in it.config
-            }
+            return SemanticsMatcher("${key.name} is defined") { key in it.config }
         }
 
-        /**
-         * Builds a predicate that tests whether the given [key] is NOT defined in semantics.
-         */
+        /** Builds a predicate that tests whether the given [key] is NOT defined in semantics. */
         fun <T> keyNotDefined(key: SemanticsPropertyKey<T>): SemanticsMatcher {
-            return SemanticsMatcher("${key.name} is NOT defined") {
-                key !in it.config
-            }
+            return SemanticsMatcher("${key.name} is NOT defined") { key !in it.config }
         }
     }
 
-    /**
-     * Returns whether the given node is matched by this matcher.
-     */
+    /** Returns whether the given node is matched by this matcher. */
     fun matches(node: SemanticsNode): Boolean {
         return matcher(node)
     }
 
-    /**
-     * Returns whether at least one of the given nodes is matched by this matcher.
-     */
+    /** Returns whether at least one of the given nodes is matched by this matcher. */
     fun matchesAny(nodes: Iterable<SemanticsNode>): Boolean {
         return nodes.any(matcher)
     }
@@ -85,8 +70,6 @@ class SemanticsMatcher(
     }
 
     operator fun not(): SemanticsMatcher {
-        return SemanticsMatcher("NOT ($description)") {
-            !matcher(it)
-        }
+        return SemanticsMatcher("NOT ($description)") { !matcher(it) }
     }
 }

@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Primary entry point into Paging; constructor for a reactive stream of [PagingData]. The same
  * Pager instance should be reused within an instance of ViewModel. For example in your ViewModel:
- *
  * ```
  * // create a Pager instance and store to a variable
  * val pager = Pager(
@@ -50,7 +49,8 @@ import kotlinx.coroutines.flow.Flow
  */
 public class Pager<Key : Any, Value : Any>
 // Experimental usage is propagated to public API via constructor argument.
-@ExperimentalPagingApi constructor(
+@ExperimentalPagingApi
+constructor(
     config: PagingConfig,
     initialKey: Key? = null,
     remoteMediator: RemoteMediator<Key, Value>?,
@@ -81,20 +81,20 @@ public class Pager<Key : Any, Value : Any>
      * new instance of [PagingData] with cached data pre-loaded.
      */
     @OptIn(androidx.paging.ExperimentalPagingApi::class)
-    public val flow: Flow<PagingData<Value>> = PageFetcher(
-        pagingSourceFactory = if (
-            pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>
-        ) {
-            pagingSourceFactory::create
-        } else {
-            // cannot pass it as is since it is not a suspend function. Hence, we wrap it in {}
-            // which means we are calling the original factory inside a suspend function
-            {
-                pagingSourceFactory()
-            }
-        },
-        initialKey = initialKey,
-        config = config,
-        remoteMediator = remoteMediator
-    ).flow
+    public val flow: Flow<PagingData<Value>> =
+        PageFetcher(
+                pagingSourceFactory =
+                    if (pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>) {
+                        pagingSourceFactory::create
+                    } else {
+                        // cannot pass it as is since it is not a suspend function. Hence, we wrap
+                        // it in {}
+                        // which means we are calling the original factory inside a suspend function
+                        { pagingSourceFactory() }
+                    },
+                initialKey = initialKey,
+                config = config,
+                remoteMediator = remoteMediator
+            )
+            .flow
 }

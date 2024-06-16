@@ -70,9 +70,7 @@ fun ModalDrawerSample() {
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = { scope.launch { drawerState.open() } }) {
-                    Text("Click to open")
-                }
+                Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
             }
         }
     )
@@ -86,10 +84,9 @@ fun BottomDrawerSample() {
     val scope = rememberCoroutineScope()
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth().toggleable(
-                value = gesturesEnabled,
-                onValueChange = toggleGesturesEnabled
-            )
+            modifier =
+                Modifier.fillMaxWidth()
+                    .toggleable(value = gesturesEnabled, onValueChange = toggleGesturesEnabled)
         ) {
             Checkbox(gesturesEnabled, null)
             Text(text = if (gesturesEnabled) "Gestures Enabled" else "Gestures Disabled")

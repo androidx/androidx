@@ -32,9 +32,9 @@ import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 
 /**
- * The [CameraFactoryProvider] is responsible for creating the root dagger component that is used
- * to share resources across Camera instances. There should generally be one
- * [CameraFactoryProvider] instance per CameraX instance.
+ * The [CameraFactoryProvider] is responsible for creating the root dagger component that is used to
+ * share resources across Camera instances. There should generally be one [CameraFactoryProvider]
+ * instance per CameraX instance.
  */
 class CameraFactoryProvider(
     private val sharedCameraPipe: CameraPipe? = null,
@@ -44,8 +44,7 @@ class CameraFactoryProvider(
     private val sharedInteropCallbacks = CameraInteropStateCallbackRepository()
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var cachedCameraPipe: Pair<Context, Lazy<CameraPipe>>? = null
+    @GuardedBy("lock") private var cachedCameraPipe: Pair<Context, Lazy<CameraPipe>>? = null
 
     override fun newInstance(
         context: Context,
@@ -54,8 +53,9 @@ class CameraFactoryProvider(
         cameraOpenRetryMaxTimeoutInMs: Long
     ): CameraFactory {
 
-        val openRetryMaxTimeout = if (cameraOpenRetryMaxTimeoutInMs != -1L) null
-        else DurationNs(cameraOpenRetryMaxTimeoutInMs)
+        val openRetryMaxTimeout =
+            if (cameraOpenRetryMaxTimeoutInMs != -1L) null
+            else DurationNs(cameraOpenRetryMaxTimeoutInMs)
 
         val lazyCameraPipe = getOrCreateCameraPipe(context, openRetryMaxTimeout)
 
@@ -79,9 +79,7 @@ class CameraFactoryProvider(
         synchronized(lock) {
             val existing = cachedCameraPipe
             if (existing == null) {
-                val lazyCameraPipe = lazy {
-                    createCameraPipe(context, openRetryMaxTimeout)
-                }
+                val lazyCameraPipe = lazy { createCameraPipe(context, openRetryMaxTimeout) }
                 cachedCameraPipe = context to lazyCameraPipe
                 return lazyCameraPipe
             } else {
@@ -99,16 +97,18 @@ class CameraFactoryProvider(
         val timeSource = SystemTimeSource()
         val start = Timestamps.now(timeSource)
 
-        val cameraPipe = CameraPipe(
-            CameraPipe.Config(
-                appContext = context.applicationContext,
-                cameraInteropConfig = CameraPipe.CameraInteropConfig(
-                    sharedInteropCallbacks.deviceStateCallback,
-                    sharedInteropCallbacks.sessionStateCallback,
-                    openRetryMaxTimeout
+        val cameraPipe =
+            CameraPipe(
+                CameraPipe.Config(
+                    appContext = context.applicationContext,
+                    cameraInteropConfig =
+                        CameraPipe.CameraInteropConfig(
+                            sharedInteropCallbacks.deviceStateCallback,
+                            sharedInteropCallbacks.sessionStateCallback,
+                            openRetryMaxTimeout
+                        )
                 )
             )
-        )
         Log.debug { "Created CameraPipe in ${start.measureNow(timeSource).formatMs()}" }
         Debug.traceStop()
         return cameraPipe

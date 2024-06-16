@@ -28,17 +28,17 @@ import androidx.compose.ui.tooling.preview.Wallpapers.RED_DOMINATED_EXAMPLE
 import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 
 /**
- * A MultiPreview annotation for displaying a @[Composable] method using the screen sizes of five different reference devices.
+ * A MultiPreview annotation for displaying a @[Composable] method using the screen sizes of five
+ * different reference devices.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(
-        AnnotationTarget.ANNOTATION_CLASS,
-        AnnotationTarget.FUNCTION
-)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(name = "Phone", device = PHONE, showSystemUi = true)
-@Preview(name = "Phone - Landscape",
-         device = "spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420",
-         showSystemUi = true)
+@Preview(
+    name = "Phone - Landscape",
+    device = "spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420",
+    showSystemUi = true
+)
 @Preview(name = "Unfolded Foldable", device = FOLDABLE, showSystemUi = true)
 @Preview(name = "Tablet", device = TABLET, showSystemUi = true)
 @Preview(name = "Desktop", device = DESKTOP, showSystemUi = true)
@@ -48,10 +48,7 @@ annotation class PreviewScreenSizes
  * A MultiPreview annotation for desplaying a @[Composable] method using seven standard font sizes.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(
-        AnnotationTarget.ANNOTATION_CLASS,
-        AnnotationTarget.FUNCTION
-)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(name = "85%", fontScale = 0.85f)
 @Preview(name = "100%", fontScale = 1.0f)
 @Preview(name = "115%", fontScale = 1.15f)
@@ -67,24 +64,19 @@ annotation class PreviewFontScale
  * Note that the app theme should support dark and light modes for these previews to be different.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(
-        AnnotationTarget.ANNOTATION_CLASS,
-        AnnotationTarget.FUNCTION
-)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(name = "Light")
 @Preview(name = "Dark", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 annotation class PreviewLightDark
 
 /**
- * A MultiPreview annotation for desplaying a @[Composable] method using four different wallpaper colors.
+ * A MultiPreview annotation for desplaying a @[Composable] method using four different wallpaper
+ * colors.
  *
  * Note that the app should use a dynamic theme for these previews to be different.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(
-        AnnotationTarget.ANNOTATION_CLASS,
-        AnnotationTarget.FUNCTION
-)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(name = "Red", wallpaper = RED_DOMINATED_EXAMPLE)
 @Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE)
 @Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE)

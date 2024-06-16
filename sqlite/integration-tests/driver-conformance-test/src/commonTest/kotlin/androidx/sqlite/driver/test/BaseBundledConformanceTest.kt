@@ -17,19 +17,34 @@
 package androidx.sqlite.driver.test
 
 import androidx.kruth.assertThat
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_CREATE
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_FULLMUTEX
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
+import androidx.sqlite.execSQL
 import androidx.sqlite.use
 import kotlin.test.Test
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 
 abstract class BaseBundledConformanceTest : BaseConformanceTest() {
+
+    abstract fun getDatabaseFileName(): String
+
+    abstract override fun getDriver(): BundledSQLiteDriver
 
     @Test
     fun readSQLiteVersion() {
         val connection = getDriver().open(":memory:")
         try {
-            val version = connection.prepare("SELECT sqlite_version()").use {
-                it.step()
-                it.getText(0)
-            }
+            val version =
+                connection.prepare("SELECT sqlite_version()").use {
+                    it.step()
+                    it.getText(0)
+                }
             // The bundled androidx SQLite version compiled and statically included
             assertThat(version).isEqualTo(EXPECTED_SQLITE_VERSION)
         } finally {
@@ -37,7 +52,38 @@ abstract class BaseBundledConformanceTest : BaseConformanceTest() {
         }
     }
 
+    @Test
+    fun openWithFullMutexFlag() = runTest {
+        val connection =
+            getDriver()
+                .open(
+                    fileName = getDatabaseFileName(),
+                    flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_FULLMUTEX
+                )
+        connection.execSQL("CREATE TABLE Test (col)")
+        // Concurrently use the connection, due to being opened with the full mutex flag, it should
+        // be safe.
+        coroutineScope {
+            repeat(20) { i ->
+                launch(Dispatchers.IO) {
+                    connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
+                        it.bindInt(1, i)
+                        it.step()
+                    }
+                }
+            }
+        }
+        connection.close()
+    }
+
+    @Test
+    fun threadSafeMode() {
+        // Validate bundled SQLite is compiled with SQLITE_THREADSAFE = 2
+        val driver = BundledSQLiteDriver()
+        assertThat(driver.threadingMode).isEqualTo(2)
+    }
+
     companion object {
-        const val EXPECTED_SQLITE_VERSION = "3.42.0"
+        const val EXPECTED_SQLITE_VERSION = "3.46.0"
     }
 }

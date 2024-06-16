@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PointerInputViewConfigurationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tag = "Tagged Layout"
 
@@ -77,18 +76,19 @@ class PointerInputViewConfigurationTest {
         val pointerInputViewConfigurations = mutableListOf<Float>()
         rule.setContent {
             CompositionLocalProvider(
-                LocalViewConfiguration provides TestViewConfiguration(
-                    touchSlop = viewConfigurationTouchSlop
-                ),
+                LocalViewConfiguration provides
+                    TestViewConfiguration(touchSlop = viewConfigurationTouchSlop),
             ) {
-                Box(pointerInput {
-                    pointerInputViewConfigurations.add(viewConfigurationTouchSlop)
-                    awaitPointerEventScope {
-                        while (true) {
-                            awaitPointerEvent()
+                Box(
+                    pointerInput {
+                            pointerInputViewConfigurations.add(viewConfigurationTouchSlop)
+                            awaitPointerEventScope {
+                                while (true) {
+                                    awaitPointerEvent()
+                                }
+                            }
                         }
-                    }
-                }.testTag(tag)
+                        .testTag(tag)
                 )
             }
         }
@@ -97,12 +97,11 @@ class PointerInputViewConfigurationTest {
         // created/triggered until there is a event(tap), we must trigger a tap to instantiate the
         // pointer input block of code.
         rule.waitForIdle()
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset.Zero)
-                moveBy(Offset(1f, 1f))
-                up()
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero)
+            moveBy(Offset(1f, 1f))
+            up()
+        }
 
         rule.runOnIdle {
             assertThat(pointerInputViewConfigurations.size).isEqualTo(1)
@@ -111,12 +110,11 @@ class PointerInputViewConfigurationTest {
         }
 
         rule.waitForIdle()
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(Offset.Zero)
-                moveBy(Offset(1f, 1f))
-                up()
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero)
+            moveBy(Offset(1f, 1f))
+            up()
+        }
 
         rule.runOnIdle {
             assertThat(pointerInputViewConfigurations.size).isEqualTo(2)

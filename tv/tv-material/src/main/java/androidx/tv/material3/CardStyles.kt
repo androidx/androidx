@@ -21,11 +21,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 
-/**
- * Represents the [Color] of Card in different interaction states.
- */
+/** Represents the [Color] of Card in different interaction states. */
 @Immutable
-class CardColors internal constructor(
+class CardColors
+internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
     internal val focusedContainerColor: Color,
@@ -71,11 +70,10 @@ class CardColors internal constructor(
     }
 }
 
-/**
- * Represents the [Shape] of Card in different interaction states.
- */
+/** Represents the [Shape] of Card in different interaction states. */
 @Immutable
-class CardShape internal constructor(
+class CardShape
+internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
     internal val pressedShape: Shape
@@ -107,11 +105,12 @@ class CardShape internal constructor(
 }
 
 /**
- * Represents the scaleFactor of Card in different interaction states.
- * Note: This scaleFactor must always be a non-negative float.
+ * Represents the scaleFactor of Card in different interaction states. Note: This scaleFactor must
+ * always be a non-negative float.
  */
 @Immutable
-class CardScale internal constructor(
+class CardScale
+internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
     @FloatRange(from = 0.0) internal val pressedScale: Float
@@ -142,22 +141,15 @@ class CardScale internal constructor(
     }
 
     companion object {
-        /**
-         * Signifies the absence of a [ScaleIndication] in Card component.
-         */
-        val None = CardScale(
-            scale = 1f,
-            focusedScale = 1f,
-            pressedScale = 1f
-        )
+        /** Signifies the absence of a [ScaleIndication] in Card component. */
+        val None = CardScale(scale = 1f, focusedScale = 1f, pressedScale = 1f)
     }
 }
 
-/**
- * Represents the [Border] of Card in different interaction states.
- */
+/** Represents the [Border] of Card in different interaction states. */
 @Immutable
-class CardBorder internal constructor(
+class CardBorder
+internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
     internal val pressedBorder: Border
@@ -189,11 +181,10 @@ class CardBorder internal constructor(
     }
 }
 
-/**
- * Represents the [Glow] of Card in different interaction states.
- */
+/** Represents the [Glow] of Card in different interaction states. */
 @Immutable
-class CardGlow internal constructor(
+class CardGlow
+internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
     internal val pressedGlow: Glow

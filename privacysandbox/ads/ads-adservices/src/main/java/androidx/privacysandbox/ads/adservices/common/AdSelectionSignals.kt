@@ -28,20 +28,20 @@ import androidx.annotation.RestrictTo
  * href="https://developer.android.com/design-for-safety/privacy-sandbox/fledge">FLEDGE</a> platform
  * code, but are merely validated and then passed to the appropriate JavaScript ad selection
  * function.
+ *
  * @param signals Any valid JSON string to create the AdSelectionSignals with.
  */
 @SuppressLint("ClassVerificationFailure")
 class AdSelectionSignals public constructor(val signals: String) {
     /**
      * Compares this AdSelectionSignals to the specified object. The result is true if and only if
-     * the argument is not null and the signals property of the two objects are equal.
-     * Note that this method will not perform any JSON normalization so two AdSelectionSignals
-     * objects with the same JSON could be not equal if the String representations of the objects
-     * was not equal.
+     * the argument is not null and the signals property of the two objects are equal. Note that
+     * this method will not perform any JSON normalization so two AdSelectionSignals objects with
+     * the same JSON could be not equal if the String representations of the objects was not equal.
      *
      * @param other The object to compare this AdSelectionSignals against
      * @return true if the given object represents an AdSelectionSignals equivalent to this
-     * AdSelectionSignals, false otherwise
+     *   AdSelectionSignals, false otherwise
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -51,8 +51,8 @@ class AdSelectionSignals public constructor(val signals: String) {
 
     /**
      * Returns a hash code corresponding to the string representation of this class obtained by
-     * calling [.toString]. Note that this method will not perform any JSON normalization so
-     * two AdSelectionSignals objects with the same JSON could have different hash codes if the
+     * calling [.toString]. Note that this method will not perform any JSON normalization so two
+     * AdSelectionSignals objects with the same JSON could have different hash codes if the
      * underlying string representation was different.
      *
      * @return a hash code value for this object.
@@ -61,8 +61,7 @@ class AdSelectionSignals public constructor(val signals: String) {
         return signals.hashCode()
     }
 
-    /** @return The String form of the JSON wrapped by this class.
-     */
+    /** @return The String form of the JSON wrapped by this class. */
     override fun toString(): String {
         return "AdSelectionSignals: $signals"
     }

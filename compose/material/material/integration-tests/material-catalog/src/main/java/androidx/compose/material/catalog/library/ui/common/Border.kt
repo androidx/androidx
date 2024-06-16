@@ -51,21 +51,22 @@ fun Modifier.gridItemBorder(
         start = Offset(0f, size.height),
         end = Offset(size.width, size.height)
     )
-    if (!end) drawLine(
-        color = color,
-        strokeWidth = width.toPx(),
-        cap = StrokeCap.Square,
-        start = Offset(size.width, size.height),
-        end = Offset(size.width, 0f)
-    )
+    if (!end)
+        drawLine(
+            color = color,
+            strokeWidth = width.toPx(),
+            cap = StrokeCap.Square,
+            start = Offset(size.width, size.height),
+            end = Offset(size.width, 0f)
+        )
 }
 
-/**
- * Composite of local content color at 12% alpha over background color, used by borders.
- */
+/** Composite of local content color at 12% alpha over background color, used by borders. */
 @Composable
-fun compositeBorderColor(): Color = LocalContentColor.current.copy(alpha = BorderAlpha)
-    .compositeOver(MaterialTheme.colors.background)
+fun compositeBorderColor(): Color =
+    LocalContentColor.current
+        .copy(alpha = BorderAlpha)
+        .compositeOver(MaterialTheme.colors.background)
 
 val BorderWidth = 1.dp
 private const val BorderAlpha = 0.12f

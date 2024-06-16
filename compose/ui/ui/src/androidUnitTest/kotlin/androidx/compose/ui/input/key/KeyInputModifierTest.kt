@@ -43,9 +43,8 @@ class KeyInputModifierTest {
         val modifier = Modifier.onKeyEvent(onKeyEvent).first() as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("onKeyEvent")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("onKeyEvent", onKeyEvent)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(ValueElement("onKeyEvent", onKeyEvent))
     }
 
     @Test
@@ -54,8 +53,7 @@ class KeyInputModifierTest {
         val modifier = Modifier.onPreviewKeyEvent(onPreviewKeyEvent).first() as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("onPreviewKeyEvent")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("onPreviewKeyEvent", onPreviewKeyEvent)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(ValueElement("onPreviewKeyEvent", onPreviewKeyEvent))
     }
 }

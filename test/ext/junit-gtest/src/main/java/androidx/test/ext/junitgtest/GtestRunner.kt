@@ -25,14 +25,14 @@ import org.junit.runner.notification.RunNotifier
 /**
  * Custom Runner that implements a bridge between JUnit and GTest.
  *
- * Use this Runner in a `@RunWith` annotation together with a `@TargetLibrary`
- * annotation on an empty class to create a connected test that consists of native
- * tests written against the Google Test Framework.
+ * Use this Runner in a `@RunWith` annotation together with a `@TargetLibrary` annotation on an
+ * empty class to create a connected test that consists of native tests written against the Google
+ * Test Framework.
  */
-class GtestRunner(testClass: Class<*>) : Runner(),
-    Filterable {
+class GtestRunner(testClass: Class<*>) : Runner(), Filterable {
     private val targetClass: Class<*>
     private var description: Description
+
     override fun getDescription(): Description {
         return description
     }
@@ -70,8 +70,9 @@ class GtestRunner(testClass: Class<*>) : Runner(),
             onceFlag = true
         }
         targetClass = testClass
-        val library = testClass.getAnnotation(TargetLibrary::class.java)
-            ?: throw IllegalStateException("Missing required @TargetLibrary annotation")
+        val library =
+            testClass.getAnnotation(TargetLibrary::class.java)
+                ?: throw IllegalStateException("Missing required @TargetLibrary annotation")
         System.loadLibrary(library.libraryName)
         description = Description.createSuiteDescription(testClass)
         // The nInitialize native method will populate the description based on
@@ -80,6 +81,8 @@ class GtestRunner(testClass: Class<*>) : Runner(),
     }
 
     private external fun initialize(className: String, description: Description)
+
     private external fun addTest(testName: String)
+
     private external fun run(className: String, notifier: RunNotifier): Boolean
 }

@@ -53,8 +53,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class NightModeTestCase(private val setMode: NightSetMode) {
-    @get:Rule
-    val rule = NightModeActivityTestRule(NightModeActivity::class.java)
+    @get:Rule val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
     @Test
     fun testSwitchingYesDoesNotAffectApplication() {
@@ -234,20 +233,21 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     }
 
     @Test
-    fun testDialogCleansUpAutoMode() = rule.runOnUiThread {
-        val dialog = AppCompatDialog(rule.activity)
-        val delegate = dialog.delegate as AppCompatDelegateImpl
+    fun testDialogCleansUpAutoMode() =
+        rule.runOnUiThread {
+            val dialog = AppCompatDialog(rule.activity)
+            val delegate = dialog.delegate as AppCompatDelegateImpl
 
-        // Set the local night mode of the Dialog to be an AUTO mode
-        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_AUTO_TIME
+            // Set the local night mode of the Dialog to be an AUTO mode
+            delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_AUTO_TIME
 
-        // Now show and dismiss the dialog
-        dialog.show()
-        dialog.dismiss()
+            // Now show and dismiss the dialog
+            dialog.show()
+            dialog.dismiss()
 
-        // Assert that the auto manager is destroyed (not listening)
-        assertFalse(delegate.autoTimeNightModeManager.isListening)
-    }
+            // Assert that the auto manager is destroyed (not listening)
+            assertFalse(delegate.autoTimeNightModeManager.isListening)
+        }
 
     @Test
     fun testOnConfigurationChangeNotCalled() {
@@ -264,10 +264,11 @@ class NightModeTestCase(private val setMode: NightSetMode) {
         assertNull(activity.lastConfigurationChangeAndClear)
     }
 
-    private class FakeTwilightManager(context: Context) : TwilightManager(
-        context,
-        ContextCompat.getSystemService(context, LocationManager::class.java)!!
-    ) {
+    private class FakeTwilightManager(context: Context) :
+        TwilightManager(
+            context,
+            ContextCompat.getSystemService(context, LocationManager::class.java)!!
+        ) {
         var isNightForTest: Boolean = false
 
         override fun isNight(): Boolean {

@@ -28,7 +28,8 @@ internal class ConstraintSetParserKtTest {
         val coreTransition = Transition { dp -> dp }
 
         @Language("JSON5")
-        val content = """
+        val content =
+            """
             {
               id1: {
                 custom: {
@@ -36,7 +37,8 @@ internal class ConstraintSetParserKtTest {
                 }
               }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         ConstraintSetParser.parseJSON(content, coreTransition, 0) // Should finish successfully
     }
 }

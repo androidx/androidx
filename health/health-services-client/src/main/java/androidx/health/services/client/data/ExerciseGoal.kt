@@ -44,7 +44,8 @@ internal constructor(
     internal val proto: DataProto.ExerciseGoal
         get() {
             val builder =
-                DataProto.ExerciseGoal.newBuilder().setExerciseGoalType(exerciseGoalType.toProto())
+                DataProto.ExerciseGoal.newBuilder()
+                    .setExerciseGoalType(exerciseGoalType.toProto())
                     .setDataTypeCondition(dataTypeCondition.proto)
             if (period != null) {
                 builder.period = dataTypeCondition.dataType.toProtoFromValue(period)
@@ -82,11 +83,12 @@ internal constructor(
         }
     }
 
-    override fun toString(): String = "ExerciseGoal(" +
-        "exerciseGoalType=$exerciseGoalType, " +
-        "dataTypeCondition=$dataTypeCondition, " +
-        "period=$period" +
-        ")"
+    override fun toString(): String =
+        "ExerciseGoal(" +
+            "exerciseGoalType=$exerciseGoalType, " +
+            "dataTypeCondition=$dataTypeCondition, " +
+            "period=$period" +
+            ")"
 
     companion object {
         @JvmField
@@ -103,8 +105,9 @@ internal constructor(
 
         @Suppress("UNCHECKED_CAST")
         internal fun fromProto(proto: DataProto.ExerciseGoal): ExerciseGoal<Number> {
-            val condition = DataTypeCondition.aggregateFromProto(proto.dataTypeCondition)
-                as DataTypeCondition<Number, AggregateDataType<Number, *>>
+            val condition =
+                DataTypeCondition.aggregateFromProto(proto.dataTypeCondition)
+                    as DataTypeCondition<Number, AggregateDataType<Number, *>>
             return ExerciseGoal(
                 ExerciseGoalType.fromProto(proto.exerciseGoalType)
                     ?: throw IllegalStateException("${proto.exerciseGoalType} not found"),

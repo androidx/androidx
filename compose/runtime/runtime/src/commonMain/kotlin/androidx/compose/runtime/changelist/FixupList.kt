@@ -29,8 +29,11 @@ internal class FixupList : OperationsDebugStringFormattable() {
     private val operations = Operations()
     private val pendingOperations = Operations()
 
-    val size: Int get() = operations.size
+    val size: Int
+        get() = operations.size
+
     fun isEmpty() = operations.isEmpty()
+
     fun isNotEmpty() = operations.isNotEmpty()
 
     fun clear() {
@@ -50,11 +53,7 @@ internal class FixupList : OperationsDebugStringFormattable() {
         operations.executeAndFlushAllPendingOperations(applier, slots, rememberManager)
     }
 
-    fun createAndInsertNode(
-        factory: () -> Any?,
-        insertIndex: Int,
-        groupAnchor: Anchor
-    ) {
+    fun createAndInsertNode(factory: () -> Any?, insertIndex: Int, groupAnchor: Anchor) {
         operations.push(InsertNodeFixup) {
             setObject(InsertNodeFixup.Factory, factory)
             setInt(InsertNodeFixup.InsertIndex, insertIndex)

@@ -27,7 +27,6 @@ import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.Logger;
@@ -57,7 +56,6 @@ import java.util.Set;
  * Base class for SessionProcessor implementation. It is responsible for creating image readers and
  * maintaining the {@link ImageProcessor} associated with the image reader.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class SessionProcessorBase implements SessionProcessor, CameraExtensionsInfo,
         CameraExtensionsControl {
     private static final String TAG = "SessionProcessorBase";

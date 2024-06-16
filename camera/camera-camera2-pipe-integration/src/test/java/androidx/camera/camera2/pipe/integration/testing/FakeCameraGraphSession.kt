@@ -188,28 +188,21 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         val requestMetadata = FakeRequestMetadata(request = request)
         last().listeners.forEach { listener ->
             when (status) {
-                TOTAL_CAPTURE_DONE -> listener.onTotalCaptureResult(
-                    requestMetadata, FrameNumber(0), FakeFrameInfo()
-                )
-
-                FAILED -> listener.onFailed(
-                    requestMetadata,
-                    FrameNumber(0),
-                    FakeRequestFailure(
+                TOTAL_CAPTURE_DONE ->
+                    listener.onTotalCaptureResult(requestMetadata, FrameNumber(0), FakeFrameInfo())
+                FAILED ->
+                    listener.onFailed(
                         requestMetadata,
-                        FrameNumber(0)
+                        FrameNumber(0),
+                        FakeRequestFailure(requestMetadata, FrameNumber(0))
                     )
-                )
-
                 ABORTED -> listener.onRequestSequenceAborted(requestMetadata)
             }
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private class FakeFrameCapture(
-        override val request: Request
-    ) : FrameCapture {
+    private class FakeFrameCapture(override val request: Request) : FrameCapture {
         private val result = CompletableDeferred<Frame?>()
         private val closed = atomic(false)
         private val listeners = mutableListOf<Frame.Listener>()

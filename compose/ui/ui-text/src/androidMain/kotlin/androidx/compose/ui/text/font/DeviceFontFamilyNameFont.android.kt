@@ -51,7 +51,6 @@ import android.graphics.Typeface
  * @param weight weight to load
  * @param style style to load
  * @param variationSettings font variation settings, unset by default to load default VF from system
- *
  * @throws IllegalArgumentException if familyName is empty
  */
 fun Font(
@@ -68,9 +67,9 @@ fun Font(
  *
  * See `/system/etc/fonts.xml` and `/product/etc/fonts_customization.xml` on a device.
  *
- * @see Typeface
  * @param name System fontFamilyName as passed to [Typeface.create]
  * @throws IllegalArgumentException if name is empty
+ * @see Typeface
  */
 @JvmInline
 value class DeviceFontFamilyName(val name: String) {
@@ -79,24 +78,22 @@ value class DeviceFontFamilyName(val name: String) {
     }
 }
 
-private class DeviceFontFamilyNameFont constructor(
+private class DeviceFontFamilyNameFont
+constructor(
     private val familyName: DeviceFontFamilyName,
     override val weight: FontWeight,
     override val style: FontStyle,
     variationSettings: FontVariation.Settings
-) : AndroidFont(
-    FontLoadingStrategy.OptionalLocal,
-    NamedFontLoader,
-    variationSettings
-) {
+) : AndroidFont(FontLoadingStrategy.OptionalLocal, NamedFontLoader, variationSettings) {
     fun loadCached(context: Context): Typeface? {
-         return PlatformTypefaces().optionalOnDeviceFontFamilyByName(
-            familyName.name,
-            weight,
-            style,
-            variationSettings,
-            context
-        )
+        return PlatformTypefaces()
+            .optionalOnDeviceFontFamilyByName(
+                familyName.name,
+                weight,
+                style,
+                variationSettings,
+                context
+            )
     }
 
     override fun equals(other: Any?): Boolean {

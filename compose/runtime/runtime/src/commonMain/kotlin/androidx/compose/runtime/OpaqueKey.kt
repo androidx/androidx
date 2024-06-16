@@ -18,6 +18,6 @@ package androidx.compose.runtime
 
 /**
  * @param key This [String] should be hardcoded on the compile-time which allows the hashcode
- * implementation of this class to always be the same and survive the process recreation.
+ *   implementation of this class to always be the same and survive the process recreation.
  */
 internal data class OpaqueKey(val key: String)

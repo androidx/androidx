@@ -67,14 +67,16 @@ abstract class LifecycleStatusChangeStressTestBase(
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -83,11 +85,9 @@ abstract class LifecycleStatusChangeStressTestBase(
             Manifest.permission.RECORD_AUDIO
         )
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
-    @get:Rule
-    val repeatRule = RepeatRule()
+    @get:Rule val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -96,8 +96,7 @@ abstract class LifecycleStatusChangeStressTestBase(
     private lateinit var cameraIdCameraSelector: CameraSelector
 
     companion object {
-        @ClassRule
-        @JvmField val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
         @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
@@ -131,9 +130,10 @@ abstract class LifecycleStatusChangeStressTestBase(
 
         cameraIdCameraSelector = createCameraSelectorById(cameraId)
 
-        camera = withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), cameraIdCameraSelector)
-        }
+        camera =
+            withContext(Dispatchers.Main) {
+                cameraProvider.bindToLifecycle(FakeLifecycleOwner(), cameraIdCameraSelector)
+            }
     }
 
     @After

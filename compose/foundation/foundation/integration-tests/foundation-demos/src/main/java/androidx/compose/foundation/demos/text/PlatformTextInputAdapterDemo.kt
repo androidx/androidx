@@ -100,18 +100,25 @@ fun PlatformTextInputAdapterDemo() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Move selection:")
-            IconButton(onClick = {
-                val newCursor = (textFieldState.selection.start - 1)
-                    .coerceIn(0, textFieldState.buffer.length)
-                textFieldState.selection = TextRange(newCursor)
-            }) {
+            IconButton(
+                onClick = {
+                    val newCursor =
+                        (textFieldState.selection.start - 1).coerceIn(
+                            0,
+                            textFieldState.buffer.length
+                        )
+                    textFieldState.selection = TextRange(newCursor)
+                }
+            ) {
                 Image(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "backward")
             }
-            IconButton(onClick = {
-                val newCursor = (textFieldState.selection.end + 1)
-                    .coerceIn(0, textFieldState.buffer.length)
-                textFieldState.selection = TextRange(newCursor)
-            }) {
+            IconButton(
+                onClick = {
+                    val newCursor =
+                        (textFieldState.selection.end + 1).coerceIn(0, textFieldState.buffer.length)
+                    textFieldState.selection = TextRange(newCursor)
+                }
+            ) {
                 Image(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "forward")
             }
         }
@@ -127,33 +134,35 @@ fun WackyTextField(state: WackyTextState, modifier: Modifier) {
     BasicText(
         text = state.toString(),
         onTextLayout = { textLayoutResult = it },
-        modifier = modifier
-            .border(if (isFocused) 2.dp else 1.dp, Color.Gray.copy(alpha = 0.5f))
-            // The modifier element that produces the PlatformTextInputModifierNode must come before
-            // or be the same as the focus target (i.e. focusable).
-            .then(WackyTextFieldModifierElement(state))
-            .focusable(interactionSource = interactionSource)
-            .drawWithContent {
-                drawContent()
+        modifier =
+            modifier
+                .border(if (isFocused) 2.dp else 1.dp, Color.Gray.copy(alpha = 0.5f))
+                // The modifier element that produces the PlatformTextInputModifierNode must come
+                // before
+                // or be the same as the focus target (i.e. focusable).
+                .then(WackyTextFieldModifierElement(state))
+                .focusable(interactionSource = interactionSource)
+                .drawWithContent {
+                    drawContent()
 
-                if (isFocused) {
-                    textLayoutResult?.let {
-                        if (state.selection.collapsed) {
-                            val cursorRect = it.getCursorRect(state.selection.start)
-                            drawLine(
-                                Color.Black,
-                                start = cursorRect.topCenter,
-                                end = cursorRect.bottomCenter,
-                                strokeWidth = 1.dp.toPx()
-                            )
-                        } else {
-                            val selectionPath =
-                                it.getPathForRange(state.selection.start, state.selection.end)
-                            drawPath(selectionPath, Color.Blue.copy(alpha = 0.5f))
+                    if (isFocused) {
+                        textLayoutResult?.let {
+                            if (state.selection.collapsed) {
+                                val cursorRect = it.getCursorRect(state.selection.start)
+                                drawLine(
+                                    Color.Black,
+                                    start = cursorRect.topCenter,
+                                    end = cursorRect.bottomCenter,
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                            } else {
+                                val selectionPath =
+                                    it.getPathForRange(state.selection.start, state.selection.end)
+                                drawPath(selectionPath, Color.Blue.copy(alpha = 0.5f))
+                            }
                         }
                     }
                 }
-            }
     )
 }
 
@@ -172,10 +181,12 @@ class WackyTextState(initialValue: String) {
 private data class WackyTextFieldModifierElement(val state: WackyTextState) :
     ModifierNodeElement<WackyTextFieldModifierNode>() {
     override fun create() = WackyTextFieldModifierNode(state)
+
     override fun update(node: WackyTextFieldModifierNode) {}
 }
 
-private class WackyTextFieldModifierNode(private val state: WackyTextState) : Modifier.Node(),
+private class WackyTextFieldModifierNode(private val state: WackyTextState) :
+    Modifier.Node(),
     PlatformTextInputModifierNode,
     FocusEventModifierNode,
     FocusRequesterModifierNode,
@@ -189,34 +200,37 @@ private class WackyTextFieldModifierNode(private val state: WackyTextState) : Mo
         if (isFocused == focusState.isFocused) return
         isFocused = focusState.isFocused
         if (isFocused) {
-            job = coroutineScope.launch {
+            job =
+                coroutineScope.launch {
 
-                // In a real app, creating this session would be platform-specific code.
-                // This will cancel any previous request.
-                establishTextInputSession {
-                    val imm = view.context
-                        .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    // In a real app, creating this session would be platform-specific code.
+                    // This will cancel any previous request.
+                    establishTextInputSession {
+                        val imm =
+                            view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
+                                as InputMethodManager
 
-                    launch {
-                        snapshotFlow { state.selection }.collectLatest { selection ->
-                            imm.updateSelection(view, selection.start, selection.end, 0, 0)
+                        launch {
+                            snapshotFlow { state.selection }
+                                .collectLatest { selection ->
+                                    imm.updateSelection(view, selection.start, selection.end, 0, 0)
+                                }
+                        }
+
+                        startInputMethod { outAttrs ->
+                            Log.d(TAG, "creating input connection for $state")
+
+                            outAttrs.initialSelStart = state.buffer.length
+                            outAttrs.initialSelEnd = state.buffer.length
+                            outAttrs.inputType = InputType.TYPE_CLASS_TEXT
+                            EditorInfoCompat.setInitialSurroundingText(outAttrs, state.toString())
+                            outAttrs.imeOptions =
+                                EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_FULLSCREEN
+                            state.refresh = Unit
+                            WackyInputConnection(state, view)
                         }
                     }
-
-                    startInputMethod { outAttrs ->
-                        Log.d(TAG, "creating input connection for $state")
-
-                        outAttrs.initialSelStart = state.buffer.length
-                        outAttrs.initialSelEnd = state.buffer.length
-                        outAttrs.inputType = InputType.TYPE_CLASS_TEXT
-                        EditorInfoCompat.setInitialSurroundingText(outAttrs, state.toString())
-                        outAttrs.imeOptions =
-                            EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_FULLSCREEN
-                        state.refresh = Unit
-                        WackyInputConnection(state, view)
-                    }
                 }
-            }
         } else {
             job?.cancel()
             job = null
@@ -245,16 +259,14 @@ private class WackyTextFieldModifierNode(private val state: WackyTextState) : Mo
 /**
  * This class can mostly be ignored for the sake of this demo.
  *
- * This is where most of the actual communication with the Android IME system APIs is. It is
- * an implementation of the Android interface [InputConnection], which is a very large and
- * complex interface to implement. Here we use the [BaseInputConnection] class to avoid
- * implementing the whole thing from scratch, and then only make very weak attempts at handling
- * all the edge cases a real-world text editor would need to handle.
+ * This is where most of the actual communication with the Android IME system APIs is. It is an
+ * implementation of the Android interface [InputConnection], which is a very large and complex
+ * interface to implement. Here we use the [BaseInputConnection] class to avoid implementing the
+ * whole thing from scratch, and then only make very weak attempts at handling all the edge cases a
+ * real-world text editor would need to handle.
  */
-private class WackyInputConnection(
-    private val state: WackyTextState,
-    view: View
-) : BaseInputConnection(view, false) {
+private class WackyInputConnection(private val state: WackyTextState, view: View) :
+    BaseInputConnection(view, false) {
     private var composition: TextRange? = null
 
     private var batchLevel = 0
@@ -280,16 +292,16 @@ private class WackyInputConnection(
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
         Log.d(TAG, "committing text: text=\"$text\", newCursorPosition=$newCursorPosition")
-        @Suppress("NAME_SHADOWING")
-        val text = text.toString()
+        @Suppress("NAME_SHADOWING") val text = text.toString()
         withBatch {
-            state.selection = if (composition != null) {
-                state.buffer.replace(composition!!.start, composition!!.end, text)
-                TextRange(composition!!.end)
-            } else {
-                state.buffer.replace(state.selection.start, state.selection.end, text)
-                TextRange(state.selection.start + text.length)
-            }
+            state.selection =
+                if (composition != null) {
+                    state.buffer.replace(composition!!.start, composition!!.end, text)
+                    TextRange(composition!!.end)
+                } else {
+                    state.buffer.replace(state.selection.start, state.selection.end, text)
+                    TextRange(state.selection.start + text.length)
+                }
         }
         return true
     }
@@ -307,18 +319,13 @@ private class WackyInputConnection(
     }
 
     override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
-        Log.d(
-            TAG,
-            "setting composing text: text=\"$text\", newCursorPosition=$newCursorPosition"
-        )
-        @Suppress("NAME_SHADOWING")
-        val text = text.toString()
+        Log.d(TAG, "setting composing text: text=\"$text\", newCursorPosition=$newCursorPosition")
+        @Suppress("NAME_SHADOWING") val text = text.toString()
         withBatch {
             if (composition != null) {
                 state.buffer.replace(composition!!.start, composition!!.end, text)
                 if (text.isNotEmpty()) {
-                    composition =
-                        TextRange(composition!!.start, composition!!.start + text.length)
+                    composition = TextRange(composition!!.start, composition!!.start + text.length)
                 }
                 state.selection = TextRange(composition!!.end)
             } else {
@@ -354,19 +361,18 @@ private class WackyInputConnection(
     override fun setSelection(start: Int, end: Int): Boolean {
         Log.d(TAG, "setting selection: start=$start, end=$end")
         withBatch {
-            state.selection = TextRange(
-                start.coerceIn(0, state.buffer.length),
-                end.coerceIn(0, state.buffer.length)
-            )
+            state.selection =
+                TextRange(
+                    start.coerceIn(0, state.buffer.length),
+                    end.coerceIn(0, state.buffer.length)
+                )
         }
         return true
     }
 
     override fun finishComposingText(): Boolean {
         Log.d(TAG, "finishing composing text")
-        withBatch {
-            composition = null
-        }
+        withBatch { composition = null }
         return true
     }
 

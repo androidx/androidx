@@ -29,8 +29,7 @@ import org.junit.Test
 
 class WindowPropertiesTest {
 
-    @get:Rule
-    val activityRule = ActivityScenarioRule(TestActivity::class.java)
+    @get:Rule val activityRule = ActivityScenarioRule(TestActivity::class.java)
 
     @Test
     fun test_property_activity_embedding_allow_system_override() {
@@ -60,10 +59,7 @@ class WindowPropertiesTest {
         activityRule.scenario.onActivity { activity ->
             // Should be true as defined in AndroidManifest.xml
             assertTrue(
-                getProperty(
-                    activity,
-                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED
-                )
+                getProperty(activity, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED)
             )
         }
     }
@@ -117,8 +113,7 @@ class WindowPropertiesTest {
             assertFalse(
                 getProperty(
                     activity,
-                    WindowProperties
-                        .PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
                 )
             )
         }
@@ -128,8 +123,8 @@ class WindowPropertiesTest {
     @Throws(PackageManager.NameNotFoundException::class)
     private fun getProperty(context: Context, propertyName: String): Boolean {
         val packageManager = context.packageManager
-        val property = packageManager.getProperty(
-            propertyName, context.applicationContext.packageName)
+        val property =
+            packageManager.getProperty(propertyName, context.applicationContext.packageName)
         if (!property.isBoolean) {
             throw IllegalStateException("Property=$propertyName must have a boolean value")
         }

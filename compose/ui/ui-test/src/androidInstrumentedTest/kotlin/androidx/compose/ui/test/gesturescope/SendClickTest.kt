@@ -42,10 +42,7 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 class SendClickTest(private val config: TestConfig) {
-    data class TestConfig(
-        val position: Offset?,
-        val activityClass: Class<out ComponentActivity>
-    )
+    data class TestConfig(val position: Offset?, val activityClass: Class<out ComponentActivity>)
 
     companion object {
         private const val squareSize = 10.0f
@@ -67,10 +64,7 @@ class SendClickTest(private val config: TestConfig) {
         }
     }
 
-    private data class ClickData(
-        val componentIndex: Int,
-        val position: Offset
-    )
+    private data class ClickData(val componentIndex: Int, val position: Offset)
 
     private class ClickRecorder(
         private val componentIndex: Int,
@@ -85,12 +79,10 @@ class SendClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createAndroidComposeRule(config.activityClass)
+    @get:Rule val rule = createAndroidComposeRule(config.activityClass)
 
     private val recordedClicks = mutableListOf<ClickData>()
-    private val expectedClickPosition =
-        config.position ?: Offset(squareSize / 2, squareSize / 2)
+    private val expectedClickPosition = config.position ?: Offset(squareSize / 2, squareSize / 2)
 
     @Test
     fun testClick() {
@@ -112,12 +104,10 @@ class SendClickTest(private val config: TestConfig) {
 
         // Then those components have registered a click
         rule.runOnIdle {
-            assertThat(recordedClicks).isEqualTo(
-                listOf(
-                    ClickData(0, expectedClickPosition),
-                    ClickData(4, expectedClickPosition)
+            assertThat(recordedClicks)
+                .isEqualTo(
+                    listOf(ClickData(0, expectedClickPosition), ClickData(4, expectedClickPosition))
                 )
-            )
         }
     }
 

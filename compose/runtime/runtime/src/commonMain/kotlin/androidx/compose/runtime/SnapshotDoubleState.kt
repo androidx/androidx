@@ -16,6 +16,7 @@
 
 @file:JvmName("SnapshotDoubleStateKt")
 @file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
@@ -42,7 +43,6 @@ import kotlin.reflect.KProperty
  * when using `MutableState<Double>`.
  *
  * @param value the initial value for the [MutableDoubleState]
- *
  * @see DoubleState
  * @see MutableDoubleState
  * @see mutableStateOf
@@ -51,9 +51,8 @@ import kotlin.reflect.KProperty
  * @see mutableFloatStateOf
  */
 @StateFactoryMarker
-fun mutableDoubleStateOf(
-    value: Double
-): MutableDoubleState = createSnapshotMutableDoubleState(value)
+fun mutableDoubleStateOf(value: Double): MutableDoubleState =
+    createSnapshotMutableDoubleState(value)
 
 /**
  * A value holder where reads to the [doubleValue] property during the execution of a [Composable]
@@ -72,21 +71,17 @@ interface DoubleState : State<Double> {
     val doubleValue: Double
 }
 
-/**
- * Permits property delegation of `val`s using `by` for [DoubleState].
- */
+/** Permits property delegation of `val`s using `by` for [DoubleState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun DoubleState.getValue(
-    thisObj: Any?,
-    property: KProperty<*>
-): Double = doubleValue
+inline operator fun DoubleState.getValue(thisObj: Any?, property: KProperty<*>): Double =
+    doubleValue
 
 /**
  * A value holder where reads to the [doubleValue] property during the execution of a [Composable]
  * function cause the current [RecomposeScope] to subscribe to changes of that value. When the
- * [doubleValue] property is written to and changed, a recomposition of any subscribed [RecomposeScope]s
- * will be scheduled. If [doubleValue] is written to with the same value, no recompositions will be
- * scheduled.
+ * [doubleValue] property is written to and changed, a recomposition of any subscribed
+ * [RecomposeScope]s will be scheduled. If [doubleValue] is written to with the same value, no
+ * recompositions will be scheduled.
  *
  * @see [DoubleState]
  * @see [mutableDoubleStateOf]
@@ -98,14 +93,14 @@ interface MutableDoubleState : DoubleState, MutableState<Double> {
     @set:AutoboxingStateValueProperty("doubleValue")
     override var value: Double
         @Suppress("AutoBoxing") get() = doubleValue
-        set(value) { doubleValue = value }
+        set(value) {
+            doubleValue = value
+        }
 
     override var doubleValue: Double
 }
 
-/**
- * Permits property delegation of `var`s using `by` for [MutableDoubleState].
- */
+/** Permits property delegation of `var`s using `by` for [MutableDoubleState]. */
 @Suppress("NOTHING_TO_INLINE")
 inline operator fun MutableDoubleState.setValue(
     thisObj: Any?,
@@ -115,9 +110,7 @@ inline operator fun MutableDoubleState.setValue(
     this.doubleValue = value
 }
 
-internal expect fun createSnapshotMutableDoubleState(
-    value: Double
-): MutableDoubleState
+internal expect fun createSnapshotMutableDoubleState(value: Double): MutableDoubleState
 
 /**
  * A single value holder whose reads and writes are observed by Compose.
@@ -125,31 +118,32 @@ internal expect fun createSnapshotMutableDoubleState(
  * Additionally, writes to it are transacted as part of the [Snapshot] system.
  *
  * @param value the wrapped value
- *
  * @see [mutableDoubleStateOf]
  */
-internal open class SnapshotMutableDoubleStateImpl(
-    value: Double
-) : StateObjectImpl(), MutableDoubleState, SnapshotMutableState<Double> {
+internal open class SnapshotMutableDoubleStateImpl(value: Double) :
+    StateObjectImpl(), MutableDoubleState, SnapshotMutableState<Double> {
 
-    private var next = DoubleStateStateRecord(value).also {
-        if (Snapshot.isInSnapshot) {
-            it.next = DoubleStateStateRecord(value).also { next ->
-                next.snapshotId = Snapshot.PreexistingSnapshotId
+    private var next =
+        DoubleStateStateRecord(value).also {
+            if (Snapshot.isInSnapshot) {
+                it.next =
+                    DoubleStateStateRecord(value).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
             }
         }
-    }
 
     override val firstStateRecord: StateRecord
         get() = next
 
     override var doubleValue: Double
         get() = next.readable(this).value
-        set(value) = next.withCurrent {
-            if (!it.value.equalsWithNanFix(value)) {
-                next.overwritable(this, it) { this.value = value }
+        set(value) =
+            next.withCurrent {
+                if (!it.value.equalsWithNanFix(value)) {
+                    next.overwritable(this, it) { this.value = value }
+                }
             }
-        }
 
     // Arbitrary policies are not allowed. The underlying `==` implementation
     // for primitive types corresponds to structural equality
@@ -178,13 +172,10 @@ internal open class SnapshotMutableDoubleStateImpl(
         }
     }
 
-    override fun toString(): String = next.withCurrent {
-        "MutableDoubleState(value=${it.value})@${hashCode()}"
-    }
+    override fun toString(): String =
+        next.withCurrent { "MutableDoubleState(value=${it.value})@${hashCode()}" }
 
-    private class DoubleStateStateRecord(
-        var value: Double
-    ) : StateRecord() {
+    private class DoubleStateStateRecord(var value: Double) : StateRecord() {
         override fun assign(value: StateRecord) {
             this.value = (value as DoubleStateStateRecord).value
         }

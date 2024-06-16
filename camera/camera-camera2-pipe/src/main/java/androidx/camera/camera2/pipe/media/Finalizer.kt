@@ -22,7 +22,6 @@ package androidx.camera.camera2.pipe.media
  * This is primarily used by classes that may need to intercept and do something with an
  * intermediate object before it is fully closed.
  */
-
 interface Finalizer<in T> {
     fun finalize(value: T?)
 }

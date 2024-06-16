@@ -26,7 +26,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal open class KspConstructorElement(
     env: KspProcessingEnv,
     declaration: KSFunctionDeclaration
-) : KspExecutableElement(env, declaration),
+) :
+    KspExecutableElement(env, declaration),
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = declaration,
@@ -56,19 +57,11 @@ internal open class KspConstructorElement(
     }
 
     override val executableType: XConstructorType by lazy {
-        KspConstructorType(
-            env = env,
-            origin = this,
-            containing = this.enclosingElement.type
-        )
+        KspConstructorType(env = env, origin = this, containing = this.enclosingElement.type)
     }
 
     override fun asMemberOf(other: XType): XConstructorType {
         check(other is KspType)
-        return KspConstructorType(
-            env = env,
-            origin = this,
-            containing = other
-        )
+        return KspConstructorType(env = env, origin = this, containing = other)
     }
 }

@@ -40,11 +40,11 @@ import kotlinx.coroutines.launch
 
 internal val cameraAdapterIds = atomic(0)
 
-/**
- * Adapt the [CameraInternal] class to one or more [CameraPipe] based Camera instances.
- */
+/** Adapt the [CameraInternal] class to one or more [CameraPipe] based Camera instances. */
 @CameraScope
-class CameraInternalAdapter @Inject constructor(
+class CameraInternalAdapter
+@Inject
+constructor(
     config: CameraConfig,
     private val useCaseManager: UseCaseManager,
     private val cameraInfo: CameraInfoInternal,
@@ -88,12 +88,14 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun release(): ListenableFuture<Void> {
-        return threads.scope.launch { useCaseManager.close() }.asListenableFuture().apply {
-            addListener({ threads.scope.cancel() }, Dispatchers.Default.asExecutor())
-        }
+        return threads.scope
+            .launch { useCaseManager.close() }
+            .asListenableFuture()
+            .apply { addListener({ threads.scope.cancel() }, Dispatchers.Default.asExecutor()) }
     }
 
     override fun getCameraInfoInternal(): CameraInfoInternal = cameraInfo
+
     override fun getCameraState(): Observable<CameraInternal.State> =
         cameraStateAdapter.cameraInternalState
 

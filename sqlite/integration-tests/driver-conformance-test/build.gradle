@@ -40,8 +40,10 @@ androidXMultiplatform {
         commonTest {
             dependencies {
                 implementation(project(":sqlite:sqlite"))
+                implementation(project(":sqlite:sqlite-bundled"))
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":kruth:kruth"))
             }
         }
@@ -49,8 +51,6 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-framework"))
-                implementation(project(":sqlite:sqlite-bundled"))
-
                 implementation(libs.kotlinTestJunit)
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
@@ -59,8 +59,6 @@ androidXMultiplatform {
         jvmTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(project(":sqlite:sqlite-bundled"))
-
                 implementation(libs.kotlinTestJunit)
             }
         }
@@ -68,10 +66,9 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-framework"))
-                implementation(project(":sqlite:sqlite-bundled"))
             }
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)

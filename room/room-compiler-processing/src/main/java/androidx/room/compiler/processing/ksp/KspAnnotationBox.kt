@@ -31,21 +31,13 @@ internal class KspAnnotationBox<T : Annotation>(
 ) : XAnnotationBox<T> {
     override fun getAsType(methodName: String): XType? {
         val value = getFieldValue(methodName, KSType::class.java)
-        return value?.let {
-            env.wrap(
-                ksType = it,
-                allowPrimitives = true
-            )
-        }
+        return value?.let { env.wrap(ksType = it, allowPrimitives = true) }
     }
 
     override fun getAsTypeList(methodName: String): List<XType> {
         val values = getFieldValue(methodName, Array::class.java) ?: return emptyList()
         return values.filterIsInstance<KSType>().map {
-            env.wrap(
-                ksType = it,
-                allowPrimitives = true
-            )
+            env.wrap(ksType = it, allowPrimitives = true)
         }
     }
 
@@ -61,23 +53,14 @@ internal class KspAnnotationBox<T : Annotation>(
             )
         }
 
-        val annotationType = annotationClass.methods.first {
-            it.name == methodName
-        }.returnType as Class<R>
-        return KspAnnotationBox(
-            env = env,
-            annotationClass = annotationType,
-            annotation = value
-        )
+        val annotationType =
+            annotationClass.methods.first { it.name == methodName }.returnType as Class<R>
+        return KspAnnotationBox(env = env, annotationClass = annotationType, annotation = value)
     }
 
-    private fun <R : Any> getFieldValue(
-        methodName: String,
-        returnType: Class<R>
-    ): R? {
-        val methodValue = annotation.arguments.firstOrNull {
-            it.name?.asString() == methodName
-        }?.value
+    private fun <R : Any> getFieldValue(methodName: String, returnType: Class<R>): R? {
+        val methodValue =
+            annotation.arguments.firstOrNull { it.name?.asString() == methodName }?.value
         return methodValue?.readAs(returnType)
     }
 
@@ -85,9 +68,9 @@ internal class KspAnnotationBox<T : Annotation>(
         methodName: String
     ): Array<XAnnotationBox<R>> {
         val values = getFieldValue(methodName, Array::class.java) ?: return emptyArray()
-        val annotationType = annotationClass.methods.first {
-            it.name == methodName
-        }.returnType.componentType as Class<R>
+        val annotationType =
+            annotationClass.methods.first { it.name == methodName }.returnType.componentType
+                as Class<R>
         if (values.isEmpty()) {
             // KSP is unable to read defaults and returns empty array in that case.
             // Subsequently, we don't know if developer set it to empty array intentionally or
@@ -99,21 +82,22 @@ internal class KspAnnotationBox<T : Annotation>(
                 methodName = methodName
             )
         }
-        return values.map {
-            KspAnnotationBox(
-                env = env,
-                annotationClass = annotationType,
-                annotation = it as KSAnnotation
-            )
-        }.toTypedArray()
+        return values
+            .map {
+                KspAnnotationBox(
+                    env = env,
+                    annotationClass = annotationType,
+                    annotation = it as KSAnnotation
+                )
+            }
+            .toTypedArray()
     }
 
-    private val valueProxy: T = Proxy.newProxyInstance(
-        annotationClass.classLoader,
-        arrayOf(annotationClass)
-    ) { _, method, _ ->
-        getFieldValue(method.name, method.returnType) ?: method.defaultValue
-    } as T
+    private val valueProxy: T =
+        Proxy.newProxyInstance(annotationClass.classLoader, arrayOf(annotationClass)) { _, method, _
+            ->
+            getFieldValue(method.name, method.returnType) ?: method.defaultValue
+        } as T
 
     override val value: T
         get() = valueProxy
@@ -123,21 +107,20 @@ internal class KspAnnotationBox<T : Annotation>(
 private fun <R> Any.readAs(returnType: Class<R>): R? {
     return when {
         returnType.isArray -> {
-            val values: List<Any?> = when (this) {
-                is List<*> -> {
-                    // KSP might return list for arrays. convert it back.
-                    this.mapNotNull {
-                        it?.readAs(returnType.componentType)
+            val values: List<Any?> =
+                when (this) {
+                    is List<*> -> {
+                        // KSP might return list for arrays. convert it back.
+                        this.mapNotNull { it?.readAs(returnType.componentType) }
+                    }
+                    is Array<*> -> mapNotNull { it?.readAs(returnType.componentType) }
+                    else -> {
+                        // If array syntax is not used in java code, KSP might return it as a single
+                        // item instead of list or array
+                        // see: https://github.com/google/ksp/issues/214
+                        listOf(this.readAs(returnType.componentType))
                     }
                 }
-                is Array<*> -> mapNotNull { it?.readAs(returnType.componentType) }
-                else -> {
-                    // If array syntax is not used in java code, KSP might return it as a single
-                    // item instead of list or array
-                    // see: https://github.com/google/ksp/issues/214
-                    listOf(this.readAs(returnType.componentType))
-                }
-            }
             if (returnType.componentType.isPrimitive) {
                 when (returnType) {
                     IntArray::class.java -> {
@@ -169,13 +152,10 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
                     }
                 }
             } else {
-                val resultArray = java.lang.reflect.Array.newInstance(
-                    returnType.componentType,
-                    values.size
-                ) as Array<Any?>
-                values.forEachIndexed { index, value ->
-                    resultArray[index] = value
-                }
+                val resultArray =
+                    java.lang.reflect.Array.newInstance(returnType.componentType, values.size)
+                        as Array<Any?>
+                values.forEachIndexed { index, value -> resultArray[index] = value }
                 resultArray
             }
         }
@@ -183,21 +163,28 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
             this.readAsEnum(returnType)
         }
         else -> this
-    } as R?
+    }
+        as R?
 }
 
 private fun <R> Any.readAsEnum(enumClass: Class<R>): R? {
-    // TODO: https://github.com/google/ksp/issues/429
-    // If the enum value is from compiled code KSP gives us the actual value an not the KSType,
-    // so return it instead of using valueOf() to get an instance of the entry.
-    if (enumClass.isAssignableFrom(this::class.java)) {
-        return enumClass.cast(this)
-    }
-    val ksType = this as? KSType ?: return null
-    val classDeclaration = ksType.declaration as? KSClassDeclaration ?: return null
-    val enumValue = classDeclaration.simpleName.asString()
+    val enumValue =
+        if (this is KSClassDeclaration) {
+            // In KSP2 a KSClassDeclaration is returned for enum entries
+            this.simpleName.asString()
+        } else {
+            // TODO: https://github.com/google/ksp/issues/429
+            // If the enum value is from compiled code KSP gives us the actual value an not the
+            // KSType,
+            // so return it instead of using valueOf() to get an instance of the entry.
+            if (enumClass.isAssignableFrom(this::class.java)) {
+                return enumClass.cast(this)
+            }
+            val ksType = this as? KSType ?: return null
+            val classDeclaration = ksType.declaration as? KSClassDeclaration ?: return null
+            classDeclaration.simpleName.asString()
+        }
     // get the instance from the valueOf function.
     @Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
-    return enumClass.getDeclaredMethod("valueOf", String::class.java)
-        .invoke(null, enumValue) as R?
+    return enumClass.getDeclaredMethod("valueOf", String::class.java).invoke(null, enumValue) as R?
 }

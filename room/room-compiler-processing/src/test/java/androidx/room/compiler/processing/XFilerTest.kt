@@ -34,10 +34,11 @@ class XFilerTest {
                 it.processingEnv.filer.writeResource(Path("Test.java"), emptyList()).close()
                 fail("Expected an exception!")
             } catch (ex: java.lang.IllegalArgumentException) {
-                assertThat(ex.message).isEqualTo(
-                    "Could not create resource file with a source type extension. " +
-                        "File must not be neither '.java' nor '.kt', but was: Test.java"
-                )
+                assertThat(ex.message)
+                    .isEqualTo(
+                        "Could not create resource file with a source type extension. " +
+                            "File must not be neither '.java' nor '.kt', but was: Test.java"
+                    )
             }
         }
     }
@@ -49,10 +50,11 @@ class XFilerTest {
                 it.processingEnv.filer.writeResource(Path("Test.kt"), emptyList()).close()
                 fail("Expected an exception!")
             } catch (ex: IllegalArgumentException) {
-                assertThat(ex.message).isEqualTo(
-                    "Could not create resource file with a source type extension. " +
-                        "File must not be neither '.java' nor '.kt', but was: Test.kt"
-                )
+                assertThat(ex.message)
+                    .isEqualTo(
+                        "Could not create resource file with a source type extension. " +
+                            "File must not be neither '.java' nor '.kt', but was: Test.kt"
+                    )
             }
         }
     }

@@ -21,21 +21,13 @@ import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
  * [WearPreviewDevices] is a multi-preview annotation for composables with different Wear device
- * shapes and sizes. It supports [WearDevices.SMALL_ROUND], [WearDevices.LARGE_ROUND] and
- * [WearDevices.SQUARE].
+ * shapes and sizes. It supports [WearDevices.SMALL_ROUND] and [WearDevices.LARGE_ROUND].
  *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIconPreview
+ *
  * @see WearDevices.SMALL_ROUND
  * @see WearDevices.LARGE_ROUND
- * @see WearDevices.SQUARE
  */
-@Preview(
-    device = WearDevices.SQUARE,
-    backgroundColor = 0xff000000,
-    showBackground = true,
-    group = "Devices - Small Square",
-    showSystemUi = true
-)
 @Preview(
     device = WearDevices.LARGE_ROUND,
     backgroundColor = 0xff000000,

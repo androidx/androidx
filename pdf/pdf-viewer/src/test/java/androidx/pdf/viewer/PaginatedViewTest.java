@@ -22,7 +22,6 @@ import android.content.Context;
 
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.BitmapRecycler;
-import androidx.pdf.util.ProjectorContext;
 import androidx.pdf.viewer.PageViewFactory.PageView;
 import androidx.pdf.widget.MosaicView.BitmapSource;
 import androidx.test.core.app.ApplicationProvider;
@@ -63,9 +62,9 @@ public class PaginatedViewTest {
     public void setUp() {
         mOpenMocks = MockitoAnnotations.openMocks(this);
         mContext = ApplicationProvider.getApplicationContext();
-        ProjectorContext.installProjectorGlobalsForTest(mContext);
         mDimensions = new Dimensions(100, 200);
 
+        PdfViewer.setScreenForTest(mContext);
         // Setting uninitialized model.
         mPaginatedView = new PaginatedView(mContext);
         mPaginationModel = new PaginationModel();

@@ -26,8 +26,7 @@ class TypeConverterTest : BaseTypeConverterTest() {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<TestDatabase> {
-        return Room.inMemoryDatabaseBuilder<TestDatabase>(
-            context = instrumentation.targetContext
-        ).setDriver(BundledSQLiteDriver())
+        return Room.inMemoryDatabaseBuilder<TestDatabase>(context = instrumentation.targetContext)
+            .setDriver(BundledSQLiteDriver())
     }
 }

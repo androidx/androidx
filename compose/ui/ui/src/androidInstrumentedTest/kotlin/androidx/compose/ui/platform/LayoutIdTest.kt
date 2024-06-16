@@ -61,20 +61,11 @@ class LayoutIdTest {
         val latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
-                Layout(
-                    {
-                        AtLeastSize(0, Modifier.layoutId("first"), content = {})
-                        Box(Modifier.layoutId("second")) {
-                            AtLeastSize(
-                                0,
-                                content = {}
-                            )
-                        }
-                        Box(Modifier.layoutId("third")) {
-                            AtLeastSize(0, content = {})
-                        }
-                    }
-                ) { measurables, _ ->
+                Layout({
+                    AtLeastSize(0, Modifier.layoutId("first"), content = {})
+                    Box(Modifier.layoutId("second")) { AtLeastSize(0, content = {}) }
+                    Box(Modifier.layoutId("third")) { AtLeastSize(0, content = {}) }
+                }) { measurables, _ ->
                     assertEquals(3, measurables.size)
                     assertEquals("first", measurables[0].layoutId)
                     assertEquals("second", measurables[1].layoutId)

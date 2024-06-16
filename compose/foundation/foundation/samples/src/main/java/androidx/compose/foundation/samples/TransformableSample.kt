@@ -55,12 +55,7 @@ import kotlinx.coroutines.launch
 @Sampled
 @Composable
 fun TransformableSample() {
-    Box(
-        Modifier
-            .size(200.dp)
-            .clipToBounds()
-            .background(Color.LightGray)
-    ) {
+    Box(Modifier.size(200.dp).clipToBounds().background(Color.LightGray)) {
         // set up all transformation states
         var scale by remember { mutableStateOf(1f) }
         var rotation by remember { mutableStateOf(0f) }
@@ -83,9 +78,7 @@ fun TransformableSample() {
                 // optional for example: add double click to zoom
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onDoubleTap = {
-                            coroutineScope.launch { state.animateZoomBy(4f) }
-                        }
+                        onDoubleTap = { coroutineScope.launch { state.animateZoomBy(4f) } }
                     )
                 }
                 .fillMaxSize()
@@ -96,11 +89,12 @@ fun TransformableSample() {
                 "\uD83C\uDF55",
                 fontSize = 32.sp,
                 // apply other transformations like rotation and zoom on the pizza slice emoji
-                modifier = Modifier.graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                    rotationZ = rotation
-                }
+                modifier =
+                    Modifier.graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        rotationZ = rotation
+                    }
             )
         }
     }
@@ -110,18 +104,9 @@ fun TransformableSample() {
 @Sampled
 @Composable
 fun TransformableSampleInsideScroll() {
-    Row(
-        Modifier
-            .size(width = 120.dp, height = 100.dp)
-            .horizontalScroll(rememberScrollState())
-    ) {
+    Row(Modifier.size(width = 120.dp, height = 100.dp).horizontalScroll(rememberScrollState())) {
         // first child of the scrollable row is a transformable
-        Box(
-            Modifier
-                .size(100.dp)
-                .clipToBounds()
-                .background(Color.LightGray)
-        ) {
+        Box(Modifier.size(100.dp).clipToBounds().background(Color.LightGray)) {
             // set up all transformation states
             var scale by remember { mutableStateOf(1f) }
             var rotation by remember { mutableStateOf(0f) }
@@ -146,9 +131,7 @@ fun TransformableSampleInsideScroll() {
                     // optional for example: add double click to zoom
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onDoubleTap = {
-                                coroutineScope.launch { state.animateZoomBy(4f) }
-                            }
+                            onDoubleTap = { coroutineScope.launch { state.animateZoomBy(4f) } }
                         )
                     }
                     .fillMaxSize()
@@ -159,20 +142,16 @@ fun TransformableSampleInsideScroll() {
                     "\uD83C\uDF55",
                     fontSize = 32.sp,
                     // apply other transformations like rotation and zoom on the pizza slice emoji
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        rotationZ = rotation
-                    }
+                    modifier =
+                        Modifier.graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            rotationZ = rotation
+                        }
                 )
             }
         }
         // other children are just colored boxes
-        Box(
-            Modifier
-                .size(100.dp)
-                .background(Color.Red)
-                .border(2.dp, Color.Black)
-        )
+        Box(Modifier.size(100.dp).background(Color.Red).border(2.dp, Color.Black))
     }
 }

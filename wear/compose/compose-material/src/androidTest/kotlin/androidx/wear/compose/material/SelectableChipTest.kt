@@ -53,8 +53,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class SelectableChipTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
@@ -86,6 +85,7 @@ class SelectableChipTest {
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
+
     @Test
     fun has_clickaction_when_enabled() {
         rule.setContentWithTheme {
@@ -148,13 +148,9 @@ class SelectableChipTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.RadioButton
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
     }
 
     @Test
@@ -362,11 +358,7 @@ class SelectableChipTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected().performClick().assertIsSelected()
     }
 
     @Test
@@ -406,11 +398,7 @@ class SelectableChipTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsNotSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected().performClick().assertIsNotSelected()
     }
 
     @Test
@@ -449,13 +437,10 @@ class SelectableChipTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Button
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(0)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
@@ -491,29 +476,28 @@ class SelectableChipTest {
         rule.onNodeWithText(textContent).assertExists()
     }
 
-    @Test
-    fun gives_chip_correct_height() =
-        verifyChipHeight(ChipDefaults.Height)
+    @Test fun gives_chip_correct_height() = verifyChipHeight(ChipDefaults.Height)
 
     @Test
     fun gives_chip_adjustable_height() {
         val expectedMinHeight = SelectableChipDefaults.Height + 1.dp
-        rule.setContentWithThemeForSizeAssertions {
-            SelectableChip(
-                selected = true,
-                onClick = {},
-                label = {
-                    Text(
-                        text = "SelectableChip text spanning over multiple lines of text " +
-                            "to test height is adjustable. This should exceed the minimum height" +
-                            " for the SelectableChip."
-                    )
-                },
-                selectionControl = {
-                    RadioButton(selected = true)
-                }
-            )
-        }.assertHeightIsAtLeast(expectedMinHeight)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                SelectableChip(
+                    selected = true,
+                    onClick = {},
+                    label = {
+                        Text(
+                            text =
+                                "SelectableChip text spanning over multiple lines of text " +
+                                    "to test height is adjustable. This should exceed the minimum height" +
+                                    " for the SelectableChip."
+                        )
+                    },
+                    selectionControl = { RadioButton(selected = true) }
+                )
+            }
+            .assertHeightIsAtLeast(expectedMinHeight)
     }
 
     private fun verifyChipHeight(expectedHeight: Dp) {
@@ -527,30 +511,29 @@ class SelectableChipTest {
         }
     }
 
-    @Test
-    fun gives_split_chip_correct_height() =
-        verifySplitChipHeight(ChipDefaults.Height)
+    @Test fun gives_split_chip_correct_height() = verifySplitChipHeight(ChipDefaults.Height)
 
     @Test
     fun gives_split_chip_adjustable_height() {
         val expectedMinHeight = SelectableChipDefaults.Height + 1.dp
-        rule.setContentWithThemeForSizeAssertions {
-            SplitSelectableChip(
-                selected = true,
-                onSelectionClick = {},
-                onContainerClick = {},
-                label = {
-                    Text(
-                        text = "SplitSelectableChip text spanning over multiple lines of text " +
-                            "to test height is adjustable. This should exceed the minimum height " +
-                            "for the SplitSelectableChip."
-                    )
-                },
-                selectionControl = {
-                    RadioButton(selected = true)
-                }
-            )
-        }.assertHeightIsAtLeast(expectedMinHeight)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                SplitSelectableChip(
+                    selected = true,
+                    onSelectionClick = {},
+                    onContainerClick = {},
+                    label = {
+                        Text(
+                            text =
+                                "SplitSelectableChip text spanning over multiple lines of text " +
+                                    "to test height is adjustable. This should exceed the minimum height " +
+                                    "for the SplitSelectableChip."
+                        )
+                    },
+                    selectionControl = { RadioButton(selected = true) }
+                )
+            }
+            .assertHeightIsAtLeast(expectedMinHeight)
     }
 
     private fun verifySplitChipHeight(expectedHeight: Dp) {
@@ -652,9 +635,10 @@ class SelectableChipTest {
                     selected = true,
                     onClick = {},
                     enabled = true,
-                    colors = SelectableChipDefaults.selectableChipColors(
-                        selectedContentColor = override
-                    ),
+                    colors =
+                        SelectableChipDefaults.selectableChipColors(
+                            selectedContentColor = override
+                        ),
                     label = { actualContentColor = LocalContentColor.current },
                     selectionControl = {},
                     modifier = Modifier.testTag(TEST_TAG)
@@ -676,9 +660,8 @@ class SelectableChipTest {
                     selected = true,
                     onSelectionClick = {},
                     enabled = true,
-                    colors = SelectableChipDefaults.splitSelectableChipColors(
-                        contentColor = override
-                    ),
+                    colors =
+                        SelectableChipDefaults.splitSelectableChipColors(contentColor = override),
                     label = { actualContentColor = LocalContentColor.current },
                     selectionControl = {},
                     onContainerClick = {},
@@ -711,7 +694,8 @@ class SelectableChipTest {
             actualBackgrondColor = MaterialTheme.colors.surface
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(actualBackgrondColor, 50.0f)
     }
@@ -727,9 +711,10 @@ class SelectableChipTest {
                     selected = true,
                     onSelectionClick = {},
                     enabled = true,
-                    colors = SelectableChipDefaults.splitSelectableChipColors(
-                        backgroundColor = override
-                    ),
+                    colors =
+                        SelectableChipDefaults.splitSelectableChipColors(
+                            backgroundColor = override
+                        ),
                     label = {},
                     selectionControl = {},
                     onContainerClick = {},
@@ -738,9 +723,7 @@ class SelectableChipTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(override, 50.0f)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(override, 50.0f)
     }
 
     private fun verifyColors(
@@ -760,11 +743,7 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             expectedLabel = labelColor()
             expectedIcon = selectionControlColor()
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)
-            ) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
                 if (splitSelectableChip) {
                     SplitSelectableChip(
                         selected = selected,
@@ -811,8 +790,5 @@ class SelectableChipTest {
 }
 
 private fun ComposeContentTestRule.verifyHeight(expected: Dp, content: @Composable () -> Unit) {
-    setContentWithThemeForSizeAssertions {
-        content()
-    }
-        .assertHeightIsEqualTo(expected)
+    setContentWithThemeForSizeAssertions { content() }.assertHeightIsEqualTo(expected)
 }

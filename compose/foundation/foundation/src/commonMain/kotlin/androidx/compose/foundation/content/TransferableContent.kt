@@ -27,25 +27,24 @@ import kotlin.jvm.JvmInline
  * Note; Consult platform-specific guidelines for best practices in content transfer operations.
  *
  * @property clipEntry The main content data, typically representing a text, image, file, or other
- * transferable item.
+ *   transferable item.
  * @property source The source from which the content originated like Keyboard, DragAndDrop, or
- * Clipboard.
+ *   Clipboard.
  * @property clipMetadata Metadata associated with the content, providing additional information or
- * context.
- * @property platformTransferableContent Optional platform-specific representation of the content, or
- * additional platform-specific information, that can be used to access platform level APIs.
+ *   context.
+ * @property platformTransferableContent Optional platform-specific representation of the content,
+ *   or additional platform-specific information, that can be used to access platform level APIs.
  */
 @ExperimentalFoundationApi
-class TransferableContent internal constructor(
+class TransferableContent
+internal constructor(
     val clipEntry: ClipEntry,
     val clipMetadata: ClipMetadata,
     val source: Source,
     val platformTransferableContent: PlatformTransferableContent? = null
 ) {
 
-    /**
-     * Defines the type of operation that a [TransferableContent] originates from.
-     */
+    /** Defines the type of operation that a [TransferableContent] originates from. */
     @ExperimentalFoundationApi
     @JvmInline
     value class Source internal constructor(private val value: Int) {
@@ -64,37 +63,35 @@ class TransferableContent internal constructor(
             val DragAndDrop = Source(1)
 
             /**
-             * Indicates that the [TransferableContent] comes from the clipboard via paste.
-             * (e.g. "Paste" action in the floating action menu or "Ctrl+V" key combination)
+             * Indicates that the [TransferableContent] comes from the clipboard via paste. (e.g.
+             * "Paste" action in the floating action menu or "Ctrl+V" key combination)
              */
             val Clipboard = Source(2)
         }
 
-        override fun toString(): String = when (this) {
-            Keyboard -> "Source.Keyboard"
-            DragAndDrop -> "Source.DragAndDrop"
-            Clipboard -> "Source.Clipboard"
-            else -> "Invalid ($value)"
-        }
+        override fun toString(): String =
+            when (this) {
+                Keyboard -> "Source.Keyboard"
+                DragAndDrop -> "Source.DragAndDrop"
+                Clipboard -> "Source.Clipboard"
+                else -> "Invalid ($value)"
+            }
     }
 }
 
 /**
- * All the platform-specific information regarding a [TransferableContent] that cannot be
- * abstracted away in a platform agnostic way.
+ * All the platform-specific information regarding a [TransferableContent] that cannot be abstracted
+ * away in a platform agnostic way.
  */
-@ExperimentalFoundationApi
-expect class PlatformTransferableContent
+@ExperimentalFoundationApi expect class PlatformTransferableContent
 
-/**
- * Returns whether this [TransferableContent] can provide an item with the [mediaType].
- */
+/** Returns whether this [TransferableContent] can provide an item with the [mediaType]. */
 @ExperimentalFoundationApi
 expect fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean
 
 /**
- * Reads the text part of this [ClipEntry]. The returned result may not include the full
- * text representation of content e.g., if there is a URL pointing at another source. This function
- * only reads the explicit text that was transferred directly inside the [ClipEntry].
+ * Reads the text part of this [ClipEntry]. The returned result may not include the full text
+ * representation of content e.g., if there is a URL pointing at another source. This function only
+ * reads the explicit text that was transferred directly inside the [ClipEntry].
  */
 internal expect fun ClipEntry.readPlainText(): String?

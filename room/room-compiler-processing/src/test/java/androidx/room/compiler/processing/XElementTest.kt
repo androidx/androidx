@@ -51,23 +51,21 @@ import org.junit.runners.JUnit4
 class XElementTest {
     @Test
     fun kotlinAnnotationModifierrs() {
-        val src = Source.kotlin(
-            "Subject.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Subject.kt",
+                """
             object Subject {
                 @Transient val transientProp:Int = 0
                 @JvmStatic val staticProp:Int = 0
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("Subject").let {
-                assertThat(
-                    it.getField("transientProp").isTransient()
-                ).isTrue()
-                assertThat(
-                    it.getField("staticProp").isStatic()
-                ).isTrue()
+                assertThat(it.getField("transientProp").isTransient()).isTrue()
+                assertThat(it.getField("staticProp").isStatic()).isTrue()
             }
         }
     }
@@ -96,7 +94,8 @@ class XElementTest {
                     abstract void abstractMethod();
                     static void staticMethod() {}
                 }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             )
         ) {
@@ -135,34 +134,38 @@ class XElementTest {
             element.getMethodByJvmName("staticMethod").assertModifiers("static")
 
             assertThat(
-                element.getMethodByJvmName("privateMethod").isOverrideableIgnoringContainer()
-            ).isFalse()
+                    element.getMethodByJvmName("privateMethod").isOverrideableIgnoringContainer()
+                )
+                .isFalse()
             assertThat(
-                element.getMethodByJvmName("packagePrivateMethod").isOverrideableIgnoringContainer()
-            ).isTrue()
+                    element
+                        .getMethodByJvmName("packagePrivateMethod")
+                        .isOverrideableIgnoringContainer()
+                )
+                .isTrue()
+            assertThat(element.getMethodByJvmName("publicMethod").isOverrideableIgnoringContainer())
+                .isTrue()
             assertThat(
-                element.getMethodByJvmName("publicMethod").isOverrideableIgnoringContainer()
-            ).isTrue()
+                    element.getMethodByJvmName("protectedMethod").isOverrideableIgnoringContainer()
+                )
+                .isTrue()
+            assertThat(element.getMethodByJvmName("finalMethod").isOverrideableIgnoringContainer())
+                .isFalse()
             assertThat(
-                element.getMethodByJvmName("protectedMethod").isOverrideableIgnoringContainer()
-            ).isTrue()
-            assertThat(
-                element.getMethodByJvmName("finalMethod").isOverrideableIgnoringContainer()
-            ).isFalse()
-            assertThat(
-                element.getMethodByJvmName("abstractMethod").isOverrideableIgnoringContainer()
-            ).isTrue()
-            assertThat(
-                element.getMethodByJvmName("staticMethod").isOverrideableIgnoringContainer()
-            ).isFalse()
+                    element.getMethodByJvmName("abstractMethod").isOverrideableIgnoringContainer()
+                )
+                .isTrue()
+            assertThat(element.getMethodByJvmName("staticMethod").isOverrideableIgnoringContainer())
+                .isFalse()
         }
     }
 
     @Test
     fun typeParams() {
-        val genericBase = Source.java(
-            "foo.bar.Base",
-            """
+        val genericBase =
+            Source.java(
+                "foo.bar.Base",
+                """
                 package foo.bar;
                 public class Base<T> {
                     protected T returnT() {
@@ -178,19 +181,20 @@ class XElementTest {
                         throw new RuntimeException("Stub");
                     }
                 }
-            """.trimIndent()
-        )
-        val boundedChild = Source.java(
-            "foo.bar.Child",
             """
+                    .trimIndent()
+            )
+        val boundedChild =
+            Source.java(
+                "foo.bar.Child",
+                """
                 package foo.bar;
                 public class Child extends Base<String> {
                 }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(genericBase, boundedChild)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(listOf(genericBase, boundedChild)) {
             fun validateMethodElement(
                 element: XTypeElement,
                 tTypeName: XTypeName,
@@ -202,13 +206,11 @@ class XElementTest {
                 }
                 element.getMethodByJvmName("receiveT").let { method ->
                     assertThat(method.getParameter("param1").type.asTypeName()).isEqualTo(tTypeName)
-                    assertThat(method.returnType.asTypeName())
-                        .isEqualTo(XTypeName.PRIMITIVE_INT)
+                    assertThat(method.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 }
                 element.getMethodByJvmName("receiveR").let { method ->
                     assertThat(method.getParameter("param1").type.asTypeName()).isEqualTo(rTypeName)
-                    assertThat(method.returnType.asTypeName())
-                        .isEqualTo(XTypeName.PRIMITIVE_INT)
+                    assertThat(method.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 }
                 element.getMethodByJvmName("returnR").let { method ->
                     assertThat(method.parameters).isEmpty()
@@ -227,14 +229,12 @@ class XElementTest {
                 element.getMethodByJvmName("receiveT").asMemberOf(element.type).let { method ->
                     assertThat(method.parameterTypes).hasSize(1)
                     assertThat(method.parameterTypes[0].asTypeName()).isEqualTo(tTypeName)
-                    assertThat(method.returnType.asTypeName())
-                        .isEqualTo(XTypeName.PRIMITIVE_INT)
+                    assertThat(method.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 }
                 element.getMethodByJvmName("receiveR").asMemberOf(element.type).let { method ->
                     assertThat(method.parameterTypes).hasSize(1)
                     assertThat(method.parameterTypes[0].asTypeName()).isEqualTo(rTypeName)
-                    assertThat(method.returnType.asTypeName())
-                        .isEqualTo(XTypeName.PRIMITIVE_INT)
+                    assertThat(method.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 }
                 element.getMethodByJvmName("returnR").let { method ->
                     assertThat(method.parameters).isEmpty()
@@ -244,40 +244,62 @@ class XElementTest {
 
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = XTypeName.getTypeVariableName("T", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true))),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true)))
+                tTypeName =
+                    XTypeName.getTypeVariableName(
+                        "T",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    ),
+                rTypeName =
+                    XTypeName.getTypeVariableName(
+                        "R",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    )
             )
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = XTypeName.getTypeVariableName("T", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true))),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true)))
+                tTypeName =
+                    XTypeName.getTypeVariableName(
+                        "T",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    ),
+                rTypeName =
+                    XTypeName.getTypeVariableName(
+                        "R",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    )
             )
 
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = XTypeName.getTypeVariableName("T", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true))),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true)))
+                tTypeName =
+                    XTypeName.getTypeVariableName(
+                        "T",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    ),
+                rTypeName =
+                    XTypeName.getTypeVariableName(
+                        "R",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    )
             )
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
                 tTypeName = String::class.asClassName().copy(nullable = true),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(
-                    XTypeName.ANY_OBJECT.copy(nullable = true)))
+                rTypeName =
+                    XTypeName.getTypeVariableName(
+                        "R",
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    )
             )
         }
     }
 
     @Test
     fun annotationAvailability() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             import org.junit.*;
             import org.junit.runner.*;
@@ -292,50 +314,34 @@ class XElementTest {
                 @org.junit.Test
                 void testMethod() {}
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(source)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.hasAnnotation(RunWith::class)).isTrue()
             assertThat(element.hasAnnotation(Test::class)).isFalse()
             element.getMethodByJvmName("testMethod").let { method ->
                 assertThat(method.hasAnnotation(Test::class)).isTrue()
                 assertThat(method.hasAnnotation(Override::class)).isFalse()
-                assertThat(
-                    method.hasAnnotationWithPackage(
-                        "org.junit"
-                    )
-                ).isTrue()
+                assertThat(method.hasAnnotationWithPackage("org.junit")).isTrue()
             }
             element.getField("testField").let { field ->
                 assertThat(field.hasAnnotation(OtherAnnotation::class)).isTrue()
                 assertThat(field.hasAnnotation(Test::class)).isFalse()
             }
-            assertThat(
-                element.hasAnnotationWithPackage(
-                    "org.junit.runner"
-                )
-            ).isTrue()
-            assertThat(
-                element.hasAnnotationWithPackage(
-                    "org.junit"
-                )
-            ).isFalse()
-            assertThat(
-                element.hasAnnotationWithPackage(
-                    "foo.bar"
-                )
-            ).isFalse()
+            assertThat(element.hasAnnotationWithPackage("org.junit.runner")).isTrue()
+            assertThat(element.hasAnnotationWithPackage("org.junit")).isFalse()
+            assertThat(element.hasAnnotationWithPackage("foo.bar")).isFalse()
         }
     }
 
     @Test
     fun hasAllAnnotations() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             import org.junit.*;
             import org.junit.runner.*;
@@ -351,11 +357,10 @@ class XElementTest {
                 @OtherAnnotation(value="yy")
                 void testMethod() {}
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(source)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
             assertThat(element.hasAllAnnotations(RunWith::class)).isTrue()
@@ -364,64 +369,74 @@ class XElementTest {
             assertThat(element.hasAllAnnotations(*arrayOf<JClassName>())).isTrue()
             assertThat(element.hasAllAnnotations(RunWith::class.asJClassName())).isTrue()
             assertThat(
-                element.hasAllAnnotations(
-                    RunWith::class.asJClassName(),
-                    Test::class.asJClassName()
-                )
-            ).isFalse()
-
-            assertThat(element.hasAllAnnotations(emptyList<JClassName>())).isTrue()
-            assertThat(element.hasAllAnnotations(listOf(RunWith::class.asJClassName()))).isTrue()
-            assertThat(
-                element.hasAllAnnotations(
-                    listOf(
+                    element.hasAllAnnotations(
                         RunWith::class.asJClassName(),
                         Test::class.asJClassName()
                     )
                 )
-            ).isFalse()
+                .isFalse()
+
+            assertThat(element.hasAllAnnotations(emptyList<JClassName>())).isTrue()
+            assertThat(element.hasAllAnnotations(listOf(RunWith::class.asJClassName()))).isTrue()
+            assertThat(
+                    element.hasAllAnnotations(
+                        listOf(RunWith::class.asJClassName(), Test::class.asJClassName())
+                    )
+                )
+                .isFalse()
 
             element.getMethodByJvmName("testMethod").let { method ->
                 assertThat(method.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class)).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class)).isTrue()
                 assertThat(
-                    method.hasAllAnnotations(
-                        Test::class, OtherAnnotation::class,
-                        RunWith::class
+                        method.hasAllAnnotations(
+                            Test::class,
+                            OtherAnnotation::class,
+                            RunWith::class
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
 
                 assertThat(method.hasAllAnnotations(*arrayOf<JClassName>())).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class.asJClassName())).isTrue()
                 assertThat(
-                    method.hasAllAnnotations(
-                        Test::class.asJClassName(),
-                        OtherAnnotation::class.asJClassName()
+                        method.hasAllAnnotations(
+                            Test::class.asJClassName(),
+                            OtherAnnotation::class.asJClassName()
+                        )
                     )
-                ).isTrue()
+                    .isTrue()
                 assertThat(
-                    method.hasAllAnnotations(
-                        Test::class.asJClassName(),
-                        OtherAnnotation::class.asJClassName(), RunWith::class.asJClassName()
+                        method.hasAllAnnotations(
+                            Test::class.asJClassName(),
+                            OtherAnnotation::class.asJClassName(),
+                            RunWith::class.asJClassName()
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
 
                 assertThat(method.hasAllAnnotations(emptyList<JClassName>())).isTrue()
                 assertThat(method.hasAllAnnotations(listOf(Test::class.asJClassName()))).isTrue()
                 assertThat(
-                    method.hasAllAnnotations(
-                        listOf(Test::class.asJClassName(), OtherAnnotation::class.asJClassName())
-                    )
-                ).isTrue()
-                assertThat(
-                    method.hasAllAnnotations(
-                        listOf(
-                            Test::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName(), RunWith::class.asJClassName()
+                        method.hasAllAnnotations(
+                            listOf(
+                                Test::class.asJClassName(),
+                                OtherAnnotation::class.asJClassName()
+                            )
                         )
                     )
-                ).isFalse()
+                    .isTrue()
+                assertThat(
+                        method.hasAllAnnotations(
+                            listOf(
+                                Test::class.asJClassName(),
+                                OtherAnnotation::class.asJClassName(),
+                                RunWith::class.asJClassName()
+                            )
+                        )
+                    )
+                    .isFalse()
             }
             element.getField("testField").let { field ->
                 assertThat(field.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
@@ -433,46 +448,51 @@ class XElementTest {
                 assertThat(field.hasAllAnnotations(*arrayOf<JClassName>())).isTrue()
                 assertThat(field.hasAllAnnotations(OtherAnnotation::class.asJClassName())).isTrue()
                 assertThat(
-                    field.hasAllAnnotations(
-                        OtherAnnotation::class.asJClassName(),
-                        Test::class.asJClassName()
+                        field.hasAllAnnotations(
+                            OtherAnnotation::class.asJClassName(),
+                            Test::class.asJClassName()
+                        )
                     )
-                ).isFalse()
+                    .isFalse()
                 assertThat(
-                    field.hasAllAnnotations(
-                        OtherAnnotation::class.asJClassName(),
-                        OtherAnnotation::class.asJClassName()
+                        field.hasAllAnnotations(
+                            OtherAnnotation::class.asJClassName(),
+                            OtherAnnotation::class.asJClassName()
+                        )
                     )
-                ).isTrue()
+                    .isTrue()
 
                 assertThat(field.hasAllAnnotations(listOf<JClassName>())).isTrue()
                 assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.asJClassName())))
                     .isTrue()
                 assertThat(
-                    field.hasAllAnnotations(
-                        listOf(
-                            OtherAnnotation::class.asJClassName(),
-                            Test::class.asJClassName()
+                        field.hasAllAnnotations(
+                            listOf(
+                                OtherAnnotation::class.asJClassName(),
+                                Test::class.asJClassName()
+                            )
                         )
                     )
-                ).isFalse()
+                    .isFalse()
                 assertThat(
-                    field.hasAllAnnotations(
-                        listOf(
-                            OtherAnnotation::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName()
+                        field.hasAllAnnotations(
+                            listOf(
+                                OtherAnnotation::class.asJClassName(),
+                                OtherAnnotation::class.asJClassName()
+                            )
                         )
                     )
-                ).isTrue()
+                    .isTrue()
             }
         }
     }
 
     @Test
     fun hasAnyAnnotations() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             import org.junit.*;
             import org.junit.runner.*;
@@ -488,11 +508,10 @@ class XElementTest {
                 @OtherAnnotation(value="yy")
                 void testMethod() {}
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(source)
-        ) { it ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(listOf(source)) { it ->
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
             assertThat(element.hasAnyAnnotation(RunWith::class)).isTrue()
@@ -501,64 +520,70 @@ class XElementTest {
             assertThat(element.hasAnyAnnotation(*arrayOf<JClassName>())).isFalse()
             assertThat(element.hasAnyAnnotation(RunWith::class.asJClassName())).isTrue()
             assertThat(
-                element.hasAnyAnnotation(
-                    RunWith::class.asJClassName(),
-                    Test::class.asJClassName()
-                )
-            ).isTrue()
-
-            assertThat(element.hasAnyAnnotation(emptyList<JClassName>())).isFalse()
-            assertThat(element.hasAnyAnnotation(listOf(RunWith::class.asJClassName()))).isTrue()
-            assertThat(
-                element.hasAnyAnnotation(
-                    listOf(
+                    element.hasAnyAnnotation(
                         RunWith::class.asJClassName(),
                         Test::class.asJClassName()
                     )
                 )
-            ).isTrue()
+                .isTrue()
+
+            assertThat(element.hasAnyAnnotation(emptyList<JClassName>())).isFalse()
+            assertThat(element.hasAnyAnnotation(listOf(RunWith::class.asJClassName()))).isTrue()
+            assertThat(
+                    element.hasAnyAnnotation(
+                        listOf(RunWith::class.asJClassName(), Test::class.asJClassName())
+                    )
+                )
+                .isTrue()
 
             element.getMethodByJvmName("testMethod").let { method ->
                 assertThat(method.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
                 assertThat(method.hasAnyAnnotation(Test::class)).isTrue()
                 assertThat(method.hasAnyAnnotation(Test::class, OtherAnnotation::class)).isTrue()
                 assertThat(
-                    method.hasAnyAnnotation(
-                        Test::class, OtherAnnotation::class,
-                        RunWith::class
+                        method.hasAnyAnnotation(Test::class, OtherAnnotation::class, RunWith::class)
                     )
-                ).isTrue()
+                    .isTrue()
 
                 assertThat(method.hasAnyAnnotation(*arrayOf<JClassName>())).isFalse()
                 assertThat(method.hasAnyAnnotation(Test::class.asJClassName())).isTrue()
                 assertThat(
-                    method.hasAnyAnnotation(
-                        Test::class.asJClassName(),
-                        OtherAnnotation::class.asJClassName()
+                        method.hasAnyAnnotation(
+                            Test::class.asJClassName(),
+                            OtherAnnotation::class.asJClassName()
+                        )
                     )
-                ).isTrue()
+                    .isTrue()
                 assertThat(
-                    method.hasAnyAnnotation(
-                        Test::class.asJClassName(),
-                        OtherAnnotation::class.asJClassName(), RunWith::class.asJClassName()
+                        method.hasAnyAnnotation(
+                            Test::class.asJClassName(),
+                            OtherAnnotation::class.asJClassName(),
+                            RunWith::class.asJClassName()
+                        )
                     )
-                ).isTrue()
+                    .isTrue()
 
                 assertThat(method.hasAnyAnnotation(emptyList<JClassName>())).isFalse()
                 assertThat(method.hasAnyAnnotation(listOf(Test::class.asJClassName()))).isTrue()
                 assertThat(
-                    method.hasAnyAnnotation(
-                        listOf(Test::class.asJClassName(), OtherAnnotation::class.asJClassName())
-                    )
-                ).isTrue()
-                assertThat(
-                    method.hasAnyAnnotation(
-                        listOf(
-                            Test::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName(), RunWith::class.asJClassName()
+                        method.hasAnyAnnotation(
+                            listOf(
+                                Test::class.asJClassName(),
+                                OtherAnnotation::class.asJClassName()
+                            )
                         )
                     )
-                ).isTrue()
+                    .isTrue()
+                assertThat(
+                        method.hasAnyAnnotation(
+                            listOf(
+                                Test::class.asJClassName(),
+                                OtherAnnotation::class.asJClassName(),
+                                RunWith::class.asJClassName()
+                            )
+                        )
+                    )
+                    .isTrue()
             }
             element.getField("testField").let { field ->
                 assertThat(field.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
@@ -570,54 +595,58 @@ class XElementTest {
                 assertThat(field.hasAnyAnnotation(*arrayOf<JClassName>())).isFalse()
                 assertThat(field.hasAnyAnnotation(OtherAnnotation::class.asJClassName())).isTrue()
                 assertThat(
-                    field.hasAnyAnnotation(
-                        OtherAnnotation::class.asJClassName(),
-                        Test::class.asJClassName()
+                        field.hasAnyAnnotation(
+                            OtherAnnotation::class.asJClassName(),
+                            Test::class.asJClassName()
+                        )
                     )
-                ).isTrue()
+                    .isTrue()
                 assertThat(
-                    field.hasAnyAnnotation(
-                        OtherAnnotation::class.asJClassName(),
-                        OtherAnnotation::class.asJClassName()
+                        field.hasAnyAnnotation(
+                            OtherAnnotation::class.asJClassName(),
+                            OtherAnnotation::class.asJClassName()
+                        )
                     )
-                ).isTrue()
+                    .isTrue()
 
                 assertThat(field.hasAnyAnnotation(listOf<JClassName>())).isFalse()
                 assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.asJClassName())))
                     .isTrue()
                 assertThat(
-                    field.hasAnyAnnotation(
-                        listOf(
-                            OtherAnnotation::class.asJClassName(),
-                            Test::class.asJClassName()
+                        field.hasAnyAnnotation(
+                            listOf(
+                                OtherAnnotation::class.asJClassName(),
+                                Test::class.asJClassName()
+                            )
                         )
                     )
-                ).isTrue()
+                    .isTrue()
                 assertThat(
-                    field.hasAnyAnnotation(
-                        listOf(
-                            OtherAnnotation::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName()
+                        field.hasAnyAnnotation(
+                            listOf(
+                                OtherAnnotation::class.asJClassName(),
+                                OtherAnnotation::class.asJClassName()
+                            )
                         )
                     )
-                ).isTrue()
+                    .isTrue()
             }
         }
     }
 
     @Test
     fun nonType() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             class Baz {
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(source)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("java.lang.Object")
             // make sure we return null for not existing types
             assertThat(element.superClass).isNull()
@@ -626,9 +655,10 @@ class XElementTest {
 
     @Test
     fun isSomething() {
-        val subject = Source.java(
-            "foo.bar.Baz",
-            """
+        val subject =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             class Baz {
                 int field;
@@ -636,15 +666,12 @@ class XElementTest {
                 void method() {}
                 static interface Inner {}
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(subject)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(subject)) {
             val inner = JClassName.get("foo.bar", "Baz.Inner")
-            assertThat(
-                it.processingEnv.requireTypeElement(inner).isInterface()
-            ).isTrue()
+            assertThat(it.processingEnv.requireTypeElement(inner).isInterface()).isTrue()
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.isInterface()).isFalse()
             assertThat(element.isAbstract()).isFalse()
@@ -666,18 +693,18 @@ class XElementTest {
 
     @Test
     fun notATypeElement() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
             class Baz {
                 public static int x;
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(source)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("x").let { field ->
                 assertThat(field.isStatic()).isTrue()
@@ -688,9 +715,10 @@ class XElementTest {
 
     @Test
     fun nullability() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Baz",
+                """
             package foo.bar;
 
             import androidx.annotation.*;
@@ -703,12 +731,11 @@ class XElementTest {
                 @Nullable
                 public static List<String> nullableAnnotated;
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         // enable once https://github.com/google/ksp/issues/167 is fixed
-        runProcessorTestWithoutKsp(
-            sources = listOf(source)
-        ) {
+        runProcessorTestWithoutKsp(sources = listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("primitiveInt").let { field ->
                 assertThat(field.type.nullability).isEqualTo(XNullability.NONNULL)
@@ -729,11 +756,12 @@ class XElementTest {
     fun toStringMatchesUnderlyingElement() {
         runProcessorTest { invocation ->
             invocation.processingEnv.findTypeElement("java.util.List").let { list ->
-                val expected = if (invocation.isKsp) {
-                    "MutableList"
-                } else {
-                    "java.util.List"
-                }
+                val expected =
+                    if (invocation.isKsp) {
+                        "MutableList"
+                    } else {
+                        "java.util.List"
+                    }
                 assertThat(list.toString()).isEqualTo(expected)
             }
         }
@@ -741,42 +769,46 @@ class XElementTest {
 
     @Test
     fun docComment() {
-        val javaSrc = Source.java(
-            "JavaSubject",
-            """
+        val javaSrc =
+            Source.java(
+                "JavaSubject",
+                """
             /**
              * javadocs
              */
             public class JavaSubject {}
-            """.trimIndent()
-        )
-        val kotlinSrc = Source.kotlin(
-            "KotlinSubject.kt",
             """
+                    .trimIndent()
+            )
+        val kotlinSrc =
+            Source.kotlin(
+                "KotlinSubject.kt",
+                """
             /**
              * kdocs
              */
             class KotlinSubject
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(javaSrc, kotlinSrc)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             assertThat(
-                invocation.processingEnv.requireTypeElement("JavaSubject").docComment?.trim()
-            ).isEqualTo("javadocs")
+                    invocation.processingEnv.requireTypeElement("JavaSubject").docComment?.trim()
+                )
+                .isEqualTo("javadocs")
             assertThat(
-                invocation.processingEnv.requireTypeElement("KotlinSubject").docComment?.trim()
-            ).isEqualTo("kdocs")
+                    invocation.processingEnv.requireTypeElement("KotlinSubject").docComment?.trim()
+                )
+                .isEqualTo("kdocs")
         }
     }
 
     @Test
     fun enclosingElement() {
         runProcessorTestHelper(listOf(enclosingElementJavaSource, enclosingElementKotlinSource)) {
-                invocation, _ ->
-            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
-                    typeElement ->
+            invocation,
+            _ ->
+            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach { typeElement ->
                 assertThat(typeElement.enclosingElement).isNull()
 
                 typeElement.getEnclosedTypeElements().forEach { elem ->
@@ -802,9 +834,7 @@ class XElementTest {
                 }
                 typeElement.getConstructors().forEach { ctor ->
                     assertThat(ctor.enclosingElement).isEqualTo(typeElement)
-                    ctor.parameters.forEach { p ->
-                        assertThat(p.enclosingElement).isEqualTo(ctor)
-                    }
+                    ctor.parameters.forEach { p -> assertThat(p.enclosingElement).isEqualTo(ctor) }
                 }
             }
         }
@@ -814,9 +844,11 @@ class XElementTest {
     //  classpath.
     @Test
     fun enclosingElementKotlinCompanion() {
-        runProcessorTestHelper(listOf(Source.kotlin(
-            "Test.kt",
-            """
+        runProcessorTestHelper(
+            listOf(
+                Source.kotlin(
+                    "Test.kt",
+                    """
             package foo.bar
             class KotlinClass(val property: String) {
                 companion object {
@@ -831,24 +863,27 @@ class XElementTest {
                     fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
                 }
             }
-            """.trimIndent()
-        ))) { invocation, precompiled ->
+            """
+                        .trimIndent()
+                )
+            )
+        ) { invocation, precompiled ->
             val enclosingElement =
                 invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass")
-            val companionObj = enclosingElement.getEnclosedTypeElements().first {
-                it.isCompanionObject()
-            }
+            val companionObj =
+                enclosingElement.getEnclosedTypeElements().first { it.isCompanionObject() }
 
             enclosingElement.getDeclaredFields().let { fields ->
                 if (invocation.isKsp) {
-                    assertThat(fields.map { it.name }).containsExactly(
-                        "property",
-                        "companionObjectProperty",
-                        "companionObjectPropertyJvmStatic",
-                        "companionObjectPropertyJvmField",
-                        "companionObjectPropertyLateinit",
-                        "companionObjectPropertyConst"
-                    )
+                    assertThat(fields.map { it.name })
+                        .containsExactly(
+                            "property",
+                            "companionObjectProperty",
+                            "companionObjectPropertyJvmStatic",
+                            "companionObjectPropertyJvmField",
+                            "companionObjectPropertyLateinit",
+                            "companionObjectPropertyConst"
+                        )
                     fields.forEach {
                         if (it.name.startsWith("companion")) {
                             assertThat(it.enclosingElement).isEqualTo(companionObj)
@@ -857,74 +892,73 @@ class XElementTest {
                         }
                     }
                 } else {
-                    assertThat(fields.map { it.name }).containsExactly(
-                        "Companion",
-                        "property",
-                        "companionObjectProperty",
-                        "companionObjectPropertyJvmStatic",
-                        "companionObjectPropertyJvmField",
-                        "companionObjectPropertyLateinit",
-                        "companionObjectPropertyConst"
-                    )
-                    fields.forEach {
-                        assertThat(it.enclosingElement).isEqualTo(enclosingElement)
-                    }
+                    assertThat(fields.map { it.name })
+                        .containsExactly(
+                            "Companion",
+                            "property",
+                            "companionObjectProperty",
+                            "companionObjectPropertyJvmStatic",
+                            "companionObjectPropertyJvmField",
+                            "companionObjectPropertyLateinit",
+                            "companionObjectPropertyConst"
+                        )
+                    fields.forEach { assertThat(it.enclosingElement).isEqualTo(enclosingElement) }
                 }
             }
 
             enclosingElement.getDeclaredMethods().let { methods ->
-                assertThat(methods.map { it.name }).containsExactly(
-                    "getProperty",
-                    "getCompanionObjectPropertyJvmStatic",
-                    "companionObjectFunctionJvmStatic"
-                )
-                methods.forEach {
-                    assertThat(it.enclosingElement).isEqualTo(enclosingElement)
-                }
+                assertThat(methods.map { it.name })
+                    .containsExactly(
+                        "getProperty",
+                        "getCompanionObjectPropertyJvmStatic",
+                        "companionObjectFunctionJvmStatic"
+                    )
+                methods.forEach { assertThat(it.enclosingElement).isEqualTo(enclosingElement) }
             }
 
             companionObj.getDeclaredFields().let { fields ->
                 if (invocation.isKsp) {
-                    assertThat(fields.map { it.name }).containsExactly(
-                        "companionObjectProperty",
-                        "companionObjectPropertyJvmStatic",
-                        "companionObjectPropertyJvmField",
-                        "companionObjectPropertyLateinit",
-                        "companionObjectPropertyConst"
-                    )
-                    fields.forEach {
-                        assertThat(it.enclosingElement).isEqualTo(companionObj)
-                    }
+                    assertThat(fields.map { it.name })
+                        .containsExactly(
+                            "companionObjectProperty",
+                            "companionObjectPropertyJvmStatic",
+                            "companionObjectPropertyJvmField",
+                            "companionObjectPropertyLateinit",
+                            "companionObjectPropertyConst"
+                        )
+                    fields.forEach { assertThat(it.enclosingElement).isEqualTo(companionObj) }
                 } else {
                     assertThat(companionObj.getDeclaredFields()).isEmpty()
                 }
             }
 
             companionObj.getDeclaredMethods().let { methods ->
-                methods.forEach {
-                    assertThat(it.enclosingElement).isEqualTo(companionObj)
-                }
+                methods.forEach { assertThat(it.enclosingElement).isEqualTo(companionObj) }
                 if (invocation.isKsp || precompiled) {
-                    assertThat(methods.map { it.name }).containsExactly(
-                        "getCompanionObjectProperty",
-                        "getCompanionObjectPropertyJvmStatic",
-                        "getCompanionObjectPropertyLateinit",
-                        "setCompanionObjectPropertyLateinit",
-                        "companionObjectFunction",
-                        "companionObjectFunctionJvmStatic"
-                    ).inOrder()
+                    assertThat(methods.map { it.name })
+                        .containsExactly(
+                            "getCompanionObjectProperty",
+                            "getCompanionObjectPropertyJvmStatic",
+                            "getCompanionObjectPropertyLateinit",
+                            "setCompanionObjectPropertyLateinit",
+                            "companionObjectFunction",
+                            "companionObjectFunctionJvmStatic"
+                        )
+                        .inOrder()
                 } else {
                     // TODO(b/290800523): Remove the synthetic annotations method from the list
                     //  of declared methods so that KAPT matches KSP.
-                    assertThat(methods.map { it.name }).containsExactly(
-                        "getCompanionObjectProperty",
-                        "getCompanionObjectPropertyJvmStatic",
-                        "getCompanionObjectPropertyJvmStatic\$annotations",
-                        "getCompanionObjectPropertyLateinit",
-                        "setCompanionObjectPropertyLateinit",
-                        "companionObjectFunction",
-                        "companionObjectFunctionJvmStatic"
-                    ).inOrder()
+                    assertThat(methods.map { it.name })
+                        .containsExactly(
+                            "getCompanionObjectProperty",
+                            "getCompanionObjectPropertyJvmStatic",
+                            "getCompanionObjectPropertyJvmStatic\$annotations",
+                            "getCompanionObjectPropertyLateinit",
+                            "setCompanionObjectPropertyLateinit",
+                            "companionObjectFunction",
+                            "companionObjectFunctionJvmStatic"
+                        )
+                        .inOrder()
                 }
             }
         }
@@ -935,13 +969,11 @@ class XElementTest {
     fun enclosingElementKotlinTopLevel() {
         runProcessorTestHelper(listOf(enclosingElementKotlinSourceTopLevel)) { inv, precompiled ->
             if (inv.isKsp) {
-                getTopLevelFunctionOrPropertyElements(inv, "foo.bar").forEach {
-                        elem ->
+                getTopLevelFunctionOrPropertyElements(inv, "foo.bar").forEach { elem ->
                     assertThat(elem.enclosingElement).isFileContainer(precompiled)
                 }
             } else {
-                inv.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
-                        typeElement ->
+                inv.processingEnv.getTypeElementsFromPackage("foo.bar").forEach { typeElement ->
                     assertThat(typeElement).isInstanceOf<JavacTypeElement>()
                     assertThat(typeElement.enclosingElement).isNull()
 
@@ -961,9 +993,9 @@ class XElementTest {
     @Test
     fun enclosingTypeElement() {
         runProcessorTestHelper(listOf(enclosingElementJavaSource, enclosingElementKotlinSource)) {
-                invocation, _ ->
-            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
-                    typeElement ->
+            invocation,
+            _ ->
+            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach { typeElement ->
                 assertThat(typeElement.enclosingTypeElement).isNull()
 
                 typeElement.getEnclosedTypeElements().forEach { elem ->
@@ -977,14 +1009,13 @@ class XElementTest {
     @Test
     fun closestMemberContainer() {
         runProcessorTestHelper(listOf(enclosingElementJavaSource, enclosingElementKotlinSource)) {
-                invocation, _ ->
-            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
-                    typeElement ->
+            invocation,
+            _ ->
+            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach { typeElement ->
                 assertThat(typeElement.closestMemberContainer).isEqualTo(typeElement)
 
-                val companionObj = typeElement.getEnclosedTypeElements().firstOrNull {
-                    it.isCompanionObject()
-                }
+                val companionObj =
+                    typeElement.getEnclosedTypeElements().firstOrNull { it.isCompanionObject() }
 
                 typeElement.getEnclosedElements().forEach { elem ->
                     if (elem is XTypeElement) {
@@ -1011,9 +1042,9 @@ class XElementTest {
 
     @Test
     fun closestMemberContainerTopLevel() {
-        runProcessorTestHelper(
-            listOf(enclosingElementKotlinSourceTopLevel)
-        ) { invocation, precompiled ->
+        runProcessorTestHelper(listOf(enclosingElementKotlinSourceTopLevel)) {
+            invocation,
+            precompiled ->
             if (invocation.isKsp) {
                 getTopLevelFunctionOrPropertyElements(invocation, "foo.bar").forEach { elem ->
                     assertThat(elem.closestMemberContainer).isFileContainer(precompiled)
@@ -1024,8 +1055,8 @@ class XElementTest {
                     }
                 }
             } else {
-                invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
-                        typeElement ->
+                invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach { typeElement
+                    ->
                     typeElement.getDeclaredMethods().forEach { method ->
                         assertThat(method.closestMemberContainer).isEqualTo(typeElement)
 
@@ -1040,19 +1071,22 @@ class XElementTest {
 
     @Test
     fun isFromJavaOrKotlin() {
-        val javaSource = Source.java(
-            "foo.bar.Foo",
-            """
+        val javaSource =
+            Source.java(
+                "foo.bar.Foo",
+                """
             package foo.bar;
             class Foo {
                 void f(String a) {}
                 static class Nested {}
             }
-            """.trimIndent()
-        )
-        val kotlinSource = Source.kotlin(
-            "Bar.kt",
             """
+                    .trimIndent()
+            )
+        val kotlinSource =
+            Source.kotlin(
+                "Bar.kt",
+                """
             package foo.bar
             fun tlf(a: String) = "hello"
             class Bar {
@@ -1062,11 +1096,10 @@ class XElementTest {
                 class Nested
             }
             fun Bar.ef(a: String) {}
-            """.trimIndent()
-        )
-        runProcessorTestHelper(
-            listOf(javaSource, kotlinSource)
-        ) { invocation, _ ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTestHelper(listOf(javaSource, kotlinSource)) { invocation, _ ->
             // Java
             invocation.processingEnv.requireTypeElement("foo.bar.Foo").let {
                 assertThat(it.closestMemberContainer.isFromJava()).isTrue()
@@ -1124,22 +1157,22 @@ class XElementTest {
             // Kotlin top-level elements
             if (invocation.isKsp) {
                 val topLevelElements = invocation.processingEnv.getElementsFromPackage("foo.bar")
-                topLevelElements.single {
-                    it.name == "tlf"
-                }.let {
-                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
-                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
-                }
-                topLevelElements.single {
-                    it.name == "ef"
-                }.let {
-                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
-                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
-                    (it as XMethodElement).parameters.forEach {
+                topLevelElements
+                    .single { it.name == "tlf" }
+                    .let {
                         assertThat(it.closestMemberContainer.isFromJava()).isFalse()
                         assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
                     }
-                }
+                topLevelElements
+                    .single { it.name == "ef" }
+                    .let {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                        (it as XMethodElement).parameters.forEach {
+                            assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                            assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                        }
+                    }
             } else {
                 invocation.processingEnv.requireTypeElement("foo.bar.BarKt").let {
                     assertThat(it.closestMemberContainer.isFromJava()).isFalse()
@@ -1171,29 +1204,31 @@ class XElementTest {
 
     @Test
     fun isFromJavaOrKotlinErrorTypes() {
-        val javaSource = Source.java(
-            "foo.bar.Foo",
-            """
+        val javaSource =
+            Source.java(
+                "foo.bar.Foo",
+                """
             package foo.bar;
             class Foo {
                 DoNotExist ep;
             }
-            """.trimIndent()
-        )
-        val kotlinSource = Source.kotlin(
-            "Bar.kt",
             """
+                    .trimIndent()
+            )
+        val kotlinSource =
+            Source.kotlin(
+                "Bar.kt",
+                """
             package foo.bar
             class Bar {
                 val ep: DoNotExist = TODO()
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         // Can't use runProcessorTestHelper() as we can't compile the files referencing an
         // error type
-        runProcessorTest(
-            listOf(javaSource, kotlinSource)
-        ) { invocation ->
+        runProcessorTest(listOf(javaSource, kotlinSource)) { invocation ->
             // Java
             invocation.processingEnv.requireTypeElement("foo.bar.Foo").let {
                 it.getField("ep").type.typeElement!!.let {
@@ -1211,15 +1246,14 @@ class XElementTest {
                     }
                 }
             }
-            invocation.assertCompilationResult {
-                compilationDidFail()
-            }
+            invocation.assertCompilationResult { compilationDidFail() }
         }
     }
 
-    private val enclosingElementJavaSource = Source.java(
-        "foo.bar.Test",
-        """
+    private val enclosingElementJavaSource =
+        Source.java(
+            "foo.bar.Test",
+            """
         package foo.bar;
         enum JavaEnum {
             A(3), B(5), C(7);
@@ -1257,12 +1291,14 @@ class XElementTest {
             @Override
             public void baseMethod(String t) {}
         }
-        """.trimIndent()
-    )
-
-    private val enclosingElementKotlinSource = Source.kotlin(
-        "Test.kt",
         """
+                .trimIndent()
+        )
+
+    private val enclosingElementKotlinSource =
+        Source.kotlin(
+            "Test.kt",
+            """
         package foo.bar
         enum class KotlinEnum(val enumProperty: Int) {
             A(3), B(5), C(7);
@@ -1288,33 +1324,38 @@ class XElementTest {
             val objectProperty: String = "hello"
             fun objectFunction(objectFunctionParam: String) {}
         }
-        """.trimIndent()
-    )
-
-    private val enclosingElementKotlinSourceTopLevel = Source.kotlin(
-        "Test.kt",
         """
+                .trimIndent()
+        )
+
+    private val enclosingElementKotlinSourceTopLevel =
+        Source.kotlin(
+            "Test.kt",
+            """
         package foo.bar
         val topLevelProperty: String = "hello"
         fun topLevelFunction(p: String) {}
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @OptIn(KspExperimental::class)
     private fun getTopLevelFunctionOrPropertyElements(
         inv: XTestInvocation,
         pkg: String
     ): Sequence<XElement> =
-        inv.kspResolver.getDeclarationsFromPackage(pkg).map { declaration ->
-            when (declaration) {
-                is KSFunctionDeclaration ->
-                    KspExecutableElement.create(inv.kspProcessingEnv, declaration)
-                is KSPropertyDeclaration ->
-                    KspFieldElement.create(inv.kspProcessingEnv, declaration)
-                else -> null
+        inv.kspResolver
+            .getDeclarationsFromPackage(pkg)
+            .map { declaration ->
+                when (declaration) {
+                    is KSFunctionDeclaration ->
+                        KspExecutableElement.create(inv.kspProcessingEnv, declaration)
+                    is KSPropertyDeclaration ->
+                        KspFieldElement.create(inv.kspProcessingEnv, declaration)
+                    else -> null
+                }
             }
-        }
-        .filterNotNull()
+            .filterNotNull()
 
     private fun Subject<XElement>.isFileContainer(precompiled: Boolean) {
         if (precompiled) {

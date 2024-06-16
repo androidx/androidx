@@ -28,17 +28,16 @@ class AutoSaverTest {
     fun simpleSave() {
         val saver = autoSaver<Int>()
 
-        with(saver) {
-            assertThat(allowingScope.save(2))
-                .isEqualTo(2)
-        }
+        with(saver) { assertThat(allowingScope.save(2)).isEqualTo(2) }
     }
 }
 
-val allowingScope = object : SaverScope {
-    override fun canBeSaved(value: Any) = true
-}
+val allowingScope =
+    object : SaverScope {
+        override fun canBeSaved(value: Any) = true
+    }
 
-val disallowingScope = object : SaverScope {
-    override fun canBeSaved(value: Any) = false
-}
+val disallowingScope =
+    object : SaverScope {
+        override fun canBeSaved(value: Any) = false
+    }

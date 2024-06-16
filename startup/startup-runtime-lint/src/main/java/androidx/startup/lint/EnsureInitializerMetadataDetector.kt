@@ -52,24 +52,28 @@ class EnsureInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScan
     val reachable = mutableSetOf<String>()
 
     companion object {
-        private const val DESCRIPTION = "Every Initializer needs to be accompanied by a " +
-            "corresponding <meta-data> entry in the AndroidManifest.xml file."
+        private const val DESCRIPTION =
+            "Every Initializer needs to be accompanied by a " +
+                "corresponding <meta-data> entry in the AndroidManifest.xml file."
 
-        val ISSUE = Issue.create(
-            id = "EnsureInitializerMetadata",
-            briefDescription = DESCRIPTION,
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "EnsureInitializerMetadata",
+                briefDescription = DESCRIPTION,
+                explanation =
+                    """
                 When a library defines a Initializer, it needs to be accompanied by a \
                 corresponding <meta-data> entry in the AndroidManifest.xml file.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                EnsureInitializerMetadataDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(
+                        EnsureInitializerMetadataDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
+                    )
             )
-        )
     }
 
     override fun applicableSuperClasses() = listOf("androidx.startup.Initializer")
@@ -90,18 +94,19 @@ class EnsureInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScan
         }
 
         // Check every dependencies() method for reachable Initializer's
-        val method = declaration.methods.first {
-            it.name == "dependencies" && it.parameterList.isEmpty
-        }
-        val visitor = object : AbstractUastVisitor() {
-            override fun visitClassLiteralExpression(node: UClassLiteralExpression): Boolean {
-                val qualifiedName = (node.type as? PsiClassReferenceType)?.resolve()?.qualifiedName
-                if (qualifiedName != null) {
-                    reachable += qualifiedName
+        val method =
+            declaration.methods.first { it.name == "dependencies" && it.parameterList.isEmpty }
+        val visitor =
+            object : AbstractUastVisitor() {
+                override fun visitClassLiteralExpression(node: UClassLiteralExpression): Boolean {
+                    val qualifiedName =
+                        (node.type as? PsiClassReferenceType)?.resolve()?.qualifiedName
+                    if (qualifiedName != null) {
+                        reachable += qualifiedName
+                    }
+                    return true
                 }
-                return true
             }
-        }
 
         method.accept(visitor)
     }

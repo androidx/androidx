@@ -34,9 +34,7 @@ import org.mockito.Mockito.`when`
 @SdkSuppress(minSdkVersion = 34)
 class SdkSandboxControllerAppOwnedInterfacesTest {
 
-    @Rule
-    @JvmField
-    val sdkSandboxControllerMockRule = SdkSandboxControllerMockRule()
+    @Rule @JvmField val sdkSandboxControllerMockRule = SdkSandboxControllerMockRule()
 
     @Test
     fun getAppOwnedSdkSandboxInterfaces_whenApiNotAvailable_returnsEmptyList() {
@@ -55,20 +53,13 @@ class SdkSandboxControllerAppOwnedInterfacesTest {
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
     @SdkSuppress(minSdkVersion = 34)
     fun getAppOwnedSdkSandboxInterfaces_whenApiAvailable_delegateToPlatform() {
-        assumeTrue(
-            "Requires AppOwnedInterfaces API available",
-            isAppOwnedInterfacesApiAvailable()
-        )
+        assumeTrue("Requires AppOwnedInterfaces API available", isAppOwnedInterfacesApiAvailable())
 
-        val expectedObj = AppOwnedSdkSandboxInterfaceCompat(
-            name = "test",
-            version = 1,
-            binder = Binder()
-        )
+        val expectedObj =
+            AppOwnedSdkSandboxInterfaceCompat(name = "test", version = 1, binder = Binder())
         val platformObj = expectedObj.toAppOwnedSdkSandboxInterface()
         val controllerMock = sdkSandboxControllerMockRule.sdkSandboxControllerMock
-        `when`(controllerMock.getAppOwnedSdkSandboxInterfaces())
-            .thenReturn(listOf(platformObj))
+        `when`(controllerMock.getAppOwnedSdkSandboxInterfaces()).thenReturn(listOf(platformObj))
 
         val controllerCompat = sdkSandboxControllerMockRule.controllerCompat
         val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()

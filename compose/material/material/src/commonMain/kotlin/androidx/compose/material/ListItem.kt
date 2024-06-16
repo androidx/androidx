@@ -43,24 +43,30 @@ import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**
- * <a href="https://material.io/components/lists" class="external" target="_blank">Material Design list</a> item.
+ * <a href="https://material.io/components/lists" class="external" target="_blank">Material Design
+ * list</a> item.
  *
  * Lists are continuous, vertical indexes of text or images.
  *
- * ![Lists image](https://developer.android.com/images/reference/androidx/compose/material/lists.png)
+ * ![Lists
+ * image](https://developer.android.com/images/reference/androidx/compose/material/lists.png)
  *
- * To make this [ListItem] clickable, use [Modifier.clickable].
- * To add a background to the [ListItem], wrap it with a [Surface].
+ * To make this [ListItem] clickable, use [Modifier.clickable]. To add a background to the
+ * [ListItem], wrap it with a [Surface].
  *
  * This component can be used to achieve the list item templates existing in the spec. For example:
  * - one-line items
+ *
  * @sample androidx.compose.material.samples.OneLineListItems
  * - two-line items
+ *
  * @sample androidx.compose.material.samples.TwoLineListItems
  * - three-line items
+ *
  * @sample androidx.compose.material.samples.ThreeLineListItems
  *
  * You can combine this component with a checkbox or switch as in the following examples:
+ *
  * @sample androidx.compose.material.samples.ClickableListItems
  *
  * @param modifier Modifier to be applied to the list item
@@ -154,20 +160,24 @@ private object OneLine {
                             bottom = IconVerticalPadding
                         ),
                     contentAlignment = Alignment.CenterStart
-                ) { icon() }
+                ) {
+                    icon()
+                }
             }
             Box(
                 Modifier.weight(1f)
                     .align(Alignment.CenterVertically)
                     .padding(start = ContentLeftPadding, end = ContentRightPadding),
                 contentAlignment = Alignment.CenterStart
-            ) { text() }
+            ) {
+                text()
+            }
             if (trailing != null) {
                 Box(
-                    Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(end = TrailingRightPadding)
-                ) { trailing() }
+                    Modifier.align(Alignment.CenterVertically).padding(end = TrailingRightPadding)
+                ) {
+                    trailing()
+                }
             }
         }
     }
@@ -207,13 +217,12 @@ private object TwoLine {
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(modifier.heightIn(min = minHeight)) {
-            val columnModifier = Modifier.weight(1f)
-                .padding(start = ContentLeftPadding, end = ContentRightPadding)
+            val columnModifier =
+                Modifier.weight(1f).padding(start = ContentLeftPadding, end = ContentRightPadding)
 
             if (icon != null) {
                 Box(
-                    Modifier
-                        .sizeIn(
+                    Modifier.sizeIn(
                             minWidth = IconLeftPadding + IconMinPaddedWidth,
                             minHeight = minHeight
                         )
@@ -223,7 +232,9 @@ private object TwoLine {
                             bottom = IconVerticalPadding
                         ),
                     contentAlignment = Alignment.TopStart
-                ) { icon() }
+                ) {
+                    icon()
+                }
             }
 
             if (overlineText != null) {
@@ -264,10 +275,11 @@ private object TwoLine {
                 ) {
                     Box(
                         // TODO(popam): find way to center and wrap content without minHeight
-                        Modifier.heightIn(min = minHeight)
-                            .padding(end = TrailingRightPadding),
+                        Modifier.heightIn(min = minHeight).padding(end = TrailingRightPadding),
                         contentAlignment = Alignment.Center
-                    ) { trailing() }
+                    ) {
+                        trailing()
+                    }
                 }
             }
         }
@@ -307,15 +319,16 @@ private object ThreeLine {
             if (icon != null) {
                 val minSize = IconLeftPadding + IconMinPaddedWidth
                 Box(
-                    Modifier
-                        .sizeIn(minWidth = minSize, minHeight = minSize)
+                    Modifier.sizeIn(minWidth = minSize, minHeight = minSize)
                         .padding(
                             start = IconLeftPadding,
                             top = IconThreeLineVerticalPadding,
                             bottom = IconThreeLineVerticalPadding
                         ),
                     contentAlignment = Alignment.CenterStart
-                ) { icon() }
+                ) {
+                    icon()
+                }
             }
             BaselinesOffsetColumn(
                 listOf(
@@ -323,8 +336,7 @@ private object ThreeLine {
                     ThreeLineBaselineSecondOffset,
                     ThreeLineBaselineThirdOffset
                 ),
-                Modifier.weight(1f)
-                    .padding(start = ContentLeftPadding, end = ContentRightPadding)
+                Modifier.weight(1f).padding(start = ContentLeftPadding, end = ContentRightPadding)
             ) {
                 if (overlineText != null) overlineText()
                 text()
@@ -342,9 +354,9 @@ private object ThreeLine {
 }
 
 /**
- * Layout that expects [Text] children, and positions them with specific offsets between the
- * top of the layout and the first text, as well as the last baseline and first baseline
- * for subsequent pairs of texts.
+ * Layout that expects [Text] children, and positions them with specific offsets between the top of
+ * the layout and the first text, as well as the last baseline and first baseline for subsequent
+ * pairs of texts.
  */
 // TODO(popam): consider making this a layout composable in `foundation-layout`.
 @Composable
@@ -357,19 +369,17 @@ private fun BaselinesOffsetColumn(
         val childConstraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
         val placeables = measurables.fastMap { it.measure(childConstraints) }
 
-        val containerWidth = placeables.fastFold(0) { maxWidth, placeable ->
-            max(maxWidth, placeable.width)
-        }
+        val containerWidth =
+            placeables.fastFold(0) { maxWidth, placeable -> max(maxWidth, placeable.width) }
         val y = Array(placeables.size) { 0 }
         var containerHeight = 0
         placeables.fastForEachIndexed { index, placeable ->
-            val toPreviousBaseline = if (index > 0) {
-                placeables[index - 1].height - placeables[index - 1][LastBaseline]
-            } else 0
-            val topPadding = max(
-                0,
-                offsets[index].roundToPx() - placeable[FirstBaseline] - toPreviousBaseline
-            )
+            val toPreviousBaseline =
+                if (index > 0) {
+                    placeables[index - 1].height - placeables[index - 1][LastBaseline]
+                } else 0
+            val topPadding =
+                max(0, offsets[index].roundToPx() - placeable[FirstBaseline] - toPreviousBaseline)
             y[index] = topPadding + containerHeight
             containerHeight += topPadding + placeable.height
         }
@@ -384,9 +394,8 @@ private fun BaselinesOffsetColumn(
 
 /**
  * Layout that takes a child and adds the necessary padding such that the first baseline of the
- * child is at a specific offset from the top of the container. If the child does not have
- * a first baseline, the layout will match the minHeight constraint and will center the
- * child.
+ * child is at a specific offset from the top of the container. If the child does not have a first
+ * baseline, the layout will match the minHeight constraint and will center the child.
  */
 // TODO(popam): support fallback alignment in AlignmentLineOffset, and use that here.
 @Composable
@@ -405,15 +414,15 @@ private fun OffsetToBaselineOrCenter(
             containerHeight = max(constraints.minHeight, y + placeable.height)
         } else {
             containerHeight = max(constraints.minHeight, placeable.height)
-            y = Alignment.Center.align(
-                IntSize.Zero,
-                IntSize(0, containerHeight - placeable.height),
-                layoutDirection
-            ).y
+            y =
+                Alignment.Center.align(
+                        IntSize.Zero,
+                        IntSize(0, containerHeight - placeable.height),
+                        layoutDirection
+                    )
+                    .y
         }
-        layout(placeable.width, containerHeight) {
-            placeable.placeRelative(0, y)
-        }
+        layout(placeable.width, containerHeight) { placeable.placeRelative(0, y) }
     }
 }
 
@@ -423,10 +432,11 @@ private fun applyTextStyle(
     icon: @Composable (() -> Unit)?
 ): @Composable (() -> Unit)? {
     if (icon == null) return null
-    val lineHeightStyle = LineHeightStyle(
-        alignment = LineHeightStyle.Alignment.Proportional,
-        trim = LineHeightStyle.Trim.Both,
-    )
+    val lineHeightStyle =
+        LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Proportional,
+            trim = LineHeightStyle.Trim.Both,
+        )
     return {
         CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
             ProvideTextStyle(textStyle.copy(lineHeightStyle = lineHeightStyle), icon)

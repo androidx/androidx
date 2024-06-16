@@ -44,17 +44,17 @@ import androidx.compose.ui.unit.Dp
 /**
  * Creates a Ripple using the provided values and values inferred from the theme.
  *
- * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s
- * by drawing ripple animations and state layers.
+ * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s by
+ * drawing ripple animations and state layers.
  *
- * A Ripple responds to [PressInteraction.Press] by starting a new animation, and
- * responds to other [Interaction]s by showing a fixed state layer with varying alpha values
- * depending on the [Interaction].
+ * A Ripple responds to [PressInteraction.Press] by starting a new animation, and responds to other
+ * [Interaction]s by showing a fixed state layer with varying alpha values depending on the
+ * [Interaction].
  *
  * [MaterialTheme] provides Ripples using [androidx.compose.foundation.LocalIndication], so a Ripple
  * will be used as the default [Indication] inside components such as
- * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in
- * addition to Material provided components that use a Ripple as well.
+ * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in addition
+ * to Material provided components that use a Ripple as well.
  *
  * You can also explicitly create a Ripple and provide it to custom components in order to change
  * the parameters from the default, such as to create an unbounded ripple with a fixed size.
@@ -63,15 +63,14 @@ import androidx.compose.ui.unit.Dp
  * [ripple] overload with a [ColorProducer] parameter. This will avoid unnecessary recompositions
  * when changing the color, and preserve existing ripple state when the color changes.
  *
- * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
- * ripples always animate from the target layout center, bounded ripples animate from the touch
- * position.
+ * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded ripples
+ *   always animate from the target layout center, bounded ripples animate from the touch position.
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
- * calculated based on the target layout size.
+ *   calculated based on the target layout size.
  * @param color the color of the ripple. This color is usually the same color used by the text or
- * iconography in the component. This color will then have [RippleDefaults.rippleAlpha]
- * applied to calculate the final color used to draw the ripple. If [Color.Unspecified] is
- * provided the color used will be [RippleDefaults.rippleColor] instead.
+ *   iconography in the component. This color will then have [RippleDefaults.rippleAlpha] applied to
+ *   calculate the final color used to draw the ripple. If [Color.Unspecified] is provided the color
+ *   used will be [RippleDefaults.rippleColor] instead.
  */
 @Stable
 fun ripple(
@@ -89,17 +88,17 @@ fun ripple(
 /**
  * Creates a Ripple using the provided values and values inferred from the theme.
  *
- * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s
- * by drawing ripple animations and state layers.
+ * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s by
+ * drawing ripple animations and state layers.
  *
- * A Ripple responds to [PressInteraction.Press] by starting a new ripple animation, and
- * responds to other [Interaction]s by showing a fixed state layer with varying alpha values
- * depending on the [Interaction].
+ * A Ripple responds to [PressInteraction.Press] by starting a new ripple animation, and responds to
+ * other [Interaction]s by showing a fixed state layer with varying alpha values depending on the
+ * [Interaction].
  *
  * [MaterialTheme] provides Ripples using [androidx.compose.foundation.LocalIndication], so a Ripple
  * will be used as the default [Indication] inside components such as
- * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in
- * addition to Material provided components that use a Ripple as well.
+ * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in addition
+ * to Material provided components that use a Ripple as well.
  *
  * You can also explicitly create a Ripple and provide it to custom components in order to change
  * the parameters from the default, such as to create an unbounded ripple with a fixed size.
@@ -109,16 +108,15 @@ fun ripple(
  * unnecessary recompositions.
  *
  * @param color the color of the ripple. This color is usually the same color used by the text or
- * iconography in the component. This color will then have [RippleDefaults.rippleAlpha]
- * applied to calculate the final color used to draw the ripple. If you are creating this
- * [ColorProducer] outside of composition (where it will be automatically remembered), make sure
- * that its instance is stable (such as by remembering the object that holds it), or remember the
- * returned [ripple] object to make sure that ripple nodes are not being created each recomposition.
- * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
- * ripples always animate from the target layout center, bounded ripples animate from the touch
- * position.
+ *   iconography in the component. This color will then have [RippleDefaults.rippleAlpha] applied to
+ *   calculate the final color used to draw the ripple. If you are creating this [ColorProducer]
+ *   outside of composition (where it will be automatically remembered), make sure that its instance
+ *   is stable (such as by remembering the object that holds it), or remember the returned [ripple]
+ *   object to make sure that ripple nodes are not being created each recomposition.
+ * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded ripples
+ *   always animate from the target layout center, bounded ripples animate from the touch position.
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
- * calculated based on the target layout size.
+ *   calculated based on the target layout size.
  */
 @Stable
 fun ripple(
@@ -129,22 +127,17 @@ fun ripple(
     return RippleNodeFactory(bounded, radius, color)
 }
 
-/**
- * Default values used by [ripple].
- */
+/** Default values used by [ripple]. */
 object RippleDefaults {
     /**
      * Represents the default color that will be used for a ripple if a color has not been
      * explicitly set on the ripple instance.
      *
-     * @param contentColor the color of content (text or iconography) in the component that
-     * contains the ripple.
+     * @param contentColor the color of content (text or iconography) in the component that contains
+     *   the ripple.
      * @param lightTheme whether the theme is light or not
      */
-    fun rippleColor(
-        contentColor: Color,
-        lightTheme: Boolean
-    ): Color {
+    fun rippleColor(contentColor: Color, lightTheme: Boolean): Color {
         val contentLuminance = contentColor.luminance()
         // If we are on a colored surface (typically indicated by low luminance content), the
         // ripple color should be white.
@@ -160,8 +153,8 @@ object RippleDefaults {
      * Represents the default [RippleAlpha] that will be used for a ripple to indicate different
      * states.
      *
-     * @param contentColor the color of content (text or iconography) in the component that
-     * contains the ripple.
+     * @param contentColor the color of content (text or iconography) in the component that contains
+     *   the ripple.
      * @param lightTheme whether the theme is light or not
      */
     fun rippleAlpha(contentColor: Color, lightTheme: Boolean): RippleAlpha {
@@ -183,8 +176,8 @@ object RippleDefaults {
 /**
  * Temporary CompositionLocal to allow configuring whether the old ripple implementation that uses
  * the deprecated [androidx.compose.material.ripple.RippleTheme] API should be used in Material
- * components and LocalIndication, instead of the new [ripple] API. This flag defaults to false,
- * and will be removed after one stable release: it should only be used to temporarily unblock
+ * components and LocalIndication, instead of the new [ripple] API. This flag defaults to false, and
+ * will be removed after one stable release: it should only be used to temporarily unblock
  * upgrading.
  *
  * Provide this CompositionLocal before you provide [MaterialTheme] to make sure it is correctly
@@ -195,7 +188,9 @@ object RippleDefaults {
 @get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
 val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
-    staticCompositionLocalOf { false }
+    staticCompositionLocalOf {
+        false
+    }
 
 /**
  * CompositionLocal used for providing [RippleConfiguration] down the tree. This acts as a
@@ -205,27 +200,29 @@ val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
  *
  * In most cases you should rely on the default theme behavior for consistency with other components
  * - this exists as an escape hatch for individual components and is not intended to be used for
- * full theme customization across an application. For this use case you should instead build your
- * own custom ripple that queries your design system theme values directly using
- * [createRippleModifierNode].
+ *   full theme customization across an application. For this use case you should instead build your
+ *   own custom ripple that queries your design system theme values directly using
+ *   [createRippleModifierNode].
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
 val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
-    compositionLocalOf { RippleConfiguration() }
+    compositionLocalOf {
+        RippleConfiguration()
+    }
 
 /**
  * Configuration for [ripple] appearance, provided using [LocalRippleConfiguration]. In most cases
- * the default values should be used, for custom design system use cases you should instead
- * build your own custom ripple using [createRippleModifierNode]. To disable the ripple, provide
- * `null` using [LocalRippleConfiguration].
+ * the default values should be used, for custom design system use cases you should instead build
+ * your own custom ripple using [createRippleModifierNode]. To disable the ripple, provide `null`
+ * using [LocalRippleConfiguration].
  *
  * @param color the color override for the ripple. If [Color.Unspecified], then the default color
- * from the theme will be used instead. Note that if the ripple has a color explicitly set with
- * the parameter on [ripple], that will always be used instead of this value.
+ *   from the theme will be used instead. Note that if the ripple has a color explicitly set with
+ *   the parameter on [ripple], that will always be used instead of this value.
  * @param rippleAlpha the [RippleAlpha] override for this ripple. If null, then the default alpha
- * will be used instead.
+ *   will be used instead.
  */
 @Immutable
 @ExperimentalMaterialApi
@@ -277,21 +274,24 @@ internal object CompatRippleTheme : androidx.compose.material.ripple.RippleTheme
 
     @Deprecated("Super method is deprecated")
     @Composable
-    override fun defaultColor() = RippleDefaults.rippleColor(
-        contentColor = LocalContentColor.current,
-        lightTheme = MaterialTheme.colors.isLight
-    )
+    override fun defaultColor() =
+        RippleDefaults.rippleColor(
+            contentColor = LocalContentColor.current,
+            lightTheme = MaterialTheme.colors.isLight
+        )
 
     @Deprecated("Super method is deprecated")
     @Composable
-    override fun rippleAlpha() = RippleDefaults.rippleAlpha(
-        contentColor = LocalContentColor.current,
-        lightTheme = MaterialTheme.colors.isLight
-    )
+    override fun rippleAlpha() =
+        RippleDefaults.rippleAlpha(
+            contentColor = LocalContentColor.current,
+            lightTheme = MaterialTheme.colors.isLight
+        )
 }
 
 @Stable
-private class RippleNodeFactory private constructor(
+private class RippleNodeFactory
+private constructor(
     private val bounded: Boolean,
     private val radius: Dp,
     private val colorProducer: ColorProducer?,
@@ -303,11 +303,7 @@ private class RippleNodeFactory private constructor(
         colorProducer: ColorProducer
     ) : this(bounded, radius, colorProducer, Color.Unspecified)
 
-    constructor(
-        bounded: Boolean,
-        radius: Dp,
-        color: Color
-    ) : this(bounded, radius, null, color)
+    constructor(bounded: Boolean, radius: Dp, color: Color) : this(bounded, radius, null, color)
 
     override fun create(interactionSource: InteractionSource): DelegatableNode {
         val colorProducer = colorProducer ?: ColorProducer { color }
@@ -352,8 +348,8 @@ private class DelegatingThemeAwareRippleNode(
 
     /**
      * Handles [LocalRippleConfiguration] changing between null / non-null. Changes to
-     * [RippleConfiguration.color] and [RippleConfiguration.rippleAlpha] are handled as part of
-     * the ripple definition.
+     * [RippleConfiguration.color] and [RippleConfiguration.rippleAlpha] are handled as part of the
+     * ripple definition.
      */
     private fun updateConfiguration() {
         observeReads {
@@ -389,19 +385,23 @@ private class DelegatingThemeAwareRippleNode(
             // If this is null, the ripple will be removed, so this should always be non-null in
             // normal use
             val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-            rippleConfiguration?.rippleAlpha ?: RippleDefaults.rippleAlpha(
-                contentColor = currentValueOf(LocalContentColor),
-                lightTheme = currentValueOf(LocalColors).isLight
-            )
+            rippleConfiguration?.rippleAlpha
+                ?: RippleDefaults.rippleAlpha(
+                    contentColor = currentValueOf(LocalContentColor),
+                    lightTheme = currentValueOf(LocalColors).isLight
+                )
         }
 
-        rippleNode = delegate(createRippleModifierNode(
-            interactionSource,
-            bounded,
-            radius,
-            calculateColor,
-            calculateRippleAlpha
-        ))
+        rippleNode =
+            delegate(
+                createRippleModifierNode(
+                    interactionSource,
+                    bounded,
+                    radius,
+                    calculateColor,
+                    calculateRippleAlpha
+                )
+            )
     }
 
     private fun removeRipple() {
@@ -409,33 +409,28 @@ private class DelegatingThemeAwareRippleNode(
     }
 }
 
-private val DefaultBoundedRipple = RippleNodeFactory(
-    bounded = true,
-    radius = Dp.Unspecified,
-    color = Color.Unspecified
-)
+private val DefaultBoundedRipple =
+    RippleNodeFactory(bounded = true, radius = Dp.Unspecified, color = Color.Unspecified)
 
-private val DefaultUnboundedRipple = RippleNodeFactory(
-    bounded = false,
-    radius = Dp.Unspecified,
-    color = Color.Unspecified
-)
+private val DefaultUnboundedRipple =
+    RippleNodeFactory(bounded = false, radius = Dp.Unspecified, color = Color.Unspecified)
 
 /**
  * Alpha values for high luminance content in a light theme.
  *
- * This content will typically be placed on colored surfaces, so it is important that the
- * contrast here is higher to meet accessibility standards, and increase legibility.
+ * This content will typically be placed on colored surfaces, so it is important that the contrast
+ * here is higher to meet accessibility standards, and increase legibility.
  *
- * These levels are typically used for text / iconography in primary colored tabs /
- * bottom navigation / etc.
+ * These levels are typically used for text / iconography in primary colored tabs / bottom
+ * navigation / etc.
  */
-private val LightThemeHighContrastRippleAlpha = RippleAlpha(
-    pressedAlpha = 0.24f,
-    focusedAlpha = 0.24f,
-    draggedAlpha = 0.16f,
-    hoveredAlpha = 0.08f
-)
+private val LightThemeHighContrastRippleAlpha =
+    RippleAlpha(
+        pressedAlpha = 0.24f,
+        focusedAlpha = 0.24f,
+        draggedAlpha = 0.16f,
+        hoveredAlpha = 0.08f
+    )
 
 /**
  * Alpha levels for low luminance content in a light theme.
@@ -443,22 +438,22 @@ private val LightThemeHighContrastRippleAlpha = RippleAlpha(
  * This content will typically be placed on grayscale surfaces, so the contrast here can be lower
  * without sacrificing accessibility and legibility.
  *
- * These levels are typically used for body text on the main surface (white in light theme, grey
- * in dark theme) and text / iconography in surface colored tabs / bottom navigation / etc.
+ * These levels are typically used for body text on the main surface (white in light theme, grey in
+ * dark theme) and text / iconography in surface colored tabs / bottom navigation / etc.
  */
-private val LightThemeLowContrastRippleAlpha = RippleAlpha(
-    pressedAlpha = 0.12f,
-    focusedAlpha = 0.12f,
-    draggedAlpha = 0.08f,
-    hoveredAlpha = 0.04f
-)
+private val LightThemeLowContrastRippleAlpha =
+    RippleAlpha(
+        pressedAlpha = 0.12f,
+        focusedAlpha = 0.12f,
+        draggedAlpha = 0.08f,
+        hoveredAlpha = 0.04f
+    )
 
-/**
- * Alpha levels for all content in a dark theme.
- */
-private val DarkThemeRippleAlpha = RippleAlpha(
-    pressedAlpha = 0.10f,
-    focusedAlpha = 0.12f,
-    draggedAlpha = 0.08f,
-    hoveredAlpha = 0.04f
-)
+/** Alpha levels for all content in a dark theme. */
+private val DarkThemeRippleAlpha =
+    RippleAlpha(
+        pressedAlpha = 0.10f,
+        focusedAlpha = 0.12f,
+        draggedAlpha = 0.08f,
+        hoveredAlpha = 0.04f
+    )

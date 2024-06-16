@@ -17,14 +17,12 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.ExperimentalComposeApi
-import androidx.compose.runtime.SnapshotContextElementImpl
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Return a [SnapshotContextElement] that will [enter][Snapshot.enter] this [Snapshot] whenever
- * the associated coroutine is resumed and leave this snapshot when it suspends.
- * The snapshot still must be [disposed][Snapshot.dispose] separately when it will no longer
- * be used.
+ * Return a [SnapshotContextElement] that will [enter][Snapshot.enter] this [Snapshot] whenever the
+ * associated coroutine is resumed and leave this snapshot when it suspends. The snapshot still must
+ * be [disposed][Snapshot.dispose] separately when it will no longer be used.
  *
  * @sample androidx.compose.runtime.samples.snapshotAsContextElementSample
  */
@@ -32,10 +30,13 @@ import kotlin.coroutines.CoroutineContext
 fun Snapshot.asContextElement(): SnapshotContextElement = SnapshotContextElementImpl(this)
 
 /**
- * A [CoroutineContext] element that [enters][Snapshot.enter] an associated snapshot
- * whenever a coroutine associated with this context is resumed.
+ * A [CoroutineContext] element that [enters][Snapshot.enter] an associated snapshot whenever a
+ * coroutine associated with this context is resumed.
  */
 @ExperimentalComposeApi
 interface SnapshotContextElement : CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<SnapshotContextElement>
 }
+
+@OptIn(ExperimentalComposeApi::class)
+internal expect class SnapshotContextElementImpl(snapshot: Snapshot) : SnapshotContextElement

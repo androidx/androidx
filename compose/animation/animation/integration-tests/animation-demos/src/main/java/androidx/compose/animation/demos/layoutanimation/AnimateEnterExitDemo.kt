@@ -93,34 +93,43 @@ fun AnimateEnterExitDemo() {
                         summerColors.forEachIndexed { index, color ->
                             // Creates a custom enter/exit animation on scale using
                             // `AnimatedVisibilityScope.transition`
-                            val scale by transition.animateFloat { enterExitState ->
-                                when (enterExitState) {
-                                    EnterExitState.PreEnter -> 0.9f
-                                    EnterExitState.Visible -> 1.0f
-                                    EnterExitState.PostExit -> 0.5f
+                            val scale by
+                                transition.animateFloat { enterExitState ->
+                                    when (enterExitState) {
+                                        EnterExitState.PreEnter -> 0.9f
+                                        EnterExitState.Visible -> 1.0f
+                                        EnterExitState.PostExit -> 0.5f
+                                    }
                                 }
-                            }
                             val staggeredSpring = remember {
                                 spring<IntOffset>(
                                     stiffness = Spring.StiffnessLow * (1f - index * 0.2f)
                                 )
                             }
                             Box(
-                                Modifier.weight(1f).animateEnterExit(
-                                    // Staggered slide-in from bottom, while the parent
-                                    // AnimatedVisibility fades in everything (including this child)
-                                    enter = slideInVertically(
-                                        initialOffsetY = { it },
-                                        animationSpec = staggeredSpring
-                                    ),
-                                    // No built-in exit transition will be applied. It'll be
-                                    // faded out by parent AnimatedVisibility while scaling down
-                                    // by the scale animation.
-                                    exit = ExitTransition.None
-                                ).fillMaxWidth().padding(5.dp).graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
-                                }.clip(RoundedCornerShape(20.dp)).background(color)
+                                Modifier.weight(1f)
+                                    .animateEnterExit(
+                                        // Staggered slide-in from bottom, while the parent
+                                        // AnimatedVisibility fades in everything (including this
+                                        // child)
+                                        enter =
+                                            slideInVertically(
+                                                initialOffsetY = { it },
+                                                animationSpec = staggeredSpring
+                                            ),
+                                        // No built-in exit transition will be applied. It'll be
+                                        // faded out by parent AnimatedVisibility while scaling down
+                                        // by the scale animation.
+                                        exit = ExitTransition.None
+                                    )
+                                    .fillMaxWidth()
+                                    .padding(5.dp)
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                    }
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(color)
                             ) {}
                         }
                     }
@@ -139,9 +148,5 @@ fun AnimateEnterExitDemo() {
 }
 
 @Suppress("PrimitiveInCollection")
-internal val summerColors = listOf(
-    Color(0xffff6f69),
-    Color(0xffffcc5c),
-    Color(0xff2a9d84),
-    Color(0xff264653)
-)
+internal val summerColors =
+    listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff2a9d84), Color(0xff264653))

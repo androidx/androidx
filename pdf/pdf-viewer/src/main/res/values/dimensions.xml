@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  Copyright 2024 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2023 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,4 +20,13 @@
     <dimen name="viewer_fastscroll_rounded_corner_radius">2dp</dimen>
     <dimen name="viewer_doc_padding_y">4dp</dimen>
     <dimen name="viewer_doc_padding_x">16dp</dimen>
+    <dimen name="mtrl_min_touch_target_size">48dp</dimen>
+
+    <dimen name="viewer_progress_bar_height">4dp</dimen>
+    <dimen name="viewer_frame_error_height">80dp</dimen>
+
+    <!--Edit button FAB -->
+    <dimen name="viewer_edit_fab_margin_bottom">42dp</dimen>
+    <dimen name="viewer_edit_fab_margin_right">24dp</dimen>
+
 </resources>

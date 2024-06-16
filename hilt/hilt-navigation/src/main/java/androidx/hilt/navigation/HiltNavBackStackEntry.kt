@@ -58,20 +58,21 @@ public fun HiltViewModelFactory(
     context: Context,
     delegateFactory: ViewModelProvider.Factory
 ): ViewModelProvider.Factory {
-    val activity = context.let {
-        var ctx = it
-        while (ctx is ContextWrapper) {
-            // Hilt can only be used with ComponentActivity
-            if (ctx is ComponentActivity) {
-                return@let ctx
+    val activity =
+        context.let {
+            var ctx = it
+            while (ctx is ContextWrapper) {
+                // Hilt can only be used with ComponentActivity
+                if (ctx is ComponentActivity) {
+                    return@let ctx
+                }
+                ctx = ctx.baseContext
             }
-            ctx = ctx.baseContext
+            throw IllegalStateException(
+                "Expected an activity context for creating a HiltViewModelFactory " +
+                    "but instead found: $ctx"
+            )
         }
-        throw IllegalStateException(
-            "Expected an activity context for creating a HiltViewModelFactory " +
-                "but instead found: $ctx"
-        )
-    }
     return HiltViewModelFactory.createInternal(
         /* activity = */ activity,
         /* delegateFactory = */ delegateFactory

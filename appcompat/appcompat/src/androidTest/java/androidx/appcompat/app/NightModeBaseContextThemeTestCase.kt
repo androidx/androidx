@@ -30,8 +30,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NightModeBaseContextThemeTestCase {
-    @get:Rule
-    val rule = NightModeActivityTestRule(NightModeActivity::class.java)
+    @get:Rule val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
     @Test
     fun testBaseContextShowToast() {
@@ -52,9 +51,7 @@ class NightModeBaseContextThemeTestCase {
     @Test
     fun testBaseContextResolveAttribute() {
         var baseContext = rule.activity.baseContext
-        var resolved = baseContext.obtainStyledAttributes(
-            intArrayOf(android.R.attr.textColorLink)
-        )
+        var resolved = baseContext.obtainStyledAttributes(intArrayOf(android.R.attr.textColorLink))
         assertNotNull("Resolved @attr/textColorLink", resolved.getColorStateList(0))
     }
 }

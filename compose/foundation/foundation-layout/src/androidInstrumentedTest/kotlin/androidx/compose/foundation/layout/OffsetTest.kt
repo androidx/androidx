@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -34,7 +36,9 @@ import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,8 +57,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OffsetTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -71,268 +74,264 @@ class OffsetTest {
     }
 
     @Test
-    fun offset_positionIsModified() = with(rule.density) {
-        val offsetX = 10.dp
-        val offsetY = 20.dp
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            Box(
-                Modifier.testTag("box")
-                    .wrapContentSize(Alignment.TopStart)
-                    .offset(offsetX, offsetY)
-                    .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.positionInRoot().x.roundToInt()
-                        positionY = coordinates.positionInRoot().y.roundToInt()
-                    }
-            ) {
-            }
-        }
-
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            assertEquals(offsetX.roundToPx(), positionX)
-            assertEquals(offsetY.roundToPx(), positionY)
-        }
-    }
-
-    @Test
-    fun offset_positionIsModified_rtl() = with(rule.density) {
-        val containerWidth = 30.dp
-        val boxSize = 1
-        val offsetX = 10.dp
-        val offsetY = 20.dp
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
-            ) {
+    fun offset_positionIsModified() =
+        with(rule.density) {
+            val offsetX = 10.dp
+            val offsetY = 20.dp
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
                 Box(
                     Modifier.testTag("box")
-                        .wrapContentSize(Alignment.TopEnd)
-                        .width(containerWidth)
                         .wrapContentSize(Alignment.TopStart)
                         .offset(offsetX, offsetY)
                         .onGloballyPositioned { coordinates: LayoutCoordinates ->
                             positionX = coordinates.positionInRoot().x.roundToInt()
                             positionY = coordinates.positionInRoot().y.roundToInt()
                         }
+                ) {}
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                assertEquals(offsetX.roundToPx(), positionX)
+                assertEquals(offsetY.roundToPx(), positionY)
+            }
+        }
+
+    @Test
+    fun offset_positionIsModified_rtl() =
+        with(rule.density) {
+            val containerWidth = 30.dp
+            val boxSize = 1
+            val offsetX = 10.dp
+            val offsetY = 20.dp
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
                 ) {
-                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
-                    Box(Modifier.requiredSize(boxSize.toDp()))
+                    Box(
+                        Modifier.testTag("box")
+                            .wrapContentSize(Alignment.TopEnd)
+                            .width(containerWidth)
+                            .wrapContentSize(Alignment.TopStart)
+                            .offset(offsetX, offsetY)
+                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                                positionX = coordinates.positionInRoot().x.roundToInt()
+                                positionY = coordinates.positionInRoot().y.roundToInt()
+                            }
+                    ) {
+                        // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
+                        Box(Modifier.requiredSize(boxSize.toDp()))
+                    }
                 }
             }
-        }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            assertEquals(containerWidth.roundToPx() - offsetX.roundToPx() - boxSize, positionX)
-            assertEquals(offsetY.roundToPx(), positionY)
-        }
-    }
-
-    @Test
-    fun absoluteOffset_positionModified() = with(rule.density) {
-        val offsetX = 10.dp
-        val offsetY = 20.dp
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            Box(
-                Modifier.testTag("box")
-                    .wrapContentSize(Alignment.TopStart)
-                    .absoluteOffset(offsetX, offsetY)
-                    .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.positionInRoot().x.roundToInt()
-                        positionY = coordinates.positionInRoot().y.roundToInt()
-                    }
-            ) {
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                assertEquals(containerWidth.roundToPx() - offsetX.roundToPx() - boxSize, positionX)
+                assertEquals(offsetY.roundToPx(), positionY)
             }
         }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            assertEquals(offsetX.roundToPx(), positionX)
-            assertEquals(offsetY.roundToPx(), positionY)
-        }
-    }
-
     @Test
-    fun absoluteOffset_positionModified_rtl() = with(rule.density) {
-        val containerWidth = 30.dp
-        val boxSize = 1
-        val offsetX = 10.dp
-        val offsetY = 20.dp
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
-            ) {
+    fun absoluteOffset_positionModified() =
+        with(rule.density) {
+            val offsetX = 10.dp
+            val offsetY = 20.dp
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
                 Box(
                     Modifier.testTag("box")
-                        .wrapContentSize(Alignment.TopEnd)
-                        .width(containerWidth)
                         .wrapContentSize(Alignment.TopStart)
                         .absoluteOffset(offsetX, offsetY)
                         .onGloballyPositioned { coordinates: LayoutCoordinates ->
                             positionX = coordinates.positionInRoot().x.roundToInt()
                             positionY = coordinates.positionInRoot().y.roundToInt()
                         }
+                ) {}
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                assertEquals(offsetX.roundToPx(), positionX)
+                assertEquals(offsetY.roundToPx(), positionY)
+            }
+        }
+
+    @Test
+    fun absoluteOffset_positionModified_rtl() =
+        with(rule.density) {
+            val containerWidth = 30.dp
+            val boxSize = 1
+            val offsetX = 10.dp
+            val offsetY = 20.dp
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
                 ) {
-                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
-                    Box(Modifier.requiredSize(boxSize.toDp()))
+                    Box(
+                        Modifier.testTag("box")
+                            .wrapContentSize(Alignment.TopEnd)
+                            .width(containerWidth)
+                            .wrapContentSize(Alignment.TopStart)
+                            .absoluteOffset(offsetX, offsetY)
+                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                                positionX = coordinates.positionInRoot().x.roundToInt()
+                                positionY = coordinates.positionInRoot().y.roundToInt()
+                            }
+                    ) {
+                        // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
+                        Box(Modifier.requiredSize(boxSize.toDp()))
+                    }
                 }
             }
-        }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            assertEquals(containerWidth.roundToPx() - boxSize + offsetX.roundToPx(), positionX)
-            assertEquals(offsetY.roundToPx(), positionY)
-        }
-    }
-
-    @Test
-    fun offsetPx_positionIsModified() = with(rule.density) {
-        val offsetX = 10f
-        val offsetY = 20f
-        var positionX = 0f
-        var positionY = 0f
-        rule.setContent {
-            Box(
-                Modifier.testTag("box")
-                    .wrapContentSize(Alignment.TopStart)
-                    .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
-                    .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.positionInRoot().x
-                        positionY = coordinates.positionInRoot().y
-                    }
-            ) {
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                assertEquals(containerWidth.roundToPx() - boxSize + offsetX.roundToPx(), positionX)
+                assertEquals(offsetY.roundToPx(), positionY)
             }
         }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            Assert.assertEquals(offsetX, positionX)
-            Assert.assertEquals(offsetY, positionY)
-        }
-    }
-
     @Test
-    fun offsetPx_positionIsModified_rtl() = with(rule.density) {
-        val containerWidth = 30.dp
-        val boxSize = 1
-        val offsetX = 10
-        val offsetY = 20
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
-            ) {
+    fun offsetPx_positionIsModified() =
+        with(rule.density) {
+            val offsetX = 10f
+            val offsetY = 20f
+            var positionX = 0f
+            var positionY = 0f
+            rule.setContent {
                 Box(
                     Modifier.testTag("box")
-                        .wrapContentSize(Alignment.TopEnd)
-                        .width(containerWidth)
                         .wrapContentSize(Alignment.TopStart)
-                        .offset { IntOffset(offsetX, offsetY) }
+                        .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                         .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                            positionX = coordinates.positionInRoot().x.roundToInt()
-                            positionY = coordinates.positionInRoot().y.roundToInt()
+                            positionX = coordinates.positionInRoot().x
+                            positionY = coordinates.positionInRoot().y
                         }
+                ) {}
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                Assert.assertEquals(offsetX, positionX)
+                Assert.assertEquals(offsetY, positionY)
+            }
+        }
+
+    @Test
+    fun offsetPx_positionIsModified_rtl() =
+        with(rule.density) {
+            val containerWidth = 30.dp
+            val boxSize = 1
+            val offsetX = 10
+            val offsetY = 20
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
                 ) {
-                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
-                    Box(Modifier.requiredSize(boxSize.toDp()))
+                    Box(
+                        Modifier.testTag("box")
+                            .wrapContentSize(Alignment.TopEnd)
+                            .width(containerWidth)
+                            .wrapContentSize(Alignment.TopStart)
+                            .offset { IntOffset(offsetX, offsetY) }
+                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                                positionX = coordinates.positionInRoot().x.roundToInt()
+                                positionY = coordinates.positionInRoot().y.roundToInt()
+                            }
+                    ) {
+                        // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
+                        Box(Modifier.requiredSize(boxSize.toDp()))
+                    }
                 }
             }
-        }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            Assert.assertEquals(
-                containerWidth.roundToPx() - offsetX - boxSize,
-                positionX
-            )
-            Assert.assertEquals(offsetY, positionY)
-        }
-    }
-
-    @Test
-    fun absoluteOffsetPx_positionIsModified() = with(rule.density) {
-        val offsetX = 10
-        val offsetY = 20
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            Box(
-                Modifier.testTag("box")
-                    .wrapContentSize(Alignment.TopStart)
-                    .absoluteOffset { IntOffset(offsetX, offsetY) }
-                    .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.positionInRoot().x.roundToInt()
-                        positionY = coordinates.positionInRoot().y.roundToInt()
-                    }
-            ) {
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                Assert.assertEquals(containerWidth.roundToPx() - offsetX - boxSize, positionX)
+                Assert.assertEquals(offsetY, positionY)
             }
         }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            Assert.assertEquals(offsetX, positionX)
-            Assert.assertEquals(offsetY, positionY)
-        }
-    }
-
     @Test
-    fun absoluteOffsetPx_positionIsModified_rtl() = with(rule.density) {
-        val containerWidth = 30.dp
-        val boxSize = 1
-        val offsetX = 10
-        val offsetY = 20
-        var positionX = 0
-        var positionY = 0
-        rule.setContent {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
-            ) {
+    fun absoluteOffsetPx_positionIsModified() =
+        with(rule.density) {
+            val offsetX = 10
+            val offsetY = 20
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
                 Box(
                     Modifier.testTag("box")
-                        .wrapContentSize(Alignment.TopEnd)
-                        .width(containerWidth)
                         .wrapContentSize(Alignment.TopStart)
                         .absoluteOffset { IntOffset(offsetX, offsetY) }
                         .onGloballyPositioned { coordinates: LayoutCoordinates ->
                             positionX = coordinates.positionInRoot().x.roundToInt()
                             positionY = coordinates.positionInRoot().y.roundToInt()
                         }
-                ) {
-                    // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
-                    Box(Modifier.requiredSize(boxSize.toDp()))
-                }
+                ) {}
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                Assert.assertEquals(offsetX, positionX)
+                Assert.assertEquals(offsetY, positionY)
             }
         }
 
-        rule.onNodeWithTag("box").assertExists()
-        rule.runOnIdle {
-            Assert.assertEquals(
-                containerWidth.roundToPx() - boxSize + offsetX,
-                positionX
-            )
-            Assert.assertEquals(offsetY, positionY)
+    @Test
+    fun absoluteOffsetPx_positionIsModified_rtl() =
+        with(rule.density) {
+            val containerWidth = 30.dp
+            val boxSize = 1
+            val offsetX = 10
+            val offsetY = 20
+            var positionX = 0
+            var positionY = 0
+            rule.setContent {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+                ) {
+                    Box(
+                        Modifier.testTag("box")
+                            .wrapContentSize(Alignment.TopEnd)
+                            .width(containerWidth)
+                            .wrapContentSize(Alignment.TopStart)
+                            .absoluteOffset { IntOffset(offsetX, offsetY) }
+                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                                positionX = coordinates.positionInRoot().x.roundToInt()
+                                positionY = coordinates.positionInRoot().y.roundToInt()
+                            }
+                    ) {
+                        // TODO(soboleva): this box should not be needed after b/154758475 is fixed.
+                        Box(Modifier.requiredSize(boxSize.toDp()))
+                    }
+                }
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                Assert.assertEquals(containerWidth.roundToPx() - boxSize + offsetX, positionX)
+                Assert.assertEquals(offsetY, positionY)
+            }
         }
-    }
 
     @Test
     fun testOffsetInspectableValue() {
         val modifier = Modifier.offset(3.0.dp, 4.5.dp) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("offset")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("x", 3.0.dp),
-            ValueElement("y", 4.5.dp)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(ValueElement("x", 3.0.dp), ValueElement("y", 4.5.dp))
     }
 
     @Test
@@ -340,10 +339,8 @@ class OffsetTest {
         val modifier = Modifier.absoluteOffset(3.0.dp, 1.5.dp) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("absoluteOffset")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("x", 3.0.dp),
-            ValueElement("y", 1.5.dp)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(ValueElement("x", 3.0.dp), ValueElement("y", 1.5.dp))
     }
 
     @Test
@@ -365,26 +362,117 @@ class OffsetTest {
     }
 
     @Test
-    fun contentNotRedrawnWhenOffsetPxChanges() {
-        var contentRedrawsCount = 0
-        var offset by mutableStateOf(0f)
+    fun updateOffsetDp_doesNotRemeasure() {
+        with(rule.density) {
+            var measureCount = 0
+            var placeCount = 0
+            var drawCount = 0
+            var positionX = 0
+            val callbackModifiers =
+                Modifier.onLayout(
+                        onRemeasured = { measureCount++ },
+                        onPlaced = { coordinates ->
+                            positionX = coordinates.positionInRoot().x.roundToInt()
+                            placeCount++
+                        }
+                    )
+                    .drawBehind { drawCount++ }
+            var offset by mutableStateOf(10.dp)
+            rule.setContent {
+                Box(
+                    Modifier.testTag("box")
+                        .requiredSize(10.dp)
+                        .offset(x = offset, y = 0.dp)
+                        .then(callbackModifiers)
+                ) {}
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                assertEquals(positionX, 10.dp.roundToPx())
+                assertEquals(measureCount, 1)
+                assertEquals(placeCount, 1)
+                assertEquals(drawCount, 1)
+            }
+
+            rule.runOnIdle { offset = 20.dp }
+
+            rule.runOnIdle {
+                assertEquals(positionX, 20.dp.roundToPx())
+                assertEquals(measureCount, 1)
+                assertEquals(placeCount, 2)
+                assertEquals(drawCount, 2)
+            }
+        }
+    }
+
+    @Test
+    fun updateOffsetPx_doesNotRemeasureAndDoesNotRedraw() {
+        var measureCount = 0
+        var placeCount = 0
+        var drawCount = 0
+        var positionX = 0
+        val callbackModifiers =
+            Modifier.onLayout(
+                    onRemeasured = { measureCount++ },
+                    onPlaced = { coordinates ->
+                        positionX = coordinates.positionInRoot().x.roundToInt()
+                        placeCount++
+                    }
+                )
+                .drawBehind { drawCount++ }
+        var offset by mutableStateOf<Density.() -> IntOffset>({ IntOffset(10, 0) })
         rule.setContent {
             Box(
-                Modifier
+                Modifier.testTag("box")
                     .requiredSize(10.dp)
-                    .offset { IntOffset(offset.roundToInt(), 0) }
-                    .drawBehind {
-                        contentRedrawsCount ++
-                    }
-            )
+                    .wrapContentSize(Alignment.TopStart)
+                    .offset(offset = offset)
+                    .then(callbackModifiers)
+            ) {}
         }
 
+        rule.onNodeWithTag("box").assertExists()
         rule.runOnIdle {
-            offset = 5f
+            assertEquals(positionX, 10)
+            assertEquals(measureCount, 1)
+            assertEquals(placeCount, 1)
+            assertEquals(drawCount, 1)
         }
 
+        rule.runOnIdle { offset = { IntOffset(20, 0) } }
+        rule.waitForIdle()
+
         rule.runOnIdle {
-            assertEquals(1, contentRedrawsCount)
+            assertEquals(positionX, 20)
+            assertEquals(measureCount, 1)
+            assertEquals(placeCount, 2)
+            assertEquals(drawCount, 1) // No redraw due the use of a graphics layer
         }
+    }
+}
+
+fun Modifier.onLayout(onRemeasured: () -> Unit, onPlaced: (LayoutCoordinates) -> Unit) =
+    this then OnLayoutNodeElement(onRemeasured, onPlaced)
+
+data class OnLayoutNodeElement(
+    val onRemeasured: () -> Unit,
+    val onPlaced: (LayoutCoordinates) -> Unit
+) : ModifierNodeElement<OnLayoutNode>() {
+    override fun create() = OnLayoutNode(onRemeasured, onPlaced)
+
+    override fun update(node: OnLayoutNode) {}
+}
+
+class OnLayoutNode(
+    val onRemeasuredCallback: () -> Unit,
+    val onPlacedCallback: (LayoutCoordinates) -> Unit
+) : LayoutAwareModifierNode, Modifier.Node() {
+    override fun onRemeasured(size: IntSize) {
+        onRemeasuredCallback()
+    }
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        onPlacedCallback(coordinates)
     }
 }

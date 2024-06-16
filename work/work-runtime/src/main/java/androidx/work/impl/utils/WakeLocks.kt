@@ -32,22 +32,20 @@ private val TAG = Logger.tagWithPrefix("WakeLocks")
  * @return A new [android.os.PowerManager.WakeLock]
  */
 internal fun newWakeLock(context: Context, tag: String): PowerManager.WakeLock {
-    val powerManager = context.applicationContext
-        .getSystemService(Context.POWER_SERVICE) as PowerManager
+    val powerManager =
+        context.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
     val tagWithPrefix = "WorkManager: $tag"
     val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, tagWithPrefix)
     // Wakelocks are created on the command processor thread, but we check if they are still
     // being held on the main thread.
-    synchronized(WakeLocksHolder) {
-        WakeLocksHolder.wakeLocks.put(wakeLock, tagWithPrefix)
-    }
+    synchronized(WakeLocksHolder) { WakeLocksHolder.wakeLocks.put(wakeLock, tagWithPrefix) }
     return wakeLock
 }
 
 /**
  * Checks to see if there are any [PowerManager.WakeLock]s that
- * [androidx.work.impl.background.systemalarm.SystemAlarmService] holds when all the
- * pending commands have been drained in the command queue.
+ * [androidx.work.impl.background.systemalarm.SystemAlarmService] holds when all the pending
+ * commands have been drained in the command queue.
  */
 fun checkWakeLocks() {
     // There is a small chance that while we are checking if all the commands in the queue are

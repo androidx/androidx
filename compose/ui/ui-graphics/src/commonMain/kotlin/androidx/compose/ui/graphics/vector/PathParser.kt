@@ -52,18 +52,16 @@ class PathParser {
     private var nodes: ArrayList<PathNode>? = null
     private var nodeData = FloatArray(64)
 
-    /**
-     * Clears the collection of [PathNode] stored in this parser and returned by [toNodes].
-     */
+    /** Clears the collection of [PathNode] stored in this parser and returned by [toNodes]. */
     fun clear() {
         nodes?.clear()
     }
 
     /**
      * Parses the SVG path string to extract [PathNode] instances for each path instruction
-     * (`lineTo`, `moveTo`, etc.). The [PathNode] are stored in this parser's internal list
-     * of nodes which can be queried by calling [toNodes]. Calling this method replaces any
-     * existing content in the current nodes list.
+     * (`lineTo`, `moveTo`, etc.). The [PathNode] are stored in this parser's internal list of nodes
+     * which can be queried by calling [toNodes]. Calling this method replaces any existing content
+     * in the current nodes list.
      */
     fun parsePathString(pathData: String): PathParser {
         var dstNodes = nodes
@@ -78,14 +76,13 @@ class PathParser {
     }
 
     /**
-     * Parses the path string and adds the corresponding [PathNode] instances to the
-     * specified [nodes] collection. This method returns [nodes].
+     * Parses the path string and adds the corresponding [PathNode] instances to the specified
+     * [nodes] collection. This method returns [nodes].
      */
     @Suppress("ConcreteCollection")
     fun pathStringToNodes(
         pathData: String,
-        @Suppress("ConcreteCollection")
-        nodes: ArrayList<PathNode> = ArrayList()
+        @Suppress("ConcreteCollection") nodes: ArrayList<PathNode> = ArrayList()
     ): ArrayList<PathNode> {
         var start = 0
         var end = pathData.length
@@ -160,8 +157,8 @@ class PathParser {
     }
 
     /**
-     * Adds the list of [PathNode] [nodes] to this parser's internal list of [PathNode].
-     * The resulting list can be obtained by calling [toNodes].
+     * Adds the list of [PathNode] [nodes] to this parser's internal list of [PathNode]. The
+     * resulting list can be obtained by calling [toNodes].
      */
     fun addPathNodes(nodes: List<PathNode>): PathParser {
         var dstNodes = this.nodes
@@ -174,23 +171,22 @@ class PathParser {
     }
 
     /**
-     * Returns this parser's list of [PathNode]. Note: this function does not return
-     * a copy of the list. The caller should make a copy when appropriate.
+     * Returns this parser's list of [PathNode]. Note: this function does not return a copy of the
+     * list. The caller should make a copy when appropriate.
      */
     fun toNodes(): List<PathNode> = nodes ?: emptyList()
 
     /**
-     * Converts this parser's list of [PathNode] instances into a [Path]. A new
-     * [Path] is returned every time this method is invoked.
+     * Converts this parser's list of [PathNode] instances into a [Path]. A new [Path] is returned
+     * every time this method is invoked.
      */
     fun toPath(target: Path = Path()) = nodes?.toPath(target) ?: Path()
 }
 
 /**
- * Converts this list of [PathNode] into a [Path] by adding the appropriate
- * commands to the [target] path. If [target] is not specified, a new
- * [Path] instance is created. This method returns [target] or the newly
- * created [Path].
+ * Converts this list of [PathNode] into a [Path] by adding the appropriate commands to the [target]
+ * path. If [target] is not specified, a new [Path] instance is created. This method returns
+ * [target] or the newly created [Path].
  */
 fun List<PathNode>.toPath(target: Path = Path()): Path {
     // Rewind unsets the fill type so reset it here
@@ -217,7 +213,6 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 ctrlY = segmentY
                 target.close()
             }
-
             is RelativeMoveTo -> {
                 currentX += node.dx
                 currentY += node.dy
@@ -225,7 +220,6 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 segmentX = currentX
                 segmentY = currentY
             }
-
             is MoveTo -> {
                 currentX = node.x
                 currentY = node.y
@@ -233,63 +227,46 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 segmentX = currentX
                 segmentY = currentY
             }
-
             is RelativeLineTo -> {
                 target.relativeLineTo(node.dx, node.dy)
                 currentX += node.dx
                 currentY += node.dy
             }
-
             is LineTo -> {
                 target.lineTo(node.x, node.y)
                 currentX = node.x
                 currentY = node.y
             }
-
             is RelativeHorizontalTo -> {
                 target.relativeLineTo(node.dx, 0.0f)
                 currentX += node.dx
             }
-
             is HorizontalTo -> {
                 target.lineTo(node.x, currentY)
                 currentX = node.x
             }
-
             is RelativeVerticalTo -> {
                 target.relativeLineTo(0.0f, node.dy)
                 currentY += node.dy
             }
-
             is VerticalTo -> {
                 target.lineTo(currentX, node.y)
                 currentY = node.y
             }
-
             is RelativeCurveTo -> {
-                target.relativeCubicTo(
-                    node.dx1, node.dy1,
-                    node.dx2, node.dy2,
-                    node.dx3, node.dy3
-                )
+                target.relativeCubicTo(node.dx1, node.dy1, node.dx2, node.dy2, node.dx3, node.dy3)
                 ctrlX = currentX + node.dx2
                 ctrlY = currentY + node.dy2
                 currentX += node.dx3
                 currentY += node.dy3
             }
-
             is CurveTo -> {
-                target.cubicTo(
-                    node.x1, node.y1,
-                    node.x2, node.y2,
-                    node.x3, node.y3
-                )
+                target.cubicTo(node.x1, node.y1, node.x2, node.y2, node.x3, node.y3)
                 ctrlX = node.x2
                 ctrlY = node.y2
                 currentX = node.x3
                 currentY = node.y3
             }
-
             is RelativeReflectiveCurveTo -> {
                 if (previousNode.isCurve) {
                     reflectiveCtrlX = currentX - ctrlX
@@ -299,16 +276,18 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlY = 0.0f
                 }
                 target.relativeCubicTo(
-                    reflectiveCtrlX, reflectiveCtrlY,
-                    node.dx1, node.dy1,
-                    node.dx2, node.dy2
+                    reflectiveCtrlX,
+                    reflectiveCtrlY,
+                    node.dx1,
+                    node.dy1,
+                    node.dx2,
+                    node.dy2
                 )
                 ctrlX = currentX + node.dx1
                 ctrlY = currentY + node.dy1
                 currentX += node.dx2
                 currentY += node.dy2
             }
-
             is ReflectiveCurveTo -> {
                 if (previousNode.isCurve) {
                     reflectiveCtrlX = 2 * currentX - ctrlX
@@ -317,16 +296,12 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = currentX
                     reflectiveCtrlY = currentY
                 }
-                target.cubicTo(
-                    reflectiveCtrlX, reflectiveCtrlY,
-                    node.x1, node.y1, node.x2, node.y2
-                )
+                target.cubicTo(reflectiveCtrlX, reflectiveCtrlY, node.x1, node.y1, node.x2, node.y2)
                 ctrlX = node.x1
                 ctrlY = node.y1
                 currentX = node.x2
                 currentY = node.y2
             }
-
             is RelativeQuadTo -> {
                 target.relativeQuadraticTo(node.dx1, node.dy1, node.dx2, node.dy2)
                 ctrlX = currentX + node.dx1
@@ -334,7 +309,6 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 currentX += node.dx2
                 currentY += node.dy2
             }
-
             is QuadTo -> {
                 target.quadraticTo(node.x1, node.y1, node.x2, node.y2)
                 ctrlX = node.x1
@@ -342,7 +316,6 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 currentX = node.x2
                 currentY = node.y2
             }
-
             is RelativeReflectiveQuadTo -> {
                 if (previousNode.isQuad) {
                     reflectiveCtrlX = currentX - ctrlX
@@ -351,16 +324,12 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = 0.0f
                     reflectiveCtrlY = 0.0f
                 }
-                target.relativeQuadraticTo(
-                    reflectiveCtrlX,
-                    reflectiveCtrlY, node.dx, node.dy
-                )
+                target.relativeQuadraticTo(reflectiveCtrlX, reflectiveCtrlY, node.dx, node.dy)
                 ctrlX = currentX + reflectiveCtrlX
                 ctrlY = currentY + reflectiveCtrlY
                 currentX += node.dx
                 currentY += node.dy
             }
-
             is ReflectiveQuadTo -> {
                 if (previousNode.isQuad) {
                     reflectiveCtrlX = 2 * currentX - ctrlX
@@ -369,16 +338,12 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = currentX
                     reflectiveCtrlY = currentY
                 }
-                target.quadraticTo(
-                    reflectiveCtrlX,
-                    reflectiveCtrlY, node.x, node.y
-                )
+                target.quadraticTo(reflectiveCtrlX, reflectiveCtrlY, node.x, node.y)
                 ctrlX = reflectiveCtrlX
                 ctrlY = reflectiveCtrlY
                 currentX = node.x
                 currentY = node.y
             }
-
             is RelativeArcTo -> {
                 val arcStartX = node.arcStartDx + currentX
                 val arcStartY = node.arcStartDy + currentY
@@ -399,7 +364,6 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 ctrlX = currentX
                 ctrlY = currentY
             }
-
             is ArcTo -> {
                 drawArc(
                     target,
@@ -462,10 +426,7 @@ private fun drawArc(
     val disc = 1.0 / dsq - 1.0 / 4.0
     if (disc < 0.0) {
         val adjust = (sqrt(dsq) / 1.99999).toFloat()
-        drawArc(
-            p, x0, y0, x1, y1, a * adjust,
-            b * adjust, theta, isMoreThanHalf, isPositiveArc
-        )
+        drawArc(p, x0, y0, x1, y1, a * adjust, b * adjust, theta, isMoreThanHalf, isPositiveArc)
         return /* Points are too far apart */
     }
     val s = sqrt(disc)
@@ -500,10 +461,7 @@ private fun drawArc(
     cx = cx * cosTheta - cy * sinTheta
     cy = tcx * sinTheta + cy * cosTheta
 
-    arcToBezier(
-        p, cx, cy, a, b, x0, y0, thetaD,
-        eta0, sweep
-    )
+    arcToBezier(p, cx, cy, a, b, x0, y0, thetaD, eta0, sweep)
 }
 
 /**
@@ -584,5 +542,4 @@ private fun arcToBezier(
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun Double.toRadians(): Double = this / 180 * PI
+@Suppress("NOTHING_TO_INLINE") private inline fun Double.toRadians(): Double = this / 180 * PI

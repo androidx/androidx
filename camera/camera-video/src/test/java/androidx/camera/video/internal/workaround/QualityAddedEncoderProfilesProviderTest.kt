@@ -51,20 +51,20 @@ class QualityAddedEncoderProfilesProviderTest {
     fun canSupportExtraQuality() {
         // Arrange.
         val baseProvider = FakeEncoderProfilesProvider.Builder().build()
-        val encoderProfiles = ImmutableEncoderProfilesProxy.create(
-            DEFAULT_DURATION,
-            DEFAULT_OUTPUT_FORMAT,
-            listOf(createFakeAudioProfileProxy()),
-            listOf(createFakeVideoProfileProxy(RESOLUTION_480P.width, RESOLUTION_480P.height)),
-        )
+        val encoderProfiles =
+            ImmutableEncoderProfilesProxy.create(
+                DEFAULT_DURATION,
+                DEFAULT_OUTPUT_FORMAT,
+                listOf(createFakeAudioProfileProxy()),
+                listOf(createFakeVideoProfileProxy(RESOLUTION_480P.width, RESOLUTION_480P.height)),
+            )
         val quirks = Quirks(listOf(FakeQuirk(mapOf(QUALITY_480P to encoderProfiles))))
         val cameraInfo = FakeCameraInfoInternal()
         val encoderInfo = FakeVideoEncoderInfo()
 
         // Act.
-        val provider = QualityAddedEncoderProfilesProvider(baseProvider, quirks, cameraInfo) {
-            encoderInfo
-        }
+        val provider =
+            QualityAddedEncoderProfilesProvider(baseProvider, quirks, cameraInfo) { encoderInfo }
 
         // Assert.
         assertThat(provider.getAll(QUALITY_480P)).isNotNull()

@@ -20,16 +20,13 @@ package androidx.privacysandbox.ads.adservices.adid
  * A unique, user-resettable, device-wide, per-profile ID for advertising as returned by the
  * [AdIdManager#getAdId()] API.
  *
- * Ad networks may use {@code AdId} to monetize for Interest Based Advertising (IBA), i.e.
- * targeting and remarketing ads. The user may limit availability of this identifier.
+ * Ad networks may use {@code AdId} to monetize for Interest Based Advertising (IBA), i.e. targeting
+ * and remarketing ads. The user may limit availability of this identifier.
  *
  * @param adId The advertising ID.
  * @param isLimitAdTrackingEnabled the limit ad tracking enabled setting.
  */
-class AdId internal constructor(
-    val adId: String,
-    val isLimitAdTrackingEnabled: Boolean = false
-) {
+class AdId internal constructor(val adId: String, val isLimitAdTrackingEnabled: Boolean = false) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

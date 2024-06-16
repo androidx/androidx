@@ -17,6 +17,7 @@
 package androidx.core.telecom.test
 
 import android.os.Build.VERSION_CODES
+import android.telecom.CallException
 import android.telecom.DisconnectCause
 import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_CALL_STREAMING
@@ -28,9 +29,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -42,6 +45,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -106,7 +110,7 @@ class CallsManagerTest : BaseTelecomTest() {
 
             mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
             val account = mCallsManager.getBuiltPhoneAccount()!!
-
+            assertNotNull(account.extras)
             if (Utils.hasPlatformV2Apis()) {
                 assertTrue(
                     Utils.hasCapability(
@@ -116,24 +120,25 @@ class CallsManagerTest : BaseTelecomTest() {
                 )
             } else {
                 assertTrue(
-                    account.capabilities and CAPABILITY_SELF_MANAGED ==
-                        CAPABILITY_SELF_MANAGED
+                    account.capabilities and CAPABILITY_SELF_MANAGED == CAPABILITY_SELF_MANAGED
                 )
             }
         }
     }
 
     /**
-     * Register all the capabilities currently exposed by the CallsManager class and verify they
-     * are re-mapped to the correct platform capabilities.
+     * Register all the capabilities currently exposed by the CallsManager class and verify they are
+     * re-mapped to the correct platform capabilities.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
     @Test
     fun testRegisterAllCapabilities() {
         setUpV2Test()
-        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING
-        or CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING)
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING or
+                CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING
+        )
 
         val phoneAccount = mCallsManager.getBuiltPhoneAccount()!!
         assertTrue(phoneAccount.hasCapabilities(CAPABILITY_SELF_MANAGED))
@@ -170,9 +175,7 @@ class CallsManagerTest : BaseTelecomTest() {
     @Test
     fun testAddOutgoingVideoCall_CallEndpointShouldBeSpeaker_Transactional() {
         setUpV2Test()
-        runBlocking {
-           assertVideoCallStartsWithSpeakerEndpoint()
-        }
+        runBlocking { assertVideoCallStartsWithSpeakerEndpoint() }
     }
 
     /**
@@ -185,24 +188,58 @@ class CallsManagerTest : BaseTelecomTest() {
     @Test
     fun testAddOutgoingVideoCall_CallEndpointShouldBeSpeaker_BackwardsCompat() {
         setUpBackwardsCompatTest()
+        runBlocking { assertVideoCallStartsWithSpeakerEndpoint() }
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalAppActions::class)
+    @SmallTest
+    @Test
+    fun testPauseExecutionOrThrow_Transactional() {
+        setUpV2Test()
         runBlocking {
-           assertVideoCallStartsWithSpeakerEndpoint()
+            val cd = CompletableDeferred<AddCallResult>()
+            cd.complete(AddCallResult.SuccessCallSession())
+            mCallsManager.pauseExecutionUntilCallIsReadyOrTimeout(cd)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @OptIn(ExperimentalAppActions::class)
+    @SmallTest
+    @Test
+    fun testPauseExecutionOrThrow_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking {
+            val cd = CompletableDeferred<AddCallResult>()
+            cd.complete(AddCallResult.Error(CallException.CODE_ERROR_UNKNOWN))
+            try {
+                mCallsManager.pauseExecutionUntilCallIsReadyOrTimeout(cd)
+                fail(
+                    "failed to throw a CallException out to the client when the platform signaled" +
+                        " it failed to add the call"
+                )
+            } catch (e: androidx.core.telecom.CallException) {
+                Log.i(TAG, "callException=[$e] was thrown as expected")
+            }
         }
     }
 
     suspend fun assertVideoCallStartsWithSpeakerEndpoint() {
-        assertWithinTimeout_addCall(CallAttributesCompat(
-            TestUtils.OUTGOING_NAME,
-            TestUtils.TEST_PHONE_NUMBER_8985,
-            CallAttributesCompat.DIRECTION_OUTGOING,
-            CallAttributesCompat.CALL_TYPE_VIDEO_CALL)) {
+        assertWithinTimeout_addCall(
+            CallAttributesCompat(
+                TestUtils.OUTGOING_NAME,
+                TestUtils.TEST_PHONE_NUMBER_8985,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+            )
+        ) {
             launch {
                 val waitUntilSpeakerEndpointJob = CompletableDeferred<CallEndpointCompat>()
 
                 val flowsJob = launch {
-                    val speakerFlow = currentCallEndpoint.filter {
-                        it.type == CallEndpointCompat.TYPE_SPEAKER
-                    }
+                    val speakerFlow =
+                        currentCallEndpoint.filter { it.type == CallEndpointCompat.TYPE_SPEAKER }
 
                     speakerFlow.collect {
                         Log.i(TAG, "speakerFlow.collect=[$it]")

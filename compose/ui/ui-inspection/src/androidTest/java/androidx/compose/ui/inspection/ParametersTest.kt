@@ -40,18 +40,20 @@ import org.junit.Test
 
 @LargeTest
 class ParametersTest {
-    @get:Rule
-    val rule = ComposeInspectionRule(ParametersTestActivity::class)
+    @get:Rule val rule = ComposeInspectionRule(ParametersTestActivity::class)
 
     @Test
     fun resource(): Unit = runBlocking {
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
 
         val text = composables.filter("Text").first()
-        val params = rule.inspectorTester
-            .sendCommand(GetParametersByIdCommand(rule.rootId, text.id))
-            .getParametersResponse
+        val params =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, text.id))
+                .getParametersResponse
 
         val resourceValue = params.find("fontFamily").resourceValue
         assertThat(resourceValue.type.resolve(params)).isEqualTo("font")
@@ -62,56 +64,66 @@ class ParametersTest {
 
     @Test
     fun lambda(): Unit = runBlocking {
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
 
         val buttons = composables.filter("Button")
         val buttonId = buttons.first().id
-        val params = rule.inspectorTester
-            .sendCommand(GetParametersByIdCommand(rule.rootId, buttonId))
-            .getParametersResponse
+        val params =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, buttonId))
+                .getParametersResponse
 
         val lambdaValue = params.find("onClick").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
-        assertThat(lambdaValue.startLineNumber).isEqualTo(53)
-        assertThat(lambdaValue.endLineNumber).isEqualTo(53)
+        assertThat(lambdaValue.startLineNumber).isEqualTo(46)
+        assertThat(lambdaValue.endLineNumber).isEqualTo(46)
         assertThat(lambdaValue.packageName.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.testdata")
     }
 
     @Test
     fun contentLambda(): Unit = runBlocking {
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
 
         val buttons = composables.filter("SomeContent")
         val someId = buttons.single().id
-        val params = rule.inspectorTester.sendCommand(GetParametersByIdCommand(rule.rootId, someId))
-            .getParametersResponse
+        val params =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, someId))
+                .getParametersResponse
 
         val lambdaValue = params.find("content").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
-        assertThat(lambdaValue.startLineNumber).isEqualTo(62)
-        assertThat(lambdaValue.endLineNumber).isEqualTo(65)
+        assertThat(lambdaValue.startLineNumber).isEqualTo(50)
+        assertThat(lambdaValue.endLineNumber).isEqualTo(50)
         assertThat(lambdaValue.packageName.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.testdata")
     }
 
     @Test
     fun functionType(): Unit = runBlocking {
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
 
         val buttons = composables.filter("Button")
         val buttonId = buttons.last().id
-        val params = rule.inspectorTester
-            .sendCommand(GetParametersByIdCommand(rule.rootId, buttonId))
-            .getParametersResponse
+        val params =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, buttonId))
+                .getParametersResponse
 
         val lambdaValue = params.find("onClick").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
-        assertThat(lambdaValue.startLineNumber).isEqualTo(56)
-        assertThat(lambdaValue.endLineNumber).isEqualTo(56)
+        assertThat(lambdaValue.startLineNumber).isEqualTo(47)
+        assertThat(lambdaValue.endLineNumber).isEqualTo(47)
         assertThat(lambdaValue.functionName.resolve(params)).isEqualTo("testClickHandler")
         assertThat(lambdaValue.packageName.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.testdata")
@@ -120,8 +132,7 @@ class ParametersTest {
     @Test
     fun testIntArrayWithoutDelayedExtraction() = intArray(useDelayedParameterExtraction = false)
 
-    @Test
-    fun testIntArrayWithDelayedExtraction() = intArray(useDelayedParameterExtraction = true)
+    @Test fun testIntArrayWithDelayedExtraction() = intArray(useDelayedParameterExtraction = true)
 
     private fun intArray(useDelayedParameterExtraction: Boolean): Unit = runBlocking {
         setUpDelayedExtraction(useDelayedParameterExtraction)
@@ -130,9 +141,10 @@ class ParametersTest {
         val nodes = tester.sendCommand(GetComposablesCommand(rule.rootId)).getComposablesResponse
 
         val function = nodes.filter("FunctionWithIntArray").single()
-        val paramResponse = tester.sendCommand(
-            GetParametersCommand(rule.rootId, function, useDelayedParameterExtraction)
-        )
+        val paramResponse =
+            tester.sendCommand(
+                GetParametersCommand(rule.rootId, function, useDelayedParameterExtraction)
+            )
         val params = paramResponse.getParametersResponse
 
         val intArray = params.find("intArray")
@@ -155,14 +167,16 @@ class ParametersTest {
         }
 
         val expanded =
-            tester.sendCommand(
-                GetParameterDetailsCommand(
-                    rule.rootId,
-                    reference.build(),
-                    startIndex = 5,
-                    maxElements = 5
+            tester
+                .sendCommand(
+                    GetParameterDetailsCommand(
+                        rule.rootId,
+                        reference.build(),
+                        startIndex = 5,
+                        maxElements = 5
+                    )
                 )
-            ).getParameterDetailsResponse
+                .getParameterDetailsResponse
         val intArray2 = expanded.parameter
         strings = expanded.stringsList
         checkStringParam(strings, intArray2, "intArray", "IntArray[8]", 0)
@@ -183,14 +197,19 @@ class ParametersTest {
     private fun unmergedSemantics(useDelayedParameterExtraction: Boolean): Unit = runBlocking {
         setUpDelayedExtraction(useDelayedParameterExtraction)
 
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
 
         val texts = composables.filter("Text")
         val textOne = texts.first()
-        val params = rule.inspectorTester.sendCommand(
-            GetParametersCommand(rule.rootId, textOne, useDelayedParameterExtraction)
-        ).getParametersResponse
+        val params =
+            rule.inspectorTester
+                .sendCommand(
+                    GetParametersCommand(rule.rootId, textOne, useDelayedParameterExtraction)
+                )
+                .getParametersResponse
 
         val text = params.findUnmerged("Text")
         assertThat(text.type).isEqualTo(Parameter.Type.ITERABLE)
@@ -213,13 +232,18 @@ class ParametersTest {
     private fun mergedSemantics(useDelayedParameterExtraction: Boolean): Unit = runBlocking {
         setUpDelayedExtraction(useDelayedParameterExtraction)
 
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
 
         val textFirst = composables.filter("Column").first()
-        val params = rule.inspectorTester.sendCommand(
-            GetParametersCommand(rule.rootId, textFirst, useDelayedParameterExtraction)
-        ).getParametersResponse
+        val params =
+            rule.inspectorTester
+                .sendCommand(
+                    GetParametersCommand(rule.rootId, textFirst, useDelayedParameterExtraction)
+                )
+                .getParametersResponse
 
         val text = params.findMerged("Text")
         val strings = params.stringsList
@@ -236,9 +260,10 @@ class ParametersTest {
         assertThat(text.elementsList.size).isEqualTo(3)
 
         val row = composables.filter("Row").single()
-        val params2 = rule.inspectorTester.sendCommand(
-            GetParametersCommand(rule.rootId, row, useDelayedParameterExtraction)
-        ).getParametersResponse
+        val params2 =
+            rule.inspectorTester
+                .sendCommand(GetParametersCommand(rule.rootId, row, useDelayedParameterExtraction))
+                .getParametersResponse
 
         val texts2 = params2.findMerged("Text")
         val strings2 = params2.stringsList
@@ -253,14 +278,16 @@ class ParametersTest {
 
         val reference = texts2.reference.toBuilder()
         val expanded =
-            rule.inspectorTester.sendCommand(
-                GetParameterDetailsCommand(
-                    rule.rootId,
-                    reference.build(),
-                    startIndex = 5,
-                    maxElements = 5
+            rule.inspectorTester
+                .sendCommand(
+                    GetParameterDetailsCommand(
+                        rule.rootId,
+                        reference.build(),
+                        startIndex = 5,
+                        maxElements = 5
+                    )
                 )
-            ).getParameterDetailsResponse
+                .getParameterDetailsResponse
         val texts3 = expanded.parameter
         val strings3 = expanded.stringsList
         checkStringParam(strings3, texts3, "Text", "List[8]", 0)
@@ -274,16 +301,19 @@ class ParametersTest {
     fun delayedExtraction(): Unit = runBlocking {
         setUpDelayedExtraction(true)
 
-        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
         var strings = composables.stringsList.toMap()
         var column = composables.filter("Column").first()
         var text = column.childrenList.single { strings[it.name] == "Text" }
 
         // Lookup by anchor will find the parameters
-        var paramsByAnchor = rule.inspectorTester.sendCommand(
-            GetParametersByAnchorIdCommand(rule.rootId, text.anchorHash, text.id)
-        ).getParametersResponse
+        var paramsByAnchor =
+            rule.inspectorTester
+                .sendCommand(GetParametersByAnchorIdCommand(rule.rootId, text.anchorHash, text.id))
+                .getParametersResponse
         strings = paramsByAnchor.stringsList.toMap()
         assertThat(paramsByAnchor.parameterGroup.parameterList).isNotEmpty()
         var textValue = paramsByAnchor.find("text")
@@ -291,25 +321,28 @@ class ParametersTest {
 
         // Lookup parameters without anchor should fallback to the older approach and return
         // the same parameters:
-        var paramsById = rule.inspectorTester.sendCommand(
-            GetParametersByIdCommand(rule.rootId, text.id)
-        ).getParametersResponse
+        var paramsById =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, text.id))
+                .getParametersResponse
         // We are using delayed parameter extractions so the cache does not have parameters
         // (The code should look for an anchor but the anchor is not specified.)
         assertThat(paramsById.parameterGroup.parameterList).isNotEmpty()
         textValue = paramsById.find("text")
         assertThat(strings[textValue.int32Value]).isEqualTo("four")
 
-        val snapshot = rule.inspectorTester.sendCommand(
-            GetComposablesCommand(rule.rootId, extractAllParameters = true)
-        ).getComposablesResponse
+        val snapshot =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId, extractAllParameters = true))
+                .getComposablesResponse
         strings = snapshot.stringsList.toMap()
         column = snapshot.filter("Column").first()
         text = column.childrenList.single { strings[it.name] == "Text" }
 
-        paramsById = rule.inspectorTester.sendCommand(
-            GetParametersByIdCommand(rule.rootId, text.id)
-        ).getParametersResponse
+        paramsById =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, text.id))
+                .getParametersResponse
         // Even when using delayed parameter extractions, use the cache if it contains all params:
         strings = paramsById.stringsList.toMap()
         assertThat(paramsById.parameterGroup.parameterList).isNotEmpty()
@@ -318,17 +351,19 @@ class ParametersTest {
 
         // Looking up by anchor should find the parameters
         // (The code should use the cached values.)
-        paramsByAnchor = rule.inspectorTester.sendCommand(
-            GetParametersByAnchorIdCommand(rule.rootId, text.anchorHash, text.id)
-        ).getParametersResponse
+        paramsByAnchor =
+            rule.inspectorTester
+                .sendCommand(GetParametersByAnchorIdCommand(rule.rootId, text.anchorHash, text.id))
+                .getParametersResponse
         assertThat(paramsByAnchor.parameterGroup.parameterList).isNotEmpty()
     }
 
     private suspend fun setUpDelayedExtraction(useDelayedParameterExtraction: Boolean) {
         if (useDelayedParameterExtraction) {
-            val updated = rule.inspectorTester.sendCommand(
-                GetUpdateSettingsCommand(delayParameterExtractions = true)
-            ).updateSettingsResponse
+            val updated =
+                rule.inspectorTester
+                    .sendCommand(GetUpdateSettingsCommand(delayParameterExtractions = true))
+                    .updateSettingsResponse
             assertThat(updated.canDelayParameterExtractions).isTrue()
         }
     }
@@ -361,9 +396,10 @@ private fun GetParametersResponse.findMerged(name: String): Parameter {
 
 private fun GetComposablesResponse.filter(name: String): List<ComposableNode> {
     val strings = stringsList.toMap()
-    return rootsList.flatMap { it.nodesList }.flatMap { it.flatten() }.filter {
-        strings[it.name] == name
-    }
+    return rootsList
+        .flatMap { it.nodesList }
+        .flatMap { it.flatten() }
+        .filter { strings[it.name] == name }
 }
 
 @Suppress("SameParameterValue")

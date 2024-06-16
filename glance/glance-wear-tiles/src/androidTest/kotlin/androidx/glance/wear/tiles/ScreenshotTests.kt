@@ -85,8 +85,7 @@ class ScreenshotTests {
     private val defaultTextColor = ColorProvider(Color.White)
     private val defaultTextStyle = TextStyle(defaultTextColor)
 
-    @get:Rule
-    var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear-tiles")
+    @get:Rule var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear-tiles")
 
     private lateinit var fakeCoroutineScope: TestScope
     private lateinit var testBitmap: Bitmap
@@ -98,190 +97,197 @@ class ScreenshotTests {
     }
 
     @Test
-    fun basicBoxTest() = runSingleGoldenTest("basic-box") {
-        Box(modifier = GlanceModifier.size(100.dp).background(Color.Green)) { }
-    }
+    fun basicBoxTest() =
+        runSingleGoldenTest("basic-box") {
+            Box(modifier = GlanceModifier.size(100.dp).background(Color.Green)) {}
+        }
 
     @Test
-    fun rowColumnGrid() = runSingleGoldenTest("row-column-grid") {
-        Row {
-            Column {
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
-            }
-            Column {
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+    fun rowColumnGrid() =
+        runSingleGoldenTest("row-column-grid") {
+            Row {
+                Column {
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
+                }
+                Column {
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+                }
             }
         }
-    }
 
     @Test
-    fun boxesWithBorder() = runSingleGoldenTest("boxes-with-border") {
-        Row {
-            Column {
-                Box(
-                    modifier = GlanceModifier
-                        .size(20.dp)
-                        .background(Color.Red)
-                        .border(width = 4.dp, color = ColorProvider(Color.Cyan))
-                ) {}
-                Box(
-                    modifier = GlanceModifier
-                        .size(20.dp)
-                        .background(Color.Green)
-                        .border(width = 4.dp, color = ColorProvider(Color.Blue))
-                ) {}
+    fun boxesWithBorder() =
+        runSingleGoldenTest("boxes-with-border") {
+            Row {
+                Column {
+                    Box(
+                        modifier =
+                            GlanceModifier.size(20.dp)
+                                .background(Color.Red)
+                                .border(width = 4.dp, color = ColorProvider(Color.Cyan))
+                    ) {}
+                    Box(
+                        modifier =
+                            GlanceModifier.size(20.dp)
+                                .background(Color.Green)
+                                .border(width = 4.dp, color = ColorProvider(Color.Blue))
+                    ) {}
+                }
+                Column {
+                    Box(
+                        modifier =
+                            GlanceModifier.size(20.dp)
+                                .background(Color.Blue)
+                                .border(
+                                    width = R.dimen.border_dimension,
+                                    color = ColorProvider(Color.Green)
+                                )
+                    ) {}
+                    Box(
+                        modifier =
+                            GlanceModifier.size(20.dp)
+                                .background(Color.Cyan)
+                                .border(
+                                    width = R.dimen.border_dimension,
+                                    color = ColorProvider(Color.Red)
+                                )
+                    ) {}
+                }
             }
+        }
+
+    @Test
+    fun basicText() =
+        runSingleGoldenTest("basic-text") {
             Column {
-                Box(
-                    modifier = GlanceModifier
-                        .size(20.dp)
-                        .background(Color.Blue)
-                        .border(
-                            width = R.dimen.border_dimension,
-                            color = ColorProvider(Color.Green)
+                Text(text = "Normal", style = defaultTextStyle)
+                Text(text = "Bold", style = defaultTextStyle.copy(fontWeight = FontWeight.Bold))
+                Text(text = "Italic", style = defaultTextStyle.copy(fontStyle = FontStyle.Italic))
+                Text(
+                    text = "Underline",
+                    style = defaultTextStyle.copy(textDecoration = TextDecoration.Underline)
+                )
+                Text(
+                    text = "Everything",
+                    style =
+                        defaultTextStyle.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic,
+                            textDecoration = TextDecoration.Underline
                         )
-                ) {}
-                Box(
-                    modifier = GlanceModifier
-                        .size(20.dp)
-                        .background(Color.Cyan)
-                        .border(
-                            width = R.dimen.border_dimension,
-                            color = ColorProvider(Color.Red)
-                        )
-                ) {}
-            }
-        }
-    }
-
-    @Test
-    fun basicText() = runSingleGoldenTest("basic-text") {
-        Column {
-            Text(text = "Normal", style = defaultTextStyle)
-            Text(text = "Bold", style = defaultTextStyle.copy(fontWeight = FontWeight.Bold))
-            Text(text = "Italic", style = defaultTextStyle.copy(fontStyle = FontStyle.Italic))
-            Text(
-                text = "Underline",
-                style = defaultTextStyle.copy(textDecoration = TextDecoration.Underline)
-            )
-            Text(
-                text = "Everything",
-                style = defaultTextStyle.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic,
-                    textDecoration = TextDecoration.Underline
-                )
-            )
-        }
-    }
-
-    @Test
-    fun textWithSizeAndAlignment() = runSingleGoldenTest("text-with-size-alignment") {
-        Row {
-            Column {
-                Text(
-                    text = "Hello World",
-                    style = defaultTextStyle,
-                    modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Green)
-                )
-                Text(
-                    text = "Hello World",
-                    style = defaultTextStyle.copy(textAlign = TextAlign.Start),
-                    modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Blue)
-                )
-
-                Text(
-                    text = "Hello World",
-                    style = defaultTextStyle.copy(textAlign = TextAlign.End),
-                    modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Red)
-                )
-            }
-            Column {
-                Text(
-                    text = "Hello World! This is a multiline test",
-                    style = defaultTextStyle,
-                    maxLines = 3,
-                    modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Red)
-                )
-
-                Text(
-                    text = "Hello World! This is a multiline test",
-                    maxLines = 3,
-                    style = defaultTextStyle.copy(
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Green)
-                )
-
-                Text(
-                    text = "Hello World! This is a multiline test",
-                    maxLines = 3,
-                    style = defaultTextStyle.copy(
-                        textAlign = TextAlign.End
-                    ),
-                    modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Blue)
                 )
             }
         }
-    }
 
     @Test
-    fun curvedText() = runSingleGoldenTest("curved-text") {
-        CurvedRow(
-            modifier = GlanceModifier.background(Color.Blue),
-            radialAlignment = RadialAlignment.Center,
-            anchorDegrees = -90f,
-            anchorType = AnchorType.Center
-        ) {
-            curvedText(text = "Hello World")
-            curvedText(text = "This is a test!", style = CurvedTextStyle(fontSize = 24.sp))
-        }
-    }
+    fun textWithSizeAndAlignment() =
+        runSingleGoldenTest("text-with-size-alignment") {
+            Row {
+                Column {
+                    Text(
+                        text = "Hello World",
+                        style = defaultTextStyle,
+                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Green)
+                    )
+                    Text(
+                        text = "Hello World",
+                        style = defaultTextStyle.copy(textAlign = TextAlign.Start),
+                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Blue)
+                    )
 
-    @Test
-    fun curvedRowWithNormalElements() = runSingleGoldenTest("curved-row-with-normal-elements") {
-        CurvedRow {
-            curvedComposable(rotateContent = false) {
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
+                    Text(
+                        text = "Hello World",
+                        style = defaultTextStyle.copy(textAlign = TextAlign.End),
+                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Red)
+                    )
+                }
+                Column {
+                    Text(
+                        text = "Hello World! This is a multiline test",
+                        style = defaultTextStyle,
+                        maxLines = 3,
+                        modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Red)
+                    )
+
+                    Text(
+                        text = "Hello World! This is a multiline test",
+                        maxLines = 3,
+                        style = defaultTextStyle.copy(textAlign = TextAlign.Start),
+                        modifier =
+                            GlanceModifier.width(100.dp).height(60.dp).background(Color.Green)
+                    )
+
+                    Text(
+                        text = "Hello World! This is a multiline test",
+                        maxLines = 3,
+                        style = defaultTextStyle.copy(textAlign = TextAlign.End),
+                        modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Blue)
+                    )
+                }
             }
         }
-    }
 
     @Test
-    fun spacersInGrid() = runSingleGoldenTest("spacers-in-grid") {
-        Row {
-            Column {
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
-                Spacer(modifier = GlanceModifier.height(10.dp))
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
-            }
-            Spacer(modifier = GlanceModifier.width(10.dp))
-            Column {
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
-                Spacer(modifier = GlanceModifier.height(10.dp))
-                Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+    fun curvedText() =
+        runSingleGoldenTest("curved-text") {
+            CurvedRow(
+                modifier = GlanceModifier.background(Color.Blue),
+                radialAlignment = RadialAlignment.Center,
+                anchorDegrees = -90f,
+                anchorType = AnchorType.Center
+            ) {
+                curvedText(text = "Hello World")
+                curvedText(text = "This is a test!", style = CurvedTextStyle(fontSize = 24.sp))
             }
         }
-    }
 
     @Test
-    fun spacersInCurvedRow() = runSingleGoldenTest("spacers-in-curved-row") {
-        CurvedRow {
-            curvedComposable {
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+    fun curvedRowWithNormalElements() =
+        runSingleGoldenTest("curved-row-with-normal-elements") {
+            CurvedRow {
+                curvedComposable(rotateContent = false) {
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
+                }
+            }
+        }
+
+    @Test
+    fun spacersInGrid() =
+        runSingleGoldenTest("spacers-in-grid") {
+            Row {
+                Column {
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
+                    Spacer(modifier = GlanceModifier.height(10.dp))
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
+                }
                 Spacer(modifier = GlanceModifier.width(10.dp))
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
-                Spacer(modifier = GlanceModifier.width(10.dp))
-                Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+                Column {
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
+                    Spacer(modifier = GlanceModifier.height(10.dp))
+                    Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+                }
             }
         }
-    }
+
+    @Test
+    fun spacersInCurvedRow() =
+        runSingleGoldenTest("spacers-in-curved-row") {
+            CurvedRow {
+                curvedComposable {
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+                    Spacer(modifier = GlanceModifier.width(10.dp))
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+                    Spacer(modifier = GlanceModifier.width(10.dp))
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+                }
+            }
+        }
 
     @Test
     fun curvedLineandspacersInCurvedRow() =
@@ -289,79 +295,76 @@ class ScreenshotTests {
             CurvedRow {
                 curvedLine(
                     color = ColorProvider(Color.Cyan),
-                    curvedModifier =
-                    GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
                 )
-                curvedSpacer(
-                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f)
-                )
+                curvedSpacer(curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f))
                 curvedComposable {
                     Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
                 }
-                curvedSpacer(
-                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f)
-                )
+                curvedSpacer(curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f))
                 curvedLine(
                     color = ColorProvider(Color.Cyan),
-                    curvedModifier =
-                    GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
                 )
             }
         }
 
     @Test
-    fun imageScaleModes() = runSingleGoldenTest("image-scale-modes") {
-        Column {
-            Image(
-                provider = ImageProvider(R.drawable.oval),
-                contentDescription = "Oval-crop",
-                modifier = GlanceModifier.size(50.dp),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = GlanceModifier.height(10.dp))
-            Image(
-                provider = ImageProvider(testBitmap),
-                contentDescription = "Oval-fit",
-                modifier = GlanceModifier.size(50.dp),
-                contentScale = ContentScale.Fit
-            )
-            Spacer(modifier = GlanceModifier.height(10.dp))
-            Image(
-                provider = ImageProvider(R.drawable.oval),
-                contentDescription = "Oval-fill-bounds",
-                modifier = GlanceModifier.size(50.dp),
-                contentScale = ContentScale.FillBounds
-            )
-        }
-    }
-
-    @Test
-    fun visibility() = runSingleGoldenTest("visibility") {
-        Column(modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)) {
-            Text("First", style = defaultTextStyle.copy(color = ColorProvider(Color.Red)))
-            Text("gone", modifier = GlanceModifier.visibility(Visibility.Gone))
-            Row {
-                Text(
-                    "First",
-                    modifier = GlanceModifier.visibility(Visibility.Invisible)
-                        .background(ColorProvider(Color.Red))
+    fun imageScaleModes() =
+        runSingleGoldenTest("image-scale-modes") {
+            Column {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = "Oval-crop",
+                    modifier = GlanceModifier.size(50.dp),
+                    contentScale = ContentScale.Crop
                 )
-                Text("after", style = defaultTextStyle)
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                Image(
+                    provider = ImageProvider(testBitmap),
+                    contentDescription = "Oval-fit",
+                    modifier = GlanceModifier.size(50.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = "Oval-fill-bounds",
+                    modifier = GlanceModifier.size(50.dp),
+                    contentScale = ContentScale.FillBounds
+                )
             }
-            Text("Third", style = defaultTextStyle)
-            Row(
-                modifier = GlanceModifier.visibility(Visibility.Invisible).background(Color.Green)
-            ) {
-                Spacer(modifier = GlanceModifier.size(10.dp).background(Color.Red))
-            }
-            Text("Last", style = defaultTextStyle)
         }
-    }
 
     @Test
-    fun displayErrorUi() = runSingleGoldenTest("errorUi") {
-        Box(modifier = UnSupportedModifier()) { }
-    }
+    fun visibility() =
+        runSingleGoldenTest("visibility") {
+            Column(modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)) {
+                Text("First", style = defaultTextStyle.copy(color = ColorProvider(Color.Red)))
+                Text("gone", modifier = GlanceModifier.visibility(Visibility.Gone))
+                Row {
+                    Text(
+                        "First",
+                        modifier =
+                            GlanceModifier.visibility(Visibility.Invisible)
+                                .background(ColorProvider(Color.Red))
+                    )
+                    Text("after", style = defaultTextStyle)
+                }
+                Text("Third", style = defaultTextStyle)
+                Row(
+                    modifier =
+                        GlanceModifier.visibility(Visibility.Invisible).background(Color.Green)
+                ) {
+                    Spacer(modifier = GlanceModifier.size(10.dp).background(Color.Red))
+                }
+                Text("Last", style = defaultTextStyle)
+            }
+        }
+
+    @Test
+    fun displayErrorUi() =
+        runSingleGoldenTest("errorUi") { Box(modifier = UnSupportedModifier()) {} }
 
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
@@ -384,64 +387,50 @@ class ScreenshotTests {
     }
 
     @Suppress("deprecation") // For backwards compatibility.
-    private fun runSingleGoldenTest(
-        expectedGolden: String,
-        content: @Composable () -> Unit
-    ) = fakeCoroutineScope.runTest {
-        val context = getApplicationContext<Context>()
-        val composition = runComposition(content)
-        normalizeCompositionTree(context, composition)
-        val translatedComposition =
-            try {
-                translateTopLevelComposition(context, composition)
-            } catch (throwable: Throwable) {
-                CompositionResult(
-                    errorUiLayout(),
-                    androidx.wear.tiles.ResourceBuilders.Resources.Builder())
-            }
+    private fun runSingleGoldenTest(expectedGolden: String, content: @Composable () -> Unit) =
+        fakeCoroutineScope.runTest {
+            val context = getApplicationContext<Context>()
+            val composition = runComposition(content)
+            normalizeCompositionTree(context, composition)
+            val translatedComposition =
+                try {
+                    translateTopLevelComposition(context, composition)
+                } catch (throwable: Throwable) {
+                    CompositionResult(
+                        errorUiLayout(),
+                        androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+                    )
+                }
 
-        @Suppress("DEPRECATION")
-        val renderer = TileRenderer(
-            context,
-            androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-                .setRoot(translatedComposition.layout)
-                .build(),
-            translatedComposition.resources.build(),
-            ContextCompat.getMainExecutor(getApplicationContext())
-        ) {}
+            @Suppress("DEPRECATION")
+            val renderer =
+                TileRenderer(
+                    context,
+                    androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
+                        .setRoot(translatedComposition.layout)
+                        .build(),
+                    translatedComposition.resources.build(),
+                    ContextCompat.getMainExecutor(getApplicationContext())
+                ) {}
 
-        val frame = FrameLayout(getApplicationContext())
-        @Suppress("DEPRECATION")
-        val firstChild = renderer.inflate(frame)
+            val frame = FrameLayout(getApplicationContext())
+            @Suppress("DEPRECATION") val firstChild = renderer.inflate(frame)
 
-        requireNotNull(firstChild) {
-            "Renderer did not inflate composition $composition"
+            requireNotNull(firstChild) { "Renderer did not inflate composition $composition" }
+
+            val screenWidth = MeasureSpec.makeMeasureSpec(SCREEN_WIDTH, MeasureSpec.EXACTLY)
+            val screenHeight = MeasureSpec.makeMeasureSpec(SCREEN_HEIGHT, MeasureSpec.EXACTLY)
+
+            frame.measure(screenWidth, screenHeight)
+            frame.layout(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+            // Blit it to a bitmap for further testing.
+            val bmp = Bitmap.createBitmap(SCREEN_WIDTH, SCREEN_HEIGHT, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bmp)
+            frame.draw(canvas)
+
+            screenshotRule.assertBitmapAgainstGolden(bmp, expectedGolden, MSSIMMatcher())
         }
-
-        val screenWidth =
-            MeasureSpec.makeMeasureSpec(SCREEN_WIDTH, MeasureSpec.EXACTLY)
-        val screenHeight =
-            MeasureSpec.makeMeasureSpec(SCREEN_HEIGHT, MeasureSpec.EXACTLY)
-
-        frame.measure(screenWidth, screenHeight)
-        frame.layout(
-            0,
-            0,
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT
-        )
-
-        // Blit it to a bitmap for further testing.
-        val bmp = Bitmap.createBitmap(
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT,
-            Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(bmp)
-        frame.draw(canvas)
-
-        screenshotRule.assertBitmapAgainstGolden(bmp, expectedGolden, MSSIMMatcher())
-    }
 
     companion object {
         private const val SCREEN_WIDTH = 390

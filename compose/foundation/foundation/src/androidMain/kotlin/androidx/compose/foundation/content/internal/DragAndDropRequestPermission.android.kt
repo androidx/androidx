@@ -28,9 +28,7 @@ import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireView
 import androidx.core.view.DragAndDropPermissionsCompat
 
-internal actual fun DelegatableNode.dragAndDropRequestPermission(
-    event: DragAndDropEvent
-) {
+internal actual fun DelegatableNode.dragAndDropRequestPermission(event: DragAndDropEvent) {
     if (Build.VERSION.SDK_INT < 24) return
     // If there is no contentUri, there's no need to request permissions
     if (!event.toAndroidDragEvent().clipData.containsContentUri()) return
@@ -50,9 +48,9 @@ private fun ClipData.containsContentUri(): Boolean {
 }
 
 /**
- * Attempts to find the activity for the given view by unwrapping the view's context. This is
- * a "best effort" approach that's not guaranteed to get the activity, since a view's context
- * is not necessarily an activity.
+ * Attempts to find the activity for the given view by unwrapping the view's context. This is a
+ * "best effort" approach that's not guaranteed to get the activity, since a view's context is not
+ * necessarily an activity.
  *
  * @param view The target view.
  * @return The activity if found; null otherwise.

@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(InternalComposeApi::class)
+
 package androidx.compose.runtime
 
 import androidx.compose.runtime.mock.EmptyApplier
@@ -58,8 +59,7 @@ class JvmCompositionTests {
         for (i in 1..1000) {
             runTest(UnconfinedTestDispatcher()) {
                 localRecomposerTest {
-                    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-                    var value by mutableStateOf(0)
+                    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE") var value by mutableStateOf(0)
                     val snapshotObserver = SnapshotStateObserver {}
                     snapshotObserver.start()
                     @Suppress("UNUSED_VALUE")
@@ -107,8 +107,7 @@ class JvmCompositionTests {
         }
 
         thread.interrupt()
-        @Suppress("BlockingMethodInNonBlockingContext")
-        thread.join()
+        @Suppress("BlockingMethodInNonBlockingContext") thread.join()
         delay(10)
         threadException?.let { throw it }
     }
@@ -127,9 +126,7 @@ class JvmCompositionTests {
         val thread = thread {
             try {
                 while (!Thread.interrupted()) {
-                    Snapshot.withMutableSnapshot {
-                        count.value++
-                    }
+                    Snapshot.withMutableSnapshot { count.value++ }
                 }
             } catch (e: Exception) {
                 threadException = e
@@ -142,8 +139,7 @@ class JvmCompositionTests {
         }
 
         thread.interrupt()
-        @Suppress("BlockingMethodInNonBlockingContext")
-        thread.join()
+        @Suppress("BlockingMethodInNonBlockingContext") thread.join()
         delay(10)
         threadException?.let { throw it }
     }
@@ -176,23 +172,22 @@ class JvmCompositionTests {
         localRecomposerTest { recomposer ->
             var compositionSnapshot: WeakReference<Snapshot>? = null
             val composition = Composition(UnitApplier(), recomposer)
-            composition.setContent {
-                compositionSnapshot = WeakReference(Snapshot.current)
-            }
+            composition.setContent { compositionSnapshot = WeakReference(Snapshot.current) }
             assertNotNull(compositionSnapshot, "compositionSnapshot weak reference")
-            repeat(10) {
-                Runtime.getRuntime().gc()
-            }
+            repeat(10) { Runtime.getRuntime().gc() }
             assertNull(compositionSnapshot?.get(), "weak snapshot reference after forced gc")
         }
     }
 
     private var count = 0
-    @BeforeTest fun saveSnapshotCount() {
+
+    @BeforeTest
+    fun saveSnapshotCount() {
         count = Snapshot.openSnapshotCount()
     }
 
-    @AfterTest fun checkSnapshotCount() {
+    @AfterTest
+    fun checkSnapshotCount() {
         val afterCount = Snapshot.openSnapshotCount()
         assertEquals(count, afterCount, "A snapshot was left open after the test")
     }

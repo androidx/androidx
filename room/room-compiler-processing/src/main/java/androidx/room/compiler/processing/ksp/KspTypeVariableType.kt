@@ -59,15 +59,14 @@ internal class KspTypeVariableType(
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?
-    ) = KspTypeVariableType(
-        env,
-        ksType.declaration as KSTypeParameter,
-        ksType,
-        originalKSAnnotations,
-        scope
-    )
+    ) =
+        KspTypeVariableType(
+            env,
+            ksType.declaration as KSTypeParameter,
+            ksType,
+            originalKSAnnotations,
+            scope
+        )
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(ksTypeVariable)
-    }
+    override val equalityItems: Array<out Any?> by lazy { arrayOf(ksTypeVariable) }
 }

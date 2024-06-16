@@ -101,9 +101,7 @@ public class OvulationTestRecord(
         val RESULT_INT_TO_STRING_MAP = RESULT_STRING_TO_INT_MAP.reverse()
     }
 
-    /**
-     * The result of a user's ovulation test.
-     */
+    /** The result of a user's ovulation test. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [RESULT_INCONCLUSIVE, RESULT_POSITIVE, RESULT_HIGH, RESULT_NEGATIVE])
     @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -18,8 +18,6 @@ package androidx.camera.viewfinder.internal.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * A quirk where a scaled up SurfaceView is not cropped by the parent View.
  *
@@ -31,7 +29,6 @@ import androidx.annotation.RequiresApi;
  *                  elements.
  *     Device(s): XIAOMI M2101K7AG
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewNotCroppedByParentQuirk implements Quirk {
 
     private static final String XIAOMI = "XIAOMI";

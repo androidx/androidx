@@ -24,37 +24,31 @@ import androidx.credentials.CredentialOption
  * [CredentialEntry] presented on the selector UI.
  *
  * This request will be added to the intent extras of the activity invoked by the [PendingIntent]
- * set on the [CredentialEntry] that the user selected. The request
- * must be extracted using the [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper
- * API.
+ * set on the [CredentialEntry] that the user selected. The request must be extracted using the
+ * [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper API.
  *
- * @constructor constructs an instance of [ProviderGetCredentialRequest]
- *
- * @param credentialOptions the list of credential retrieval options containing the
- * required parameters, expected  to contain a single [CredentialOption] when this
- * request is retrieved from the [android.app.Activity] invoked by the [android.app.PendingIntent]
- * set on a [PasswordCredentialEntry] or a [PublicKeyCredentialEntry], or expected to contain
- * multiple [CredentialOption] when this request is retrieved
- * from the [android.app.Activity] invoked by the [android.app.PendingIntent]
- * set on a [RemoteEntry]
+ * @param credentialOptions the list of credential retrieval options containing the required
+ *   parameters, expected to contain a single [CredentialOption] when this request is retrieved from
+ *   the [android.app.Activity] invoked by the [android.app.PendingIntent] set on a
+ *   [PasswordCredentialEntry] or a [PublicKeyCredentialEntry], or expected to contain multiple
+ *   [CredentialOption] when this request is retrieved from the [android.app.Activity] invoked by
+ *   the [android.app.PendingIntent] set on a [RemoteEntry]
  * @param callingAppInfo information pertaining to the calling application
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
+ *
+ * @constructor constructs an instance of [ProviderGetCredentialRequest]
  */
-class ProviderGetCredentialRequest constructor(
-    val credentialOptions: List<CredentialOption>,
-    val callingAppInfo: CallingAppInfo
-) {
+class ProviderGetCredentialRequest
+constructor(val credentialOptions: List<CredentialOption>, val callingAppInfo: CallingAppInfo) {
     internal companion object {
         @JvmStatic
         internal fun createFrom(
             options: List<CredentialOption>,
             callingAppInfo: CallingAppInfo
         ): ProviderGetCredentialRequest {
-            return ProviderGetCredentialRequest(
-                options,
-                callingAppInfo)
+            return ProviderGetCredentialRequest(options, callingAppInfo)
         }
     }
 }

@@ -21,8 +21,5 @@ package androidx.compose.runtime
  * generated which allow this function's execution to be skipped.
  */
 @Retention(AnnotationRetention.SOURCE)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER
-)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 annotation class NonSkippableComposable

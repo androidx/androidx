@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
@@ -38,6 +39,7 @@ import androidx.webkit.internal.ServiceWorkerControllerImpl;
  * });
  * </pre>
  */
+@AnyThread
 public abstract class ServiceWorkerControllerCompat {
     /**
      *
@@ -81,7 +83,7 @@ public abstract class ServiceWorkerControllerCompat {
     /**
      *
      * Sets the client to capture service worker related callbacks.
-     *
+     * <p>
      * A {@link ServiceWorkerClientCompat} should be set before any service workers are
      * active, e.g. a safe place is before any WebView instances are created or
      * pages loaded.

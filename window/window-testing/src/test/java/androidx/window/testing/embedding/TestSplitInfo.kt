@@ -57,8 +57,8 @@ fun TestSplitInfo(
  *
  * @param testActivity an [Activity] that should be considered in the stack
  * @param isEmpty states if the stack is empty or not. In practice an [ActivityStack] with a single
- * [Activity] but [isEmpty] set to `false` means there is an [Activity] from outside the process
- * in the stack.
+ *   [Activity] but [isEmpty] set to `false` means there is an [Activity] from outside the process
+ *   in the stack.
  */
 @ExperimentalWindowApi
 fun TestActivityStack(

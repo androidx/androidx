@@ -642,6 +642,8 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.MutableState<T> mutableStateOf(T value, optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy);
+    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateSet<T> mutableStateSetOf();
+    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateSet<T> mutableStateSetOf(T... elements);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> neverEqualPolicy();
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> produceState(T initialValue, Object? key1, Object? key2, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> producer);
@@ -1026,6 +1028,10 @@ package androidx.compose.runtime.snapshots {
     property public int size;
   }
 
+  public final class SnapshotStateListKt {
+    method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> SnapshotStateList(int size, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends T> init);
+  }
+
   @androidx.compose.runtime.Stable public final class SnapshotStateMap<K, V> implements kotlin.jvm.internal.markers.KMutableMap java.util.Map<K,V> androidx.compose.runtime.snapshots.StateObject {
     ctor public SnapshotStateMap();
     method public void clear();
@@ -1060,6 +1066,26 @@ package androidx.compose.runtime.snapshots {
     method public void start();
     method public void stop();
     method @Deprecated public void withNoObservations(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  @androidx.compose.runtime.Stable public final class SnapshotStateSet<T> implements kotlin.jvm.internal.markers.KMutableSet java.util.RandomAccess java.util.Set<T> androidx.compose.runtime.snapshots.StateObject {
+    ctor public SnapshotStateSet();
+    method public boolean add(T element);
+    method public boolean addAll(java.util.Collection<? extends T> elements);
+    method public void clear();
+    method public boolean contains(T element);
+    method public boolean containsAll(java.util.Collection<? extends T> elements);
+    method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
+    method public int getSize();
+    method public boolean isEmpty();
+    method public java.util.Iterator<T> iterator();
+    method public void prependStateRecord(androidx.compose.runtime.snapshots.StateRecord value);
+    method public boolean remove(T element);
+    method public boolean removeAll(java.util.Collection<? extends T> elements);
+    method public boolean retainAll(java.util.Collection<? extends T> elements);
+    method public java.util.Set<T> toSet();
+    property public androidx.compose.runtime.snapshots.StateRecord firstStateRecord;
+    property public int size;
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface StateFactoryMarker {

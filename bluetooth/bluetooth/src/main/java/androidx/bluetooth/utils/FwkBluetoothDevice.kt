@@ -53,18 +53,13 @@ private fun FwkBluetoothDevice.addressType34(): @BluetoothAddress.AddressType In
         FwkBluetoothDevice.ADDRESS_TYPE_PUBLIC -> BluetoothAddress.ADDRESS_TYPE_PUBLIC
         FwkBluetoothDevice.ADDRESS_TYPE_RANDOM ->
             when (address.substring(0, 1).toInt(16).shr(2)) {
-                ADDRESS_TYPE_RANDOM_STATIC_BITS_VALUE ->
-                    BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC
-
+                ADDRESS_TYPE_RANDOM_STATIC_BITS_VALUE -> BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC
                 ADDRESS_TYPE_RANDOM_RESOLVABLE_BITS_VALUE ->
                     BluetoothAddress.ADDRESS_TYPE_RANDOM_RESOLVABLE
-
                 ADDRESS_TYPE_RANDOM_NON_RESOLVABLE_BITS_VALUE ->
                     BluetoothAddress.ADDRESS_TYPE_RANDOM_NON_RESOLVABLE
-
                 else -> BluetoothAddress.ADDRESS_TYPE_UNKNOWN
             }
-
         FwkBluetoothDevice.ADDRESS_TYPE_UNKNOWN -> BluetoothAddress.ADDRESS_TYPE_UNKNOWN
         else -> BluetoothAddress.ADDRESS_TYPE_UNKNOWN
     }

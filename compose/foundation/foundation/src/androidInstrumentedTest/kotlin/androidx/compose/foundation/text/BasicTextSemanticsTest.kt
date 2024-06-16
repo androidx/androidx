@@ -32,15 +32,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicTextSemanticsTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun semanticsTextChanges_String() {
         var text by mutableStateOf("before")
-        rule.setContent {
-            BasicText(text)
-        }
+        rule.setContent { BasicText(text) }
         rule.onNodeWithText("before").assertExists()
         text = "after"
         rule.onNodeWithText("after").assertExists()
@@ -49,9 +46,7 @@ class BasicTextSemanticsTest {
     @Test
     fun semanticsTextChanges_AnnotatedString() {
         var text by mutableStateOf("before")
-        rule.setContent {
-            BasicText(AnnotatedString(text))
-        }
+        rule.setContent { BasicText(AnnotatedString(text)) }
         rule.onNodeWithText("before").assertExists()
         text = "after"
         rule.onNodeWithText("after").assertExists()

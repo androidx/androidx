@@ -40,15 +40,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test case to verify app-locales sync to framework on Version upgrade from Pre T to T.
- */
+/** Test case to verify app-locales sync to framework on Version upgrade from Pre T to T. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 33, maxSdkVersion = 33)
 class LocalesSyncToFrameworkTestCase {
-    @get:Rule
-    val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
+    @get:Rule val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
     private var systemLocales = LocaleListCompat.getEmptyLocaleList()
     private var expectedLocales = LocaleListCompat.getEmptyLocaleList()
     private lateinit var appLocalesComponent: ComponentName
@@ -64,17 +61,16 @@ class LocalesSyncToFrameworkTestCase {
 
         // Since no locales are applied as of now, current configuration will have system
         // locales.
-        systemLocales = LocalesUpdateActivity.getConfigLocales(
-            rule.activity.resources.configuration
-        )
-        expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
-            CUSTOM_LOCALE_LIST, systemLocales
-        )
+        systemLocales =
+            LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
+        expectedLocales =
+            LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
 
-        appLocalesComponent = ComponentName(
-            instrumentation.context,
-            AppCompatDelegate.APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME
-        )
+        appLocalesComponent =
+            ComponentName(
+                instrumentation.context,
+                AppCompatDelegate.APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME
+            )
     }
 
     @Test
@@ -109,9 +105,10 @@ class LocalesSyncToFrameworkTestCase {
         AppCompatDelegate.resetStaticRequestedAndStoredLocales()
 
         // Start a new Activity, so that the original Activity goes into the background
-        val intent = Intent(firstActivity, AppCompatActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+        val intent =
+            Intent(firstActivity, AppCompatActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         val secondActivity = instrumentation.startActivitySync(intent) as AppCompatActivity
 
         // wait for locales to get synced, stop execution of the current thread for the
@@ -123,8 +120,9 @@ class LocalesSyncToFrameworkTestCase {
         assertEquals(
             CUSTOM_LOCALE_LIST.toLanguageTags(),
             AppCompatDelegate.Api33Impl.localeManagerGetApplicationLocales(
-                AppCompatDelegate.getLocaleManagerForApplication()
-            ).toLanguageTags()
+                    AppCompatDelegate.getLocaleManagerForApplication()
+                )
+                .toLanguageTags()
         )
         // check that the activity has the app specific locales
         assertConfigurationLocalesEquals(expectedLocales, secondActivity)

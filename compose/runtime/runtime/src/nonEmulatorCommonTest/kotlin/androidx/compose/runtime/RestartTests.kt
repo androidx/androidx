@@ -28,10 +28,7 @@ import kotlin.test.assertEquals
 class RestartTests {
     @Test
     fun restart_PersonModel_lambda() = compositionTest {
-        val president = Person(
-            PRESIDENT_NAME_1,
-            PRESIDENT_AGE_1
-        )
+        val president = Person(PRESIDENT_NAME_1, PRESIDENT_AGE_1)
 
         compose {
             RestartGroup {
@@ -59,10 +56,7 @@ class RestartTests {
 
     @Test
     fun restart_PersonModel_lambda_parameters() = compositionTest {
-        val president = Person(
-            PRESIDENT_NAME_1,
-            PRESIDENT_AGE_1
-        )
+        val president = Person(PRESIDENT_NAME_1, PRESIDENT_AGE_1)
 
         compose {
             Repeat(5) {
@@ -90,19 +84,15 @@ class RestartTests {
 
     @Test
     fun restart_PersonModel_function() = compositionTest {
-        val president = Person(
-            PRESIDENT_NAME_1,
-            PRESIDENT_AGE_1
-        )
+        val president = Person(PRESIDENT_NAME_1, PRESIDENT_AGE_1)
 
-        @Composable fun PersonView() {
+        @Composable
+        fun PersonView() {
             Text(president.name)
             Text(president.age.toString())
         }
 
-        compose {
-            PersonView()
-        }
+        compose { PersonView() }
 
         fun validate() {
             validate {
@@ -123,21 +113,23 @@ class RestartTests {
     fun restart_State_delete() = compositionTest {
         val state = mutableStateOf(true)
 
-        @Composable fun ShowSomething() {
+        @Composable
+        fun ShowSomething() {
             Text("State = ${state.value}")
         }
 
-        @Composable fun View() {
+        @Composable
+        fun View() {
             if (state.value) {
-                // This is not correct code generation as this should be called in a call function, however, this
-                // tests the assumption that calling a function should produce an item (a key followed by a group).
+                // This is not correct code generation as this should be called in a call function,
+                // however, this
+                // tests the assumption that calling a function should produce an item (a key
+                // followed by a group).
                 ShowSomething()
             }
         }
 
-        compose {
-            View()
-        }
+        compose { View() }
 
         fun validate() {
             validate {
@@ -159,22 +151,16 @@ class RestartTests {
 
     @Test
     fun restart_PersonModel_function_parameters() = compositionTest {
-        val president = Person(
-            PRESIDENT_NAME_1,
-            PRESIDENT_AGE_1
-        )
+        val president = Person(PRESIDENT_NAME_1, PRESIDENT_AGE_1)
 
-        @Composable fun PersonView(index: Int) {
+        @Composable
+        fun PersonView(index: Int) {
             Text(index.toString())
             Text(president.name)
             Text(president.age.toString())
         }
 
-        compose {
-            Repeat(5) { index ->
-                PersonView(index)
-            }
-        }
+        compose { Repeat(5) { index -> PersonView(index) } }
 
         fun validate() {
             validate {
@@ -200,16 +186,12 @@ class RestartTests {
         useCountCalled = 0
         useCount2Called = 0
 
-        compose {
-            RestartAndSkipTest(count = count.value, data = data)
-        }
+        compose { RestartAndSkipTest(count = count.value, data = data) }
 
         assertEquals(1, useCountCalled)
         assertEquals(1, useCount2Called)
 
-        validate {
-            this.RestartAndSkipTest(count = count.value, data = data)
-        }
+        validate { this.RestartAndSkipTest(count = count.value, data = data) }
 
         count.value++
 
@@ -233,8 +215,7 @@ fun RestartGroup(content: @Composable () -> Unit) {
     content()
 }
 
-@Suppress("unused")
-inline fun MockViewValidator.RestartGroup(block: () -> Unit) = block()
+@Suppress("unused") inline fun MockViewValidator.RestartGroup(block: () -> Unit) = block()
 
 @Composable
 fun Repeat(count: Int, block: @Composable (index: Int) -> Unit) {

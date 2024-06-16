@@ -81,25 +81,25 @@ private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 class FlashTest(private val implName: String, private val cameraXConfig: CameraXConfig) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(cameraXConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -118,9 +118,7 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     @After
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
     }
 
@@ -208,32 +206,34 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
             CameraUtil.hasFlashUnitWithLensFacing(BACK_LENS_FACING)
         )
 
-        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-            @Volatile var isFlashModeSet = false
-            @Volatile var isAeModeExpected = true
+        val captureCallback =
+            object : CameraCaptureSession.CaptureCallback() {
+                @Volatile var isFlashModeSet = false
+                @Volatile var isAeModeExpected = true
 
-            private val expectedAeMode = when (flashMode) {
-                ImageCapture.FLASH_MODE_ON -> CONTROL_AE_MODE_ON_ALWAYS_FLASH
-                ImageCapture.FLASH_MODE_AUTO -> CONTROL_AE_MODE_ON_AUTO_FLASH
-                else -> CONTROL_AE_MODE_ON
-            }
+                private val expectedAeMode =
+                    when (flashMode) {
+                        ImageCapture.FLASH_MODE_ON -> CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                        ImageCapture.FLASH_MODE_AUTO -> CONTROL_AE_MODE_ON_AUTO_FLASH
+                        else -> CONTROL_AE_MODE_ON
+                    }
 
-            override fun onCaptureCompleted(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                result: TotalCaptureResult
-            ) {
-                if (!isReadyToCaptureImage) return
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    if (!isReadyToCaptureImage) return
 
-                if (request[FLASH_MODE] != null && request[FLASH_MODE] != FLASH_MODE_OFF) {
-                    isFlashModeSet = true
+                    if (request[FLASH_MODE] != null && request[FLASH_MODE] != FLASH_MODE_OFF) {
+                        isFlashModeSet = true
+                    }
+
+                    if (request[CONTROL_AE_MODE] != expectedAeMode) {
+                        isAeModeExpected = false
+                    }
                 }
-
-                if (request[CONTROL_AE_MODE] != expectedAeMode) {
-                    isAeModeExpected = false
-                }
             }
-        }
 
         canTakePicture(
             flashMode = flashMode,
@@ -259,15 +259,16 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         flashMustBeSupported: Boolean = false,
         assertCaptureCount: Boolean = true
     ) = runBlocking {
-        val imageCapture = ImageCapture.Builder().also { builder ->
-            captureCallback?.let {
-                CameraPipeUtil.setCameraCaptureSessionCallback(
-                    implName,
-                    builder,
-                    it
-                )
-            }
-        }.setFlashMode(flashMode).setCaptureMode(captureMode).build()
+        val imageCapture =
+            ImageCapture.Builder()
+                .also { builder ->
+                    captureCallback?.let {
+                        CameraPipeUtil.setCameraCaptureSessionCallback(implName, builder, it)
+                    }
+                }
+                .setFlashMode(flashMode)
+                .setCaptureMode(captureMode)
+                .build()
 
         val preview = Preview.Builder().build()
 
@@ -276,12 +277,13 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
 
             val fakeLifecycleOwner = FakeLifecycleOwner()
             fakeLifecycleOwner.startAndResume()
-            val camera = cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                BACK_SELECTOR,
-                imageCapture,
-                preview
-            )
+            val camera =
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    BACK_SELECTOR,
+                    imageCapture,
+                    preview
+                )
 
             if (flashMustBeSupported) {
                 Assume.assumeTrue(
@@ -308,8 +310,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     }
 
     private fun getSurfaceProvider(): Preview.SurfaceProvider {
-        return SurfaceTextureProvider.createSurfaceTextureProvider(object :
-                SurfaceTextureProvider.SurfaceTextureCallback {
+        return SurfaceTextureProvider.createSurfaceTextureProvider(
+            object : SurfaceTextureProvider.SurfaceTextureCallback {
                 override fun onSurfaceTextureReady(
                     surfaceTexture: SurfaceTexture,
                     resolution: Size
@@ -320,7 +322,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
                 override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
                     surfaceTexture.release()
                 }
-            })
+            }
+        )
     }
 
     private fun isFlashTestSupported(
@@ -333,11 +336,12 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
                 if (cameraInfo is CameraInfoInternal) {
                     val deviceQuirks = DeviceQuirks.getAll()
                     val cameraQuirks = cameraInfo.cameraQuirks
-                    if (deviceQuirks.contains(
+                    if (
+                        deviceQuirks.contains(
                             CrashWhenTakingPhotoWithAutoFlashAEModeQuirk::class.java
                         ) ||
-                        cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk::class.java) ||
-                        cameraQuirks.contains(ImageCaptureFlashNotFireQuirk::class.java)
+                            cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk::class.java) ||
+                            cameraQuirks.contains(ImageCaptureFlashNotFireQuirk::class.java)
                     ) {
                         return false
                     }
@@ -379,7 +383,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
             } else {
                 assumeThat(
                     "$numImages image(s) captured within $timeout MS",
-                    numImages, equalTo(capturedImagesCount)
+                    numImages,
+                    equalTo(capturedImagesCount)
                 )
             }
 

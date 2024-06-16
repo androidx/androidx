@@ -34,9 +34,7 @@ fun DesignInfoProviderB() {
 @Preview
 @Composable
 fun ScaffoldDesignInfoProvider() {
-    Scaffold {
-        DesignInfoProviderA()
-    }
+    Scaffold { DesignInfoProviderA() }
 }
 
 @Composable

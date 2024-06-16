@@ -81,13 +81,12 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
  * [ListenableFuture]-based compatibility wrapper around [StatefulWatchFaceService]'s suspending
  * [WatchFaceService.createWatchFace].
  *
- * [ListenableWatchFaceService] is required to be stateless as multiple can be created in
- * parallel. ListenableStatefulWatchFaceService allows for metadata to be associated with
- * watch faces on a per instance basis. This state is created by [createExtra] and is passed into
- * other methods.
+ * [ListenableWatchFaceService] is required to be stateless as multiple can be created in parallel.
+ * ListenableStatefulWatchFaceService allows for metadata to be associated with watch faces on a per
+ * instance basis. This state is created by [createExtra] and is passed into other methods.
  */
-public abstract class
-ListenableStatefulWatchFaceService<Extra> : StatefulWatchFaceService<Extra>() {
+public abstract class ListenableStatefulWatchFaceService<Extra> :
+    StatefulWatchFaceService<Extra>() {
     /**
      * Override this factory method to create your WatchFaceImpl. This method will be called by the
      * library on a background thread, if possible any expensive initialization should be done
@@ -207,8 +206,8 @@ public abstract class ListenableWatchFaceRuntimeService : WatchFaceRuntimeServic
  * watch faces on a per instance basis. This state is created by [createExtra] and is passed into
  * other methods.
  */
-public abstract class
-ListenableStatefulWatchFaceRuntimeService<Extra> : StatefulWatchFaceRuntimeService<Extra>() {
+public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> :
+    StatefulWatchFaceRuntimeService<Extra>() {
     /**
      * Override this factory method to create your WatchFaceImpl. This method will be called by the
      * library on a background thread, if possible any expensive initialization should be done

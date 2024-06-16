@@ -77,14 +77,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-enum class CheckBoxState { Unselected, Selected }
+enum class CheckBoxState {
+    Unselected,
+    Selected
+}
 
 @Preview(name = "CheckBox + Scaffold")
 @Composable
 fun TransitionWithScaffoldPreview() {
-    Scaffold {
-        TransitionPreview()
-    }
+    Scaffold { TransitionPreview() }
 }
 
 @Preview(name = "All unsupported and transition animations")
@@ -124,15 +125,14 @@ fun AnimationOrder() {
 fun AnimatedContentPreview() {
     Row {
         var count by remember { mutableStateOf(0) }
-        Button(onClick = { count++ }) {
-            Text("Add")
-        }
+        Button(onClick = { count++ }) { Text("Add") }
         AnimatedContent(targetState = count) { targetCount ->
             // Make sure to use `targetCount`, not `count`.
             Text(text = "Count: $targetCount")
         }
     }
 }
+
 @Preview
 @Composable
 fun NullAnimatedContentPreview() {
@@ -157,18 +157,14 @@ fun AnimatedContentAndTransitionPreview() {
 fun AnimatedContentExtensionPreview() {
     val editable by remember { mutableStateOf(CheckBoxState.Unselected) }
     val transition = updateTransition(targetState = editable, label = "transition.AV")
-    transition.AnimatedContent {
-        Text(text = "State: $it")
-    }
+    transition.AnimatedContent { Text(text = "State: $it") }
 }
 
 @Preview
 @Composable
 fun AnimatedVisibilityPreview() {
     val editable by remember { mutableStateOf(true) }
-    AnimatedVisibility(label = "My Animated Visibility", visible = editable) {
-        Text(text = "Edit")
-    }
+    AnimatedVisibility(label = "My Animated Visibility", visible = editable) { Text(text = "Edit") }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -186,22 +182,22 @@ fun TransitionAnimatedVisibilityPreview() {
 @Composable
 fun TransitionPreview() {
     val (selected, onSelected) = remember { mutableStateOf(false) }
-    val transition = updateTransition(
-        if (selected) CheckBoxState.Selected else CheckBoxState.Unselected,
-        label = "checkBoxAnim"
-    )
+    val transition =
+        updateTransition(
+            if (selected) CheckBoxState.Selected else CheckBoxState.Unselected,
+            label = "checkBoxAnim"
+        )
 
-    val checkBoxCorner by transition.animateDp(
-        transitionSpec = {
-            tween(durationMillis = 1000, easing = LinearEasing)
-        },
-        label = "CheckBox Corner"
-    ) {
-        when (it) {
-            CheckBoxState.Selected -> 28.dp
-            CheckBoxState.Unselected -> 0.dp
+    val checkBoxCorner by
+        transition.animateDp(
+            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
+            label = "CheckBox Corner"
+        ) {
+            when (it) {
+                CheckBoxState.Selected -> 28.dp
+                CheckBoxState.Unselected -> 0.dp
+            }
         }
-    }
 
     Surface(
         shape = MaterialTheme.shapes.large.copy(topStart = CornerSize(checkBoxCorner)),
@@ -214,15 +210,10 @@ fun TransitionPreview() {
 @Preview
 @Composable
 fun NullTransitionPreview() {
-    val transition = updateTransition<Boolean?>(
-        null,
-        label = "checkBoxAnim"
-    )
+    val transition = updateTransition<Boolean?>(null, label = "checkBoxAnim")
 
     transition.animateDp(
-        transitionSpec = {
-            tween(durationMillis = 1000, easing = LinearEasing)
-        },
+        transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
         label = "CheckBox Corner"
     ) {
         when (it) {
@@ -238,24 +229,21 @@ fun AnimateAsStatePreview() {
     var showMenu by remember { mutableStateOf(true) }
     var message by remember { mutableStateOf("Hello") }
 
-    val size: Dp by animateDpAsState(
-        targetValue = if (showMenu) 0.dp else 10.dp,
-        animationSpec = spring(Spring.DampingRatioHighBouncy, Spring.StiffnessHigh),
-    )
-    val offset by animateIntAsState(
-        targetValue = if (showMenu) 2 else 1
-    )
+    val size: Dp by
+        animateDpAsState(
+            targetValue = if (showMenu) 0.dp else 10.dp,
+            animationSpec = spring(Spring.DampingRatioHighBouncy, Spring.StiffnessHigh),
+        )
+    val offset by animateIntAsState(targetValue = if (showMenu) 2 else 1)
 
     Box(
-        Modifier
-            .padding(size)
-            .offset(offset.dp)
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    showMenu = !showMenu
-                    message += "!"
-                }
-            }) {
+        Modifier.padding(size).offset(offset.dp).pointerInput(Unit) {
+            detectTapGestures {
+                showMenu = !showMenu
+                message += "!"
+            }
+        }
+    ) {
         Text(text = message)
     }
 }
@@ -266,26 +254,22 @@ fun AnimateAsStateWithLabelsPreview() {
     var showMenu by remember { mutableStateOf(true) }
     var message by remember { mutableStateOf("Hello") }
 
-    val size: Dp by animateDpAsState(
-        targetValue = if (showMenu) 0.dp else 10.dp,
-        animationSpec = spring(Spring.DampingRatioHighBouncy, Spring.StiffnessHigh),
-        label = "CustomDpLabel"
-    )
-    val offset by animateIntAsState(
-        targetValue = if (showMenu) 2 else 1,
-        label = "CustomIntLabel"
-    )
+    val size: Dp by
+        animateDpAsState(
+            targetValue = if (showMenu) 0.dp else 10.dp,
+            animationSpec = spring(Spring.DampingRatioHighBouncy, Spring.StiffnessHigh),
+            label = "CustomDpLabel"
+        )
+    val offset by animateIntAsState(targetValue = if (showMenu) 2 else 1, label = "CustomIntLabel")
 
     Box(
-        Modifier
-            .padding(size)
-            .offset(offset.dp)
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    showMenu = !showMenu
-                    message += "!"
-                }
-            }) {
+        Modifier.padding(size).offset(offset.dp).pointerInput(Unit) {
+            detectTapGestures {
+                showMenu = !showMenu
+                message += "!"
+            }
+        }
+    ) {
         Text(text = message)
     }
 }
@@ -293,11 +277,8 @@ fun AnimateAsStateWithLabelsPreview() {
 @Preview
 @Composable
 fun NullAnimateAsStatePreview() {
-    val offset by animateValueAsState(
-        targetValue = null,
-        Utils.nullableFloatConverter,
-        label = "Nullable"
-    )
+    val offset by
+        animateValueAsState(targetValue = null, Utils.nullableFloatConverter, label = "Nullable")
 
     Box(Modifier.offset(offset?.dp ?: 1.dp))
 }
@@ -307,13 +288,16 @@ fun NullAnimateAsStatePreview() {
 fun CrossFadePreview() {
     var currentPage by remember { mutableStateOf("A") }
     Row {
-        Button(onClick = {
-            currentPage = when (currentPage) {
-                "A" -> "B"
-                "B" -> "A"
-                else -> "A"
+        Button(
+            onClick = {
+                currentPage =
+                    when (currentPage) {
+                        "A" -> "B"
+                        "B" -> "A"
+                        else -> "A"
+                    }
             }
-        }) {
+        ) {
             Text("Switch Page")
         }
         Crossfade(targetState = currentPage) { screen ->
@@ -330,13 +314,16 @@ fun CrossFadePreview() {
 fun CrossFadeWithLabelPreview() {
     var currentPage by remember { mutableStateOf("A") }
     Row {
-        Button(onClick = {
-            currentPage = when (currentPage) {
-                "A" -> "B"
-                "B" -> "A"
-                else -> "A"
+        Button(
+            onClick = {
+                currentPage =
+                    when (currentPage) {
+                        "A" -> "B"
+                        "B" -> "A"
+                        else -> "A"
+                    }
             }
-        }) {
+        ) {
             Text("Switch Page")
         }
         Crossfade(targetState = currentPage, label = "CrossfadeWithLabel") { screen ->
@@ -354,18 +341,15 @@ fun AnimateContentSizePreview() {
     var message by remember { mutableStateOf("Hello") }
     Row {
         var count by remember { mutableStateOf(0) }
-        Button(onClick = {
-            count++
-            message = "Count is $count"
-        }) {
+        Button(
+            onClick = {
+                count++
+                message = "Count is $count"
+            }
+        ) {
             Text("Add")
         }
-        Box(
-            modifier = Modifier
-                .animateContentSize()
-        ) {
-            Text(text = message)
-        }
+        Box(modifier = Modifier.animateContentSize()) { Text(text = message) }
     }
 }
 
@@ -454,14 +438,14 @@ fun InfiniteAndTransitionPreview() {
 
 @Composable
 fun InfiniteTransition.PulsingDot(startOffset: StartOffset) {
-    val scale by animateFloat(
-        0.2f,
-        1f,
-        infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset)
-    )
+    val scale by
+        animateFloat(
+            0.2f,
+            1f,
+            infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset)
+        )
     Box(
-        Modifier
-            .padding(5.dp)
+        Modifier.padding(5.dp)
             .size(20.dp)
             .graphicsLayer {
                 scaleX = scale

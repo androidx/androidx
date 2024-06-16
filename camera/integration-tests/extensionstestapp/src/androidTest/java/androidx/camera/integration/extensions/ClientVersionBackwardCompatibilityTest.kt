@@ -62,7 +62,6 @@ import org.junit.runners.Parameterized
  *
  * For variants of the overloaded API methods, OEMs should implement all of it to ensure it works
  * well on older client versions.
- *
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -76,14 +75,14 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
     }
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(config.cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(config.cameraXConfig)
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -94,26 +93,23 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
     private lateinit var lifecycleOwner: FakeLifecycleOwner
 
     @Before
-    fun setUp(): Unit = runBlocking(Dispatchers.Main) {
-        ProcessCameraProvider.configureInstance(config.cameraXConfig)
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        lifecycleOwner = FakeLifecycleOwner()
-        lifecycleOwner.startAndResume()
-        baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(config.cameraId)
-    }
+    fun setUp(): Unit =
+        runBlocking(Dispatchers.Main) {
+            ProcessCameraProvider.configureInstance(config.cameraXConfig)
+            cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            lifecycleOwner = FakeLifecycleOwner()
+            lifecycleOwner.startAndResume()
+            baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(config.cameraId)
+        }
 
     @After
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
 
         if (::extensionsManager.isInitialized) {
-            withContext(Dispatchers.Main) {
-                extensionsManager.shutdown()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { extensionsManager.shutdown()[10, TimeUnit.SECONDS] }
         }
     }
 
@@ -123,20 +119,21 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
         return withContext(Dispatchers.Main) {
             cameraProvider.unbindAll()
             val camera = cameraProvider.bindToLifecycle(lifecycleOwner, extensionsCameraSelector)
-            ImageCapture
-                .getImageCaptureCapabilities(camera.cameraInfo).isCaptureProcessProgressSupported
+            ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
+                .isCaptureProcessProgressSupported
         }
     }
 
     private suspend fun assertPreviewAndImageCaptureWorking(clientVersion: String) {
-        extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider,
-            clientVersion
-        )[10000, TimeUnit.MILLISECONDS]
+        extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider, clientVersion)[
+                    10000, TimeUnit.MILLISECONDS]
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, config.extensionMode))
-        extensionCameraSelector = extensionsManager
-            .getExtensionEnabledCameraSelector(baseCameraSelector, config.extensionMode)
+        extensionCameraSelector =
+            extensionsManager.getExtensionEnabledCameraSelector(
+                baseCameraSelector,
+                config.extensionMode
+            )
 
         val expectCaptureProcessProgress =
             isCaptureProcessProgressSupported(extensionCameraSelector)
@@ -155,13 +152,16 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
                 }
             )
             cameraProvider.bindToLifecycle(
-                lifecycleOwner, extensionCameraSelector,
-                preview, imageCapture
+                lifecycleOwner,
+                extensionCameraSelector,
+                preview,
+                imageCapture
             )
         }
 
         assertThat(previewFrameLatch.await(3, TimeUnit.SECONDS)).isTrue()
-        imageCapture.takePicture(CameraXExecutors.ioExecutor(),
+        imageCapture.takePicture(
+            CameraXExecutors.ioExecutor(),
             object : OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
                     captureLatch.countDown()
