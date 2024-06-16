@@ -37,7 +37,6 @@ import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.deactivateCurrentGroup
-import androidx.compose.runtime.identityHashCode
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.identityHashCode
 import androidx.compose.runtime.movableContentKey
