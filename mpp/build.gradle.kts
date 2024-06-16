@@ -69,7 +69,6 @@ val mainComponents =
         ComposeComponent(":compose:foundation:foundation-layout"),
         ComposeComponent(":compose:material:material"),
         ComposeComponent(":compose:material3:material3"),
-        ComposeComponent(":compose:material:material-icons-core"),
         ComposeComponent(":compose:material:material-ripple"),
         ComposeComponent(":compose:runtime:runtime", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:runtime:runtime-saveable", supportedPlatforms = ComposePlatforms.ALL),
@@ -99,10 +98,9 @@ val mainComponents =
         ComposeComponent(":compose:ui:ui-util"),
     )
 
+// TODO remove this and CI tasks after merging Jetpack Compose 1.8 to jb-main
 val iconsComponents =
-    listOf(
-        ComposeComponent(":compose:material:material-icons-extended"),
-    )
+    emptyList<ComposeComponent>()
 
 fun ComposePublishingTask.mainPublications() {
     publish(

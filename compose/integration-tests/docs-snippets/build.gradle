@@ -33,7 +33,6 @@ dependencies {
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
     implementation(project(":compose:material3:material3"))
-    implementation(project(":compose:material:material-icons-extended"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-livedata"))
     implementation(project(":compose:ui:ui-graphics"))
