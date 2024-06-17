@@ -17,7 +17,9 @@
 package androidx.privacysandbox.ui.provider
 
 import android.content.res.Configuration
+import android.os.Bundle
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionObserverFactory
 
 /**
  * An abstract class that implements [SandboxedUiAdapter] while abstracting away methods that do not
@@ -27,6 +29,28 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
  */
 abstract class AbstractSandboxedUiAdapter : SandboxedUiAdapter {
 
+    /** The list of [SessionObserverFactory] instances that have been added to this adapter. */
+    val sessionObserverFactories: List<SessionObserverFactory>
+        get() {
+            synchronized(_sessionObserverFactories) {
+                return _sessionObserverFactories.toList()
+            }
+        }
+
+    private val _sessionObserverFactories: MutableList<SessionObserverFactory> = mutableListOf()
+
+    final override fun addObserverFactory(sessionObserverFactory: SessionObserverFactory) {
+        synchronized(_sessionObserverFactories) {
+            _sessionObserverFactories.add(sessionObserverFactory)
+        }
+    }
+
+    final override fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory) {
+        synchronized(_sessionObserverFactories) {
+            _sessionObserverFactories.remove(sessionObserverFactory)
+        }
+    }
+
     /**
      * An abstract class that implements [SandboxedUiAdapter.Session] so that a UI provider does not
      * need to implement the entire interface.
@@ -35,10 +59,17 @@ abstract class AbstractSandboxedUiAdapter : SandboxedUiAdapter {
      */
     abstract class AbstractSession : SandboxedUiAdapter.Session {
 
+        final override val signalOptions: Set<String>
+            get() = setOf()
+
         override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {}
 
         override fun notifyResized(width: Int, height: Int) {}
 
         override fun notifyConfigurationChanged(configuration: Configuration) {}
+
+        override fun notifyUiChanged(uiContainerInfo: Bundle) {}
+
+        override fun close() {}
     }
 }

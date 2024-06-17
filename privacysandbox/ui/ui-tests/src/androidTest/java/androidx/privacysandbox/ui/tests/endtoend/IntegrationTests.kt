@@ -322,7 +322,9 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         // Verify toString, hashCode and equals have been implemented for dynamic proxy
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
         val client = testSession.sessionClient
-        assertThat(client.toString()).isEqualTo(testSessionClient.toString())
+
+        // TODO(b/329468679): We cannot assert this as we wrap the client on the provider side.
+        // assertThat(client.toString()).isEqualTo(testSessionClient.toString())
 
         assertThat(client.equals(client)).isTrue()
         assertThat(client).isNotEqualTo(testSessionClient)
@@ -347,6 +349,133 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             session.sessionClient.onResizeRequested(INITIAL_WIDTH - 10, INITIAL_HEIGHT - 10)
         }
         session.assertViewWasLaidOut()
+    }
+
+    @Test
+    fun testAddSessionObserverFactory_ObserverIsCreated() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        sessionManager.createAdapterAndWaitToBeActive(
+            viewForSession = view,
+            sessionObserverFactories = listOf(factory)
+        )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testAddSessionObserverFactory_OnSessionOpenedIsSent() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        sessionManager.createAdapterAndWaitToBeActive(
+            viewForSession = view,
+            sessionObserverFactories = listOf(factory)
+        )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        val sessionObserver = factory.sessionObservers[0]
+        sessionObserver.assertSessionOpened()
+    }
+
+    @Test
+    fun testAddSessionObserverFactory_NoObserverCreatedForAlreadyOpenSession() {
+        val adapter = sessionManager.createAdapterAndWaitToBeActive(viewForSession = view)
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        adapter.addObserverFactory(factory)
+        factory.assertNoSessionsAreCreated()
+    }
+
+    @Test
+    fun testAddSessionObserverFactory_MultipleFactories() {
+        val factory1 = TestSessionManager.SessionObserverFactoryImpl()
+        val factory2 = TestSessionManager.SessionObserverFactoryImpl()
+        sessionManager.createAdapterAndWaitToBeActive(
+            viewForSession = view,
+            sessionObserverFactories = listOf(factory1, factory2)
+        )
+        assertThat(factory1.sessionObservers.size).isEqualTo(1)
+        assertThat(factory2.sessionObservers.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testAddSessionObserverFactory_SessionObserverContextIsCorrect() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        val adapter =
+            sessionManager.createAdapterAndWaitToBeActive(
+                viewForSession = view,
+                sessionObserverFactories = listOf(factory)
+            )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        val sessionObserver = factory.sessionObservers[0]
+        sessionObserver.assertSessionOpened()
+        assertThat(sessionObserver.sessionObserverContext).isNotNull()
+        assertThat(sessionObserver.sessionObserverContext?.view).isEqualTo(adapter.session.view)
+    }
+
+    @Test
+    fun testRegisterSessionObserverFactory_OnUiContainerChangedSentWhenSessionOpened() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        sessionManager.createAdapterAndWaitToBeActive(
+            viewForSession = view,
+            sessionObserverFactories = listOf(factory)
+        )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        val sessionObserver = factory.sessionObservers[0]
+        sessionObserver.assertOnUiContainerChangedSent()
+    }
+
+    @Test
+    fun testRemoveSessionObserverFactory_DoesNotImpactExistingObservers() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        val adapter =
+            sessionManager.createAdapterAndWaitToBeActive(
+                viewForSession = view,
+                sessionObserverFactories = listOf(factory)
+            )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        adapter.removeObserverFactory(factory)
+        val sessionObserver = factory.sessionObservers[0]
+        // Setting a new adapter on the SandboxedSdKView will cause the current session to close.
+        activityScenarioRule.withActivity { view.setAdapter(TestSandboxedUiAdapter()) }
+        // onSessionClosed is still sent for the observer
+        sessionObserver.assertSessionClosed()
+    }
+
+    @Test
+    fun testRemoveSessionObserverFactory_DoesNotCreateObserverForNewSession() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        val adapter =
+            sessionManager.createAdapterAndWaitToBeActive(
+                viewForSession = view,
+                sessionObserverFactories = listOf(factory)
+            )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        adapter.removeObserverFactory(factory)
+        val sandboxedSdkView2 = SandboxedSdkView(context)
+        activityScenarioRule.withActivity { linearLayout.addView(sandboxedSdkView2) }
+        // create a new session and wait to be active
+        sandboxedSdkView2.setAdapter(adapter)
+
+        val activeLatch = CountDownLatch(1)
+        sandboxedSdkView2.addStateChangedListener { state ->
+            if (state is SandboxedSdkUiSessionState.Active) {
+                activeLatch.countDown()
+            }
+        }
+        assertThat(activeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        // The session observers size should remain 1, showing that no new observers have been
+        // created for the new session.
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testSessionObserver_OnClosedSentWhenSessionClosed() {
+        val factory = TestSessionManager.SessionObserverFactoryImpl()
+        sessionManager.createAdapterAndWaitToBeActive(
+            viewForSession = view,
+            sessionObserverFactories = listOf(factory)
+        )
+        assertThat(factory.sessionObservers.size).isEqualTo(1)
+        val sessionObserver = factory.sessionObservers[0]
+        // Setting a new adapter on the SandboxedSdKView will cause the current session to close.
+        activityScenarioRule.withActivity { view.setAdapter(TestSandboxedUiAdapter()) }
+        sessionObserver.assertSessionClosed()
     }
 
     private fun injectInputEventOnView() {

@@ -54,6 +54,7 @@ dependencies {
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation project(path: ':appcompat:appcompat')
+    androidTestImplementation project(":privacysandbox:ui:ui-provider")
 }
 
 android {
