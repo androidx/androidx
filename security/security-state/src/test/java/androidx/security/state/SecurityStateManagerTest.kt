@@ -34,7 +34,7 @@ import org.mockito.kotlin.mock
 import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
-class SecurityPatchStateManagerTest {
+class SecurityStateManagerTest {
 
     private val packageManager: PackageManager = mock<PackageManager>()
     private val context: Context = mock<Context>() { on { packageManager } doReturn packageManager }

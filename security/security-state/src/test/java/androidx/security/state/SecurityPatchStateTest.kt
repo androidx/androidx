@@ -203,7 +203,7 @@ class SecurityPatchStateTest {
     fun testGetVulnerabilityReportUrl_validSdkVersion_returnsCorrectUrl() {
         val sdkVersion = 34 // Android 14
         val baseUrl = SecurityPatchState.DEFAULT_VULNERABILITY_REPORTS_URL
-        val expectedUrl = "$baseUrl/v1/AndroidSDK34.json"
+        val expectedUrl = "$baseUrl/v1/android_sdk_34.json"
 
         doReturn(sdkVersion).`when`(mockSecurityStateManager).getAndroidSdkInt()
 
