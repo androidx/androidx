@@ -104,6 +104,10 @@ import kotlinx.coroutines.launch
  * Scaling behavior can be implemented like this
  *
  * @sample androidx.compose.material3.samples.PullToRefreshScalingSample
+ *
+ * Custom indicators with default transforms can be seen in
+ *
+ * @sample androidx.compose.material3.samples.PullToRefreshCustomIndicatorWithDefaultTransform
  * @param isRefreshing whether a refresh is occurring
  * @param onRefresh callback invoked when the user gesture crosses the threshold, thereby requesting
  *   a refresh.
@@ -140,49 +144,6 @@ fun PullToRefreshBox(
         indicator()
     }
 }
-
-/**
- * A Modifier that handles the size, offset, clipping, shadow, and background drawing of a
- * pull-to-refresh indicator, useful when implementing custom indicators.
- * [PullToRefreshDefaults.Indicator] applies this automatically.
- *
- * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
- *   calculate the offset
- * @param isRefreshing whether a refresh is occurring
- * @param threshold how much the indicator can be pulled down before a refresh is triggered on
- *   release
- * @param shape the [Shape] of this indicator
- * @param containerColor the container color of this indicator
- * @param elevation the elevation for the indicator
- */
-@ExperimentalMaterial3Api
-fun Modifier.pullToRefreshIndicator(
-    state: PullToRefreshState,
-    isRefreshing: Boolean,
-    threshold: Dp = PullToRefreshDefaults.PositionalThreshold,
-    shape: Shape = PullToRefreshDefaults.shape,
-    containerColor: Color = Color.Unspecified,
-    elevation: Dp = PullToRefreshDefaults.Elevation,
-): Modifier =
-    this.size(SpinnerContainerSize)
-        .drawWithContent {
-            clipRect(
-                top = 0f,
-                left = -Float.MAX_VALUE,
-                right = Float.MAX_VALUE,
-                bottom = Float.MAX_VALUE
-            ) {
-                this@drawWithContent.drawContent()
-            }
-        }
-        .graphicsLayer {
-            val showElevation = state.distanceFraction > 0f || isRefreshing
-            translationY = state.distanceFraction * threshold.roundToPx() - size.height
-            shadowElevation = if (showElevation) elevation.toPx() else 0f
-            this.shape = shape
-            clip = true
-        }
-        .background(color = containerColor, shape = shape)
 
 /**
  * A Modifier that adds nested scroll to a container to support a pull-to-refresh gesture. When the
@@ -281,13 +242,7 @@ internal class PullToRefreshModifierNode(
 
     override fun onAttach() {
         delegate(nestedScrollNode)
-        coroutineScope.launch {
-            if (isRefreshing) {
-                state.snapTo(1f)
-            } else {
-                state.snapTo(0f)
-            }
-        }
+        coroutineScope.launch { state.snapTo(if (isRefreshing) 1f else 0f) }
     }
 
     override fun onPreScroll(
@@ -425,28 +380,90 @@ object PullToRefreshDefaults {
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
 
-    /** The default elevation for [pullToRefreshIndicator] */
+    /** The default elevation for [IndicatorBox] */
     val Elevation = ElevationTokens.Level2
 
-    /** The default indicator for [PullToRefreshBox]. */
+    /**
+     * A Wrapper that handles the size, offset, clipping, shadow, and background drawing for a
+     * pull-to-refresh indicator, useful when implementing custom indicators.
+     * [PullToRefreshDefaults.Indicator] uses this as the container.
+     *
+     * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+     *   calculate the offset
+     * @param isRefreshing whether a refresh is occurring
+     * @param modifier the modifier applied to this layout
+     * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+     *   release
+     * @param shape the [Shape] of this indicator
+     * @param containerColor the container color of this indicator
+     * @param elevation the elevation for the indicator
+     * @param content content for this [IndicatorBox]
+     */
+    @Composable
+    fun IndicatorBox(
+        state: PullToRefreshState,
+        isRefreshing: Boolean,
+        modifier: Modifier = Modifier,
+        threshold: Dp = PositionalThreshold,
+        shape: Shape = PullToRefreshDefaults.shape,
+        containerColor: Color = Color.Unspecified,
+        elevation: Dp = Elevation,
+        content: @Composable BoxScope.() -> Unit
+    ) {
+        Box(
+            modifier =
+                modifier
+                    .size(SpinnerContainerSize)
+                    .drawWithContent {
+                        clipRect(
+                            top = 0f,
+                            left = -Float.MAX_VALUE,
+                            right = Float.MAX_VALUE,
+                            bottom = Float.MAX_VALUE
+                        ) {
+                            this@drawWithContent.drawContent()
+                        }
+                    }
+                    .graphicsLayer {
+                        val showElevation = state.distanceFraction > 0f || isRefreshing
+                        translationY = state.distanceFraction * threshold.roundToPx() - size.height
+                        shadowElevation = if (showElevation) elevation.toPx() else 0f
+                        this.shape = shape
+                        clip = true
+                    }
+                    .background(color = containerColor, shape = shape),
+            contentAlignment = Alignment.Center,
+            content = content
+        )
+    }
+
+    /**
+     * The default indicator for [PullToRefreshBox].
+     *
+     * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+     *   calculate the offset
+     * @param isRefreshing whether a refresh is occurring
+     * @param modifier the modifier applied to this layout
+     * @param containerColor the container color of this indicator
+     * @param color the color of this indicator
+     * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+     *   release
+     */
     @Composable
     fun Indicator(
         state: PullToRefreshState,
         isRefreshing: Boolean,
         modifier: Modifier = Modifier,
-        containerColor: Color = PullToRefreshDefaults.containerColor,
-        color: Color = PullToRefreshDefaults.indicatorColor,
+        containerColor: Color = this.containerColor,
+        color: Color = this.indicatorColor,
         threshold: Dp = PositionalThreshold,
     ) {
-        Box(
-            modifier =
-                modifier.pullToRefreshIndicator(
-                    state = state,
-                    isRefreshing = isRefreshing,
-                    containerColor = containerColor,
-                    threshold = threshold,
-                ),
-            contentAlignment = Alignment.Center
+        IndicatorBox(
+            modifier = modifier,
+            state = state,
+            isRefreshing = isRefreshing,
+            containerColor = containerColor,
+            threshold = threshold,
         ) {
             Crossfade(
                 targetState = isRefreshing,
