@@ -17,7 +17,6 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
@@ -95,7 +94,6 @@ private fun StringTextField(
  * @param writeSelectionFromTextFieldValue If true, [update] will synchronize the selection from the
  *   [TextFieldValue] to the [TextFieldState]. The text will be synchronized regardless.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private class StateSyncingModifier(
     private val state: TextFieldState,
     private val value: TextFieldValue,
@@ -125,7 +123,6 @@ private class StateSyncingModifier(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class StateSyncingModifierNode(
     private val state: TextFieldState,
     private var onValueChanged: (TextFieldValue) -> Unit,

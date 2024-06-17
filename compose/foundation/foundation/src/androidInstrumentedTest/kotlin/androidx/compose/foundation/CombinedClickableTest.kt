@@ -105,7 +105,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class CombinedClickableTest {
 
     @get:Rule val rule = createComposeRule()

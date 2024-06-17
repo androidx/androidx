@@ -18,7 +18,6 @@ package androidx.compose.foundation.demos.snapping
 
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -56,7 +55,6 @@ val RowSnappingDemos =
     )
 
 /** Snapping happens to the next item and items have the same size */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SinglePageSnapping() {
     val scrollState = rememberScrollState()
@@ -70,7 +68,6 @@ private fun SinglePageSnapping() {
 }
 
 /** Snapping happens after a decay animation. Items have the same size. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DecayedSnappingDemo() {
     val scrollState = rememberScrollState()
@@ -82,7 +79,6 @@ private fun DecayedSnappingDemo() {
 }
 
 /** Snapping happens to at max one view port item's worth distance. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ViewPortBasedSnappingDemo() {
     val scrollState = rememberScrollState()
@@ -139,7 +135,6 @@ private fun RowSnappingItem(position: Int) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberRowSnapLayoutInfoProvider(
     scrollState: ScrollState,
@@ -155,7 +150,6 @@ private fun rememberRowSnapLayoutInfoProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberNextItemSnappingLayoutInfoProvider(
     scrollState: ScrollState,
@@ -175,7 +169,6 @@ private fun rememberNextItemSnappingLayoutInfoProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberViewPortSnapLayoutInfoProvider(
     scrollState: ScrollState,
@@ -196,7 +189,6 @@ private fun rememberViewPortSnapLayoutInfoProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberScrollStateLayoutInfoProvider(
     scrollState: ScrollState,

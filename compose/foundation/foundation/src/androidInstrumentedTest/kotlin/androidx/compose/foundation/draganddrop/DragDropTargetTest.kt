@@ -17,7 +17,6 @@
 package androidx.compose.foundation.draganddrop
 
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.content.testDragAndDrop
 import androidx.compose.foundation.layout.Box
@@ -42,7 +41,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class DragDropTargetTest {

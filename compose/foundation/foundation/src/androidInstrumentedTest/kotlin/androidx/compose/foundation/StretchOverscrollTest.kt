@@ -44,7 +44,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 @RunWith(AndroidJUnit4::class)

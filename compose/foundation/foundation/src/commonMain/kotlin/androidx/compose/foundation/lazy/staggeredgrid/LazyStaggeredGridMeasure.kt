@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
@@ -47,7 +46,6 @@ import kotlinx.coroutines.CoroutineScope
 
 private const val DebugLoggingEnabled = false
 
-@ExperimentalFoundationApi
 private inline fun <T> withDebugLogging(
     scope: LazyLayoutMeasureScope,
     block: LazyLayoutMeasureScope.() -> T
@@ -79,7 +77,6 @@ private inline fun debugLog(message: () -> String) {
     }
 }
 
-@ExperimentalFoundationApi
 internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     state: LazyStaggeredGridState,
     pinnedItems: List<Int>,
@@ -175,7 +172,6 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridMeasureContext(
     val state: LazyStaggeredGridState,
     val pinnedItems: List<Int>,
@@ -247,7 +243,6 @@ internal class LazyStaggeredGridMeasureContext(
         get() = if (isFullSpan) FullSpan else start
 }
 
-@ExperimentalFoundationApi
 private fun LazyStaggeredGridMeasureContext.measure(
     initialScrollDelta: Int,
     initialItemIndices: IntArray,
@@ -950,7 +945,6 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
     return positionedItems
 }
 
-@ExperimentalFoundationApi
 private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
     position: (LazyStaggeredGridMeasuredItem) -> Unit,
     filter: (itemIndex: Int) -> Boolean,
@@ -1077,7 +1071,6 @@ private fun LazyStaggeredGridMeasureContext.ensureIndicesInRange(
 private fun LazyStaggeredGridMeasureContext.findPreviousItemIndex(item: Int, lane: Int): Int =
     laneInfo.findPreviousItemIndex(item, lane)
 
-@OptIn(ExperimentalFoundationApi::class)
 internal abstract class LazyStaggeredGridMeasureProvider(
     private val isVertical: Boolean,
     private val itemProvider: LazyStaggeredGridItemProvider,

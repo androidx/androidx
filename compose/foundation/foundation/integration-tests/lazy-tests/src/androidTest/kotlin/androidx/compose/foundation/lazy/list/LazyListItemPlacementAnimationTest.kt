@@ -24,7 +24,6 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -452,7 +451,6 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun moveItemToTheTopOutsideOfBounds_withStickyHeader() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4))

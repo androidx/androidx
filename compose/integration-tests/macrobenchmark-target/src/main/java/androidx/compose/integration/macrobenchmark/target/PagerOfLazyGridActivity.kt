@@ -19,7 +19,6 @@ package androidx.compose.integration.macrobenchmark.target
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,7 +56,6 @@ class PagerOfLazyGridActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalPagerOfLazyGrid(pages: Int = 100, gridItems: Int = 100) {
     val pagerState: PagerState = rememberPagerState(initialPage = 1) { pages }

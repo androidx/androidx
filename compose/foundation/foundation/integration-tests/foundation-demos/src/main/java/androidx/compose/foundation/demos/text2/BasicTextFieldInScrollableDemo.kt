@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text2.ScrollableType2.EditTextsInScrollView
 import androidx.compose.foundation.demos.text2.ScrollableType2.LazyColumn
 import androidx.compose.foundation.demos.text2.ScrollableType2.ScrollableColumn
@@ -113,7 +112,6 @@ private fun EditTextsInScrollView() {
     AndroidView(::EditTextsInScrollableView, modifier = Modifier.fillMaxSize())
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DemoTextField(index: Int) {
     val state = rememberTextFieldState()

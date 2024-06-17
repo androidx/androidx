@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.foundation.lazy.layout.estimatedLazyMaxScrollOffset
@@ -25,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.CollectionInfo
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberLazyGridSemanticState(
     state: LazyGridState,

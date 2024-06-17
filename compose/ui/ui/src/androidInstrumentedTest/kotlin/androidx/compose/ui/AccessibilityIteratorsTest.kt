@@ -16,7 +16,6 @@
 
 package androidx.compose.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.rememberScrollState
@@ -448,7 +447,6 @@ class AccessibilityIteratorsTest {
         return textLayoutResult!!
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     private fun textFieldInScroller(): TextLayoutResult {
         var textLayoutResult: TextLayoutResult? = null
         rule.setContent {

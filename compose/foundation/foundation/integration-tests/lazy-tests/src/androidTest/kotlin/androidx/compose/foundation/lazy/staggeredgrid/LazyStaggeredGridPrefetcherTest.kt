@@ -19,7 +19,6 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -48,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class LazyStaggeredGridPrefetcherTest(orientation: Orientation) :
@@ -70,7 +68,6 @@ class LazyStaggeredGridPrefetcherTest(orientation: Orientation) :
     internal lateinit var state: LazyStaggeredGridState
     private val scheduler = TestPrefetchScheduler()
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun rememberState(
         initialFirstVisibleItemIndex: Int = 0,

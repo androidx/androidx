@@ -601,7 +601,6 @@ constructor(
          * A [Saver] implementation for [LazyListState] that handles setting a custom
          * [LazyListPrefetchStrategy].
          */
-        @ExperimentalFoundationApi
         internal fun saver(prefetchStrategy: LazyListPrefetchStrategy): Saver<LazyListState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },

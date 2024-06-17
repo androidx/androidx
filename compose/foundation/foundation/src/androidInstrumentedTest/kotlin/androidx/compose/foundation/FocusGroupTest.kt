@@ -421,6 +421,6 @@ class FocusGroupTest {
         modifier: Modifier = Modifier,
         noinline content: @Composable BoxScope.() -> Unit = {}
     ) {
-        @OptIn(ExperimentalFoundationApi::class) Box(modifier.focusGroup(), content)
+        Box(modifier.focusGroup(), content)
     }
 }

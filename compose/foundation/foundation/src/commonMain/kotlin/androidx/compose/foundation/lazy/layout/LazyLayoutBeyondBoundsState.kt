@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.min
 
@@ -33,7 +32,6 @@ internal interface LazyLayoutBeyondBoundsState {
     val lastPlacedIndex: Int
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutItemProvider.calculateLazyLayoutPinnedIndices(
     pinnedItemList: LazyLayoutPinnedItemList,
     beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,

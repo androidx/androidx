@@ -74,7 +74,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class OverscrollTest {
     @get:Rule val rule = createComposeRule()
 
@@ -321,7 +320,6 @@ class OverscrollTest {
         assertThat(first).isEqualTo(second)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.R)
     fun glowOverscroll_doesNotClip() {
@@ -375,7 +373,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotClipCrossAxis_verticalOverscroll() {
@@ -462,7 +459,6 @@ class OverscrollTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotClipCrossAxis_horizontalOverscroll() {
@@ -549,7 +545,6 @@ class OverscrollTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_clipsBothAxes_overscrollInBothDirections() {
@@ -642,7 +637,6 @@ class OverscrollTest {
      * when stretching down, or if there are no pixels (transparent) there, this will cause any
      * background underneath the content to become visible.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotIncludeUnclippedPixels_verticalOverscroll() {
@@ -695,7 +689,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotIncludeUnclippedPixels_horizontalOverscroll() {
@@ -748,7 +741,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotIncludeUnclippedPixels_overscrollInBothDirections() {
@@ -801,7 +793,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun zeroSizedEffectIsNotConsumingOffsetsAndVelocity() {
@@ -837,7 +828,6 @@ class OverscrollTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun notAttachedEffectIsNotConsumingOffsetsAndVelocity() {
@@ -1143,7 +1133,6 @@ class OverscrollTest {
         }
     }
 
-    @ExperimentalFoundationApi
     @MediumTest
     @Test
     fun testOverscrollCallbacks_verticalSwipeUp_shouldTriggerCallbacks() {
@@ -1190,7 +1179,6 @@ class OverscrollTest {
         rule.waitUntil { drawCount == 1 }
     }
 
-    @ExperimentalFoundationApi
     @MediumTest
     @Test
     fun testOverscrollCallbacks_verticalScrollMouse_shouldNotTriggerCallbacks() {
@@ -1228,7 +1216,6 @@ class OverscrollTest {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun ComposeContentTestRule.setOverscrollContentAndReturnViewConfig(
     scrollableState: ScrollableState,
     overscrollEffect: OverscrollEffect,
@@ -1288,7 +1275,6 @@ private class InspectableConnection : NestedScrollConnection {
 }
 
 // Custom offset overscroll that only counts the number of times each callback is triggered.
-@OptIn(ExperimentalFoundationApi::class)
 private class OffsetOverscrollEffectCounter : OverscrollEffect {
     var applyToScrollCount: Int = 0
         private set
@@ -1296,7 +1282,6 @@ private class OffsetOverscrollEffectCounter : OverscrollEffect {
     var applyToFlingCount: Int = 0
         private set
 
-    @ExperimentalFoundationApi
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,

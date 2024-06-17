@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.draganddrop
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -34,7 +33,6 @@ import androidx.compose.ui.unit.toSize
  * A scope that allows for the detection of the start of a drag and drop gesture, and subsequently
  * starting a drag and drop session.
  */
-@ExperimentalFoundationApi
 interface DragAndDropSourceScope : PointerInputScope {
     /**
      * Starts a drag and drop session with [transferData] as the data to be transferred on gesture
@@ -56,7 +54,6 @@ interface DragAndDropSourceScope : PointerInputScope {
  *   [PointerInputScope] to detect the drag gesture, after which a drag and drop gesture can be
  *   started with [DragAndDropSourceScope.startTransfer].
  */
-@ExperimentalFoundationApi
 fun Modifier.dragAndDropSource(
     drawDragDecoration: DrawScope.() -> Unit,
     block: suspend DragAndDropSourceScope.() -> Unit
@@ -67,7 +64,6 @@ fun Modifier.dragAndDropSource(
             dragAndDropSourceHandler = block,
         )
 
-@ExperimentalFoundationApi
 private data class DragAndDropSourceElement(
     /** @see Modifier.dragAndDropSource */
     val drawDragDecoration: DrawScope.() -> Unit,
@@ -93,7 +89,6 @@ private data class DragAndDropSourceElement(
     }
 }
 
-@ExperimentalFoundationApi
 internal class DragAndDropSourceNode(
     var drawDragDecoration: DrawScope.() -> Unit,
     var dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit

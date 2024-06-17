@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
@@ -113,7 +112,6 @@ interface LazyListScope {
      * Note: More investigations needed to make sure sticky headers API is suitable for various more
      * generic usecases, e.g. in grids. This API is experimental until the answer is found.
      */
-    @ExperimentalFoundationApi
     fun stickyHeader(
         key: Any? = null,
         contentType: Any? = null,

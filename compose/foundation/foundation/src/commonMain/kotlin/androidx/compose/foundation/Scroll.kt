@@ -253,7 +253,6 @@ fun Modifier.horizontalScroll(
         isVertical = false
     )
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.scroll(
     state: ScrollState,
     reverseScrolling: Boolean,

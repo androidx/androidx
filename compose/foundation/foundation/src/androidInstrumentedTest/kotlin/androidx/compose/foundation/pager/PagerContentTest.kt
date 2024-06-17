@@ -17,7 +17,6 @@
 package androidx.compose.foundation.pager
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -54,7 +53,6 @@ class PagerContentTest {
 
     @get:Rule val rule = createComposeRule()
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun pageContent_makeSureContainerOwnsOutsideModifiers() {
         // Arrange
@@ -81,7 +79,6 @@ class PagerContentTest {
         rule.runOnIdle { assertTrue { state.currentPage != 0 } }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun pageContent_makeSureInnerModifiersAreAppliedToPages() {
@@ -114,7 +111,6 @@ class PagerContentTest {
         rule.onNodeWithTag(PagerTestTag).captureToImage().assertPixels { Color.Green }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollableState_isScrollableWhenChangingPages() {
         val states = mutableMapOf<Int, ScrollState>()

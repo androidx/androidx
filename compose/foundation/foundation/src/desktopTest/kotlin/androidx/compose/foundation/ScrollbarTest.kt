@@ -291,7 +291,6 @@ class ScrollbarTest {
     }
 
     @Suppress("SameParameterValue")
-    @OptIn(ExperimentalFoundationApi::class)
     @Test(timeout = 3000)
     fun `scroll by less than one page in lazy list`() {
         runBlocking(Dispatchers.Main) {
@@ -319,7 +318,6 @@ class ScrollbarTest {
     }
 
     @Suppress("SameParameterValue")
-    @OptIn(ExperimentalFoundationApi::class)
     @Test(timeout = 3000)
     fun `scroll in reversed lazy list`() {
         runBlocking(Dispatchers.Main) {
@@ -348,7 +346,6 @@ class ScrollbarTest {
     }
 
     @Suppress("SameParameterValue")
-    @OptIn(ExperimentalFoundationApi::class)
     @Test(timeout = 3000)
     fun `scroll by more than one page in lazy list`() {
         runBlocking(Dispatchers.Main) {
@@ -376,7 +373,6 @@ class ScrollbarTest {
     }
 
     @Suppress("SameParameterValue")
-    @OptIn(ExperimentalFoundationApi::class)
     @Test(timeout = 3000)
     fun `scroll outside of scrollbar bounds in lazy list`() {
         runBlocking(Dispatchers.Main) {
@@ -502,7 +498,6 @@ class ScrollbarTest {
     }
 
     @Suppress("SameParameterValue")
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun LazyTestBox(
         state: LazyListState = rememberLazyListState(),

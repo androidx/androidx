@@ -16,14 +16,11 @@
 
 package androidx.compose.foundation.content
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 /**
  * Definition of common MediaTypes on the Android platform.
  *
  * @param representation MimeType string that conforms to RFC 2045.
  */
-@ExperimentalFoundationApi
 actual class MediaType actual constructor(actual val representation: String) {
 
     actual companion object {

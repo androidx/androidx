@@ -43,7 +43,6 @@ import androidx.compose.ui.text.TextRange
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
  */
-@OptIn(ExperimentalFoundationApi::class)
 class TextFieldBuffer
 internal constructor(
     initialValue: TextFieldCharSequence,
@@ -353,7 +352,6 @@ internal constructor(
      * appear in the text, not the order in which they were made. Overlapping changes are
      * represented as a single change.
      */
-    @ExperimentalFoundationApi
     interface ChangeList {
         /** The number of changes that have been performed. */
         val changeCount: Int

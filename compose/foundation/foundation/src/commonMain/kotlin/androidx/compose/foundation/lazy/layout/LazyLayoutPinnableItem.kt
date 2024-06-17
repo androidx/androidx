@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -43,7 +42,6 @@ import androidx.compose.ui.layout.PinnableContainer
  * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
  * change.
  */
-@ExperimentalFoundationApi
 @Composable
 fun LazyLayoutPinnableItem(
     key: Any?,
@@ -65,7 +63,6 @@ fun LazyLayoutPinnableItem(
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
-@ExperimentalFoundationApi
 class LazyLayoutPinnedItemList private constructor(private val items: MutableList<PinnedItem>) :
     List<LazyLayoutPinnedItemList.PinnedItem> by items {
     constructor() : this(SnapshotStateList())
@@ -86,7 +83,6 @@ class LazyLayoutPinnedItemList private constructor(private val items: MutableLis
      * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
      * change.
      */
-    @ExperimentalFoundationApi
     sealed interface PinnedItem {
         /** Key of the pinned item. */
         val key: Any?
@@ -99,7 +95,6 @@ class LazyLayoutPinnedItemList private constructor(private val items: MutableLis
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class LazyLayoutPinnableItem(
     override val key: Any?,
     private val pinnedItemList: LazyLayoutPinnedItemList,

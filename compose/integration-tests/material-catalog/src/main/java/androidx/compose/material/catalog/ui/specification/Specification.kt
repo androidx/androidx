@@ -16,7 +16,6 @@
 
 package androidx.compose.material.catalog.ui.specification
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -38,7 +37,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun Specification(
     specifications: List<Specification>,
     onSpecificationClick: (specification: Specification) -> Unit

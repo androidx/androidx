@@ -18,7 +18,6 @@ package androidx.compose.foundation.pager
 
 import android.view.View
 import androidx.compose.foundation.BaseLazyLayoutTestWithOrientation
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -64,7 +63,6 @@ import kotlin.math.absoluteValue
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 
-@OptIn(ExperimentalFoundationApi::class)
 open class BasePagerTest(private val config: ParamConfig) :
     BaseLazyLayoutTestWithOrientation(config.orientation) {
 
@@ -299,7 +297,6 @@ open class BasePagerTest(private val config: ParamConfig) :
                 }
             }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     internal fun HorizontalOrVerticalPager(
         state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
@@ -391,7 +388,6 @@ open class BasePagerTest(private val config: ParamConfig) :
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 class ParamConfig(
     val orientation: Orientation,
     val reverseLayout: Boolean = false,
@@ -417,7 +413,6 @@ internal const val DefaultPageCount = 20
 internal const val DefaultAnimationRepetition = 2
 internal val TestOrientation = listOf(Orientation.Vertical, Orientation.Horizontal)
 
-@OptIn(ExperimentalFoundationApi::class)
 internal val AllOrientationsParams =
     mutableListOf<ParamConfig>().apply {
         for (orientation in TestOrientation) {

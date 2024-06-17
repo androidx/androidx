@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.injectionscope.mouse
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
@@ -346,7 +345,6 @@ class ClickTest {
         var yOffsetPx by mutableStateOf(0f)
 
         setContent {
-            @OptIn(ExperimentalFoundationApi::class)
             Box(Modifier.padding(16.dp).fillMaxSize()) {
                 Box(
                     Modifier.testTag("draggable-box")

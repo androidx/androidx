@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
@@ -28,7 +27,6 @@ import androidx.compose.ui.platform.ClipMetadata
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.platform.toClipMetadata
 
-@OptIn(ExperimentalFoundationApi::class)
 internal actual fun textFieldDragAndDropNode(
     hintMediaTypes: () -> Set<MediaType>,
     onDrop: (clipEntry: ClipEntry, clipMetadata: ClipMetadata) -> Boolean,

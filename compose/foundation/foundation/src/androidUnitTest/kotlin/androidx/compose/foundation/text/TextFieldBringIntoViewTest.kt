@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -45,7 +44,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyBlocking
 import org.mockito.kotlin.whenever
 
-@OptIn(InternalFoundationTextApi::class, ExperimentalFoundationApi::class)
+@OptIn(InternalFoundationTextApi::class)
 @RunWith(JUnit4::class)
 class TextFieldBringIntoViewTest {
 

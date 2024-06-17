@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollingLayoutElement
 import androidx.compose.foundation.background
@@ -74,7 +73,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class BringIntoViewScrollableInteractionTest(private val orientation: Orientation) {

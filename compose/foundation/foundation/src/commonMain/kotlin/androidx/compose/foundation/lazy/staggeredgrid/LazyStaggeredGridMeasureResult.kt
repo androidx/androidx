@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.ui.layout.AlignmentLine
@@ -234,7 +233,6 @@ internal class LazyStaggeredGridMeasureResult(
 
 private val EmptyArray = IntArray(0)
 
-@OptIn(ExperimentalFoundationApi::class)
 internal val EmptyLazyStaggeredGridLayoutInfo =
     LazyStaggeredGridMeasureResult(
         firstVisibleItemIndices = EmptyArray,

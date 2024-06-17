@@ -29,7 +29,6 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.copy
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.DefaultScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
@@ -63,8 +62,6 @@ import kotlinx.coroutines.withContext
  *   velocity is large enough. Large enough means large enough to naturally decay.
  * @param snapAnimationSpec The animation spec used to finally snap to the correct bound.
  */
-@OptIn(ExperimentalFoundationApi::class)
-@Suppress("Deprecation")
 fun snapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
     decayAnimationSpec: DecayAnimationSpec<Float>,
@@ -73,12 +70,7 @@ fun snapFlingBehavior(
     return SnapFlingBehavior(snapLayoutInfoProvider, decayAnimationSpec, snapAnimationSpec)
 }
 
-@Deprecated(
-    "Please use the snapFlingBehavior function",
-    replaceWith = ReplaceWith("androidx.compose.foundation.gestures.snapping.snapFlingBehavior")
-)
-@ExperimentalFoundationApi
-class SnapFlingBehavior(
+internal class SnapFlingBehavior(
     private val snapLayoutInfoProvider: SnapLayoutInfoProvider,
     private val decayAnimationSpec: DecayAnimationSpec<Float>,
     private val snapAnimationSpec: AnimationSpec<Float>

@@ -63,7 +63,6 @@ import kotlinx.coroutines.launch
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
-@ExperimentalFoundationApi
 actual fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
@@ -97,7 +96,6 @@ actual fun BasicTooltipBox(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun WrappedAnchor(
     enableUserInput: Boolean,
     state: BasicTooltipState,
@@ -117,7 +115,6 @@ private fun WrappedAnchor(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun TooltipPopup(
     positionProvider: PopupPositionProvider,
     state: BasicTooltipState,
@@ -147,7 +144,6 @@ private fun TooltipPopup(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.handleGestures(enabled: Boolean, state: BasicTooltipState): Modifier =
     if (enabled) {
         this.pointerInput(state) {
@@ -204,7 +200,6 @@ private fun Modifier.handleGestures(enabled: Boolean, state: BasicTooltipState):
             }
     } else this
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.anchorSemantics(
     label: String,
     enabled: Boolean,

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.accessibility
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -450,7 +449,6 @@ class CollectionInfoTest {
         // Arrange.
         val pageCount = 20
         rule.setContentWithAccessibilityEnabled {
-            @OptIn(ExperimentalFoundationApi::class)
             HorizontalPager(rememberPagerState { pageCount }, Modifier.size(10.dp).testTag(tag)) {}
         }
         val virtualId = rule.onNodeWithTag(tag).semanticsId
@@ -467,7 +465,6 @@ class CollectionInfoTest {
         // Arrange.
         val pageCount = 20
         rule.setContentWithAccessibilityEnabled {
-            @OptIn(ExperimentalFoundationApi::class)
             VerticalPager(rememberPagerState { pageCount }, Modifier.size(10.dp).testTag(tag)) {}
         }
         val virtualId = rule.onNodeWithTag(tag).semanticsId

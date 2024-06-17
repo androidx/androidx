@@ -47,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {

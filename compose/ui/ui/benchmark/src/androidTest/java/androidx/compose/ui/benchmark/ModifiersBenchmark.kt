@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.benchmark
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.border
@@ -85,7 +84,6 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
          * reference it in the modifier lambda so that allocating these isn't included in the
          * "recomposition" time.
          */
-        @OptIn(ExperimentalFoundationApi::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}_{1}x")
         fun data(): Collection<Array<Any>> =
@@ -201,7 +199,6 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
 
                 override fun dispatchRawDelta(delta: Float) {}
             }
-        @OptIn(ExperimentalFoundationApi::class)
         private val draggable2DState =
             object : Draggable2DState {
                 override suspend fun drag(

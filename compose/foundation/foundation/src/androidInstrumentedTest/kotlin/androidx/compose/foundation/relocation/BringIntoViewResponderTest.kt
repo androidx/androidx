@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -44,7 +43,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class BringIntoViewResponderTest {

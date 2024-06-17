@@ -18,7 +18,6 @@ package androidx.compose.foundation.anchoredDraggable
 
 import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
 import androidx.compose.animation.core.generateDecayAnimationSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
@@ -56,7 +55,6 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-@OptIn(ExperimentalFoundationApi::class)
 class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
     AnchoredDraggableBackwardsCompatibleTest(testNewBehavior) {
 
@@ -298,7 +296,6 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class TestOverscrollEffect : OverscrollEffect {
     var applyToScrollCalledCount: Int = 0
         private set
@@ -312,7 +309,6 @@ private class TestOverscrollEffect : OverscrollEffect {
     var flingOverscrollVelocity: Velocity = Velocity.Zero
         private set
 
-    @ExperimentalFoundationApi
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,

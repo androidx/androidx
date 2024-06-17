@@ -16,11 +16,9 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 
-@ExperimentalFoundationApi
 internal fun <T> AnchoredDraggableTestState(
     initialValue: T,
     anchors: DraggableAnchors<T>? = null,

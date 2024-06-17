@@ -26,7 +26,6 @@ import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
@@ -68,7 +67,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class SnapFlingBehaviorTest {
     @get:Rule val rule = createComposeRule()
 
@@ -477,7 +475,6 @@ class SnapFlingBehaviorTest {
 }
 
 @Suppress("Deprecation")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VelocityEffect(
     testFlingBehavior: FlingBehavior,
@@ -537,7 +534,6 @@ private const val TestVelocity = 1000f
 private const val MinOffset = -200f
 private const val MaxOffset = 300f
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberSnapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
