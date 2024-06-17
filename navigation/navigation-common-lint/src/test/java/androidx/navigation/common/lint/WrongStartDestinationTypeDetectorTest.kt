@@ -132,6 +132,8 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                     builder.navigation<TestGraph>(startDestination = Outer.InnerClass)
                     builder.navigation<TestGraph>(startDestination = InterfaceChildClass)
                     builder.navigation<TestGraph>(startDestination = AbstractChildClass)
+                    builder.navigation<TestGraph>(startDestination = TestInterface)
+                    builder.navigation<TestGraph>(startDestination = TestAbstract)
                 }
                 """
                     )
@@ -171,7 +173,19 @@ If the class AbstractChildClass does not contain arguments,
 you can also pass in its KClass reference AbstractChildClass::class [WrongStartDestinationType]
     builder.navigation<TestGraph>(startDestination = AbstractChildClass)
                                                      ~~~~~~~~~~~~~~~~~~
-5 errors, 0 warnings
+src/com/example/test.kt:13: Error: StartDestination should not be a simple class name reference.
+Did you mean to call its constructor TestInterface(...)?
+If the class TestInterface does not contain arguments,
+you can also pass in its KClass reference TestInterface::class [WrongStartDestinationType]
+    builder.navigation<TestGraph>(startDestination = TestInterface)
+                                                     ~~~~~~~~~~~~~
+src/com/example/test.kt:14: Error: StartDestination should not be a simple class name reference.
+Did you mean to call its constructor TestAbstract(...)?
+If the class TestAbstract does not contain arguments,
+you can also pass in its KClass reference TestAbstract::class [WrongStartDestinationType]
+    builder.navigation<TestGraph>(startDestination = TestAbstract)
+                                                     ~~~~~~~~~~~~
+7 errors, 0 warnings
             """
             )
     }
@@ -252,6 +266,8 @@ you can also pass in its KClass reference AbstractChildClass::class [WrongStartD
                     provider.navigation(startDestination = Outer.InnerClass) {}
                     provider.navigation(startDestination = InterfaceChildClass) {}
                     provider.navigation(startDestination = AbstractChildClass) {}
+                    provider.navigation(startDestination = TestInterface)
+                    provider.navigation(startDestination = TestAbstract)
                 }
                 """
                     )
@@ -291,7 +307,19 @@ If the class AbstractChildClass does not contain arguments,
 you can also pass in its KClass reference AbstractChildClass::class [WrongStartDestinationType]
     provider.navigation(startDestination = AbstractChildClass) {}
                                            ~~~~~~~~~~~~~~~~~~
-5 errors, 0 warnings
+src/com/example/test.kt:12: Error: StartDestination should not be a simple class name reference.
+Did you mean to call its constructor TestInterface(...)?
+If the class TestInterface does not contain arguments,
+you can also pass in its KClass reference TestInterface::class [WrongStartDestinationType]
+    provider.navigation(startDestination = TestInterface)
+                                           ~~~~~~~~~~~~~
+src/com/example/test.kt:13: Error: StartDestination should not be a simple class name reference.
+Did you mean to call its constructor TestAbstract(...)?
+If the class TestAbstract does not contain arguments,
+you can also pass in its KClass reference TestAbstract::class [WrongStartDestinationType]
+    provider.navigation(startDestination = TestAbstract)
+                                           ~~~~~~~~~~~~
+7 errors, 0 warnings
             """
             )
     }
@@ -372,6 +400,8 @@ you can also pass in its KClass reference AbstractChildClass::class [WrongStartD
                     navGraph.setStartDestination(startDestRoute = Outer.InnerClass)
                     navGraph.setStartDestination(startDestRoute = InterfaceChildClass)
                     navGraph.setStartDestination(startDestRoute = AbstractChildClass)
+                    navGraph.setStartDestination(startDestRoute = TestInterface)
+                    navGraph.setStartDestination(startDestRoute = InterfaceChildClass)
                 }
                 """
                     )
@@ -411,7 +441,19 @@ If the class AbstractChildClass does not contain arguments,
 you can also pass in its KClass reference AbstractChildClass::class [WrongStartDestinationType]
     navGraph.setStartDestination(startDestRoute = AbstractChildClass)
                                                   ~~~~~~~~~~~~~~~~~~
-5 errors, 0 warnings
+src/com/example/test.kt:12: Error: StartDestination should not be a simple class name reference.
+Did you mean to call its constructor TestInterface(...)?
+If the class TestInterface does not contain arguments,
+you can also pass in its KClass reference TestInterface::class [WrongStartDestinationType]
+    navGraph.setStartDestination(startDestRoute = TestInterface)
+                                                  ~~~~~~~~~~~~~
+src/com/example/test.kt:13: Error: StartDestination should not be a simple class name reference.
+Did you mean to call its constructor InterfaceChildClass(...)?
+If the class InterfaceChildClass does not contain arguments,
+you can also pass in its KClass reference InterfaceChildClass::class [WrongStartDestinationType]
+    navGraph.setStartDestination(startDestRoute = InterfaceChildClass)
+                                                  ~~~~~~~~~~~~~~~~~~~
+7 errors, 0 warnings
             """
             )
     }
