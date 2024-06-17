@@ -21,7 +21,7 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.DimensionBuilders.weight;
-import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.ROBOTO_FLEX_FONT;
+import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.ROBOTO_FLEX_FONT;
 import static androidx.wear.protolayout.LayoutElementBuilders.TABULAR_OPTION_TAG;
 import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_TAG;
 import static androidx.wear.protolayout.LayoutElementBuilders.WIDTH_AXIS_TAG;

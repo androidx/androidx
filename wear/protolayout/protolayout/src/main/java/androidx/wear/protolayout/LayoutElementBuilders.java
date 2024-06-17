@@ -715,6 +715,32 @@ public final class LayoutElementBuilders {
             return Collections.unmodifiableList(list);
         }
 
+        /** The recommended font family names to be used within {@link FontStyle}. */
+        @RequiresSchemaVersion(major = 1, minor = 400)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef(
+                value = {DEFAULT_SYSTEM_FONT, ROBOTO_FONT, ROBOTO_FLEX_FONT},
+                open = true)
+        public @interface FontFamilyName {}
+
+        /**
+         * Font family name that uses default system font. Supported in any renderer version.
+         */
+        @RequiresSchemaVersion(major = 1, minor = 400)
+        public static final String DEFAULT_SYSTEM_FONT = "default";
+
+        /** Font family name that uses Roboto font. Supported in renderers supporting 1.4. */
+        @RequiresSchemaVersion(major = 1, minor = 400)
+        public static final String ROBOTO_FONT = "roboto";
+
+        /**
+         * Font family name that uses Roboto Flex variable font. Supported in renderers
+         * supporting 1.4.
+         */
+        @RequiresSchemaVersion(major = 1, minor = 400)
+        public static final String ROBOTO_FLEX_FONT = "roboto-flex";
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -1023,32 +1049,6 @@ public final class LayoutElementBuilders {
                         1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
-
-            /** The recommended font family names to be used within {@link FontStyle}. */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            @RestrictTo(RestrictTo.Scope.LIBRARY)
-            @Retention(RetentionPolicy.SOURCE)
-            @StringDef(
-                    value = {DEFAULT_SYSTEM_FONT, ROBOTO_FONT, ROBOTO_FLEX_FONT},
-                    open = true)
-            public @interface FontFamilyName {}
-
-            /**
-             * Font family name that uses default system font. Supported in any renderer version.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            public static final String DEFAULT_SYSTEM_FONT = "default";
-
-            /** Font family name that uses Roboto font. Supported in renderers supporting 1.4. */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            public static final String ROBOTO_FONT = "roboto";
-
-            /**
-             * Font family name that uses Roboto Flex variable font. Supported in renderers
-             * supporting 1.4.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            public static final String ROBOTO_FLEX_FONT = "roboto-flex";
 
             /**
              * Sets the preferred font families for this {@link FontStyle}.
