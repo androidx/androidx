@@ -20,7 +20,7 @@
     <string name="status_bar_notification_info_overflow" msgid="6277540029070332960">"999+"</string>
     <string name="call_notification_answer_action" msgid="881409763997275156">"ਜਵਾਬ ਦਿਓ"</string>
     <string name="call_notification_answer_video_action" msgid="8793775615905189152">"ਵੀਡੀਓ"</string>
-    <string name="call_notification_decline_action" msgid="3229508546291798546">"ਅਸਵੀਕਾਰ ਕਰੋ"</string>
+    <string name="call_notification_decline_action" msgid="3229508546291798546">"ਕਾਲ ਕੱਟੋ"</string>
     <string name="call_notification_hang_up_action" msgid="2659457946726154263">"ਸਮਾਪਤ ਕਰੋ"</string>
     <string name="call_notification_incoming_text" msgid="6107532579223922871">"ਇਨਕਮਿੰਗ ਕਾਲ"</string>
     <string name="call_notification_ongoing_text" msgid="8623827134497363134">"ਜਾਰੀ ਕਾਲ"</string>
