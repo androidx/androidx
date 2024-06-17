@@ -50,15 +50,13 @@ public final class ParcelCompat {
     /**
      * Write a boolean value into the parcel at the current f{@link Parcel#dataPosition()},
      * growing {@link Parcel#dataCapacity()} if needed.
-     *
-     * <p>Note: This method currently delegates to {@link Parcel#writeInt} with a value of 1 or 0
-     * for true or false, respectively, but may change in the future.
-     * @deprecated Call {@link Parcel#writeInt()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "out.writeInt(value ? 1 : 0)")
     public static void writeBoolean(@NonNull Parcel out, boolean value) {
-        out.writeInt(value ? 1 : 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            Api29Impl.writeBoolean(out, value);
+        } else {
+            out.writeInt(value ? 1 : 0);
+        }
     }
 
     /**
@@ -405,6 +403,11 @@ public final class ParcelCompat {
         static <T extends Parcelable> List<T> readParcelableList(@NonNull Parcel in,
                 @NonNull List<T> list, @Nullable ClassLoader cl) {
             return in.readParcelableList(list, cl);
+        }
+
+        @DoNotInline
+        static void writeBoolean(@NonNull Parcel parcel, boolean val) {
+            parcel.writeBoolean(val);
         }
     }
 

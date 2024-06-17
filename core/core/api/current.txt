@@ -1958,7 +1958,7 @@ package androidx.core.os {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public static <T> java.util.List<T!> readParcelableList(android.os.Parcel, java.util.List<T!>, ClassLoader?, Class<T!>);
     method public static <T extends java.io.Serializable> T? readSerializable(android.os.Parcel, ClassLoader?, Class<T!>);
     method public static <T> android.util.SparseArray<T!>? readSparseArray(android.os.Parcel, ClassLoader?, Class<? extends T!>);
-    method @Deprecated public static void writeBoolean(android.os.Parcel, boolean);
+    method public static void writeBoolean(android.os.Parcel, boolean);
   }
 
   @Deprecated public final class ParcelableCompat {
