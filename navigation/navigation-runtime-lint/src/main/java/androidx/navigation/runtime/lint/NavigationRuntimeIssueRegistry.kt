@@ -33,6 +33,7 @@ class NavigationRuntimeIssueRegistry : IssueRegistry() {
             listOf(
                 DeepLinkInActivityDestinationDetector.DeepLinkInActivityDestination,
                 WrongStartDestinationTypeDetector.WrongStartDestinationType,
+                WrongNavigateRouteDetector.WrongNavigateRouteType,
             )
 
     override val vendor =
