@@ -25,16 +25,8 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
-import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.symbols.KtClassOrObjectSymbol
-import org.jetbrains.kotlin.idea.references.mainReference
-import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.UQualifiedReferenceExpression
-import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getParameterForArgument
 
 abstract class BaseWrongStartDestinationTypeDetector(
@@ -54,42 +46,7 @@ abstract class BaseWrongStartDestinationTypeDetector(
                 parameterNames.contains(node.getParameterForArgument(it)?.name)
             } ?: return
 
-        /**
-         * True if:
-         * 1. reference to object (i.e. val myStart = TestStart(), startDest = myStart)
-         * 2. object declaration (i.e. object MyStart, startDest = MyStart)
-         * 3. class reference (i.e. class MyStart, startDest = MyStart)
-         *
-         *    We only want to catch case 3., so we need more filters to eliminate case 1 & 2.
-         */
-        val isSimpleRefExpression = startNode is USimpleNameReferenceExpression
-
-        /** True if nested class i.e. OuterClass.InnerClass */
-        val isQualifiedRefExpression = startNode is UQualifiedReferenceExpression
-
-        if (!(isSimpleRefExpression || isQualifiedRefExpression)) return
-
-        val sourcePsi = startNode.sourcePsi as? KtExpression ?: return
-        val (isClassType, name) =
-            analyze(sourcePsi) {
-                val symbol =
-                    when (sourcePsi) {
-                        is KtDotQualifiedExpression -> {
-                            val lastChild = sourcePsi.lastChild
-                            if (lastChild is KtReferenceExpression) {
-                                lastChild.mainReference.resolveToSymbol()
-                            } else {
-                                null
-                            }
-                        }
-                        is KtReferenceExpression -> sourcePsi.mainReference.resolveToSymbol()
-                        else -> null
-                    }
-                        as? KtClassOrObjectSymbol ?: return
-
-                symbol.classKind.isClass to symbol.name
-            }
-
+        val (isClassType, name) = startNode.isClassReference()
         if (isClassType) {
             context.report(
                 getIssue(),
