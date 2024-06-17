@@ -17,7 +17,6 @@
 package androidx.compose.foundation.draganddrop
 
 import android.graphics.Picture
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.draw.CacheDrawScope
@@ -42,14 +41,12 @@ import androidx.compose.ui.platform.InspectorInfo
  *   [PointerInputScope] to detect the drag gesture, after which a drag and drop gesture can be
  *   started with [DragAndDropSourceScope.startTransfer].
  */
-@ExperimentalFoundationApi
 fun Modifier.dragAndDropSource(block: suspend DragAndDropSourceScope.() -> Unit): Modifier =
     this then
         DragAndDropSourceWithDefaultShadowElement(
             dragAndDropSourceHandler = block,
         )
 
-@ExperimentalFoundationApi
 private class DragAndDropSourceWithDefaultShadowElement(
     /** @see Modifier.dragAndDropSource */
     val dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
@@ -82,7 +79,6 @@ private class DragAndDropSourceWithDefaultShadowElement(
     }
 }
 
-@ExperimentalFoundationApi
 private class DragSourceNodeWithDefaultPainter(
     var dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
 ) : DelegatingNode() {
@@ -101,7 +97,6 @@ private class DragSourceNodeWithDefaultPainter(
     }
 }
 
-@ExperimentalFoundationApi
 private class CacheDrawScopeDragShadowCallback {
     private var cachedPicture: Picture? = null
 

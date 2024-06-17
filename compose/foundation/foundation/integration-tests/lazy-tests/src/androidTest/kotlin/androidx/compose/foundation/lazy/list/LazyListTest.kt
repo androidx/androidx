@@ -24,7 +24,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VelocityTrackerCalculationThreshold
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -2072,7 +2071,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun LazyListInLookaheadScope(
         list: List<Int>,
@@ -2145,7 +2143,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun animContentSizeWithPlacementAnimator() {
         val lookaheadPosition = mutableMapOf<Int, Int>()
@@ -2323,7 +2320,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             assert(assertedSmallItems)
         }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun animVisibilityWithPlacementAnimator() {
         val lookaheadPosition = mutableMapOf<Int, Int>()

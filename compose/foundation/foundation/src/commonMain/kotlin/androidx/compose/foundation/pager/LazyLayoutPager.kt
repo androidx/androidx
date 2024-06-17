@@ -64,7 +64,6 @@ import androidx.compose.ui.util.fastAll
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Pager(
     /** Modifier to be applied for the inner layout */
@@ -195,7 +194,6 @@ internal fun Pager(
     )
 }
 
-@ExperimentalFoundationApi
 internal class PagerLazyLayoutItemProvider(
     private val state: PagerState,
     private val intervalContent: LazyLayoutIntervalContent<PagerIntervalContent>,
@@ -235,7 +233,6 @@ internal class PagerLazyLayoutItemProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class PagerLayoutIntervalContent(
     val pageContent: @Composable PagerScope.(page: Int) -> Unit,
     val key: ((index: Int) -> Any)?,
@@ -247,13 +244,11 @@ private class PagerLayoutIntervalContent(
         }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class PagerIntervalContent(
     override val key: ((page: Int) -> Any)?,
     val item: @Composable PagerScope.(page: Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberPagerItemProviderLambda(
     state: PagerState,
@@ -305,7 +300,6 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
             }
         }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class PagerBringIntoViewSpec(
     val pagerState: PagerState,
     val defaultBringIntoViewSpec: BringIntoViewSpec

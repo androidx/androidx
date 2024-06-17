@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.TestValue.A
 import androidx.compose.foundation.gestures.TestValue.B
 import androidx.compose.foundation.gestures.TestValue.C

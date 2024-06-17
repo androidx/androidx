@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
@@ -29,7 +28,6 @@ import kotlin.math.roundToLong
  * Contains the current scroll position represented by the first visible page and the first visible
  * page scroll offset.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class PagerScrollPosition(
     currentPage: Int = 0,
     currentPageOffsetFraction: Float = 0.0f,

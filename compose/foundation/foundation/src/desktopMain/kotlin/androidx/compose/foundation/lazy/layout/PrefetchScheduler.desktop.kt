@@ -16,16 +16,13 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 
-@ExperimentalFoundationApi
 @Composable
 actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
     return NoOpPrefetchScheduler
 }
 
-@ExperimentalFoundationApi
 private object NoOpPrefetchScheduler : PrefetchScheduler {
     override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {}
 }

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.draganddrop
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
@@ -41,7 +40,6 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @see [DragAndDropModifierNode.acceptDragAndDropTransfer]
  */
-@ExperimentalFoundationApi
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: (startEvent: DragAndDropEvent) -> Boolean,
     target: DragAndDropTarget,
@@ -52,7 +50,6 @@ fun Modifier.dragAndDropTarget(
             shouldStartDragAndDrop = shouldStartDragAndDrop,
         )
 
-@ExperimentalFoundationApi
 private class DropTargetElement(
     val shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
     val target: DragAndDropTarget,
@@ -87,7 +84,6 @@ private class DropTargetElement(
     }
 }
 
-@ExperimentalFoundationApi
 private class DragAndDropTargetNode(
     private var shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
     private var target: DragAndDropTarget

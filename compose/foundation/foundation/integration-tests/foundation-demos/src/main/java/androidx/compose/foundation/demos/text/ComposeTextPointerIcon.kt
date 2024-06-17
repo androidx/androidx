@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -114,7 +113,6 @@ private fun IconDemoRectangle(parentOverride: ParentOverride, textOverride: Bool
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun IconDemoColumn(overrideDescendants: Boolean) {
     val borderMod = Modifier.border(1.dp, Color.LightGray)

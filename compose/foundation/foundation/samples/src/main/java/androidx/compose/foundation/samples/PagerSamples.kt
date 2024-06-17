@@ -18,7 +18,6 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.animate
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -111,7 +110,6 @@ fun PagerWithStateSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun PagerCustomAnimateScrollToPage() {

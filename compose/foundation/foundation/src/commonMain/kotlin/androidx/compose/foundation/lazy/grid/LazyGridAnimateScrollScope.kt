@@ -16,14 +16,12 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridAnimateScrollScope(private val state: LazyGridState) :
     LazyLayoutAnimateScrollScope {
 

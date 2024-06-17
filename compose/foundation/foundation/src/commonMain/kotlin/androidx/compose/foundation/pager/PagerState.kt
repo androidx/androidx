@@ -497,7 +497,6 @@ internal constructor(
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      *   destination page will be offset from its snapped position.
      */
-    @ExperimentalFoundationApi
     fun ScrollScope.updateCurrentPage(
         page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
@@ -517,7 +516,6 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.PagerCustomAnimateScrollToPage
      */
-    @ExperimentalFoundationApi
     fun ScrollScope.updateTargetPage(targetPage: Int) {
         programmaticScrollTargetPage = targetPage.coerceInPageRange()
     }
@@ -906,7 +904,6 @@ private fun PagerMeasureResult.calculateNewMinScrollOffset(pageCount: Int): Long
         .toLong()
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private suspend fun LazyLayoutAnimateScrollScope.animateScrollToPage(
     targetPage: Int,
     targetPageOffsetToSnappedPosition: Float,

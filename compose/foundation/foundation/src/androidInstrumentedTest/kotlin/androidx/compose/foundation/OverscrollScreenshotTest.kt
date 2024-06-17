@@ -132,7 +132,6 @@ class OverscrollScreenshotTest {
             .assertAgainstGolden(screenshotRule, "overscroll_right_origin")
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun VerticalScrollable() {
         CompositionLocalProvider(
@@ -151,7 +150,6 @@ class OverscrollScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun HorizontalScrollable() {
         CompositionLocalProvider(

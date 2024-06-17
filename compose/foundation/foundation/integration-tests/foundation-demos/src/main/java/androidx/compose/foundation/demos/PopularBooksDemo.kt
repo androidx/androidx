@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +46,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Preview
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PopularBooksDemo() {
     MaterialTheme {

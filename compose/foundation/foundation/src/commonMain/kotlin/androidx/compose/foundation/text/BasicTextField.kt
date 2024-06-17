@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -210,7 +209,6 @@ fun BasicTextField(
  *   codepoints.
  */
 // This takes a composable lambda, but it is not primarily a container.
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
 internal fun BasicTextField(

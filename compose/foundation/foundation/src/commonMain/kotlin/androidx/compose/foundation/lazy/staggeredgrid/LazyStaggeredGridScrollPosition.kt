@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
@@ -26,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.util.fastFirstOrNull
 
-@ExperimentalFoundationApi
 internal class LazyStaggeredGridScrollPosition(
     initialIndices: IntArray,
     initialOffsets: IntArray,
@@ -131,7 +129,6 @@ internal class LazyStaggeredGridScrollPosition(
      * were items added or removed before our current first visible item and keep this item as the
      * first visible one even given that its index has been changed.
      */
-    @ExperimentalFoundationApi
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyLayoutItemProvider,
         indices: IntArray

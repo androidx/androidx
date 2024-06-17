@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * Note that there may be some cases where the focused bounds change but the callback is _not_
  * invoked, but the last [LayoutCoordinates] will always return the most up-to-date bounds.
  */
-@ExperimentalFoundationApi
 fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
     this then FocusedBoundsObserverElement(onPositioned)
 

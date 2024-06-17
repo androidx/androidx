@@ -19,9 +19,7 @@ package androidx.compose.foundation.lazy.layout
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.compose.foundation.ExperimentalFoundationApi
 
-@ExperimentalFoundationApi
 actual fun getDefaultLazyLayoutKey(index: Int): Any = DefaultLazyKey(index)
 
 @SuppressLint("BanParcelableUsage")

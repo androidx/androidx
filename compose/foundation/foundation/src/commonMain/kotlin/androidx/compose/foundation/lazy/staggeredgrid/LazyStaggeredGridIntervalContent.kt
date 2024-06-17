@@ -16,12 +16,10 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridIntervalContent(content: LazyStaggeredGridScope.() -> Unit) :
     LazyStaggeredGridScope, LazyLayoutIntervalContent<LazyStaggeredGridInterval>() {
 
@@ -59,7 +57,6 @@ internal class LazyStaggeredGridIntervalContent(content: LazyStaggeredGridScope.
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),

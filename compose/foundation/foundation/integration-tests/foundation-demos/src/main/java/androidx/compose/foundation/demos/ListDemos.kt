@@ -24,7 +24,6 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -620,7 +619,6 @@ private fun LazyGridForMode(mode: GridCells) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun LazyGridWithSpacingDemo() {
@@ -779,7 +777,6 @@ private fun LazyGridWithSpacingForMode(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReorderWithCustomKeys() {
     var names by remember { mutableStateOf(listOf("John", "Sara", "Dan")) }
@@ -926,7 +923,6 @@ private fun LazyStaggeredGridDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AnimateItemPlacementDemo() {
     val items = remember { mutableStateListOf<Int>().apply { repeat(20) { add(it) } } }

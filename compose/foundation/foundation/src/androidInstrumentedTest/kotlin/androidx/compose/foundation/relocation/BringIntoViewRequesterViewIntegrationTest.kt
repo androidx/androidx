@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Rect as AndroidRect
 import android.view.View
 import android.widget.FrameLayout
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -45,7 +44,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class BringIntoViewRequesterViewIntegrationTest {

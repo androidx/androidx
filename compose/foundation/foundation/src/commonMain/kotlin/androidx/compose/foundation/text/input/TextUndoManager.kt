@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.SNAPSHOTS_INTERVAL_MILLIS
 import androidx.compose.foundation.text.input.internal.undo.TextDeleteType
 import androidx.compose.foundation.text.input.internal.undo.TextEditType
@@ -204,7 +203,6 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
  * @param allowMerge Whether to allow merging the calculated operation with the last operation in
  *   the stack.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextUndoManager.recordChanges(
     pre: TextFieldCharSequence,
     post: TextFieldCharSequence,

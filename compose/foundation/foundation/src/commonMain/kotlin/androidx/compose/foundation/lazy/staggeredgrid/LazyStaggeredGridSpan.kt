@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 
@@ -37,7 +36,6 @@ class StaggeredGridItemSpan private constructor(internal val value: Int) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridSpanProvider(
     val intervals: IntervalList<LazyStaggeredGridInterval>
 ) {

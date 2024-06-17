@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.Velocity
  *
  * @sample androidx.compose.foundation.samples.OverscrollSample
  */
-@ExperimentalFoundationApi
 @Stable
 interface OverscrollEffect {
     /**
@@ -142,15 +141,11 @@ interface OverscrollEffect {
  * @sample androidx.compose.foundation.samples.OverscrollSample
  * @param overscrollEffect the [OverscrollEffect] to render
  */
-@ExperimentalFoundationApi
 fun Modifier.overscroll(overscrollEffect: OverscrollEffect): Modifier =
     this.then(overscrollEffect.effectModifier)
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal expect fun rememberOverscrollEffect(): OverscrollEffect
+@Composable internal expect fun rememberOverscrollEffect(): OverscrollEffect
 
-@OptIn(ExperimentalFoundationApi::class)
 internal object NoOpOverscrollEffect : OverscrollEffect {
     override fun applyToScroll(
         delta: Offset,

@@ -21,7 +21,6 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -192,7 +191,6 @@ class RobolectricComposeTest {
      * Check that scrolling and controlling the clock works: a scrollable receives a swipe while the
      * clock is paused, when the clock is resumed it performs the fling.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testControlledScrolling() = runComposeUiTest {
         // Define constants used in the test

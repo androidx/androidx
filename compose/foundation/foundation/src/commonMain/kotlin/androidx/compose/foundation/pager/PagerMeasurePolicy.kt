@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
@@ -38,7 +37,6 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import kotlinx.coroutines.CoroutineScope
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberPagerMeasurePolicy(
     itemProviderLambda: () -> PagerLazyLayoutItemProvider,

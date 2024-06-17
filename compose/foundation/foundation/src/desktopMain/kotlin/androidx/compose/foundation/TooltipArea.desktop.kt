@@ -55,7 +55,6 @@ import kotlinx.coroutines.launch
  * @param tooltipPlacement Defines position of the tooltip.
  * @param content Composable content that the current tooltip is set to.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Deprecated(
     "Use TooltipArea",
@@ -82,7 +81,6 @@ fun BoxWithTooltip(
  * @param tooltipPlacement Defines position of the tooltip.
  * @param content Composable content that the current tooltip is set to.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TooltipArea(
     tooltip: @Composable () -> Unit,
@@ -171,7 +169,6 @@ private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
 }
 
 /** An interface for providing a [PopupPositionProvider] for the tooltip. */
-@ExperimentalFoundationApi
 interface TooltipPlacement {
     /** Returns [PopupPositionProvider] implementation. */
     @Composable fun positionProvider(): PopupPositionProvider
@@ -185,7 +182,6 @@ interface TooltipPlacement {
      * @param windowMargin Defines the area within the window that limits the placement of the
      *   popup.
      */
-    @ExperimentalFoundationApi
     class CursorPoint(
         private val offset: DpOffset = DpOffset.Zero,
         private val alignment: Alignment = Alignment.BottomEnd,
@@ -204,7 +200,6 @@ interface TooltipPlacement {
      * @param alignment The alignment of the popup relative to the [anchor] point.
      * @param offset [DpOffset] to be added to the position of the popup.
      */
-    @ExperimentalFoundationApi
     class ComponentRect(
         private val anchor: Alignment = Alignment.BottomCenter,
         private val alignment: Alignment = Alignment.BottomCenter,

@@ -60,7 +60,6 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 internal actual fun rememberOverscrollEffect(): OverscrollEffect {
     val context = LocalContext.current
     val config = LocalOverscrollConfiguration.current
@@ -318,7 +317,6 @@ private class DrawStretchOverscrollModifier(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class DrawGlowOverscrollModifier(
     private val overscrollEffect: AndroidEdgeEffectOverscrollEffect,
     private val edgeEffectWrapper: EdgeEffectWrapper,
@@ -421,7 +419,6 @@ private class DrawGlowOverscrollModifier(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class AndroidEdgeEffectOverscrollEffect(
     context: Context,
     overscrollConfig: OverscrollConfiguration

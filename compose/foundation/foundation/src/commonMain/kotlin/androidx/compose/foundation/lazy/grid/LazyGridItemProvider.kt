@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
@@ -27,13 +26,11 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 
-@ExperimentalFoundationApi
 internal interface LazyGridItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
     val spanLayoutProvider: LazyGridSpanLayoutProvider
 }
 
-@ExperimentalFoundationApi
 @Composable
 internal fun rememberLazyGridItemProviderLambda(
     state: LazyGridState,
@@ -59,7 +56,6 @@ internal fun rememberLazyGridItemProviderLambda(
     }
 }
 
-@ExperimentalFoundationApi
 private class LazyGridItemProviderImpl(
     private val state: LazyGridState,
     private val intervalContent: LazyGridIntervalContent,

@@ -44,7 +44,6 @@ import androidx.compose.ui.window.PopupProperties
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 actual fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,

@@ -235,7 +235,6 @@ fun Modifier.clickable(
  * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
  * input quite well but provides subpar functionality for other input types.
  */
-@ExperimentalFoundationApi
 fun Modifier.combinedClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
@@ -333,7 +332,6 @@ fun Modifier.combinedClickable(
  * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
  * input quite well but provides subpar functionality for other input types.
  */
-@ExperimentalFoundationApi
 fun Modifier.combinedClickable(
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
@@ -642,7 +640,6 @@ internal open class ClickableNode(
  * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
  * input quite well but provides subpar functionality for other input types.
  */
-@ExperimentalFoundationApi
 fun CombinedClickableNode(
     onClick: () -> Unit,
     onLongClickLabel: String?,
@@ -673,7 +670,6 @@ fun CombinedClickableNode(
  * Note: This API is experimental and is temporarily being exposed to enable performance analysis,
  * you should use [combinedClickable] instead for the majority of use cases.
  */
-@ExperimentalFoundationApi
 sealed interface CombinedClickableNode : PointerInputModifierNode {
     /**
      * Updates this node with new values, and resets any invalidated state accordingly.
@@ -709,7 +705,6 @@ sealed interface CombinedClickableNode : PointerInputModifierNode {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class CombinedClickableNodeImpl(
     onClick: () -> Unit,
     private var onLongClickLabel: String?,

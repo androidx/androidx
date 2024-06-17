@@ -17,7 +17,6 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.splineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -64,12 +63,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config = config) {
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun nestedScrollContent_shouldNotPropagateUnconsumedFlings() {
         // Arrange
@@ -105,7 +102,6 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         assertEquals(pagerState.currentPageOffsetFraction, 0f, 0.01f)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun nestedScrollContent_shouldCancelFlingIfOnEdge() {
         // Arrange
@@ -154,7 +150,6 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         assertThat(pagerState.currentPageOffsetFraction).isNotEqualTo(previousOffset)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun nestedScrollContent_shouldPropagateCrossAxisUnconsumedFlings() {
         // Arrange
@@ -221,7 +216,6 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         assertThat(mainAxisScrollAvailable.absoluteValue).isEqualTo(0f)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun nestedScrollContent_shouldPropagateScrollCorrectly() {
         // Arrange
@@ -272,7 +266,6 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0f)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun nestedScrollContent_shouldEnsurePagerIsSettled_WhenDirectionChanges() {
         // Arrange
@@ -333,7 +326,6 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         rule.onNodeWithTag(TestTag).performTouchInput { up() }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun nestedScrollContent_shouldEnsurePagerIsSettled_WhenCrossDirectionScrolls() {
         // Arrange

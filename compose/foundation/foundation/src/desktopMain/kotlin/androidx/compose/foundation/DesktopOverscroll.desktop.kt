@@ -18,6 +18,4 @@ package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal actual fun rememberOverscrollEffect(): OverscrollEffect = NoOpOverscrollEffect
+@Composable internal actual fun rememberOverscrollEffect(): OverscrollEffect = NoOpOverscrollEffect

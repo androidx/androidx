@@ -1182,7 +1182,6 @@ class ScrollableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun focusScroll_nestedScroll_childPartialConsumptionForSemantics() {
         var outerDrag = 0f
@@ -2605,7 +2604,6 @@ class ScrollableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun producingEqualMaterializedModifierAfterRecomposition() {
         val state = ScrollableState { it }

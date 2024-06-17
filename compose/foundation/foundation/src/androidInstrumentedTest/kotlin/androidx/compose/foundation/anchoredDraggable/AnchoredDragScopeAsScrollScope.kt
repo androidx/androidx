@@ -16,12 +16,10 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDragScope
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollScope
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun AnchoredDragScope.asScrollScope(state: AnchoredDraggableState<*>) =
     object : ScrollScope {
         override fun scrollBy(pixels: Float): Float {

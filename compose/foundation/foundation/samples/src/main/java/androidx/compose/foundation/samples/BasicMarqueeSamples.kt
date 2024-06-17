@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalTextApi::class)
+@file:OptIn(ExperimentalTextApi::class)
 
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.basicMarquee

@@ -173,7 +173,6 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformable_pan_disallowed() {
         var cumulativePan = Offset.Zero
@@ -214,7 +213,6 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformableInsideScroll_pan_disallowed_parentScrolls() {
         var touchSlop = 0f
@@ -249,7 +247,6 @@ class TransformableTest {
         rule.runOnIdle { assertThat(scrollState.value).isEqualTo(50) }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformableInsideScroll_canPan_offsetProvided() {
         var lastCanPanOffset = Offset.Zero

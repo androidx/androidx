@@ -29,7 +29,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.draganddrop.dragAndDropSource
@@ -110,7 +109,6 @@ fun DragAndDropMultiAppSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun TextDragAndDropSourceSample(modifier: Modifier) {
@@ -144,7 +142,6 @@ fun TextDragAndDropSourceSample(modifier: Modifier) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun TextDragAndDropTargetSample(
@@ -283,7 +280,6 @@ private fun ColorSwatch() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun DragAndDropSourceWithColoredDragShadowSample(color: Color) {
@@ -325,7 +321,6 @@ private fun Modifier.animatedDragAndDrop(
         .offset(state.animatedTranslation, state.animatedTranslation)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.stateDragSource(state: State) =
     dragAndDropSource(
         drawDragDecoration = { drawRoundRect(state.color) },
@@ -333,7 +328,6 @@ private fun Modifier.stateDragSource(state: State) =
         detectTapGestures(onLongPress = { startTransfer(state.color.toDragAndDropTransfer()) })
     }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.stateDropTarget(state: State) =
     dragAndDropTarget(
         shouldStartDragAndDrop = { startEvent ->

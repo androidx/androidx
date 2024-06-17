@@ -17,7 +17,6 @@
 package androidx.compose.foundation.benchmark.lazy
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -49,7 +48,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class LazyStaggeredGridScrollingBenchmark(
@@ -174,7 +172,6 @@ class LazyStaggeredGridScrollingBenchmark(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 class LazyStaggeredGridScrollingTestCase(
     private val name: String,
     val isVertical: Boolean,
@@ -185,7 +182,6 @@ class LazyStaggeredGridScrollingTestCase(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private val Vertical =
     LazyStaggeredGridScrollingTestCase("Vertical", isVertical = true) { state ->
         LazyVerticalStaggeredGrid(
@@ -199,7 +195,6 @@ private val Vertical =
         }
     }
 
-@OptIn(ExperimentalFoundationApi::class)
 private val Horizontal =
     LazyStaggeredGridScrollingTestCase("Horizontal", isVertical = false) { state ->
         LazyHorizontalStaggeredGrid(
@@ -213,7 +208,6 @@ private val Horizontal =
         }
     }
 
-@OptIn(ExperimentalFoundationApi::class)
 class StaggeredGridRemeasureTestCase(
     val firstItemIndex: Int = 0,
     val scrollUp: Boolean = false,

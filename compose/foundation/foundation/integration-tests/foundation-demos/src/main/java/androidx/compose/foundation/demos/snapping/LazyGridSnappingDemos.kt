@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
@@ -50,7 +49,6 @@ val LazyGridSnappingDemos =
  * Snapping happens to the next item and items have the same size. We use the top line in the grid
  * as a reference point.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GridSingleItemSnapping() {
     val lazyGridState = rememberLazyGridState()

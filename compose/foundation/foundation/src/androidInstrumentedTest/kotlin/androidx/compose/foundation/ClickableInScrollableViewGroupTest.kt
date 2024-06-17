@@ -47,7 +47,6 @@ import org.junit.runner.RunWith
 /** Test for [clickable] [PressInteraction] behavior in scrollable [ViewGroup]s. */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class ClickableInScrollableViewGroupTest {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 

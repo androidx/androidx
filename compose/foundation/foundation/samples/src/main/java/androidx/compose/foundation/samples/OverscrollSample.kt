@@ -19,7 +19,6 @@ package androidx.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -55,11 +54,9 @@ import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun OverscrollSample() {
-    @OptIn(ExperimentalFoundationApi::class)
     // our custom offset overscroll that offset the element it is applied to when we hit the bound
     // on the scrollable container.
     class OffsetOverscrollEffect(val scope: CoroutineScope) : OverscrollEffect {
@@ -180,7 +177,6 @@ fun OverscrollWithDraggable_Before() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun OverscrollWithDraggable_After() {

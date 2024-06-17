@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BringIntoViewResponderDemo() {
     Column {
@@ -82,7 +80,6 @@ fun BringIntoViewResponderDemo() {
                                     return Rect(Offset.Zero, localRect.size)
                                 }
 
-                                @ExperimentalFoundationApi
                                 override suspend fun bringChildIntoView(localRect: () -> Rect?) {
                                     // Offset the content right and down by the offset of the
                                     // requested area

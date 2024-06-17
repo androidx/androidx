@@ -19,7 +19,6 @@ package androidx.compose.ui.draganddrop
 import android.os.Parcel
 import android.view.DragEvent
 import android.view.ViewGroup
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -1037,7 +1036,6 @@ private class DropTargetModifierHolder(
     val exitOffsets = mutableListOf<Offset>()
     val endedOffsets = mutableListOf<Offset>()
 
-    @OptIn(ExperimentalFoundationApi::class)
     val modifier =
         Modifier.dragAndDropTarget(
             target =

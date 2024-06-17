@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -62,7 +61,6 @@ internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
  * This class assumes that links exist and does not perform any additional check inside its methods.
  * Therefore this class initialisation should be guarded by the `hasLinks` check.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextLinkScope(internal val initialText: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
 
@@ -145,7 +143,6 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      * [TextLinkScope] object created *only* when there are links present in the text, we don't need
      * to do any additional guarding inside this composable function.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun LinksComposables() {
         val uriHandler = LocalUriHandler.current
