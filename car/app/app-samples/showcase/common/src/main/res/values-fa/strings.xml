@@ -175,7 +175,7 @@
     <string name="notification_template_demo_title" msgid="5076051497316030274">"الگوی اعلان نمونه"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"نمونه الگوی ناوبری فقط با نقشه"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"نمونه‌های ناوبری"</string>
-    <string name="navigation_alert_title" msgid="8306554249264200848">"باز هم دام سرعت وجود دارد؟"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"باز هم تله سرعت وجود دارد؟"</string>
     <string name="navigation_alert_subtitle" msgid="3331130131492672264">"۱۰ دقیقه پیش گزارش شده است"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"اجازه کارت عوارض اعطا نشده است."</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"اجازه میزان سوخت اعطا نشده است."</string>
