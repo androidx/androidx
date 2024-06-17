@@ -19,6 +19,7 @@ package androidx.compose.foundation
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.relocation.findBringIntoViewParent
 import androidx.compose.foundation.relocation.scrollIntoView
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -198,7 +200,11 @@ internal class FocusableNode(
         if (isFocused == wasFocused) return
         if (isFocused) {
             onFocus?.invoke()
-            coroutineScope.launch { scrollIntoView() }
+            val parent = findBringIntoViewParent()
+            if (parent != null) {
+                val layoutCoordinates = requireLayoutCoordinates()
+                coroutineScope.launch { parent.scrollIntoView(layoutCoordinates) }
+            }
             val pinnableContainer = retrievePinnableContainer()
             pinnedHandle = pinnableContainer?.pin()
             notifyObserverWhenAttached()
