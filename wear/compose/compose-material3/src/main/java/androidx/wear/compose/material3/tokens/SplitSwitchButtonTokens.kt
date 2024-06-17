@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-// VERSION: v0_40
+// VERSION: v0_64
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
-
-internal object SplitToggleButtonTokens {
+internal object SplitSwitchButtonTokens {
     val CheckedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val CheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val CheckedSecondaryLabelOpacity = 0.8f
     val CheckedSplitContainerColor = ColorSchemeKeyTokens.Primary
     val CheckedSplitContainerOpacity = 0.15f
+    val CheckedThumbColor = ColorSchemeKeyTokens.OnPrimary
+    val CheckedThumbIconColor = ColorSchemeKeyTokens.Primary
+    val CheckedTrackBorderColor = ColorSchemeKeyTokens.Primary
+    val CheckedTrackColor = ColorSchemeKeyTokens.Primary
     val ContainerShape = ShapeKeyTokens.CornerLarge
     val DisabledCheckedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
@@ -33,15 +36,30 @@ internal object SplitToggleButtonTokens {
     val DisabledCheckedSecondaryLabelOpacity = 0.8f
     val DisabledCheckedSplitContainerColor = ColorSchemeKeyTokens.Primary
     val DisabledCheckedSplitContainerOpacity = 0.15f
+    val DisabledCheckedThumbColor = ColorSchemeKeyTokens.Background
+    val DisabledCheckedThumbIconColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedThumbIconOpacity = 0.12f
+    val DisabledCheckedThumbOpacity = 0.38f
+    val DisabledCheckedTrackBorderColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedTrackBorderOpacity = 0.12f
+    val DisabledCheckedTrackColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedTrackOpacity = 0.12f
     val DisabledOpacity = 0.38f
     val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val DisabledUncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
+    val DisabledUncheckedThumbColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedThumbOpacity = 0.12f
+    val DisabledUncheckedTrackBorderColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedTrackBorderOpacity = 0.12f
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
     val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val UncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val UncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
+    val UncheckedThumbColor = ColorSchemeKeyTokens.Outline
+    val UncheckedTrackBorderColor = ColorSchemeKeyTokens.Outline
+    val UncheckedTrackColor = ColorSchemeKeyTokens.SurfaceContainer
 }

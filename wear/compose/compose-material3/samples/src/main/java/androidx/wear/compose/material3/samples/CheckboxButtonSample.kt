@@ -54,7 +54,7 @@ fun SplitCheckboxButtonSample() {
         label = { Text("Split Checkbox Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         checked = checked,
         onCheckedChange = { checked = it },
-        toggleContentDescription = "Split Checkbox Sample",
+        toggleContentDescription = "Split Checkbox Button Sample",
         onContainerClick = {
             /* Do something */
         },

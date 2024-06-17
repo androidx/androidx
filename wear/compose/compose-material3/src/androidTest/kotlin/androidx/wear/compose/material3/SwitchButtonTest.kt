@@ -53,18 +53,18 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.samples.SplitToggleButtonWithSwitch
-import androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
+import androidx.wear.compose.material3.samples.SplitSwitchButtonSample
+import androidx.wear.compose.material3.samples.SwitchButtonSample
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
-class ToggleButtonTest {
+class SwitchButtonTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
-        rule.setContentWithTheme { ToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
+        rule.setContentWithTheme { SwitchButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -72,26 +72,26 @@ class ToggleButtonTest {
     @Test
     fun split_button_supports_testtag() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
-    fun toggle_button_samples_build() {
-        rule.setContentWithTheme { ToggleButtonWithSwitch() }
+    fun switch_button_samples_build() {
+        rule.setContentWithTheme { SwitchButtonSample() }
     }
 
     @Test
-    fun split_toggle_button_samples_build() {
-        rule.setContentWithTheme { SplitToggleButtonWithSwitch() }
+    fun split_switch_button_samples_build() {
+        rule.setContentWithTheme { SplitSwitchButtonSample() }
     }
 
     @Test
     fun has_clickaction_when_enabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            SwitchButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -100,7 +100,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_has_clickaction_when_enabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
@@ -109,7 +109,7 @@ class ToggleButtonTest {
     @Test
     fun has_clickaction_when_disabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            SwitchButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -118,7 +118,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_has_clickaction_when_disabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
@@ -126,7 +126,7 @@ class ToggleButtonTest {
 
     @Test
     fun is_toggleable() {
-        rule.setContentWithTheme { ToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
+        rule.setContentWithTheme { SwitchButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNode(isToggleable()).assertExists()
     }
@@ -134,7 +134,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_toggleable() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNode(isToggleable()).assertExists()
@@ -143,7 +143,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_clickable() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
     }
@@ -151,7 +151,7 @@ class ToggleButtonTest {
     @Test
     fun is_correctly_enabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            SwitchButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -160,7 +160,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_correctly_enabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -169,7 +169,7 @@ class ToggleButtonTest {
     @Test
     fun is_correctly_disabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            SwitchButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
@@ -178,7 +178,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_correctly_disabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsNotEnabled()
@@ -187,7 +187,7 @@ class ToggleButtonTest {
     @Test
     fun is_on_when_checked() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
+            SwitchButtonWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOn()
@@ -196,7 +196,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_on_when_checked() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOn()
@@ -205,7 +205,7 @@ class ToggleButtonTest {
     @Test
     fun is_off_when_unchecked() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(checked = false, modifier = Modifier.testTag(TEST_TAG))
+            SwitchButtonWithDefaults(checked = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOff()
@@ -214,7 +214,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_off_when_unchecked() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(checked = false, modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(checked = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOff()
@@ -224,7 +224,7 @@ class ToggleButtonTest {
     fun responds_to_toggle_on() {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            ToggleButtonWithDefaults(
+            SwitchButtonWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
@@ -239,7 +239,7 @@ class ToggleButtonTest {
     fun split_button_responds_to_toggle_on() {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            SplitToggleButtonWithDefaults(
+            SplitSwitchButtonWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
@@ -254,7 +254,7 @@ class ToggleButtonTest {
     fun responds_to_toggle_off() {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(true) }
-            ToggleButtonWithDefaults(
+            SwitchButtonWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
@@ -269,7 +269,7 @@ class ToggleButtonTest {
     fun split_button_responds_to_toggle_off() {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(true) }
-            SplitToggleButtonWithDefaults(
+            SplitSwitchButtonWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
@@ -284,7 +284,7 @@ class ToggleButtonTest {
     fun does_not_toggle_when_disabled() {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            ToggleButtonWithDefaults(
+            SwitchButtonWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
@@ -299,7 +299,7 @@ class ToggleButtonTest {
     fun split_button_does_not_toggle_when_disabled() {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            SplitToggleButtonWithDefaults(
+            SplitSwitchButtonWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
@@ -313,7 +313,7 @@ class ToggleButtonTest {
     @Test
     fun can_override_role() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            SwitchButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Button }
             )
         }
@@ -326,10 +326,10 @@ class ToggleButtonTest {
     @Test
     fun split_button_clickable_has_role_button() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
+            SplitSwitchButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
-        // NB The toggle control (Checkbox or Switch) provides its own role,
+        // NB The Switch provides its own role,
         // but the main clickable section is a Button.
         rule
             .onNodeWithTag(TEST_TAG)
@@ -342,7 +342,7 @@ class ToggleButtonTest {
         val textContent = "abc"
 
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            SwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
                 label = { Text(text = textContent) }
@@ -357,7 +357,7 @@ class ToggleButtonTest {
         val textContent = "abc"
 
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitSwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
                 label = { Text(text = textContent) }
@@ -368,18 +368,18 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_hasAdjustableHeight() {
+    fun switch_button_hasAdjustableHeight() {
         val minHeight: Dp = 53.dp
 
         rule
             .setContentWithThemeForSizeAssertions {
-                ToggleButtonWithDefaults(
+                SwitchButtonWithDefaults(
                     label = {
                         Text(
                             text =
-                                "ToggleButton text spanning over multiple lines of text " +
-                                    "to test height is adjustable. This should exceed the minimum height" +
-                                    " for the ToggleButton."
+                                "SwitchButton text spanning over multiple lines of text " +
+                                    "to test height is adjustable. This should exceed the minimum " +
+                                    "height for the SwitchButton."
                         )
                     },
                     secondaryLabel = { Text(text = "Secondary label with text.") }
@@ -389,19 +389,19 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_toggle_button_hasAdjustableHeight() {
+    fun split_switch_button_hasAdjustableHeight() {
         val minHeight: Dp = 53.dp
 
         rule
             .setContentWithThemeForSizeAssertions {
-                SplitToggleButtonWithDefaults(
+                SplitSwitchButtonWithDefaults(
                     label = { Text(text = "Primary label with 3 lines of text.") },
                     secondaryLabel = {
                         Text(
                             text =
-                                "SplitToggleButton text spanning over multiple lines of text " +
-                                    "to test height is adjustable. This should exceed the minimum height" +
-                                    " for the SplitToggleButton."
+                                "SplitSwitchButton text spanning over multiple lines of text " +
+                                    "to test height is adjustable. This should exceed the " +
+                                    "minimum height for the SplitSwitchButton."
                         )
                     }
                 )
@@ -410,25 +410,25 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_height_defaults_52dp() {
+    fun switch_button_height_defaults_52dp() {
         rule
             .setContentWithThemeForSizeAssertions {
-                ToggleButtonWithDefaults(secondaryLabel = { Text("Secondary label") })
+                SwitchButtonWithDefaults(secondaryLabel = { Text("Secondary label") })
             }
             .assertHeightIsEqualTo(52.dp)
     }
 
     @Test
-    fun split_toggle_button_height_defaults_52dp() {
+    fun split_switch_button_height_defaults_52dp() {
         rule
-            .setContentWithThemeForSizeAssertions { SplitToggleButtonWithDefaults() }
+            .setContentWithThemeForSizeAssertions { SplitSwitchButtonWithDefaults() }
             .assertHeightIsEqualTo(52.dp)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun toggle_button_allows_checked_background_color_override() =
-        verifyToggleButtonBackgroundColor(
+    fun switch_button_allows_checked_background_color_override() =
+        verifySwitchButtonBackgroundColor(
             checked = true,
             enabled = true,
             expectedColor = CHECKED_COLOR
@@ -436,8 +436,8 @@ class ToggleButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun toggle_button_allows_unchecked_background_color_override() =
-        verifyToggleButtonBackgroundColor(
+    fun switch_button_allows_unchecked_background_color_override() =
+        verifySwitchButtonBackgroundColor(
             checked = false,
             enabled = true,
             expectedColor = UNCHECKED_COLOR
@@ -445,8 +445,8 @@ class ToggleButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun split_toggle_button_allows_checked_background_color_override() =
-        verifySplitToggleButtonBackgroundColor(
+    fun split_switch_button_allows_checked_background_color_override() =
+        verifySplitSwitchButtonBackgroundColor(
             checked = true,
             enabled = true,
             expectedColor = CHECKED_COLOR
@@ -454,8 +454,8 @@ class ToggleButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun split_toggle_button_allows_unchecked_background_color_override() =
-        verifySplitToggleButtonBackgroundColor(
+    fun split_switch_button_allows_unchecked_background_color_override() =
+        verifySplitSwitchButtonBackgroundColor(
             checked = false,
             enabled = true,
             expectedColor = UNCHECKED_COLOR
@@ -463,43 +463,43 @@ class ToggleButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_toggle_button_colors_enabled_and_checked() {
-        rule.verifyToggleButtonColors(checked = true, enabled = true)
+    fun verify_switch_button_colors_enabled_and_checked() {
+        rule.verifySwitchButtonColors(checked = true, enabled = true)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_toggle_button_colors_enabled_and_unchecked() {
-        rule.verifyToggleButtonColors(checked = false, enabled = true)
+    fun verify_switch_button_colors_enabled_and_unchecked() {
+        rule.verifySwitchButtonColors(checked = false, enabled = true)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_toggle_button_colors_disabled_and_checked() {
-        rule.verifyToggleButtonColors(checked = true, enabled = false)
+    fun verify_switch_button_colors_disabled_and_checked() {
+        rule.verifySwitchButtonColors(checked = true, enabled = false)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_toggle_button_colors_disabled_and_unchecked() {
-        rule.verifyToggleButtonColors(checked = false, enabled = false)
+    fun verify_switch_button_colors_disabled_and_unchecked() {
+        rule.verifySwitchButtonColors(checked = false, enabled = false)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_split_toggle_button_colors_enabled_and_checked() {
+    fun verify_split_switch_button_colors_enabled_and_checked() {
         rule.verifySplitToggleButtonColors(checked = true, enabled = true)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_split_toggle_button_colors_enabled_and_unchecked() {
+    fun verify_split_switch_button_colors_enabled_and_unchecked() {
         rule.verifySplitToggleButtonColors(checked = false, enabled = true)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun verify_split_toggle_button_colors_disabled_and_checked() {
+    fun verify_split_switch_button_colors_disabled_and_checked() {
         rule.verifySplitToggleButtonColors(checked = true, enabled = false)
     }
 
@@ -510,16 +510,127 @@ class ToggleButtonTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun verifyToggleButtonBackgroundColor(
+    @Test
+    fun switch_checked_colors_are_customisable() {
+        val thumbColor = Color.Green
+        val thumbIconColor = Color.Yellow
+        val trackColor = Color.Blue
+        val trackBorderColor = Color.Red
+        rule.setContentWithTheme {
+            SwitchButtonWithDefaults(
+                enabled = true,
+                checked = true,
+                colors =
+                    SwitchButtonDefaults.switchButtonColors(
+                        checkedThumbColor = thumbColor,
+                        checkedThumbIconColor = thumbIconColor,
+                        checkedTrackColor = trackColor,
+                        checkedTrackBorderColor = trackBorderColor
+                    ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(thumbColor)
+        image.assertContainsColor(thumbIconColor)
+        image.assertContainsColor(trackColor)
+        image.assertContainsColor(trackBorderColor)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun switch_unchecked_colors_are_customisable() {
+        val thumbColor = Color.Green
+        val trackColor = Color.Blue
+        val trackBorderColor = Color.Red
+        rule.setContentWithTheme {
+            // NB thumb icon is erased during animation, so unchecked thumb icon color
+            // is not tested here.
+            SwitchButtonWithDefaults(
+                enabled = true,
+                checked = false,
+                colors =
+                    SwitchButtonDefaults.switchButtonColors(
+                        uncheckedThumbColor = thumbColor,
+                        uncheckedTrackColor = trackColor,
+                        uncheckedTrackBorderColor = trackBorderColor
+                    ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(thumbColor)
+        image.assertContainsColor(trackColor)
+        image.assertContainsColor(trackBorderColor)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun disabled_switch_checked_colors_are_customisable() {
+        val thumbColor = Color.Green
+        val thumbIconColor = Color.Yellow
+        val trackColor = Color.Blue
+        val trackBorderColor = Color.Red
+        rule.setContentWithTheme {
+            SwitchButtonWithDefaults(
+                enabled = false,
+                checked = true,
+                colors =
+                    SwitchButtonDefaults.switchButtonColors(
+                        disabledCheckedThumbColor = thumbColor,
+                        disabledCheckedThumbIconColor = thumbIconColor,
+                        disabledCheckedTrackColor = trackColor,
+                        disabledCheckedTrackBorderColor = trackBorderColor
+                    ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(thumbColor)
+        image.assertContainsColor(thumbIconColor)
+        image.assertContainsColor(trackColor)
+        image.assertContainsColor(trackBorderColor)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun disabled_switch_unchecked_colors_are_customisable() {
+        val thumbColor = Color.Green
+        val trackBorderColor = Color.Red
+        rule.setContentWithTheme {
+            // NB thumb icon and track are omitted for unchecked + disabled
+            // so are not tested here.
+            SwitchButtonWithDefaults(
+                enabled = false,
+                checked = false,
+                colors =
+                    SwitchButtonDefaults.switchButtonColors(
+                        disabledUncheckedThumbColor = thumbColor,
+                        disabledUncheckedTrackBorderColor = trackBorderColor
+                    ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(thumbColor)
+        image.assertContainsColor(trackBorderColor)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun verifySwitchButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
         expectedColor: Color
     ) {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            SwitchButtonWithDefaults(
                 checked = checked,
                 colors =
-                    ToggleButtonDefaults.toggleButtonColors(
+                    SwitchButtonDefaults.switchButtonColors(
                         checkedContainerColor = CHECKED_COLOR,
                         uncheckedContainerColor = UNCHECKED_COLOR
                     ),
@@ -533,16 +644,16 @@ class ToggleButtonTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun verifySplitToggleButtonBackgroundColor(
+    private fun verifySplitSwitchButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
         expectedColor: Color
     ) {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitSwitchButtonWithDefaults(
                 checked = checked,
                 colors =
-                    ToggleButtonDefaults.splitToggleButtonColors(
+                    SwitchButtonDefaults.splitSwitchButtonColors(
                         checkedContainerColor = CHECKED_COLOR,
                         uncheckedContainerColor = UNCHECKED_COLOR
                     ),
@@ -557,18 +668,17 @@ class ToggleButtonTest {
 }
 
 @Composable
-private fun ToggleButtonWithDefaults(
+private fun SwitchButtonWithDefaults(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
     enabled: Boolean = true,
-    colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
+    colors: SwitchButtonColors = SwitchButtonDefaults.switchButtonColors(),
     onCheckedChange: (Boolean) -> Unit = {},
     label: @Composable RowScope.() -> Unit = { Text("Primary") },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
-    toggleControl: @Composable ToggleControlScope.() -> Unit = { Switch() }
 ) =
-    ToggleButton(
+    SwitchButton(
         modifier = modifier,
         checked = checked,
         enabled = enabled,
@@ -577,22 +687,20 @@ private fun ToggleButtonWithDefaults(
         label = label,
         secondaryLabel = secondaryLabel,
         icon = icon,
-        toggleControl = toggleControl
     )
 
 @Composable
-private fun SplitToggleButtonWithDefaults(
+private fun SplitSwitchButtonWithDefaults(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
     enabled: Boolean = true,
-    colors: SplitToggleButtonColors = ToggleButtonDefaults.splitToggleButtonColors(),
+    colors: SplitSwitchButtonColors = SwitchButtonDefaults.splitSwitchButtonColors(),
     onCheckedChange: (Boolean) -> Unit = {},
     onClick: () -> Unit = {},
     label: @Composable RowScope.() -> Unit = { Text("Primary") },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    toggleControl: @Composable ToggleControlScope.() -> Unit = { Switch() }
 ) =
-    SplitToggleButton(
+    SplitSwitchButton(
         modifier = modifier,
         colors = colors,
         checked = checked,
@@ -600,12 +708,12 @@ private fun SplitToggleButtonWithDefaults(
         onCheckedChange = onCheckedChange,
         label = label,
         secondaryLabel = secondaryLabel,
-        onClick = onClick,
-        toggleControl = toggleControl,
+        onContainerClick = onClick,
+        toggleContentDescription = "description",
     )
 
 @RequiresApi(Build.VERSION_CODES.O)
-private fun ComposeContentTestRule.verifyToggleButtonColors(enabled: Boolean, checked: Boolean) {
+private fun ComposeContentTestRule.verifySwitchButtonColors(enabled: Boolean, checked: Boolean) {
     val testBackgroundColor = Color.White
     var expectedContainerColor = Color.Transparent
     var expectedLabelColor = Color.Transparent
@@ -616,17 +724,16 @@ private fun ComposeContentTestRule.verifyToggleButtonColors(enabled: Boolean, ch
     var actualSecondaryLabelColor = Color.Transparent
     setContentWithTheme {
         expectedContainerColor =
-            toggle_button_container_color(checked, enabled).compositeOver(testBackgroundColor)
-        expectedLabelColor = toggle_button_content_color(checked, enabled)
-        expectedSecondaryLabelColor = toggle_button_secondary_label_color(checked, enabled)
-        expectedIconColor = toggle_button_icon_color(enabled)
+            switch_button_container_color(checked, enabled).compositeOver(testBackgroundColor)
+        expectedLabelColor = switch_button_content_color(checked, enabled)
+        expectedSecondaryLabelColor = switch_button_secondary_label_color(checked, enabled)
+        expectedIconColor = switch_button_icon_color(enabled)
         Box(Modifier.fillMaxSize().background(testBackgroundColor)) {
-            ToggleButton(
+            SwitchButton(
                 modifier = Modifier.testTag(TEST_TAG),
                 checked = checked,
                 onCheckedChange = {},
                 enabled = enabled,
-                toggleControl = { Switch() },
                 label = { actualLabelColor = LocalContentColor.current },
                 secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
                 icon = { actualIconColor = LocalContentColor.current }
@@ -658,22 +765,22 @@ private fun ComposeContentTestRule.verifySplitToggleButtonColors(
     var actualSecondaryLabelColor = Color.Transparent
     setContentWithTheme {
         expectedContainerColor =
-            split_toggle_button_container_color(checked)
+            split_switch_button_container_color(checked)
                 .withDisabledAlphaApplied(enabled = enabled)
                 .compositeOver(testBackgroundColor)
         expectedLabelColor =
-            split_toggle_button_content_color(checked).withDisabledAlphaApplied(enabled = enabled)
+            split_switch_button_content_color(checked).withDisabledAlphaApplied(enabled = enabled)
         expectedSecondaryLabelColor =
-            split_toggle_button_secondary_label_color(checked)
+            split_switch_button_secondary_label_color(checked)
                 .withDisabledAlphaApplied(enabled = enabled)
         Box(Modifier.fillMaxSize().background(testBackgroundColor)) {
-            SplitToggleButton(
+            SplitSwitchButton(
                 modifier = Modifier.testTag(TEST_TAG),
                 checked = checked,
                 onCheckedChange = {},
-                onClick = {},
+                onContainerClick = {},
+                toggleContentDescription = "description",
                 enabled = enabled,
-                toggleControl = { Switch() },
                 label = { actualLabelColor = LocalContentColor.current },
                 secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
             )
@@ -691,7 +798,7 @@ private fun ComposeContentTestRule.verifySplitToggleButtonColors(
 }
 
 @Composable
-private fun toggle_button_container_color(
+private fun switch_button_container_color(
     checked: Boolean,
     enabled: Boolean,
 ): Color {
@@ -701,39 +808,39 @@ private fun toggle_button_container_color(
 }
 
 @Composable
-private fun toggle_button_content_color(checked: Boolean, enabled: Boolean): Color {
+private fun switch_button_content_color(checked: Boolean, enabled: Boolean): Color {
     return if (checked && enabled) MaterialTheme.colorScheme.onPrimaryContainer
     else if (!checked && enabled) MaterialTheme.colorScheme.onSurface
     else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
 }
 
 @Composable
-private fun toggle_button_secondary_label_color(checked: Boolean, enabled: Boolean): Color {
+private fun switch_button_secondary_label_color(checked: Boolean, enabled: Boolean): Color {
     return if (checked && enabled) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
     else if (!checked && enabled) MaterialTheme.colorScheme.onSurfaceVariant
     else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
 }
 
 @Composable
-private fun toggle_button_icon_color(enabled: Boolean): Color {
+private fun switch_button_icon_color(enabled: Boolean): Color {
     return if (enabled) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
 }
 
 @Composable
-private fun split_toggle_button_container_color(checked: Boolean): Color {
+private fun split_switch_button_container_color(checked: Boolean): Color {
     return if (checked) MaterialTheme.colorScheme.primaryContainer
     else MaterialTheme.colorScheme.surfaceContainer
 }
 
 @Composable
-private fun split_toggle_button_content_color(checked: Boolean): Color {
+private fun split_switch_button_content_color(checked: Boolean): Color {
     return if (checked) MaterialTheme.colorScheme.onPrimaryContainer
     else MaterialTheme.colorScheme.onSurface
 }
 
 @Composable
-private fun split_toggle_button_secondary_label_color(checked: Boolean): Color {
+private fun split_switch_button_secondary_label_color(checked: Boolean): Color {
     return if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
     else MaterialTheme.colorScheme.onSurfaceVariant
 }

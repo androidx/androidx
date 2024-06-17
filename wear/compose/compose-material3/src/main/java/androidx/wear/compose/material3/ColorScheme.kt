@@ -235,8 +235,8 @@ class ColorScheme(
     internal var defaultOutlinedCardColorsCached: CardColors? = null
 
     // Toggle Button
-    internal var defaultToggleButtonColorsCached: ToggleButtonColors? = null
-    internal var defaultSplitToggleButtonColorsCached: SplitToggleButtonColors? = null
+    internal var defaultSwitchButtonColorsCached: SwitchButtonColors? = null
+    internal var defaultSplitSwitchButtonColorsCached: SplitSwitchButtonColors? = null
 
     // Checkbox Button
     internal var defaultCheckboxButtonColorsCached: CheckboxButtonColors? = null
