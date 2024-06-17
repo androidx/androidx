@@ -1356,6 +1356,28 @@ package androidx.compose.material3 {
     property public final int Top;
   }
 
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @kotlin.jvm.JvmInline public final value class NavigationRailArrangement {
+    field public static final androidx.compose.material3.NavigationRailArrangement.Companion Companion;
+  }
+
+  public static final class NavigationRailArrangement.Companion {
+    method public int getBottom();
+    method public int getCenter();
+    method public int getTop();
+    property public final int Bottom;
+    property public final int Center;
+    property public final int Top;
+  }
+
+  @androidx.compose.runtime.Immutable public final class NavigationRailColors {
+    ctor public NavigationRailColors(long containerColor, long contentColor);
+    method public androidx.compose.material3.NavigationRailColors copy(optional long containerColor, optional long contentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+  }
+
   public final class NavigationRailDefaults {
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
@@ -2580,6 +2602,28 @@ package androidx.compose.material3 {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void CircularWavyProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional androidx.compose.ui.graphics.drawscope.Stroke stroke, optional androidx.compose.ui.graphics.drawscope.Stroke trackStroke, optional float gapSize, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> amplitude, optional float wavelength, optional float waveSpeed);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional androidx.compose.ui.graphics.drawscope.Stroke stroke, optional androidx.compose.ui.graphics.drawscope.Stroke trackStroke, optional float gapSize, optional float wavelength);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional androidx.compose.ui.graphics.drawscope.Stroke stroke, optional androidx.compose.ui.graphics.drawscope.Stroke trackStroke, optional float gapSize, optional float stopSize, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> amplitude, optional float wavelength, optional float waveSpeed);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class WideNavigationRailDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationRailColors colors();
+    method public int getArrangement();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
+    property public final int arrangement;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape containerShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
+    field public static final androidx.compose.material3.WideNavigationRailDefaults INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class WideNavigationRailItemDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors();
+    method public int iconPositionFor(boolean railExpanded);
+    field public static final androidx.compose.material3.WideNavigationRailItemDefaults INSTANCE;
+  }
+
+  public final class WideNavigationRailKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void WideNavigationRail(optional androidx.compose.ui.Modifier modifier, optional boolean expanded, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.NavigationRailColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? header, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional int arrangement, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void WideNavigationRailItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? badge, optional boolean railExpanded, optional int iconPosition, optional androidx.compose.material3.NavigationItemColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
 }

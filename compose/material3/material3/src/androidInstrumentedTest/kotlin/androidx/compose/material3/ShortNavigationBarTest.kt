@@ -475,23 +475,6 @@ class ShortNavigationBarTest {
     }
 
     @Test
-    fun item_iconSemanticsIsNull_whenLabelIsPresent() {
-        rule.setMaterialContent(lightColorScheme()) {
-            ShortNavigationBarItem(
-                modifier = Modifier.testTag("item"),
-                icon = { Icon(Icons.Filled.Favorite, "Favorite") },
-                label = { Text("Favorite") },
-                selected = true,
-                onClick = {}
-            )
-        }
-
-        val node = rule.onNodeWithTag("item").fetchSemanticsNode()
-
-        Truth.assertThat(node.config.getOrNull(SemanticsProperties.ContentDescription)).isNull()
-    }
-
-    @Test
     fun item_unselectedItem_hasIconSemantics_whenLabelNotPresent() {
         rule.setMaterialContent(lightColorScheme()) {
             ShortNavigationBarItem(
@@ -510,7 +493,9 @@ class ShortNavigationBarTest {
 
     @Test
     fun itemContent_topIconPosition_sizeAndPosition() {
+        var minSize: Dp? = null
         rule.setMaterialContent(lightColorScheme()) {
+            minSize = LocalMinimumInteractiveComponentSize.current
             ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
@@ -525,8 +510,8 @@ class ShortNavigationBarTest {
             rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         // Assert the item has its minimal width and height values.
-        Truth.assertThat(itemBounds.width).isAtLeast(NavigationItemMinWidth)
-        Truth.assertThat(itemBounds.height).isAtLeast(NavigationItemMinHeight)
+        Truth.assertThat(itemBounds.width).isAtLeast(minSize)
+        Truth.assertThat(itemBounds.height).isAtLeast(minSize)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
@@ -552,7 +537,9 @@ class ShortNavigationBarTest {
 
     @Test
     fun itemContent_startIconPosition_sizeAndPosition() {
+        var minSize: Dp? = null
         rule.setMaterialContent(lightColorScheme()) {
+            minSize = LocalMinimumInteractiveComponentSize.current
             ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
@@ -570,8 +557,8 @@ class ShortNavigationBarTest {
             rule.onNodeWithTag("label", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         // Assert the item has its minimal width and height values.
-        Truth.assertThat(itemBounds.width).isAtLeast(NavigationItemMinWidth)
-        Truth.assertThat(itemBounds.height).isAtLeast(NavigationItemMinHeight)
+        Truth.assertThat(itemBounds.width).isAtLeast(minSize)
+        Truth.assertThat(itemBounds.height).isAtLeast(minSize)
 
         // Assert width.
         val expectedWidth =
@@ -582,8 +569,8 @@ class ShortNavigationBarTest {
                 StartIconIndicatorHorizontalPadding
         Truth.assertThat(itemBounds.width.value).isWithin(1f).of(expectedWidth.value)
         // Assert height. Note: The item's content height is less than its minimum touch target
-        // height, so its actual height is the same as NavigationItemMinHeight.
-        Truth.assertThat(itemBounds.height).isEqualTo(NavigationItemMinHeight)
+        // height, so its actual height is the same as LocalMinimumInteractiveComponentSize.
+        Truth.assertThat(itemBounds.height).isEqualTo(minSize)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)

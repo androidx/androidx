@@ -206,6 +206,10 @@ import androidx.compose.material3.samples.TonalSplitButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.material3.samples.VerticalFloatingAppBar
+import androidx.compose.material3.samples.WideNavigationRailArrangementsSample
+import androidx.compose.material3.samples.WideNavigationRailCollapsedSample
+import androidx.compose.material3.samples.WideNavigationRailExpandedSample
+import androidx.compose.material3.samples.WideNavigationRailResponsiveSample
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -1030,6 +1034,34 @@ private const val NavigationRailExampleDescription = "Navigation rail examples"
 private const val NavigationRailExampleSourceUrl = "$SampleSourceUrl/NavigationRailSamples.kt"
 val NavigationRailExamples =
     listOf(
+        Example(
+            name = "WideNavigationRailResponsiveSample",
+            description = NavigationRailExampleDescription,
+            sourceUrl = NavigationRailExampleSourceUrl,
+        ) {
+            WideNavigationRailResponsiveSample()
+        },
+        Example(
+            name = "WideNavigationRailCollapsedSample",
+            description = NavigationRailExampleDescription,
+            sourceUrl = NavigationRailExampleSourceUrl,
+        ) {
+            WideNavigationRailCollapsedSample()
+        },
+        Example(
+            name = "WideNavigationRailExpandedSample",
+            description = NavigationRailExampleDescription,
+            sourceUrl = NavigationRailExampleSourceUrl,
+        ) {
+            WideNavigationRailExpandedSample()
+        },
+        Example(
+            name = "WideNavigationRailArrangementsSample",
+            description = NavigationRailExampleDescription,
+            sourceUrl = NavigationRailExampleSourceUrl,
+        ) {
+            WideNavigationRailArrangementsSample()
+        },
         Example(
             name = "NavigationRailSample",
             description = NavigationRailExampleDescription,
