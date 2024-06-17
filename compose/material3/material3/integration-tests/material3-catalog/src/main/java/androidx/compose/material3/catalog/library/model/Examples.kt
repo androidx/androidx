@@ -150,6 +150,8 @@ import androidx.compose.material3.samples.SecondaryIconTabs
 import androidx.compose.material3.samples.SecondaryTextTabs
 import androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
 import androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
+import androidx.compose.material3.samples.ShortNavigationBarSample
+import androidx.compose.material3.samples.ShortNavigationBarWithHorizontalItemsSample
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
@@ -859,6 +861,20 @@ private const val NavigationBarExampleDescription = "Navigation bar examples"
 private const val NavigationBarExampleSourceUrl = "$SampleSourceUrl/NavigationBarSamples.kt"
 val NavigationBarExamples =
     listOf(
+        Example(
+            name = ::ShortNavigationBarSample.name,
+            description = NavigationBarExampleDescription,
+            sourceUrl = NavigationBarExampleSourceUrl,
+        ) {
+            ShortNavigationBarSample()
+        },
+        Example(
+            name = ::ShortNavigationBarWithHorizontalItemsSample.name,
+            description = NavigationBarExampleDescription,
+            sourceUrl = NavigationBarExampleSourceUrl,
+        ) {
+            ShortNavigationBarWithHorizontalItemsSample()
+        },
         Example(
             name = ::NavigationBarSample.name,
             description = NavigationBarExampleDescription,

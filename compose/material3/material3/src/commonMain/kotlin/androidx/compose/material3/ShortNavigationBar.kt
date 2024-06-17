@@ -63,6 +63,14 @@ import kotlin.math.roundToInt
  *   [NavigationBarArrangement.Centered], so that the navigation items are distributed grouped on
  *   the center of the bar.
  *
+ * A simple example of the first configuration looks like this:
+ *
+ * @sample androidx.compose.material3.samples.ShortNavigationBarSample
+ *
+ * And of the second configuration:
+ *
+ * @sample androidx.compose.material3.samples.ShortNavigationBarWithHorizontalItemsSample
+ *
  * See [ShortNavigationBarItem] for configurations specific to each item, and not the overall
  * [ShortNavigationBar] component.
  *
@@ -74,7 +82,7 @@ import kotlin.math.roundToInt
  * @param arrangement the [NavigationBarArrangement] of this navigation bar
  * @param content the content of this navigation bar, typically [ShortNavigationBarItem]s
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ShortNavigationBar(
     modifier: Modifier = Modifier,
@@ -173,7 +181,7 @@ value class NavigationBarArrangement private constructor(private val value: Int)
  *   preview the item in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ShortNavigationBarItem(
     selected: Boolean,
@@ -227,7 +235,7 @@ fun ShortNavigationBarItem(
 }
 
 /** Defaults used in [ShortNavigationBar]. */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 object ShortNavigationBarDefaults {
     /** Default container color for a short navigation bar. */
     // TODO: Replace with token.
@@ -253,7 +261,7 @@ object ShortNavigationBarDefaults {
 }
 
 /** Defaults used in [ShortNavigationBarItem]. */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 object ShortNavigationBarItemDefaults {
     /**
      * Creates a [NavigationItemColors] with the provided colors according to the Material
