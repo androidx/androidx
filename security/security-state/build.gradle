@@ -34,8 +34,8 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation 'androidx.core:core:1.12.0'
-    implementation(project(":webkit:webkit"))
+    implementation("androidx.core:core:1.12.0")
+    implementation("androidx.webkit:webkit:1.11.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
