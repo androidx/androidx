@@ -16,13 +16,11 @@
 
 package androidx.wear.protolayout.material.layouts;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
 import static androidx.wear.protolayout.material.RunnerUtils.convertToTestParameters;
-import static androidx.wear.protolayout.material.RunnerUtils.getFontScale;
 import static androidx.wear.protolayout.material.RunnerUtils.runSingleScreenshotTest;
-import static androidx.wear.protolayout.material.RunnerUtils.setAndAssertFontScale;
-import static androidx.wear.protolayout.material.RunnerUtils.setFontScale;
 import static androidx.wear.protolayout.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.protolayout.material.layouts.TestCasesGenerator.XXXL_SCALE_SUFFIX;
 import static androidx.wear.protolayout.material.layouts.TestCasesGenerator.generateTestCases;
@@ -34,13 +32,10 @@ import androidx.annotation.Dimension;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
-import androidx.test.uiautomator.UiDevice;
 import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.material.RunnerUtils.TestCase;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,9 +47,14 @@ import java.util.List;
 @RunWith(Parameterized.class)
 @LargeTest
 public class LayoutsGoldenXLTest {
-    private static final float FONT_SCALE_XXXL = 1.24f;
+    /* We set DisplayMetrics in the data() method for creating test cases. However, when running all
+    tests together, first all parametrization (data()) methods are called, and then individual
+    tests, causing that actual DisplayMetrics will be different. So we need to restore it before
+    each test. */
+    private static final DisplayMetrics DISPLAY_METRICS_FOR_TEST = new DisplayMetrics();
+    private static final DisplayMetrics OLD_DISPLAY_METRICS = new DisplayMetrics();
 
-    private static float originalFontScale;
+    private static final float FONT_SCALE_XXXL = 1.24f;
 
     private final TestCase mTestCase;
     private final String mExpected;
@@ -62,13 +62,6 @@ public class LayoutsGoldenXLTest {
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-protolayout-material");
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        setAndAssertFontScale(
-                UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()),
-                FONT_SCALE_XXXL);
-    }
 
     public LayoutsGoldenXLTest(String expected, TestCase testCase) {
         mTestCase = testCase;
@@ -80,18 +73,27 @@ public class LayoutsGoldenXLTest {
         return (int) ((px - 0.5f) / scale);
     }
 
+    @SuppressWarnings("deprecation")
     @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() throws Exception {
-        // These "parameters" methods are called before any parameterized test (from any class)
-        // executes. We set and later reset the font here to have the correct context during test
-        // generation. We later set and reset the font for the actual test in BeforeClass/AfterClass
-        // methods.
-        UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        originalFontScale = getFontScale(device);
-        setAndAssertFontScale(device, FONT_SCALE_XXXL);
-
+    public static Collection<Object[]> data() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        DisplayMetrics currentDisplayMetrics = new DisplayMetrics();
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        currentDisplayMetrics.setTo(displayMetrics);
+        displayMetrics.scaledDensity *= FONT_SCALE_XXXL;
+
+        InstrumentationRegistry.getInstrumentation()
+                .getContext()
+                .getResources()
+                .getDisplayMetrics()
+                .setTo(displayMetrics);
+        InstrumentationRegistry.getInstrumentation()
+                .getTargetContext()
+                .getResources()
+                .getDisplayMetrics()
+                .setTo(displayMetrics);
+
+        DISPLAY_METRICS_FOR_TEST.setTo(displayMetrics);
 
         float scale = displayMetrics.density;
         DeviceParameters deviceParameters =
@@ -99,7 +101,6 @@ public class LayoutsGoldenXLTest {
                         .setScreenWidthDp(pxToDp(SCREEN_WIDTH, scale))
                         .setScreenHeightDp(pxToDp(SCREEN_HEIGHT, scale))
                         .setScreenDensity(displayMetrics.density)
-                        .setFontScale(context.getResources().getConfiguration().fontScale)
                         // TODO(b/231543947): Add test cases for round screen.
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
@@ -110,18 +111,40 @@ public class LayoutsGoldenXLTest {
                         /* isForRtl= */ true,
                         /* isForLtr= */ true);
 
-        // Restore state before this method, so other test have correct context.
-        setAndAssertFontScale(device, originalFontScale);
+        // Restore state before this method, so other test have correct context. This is needed here
+        // too, besides in restoreBefore and restoreAfter as the test cases builder uses the context
+        // to apply font scaling, so we need that display metrics passed in. However, after
+        // generating cases we need to restore the state as other data() methods in this package can
+        // work correctly with the default state, as when the tests are run, first all data() static
+        // methods are called, and then parameterized test cases.
+        InstrumentationRegistry.getInstrumentation()
+                .getContext()
+                .getResources()
+                .getDisplayMetrics()
+                .setTo(currentDisplayMetrics);
+        InstrumentationRegistry.getInstrumentation()
+                .getTargetContext()
+                .getResources()
+                .getDisplayMetrics()
+                .setTo(currentDisplayMetrics);
         waitForNotificationToDisappears();
 
         return testCaseList;
     }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        setFontScale(
-                UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()),
-                originalFontScale);
+    @Parameterized.BeforeParam
+    public static void restoreBefore() {
+        // Set the state as it was in data() method when we generated test cases. This was
+        // overridden by other static data() methods, so we need to restore it.
+        OLD_DISPLAY_METRICS.setTo(getApplicationContext().getResources().getDisplayMetrics());
+        getApplicationContext().getResources().getDisplayMetrics().setTo(DISPLAY_METRICS_FOR_TEST);
+    }
+
+    @Parameterized.AfterParam
+    public static void restoreAfter() {
+        // Restore the state to default, so the other tests and emulator have the correct starter
+        // state.
+        getApplicationContext().getResources().getDisplayMetrics().setTo(OLD_DISPLAY_METRICS);
     }
 
     @Test

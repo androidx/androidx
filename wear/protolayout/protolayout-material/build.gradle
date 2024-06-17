@@ -49,7 +49,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
 
     testImplementation(libs.junit)
