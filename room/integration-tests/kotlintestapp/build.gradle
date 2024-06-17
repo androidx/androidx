@@ -33,9 +33,6 @@ android {
     buildFeatures {
         buildConfig = true
     }
-    defaultConfig {
-        multiDexEnabled true
-    }
 
     sourceSets {
         androidTestWithKapt.assets.srcDirs += files("$projectDir/schemas".toString())
@@ -66,7 +63,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
-    implementation(libs.multidex)
     kspAndroidTestWithKspGenJava(project(":room:room-compiler"))
     kspAndroidTestWithKspGenKotlin(project(":room:room-compiler"))
     kaptAndroidTestWithKapt(project(":room:room-compiler"))

@@ -48,14 +48,12 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.appcompat", module: "appcompat-resources"
     })
-    androidTestImplementation(libs.multidex)
 }
 
 android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
-        multiDexEnabled = true
     }
 
     aaptOptions {

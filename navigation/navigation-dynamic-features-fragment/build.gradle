@@ -31,12 +31,6 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-}
-
 dependencies {
     api(project(":navigation:navigation-dynamic-features-runtime"))
     api(project(":navigation:navigation-fragment"))
@@ -59,16 +53,12 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     namespace "androidx.navigation.dynamicfeatures.fragment"
 }
 

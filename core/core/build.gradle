@@ -43,7 +43,6 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testUiautomator)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.2")
@@ -93,9 +92,6 @@ android {
                 "mockito-extensions/org.mockito.plugins.MockMaker",
                 "mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider"
         ]
-    }
-    defaultConfig {
-        multiDexEnabled = true
     }
     namespace "androidx.core"
 }

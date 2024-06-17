@@ -29,9 +29,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.appsearch.debugview"
 }
 
@@ -47,7 +44,6 @@ dependencies {
     implementation('com.google.android.material:material:1.0.0')
     implementation(libs.constraintLayout)
     implementation(libs.guavaAndroid)
-    androidTestImplementation(libs.multidex)
 }
 
 androidx {

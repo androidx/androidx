@@ -1,1 +1,0 @@
--keep class androidx.tracing.Trace

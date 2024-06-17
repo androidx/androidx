@@ -32,7 +32,6 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
     })
-    androidTestImplementation(libs.multidex)
 }
 
 android {
@@ -44,9 +43,6 @@ android {
     }
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
-    }
-    defaultConfig {
-        multiDexEnabled = true
     }
 
     testOptions {

@@ -30,7 +30,6 @@ dependencies {
 android {
     defaultConfig {
         applicationId "androidx.core.haptics.demos"
-        multiDexEnabled true
     }
     namespace "androidx.core.haptics.demos"
 }

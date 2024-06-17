@@ -31,11 +31,9 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
 
     testImplementation(libs.junit)
@@ -57,9 +55,7 @@ android {
     }
 
     defaultConfig {
-        multiDexEnabled = true
         testInstrumentationRunner "androidx.recyclerview.test.TestRunner"
-        multiDexEnabled true
     }
     namespace "androidx.recyclerview"
 }

@@ -54,9 +54,6 @@ android {
             root = 'src/androidMain'
         }
     }
-    defaultConfig {
-        multiDexEnabled true
-    }
     buildFeatures {
         aidl = true
     }

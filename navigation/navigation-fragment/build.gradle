@@ -61,8 +61,5 @@ androidx {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.navigation.fragment"
 }
