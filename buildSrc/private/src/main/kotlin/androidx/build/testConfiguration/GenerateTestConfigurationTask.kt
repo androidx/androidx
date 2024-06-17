@@ -125,7 +125,10 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
 
         val privacySandboxSdkApksFileNames =
             privacySandboxSdkApks.asFileTree.map { f -> f.name }.sorted()
-        configBuilder.initialSetupApks(privacySandboxSdkApksFileNames)
+        if (privacySandboxSdkApksFileNames.isNotEmpty()) {
+            configBuilder.enablePrivacySandbox(true)
+            configBuilder.initialSetupApks(privacySandboxSdkApksFileNames)
+        }
         val privacySandboxSplitsFileNames =
             privacySandboxAppSplits.asFileTree.map { f -> f.name }.sorted()
         configBuilder.appSplits(privacySandboxSplitsFileNames)
