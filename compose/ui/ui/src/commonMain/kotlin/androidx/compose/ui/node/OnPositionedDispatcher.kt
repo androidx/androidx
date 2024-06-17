@@ -33,6 +33,10 @@ internal class OnPositionedDispatcher {
         node.needsOnPositionedDispatch = true
     }
 
+    fun remove(node: LayoutNode) {
+        layoutNodes.remove(node)
+    }
+
     fun onRootNodePositioned(rootNode: LayoutNode) {
         layoutNodes.clear()
         layoutNodes += rootNode

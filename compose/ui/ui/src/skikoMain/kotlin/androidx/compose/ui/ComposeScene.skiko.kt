@@ -338,33 +338,6 @@ class ComposeScene internal constructor(
     fun sendKeyEvent(event: KeyEvent): Boolean {
         return replacement.sendKeyEvent(event)
     }
-
-    /**
-     * Call this function to clear focus from the currently focused component, and set the focus to
-     * the root focus modifier.
-     */
-    @ExperimentalComposeUiApi
-    fun releaseFocus() {
-        replacement.focusManager.releaseFocus()
-    }
-
-    @ExperimentalComposeUiApi
-    fun requestFocus() {
-        replacement.focusManager.requestFocus()
-    }
-
-    /**
-     * Moves focus in the specified [direction][FocusDirection].
-     *
-     * If you are not satisfied with the default focus order, consider setting a custom order using
-     * [Modifier.focusProperties()][focusProperties].
-     *
-     * @return true if focus was moved successfully. false if the focused item is unchanged.
-     */
-    @ExperimentalComposeUiApi
-    fun moveFocus(focusDirection: FocusDirection): Boolean {
-        return replacement.focusManager.moveFocus(focusDirection)
-    }
 }
 
 private fun Constraints.toIntSize() =

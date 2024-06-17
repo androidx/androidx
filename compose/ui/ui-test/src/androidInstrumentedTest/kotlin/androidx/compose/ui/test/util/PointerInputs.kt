@@ -198,19 +198,20 @@ fun DataPoint.verify(
     expectedButtons: PointerButtons = PointerButtons(0),
     expectedKeyboardModifiers: PointerKeyboardModifiers = PointerKeyboardModifiers(0),
 ) {
+    val s = " of $this"
     if (expectedTimestamp != null) {
-        assertWithMessage("timestamp").that(timestamp).isEqualTo(expectedTimestamp)
+        assertWithMessage("timestamp$s").that(timestamp).isEqualTo(expectedTimestamp)
     }
     if (expectedId != null) {
-        assertWithMessage("pointerId").that(id).isEqualTo(expectedId)
+        assertWithMessage("pointerId$s").that(id).isEqualTo(expectedId)
     }
-    assertWithMessage("isDown").that(down).isEqualTo(expectedDown)
-    assertWithMessage("position").that(position).isEqualTo(expectedPosition)
-    assertWithMessage("pointerType").that(pointerType).isEqualTo(expectedPointerType)
-    assertWithMessage("eventType").that(eventType).isEqualTo(expectedEventType)
-    assertWithMessage("scrollDelta").that(scrollDelta).isEqualTo(expectedScrollDelta)
-    assertWithMessage("buttonsDown").that(buttons).isEqualTo(expectedButtons)
-    assertWithMessage("keyModifiers").that(keyboardModifiers).isEqualTo(expectedKeyboardModifiers)
+    assertWithMessage("isDown$s").that(down).isEqualTo(expectedDown)
+    position.isAlmostEqualTo(expectedPosition, message = "position$s")
+    assertWithMessage("pointerType$s").that(pointerType).isEqualTo(expectedPointerType)
+    assertWithMessage("eventType$s").that(eventType).isEqualTo(expectedEventType)
+    scrollDelta.isAlmostEqualTo(expectedScrollDelta, message = "scrollDelta$s")
+    assertWithMessage("buttonsDown$s").that(buttons).isEqualTo(expectedButtons)
+    assertWithMessage("keyModifiers$s").that(keyboardModifiers).isEqualTo(expectedKeyboardModifiers)
 }
 
 /**

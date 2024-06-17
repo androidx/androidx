@@ -135,6 +135,7 @@ fun Canvas.rotate(degrees: Float, pivotX: Float, pivotY: Float) {
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point.
  * The pivot coordinate remains unchanged by the rotation transformation
  *
+ * @param radians Rotation transform to apply to the [Canvas]
  * @param pivotX The x-coord for the pivot point
  * @param pivotY The y-coord for the pivot point
  */

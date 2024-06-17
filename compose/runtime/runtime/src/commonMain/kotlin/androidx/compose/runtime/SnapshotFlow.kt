@@ -19,6 +19,7 @@
 package androidx.compose.runtime
 
 import androidx.collection.MutableScatterSet
+import androidx.compose.runtime.collection.fastAny
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateObjectImpl
@@ -55,6 +56,7 @@ fun <T> StateFlow<T>.collectAsState(
  *
  * @sample androidx.compose.runtime.samples.FlowWithInitialSample
  *
+ * @param initial the value of the state will have until the first flow value is emitted.
  * @param context [CoroutineContext] to use for collecting.
  */
 @Composable
@@ -126,7 +128,7 @@ fun <T> snapshotFlow(
     // Register the apply observer before running for the first time
     // so that we don't miss updates.
     val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
-        val maybeObserved = changed.any {
+        val maybeObserved = changed.fastAny {
             it !is StateObjectImpl || it.isReadIn(ReaderKind.SnapshotFlow)
         }
 

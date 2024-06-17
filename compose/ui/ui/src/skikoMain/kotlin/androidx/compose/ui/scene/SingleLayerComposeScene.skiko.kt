@@ -22,9 +22,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerInputEvent
@@ -124,8 +122,9 @@ private class SingleLayerComposeSceneImpl(
             mainOwner.size = value
         }
 
-    override val focusManager: ComposeSceneFocusManager =
-        ComposeSceneFocusManagerImpl()
+    override val focusManager: ComposeSceneFocusManager = ComposeSceneFocusManager(
+        focusOwner = { mainOwner.focusOwner }
+    )
 
     init {
         onOwnerAppended(mainOwner)
@@ -188,21 +187,10 @@ private class SingleLayerComposeSceneImpl(
     )
 
     private fun onOwnerAppended(owner: RootNodeOwner) {
-        owner.focusOwner.takeFocus()
         semanticsOwnerListener?.onSemanticsOwnerAppended(owner.semanticsOwner)
     }
 
     private fun onOwnerRemoved(owner: RootNodeOwner) {
         semanticsOwnerListener?.onSemanticsOwnerRemoved(owner.semanticsOwner)
-    }
-
-    private inner class ComposeSceneFocusManagerImpl : ComposeSceneFocusManager {
-        private val focusOwner get() = mainOwner.focusOwner
-        override fun requestFocus() = focusOwner.takeFocus()
-        override fun releaseFocus() = focusOwner.releaseFocus()
-        override fun getFocusRect(): Rect? = focusOwner.getFocusRect()
-        override fun clearFocus(force: Boolean) = focusOwner.clearFocus(force)
-        override fun moveFocus(focusDirection: FocusDirection): Boolean =
-            focusOwner.moveFocus(focusDirection)
     }
 }

@@ -24,7 +24,7 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.foundation.text.selection.selectionGestureInput
-import androidx.compose.foundation.text.textPointerHoverIcon
+import androidx.compose.foundation.text.textPointerIcon
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,7 +77,7 @@ internal class SelectionController(
     private val selectableId: Long,
     private val selectionRegistrar: SelectionRegistrar,
     private val backgroundSelectionColor: Color,
-    // TODO: Move these into Modifer.element eventually
+    // TODO: Move these into Modifier.element eventually
     private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
 ) : RememberObserver {
     private var selectable: Selectable? = null
@@ -86,7 +87,7 @@ internal class SelectionController(
             selectableId = selectableId,
             layoutCoordinates = { params.layoutCoordinates },
         )
-        .textPointerHoverIcon(selectionRegistrar)
+        .pointerHoverIcon(textPointerIcon)
 
     override fun onRemembered() {
         selectable = selectionRegistrar.subscribe(
@@ -115,6 +116,16 @@ internal class SelectionController(
     }
 
     fun updateTextLayout(textLayoutResult: TextLayoutResult) {
+        val prevTextLayoutResult = params.textLayoutResult
+
+        // Don't notify on null. We don't want every new Text that enters composition to
+        // notify a selectable change. It was already handled when it was created.
+        if (prevTextLayoutResult != null &&
+            prevTextLayoutResult.layoutInput.text != textLayoutResult.layoutInput.text
+        ) {
+            // Text content changed, notify selection to update itself.
+            selectionRegistrar.notifySelectableChange(selectableId)
+        }
         params = params.copy(textLayoutResult = textLayoutResult)
     }
 
@@ -228,7 +239,7 @@ internal fun SelectionRegistrar.makeDefaultSelectionModifier(
                         previousPosition = lastPosition,
                         newPosition = newPosition,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        adjustment = SelectionAdjustment.Word,
                         isInTouchMode = true
                     )
                     if (consumed) {

@@ -80,7 +80,7 @@ class CompositeKeyHashTest {
     }
 
     @Test
-    fun differentChildrenHaveSameCompositeKeyHashes_Row() {
+    fun differentChildrenHaveDifferentCompositeKeyHashes_Row() {
         // Arrange.
         val (node1, node2) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
@@ -96,7 +96,7 @@ class CompositeKeyHashTest {
         val compositeKeyHash2 = node2.requireLayoutNode().compositeKeyHash
 
         // Assert.
-        assertThat(compositeKeyHash1).isEqualTo(compositeKeyHash2)
+        assertThat(compositeKeyHash1).isNotEqualTo(compositeKeyHash2)
     }
 
     @Test
@@ -122,8 +122,9 @@ class CompositeKeyHashTest {
         // Assert.
         assertThat(compositeKeyHash1).isNotEqualTo(compositeKeyHash2)
     }
+
     @Test
-    fun differentChildrenHaveSameCompositeKeyHashes_Box() {
+    fun differentChildrenHaveDifferentCompositeKeyHashes_Box() {
         // Arrange.
         val (node1, node2) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
@@ -139,7 +140,7 @@ class CompositeKeyHashTest {
         val compositeKeyHash2 = node2.requireLayoutNode().compositeKeyHash
 
         // Assert.
-        assertThat(compositeKeyHash1).isEqualTo(compositeKeyHash2)
+        assertThat(compositeKeyHash1).isNotEqualTo(compositeKeyHash2)
     }
 
     @Test

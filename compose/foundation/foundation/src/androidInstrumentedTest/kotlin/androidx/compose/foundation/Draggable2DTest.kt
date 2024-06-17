@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -57,6 +58,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.lang.Float.NaN
 import kotlin.test.Ignore
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -849,6 +851,7 @@ class Draggable2DTest {
         val enabled = mutableStateOf(true)
         lateinit var runningJob: Job
         rule.setContent {
+            val scope = rememberCoroutineScope()
             Box(
                 modifier = Modifier
                     .testTag(draggable2DBoxTag)
@@ -857,7 +860,7 @@ class Draggable2DTest {
                         enabled = enabled.value,
                         state = rememberDraggable2DState { },
                         onDragStopped = { _ ->
-                            runningJob = launch { delay(10_000L) } // long running operation
+                            runningJob = scope.launch { delay(10_000L) } // long running operation
                         }
                     )
             )
@@ -879,6 +882,50 @@ class Draggable2DTest {
     }
 
     @Test
+    fun onDragStarted_startDragImmediatelyFalse_offsetShouldBePostSlopPosition() {
+        var onDragStartedOffset = Offset.Unspecified
+        var downEventPosition = Offset.Unspecified
+        var touchSlop = 0f
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+
+            Box(
+                modifier = Modifier
+                    .testTag(draggable2DBoxTag)
+                    .size(100.dp)
+                    .draggable2D(
+                        enabled = true,
+                        state = rememberDraggable2DState { },
+                        onDragStarted = { offset ->
+                            onDragStartedOffset = offset
+                        },
+                        startDragImmediately = false
+                    )
+            )
+        }
+
+        val moveOffset = Offset(100f, 100f)
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput {
+            downEventPosition = center
+            down(center)
+            moveBy(moveOffset)
+            up()
+        }
+        val moveAngle = Math.atan(moveOffset.x / moveOffset.y.toDouble())
+
+        rule.runOnIdle {
+            assertEquals(
+                downEventPosition.x + touchSlop * Math.cos(moveAngle).toFloat(),
+                onDragStartedOffset.x
+            )
+            assertEquals(
+                downEventPosition.y + touchSlop * Math.sin(moveAngle).toFloat(),
+                onDragStartedOffset.y
+            )
+        }
+    }
+
+    @Test
     fun testInspectableValue() {
         rule.setContent {
             val modifier = Modifier.draggable2D(
@@ -888,7 +935,6 @@ class Draggable2DTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "enabled",
-                "canDrag",
                 "reverseDirection",
                 "interactionSource",
                 "startDragImmediately",
@@ -896,6 +942,19 @@ class Draggable2DTest {
                 "onDragStopped",
                 "state",
             )
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals() {
+        val state = Draggable2DState { }
+
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.draggable2D(state, enabled = false)
+            } else {
+                Modifier.draggable2D(state, enabled = true)
+            }
         }
     }
 

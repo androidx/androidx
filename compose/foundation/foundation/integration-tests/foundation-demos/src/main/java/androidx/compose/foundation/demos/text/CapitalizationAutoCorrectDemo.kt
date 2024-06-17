@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -63,15 +62,15 @@ private val KeyboardOptionsList = listOf(
     ),
     ImeOptionsData(
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            autoCorrect = true
+            autoCorrectEnabled = true,
+            keyboardType = KeyboardType.Text
         ),
         name = "AutoCorrect On"
     ),
     ImeOptionsData(
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            autoCorrect = false
+            autoCorrectEnabled = false,
+            keyboardType = KeyboardType.Text
         ),
         name = "AutoCorrect Off"
     )
@@ -88,7 +87,6 @@ fun CapitalizationAutoCorrectDemo() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MyTextField(data: ImeOptionsData) {
     var state by rememberSaveable(stateSaver = TextFieldValue.Saver) {

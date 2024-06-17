@@ -81,7 +81,7 @@ actual fun ExposedDropdownMenuBox(
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
     val scope = remember(density, menuHeight, width) {
-        object : ExposedDropdownMenuBoxScope {
+        object : ExposedDropdownMenuBoxScope() {
             override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
                 return with(density) {
                     heightIn(max = menuHeight.toDp()).let {

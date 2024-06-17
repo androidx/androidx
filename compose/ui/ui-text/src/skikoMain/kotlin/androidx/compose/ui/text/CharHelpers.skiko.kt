@@ -50,7 +50,7 @@ internal typealias CodePoint = Int
  * Converts a surrogate pair to a unicode code point.
  */
 private fun Char.Companion.toCodePoint(high: Char, low: Char): CodePoint =
-    (((high - MIN_HIGH_SURROGATE) shl 10) or (low - MIN_LOW_SURROGATE)) + 0x10000
+    (((high - MIN_HIGH_SURROGATE) shl 10) or (low - MIN_LOW_SURROGATE)) + MIN_SUPPLEMENTARY_CODE_POINT
 
 /**
  * The minimum value of a supplementary code point, `\u0x10000`.
@@ -77,7 +77,7 @@ internal expect fun CodePoint.isNeutralDirection(): Boolean
  * Determine direction based on the first strong directional character.
  * Only considers the characters outside isolate pairs.
  */
-internal fun String.firstStrongDirectionType(): StrongDirectionType {
+internal fun CharSequence.firstStrongDirectionType(): StrongDirectionType {
     for (codePoint in codePointsOutsideDirectionalIsolate) {
         return when (val strongDirectionType = codePoint.strongDirectionType()) {
             StrongDirectionType.None -> continue
@@ -99,7 +99,7 @@ private val PUSH_DIRECTIONAL_ISOLATE_RANGE: IntRange = 0x2066..0x2068
  */
 private const val POP_DIRECTIONAL_ISOLATE_CODE_POINT: Int = 0x2069
 
-private val String.codePointsOutsideDirectionalIsolate get() = sequence {
+private val CharSequence.codePointsOutsideDirectionalIsolate get() = sequence {
     var openIsolateCount = 0
     for (codePoint in codePoints) {
         if (codePoint in PUSH_DIRECTIONAL_ISOLATE_RANGE) {
@@ -114,7 +114,7 @@ private val String.codePointsOutsideDirectionalIsolate get() = sequence {
     }
 }
 
-internal val String.codePoints get() = sequence {
+internal val CharSequence.codePoints get() = sequence {
     var index = 0
     while (index < length) {
         val codePoint = codePointAt(index)
@@ -126,7 +126,7 @@ internal val String.codePoints get() = sequence {
 /**
  * Returns the character (Unicode code point) at the specified index.
  */
-internal fun String.codePointAt(index: Int): CodePoint {
+internal fun CharSequence.codePointAt(index: Int): CodePoint {
     val high = this[index]
     if (high.isHighSurrogate() && index + 1 < this.length) {
         val low = this[index + 1]
@@ -140,7 +140,7 @@ internal fun String.codePointAt(index: Int): CodePoint {
 /**
  * Returns the character (Unicode code point) before the specified index.
  */
-internal fun String.codePointBefore(index: Int): CodePoint {
+internal fun CharSequence.codePointBefore(index: Int): CodePoint {
     val low = this[index]
     if (low.isLowSurrogate() && index - 1 >= 0) {
         val high = this[index - 1]

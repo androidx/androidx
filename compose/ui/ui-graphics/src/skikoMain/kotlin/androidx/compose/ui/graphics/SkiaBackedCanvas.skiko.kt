@@ -16,21 +16,22 @@
 
 package androidx.compose.ui.graphics
 
+import org.jetbrains.skia.ClipMode as SkClipMode
+import org.jetbrains.skia.RRect as SkRRect
+import org.jetbrains.skia.Rect as SkRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
-import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.CubicResampler
 import org.jetbrains.skia.FilterMipmap
 import org.jetbrains.skia.FilterMode
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Matrix44
 import org.jetbrains.skia.MipmapMode
-import org.jetbrains.skia.RRect as SkRRect
-import org.jetbrains.skia.Rect as SkRect
 import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.impl.use
 
@@ -110,6 +111,11 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     override fun clipPath(path: Path, clipOp: ClipOp) {
         val antiAlias = true
         skia.clipPath(path.asSkiaPath(), clipOp.toSkia(), antiAlias)
+    }
+
+    fun clipRoundRect(rect: RoundRect, clipOp: ClipOp = ClipOp.Intersect) {
+        val antiAlias = true
+        nativeCanvas.clipRRect(rect.toSkiaRRect(), clipOp.toSkia(), antiAlias)
     }
 
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {

@@ -75,10 +75,10 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
  * states. This controls the size of the shadow below the button. Pass `null` here to disable
  * elevation for this button. See [ButtonDefaults.elevation].
@@ -94,7 +94,7 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     elevation: ButtonElevation? = ButtonDefaults.elevation(),
     shape: Shape = MaterialTheme.shapes.small,
     border: BorderStroke? = null,
@@ -102,6 +102,8 @@ fun Button(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val contentColor by colors.contentColor(enabled)
     Surface(
         onClick = onClick,
@@ -112,7 +114,7 @@ fun Button(
         contentColor = contentColor.copy(alpha = 1f),
         border = border,
         elevation = elevation?.elevation(enabled, interactionSource)?.value ?: 0.dp,
-        interactionSource = interactionSource,
+        interactionSource = interactionSource
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(
@@ -150,10 +152,10 @@ fun Button(
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
  * states. An OutlinedButton typically has no elevation, see [Button] for a button with elevation.
  * @param shape Defines the button's shape as well as its shadow
@@ -168,7 +170,7 @@ fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     elevation: ButtonElevation? = null,
     shape: Shape = MaterialTheme.shapes.small,
     border: BorderStroke? = ButtonDefaults.outlinedBorder,
@@ -204,10 +206,10 @@ fun OutlinedButton(
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
  * states. A TextButton typically has no elevation, see [Button] for a button with elevation.
  * @param shape Defines the button's shape as well as its shadow
@@ -222,7 +224,7 @@ fun TextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     elevation: ButtonElevation? = null,
     shape: Shape = MaterialTheme.shapes.small,
     border: BorderStroke? = null,

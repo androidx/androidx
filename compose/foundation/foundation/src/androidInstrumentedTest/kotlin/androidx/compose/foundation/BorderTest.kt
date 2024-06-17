@@ -26,9 +26,13 @@ import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
@@ -102,7 +106,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(10.0f.toDp(), Color.Red), shape)
 
@@ -127,7 +132,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(
                             BorderStroke(10.0f.toDp(), SolidColor(Color.Red)),
@@ -154,7 +160,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(1500.0f.toDp(), Color.Red), shape)
                 ) {}
@@ -176,7 +183,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(-5.0f.toDp(), Color.Red), shape)
                 ) {}
@@ -198,10 +206,13 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp()).background(Color.White)
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
+                        .background(Color.White)
                 ) {
                     Box(
-                        Modifier.size(0.0f.toDp(), 40.0f.toDp())
+                        Modifier
+                            .size(0.0f.toDp(), 40.0f.toDp())
                             .border(BorderStroke(4.0f.toDp(), Color.Red), shape)
                     ) {}
                 }
@@ -233,7 +244,8 @@ class BorderTest(val shape: Shape) {
                 borderWidthDp = (10f / density).dp
             }
             Box(
-                Modifier.testTag(testTag)
+                Modifier
+                    .testTag(testTag)
                     .requiredSize(triangleSizeDp, triangleSizeDp)
                     .background(Color.White)
                     .border(BorderStroke(borderWidthDp, Color.Red), triangle)
@@ -271,7 +283,8 @@ class BorderTest(val shape: Shape) {
                 borderPx = border.toPx()
             }
             Box(
-                Modifier.testTag(roundRectTag)
+                Modifier
+                    .testTag(roundRectTag)
                     .size(size)
                     .background(Color.White)
                     .border(
@@ -333,7 +346,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(10.0f.toDp(), Color.Red), rtlAwareShape)
                 ) {}
@@ -358,7 +372,8 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
                     Box(
-                        Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        Modifier
+                            .size(40.0f.toDp(), 40.0f.toDp())
                             .background(color = Color.Blue)
                             .border(BorderStroke(10.0f.toDp(), Color.Red), rtlAwareShape)
                     ) {}
@@ -394,7 +409,7 @@ class BorderTest(val shape: Shape) {
         val testTag = "testTag"
         val borderStrokeDp = 5.dp
         var borderStrokePx = 0f
-        var toggle = mutableStateOf(false)
+        val toggle = mutableStateOf(false)
         rule.setContent {
             val testShape = GenericShape { size, _ ->
                 addRect(Rect(0f, 0f, size.width, size.height))
@@ -403,7 +418,8 @@ class BorderTest(val shape: Shape) {
                 borderStrokePx = borderStrokeDp.toPx()
             }
             Box(
-                Modifier.testTag(testTag)
+                Modifier
+                    .testTag(testTag)
                     .requiredSize(20.dp, 20.dp)
                     .background(Color.White)
                     .border(
@@ -437,7 +453,7 @@ class BorderTest(val shape: Shape) {
             )
             assertEquals(
                 Color.White,
-                pixelMap[ width / 2, height / 2]
+                pixelMap[width / 2, height / 2]
             )
         }
 
@@ -465,7 +481,7 @@ class BorderTest(val shape: Shape) {
             )
             assertEquals(
                 Color.White,
-                pixelMap[ width / 2, height / 2]
+                pixelMap[width / 2, height / 2]
             )
         }
     }
@@ -510,7 +526,8 @@ class BorderTest(val shape: Shape) {
                 borderStrokePx = borderWidthDp.toPx()
             }
             Box(
-                Modifier.testTag(testTag)
+                Modifier
+                    .testTag(testTag)
                     .requiredSize(bubbleWidthDp, bubbleHeightDp)
                     .background(Color.White)
                     .padding(top = arrowLengthDp)
@@ -579,6 +596,210 @@ class BorderTest(val shape: Shape) {
                     (offset.y + borderStrokePx / 2).toInt()
                 ]
             )
+        }
+    }
+
+    @Test
+    fun border_changeShape() {
+        var roundedCorners by mutableStateOf(false)
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(
+                            BorderStroke(1f.toDp(), Color.Red),
+                            if (roundedCorners) RoundedCornerShape(5f) else RectangleShape
+                        )
+                ) {}
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val map = toPixelMap()
+            // We should not be rounded, so left edge should be fully red
+            assertEquals(Color.Red, map[0, 0])
+            assertEquals(Color.Red, map[0, (height - 1) / 2])
+            assertEquals(Color.Red, map[0, height - 1])
+        }
+
+        rule.runOnIdle {
+            roundedCorners = true
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val map = toPixelMap()
+            // We should now be rounded, so the top and bottom of the left edge will be blue, but
+            // the center will still be red
+            assertEquals(Color.Blue, map[0, 0])
+            assertEquals(Color.Red, map[0, (height - 1) / 2])
+            assertEquals(Color.Blue, map[0, height - 1])
+        }
+    }
+
+    @Test
+    fun border_changeOutline_outlineRounded_observableShape() {
+        var roundedCorners by mutableStateOf(false)
+        val roundedCornersShape = object : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
+                val roundRect = if (roundedCorners) {
+                    RoundRect(
+                        Rect(Offset.Zero, size),
+                        cornerRadius = CornerRadius(5f)
+                    )
+                } else {
+                    RoundRect(
+                        Rect(Offset.Zero, size),
+                        cornerRadius = CornerRadius.Zero
+                    )
+                }
+                return Outline.Rounded(roundRect)
+            }
+        }
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(
+                            BorderStroke(1f.toDp(), Color.Red),
+                            roundedCornersShape
+                        )
+                ) {}
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val map = toPixelMap()
+            // We should not be rounded, so left edge should be fully red
+            assertEquals(Color.Red, map[0, 0])
+            assertEquals(Color.Red, map[0, (height - 1) / 2])
+            assertEquals(Color.Red, map[0, height - 1])
+        }
+
+        rule.runOnIdle {
+            roundedCorners = true
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val map = toPixelMap()
+            // We should now be rounded, so the top and bottom of the left edge will be blue, but
+            // the center will still be red
+            assertEquals(Color.Blue, map[0, 0])
+            assertEquals(Color.Red, map[0, (height - 1) / 2])
+            assertEquals(Color.Blue, map[0, height - 1])
+        }
+    }
+
+    @Test
+    fun border_changeOutline_outlineGeneric_samePath_observableShape() {
+        var roundedCorners by mutableStateOf(false)
+        val roundedCornersShape = object : Shape {
+            val path = Path()
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
+                val roundRect = if (roundedCorners) {
+                    RoundRect(
+                        Rect(Offset.Zero, size),
+                        cornerRadius = CornerRadius(50f)
+                    )
+                } else {
+                    RoundRect(
+                        Rect(Offset.Zero, size),
+                        cornerRadius = CornerRadius.Zero
+                    )
+                }
+                path.reset()
+                path.addRoundRect(roundRect)
+                return Outline.Generic(path)
+            }
+        }
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier
+                        .size(400.0f.toDp(), 400.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(
+                            BorderStroke(1f.toDp(), Color.Red),
+                            roundedCornersShape
+                        )
+                ) {}
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val map = toPixelMap()
+            // We should not be rounded, so left edge should be fully red
+            assertEquals(Color.Red, map[0, 0])
+            assertEquals(Color.Red, map[0, (height - 1) / 2])
+            // The last pixel fails to render properly on some emulators, so just assert the one
+            // before instead - b/267371353
+            assertEquals(Color.Red, map[0, height - 2])
+        }
+
+        rule.runOnIdle {
+            roundedCorners = true
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val map = toPixelMap()
+            // We should now be rounded, so the top and bottom of the left edge will be blue, but
+            // the center will still be red
+            assertEquals(Color.Blue, map[0, 0])
+            assertEquals(Color.Red, map[0, (height - 1) / 2])
+            // The last pixel fails to render properly on some emulators, so just assert the one
+            // before instead - b/267371353
+            assertEquals(Color.Blue, map[0, height - 2])
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withColor() {
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.border(10.dp, Color.Red)
+            } else {
+                Modifier.border(5.dp, Color.Red)
+            }
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withBorderStroke() {
+        val borderStroke1 = BorderStroke(10.dp, Color.Blue)
+        val borderStroke2 = BorderStroke(5.dp, Color.Blue)
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.border(borderStroke1)
+            } else {
+                Modifier.border(borderStroke2)
+            }
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withBrush() {
+        val brush1 = Brush.horizontalGradient()
+        val brush2 = Brush.verticalGradient()
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.border(10.dp, brush1, shape)
+            } else {
+                Modifier.border(10.dp, brush2, shape)
+            }
         }
     }
 

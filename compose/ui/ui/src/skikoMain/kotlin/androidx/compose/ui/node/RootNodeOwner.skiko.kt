@@ -21,6 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -28,17 +30,20 @@ import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.InteropViewCatchPointerModifier
 import androidx.compose.ui.input.pointer.PointerButton
@@ -65,6 +70,7 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.semantics.EmptySemanticsElement
+import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -78,6 +84,7 @@ import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.trace
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -98,35 +105,44 @@ internal class RootNodeOwner(
     private val snapshotInvalidationTracker: SnapshotInvalidationTracker,
     private val inputHandler: ComposeSceneInputHandler,
 ) {
-    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2944)
-    //  Check if ComposePanel/SwingPanel focus interop work correctly with new features of
-    //  the focus system (it works with the old features like moveFocus/clearFocus)
     val focusOwner: FocusOwner = FocusOwnerImpl(
-        parent = platformContext.parentFocusManager
-    ) {
-        owner.registerOnEndApplyChangesListener(it)
-    }.also {
-        it.layoutDirection = layoutDirection
-    }
-    private val rootModifier = EmptySemanticsElement
-        .then(focusOwner.modifier)
-        .onKeyEvent {
-            // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
-            //  that this common logic can be used by all owners.
-            val focusDirection = owner.getFocusDirection(it)
-            if (focusDirection == null || it.type != KeyEventType.KeyDown) return@onKeyEvent false
+        onRequestFocusForOwner = { _, _ ->
+            platformContext.requestFocus()
+        },
+        onRequestApplyChangesListener = {
+            owner.registerOnEndApplyChangesListener(it)
+        },
+        // onMoveFocusInterop's purpose is to move focus inside embed interop views.
+        // Another logic is used in our child-interop views (SwingPanel, etc)
+        onMoveFocusInterop = { false },
+        onFocusRectInterop = { null },
+        onLayoutDirection = { _layoutDirection },
+        onClearFocusForOwner = {
+            platformContext.parentFocusManager.clearFocus(true)
+        },
+    )
+    private val rootSemanticsNode = EmptySemanticsModifier()
 
-            platformContext.inputModeManager.requestInputMode(InputMode.Keyboard)
-            // Consume the key event if we moved focus.
-            focusOwner.moveFocus(focusDirection)
+    private val rootModifier = EmptySemanticsElement(rootSemanticsNode)
+        .focusProperties {
+            exit = {
+                // if focusDirection is forward/backward,
+                // it will move the focus after/before ComposePanel
+                if (platformContext.parentFocusManager.moveFocus(it)) {
+                    FocusRequester.Cancel
+                } else {
+                    FocusRequester.Default
+                }
+            }
         }
+        .then(focusOwner.modifier)
         .semantics {
             // This makes the reported role of the root node "PANEL", which is ignored by VoiceOver
             // (which is what we want).
             isTraversalGroup = true
         }
     val owner: Owner = OwnerImpl(layoutDirection, coroutineContext)
-    val semanticsOwner = SemanticsOwner(owner.root)
+    val semanticsOwner = SemanticsOwner(owner.root, rootSemanticsNode)
     var size: IntSize? = size
         set(value) {
             field = value
@@ -139,7 +155,6 @@ internal class RootNodeOwner(
         get() = _layoutDirection
         set(value) {
             _layoutDirection = value
-            focusOwner.layoutDirection = value
             owner.root.layoutDirection = value
         }
 
@@ -203,7 +218,7 @@ internal class RootNodeOwner(
     }
 
     fun draw(canvas: Canvas) = trace("RootNodeOwner:draw") {
-        owner.root.draw(canvas)
+        owner.root.draw(canvas, graphicsLayer = null)
         clearInvalidObservations()
     }
 
@@ -233,7 +248,18 @@ internal class RootNodeOwner(
     }
 
     fun onKeyEvent(keyEvent: KeyEvent): Boolean {
-        return focusOwner.dispatchKeyEvent(keyEvent)
+        return focusOwner.dispatchKeyEvent(keyEvent) || handleFocusKeys(keyEvent)
+    }
+
+    private fun handleFocusKeys(keyEvent: KeyEvent): Boolean {
+        // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
+        //  that this common logic can be used by all owners.
+        val focusDirection = owner.getFocusDirection(keyEvent)
+        if (focusDirection == null || keyEvent.type != KeyEventType.KeyDown) return false
+
+        platformContext.inputModeManager.requestInputMode(InputMode.Keyboard)
+        // Consume the key event if we moved focus.
+        return focusOwner.moveFocus(focusDirection)
     }
 
     /**
@@ -251,10 +277,10 @@ internal class RootNodeOwner(
 
     private fun calculateBoundsInWindow(): Rect? {
         val rect = size?.toIntRect()?.toRect() ?: return null
-        val p0 = platformContext.calculatePositionInWindow(Offset(rect.left, rect.top))
-        val p1 = platformContext.calculatePositionInWindow(Offset(rect.left, rect.bottom))
-        val p3 = platformContext.calculatePositionInWindow(Offset(rect.right, rect.top))
-        val p4 = platformContext.calculatePositionInWindow(Offset(rect.right, rect.bottom))
+        val p0 = platformContext.convertLocalToWindowPosition(Offset(rect.left, rect.top))
+        val p1 = platformContext.convertLocalToWindowPosition(Offset(rect.left, rect.bottom))
+        val p3 = platformContext.convertLocalToWindowPosition(Offset(rect.right, rect.top))
+        val p4 = platformContext.convertLocalToWindowPosition(Offset(rect.right, rect.bottom))
 
         val left = min(min(p0.x, p1.x), min(p3.x, p4.x))
         val top = min(min(p0.y, p1.y), min(p3.y, p4.y))
@@ -280,6 +306,7 @@ internal class RootNodeOwner(
         override val inputModeManager get() = platformContext.inputModeManager
         override val clipboardManager = PlatformClipboardManager()
         override val accessibilityManager = DefaultAccessibilityManager()
+        override val graphicsContext: GraphicsContext = GraphicsContext()
         override val textToolbar get() = platformContext.textToolbar
         override val autofillTree = AutofillTree()
         override val autofill: Autofill?  get() = null
@@ -395,8 +422,9 @@ internal class RootNodeOwner(
         }
 
         override fun createLayer(
-            drawBlock: (Canvas) -> Unit,
-            invalidateParentLayer: () -> Unit
+            drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+            invalidateParentLayer: () -> Unit,
+            explicitLayer: GraphicsLayer?,
         ) = RenderNodeLayer(
             density = Snapshot.withoutReadObservation {
                 // density is a mutable state that is observed whenever layer is created. the layer
@@ -424,6 +452,10 @@ internal class RootNodeOwner(
             )
         }
 
+        @InternalComposeUiApi
+        override fun onInteropViewLayoutChange(view: InteropView) {
+        }
+
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
             return when (keyEvent.key) {
                 Key.Tab -> if (keyEvent.isShiftPressed) FocusDirection.Previous else FocusDirection.Next
@@ -434,10 +466,23 @@ internal class RootNodeOwner(
         }
 
         override fun calculatePositionInWindow(localPosition: Offset): Offset =
-            platformContext.calculatePositionInWindow(localPosition)
+            platformContext.convertLocalToWindowPosition(localPosition)
 
         override fun calculateLocalPosition(positionInWindow: Offset): Offset =
-            platformContext.calculateLocalPosition(positionInWindow)
+            platformContext.convertWindowToLocalPosition(positionInWindow)
+
+        override fun screenToLocal(positionOnScreen: Offset): Offset =
+            platformContext.convertScreenToLocalPosition(positionOnScreen)
+
+        override fun localToScreen(localPosition: Offset): Offset =
+            platformContext.convertLocalToScreenPosition(localPosition)
+
+        override fun localToScreen(localTransform: Matrix) {
+            throw UnsupportedOperationException(
+                "Construction of local-to-screen matrix is not supported, " +
+                    "use direct conversion instead"
+            )
+        }
 
         private val endApplyChangesListeners = mutableVectorOf<(() -> Unit)?>()
 
@@ -543,6 +588,16 @@ internal class RootNodeOwner(
          */
         override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
             inputHandler.onKeyEvent(keyEvent)
+
+        // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1258/Implement-PlatformRootForTest.accessitiblity-functions
+
+        @ExperimentalComposeUiApi
+        override fun forceAccessibilityForTesting(enable: Boolean) {
+        }
+
+        @ExperimentalComposeUiApi
+        override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) {
+        }
     }
 
     private inner class PointerIconServiceImpl : PointerIconService {

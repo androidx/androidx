@@ -25,9 +25,13 @@ public final class androidx/compose/ui/unit/Constraints {
 }
 
 public final class androidx/compose/ui/unit/Constraints$Companion {
+	public final fun fitPrioritizingHeight-Zbe2FdA (IIII)J
+	public final fun fitPrioritizingWidth-Zbe2FdA (IIII)J
 	public final fun fixed-JhjzzOo (II)J
 	public final fun fixedHeight-OenEA2s (I)J
 	public final fun fixedWidth-OenEA2s (I)J
+	public final fun restrictConstraints-xF2OJ5Q (IIIIZ)J
+	public static synthetic fun restrictConstraints-xF2OJ5Q$default (Landroidx/compose/ui/unit/Constraints$Companion;IIIIZILjava/lang/Object;)J
 }
 
 public final class androidx/compose/ui/unit/ConstraintsKt {
@@ -225,11 +229,6 @@ public final class androidx/compose/ui/unit/DpSize$Companion {
 public abstract interface annotation class androidx/compose/ui/unit/ExperimentalUnitApi : java/lang/annotation/Annotation {
 }
 
-public final class androidx/compose/ui/unit/FontScalingKt {
-	public static final fun getDisableNonLinearFontScalingInCompose ()Z
-	public static final fun setDisableNonLinearFontScalingInCompose (Z)V
-}
-
 public abstract interface class androidx/compose/ui/unit/FontScalingLinear {
 	public abstract fun getFontScale ()F
 	public fun toDp-GaN1DYA (J)F
@@ -361,8 +360,10 @@ public final class androidx/compose/ui/unit/IntSize$Companion {
 public final class androidx/compose/ui/unit/IntSizeKt {
 	public static final fun IntSize (II)J
 	public static final fun getCenter-ozmzZPI (J)J
+	public static final fun roundToIntSize-uvyYCjk (J)J
 	public static final fun times-O0kMr_c (IJ)J
 	public static final fun toIntRect-ozmzZPI (J)Landroidx/compose/ui/unit/IntRect;
+	public static final fun toIntSize-uvyYCjk (J)J
 	public static final fun toSize-ozmzZPI (J)J
 }
 

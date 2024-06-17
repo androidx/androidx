@@ -18,6 +18,8 @@ package androidx.compose.animation.core
 
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
+import kotlin.math.sign
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -296,6 +298,44 @@ class PhysicsAnimationTest {
             assertEquals(float2.value, springVector.v2, epsilon)
             assertEquals(float3.value, springVector.v3, epsilon)
         }
+    }
+
+    @Test
+    fun testDurationWithZeroDampingRatio() {
+        val initial = AnimationVector1D(100f)
+        val target = AnimationVector1D(0f)
+        val velocity = AnimationVector1D(0f)
+
+        val infiniteSpringAnimation = VectorizedSpringSpec(
+            dampingRatio = 0f,
+            stiffness = Spring.StiffnessMedium,
+            visibilityThreshold = AnimationVector1D(1f)
+        )
+
+        val infiniteSpringDurationNanos =
+            infiniteSpringAnimation.getDurationNanos(initial, target, velocity)
+
+        // We lose precision from converting millis to nanos, so the duration in nanos cannot be
+        // bigger than the max long value.
+        assertTrue(Long.MAX_VALUE > infiniteSpringDurationNanos)
+
+        // We can account the loss of conversion to nanos by subtracting 1,000,000 to the compared
+        // value. Note that since Long.MAX_VALUE is not a perfect multiple of 1,000,000 it's
+        // guaranteed to be smaller than the spring duration.
+        assertTrue(infiniteSpringDurationNanos > (Long.MAX_VALUE - 1_000_000))
+
+        // Did not overflow
+        assertEquals(1, infiniteSpringDurationNanos.sign)
+
+        // A small but non-zero dampingRatio will also result in a long animation
+        val veryLongSpringAnimationDurationNanos = VectorizedSpringSpec(
+            dampingRatio = 0.001f,
+            stiffness = Spring.StiffnessMedium,
+            visibilityThreshold = AnimationVector1D(1f)
+        ).getDurationNanos(initial, target, velocity)
+
+        // Make sure the value is bigger compared to an spring with a long animation
+        assertTrue(infiniteSpringDurationNanos > veryLongSpringAnimationDurationNanos)
     }
 
     private fun VectorizedAnimationSpec<AnimationVector1D>.toAnimation(

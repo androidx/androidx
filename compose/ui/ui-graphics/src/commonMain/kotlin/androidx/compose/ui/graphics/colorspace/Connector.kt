@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.annotation.Size
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
@@ -158,7 +159,8 @@ internal constructor(
         return transformDestination.fromXyz(xyz)
     }
 
-    internal open fun transformToColor(r: Float, g: Float, b: Float, a: Float): Color {
+    internal open fun transformToColor(color: Color): Color {
+        val (r, g, b, a) = color
         val packed = transformSource.toXy(r, g, b)
         var x = unpackFloat1(packed)
         var y = unpackFloat2(packed)
@@ -196,7 +198,8 @@ internal constructor(
             return v
         }
 
-        override fun transformToColor(r: Float, g: Float, b: Float, a: Float): Color {
+        override fun transformToColor(color: Color): Color {
+            val (r, g, b, a) = color
             val v0 = mSource.eotfFunc(r.toDouble()).toFloat()
             val v1 = mSource.eotfFunc(g.toDouble()).toFloat()
             val v2 = mSource.eotfFunc(b.toDouble()).toFloat()
@@ -321,20 +324,25 @@ internal constructor(
          */
         internal fun identity(source: ColorSpace): Connector {
             return object : Connector(source, source, RenderIntent.Relative) {
-                override fun transform(v: FloatArray): FloatArray {
-                    return v
-                }
+                override fun transform(v: FloatArray): FloatArray = v
 
-                override fun transformToColor(r: Float, g: Float, b: Float, a: Float): Color {
-                    return Color(r, g, b, a, destination)
-                }
+                override fun transformToColor(color: Color): Color = color
             }
         }
-
-        internal val SrgbIdentity = identity(ColorSpaces.Srgb)
-        internal val SrgbToOklabPerceptual =
-            Connector(ColorSpaces.Srgb, ColorSpaces.Oklab, RenderIntent.Perceptual)
-        internal val OklabToSrgbPerceptual =
-            Connector(ColorSpaces.Oklab, ColorSpaces.Srgb, RenderIntent.Perceptual)
     }
+}
+
+internal val Connectors = mutableIntObjectMapOf(
+    connectorKey(ColorSpaces.Srgb.id, ColorSpaces.Srgb.id, RenderIntent.Perceptual),
+    Connector.identity(ColorSpaces.Srgb),
+    connectorKey(ColorSpaces.Srgb.id, ColorSpaces.Oklab.id, RenderIntent.Perceptual),
+    Connector(ColorSpaces.Srgb, ColorSpaces.Oklab, RenderIntent.Perceptual),
+    connectorKey(ColorSpaces.Oklab.id, ColorSpaces.Srgb.id, RenderIntent.Perceptual),
+    Connector(ColorSpaces.Oklab, ColorSpaces.Srgb, RenderIntent.Perceptual)
+)
+
+// See [ColorSpace.MaxId], the id is encoded on 6 bits
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun connectorKey(src: Int, dst: Int, renderIntent: RenderIntent): Int {
+    return src or (dst shl 6) or (renderIntent.value shl 12)
 }

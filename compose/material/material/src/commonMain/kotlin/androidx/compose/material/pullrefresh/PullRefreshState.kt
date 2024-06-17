@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlinx.coroutines.CoroutineScope
@@ -197,7 +198,7 @@ class PullRefreshState internal constructor(
             // How far beyond the threshold pull has gone, as a percentage of the threshold.
             val overshootPercent = abs(progress) - 1.0f
             // Limit the overshoot to 200%. Linear between 0 and 200.
-            val linearTension = overshootPercent.coerceIn(0f, 2f)
+            val linearTension = overshootPercent.fastCoerceIn(0f, 2f)
             // Non-linear tension. Increases with linearTension, but at a decreasing rate.
             val tensionPercent = linearTension - linearTension.pow(2) / 4
             // The additional offset beyond the threshold.

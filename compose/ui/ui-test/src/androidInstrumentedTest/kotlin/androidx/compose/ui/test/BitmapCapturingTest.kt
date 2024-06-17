@@ -17,7 +17,6 @@
 package androidx.compose.ui.test
 
 import android.os.Build
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -33,7 +32,6 @@ import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
@@ -295,17 +293,4 @@ class BitmapCapturingTest(val config: TestConfig) {
             else -> rule.setContent(content)
         }
     }
-
-    private fun fetchNodeRootView(nodeTag: String): View {
-        return fetchNodeInteraction(nodeTag).fetchRootView()
-    }
-
-    private fun fetchNodeInteraction(nodeTag: String): SemanticsNodeInteraction {
-        return rule.onNodeWithTag(nodeTag)
-    }
-}
-
-private fun SemanticsNodeInteraction.fetchRootView(): View {
-    val node = fetchSemanticsNode()
-    return (node.root as ViewRootForTest).view
 }

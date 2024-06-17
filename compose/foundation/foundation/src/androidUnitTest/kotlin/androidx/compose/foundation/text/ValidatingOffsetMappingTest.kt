@@ -37,7 +37,7 @@ class ValidatingOffsetMappingTest {
         val transformation = VisualTransformation { original ->
             TransformedText(original, object : OffsetMapping {
                 override fun originalToTransformed(offset: Int): Int = 0
-                override fun transformedToOriginal(offset: Int): Int = throw NotImplementedError()
+                override fun transformedToOriginal(offset: Int): Int = 0
             })
         }
 
@@ -50,7 +50,7 @@ class ValidatingOffsetMappingTest {
     fun filterWithValidation_allowsZero_whenTransformedToOriginal() {
         val transformation = VisualTransformation { original ->
             TransformedText(original, object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int = throw NotImplementedError()
+                override fun originalToTransformed(offset: Int): Int = 0
                 override fun transformedToOriginal(offset: Int): Int = 0
             })
         }
@@ -66,7 +66,7 @@ class ValidatingOffsetMappingTest {
             // Transformed text is longer to ensure transformed length is used for validation.
             TransformedText(original + original, object : OffsetMapping {
                 override fun originalToTransformed(offset: Int): Int = text.length * 2
-                override fun transformedToOriginal(offset: Int): Int = throw NotImplementedError()
+                override fun transformedToOriginal(offset: Int): Int = 0
             })
         }
 
@@ -80,7 +80,7 @@ class ValidatingOffsetMappingTest {
         val transformation = VisualTransformation { original ->
             // Transformed text is shorter to ensure the original length is used for validation.
             TransformedText(original.subSequence(0, 1), object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int = throw NotImplementedError()
+                override fun originalToTransformed(offset: Int): Int = 0
                 override fun transformedToOriginal(offset: Int): Int = text.length
             })
         }
@@ -112,15 +112,21 @@ class ValidatingOffsetMappingTest {
 
     @Test
     fun filterWithValidation_throws_whenInvalidOriginalToTransformed() {
+        var startFailing = false
         val transformation = VisualTransformation { original ->
             TransformedText(original, object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int = invalidIndex
-                override fun transformedToOriginal(offset: Int): Int = throw NotImplementedError()
+                override fun originalToTransformed(offset: Int): Int = if (startFailing) {
+                    invalidIndex
+                } else {
+                    0
+                }
+                override fun transformedToOriginal(offset: Int): Int = 0
             })
         }
 
         val transformed = transformation.filterWithValidation(AnnotatedString(text))
 
+        startFailing = true
         val error = assertFailsWith<IllegalStateException> {
             transformed.offsetMapping.originalToTransformed(1)
         }
@@ -133,15 +139,21 @@ class ValidatingOffsetMappingTest {
 
     @Test
     fun filterWithValidation_throws_whenInvalidTransformedToOriginal() {
+        var startFailing = false
         val transformation = VisualTransformation { original ->
             TransformedText(original, object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int = throw NotImplementedError()
-                override fun transformedToOriginal(offset: Int): Int = invalidIndex
+                override fun originalToTransformed(offset: Int): Int = 0
+                override fun transformedToOriginal(offset: Int): Int = if (startFailing) {
+                    invalidIndex
+                } else {
+                    0
+                }
             })
         }
 
         val transformed = transformation.filterWithValidation(AnnotatedString(text))
 
+        startFailing = true
         val error = assertFailsWith<IllegalStateException> {
             transformed.offsetMapping.transformedToOriginal(1)
         }

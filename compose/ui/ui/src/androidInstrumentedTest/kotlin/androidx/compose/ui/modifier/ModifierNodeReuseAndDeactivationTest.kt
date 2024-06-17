@@ -16,9 +16,13 @@
 
 package androidx.compose.ui.modifier
 
+import android.os.Build
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.ReusableContentHost
@@ -26,10 +30,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
@@ -45,14 +56,19 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -441,7 +457,7 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.setContent {
-            ReusableContentHost(active) {
+            SubcompositionReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
                         modifier = LayerElement(layerBlock),
@@ -618,7 +634,7 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.setContent {
-            ReusableContentHost(active) {
+            SubcompositionReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
                         modifier = DrawElement(drawBlock),
@@ -665,7 +681,7 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.setContent {
-            ReusableContentHost(active) {
+            SubcompositionReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
                         modifier = OldDrawModifier(drawBlock),
@@ -872,7 +888,9 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 Layout(content = {
                     Layout(
-                        modifier = Modifier.size(50.dp).testTag("child"),
+                        modifier = Modifier
+                            .size(50.dp)
+                            .testTag("child"),
                         measurePolicy = MeasurePolicy
                     )
                 }) { measurables, constraints ->
@@ -892,6 +910,57 @@ class ModifierNodeReuseAndDeactivationTest {
         rule.runOnIdle {
             assertThat(coordinates?.isAttached).isEqualTo(false)
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun deactivatingWithALayer_layerIsAddedAgainWhenReused() {
+        var active by mutableStateOf(true)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SubcompositionReusableContentHost(active) {
+                    Layout(content = {
+                        Canvas(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(5.dp)
+                                .graphicsLayer(clip = true)
+                        ) {
+                            drawRect(Color.Red, Offset(-5f, -5f), Size(15f, 15f))
+                        }
+                    }, modifier = Modifier
+                        .testTag("test")
+                        .drawBehind {
+                            drawRect(Color.Blue)
+                        }
+                    ) { measurables, constraints ->
+                        val placeable = measurables.first().measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.place(0, 0)
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.onNodeWithTag("test")
+            .captureToImage()
+            .assertPixels(IntSize(15, 15)) {
+                if (it.x in 5 until 10 && it.y in 5 until 10) {
+                    Color.Red
+                } else {
+                    Color.Blue
+                }
+            }
     }
 }
 

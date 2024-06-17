@@ -18,6 +18,9 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
@@ -98,7 +101,8 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    @Deprecated("Use `isTraversalGroup` instead.",
+    @Deprecated(
+        "Use `isTraversalGroup` instead.",
         replaceWith = ReplaceWith("IsTraversalGroup"),
     )
     val IsContainer: SemanticsPropertyKey<Boolean>
@@ -116,6 +120,30 @@ object SemanticsProperties {
     val InvisibleToUser = SemanticsPropertyKey<Unit>(
         name = "InvisibleToUser",
         mergePolicy = { parentValue, _ ->
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.contentType
+     */
+    // TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+    internal val ContentType = SemanticsPropertyKey<ContentType>(
+        name = "ContentType",
+        mergePolicy = { parentValue, _ ->
+            // Never merge autofill types
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.contentDataType
+     */
+    // TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+    internal val ContentDataType = SemanticsPropertyKey<ContentDataType>(
+        name = "ContentDataType",
+        mergePolicy = { parentValue, _ ->
+            // Never merge autofill data types
             parentValue
         }
     )
@@ -251,6 +279,16 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.indexForKey
      */
     val IndexForKey = SemanticsPropertyKey<(Any) -> Int>("IndexForKey")
+
+    /**
+     * @see SemanticsPropertyReceiver.isEditable
+     */
+    val IsEditable = SemanticsPropertyKey<Boolean>("IsEditable")
+
+    /**
+     * @see SemanticsPropertyReceiver.maxTextLength
+     */
+    val MaxTextLength = SemanticsPropertyKey<Int>("MaxTextLength")
 }
 
 /**
@@ -284,9 +322,21 @@ object SemanticsActions {
     val ScrollBy = ActionPropertyKey<(x: Float, y: Float) -> Boolean>("ScrollBy")
 
     /**
+     * @see SemanticsPropertyReceiver.scrollByOffset
+     */
+    val ScrollByOffset = SemanticsPropertyKey<suspend (offset: Offset) -> Offset>("ScrollByOffset")
+
+    /**
      * @see SemanticsPropertyReceiver.scrollToIndex
      */
     val ScrollToIndex = ActionPropertyKey<(Int) -> Boolean>("ScrollToIndex")
+
+    /**
+     * @see SemanticsPropertyReceiver.onAutofillText
+     */
+    // TODO(b/333102566): make this action public when Autofill is ready to go live
+    internal val OnAutofillText =
+        ActionPropertyKey<(AnnotatedString) -> Boolean>("OnAutofillText")
 
     /**
      * @see SemanticsPropertyReceiver.setProgress
@@ -400,6 +450,12 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.pageRight
      */
     val PageRight = ActionPropertyKey<() -> Boolean>("PageRight")
+
+    /**
+     * @see SemanticsPropertyReceiver.getScrollViewportLength
+     */
+    val GetScrollViewportLength =
+        ActionPropertyKey<(MutableList<Float>) -> Boolean>("GetScrollViewportLength")
 }
 
 /**
@@ -539,7 +595,7 @@ class CustomAccessibilityAction(val label: String, val action: () -> Boolean) {
         if (other !is CustomAccessibilityAction) return false
 
         if (label != other.label) return false
-        if (action != other.action) return false
+        if (action !== other.action) return false
 
         return true
     }
@@ -795,7 +851,7 @@ var SemanticsPropertyReceiver.contentDescription: String
 var SemanticsPropertyReceiver.stateDescription by SemanticsProperties.StateDescription
 
 /**
- * The semantics is represents a range of possible values with a current value.
+ * The semantics represents a range of possible values with a current value.
  * For example, when used on a slider control, this will allow screen readers to communicate
  * the slider's state.
  */
@@ -858,7 +914,8 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-@Deprecated("Use `isTraversalGroup` instead.",
+@Deprecated(
+    "Use `isTraversalGroup` instead.",
     replaceWith = ReplaceWith("isTraversalGroup"),
 )
 var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
@@ -887,6 +944,28 @@ var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversa
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }
+
+/**
+ * Content field type information.
+ *
+ * This API can be used to indicate to Autofill services what _kind of field_ is associated with
+ * this node. Not to be confused with the _data type_ to be entered into the field.
+ *
+ *  @see SemanticsProperties.ContentType
+ */
+// TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+internal var SemanticsPropertyReceiver.contentType by SemanticsProperties.ContentType
+
+/**
+ * Content data type information.
+ *
+ * This API can be used to indicate to Autofill services what _kind of data_ is meant to be
+ * suggested for this field. Not to be confused with the _type_ of the field.
+ *
+ *  @see SemanticsProperties.ContentType
+ */
+// TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+internal var SemanticsPropertyReceiver.contentDataType by SemanticsProperties.ContentDataType
 
 /**
  * A value to manually control screenreader traversal order.
@@ -1034,6 +1113,11 @@ var SemanticsPropertyReceiver.collectionItemInfo by SemanticsProperties.Collecti
 var SemanticsPropertyReceiver.toggleableState by SemanticsProperties.ToggleableState
 
 /**
+ * Whether this semantics node is editable, e.g. an editable text field.
+ */
+var SemanticsPropertyReceiver.isEditable by SemanticsProperties.IsEditable
+
+/**
  * The node is marked as a password.
  */
 fun SemanticsPropertyReceiver.password() {
@@ -1056,6 +1140,12 @@ fun SemanticsPropertyReceiver.error(description: String) {
 fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
     this[SemanticsProperties.IndexForKey] = mapping
 }
+
+/**
+ * Limits the number of characters that can be entered, e.g. in an editable text field. By default
+ * this value is -1, signifying there is no maximum text length limit.
+ */
+var SemanticsPropertyReceiver.maxTextLength by SemanticsProperties.MaxTextLength
 
 /**
  * The node is marked as a collection of horizontally or vertically stacked selectable elements.
@@ -1111,18 +1201,38 @@ fun SemanticsPropertyReceiver.onLongClick(label: String? = null, action: (() -> 
 }
 
 /**
- * Action to scroll by a specified amount.
+ * Action to asynchronously scroll by a specified amount.
  *
- * Expected to be used in conjunction with verticalScrollAxisRange/horizontalScrollAxisRange.
+ * [scrollByOffset] should be preferred in most cases, since it is synchronous and returns the
+ * amount of scroll that was actually consumed.
+ *
+ * Expected to be used in conjunction with [verticalScrollAxisRange]/[horizontalScrollAxisRange].
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.ScrollBy] is called.
+ * @param action Action to be performed when [SemanticsActions.ScrollBy] is called.
  */
 fun SemanticsPropertyReceiver.scrollBy(
     label: String? = null,
     action: ((x: Float, y: Float) -> Boolean)?
 ) {
     this[SemanticsActions.ScrollBy] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to scroll by a specified amount and return how much of the offset was actually consumed.
+ * E.g. if the node can't scroll at all in the given direction, [Offset.Zero] should be returned.
+ * The action should not return until the scroll operation has finished.
+ *
+ * Expected to be used in conjunction with [verticalScrollAxisRange]/[horizontalScrollAxisRange].
+ *
+ * Unlike [scrollBy], this action is synchronous, and returns the amount of scroll consumed.
+ *
+ * @param action Action to be performed when [SemanticsActions.ScrollByOffset] is called.
+ */
+fun SemanticsPropertyReceiver.scrollByOffset(
+    action: suspend (offset: Offset) -> Offset
+) {
+    this[SemanticsActions.ScrollByOffset] = action
 }
 
 /**
@@ -1135,6 +1245,22 @@ fun SemanticsPropertyReceiver.scrollToIndex(
     action: (Int) -> Boolean
 ) {
     this[SemanticsActions.ScrollToIndex] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to autofill a TextField.
+ *
+ * Expected to be used in conjunction with contentType and contentDataType properties.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.OnAutofillText] is called.
+ */
+// TODO(b/333102566): make this action public when Autofill is ready to go live
+internal fun SemanticsPropertyReceiver.onAutofillText(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.OnAutofillText] = AccessibilityAction(label, action)
 }
 
 /**
@@ -1432,4 +1558,26 @@ fun SemanticsPropertyReceiver.pageRight(
     action: (() -> Boolean)?
 ) {
     this[SemanticsActions.PageRight] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to get a scrollable's active view port amount for scrolling actions.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.GetScrollViewportLength] is
+ * called.
+ */
+fun SemanticsPropertyReceiver.getScrollViewportLength(
+    label: String? = null,
+    action: (() -> Float?)
+) {
+    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label) {
+        val viewport = action.invoke()
+        if (viewport == null) {
+            false
+        } else {
+            it.add(viewport)
+            true
+        }
+    }
 }

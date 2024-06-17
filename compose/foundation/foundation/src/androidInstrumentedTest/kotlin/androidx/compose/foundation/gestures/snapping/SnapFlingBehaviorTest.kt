@@ -21,16 +21,15 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.FloatDecayAnimationSpec
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -75,13 +74,12 @@ class SnapFlingBehaviorTest {
     val rule = createComposeRule()
 
     private val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
-    private val inspectTweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
 
     @Test
     fun remainingScrollOffset_cannotApproach_shouldRepresentJustSnappingOffsets() {
         val approachOffset = 0.0f
         val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = approachOffset)
-        lateinit var testFlingBehavior: SnapFlingBehavior
+        lateinit var testFlingBehavior: TargetedFlingBehavior
         val scrollOffset = mutableListOf<Float>()
         rule.setContent {
             testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
@@ -93,7 +91,7 @@ class SnapFlingBehaviorTest {
             }
         }
 
-        // Will Snap Back
+        // Will Snap Back.
         rule.runOnIdle {
             assertEquals(scrollOffset.first(), approachOffset)
             assertEquals(scrollOffset[1], testLayoutInfoProvider.minOffset)
@@ -103,10 +101,10 @@ class SnapFlingBehaviorTest {
 
     @Test
     fun remainingScrollOffset_canApproach_shouldRepresentApproachAndSnapOffsets() {
-        val approachOffset = 100f
+        val approachOffset = 50f
         val testLayoutInfoProvider =
             TestLayoutInfoProvider(approachOffset = approachOffset)
-        lateinit var testFlingBehavior: SnapFlingBehavior
+        lateinit var testFlingBehavior: TargetedFlingBehavior
         val scrollOffset = mutableListOf<Float>()
         rule.setContent {
             testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
@@ -128,10 +126,10 @@ class SnapFlingBehaviorTest {
     @Test
     fun remainingScrollOffset_targetShouldChangeInAccordanceWithAnimation() {
         // Arrange
-        val initialOffset = 250f
+        val initialOffset = 50f
         val testLayoutInfoProvider =
             TestLayoutInfoProvider(approachOffset = initialOffset)
-        lateinit var testFlingBehavior: SnapFlingBehavior
+        lateinit var testFlingBehavior: TargetedFlingBehavior
         val scrollOffset = mutableListOf<Float>()
         rule.mainClock.autoAdvance = false
         rule.setContent {
@@ -208,17 +206,17 @@ class SnapFlingBehaviorTest {
     @Test
     fun findClosestOffset_noFlingDirection_shouldReturnAbsoluteDistance() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val offset = testLayoutInfoProvider.calculateSnappingOffset(0f)
+        val offset = testLayoutInfoProvider.calculateSnapOffset(0f)
         assertEquals(offset, MinOffset)
     }
 
     @Test
     fun findClosestOffset_flingDirection_shouldReturnCorrectBound() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val forwardOffset = testLayoutInfoProvider.calculateSnappingOffset(with(rule.density) {
+        val forwardOffset = testLayoutInfoProvider.calculateSnapOffset(with(rule.density) {
             MinFlingVelocityDp.toPx()
         })
-        val backwardOffset = testLayoutInfoProvider.calculateSnappingOffset(-with(rule.density) {
+        val backwardOffset = testLayoutInfoProvider.calculateSnapOffset(-with(rule.density) {
             MinFlingVelocityDp.toPx()
         })
         assertEquals(forwardOffset, MaxOffset)
@@ -240,7 +238,6 @@ class SnapFlingBehaviorTest {
             val testFlingBehavior = rememberSnapFlingBehavior(
                 snapLayoutInfoProvider = testLayoutInfoProvider,
                 highVelocityApproachSpec = decaySpec,
-                lowVelocityApproachSpec = inspectTweenAnimationSpec,
                 snapAnimationSpec = inspectSpringAnimationSpec
             )
             VelocityEffect(testFlingBehavior, TestVelocity)
@@ -248,8 +245,7 @@ class SnapFlingBehaviorTest {
 
         rule.runOnIdle {
             assertEquals(0, splineAnimationSpec.animationWasExecutions)
-            assertEquals(1, inspectTweenAnimationSpec.animationWasExecutions)
-            assertEquals(1, inspectSpringAnimationSpec.animationWasExecutions)
+            assertEquals(2, inspectSpringAnimationSpec.animationWasExecutions)
         }
     }
 
@@ -268,7 +264,6 @@ class SnapFlingBehaviorTest {
             val testFlingBehavior = rememberSnapFlingBehavior(
                 snapLayoutInfoProvider = testLayoutInfoProvider,
                 highVelocityApproachSpec = decaySpec,
-                lowVelocityApproachSpec = inspectTweenAnimationSpec,
                 snapAnimationSpec = inspectSpringAnimationSpec
             )
             VelocityEffect(testFlingBehavior, TestVelocity)
@@ -277,10 +272,94 @@ class SnapFlingBehaviorTest {
         rule.runOnIdle {
             assertEquals(1, splineAnimationSpec.animationWasExecutions)
             assertEquals(1, inspectSpringAnimationSpec.animationWasExecutions)
-            assertEquals(0, inspectTweenAnimationSpec.animationWasExecutions)
         }
     }
 
+    @Test
+    fun approach_usedDefaultApproach_useHighVelocityApproachAndSnap() {
+        val splineAnimationSpec =
+            InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+        val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+
+        val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = Float.NaN)
+
+        rule.setContent {
+            val testFlingBehavior = rememberSnapFlingBehavior(
+                snapLayoutInfoProvider = testLayoutInfoProvider,
+                highVelocityApproachSpec = decaySpec,
+                snapAnimationSpec = inspectSpringAnimationSpec
+            )
+            VelocityEffect(testFlingBehavior, 5 * TestVelocity)
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, splineAnimationSpec.animationWasExecutions)
+            assertEquals(1, inspectSpringAnimationSpec.animationWasExecutions)
+        }
+    }
+
+    @Test
+    fun approach_usedDefaultApproach_shouldDecay() {
+        val splineAnimationSpec =
+            InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+        val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val flingVelocity = 5 * TestVelocity
+        val decayTargetOffset = decaySpec.calculateTargetValue(0.0f, flingVelocity)
+        val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = Float.NaN)
+        var actualApproachOffset = 0f
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            val testFlingBehavior = rememberSnapFlingBehavior(
+                snapLayoutInfoProvider = testLayoutInfoProvider,
+                highVelocityApproachSpec = decaySpec,
+                snapAnimationSpec = inspectSpringAnimationSpec
+            )
+            VelocityEffect(testFlingBehavior, flingVelocity) {
+                actualApproachOffset = it // note approach offset
+            }
+        }
+
+        // wait for approach to start executing
+        rule.mainClock.advanceTimeUntil { splineAnimationSpec.animationWasExecutions > 0 }
+
+        rule.runOnIdle {
+            Truth.assertThat(decayTargetOffset).isWithin(0.1f).of(actualApproachOffset)
+        }
+    }
+
+    @Test
+    fun approach_cannotDecay_shouldJustSnapToBound() {
+        val splineAnimationSpec =
+            InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+        val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val testLayoutInfoProvider = TestLayoutInfoProvider(
+            approachOffset = MaxOffset
+        )
+
+        var animationOffset = 0f
+        rule.setContent {
+            val testFlingBehavior = rememberSnapFlingBehavior(
+                snapLayoutInfoProvider = testLayoutInfoProvider,
+                highVelocityApproachSpec = decaySpec,
+                snapAnimationSpec = inspectSpringAnimationSpec
+            )
+            VelocityEffect(testFlingBehavior, TestVelocity) {
+                // note animation offset
+                if (it > animationOffset) {
+                    animationOffset = it
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(0, splineAnimationSpec.animationWasExecutions)
+            Truth.assertThat(animationOffset).isWithin(0.1f).of(MaxOffset)
+        }
+    }
+
+    @Suppress("Deprecation")
     @Test
     fun disableSystemAnimations_defaultFlingBehaviorShouldContinueToWork() {
 
@@ -349,6 +428,7 @@ class SnapFlingBehaviorTest {
         }
     }
 
+    @Suppress("Deprecation")
     @Test
     fun defaultFlingBehavior_useScrollMotionDurationScale() {
         // Arrange
@@ -434,20 +514,24 @@ class SnapFlingBehaviorTest {
             }
         }
 
-        override fun calculateSnappingOffset(currentVelocity: Float): Float {
+        override fun calculateSnapOffset(velocity: Float): Float {
             return calculateFinalOffset(
-                calculateFinalSnappingItem(currentVelocity),
+                calculateFinalSnappingItem(velocity),
                 minOffset,
                 maxOffset
             )
         }
 
-        override fun calculateApproachOffset(initialVelocity: Float): Float {
-            return approachOffset
+        override fun calculateApproachOffset(
+            velocity: Float,
+            decayOffset: Float
+        ): Float {
+            return if (approachOffset.isNaN()) (decayOffset) else approachOffset
         }
     }
 }
 
+@Suppress("Deprecation")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VelocityEffect(
@@ -514,7 +598,6 @@ private const val MaxOffset = 300f
 private fun rememberSnapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
     highVelocityApproachSpec: DecayAnimationSpec<Float>,
-    lowVelocityApproachSpec: AnimationSpec<Float>,
     snapAnimationSpec: AnimationSpec<Float>
 ): FlingBehavior {
 
@@ -522,10 +605,9 @@ private fun rememberSnapFlingBehavior(
         snapLayoutInfoProvider,
         highVelocityApproachSpec
     ) {
-        SnapFlingBehavior(
+        snapFlingBehavior(
             snapLayoutInfoProvider = snapLayoutInfoProvider,
-            lowVelocityAnimationSpec = lowVelocityApproachSpec,
-            highVelocityAnimationSpec = highVelocityApproachSpec,
+            decayAnimationSpec = highVelocityApproachSpec,
             snapAnimationSpec = snapAnimationSpec,
         )
     }

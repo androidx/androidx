@@ -61,10 +61,10 @@ sealed interface Screen {
     ) : Screen {
 
         @Composable
-        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)?) {
+        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)) {
             ExampleScaffold(
                 title = title,
-                back = back!!,
+                back = back,
                 backgroundColor = backgroundColor,
                 content = content
             )
@@ -82,7 +82,7 @@ sealed interface Screen {
         }
 
         @Composable
-        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)?) {
+        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)) {
             SelectionScaffold(
                 title = title,
                 back = back,
@@ -104,8 +104,8 @@ sealed interface Screen {
     ) : Screen {
 
         @Composable
-        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)?) {
-            content(back!!)
+        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)) {
+            content(back)
         }
     }
 
@@ -115,13 +115,13 @@ sealed interface Screen {
     ) : Screen {
 
         @Composable
-        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)?) {
+        override fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)) {
             content()
         }
     }
 
     @Composable
-    fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit)?)
+    fun Content(title: String, navigate: (String) -> Unit, back: (() -> Unit))
 }
 
 @Composable

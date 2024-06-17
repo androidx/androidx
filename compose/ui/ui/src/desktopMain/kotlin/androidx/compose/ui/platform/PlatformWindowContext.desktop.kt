@@ -23,7 +23,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.density
@@ -67,11 +66,17 @@ internal class PlatformWindowContext {
         )
     }
 
-    fun calculatePositionInWindow(container: Component, localPosition: Offset) =
+    fun convertLocalToWindowPosition(container: Component, localPosition: Offset) =
         localPosition + offsetInWindow(container).toOffset(container.density)
 
-    fun calculateLocalPosition(container: Component, positionInWindow: Offset) =
+    fun convertWindowToLocalPosition(container: Component, positionInWindow: Offset) =
         positionInWindow - offsetInWindow(container).toOffset(container.density)
+
+    fun convertLocalToScreenPosition(container: Component, localPosition: Offset): Offset =
+        localPosition + container.locationOnScreen.toOffset(container.density)
+
+    fun convertScreenToLocalPosition(container: Component, positionOnScreen: Offset): Offset =
+        positionOnScreen - container.locationOnScreen.toOffset(container.density)
 
     /**
      * Calculates the offset of the given [container] within the window.

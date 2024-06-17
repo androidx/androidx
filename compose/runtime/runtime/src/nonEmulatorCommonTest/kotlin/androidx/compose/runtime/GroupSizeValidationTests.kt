@@ -24,6 +24,7 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
 import kotlin.jvm.JvmInline
+import kotlin.test.Ignore
 
 import kotlin.test.Test
 import kotlinx.test.IgnoreJsTarget
@@ -34,22 +35,26 @@ import kotlinx.test.IgnoreJsTarget
 // more groups than these tests expect. The behaviour of the composition is still correct (?).
 class GroupSizeValidationTests {
 
+    // TODO reenable in https://youtrack.jetbrains.com/issue/COMPOSE-1504/Compose-1.7.-Enable-Strong-Skipping-mode-for-the-sources
+    @Ignore
     @Test
     fun spacerLike() = compositionTest {
         slotExpect(
             name = "SpacerLike",
-            noMoreGroupsThan = 5,
+            noMoreGroupsThan = 3,
             noMoreSlotsThan = 10,
         ) {
             SpacerLike(Modifier)
         }
     }
 
+    // TODO reenable in https://youtrack.jetbrains.com/issue/COMPOSE-1504/Compose-1.7.-Enable-Strong-Skipping-mode-for-the-sources
+    @Ignore
     @Test
     fun columnLikeSize() = compositionTest {
         slotExpect(
             name = "ColumnLike",
-            noMoreGroupsThan = 6,
+            noMoreGroupsThan = 3,
             noMoreSlotsThan = 9,
         ) {
             ColumnLike { }
@@ -67,23 +72,27 @@ class GroupSizeValidationTests {
         }
     }
 
+    // TODO reenable in https://youtrack.jetbrains.com/issue/COMPOSE-1504/Compose-1.7.-Enable-Strong-Skipping-mode-for-the-sources
+    @Ignore
     @Test
     fun basicTextLikeSize() = compositionTest {
         slotExpect(
             name = "TextLike",
-            noMoreGroupsThan = 9,
-            noMoreSlotsThan = 14
+            noMoreGroupsThan = 5,
+            noMoreSlotsThan = 13
         ) {
             BasicTextLike("")
         }
     }
 
+    // TODO reenable in https://youtrack.jetbrains.com/issue/COMPOSE-1504/Compose-1.7.-Enable-Strong-Skipping-mode-for-the-sources
+    @Ignore
     @Test
     fun checkboxLike() = compositionTest {
         slotExpect(
             name = "CheckboxLike",
-            noMoreGroupsThan = 12,
-            noMoreSlotsThan = 21
+            noMoreGroupsThan = 8,
+            noMoreSlotsThan = 17
         ) {
             CheckboxLike(checked = false, onCheckedChange = { })
         }
@@ -646,7 +655,12 @@ private fun CanvasLike(modifier: Modifier, onDraw: DrawScope.() -> Unit) =
 // Utility functions for the tests
 
 @Composable
-private inline fun Marker(content: @Composable () -> Unit) = content()
+@ExplicitGroupsComposable
+private inline fun Marker(content: @Composable () -> Unit) {
+    currentComposer.startReplaceGroup(MarkerGroup)
+    content()
+    currentComposer.endReplaceGroup()
+}
 
 // left unused for debugging. This is useful for debugging differences in the slot table
 @Suppress("unused")

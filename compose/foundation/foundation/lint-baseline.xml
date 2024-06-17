@@ -1,86 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="class TextDelegate("
-        errorLine2="      ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="        fun applyCompositionDecoration("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(5)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(5)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(5)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
-        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
-        errorLine2="                 ~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor MapDraggableAnchors has parameter anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
-        errorLine2="                                                          ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
-        errorLine2="                                                          ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
-    </issue>
+<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
 
     <issue
         id="PrimitiveInCollection"
@@ -94,17 +13,8 @@
     <issue
         id="PrimitiveInCollection"
         message="field currentKeyPressInteractions with type Map&lt;Key, Press>: replace with LongObjectMap"
-        errorLine1="        val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Key, Press> of getCurrentKeyPressInteractions: replace with LongObjectMap"
-        errorLine1="        val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    private val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
     </issue>
@@ -269,15 +179,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field map with type Map&lt;Object, Integer>: replace with ObjectIntMap"
-        errorLine1="    private val map: Map&lt;Any, Int>"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
     </issue>
 
     <issue
@@ -503,150 +404,6 @@
         errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasurePolicy.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Long, Selection> of createSubSelections: replace with LongObjectMap"
-        errorLine1="    fun createSubSelections(selection: Selection): Map&lt;Long, Selection>"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor MultiSelectionLayout has parameter selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
-        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
-        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Long, Integer> of getSelectableIdToInfoListIndex: replace with LongIntMap"
-        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method createAndPutSubSelection has parameter $this$createAndPutSubSelection with type Map&lt;Long, Selection>: replace with LongObjectMap"
-        errorLine1="    private fun MutableMap&lt;Long, Selection>.createAndPutSubSelection("
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
-        errorLine1="    private val selectableIdToInfoListIndex: MutableMap&lt;Long, Int> = mutableMapOf()"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable newSubselection with type Map&lt;Long, ? extends Selection>: replace with LongObjectMap"
-        errorLine1="                val (newSelection, newSubselection) = selectAll("
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable subselections with type Map&lt;Long, Selection>: replace with LongObjectMap"
-        errorLine1="        val subselections = mutableMapOf&lt;Long, Selection>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable idToIndexMap with type Map&lt;Long, Integer>: replace with LongIntMap"
-        errorLine1="        val idToIndexMap = mutableMapOf&lt;Long, Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Long, Selection> of getSubselections: replace with LongObjectMap"
-        errorLine1="    val subselections: Map&lt;Long, Selection>"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrar.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field _selectableMap with type Map&lt;Long, Selectable>: replace with LongObjectMap"
-        errorLine1="    private val _selectableMap = mutableMapOf&lt;Long, Selectable>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Long, Selectable> of getSelectableMap$lint_module: replace with LongObjectMap"
-        errorLine1="    internal val selectableMap: Map&lt;Long, Selectable>"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method setSubselections has parameter &lt;set-?> with type Map&lt;Long, Selection>: replace with LongObjectMap"
-        errorLine1="    override var subselections: Map&lt;Long, Selection> by mutableStateOf(emptyMap())"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    private var baselineCache: Map&lt;AlignmentLine, Int>? = null"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    private var baselineCache: MutableMap&lt;AlignmentLine, Int>? = null"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable cache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="            var cache = baselineCache"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
     </issue>
 
 </issues>

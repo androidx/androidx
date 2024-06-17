@@ -72,7 +72,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             jbMain.dependsOn(commonMain)
-            nativeMain.dependsOn(jbMain)
+            nonJvmMain.dependsOn(jbMain)
+            nativeMain.dependsOn(nonJvmMain)
             desktopMain.dependsOn(jbMain)
 
             wasmJsMain {
@@ -88,7 +89,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             webMain {
-                dependsOn(jbMain)
+                dependsOn(nonJvmMain)
             }
 
             jsMain.dependsOn(webMain)

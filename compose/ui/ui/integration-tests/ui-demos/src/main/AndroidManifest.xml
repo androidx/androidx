@@ -26,6 +26,10 @@
             android:configChanges="orientation|screenSize"
             android:label="ComposeTapInAndroidTap Activity" />
         <activity
+            android:name=".viewinterop.AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager"
+            android:configChanges="orientation|screenSize"
+            android:label="AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager Activity" />
+        <activity
             android:name=".viewinterop.ComposeTapInAndroidScroll"
             android:configChanges="orientation|screenSize"
             android:label="ComposeTapInAndroidScroll Activity" />
@@ -69,5 +73,15 @@
             layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|
             smallestScreenSize|touchscreen|uiMode"
             android:label="Painter Resources Demo" />
+
+        <activity
+            android:name=".SimpleChatActivity"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name=".SIMPLECOMPOSECHAT"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

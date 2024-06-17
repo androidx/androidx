@@ -2612,11 +2612,13 @@ package androidx.compose.ui.node {
   }
 
   public interface RootForTest {
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void forceAccessibilityForTesting();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
     method public androidx.compose.ui.text.input.TextInputService getTextInputService();
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default void measureAndLayoutForTest();
     method public boolean sendKeyEvent(android.view.KeyEvent keyEvent);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void setAccessibilityEventBatchIntervalMillis(long accessibilityInterval);
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.semantics.SemanticsOwner semanticsOwner;
     property public abstract androidx.compose.ui.text.input.TextInputService textInputService;

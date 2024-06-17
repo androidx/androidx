@@ -40,6 +40,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
+@Suppress("Deprecation")
 class SaversTest {
     private val defaultSaverScope = SaverScope { true }
 
@@ -203,6 +204,29 @@ class SaversTest {
     }
 
     @Test
+    fun test_TextLinkStyles() {
+        val original = TextLinkStyles(null)
+        val saved = save(original, TextLinkStylesSaver, defaultSaverScope)
+        val restored: TextLinkStyles? = restore(saved, TextLinkStylesSaver)
+
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_TextLinkStyles_withNonNullValues() {
+        val original = TextLinkStyles(
+            SpanStyle(color = Color.Red),
+            SpanStyle(color = Color.Green),
+            SpanStyle(color = Color.Blue),
+            SpanStyle(color = Color.Gray)
+        )
+        val saved = save(original, TextLinkStylesSaver, defaultSaverScope)
+        val restored: TextLinkStyles? = restore(saved, TextLinkStylesSaver)
+
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
     fun test_FontWeight() {
         val original = FontWeight(123)
         val saved = save(original, FontWeight.Saver, defaultSaverScope)
@@ -356,6 +380,31 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("4") }
             withAnnotation(UrlAnnotation("url1")) { append("5") }
             withAnnotation(UrlAnnotation("url2")) { append("6") }
+            withLink(
+                LinkAnnotation.Url(
+                    "url3",
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(color = Color.White)
+                    )
+                )
+            ) { append("7") }
+            withLink(
+                LinkAnnotation.Clickable(
+                    "tag3",
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(background = Color.Gray)
+                    ),
+                    null
+                )
+            ) {
+                append("8")
+            }
         }
 
         val saved = with(AnnotatedStringSaver) { defaultSaverScope.save(original) }
@@ -379,6 +428,31 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("8") }
             withAnnotation(UrlAnnotation("url1")) { append("9") }
             withAnnotation(UrlAnnotation("url2")) { append("10") }
+            withLink(
+                LinkAnnotation.Url(
+                    "url3",
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(color = Color.Yellow)
+                    )
+                )
+            ) { append("11") }
+            withLink(
+                LinkAnnotation.Clickable(
+                    "tag3",
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(color = Color.Gray)
+                    ),
+                    null
+                )
+            ) {
+                append("12")
+            }
         }
 
         val saved = with(AnnotatedStringSaver) { defaultSaverScope.save(original) }

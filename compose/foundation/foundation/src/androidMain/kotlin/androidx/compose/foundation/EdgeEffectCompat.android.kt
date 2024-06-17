@@ -28,9 +28,9 @@ import kotlin.math.abs
 
 internal object EdgeEffectCompat {
 
-    fun create(context: Context, attrs: AttributeSet?): EdgeEffect {
+    fun create(context: Context): EdgeEffect {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Api31Impl.create(context, attrs)
+            Api31Impl.create(context, null)
         } else {
             GlowEdgeEffectCompat(context)
         }

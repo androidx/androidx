@@ -36,7 +36,10 @@ fun SubcompositionReusableContentHost(
         } else {
             emptyList()
         }
-        layout(0, 0) {
+        layout(
+            placeable.maxOfOrNull { it.width } ?: 0,
+            placeable.maxOfOrNull { it.height } ?: 0,
+        ) {
             placeable.forEach { it.place(0, 0) }
         }
     }

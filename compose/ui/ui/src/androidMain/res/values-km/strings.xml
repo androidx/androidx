@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"បានធីកខ្លះ"</string>
-    <string name="on" msgid="8655164131929253426">"បើក"</string>
-    <string name="off" msgid="875452955155264703">"បិទ"</string>
+    <string name="state_on" msgid="1490883874751719580">"បើក"</string>
+    <string name="state_off" msgid="5834637030682409883">"បិទ"</string>
     <string name="switch_role" msgid="2561197295334830845">"ប៊ូតុង​បិទបើក"</string>
     <string name="selected" msgid="6043586758067023">"បានជ្រើសរើស"</string>
     <string name="not_selected" msgid="6610465462668679431">"មិនបាន​ជ្រើសរើស"</string>
@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"បិទម៉ឺនុយរុករក"</string>
     <string name="close_sheet" msgid="7573152094250666567">"បិទសន្លឹក"</string>
     <string name="default_error_message" msgid="8038256446254964252">"ការបញ្ចូល​មិនត្រឹមត្រូវ"</string>
+    <string name="state_empty" msgid="4139871816613051306">"ទទេ"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"វិនដូ​លោតឡើង"</string>
     <string name="range_start" msgid="7097486360902471446">"ចំណុចចាប់ផ្ដើម"</string>
     <string name="range_end" msgid="5941395253238309765">"ចំណុចបញ្ចប់"</string>

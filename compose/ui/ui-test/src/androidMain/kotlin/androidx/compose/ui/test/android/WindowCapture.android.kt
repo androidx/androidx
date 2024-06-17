@@ -27,6 +27,7 @@ import android.view.ViewTreeObserver
 import android.view.Window
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.test.ComposeTimeoutException
@@ -42,12 +43,42 @@ internal fun Window.captureRegionToImage(
     testContext: TestContext,
     boundsInWindow: Rect,
 ): ImageBitmap {
-    // Turn on hardware rendering, if necessary
-    return withDrawingEnabled {
-        // First force drawing to happen
-        decorView.forceRedraw(testContext)
-        // Then we generate the bitmap
-        generateBitmap(boundsInWindow).asImageBitmap()
+    lateinit var imageBitmap: ImageBitmap
+    runWithRetryWhenNoData {
+        // Turn on hardware rendering, if necessary
+        imageBitmap = withDrawingEnabled {
+            // First force drawing to happen
+            decorView.forceRedraw(testContext)
+            // Then we generate the bitmap
+            generateBitmap(boundsInWindow).asImageBitmap()
+        }
+    }
+    return imageBitmap
+}
+
+@VisibleForTesting
+internal fun runWithRetryWhenNoData(retryBlock: () -> Unit) {
+    var retryAttempts = 0
+    var shouldRetry = true
+    while (shouldRetry) {
+        try {
+            shouldRetry = false
+            retryBlock()
+        } catch (e: PixelCopyException) {
+            // retry up to 3 times only if the resulting error is "source no data"
+            if (e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA && retryAttempts >= 2) {
+                throw PixelCopyException(
+                    e.copyResultStatus,
+                    "PixelCopy failed with result ERROR_SOURCE_NO_DATA after 3 retry attempts!"
+                )
+            } else if (e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA) {
+                shouldRetry = true
+            } else {
+                throw e
+            }
+        } finally {
+            retryAttempts++
+        }
     }
 }
 
@@ -125,9 +156,16 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
         throw AssertionError("Failed waiting for PixelCopy!")
     }
     if (copyResult != PixelCopy.SUCCESS) {
-        throw AssertionError("PixelCopy failed with result $copyResult!")
+        throw PixelCopyException(copyResultStatus = copyResult)
     }
 }
+
+internal class PixelCopyException(
+    val copyResultStatus: Int,
+    message: String? = null
+) : RuntimeException(
+    message ?: "PixelCopy failed with result $copyResultStatus!"
+)
 
 // Unfortunately this is a copy paste from AndroidComposeTestRule. At this moment it is a bit
 // tricky to share this method. We can expose it on TestOwner in theory.

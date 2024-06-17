@@ -116,7 +116,7 @@ private class TransformableElement(
         other as TransformableElement
 
         if (state != other.state) return false
-        if (canPan != other.canPan) return false
+        if (canPan !== other.canPan) return false
         if (lockRotationOnZoomPan != other.lockRotationOnZoomPan) return false
         if (enabled != other.enabled) return false
 

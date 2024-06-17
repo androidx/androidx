@@ -33,7 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.ImageVectorCache
+import androidx.compose.ui.res.ResourceIdCache
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 
 /**
@@ -55,12 +57,18 @@ internal val LocalImageVectorCache = staticCompositionLocalOf<ImageVectorCache> 
     noLocalProvidedFor("LocalImageVectorCache")
 }
 
+internal val LocalResourceIdCache = staticCompositionLocalOf<ResourceIdCache> {
+    noLocalProvidedFor("LocalResourceIdCache")
+}
+
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
-actual val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
-    noLocalProvidedFor("LocalLifecycleOwner")
-}
+ @Deprecated(
+    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
+    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+ )
+actual val LocalLifecycleOwner get() = LocalLifecycleOwner
 
 /**
  * The CompositionLocal containing the current [SavedStateRegistryOwner].
@@ -107,6 +115,9 @@ internal fun ProvideAndroidCompositionLocals(
     }
 
     val imageVectorCache = obtainImageVectorCache(context, configuration)
+    val resourceIdCache = obtainResourceIdCache(context)
+    val scrollCaptureInProgress =
+        LocalScrollCaptureInProgress.current or owner.scrollCaptureInProgress
     CompositionLocalProvider(
         LocalConfiguration provides configuration,
         LocalContext provides context,
@@ -114,7 +125,9 @@ internal fun ProvideAndroidCompositionLocals(
         LocalSavedStateRegistryOwner provides viewTreeOwners.savedStateRegistryOwner,
         LocalSaveableStateRegistry provides saveableStateRegistry,
         LocalView provides owner.view,
-        LocalImageVectorCache provides imageVectorCache
+        LocalImageVectorCache provides imageVectorCache,
+        LocalResourceIdCache provides resourceIdCache,
+        LocalProvidableScrollCaptureInProgress provides scrollCaptureInProgress,
     ) {
         ProvideCommonCompositionLocals(
             owner = owner,
@@ -122,6 +135,34 @@ internal fun ProvideAndroidCompositionLocals(
             content = content
         )
     }
+}
+
+@Stable
+@Composable
+private fun obtainResourceIdCache(context: Context): ResourceIdCache {
+    val resourceIdCache = remember { ResourceIdCache() }
+    val callbacks = remember {
+        object : ComponentCallbacks2 {
+            override fun onConfigurationChanged(newConfig: Configuration) {
+                resourceIdCache.clear()
+            }
+
+            override fun onLowMemory() {
+                resourceIdCache.clear()
+            }
+
+            override fun onTrimMemory(level: Int) {
+                resourceIdCache.clear()
+            }
+        }
+    }
+    DisposableEffect(resourceIdCache) {
+        context.applicationContext.registerComponentCallbacks(callbacks)
+        onDispose {
+            context.applicationContext.unregisterComponentCallbacks(callbacks)
+        }
+    }
+    return resourceIdCache
 }
 
 @Stable

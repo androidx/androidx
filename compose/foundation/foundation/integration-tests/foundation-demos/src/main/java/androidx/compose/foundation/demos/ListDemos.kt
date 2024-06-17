@@ -18,6 +18,7 @@
 package androidx.compose.foundation.demos
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateTo
@@ -27,6 +28,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -46,8 +48,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -90,7 +94,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
@@ -130,6 +137,7 @@ val LazyListDemos = listOf(
     ComposableDemo("Grid drag and drop") { LazyGridDragAndDropDemo() },
     ComposableDemo("Staggered grid") { LazyStaggeredGridDemo() },
     ComposableDemo("Animate item placement") { AnimateItemPlacementDemo() },
+    ComposableDemo("Focus Scrolling") { BringIntoViewDemo() },
     PagingDemos
 )
 
@@ -349,7 +357,8 @@ private fun PagerLikeDemo() {
             Spacer(
                 Modifier
                     .fillParentMaxSize()
-                    .background(it))
+                    .background(it)
+            )
         }
     }
 }
@@ -555,6 +564,7 @@ private fun ReverseLayoutAndRtlDemo() {
                 }
             }
         }
+
         val lazyContent: LazyListScope.() -> Unit = {
             items(count) {
                 item1(it)
@@ -871,7 +881,7 @@ private fun ReorderWithCustomKeys() {
                 key = { it }
             ) {
                 var counter by rememberSaveable { mutableIntStateOf(0) }
-                Button(onClick = { counter++ }, modifier = Modifier.animateItemPlacement()) {
+                Button(onClick = { counter++ }, modifier = Modifier.animateItem()) {
                     Text("$it has $counter")
                 }
             }
@@ -939,7 +949,6 @@ private fun LazyWithFlingConfig() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun LazyStaggeredGridDemo() {
@@ -1013,7 +1022,7 @@ private fun LazyStaggeredGridDemo() {
                         val color = colors[index]
                         Box(
                             modifier = Modifier
-                                .animateItemPlacement()
+                                .animateItem()
                                 .height(if (!expanded) heights[index] else heights[index] * 2)
                                 .border(2.dp, color, RoundedCornerShape(5.dp))
                                 .clickable {
@@ -1037,9 +1046,11 @@ private fun LazyStaggeredGridDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AnimateItemPlacementDemo() {
-    val items = remember { mutableStateListOf<Int>().apply {
-        repeat(20) { add(it) }
-    } }
+    val items = remember {
+        mutableStateListOf<Int>().apply {
+            repeat(20) { add(it) }
+        }
+    }
     val selectedIndexes = remember { mutableStateMapOf<Int, Boolean>() }
     var reverse by remember { mutableStateOf(false) }
     Column {
@@ -1068,10 +1079,11 @@ private fun AnimateItemPlacementDemo() {
         LazyColumn(
             Modifier
                 .fillMaxWidth()
-                .weight(1f), reverseLayout = reverse) {
+                .weight(1f), reverseLayout = reverse
+        ) {
             items(items, key = { it }) { item ->
                 val selected = selectedIndexes.getOrDefault(item, false)
-                val modifier = Modifier.animateItemPlacement()
+                val modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
                 var height by remember { mutableStateOf(40.dp) }
                 Row(
                     modifier
@@ -1089,7 +1101,8 @@ private fun AnimateItemPlacementDemo() {
                     Spacer(
                         Modifier
                             .width(16.dp)
-                            .height(height))
+                            .height(height)
+                    )
                     Text("Item $item")
                 }
             }
@@ -1103,5 +1116,33 @@ private fun AnimateItemPlacementDemo() {
                 .clickable {
                     size = if (size == 40.dp) 350.dp else 40.dp
                 })
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_TYPE_TELEVISION)
+@Composable
+private fun BringIntoViewDemo() {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        items(100) {
+            var color by remember { mutableStateOf(Color.White) }
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(4.dp)
+                    .background(Color.Gray)
+                    .onFocusChanged {
+                        color = if (it.isFocused) Red else White
+                    }
+                    .border(5.dp, color)
+                    .focusable(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = it.toString())
+            }
+        }
     }
 }

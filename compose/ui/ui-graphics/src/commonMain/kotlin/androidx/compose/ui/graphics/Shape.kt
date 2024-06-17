@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.LayoutDirection
 /**
  * Defines a generic shape.
  */
-@Immutable
+@Stable
 interface Shape {
     /**
      * Creates [Outline] of this shape for the given [size].

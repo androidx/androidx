@@ -40,6 +40,7 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.IrTypeArgument
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
+import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.DeepCopyTypeRemapper
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.ir.util.SymbolRenamer
@@ -206,7 +207,17 @@ internal inline fun <reified T : IrElement> T.copyWithNewTypeParams(
     source: IrFunction,
     target: IrFunction
 ): T {
-    return deepCopyWithSymbols(target) { symbolRemapper, typeRemapper ->
+    val typeParamsAwareSymbolRemapper = object : DeepCopySymbolRemapper() {
+        init {
+            for ((orig, new) in source.typeParameters.zip(target.typeParameters)) {
+                typeParameters[orig.symbol] = new.symbol
+            }
+        }
+    }
+    return deepCopyWithSymbols(
+        target,
+        typeParamsAwareSymbolRemapper
+    ) { symbolRemapper, typeRemapper ->
         val typeParamRemapper = object : TypeRemapper by typeRemapper {
             override fun remapType(type: IrType): IrType {
                 return typeRemapper.remapType(type.remapTypeParameters(source, target))

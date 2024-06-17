@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+ExecutorRegistration: androidx.compose.material.TextDefaults#Clickable(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
+    Registration methods should have overload that accepts delivery Executor: `Clickable`
+ExecutorRegistration: androidx.compose.material.TextDefaults#Url(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
+    Registration methods should have overload that accepts delivery Executor: `Url`
+ExecutorRegistration: androidx.compose.material.TextDefaults#fromHtml(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
+    Registration methods should have overload that accepts delivery Executor: `fromHtml`
+
+
 KotlinDefaultParameterOrder: androidx.compose.material.SwipeToDismissKt#SwipeToDismiss(androidx.compose.material.DismissState, androidx.compose.ui.Modifier, java.util.Set<? extends androidx.compose.material.DismissDirection>, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissDirection,? extends androidx.compose.material.ThresholdConfig>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) parameter #1:
     Parameter `modifier` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.compose.material.SwipeToDismissKt#SwipeToDismiss(androidx.compose.material.DismissState, androidx.compose.ui.Modifier, java.util.Set<? extends androidx.compose.material.DismissDirection>, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissDirection,? extends androidx.compose.material.ThresholdConfig>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>) parameter #2:

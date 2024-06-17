@@ -59,8 +59,8 @@ package androidx.compose.ui.geometry {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Offset {
-    method @androidx.compose.runtime.Stable public operator float component1();
-    method @androidx.compose.runtime.Stable public operator float component2();
+    method @androidx.compose.runtime.Stable public inline operator float component1();
+    method @androidx.compose.runtime.Stable public inline operator float component2();
     method public long copy(optional float x, optional float y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method @androidx.compose.runtime.Stable public float getDistance();

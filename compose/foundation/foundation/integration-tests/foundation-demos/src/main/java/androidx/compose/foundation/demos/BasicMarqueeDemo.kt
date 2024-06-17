@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.demos
 
 import android.text.SpannableStringBuilder
@@ -23,11 +21,10 @@ import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.URLSpan
 import android.widget.TextView
-import androidx.compose.foundation.DefaultMarqueeVelocity
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
+import androidx.compose.foundation.MarqueeDefaults.Velocity
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -99,7 +96,7 @@ fun BasicMarqueeDemo() {
         MarqueeText(
             "backwards animation",
             Modifier.width(80.dp),
-            velocity = -DefaultMarqueeVelocity
+            velocity = -Velocity
         )
         MarqueeWithClickable()
         Row {
@@ -175,13 +172,12 @@ private fun MarqueeWithClickable() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MarqueeText(
     text: String,
     modifier: Modifier = Modifier,
     animationMode: MarqueeAnimationMode = Immediately,
-    velocity: Dp = DefaultMarqueeVelocity
+    velocity: Dp = Velocity
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }

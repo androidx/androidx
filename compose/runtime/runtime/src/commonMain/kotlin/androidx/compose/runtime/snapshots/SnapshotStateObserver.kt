@@ -30,6 +30,7 @@ import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.currentThreadId
 import androidx.compose.runtime.currentThreadName
 import androidx.compose.runtime.observeDerivedStateRecalculations
+import androidx.compose.runtime.requirePrecondition
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.runtime.synchronized
 import androidx.compose.runtime.createSynchronizedObject
@@ -242,7 +243,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         val oldThreadId = currentMapThreadId
 
         if (oldThreadId != -1L) {
-            require(oldThreadId == currentThreadId()) {
+            requirePrecondition(oldThreadId == currentThreadId()) {
                 "Detected multithreaded access to SnapshotStateObserver: " +
                     "previousThreadId=$oldThreadId), " +
                     "currentThread={id=${currentThreadId()}, name=${currentThreadName()}}. " +
@@ -382,7 +383,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Values that have been read during the scope's [SnapshotStateObserver.observeReads].
          */
-        private val valueToScopes = ScopeMap<Any>()
+        private val valueToScopes = ScopeMap<Any, Any>()
 
         /**
          * Reverse index (scope -> values) for faster scope invalidation.
@@ -426,7 +427,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Invalidation index from state objects to derived states reading them.
          */
-        private val dependencyToDerivedStates = ScopeMap<DerivedState<*>>()
+        private val dependencyToDerivedStates = ScopeMap<Any, DerivedState<*>>()
 
         /**
          * Last derived state value recorded during read.

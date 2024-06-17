@@ -19,7 +19,7 @@ package androidx.compose.foundation.text
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
-import androidx.compose.foundation.text2.input.internal.CursorAnimationState
+import androidx.compose.foundation.text.input.internal.CursorAnimationState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -36,11 +36,14 @@ import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.unit.Dp
 import kotlin.math.floor
 
 internal fun Modifier.cursor(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     value: TextFieldValue,
     offsetMapping: OffsetMapping,
     cursorBrush: Brush,

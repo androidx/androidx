@@ -66,7 +66,7 @@ class AssertExistsTest {
         rule.onNodeWithText("Hello")
             .assertExists()
 
-        expectAssertionError(true) {
+        expectAssertionError {
             rule.onNodeWithText("Hello")
                 .assertDoesNotExist()
         }
@@ -83,12 +83,12 @@ class AssertExistsTest {
         cachedResult
             .assertDoesNotExist()
 
-        expectAssertionError(true) {
+        expectAssertionError {
             rule.onNodeWithText("Hello")
                 .assertExists()
         }
 
-        expectAssertionError(true) {
+        expectAssertionError {
             cachedResult.assertExists()
         }
 
@@ -99,7 +99,7 @@ class AssertExistsTest {
         rule.onNodeWithText("Hello")
             .assertExists()
 
-        expectAssertionError(true) {
+        expectAssertionError {
             rule.onNodeWithText("Hello")
                 .assertDoesNotExist()
         }

@@ -128,6 +128,33 @@ class PathTest {
         }
     }
 
+    @Test
+    fun testPathCopy() {
+        val r1 = Path().apply {
+            addRect(
+                Rect(0.0f, 0.0f, 10.0f, 10.0f),
+                Path.Direction.Clockwise
+            )
+        }
+        val r2 = r1.copy().apply {
+            addRect(
+                Rect(5.0f, 5.0f, 15.0f, 15.0f),
+                Path.Direction.Clockwise
+            )
+        }
+
+        val r1Bounds = r1.getBounds()
+
+        // Additional changes to a copied path should not mutate the original path
+        val expectedR1Bounds = Rect(0.0f, 0.0f, 10.0f, 10.0f)
+        assertEquals(expectedR1Bounds, r1Bounds)
+
+        val r2bounds = r2.getBounds()
+
+        val expectedR2Bounds = Rect(0.0f, 0.0f, 15.0f, 15.0f)
+        assertEquals(expectedR2Bounds, r2bounds)
+    }
+
     class TestAndroidPath : android.graphics.Path() {
 
         var resetCount = 0

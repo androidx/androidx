@@ -104,7 +104,7 @@ actual class PointerEvent internal actual constructor(
                     change.pressed,
                     change.pressure,
                     change.type,
-                    this.internalPointerEvent?.issuesEnterExitEvent(change.id) == true
+                    this.internalPointerEvent?.activeHoverEvent(change.id) == true
                 )
             }
 

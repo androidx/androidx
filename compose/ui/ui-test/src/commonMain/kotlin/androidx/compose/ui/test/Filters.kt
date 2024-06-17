@@ -440,6 +440,14 @@ fun hasScrollToNodeAction() =
         )
 
 /**
+ * Returns whether the node is editable.
+ *
+ * @see SemanticsProperties.IsEditable
+ */
+fun isEditable() =
+    SemanticsMatcher.expectValue(SemanticsProperties.IsEditable, true)
+
+/**
  * Return whether the node is the root semantics node.
  *
  * There is always one root in every node tree, added implicitly by Compose.

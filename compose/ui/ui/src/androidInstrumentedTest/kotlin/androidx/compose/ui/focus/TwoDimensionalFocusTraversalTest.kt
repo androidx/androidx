@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -64,7 +63,6 @@ class TwoDimensionalFocusTraversalTest(param: Param) {
     }
 
     @FlakyTest(bugId = 233373546)
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun movesFocusAmongSiblingsDeepInTheFocusHierarchy() {
         // Arrange.
@@ -113,7 +111,6 @@ class TwoDimensionalFocusTraversalTest(param: Param) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun movesFocusOutsideCurrentParent() {
         // Arrange.
@@ -149,7 +146,6 @@ class TwoDimensionalFocusTraversalTest(param: Param) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun movesOutsideDeactivatedParent() {
         // Arrange.
@@ -188,7 +184,6 @@ class TwoDimensionalFocusTraversalTest(param: Param) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun skipsChild() {
         // Arrange.
@@ -224,7 +219,6 @@ class TwoDimensionalFocusTraversalTest(param: Param) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun DoesNotSkipChildOfDeactivatedItem() {
         // Arrange.
@@ -264,7 +258,6 @@ class TwoDimensionalFocusTraversalTest(param: Param) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun movesFocusAmongSiblingsDeepInTheFocusHierarchy_skipsDeactivatedSibling() {
         // Arrange.

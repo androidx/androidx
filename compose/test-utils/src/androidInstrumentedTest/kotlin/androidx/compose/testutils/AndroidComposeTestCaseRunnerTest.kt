@@ -17,17 +17,27 @@
 package androidx.compose.testutils
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +50,9 @@ class AndroidComposeTestCaseRunnerTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     internal fun <A : ComponentActivity> AndroidComposeTestRule<ActivityScenarioRule<A>, A>
-    .forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup {
+        .forGivenContent(
+        composable: @Composable () -> Unit
+    ): ComposeTestCaseSetup {
         return forGivenTestCase(object : ComposeTestCase {
             @Composable
             override fun Content() {
@@ -181,6 +193,115 @@ class AndroidComposeTestCaseRunnerTest {
         }.performTestWithEventsControl {
             doFrame()
             assertMeasureSizeIsPositive()
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_noContentLaunches() {
+        composeTestRule.forGivenContent {
+            Box {
+                Text("Hello")
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(0)
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_modifierLaunches() {
+        val node = object : Modifier.Node() {
+            override fun onAttach() {
+                super.onAttach()
+                coroutineScope.launch { }
+            }
+        }
+        val element = object : ModifierNodeElement<Modifier.Node>() {
+            override fun create(): Modifier.Node = node
+
+            override fun update(node: Modifier.Node) {
+                // no op
+            }
+
+            override fun hashCode(): Int = 0
+
+            override fun equals(other: Any?): Boolean = false
+        }
+        composeTestRule.forGivenContent {
+            Box(Modifier.then(element)) {
+                Text("Hello")
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(1)
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_launchedEffect() {
+        composeTestRule.forGivenContent {
+            LaunchedEffect(Unit) {
+                launch { }
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(2)
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_scopeLaunches_lazy() {
+        composeTestRule.forGivenContent {
+            val scope = rememberCoroutineScope()
+            Box(Modifier.clickable {
+                scope.launch { }
+            }) {
+                Text("Hello")
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(0)
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_suspend() {
+        composeTestRule.forGivenContent {
+            LaunchedEffect(Unit) {
+                suspendCancellableCoroutine {}
+            }
+
+            LaunchedEffect(Unit) {
+                suspendCoroutine {}
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(2)
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_delay() {
+        composeTestRule.forGivenContent {
+            LaunchedEffect(Unit) {
+                delay(1_000L)
+            }
+
+            LaunchedEffect(Unit) {
+                launch { }
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(3)
+        }
+    }
+
+    @Test
+    fun countLaunchedCoroutines_yield() {
+        composeTestRule.forGivenContent {
+            LaunchedEffect(Unit) {
+                yield()
+            }
+
+            LaunchedEffect(Unit) {
+                launch { }
+            }
+        }.performTestWithEventsControl {
+            assertCoroutinesCount(3)
         }
     }
 

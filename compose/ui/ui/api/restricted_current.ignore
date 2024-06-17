@@ -1,5 +1,13 @@
 // Baseline format: 1.0
-AddedMethod: androidx.compose.ui.semantics.SemanticsActions#getPerformImeAction():
-    Added method androidx.compose.ui.semantics.SemanticsActions.getPerformImeAction()
-AddedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String, kotlin.jvm.functions.Function0<java.lang.Boolean>):
-    Added method androidx.compose.ui.semantics.SemanticsPropertiesKt.performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,String,kotlin.jvm.functions.Function0<java.lang.Boolean>)
+AddedMethod: androidx.compose.ui.layout.LayoutCoordinates#localPositionOf(androidx.compose.ui.layout.LayoutCoordinates, long, boolean):
+    Added method androidx.compose.ui.layout.LayoutCoordinates.localPositionOf(androidx.compose.ui.layout.LayoutCoordinates,long,boolean)
+AddedMethod: androidx.compose.ui.layout.LookaheadScope#localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long, boolean):
+    Added method androidx.compose.ui.layout.LookaheadScope.localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long,boolean)
+
+
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#positionInMotionFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates, long):
+    Removed method androidx.compose.ui.layout.LayoutCoordinates.positionInMotionFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates,long)
+RemovedMethod: androidx.compose.ui.layout.LookaheadScope#localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long):
+    Removed method androidx.compose.ui.layout.LookaheadScope.localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long)
+RemovedMethod: androidx.compose.ui.layout.LookaheadScope#positionInMotionLookaheadFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long):
+    Removed method androidx.compose.ui.layout.LookaheadScope.positionInMotionLookaheadFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long)

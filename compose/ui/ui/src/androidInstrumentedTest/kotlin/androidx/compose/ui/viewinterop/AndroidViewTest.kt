@@ -54,16 +54,19 @@ import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
@@ -71,7 +74,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
@@ -105,6 +107,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
@@ -125,6 +128,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -132,7 +136,6 @@ import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -177,9 +180,8 @@ class AndroidViewTest {
                         .inflate(R.layout.test_multiple_invalidation_layout, null)
                     customView = view.findViewById<InvalidatedTextView>(R.id.custom_draw_view)
                     customView!!.timesToInvalidate = timesToInvalidate
-                    view.viewTreeObserver?.addOnPreDrawListener {
+                    customView!!.onDraw = {
                         ++drawCount
-                        true
                     }
                     view
                 })
@@ -1496,12 +1498,14 @@ class AndroidViewTest {
 
             Column {
                 repeat(10) { slot ->
-                    if (slot == slotWithContent) {
-                        ReusableContent(Unit) {
-                            movableContext()
+                    key(slot) {
+                        if (slot == slotWithContent) {
+                            ReusableContent(Unit) {
+                                movableContext()
+                            }
+                        } else {
+                            Text("Slot $slot")
                         }
-                    } else {
-                        Text("Slot $slot")
                     }
                 }
             }
@@ -1538,7 +1542,10 @@ class AndroidViewTest {
         assertEquals(
             "AndroidView experienced unexpected lifecycle events when " +
                 "moved in the composition",
-            emptyList<AndroidViewLifecycleEvent>(),
+            listOf(
+                OnViewDetach,
+                OnViewAttach
+            ),
             lifecycleEvents
         )
 
@@ -1712,6 +1719,172 @@ class AndroidViewTest {
             .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
+    @Test
+    fun updateIsNotCalledOnDeactivatedNode() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+        val updateCalls = mutableListOf<Int>()
+        rule.setContent {
+            SubcompositionReusableContentHost(active = active) {
+                AndroidView(
+                    modifier = Modifier.size(10.dp),
+                    factory = { View(it) },
+                    update = { updateCalls.add(counter) },
+                    onReset = {
+                        counter++
+                        Snapshot.sendApplyNotifications()
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEqualTo(listOf(0))
+            updateCalls.clear()
+
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEmpty()
+
+            active = true
+        }
+
+        rule.runOnIdle {
+            // make sure the update is called after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(1))
+            updateCalls.clear()
+
+            counter++
+        }
+
+        rule.runOnIdle {
+            // make sure the state observation is active after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(2))
+        }
+    }
+
+    @Test
+    @LargeTest
+    fun androidView_attachingDoesNotCauseRelayout() {
+        lateinit var root: RequestLayoutTrackingFrameLayout
+        lateinit var composeView: ComposeView
+        lateinit var viewInsideCompose: View
+        var showAndroidView by mutableStateOf(false)
+
+        rule.activityRule.scenario.onActivity { activity ->
+            root = RequestLayoutTrackingFrameLayout(activity)
+            composeView = ComposeView(activity)
+            viewInsideCompose = View(activity)
+
+            activity.setContentView(root)
+            root.addView(composeView)
+            composeView.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    // this view will create AndroidViewsHandler (causes relayout)
+                    AndroidView({ View(it) })
+                    if (showAndroidView) {
+                        // attaching this view should not cause relayout
+                        AndroidView({ viewInsideCompose })
+                    }
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            assertThat(viewInsideCompose.parent).isNull()
+            assertThat(root.requestLayoutCalled).isTrue()
+            root.requestLayoutCalled = false
+            showAndroidView = true
+        }
+
+        rule.runOnIdle {
+            assertThat(viewInsideCompose.parent).isNotNull()
+            assertThat(root.requestLayoutCalled).isFalse()
+        }
+    }
+
+    // regression test for b/339527377
+    @Test
+    @LargeTest
+    fun androidView_layoutChangesInvokeGlobalLayoutListener() {
+        lateinit var textView1: TextView
+        lateinit var textView2: TextView
+        var callbackInvocations = 0
+
+        @Composable
+        fun GlobalLayoutAwareTextView(init: (TextView) -> Unit, modifier: Modifier = Modifier) {
+            AndroidView(
+                factory = {
+                    TextView(it).apply {
+                        layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+                        init(this)
+                    }
+                },
+                modifier = modifier
+            )
+        }
+
+        rule.activityRule.withActivity {
+            window.decorView.viewTreeObserver.addOnGlobalLayoutListener { callbackInvocations++ }
+        }
+
+        rule.setContent {
+            Column(modifier = Modifier.fillMaxSize()) {
+                GlobalLayoutAwareTextView(
+                    init = { textView1 = it },
+                    modifier = Modifier.fillMaxWidth().height(100.dp)
+                )
+
+                GlobalLayoutAwareTextView(
+                    init = { textView2 = it },
+                    modifier = Modifier.fillMaxWidth().height(100.dp)
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertWithMessage(
+                "The initial layout did not invoke the viewTreeObserver's OnGlobalLayoutListener"
+            )
+            .that(callbackInvocations)
+            .isAtLeast(1)
+        callbackInvocations = 0
+
+        rule.runOnUiThread { textView1.text = "Foo".repeat(20) }
+        rule.waitForIdle()
+
+        assertWithMessage(
+                "Expected exactly one invocation of the viewTreeObserver's " +
+                    "OnGlobalLayoutListener after re-laying out the contained AndroidView."
+            )
+            .that(callbackInvocations)
+            .isEqualTo(1)
+
+        // Reset the layouts
+        rule.runOnUiThread {
+            textView1.text = ""
+            textView2.text = ""
+        }
+        rule.waitForIdle()
+        callbackInvocations = 0
+
+        // Go again, but layout two Views.
+        rule.runOnUiThread {
+            textView1.text = "Foo".repeat(20)
+            textView2.text = "Bar".repeat(20)
+        }
+        rule.waitForIdle()
+
+        assertWithMessage(
+                "Expected exactly one invocation of the viewTreeObserver's " +
+                    "OnGlobalLayoutListener after re-laying out multiple AndroidViews."
+            )
+            .that(callbackInvocations)
+            .isEqualTo(1)
+    }
+
     @ExperimentalComposeUiApi
     @Composable
     private inline fun <T : View> ReusableAndroidViewWithLifecycleTracking(
@@ -1826,4 +1999,13 @@ class AndroidViewTest {
             value,
             displayMetrics
         ).roundToInt()
+
+    private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(context) {
+        var requestLayoutCalled = false
+
+        override fun requestLayout() {
+            super.requestLayout()
+            requestLayoutCalled = true
+        }
+    }
 }

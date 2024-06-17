@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.InternalFoundationTextApi
-import androidx.compose.foundation.text.TextFieldState
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
@@ -56,7 +56,7 @@ class DesktopTextFieldSelectionManagerTest {
     private val offsetMapping = OffsetMapping.Identity
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
-    private lateinit var state: TextFieldState
+    private lateinit var state: LegacyTextFieldState
 
     private val dragBeginPosition = Offset.Zero
     private val dragDistance = Offset(300f, 15f)
@@ -114,7 +114,7 @@ class DesktopTextFieldSelectionManagerTest {
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
-        state = TextFieldState(mock(), mock(), mock())
+        state = LegacyTextFieldState(mock(), mock(), mock())
         state.layoutResult = layoutResultProxy
         state.processor.reset(value, null)
         manager.state = state

@@ -19,11 +19,13 @@ package androidx.compose.runtime.tooling
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.group
+import androidx.compose.runtime.grouplessCall
 import androidx.compose.runtime.insert
 import androidx.compose.runtime.nodeGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @OptIn(InternalComposeApi::class)
@@ -250,4 +252,85 @@ class CompositionDataTests {
         val identity = slots.compositionGroups.first().compositionGroups.drop(5).first().identity
         assertEquals(identity, slots.find(identity!!)?.identity)
     }
+
+    @Test
+    fun canFindAGrouplessCallGroupInCompositionData() {
+        val slots = SlotTable().also {
+            it.collectSourceInformation()
+            it.write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) {
+                                group(300) { }
+                                grouplessCall(400, "CC400") { }
+                                group(500) { }
+                                grouplessCall(600, "CC600") { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val identities = slots.compositionGroups.first().compositionGroups.first()
+            .compositionGroups.filter { it.key == 400 || it.key == 600 }.map { it.identity }
+
+        for (identity in identities) {
+            assertNotNull(identity)
+            val foundGroup = slots.find(identity)
+            assertEquals(identity, foundGroup?.identity)
+        }
+    }
+
+    @Test
+    fun canFindANestedGrouplessCallGroup() {
+        val slots = SlotTable().also {
+            it.collectSourceInformation()
+            it.write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) {
+                                grouplessCall(300, "CC300") {
+                                    grouplessCall(400, "CC400") {
+                                        group(500) { }
+                                        grouplessCall(600, "CC600") {
+                                            group(700) { }
+                                        }
+                                        group(800) { }
+                                        grouplessCall(900, "CC900") { }
+                                    }
+                                    grouplessCall(1000, "CC1000") { }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val identities = findAll(slots) { it.sourceInfo != null }.map { it.identity }
+        for (identity in identities) {
+            assertNotNull(identity)
+            val group = slots.find(identity)
+            assertNotNull(group, "Group not found for $identity")
+            assertEquals(identity, group.identity)
+        }
+    }
+}
+
+fun findAll(
+    data: CompositionData,
+    predicate: (data: CompositionGroup) -> Boolean
+): List<CompositionGroup> {
+    val result = mutableListOf<CompositionGroup>()
+
+    fun findIn(data: CompositionGroup) {
+        if (predicate(data)) result.add((data))
+        for (group in data.compositionGroups) findIn(group)
+    }
+    for (group in data.compositionGroups) findIn(group)
+
+    return result
 }

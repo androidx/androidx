@@ -17,8 +17,10 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
+import androidx.compose.foundation.lazy.layout.estimatedLazyMaxScrollOffset
+import androidx.compose.foundation.lazy.layout.estimatedLazyScrollOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.CollectionInfo
@@ -31,16 +33,17 @@ internal fun rememberLazyGridSemanticState(
 ): LazyLayoutSemanticState =
     remember(state, reverseScrolling) {
         object : LazyLayoutSemanticState {
-            override val firstVisibleItemScrollOffset: Int
-                get() = state.firstVisibleItemScrollOffset
-            override val firstVisibleItemIndex: Int
-                get() = state.firstVisibleItemIndex
-            override val canScrollForward: Boolean
-                get() = state.canScrollForward
-
-            override suspend fun animateScrollBy(delta: Float) {
-                state.animateScrollBy(delta)
-            }
+            override val scrollOffset: Float
+                get() = estimatedLazyScrollOffset(
+                    state.firstVisibleItemIndex,
+                    state.firstVisibleItemScrollOffset
+                )
+            override val maxScrollOffset: Float
+                get() = estimatedLazyMaxScrollOffset(
+                    state.firstVisibleItemIndex,
+                    state.firstVisibleItemScrollOffset,
+                    state.canScrollForward
+                )
 
             override suspend fun scrollToItem(index: Int) {
                 state.scrollToItem(index)
@@ -49,5 +52,14 @@ internal fun rememberLazyGridSemanticState(
             // TODO(popam): check if this is correct - it would be nice to provide correct columns
             override fun collectionInfo(): CollectionInfo =
                 CollectionInfo(rowCount = -1, columnCount = -1)
+
+            override val viewport: Int
+                get() = if (state.layoutInfo.orientation == Orientation.Vertical) {
+                    state.layoutInfo.viewportSize.height
+                } else {
+                    state.layoutInfo.viewportSize.width
+                }
+            override val contentPadding: Int
+                get() = state.layoutInfo.beforeContentPadding + state.layoutInfo.afterContentPadding
         }
     }

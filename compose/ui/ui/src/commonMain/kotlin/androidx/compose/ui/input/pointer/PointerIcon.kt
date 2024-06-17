@@ -169,24 +169,37 @@ internal class PointerHoverIconModifierNode(
         if (pass == Main) {
             // Cursor within the surface area of this node's bounds
             if (pointerEvent.type == PointerEventType.Enter) {
-                cursorInBoundsOfNode = true
-                displayIconIfDescendantsDoNotHavePriority()
+                onEnter()
             } else if (pointerEvent.type == PointerEventType.Exit) {
-                cursorInBoundsOfNode = false
+                onExit()
+            }
+        }
+    }
+
+    private fun onEnter() {
+        cursorInBoundsOfNode = true
+        displayIconIfDescendantsDoNotHavePriority()
+    }
+
+    private fun onExit() {
+        if (cursorInBoundsOfNode) {
+            cursorInBoundsOfNode = false
+
+            if (isAttached) {
                 displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon()
             }
         }
     }
 
     override fun onCancelPointerInput() {
-        // We aren't processing the event (only listening for enter/exit), so we don't need to
-        // do anything.
+        // While pointer icon only really cares about enter/exit, there are some cases (dynamically
+        // adding Modifier Nodes) where a modifier might be cancelled but hasn't been detached or
+        // exited, so we need to cover that case.
+        onExit()
     }
 
     override fun onDetach() {
-        cursorInBoundsOfNode = false
-        displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon()
-
+        onExit()
         super.onDetach()
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.material.AnimationDuration
 import androidx.compose.material.GOLDEN_MATERIAL
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -33,6 +34,9 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.setMaterialContent
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -142,6 +146,8 @@ class OutlinedTextFieldScreenshotTest {
 
     @Test
     fun outlinedTextField_error_focused() {
+        // stop animation of blinking cursor
+        rule.mainClock.autoAdvance = false
         rule.setMaterialContent {
             val text = "Input"
             OutlinedTextField(
@@ -154,6 +160,7 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         rule.onNodeWithTag(TextFieldTag).focus()
+        rule.mainClock.advanceTimeBy(AnimationDuration.toLong())
 
         assertAgainstGolden("outlined_textField_focused_errorState")
     }
@@ -519,6 +526,29 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         assertAgainstGolden("outlinedTextField_customShape")
+    }
+
+    @Test
+    fun outlinedTextField_labelBecomesNull() {
+        lateinit var makeLabelNull: MutableState<Boolean>
+        rule.setMaterialContent {
+            makeLabelNull = remember { mutableStateOf(false) }
+            OutlinedTextField(
+                value = "Text",
+                onValueChange = {},
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                label = if (makeLabelNull.value) {
+                    null
+                } else {
+                    { Text("Label") }
+                },
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+        rule.runOnIdle { makeLabelNull.value = true }
+
+        assertAgainstGolden("outlinedTextField_labelBecomesNull")
     }
 
     @Test

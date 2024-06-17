@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.checkPrecondition
 
 /**
  * Implementing this interface allows your [Modifier.Node] subclass to read
@@ -69,7 +70,7 @@ interface CompositionLocalConsumerModifierNode : DelegatableNode
  * If [local] was never provided, its default value will be returned instead.
  */
 fun <T> CompositionLocalConsumerModifierNode.currentValueOf(local: CompositionLocal<T>): T {
-    check(node.isAttached) {
+    checkPrecondition(node.isAttached) {
         "Cannot read CompositionLocal because the Modifier node is not currently attached."
     }
     return requireLayoutNode().compositionLocalMap[local]

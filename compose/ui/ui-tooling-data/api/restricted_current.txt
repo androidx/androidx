@@ -2,7 +2,7 @@
 package androidx.compose.ui.tooling.data {
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class CallGroup extends androidx.compose.ui.tooling.data.Group {
-    ctor public CallGroup(Object? key, String? name, androidx.compose.ui.unit.IntRect box, androidx.compose.ui.tooling.data.SourceLocation? location, Object? identity, java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children, boolean isInline);
+    ctor public CallGroup(Object? key, String? name, androidx.compose.ui.unit.IntRect box, androidx.compose.ui.tooling.data.SourceLocation? location, Object? identity, java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> parameters, java.util.Collection<? extends java.lang.Object?> data, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children, boolean isInline);
     property public java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> parameters;
   }
 
@@ -14,7 +14,7 @@ package androidx.compose.ui.tooling.data {
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public abstract sealed class Group {
     method public final androidx.compose.ui.unit.IntRect getBox();
     method public final java.util.Collection<androidx.compose.ui.tooling.data.Group> getChildren();
-    method public final java.util.Collection<java.lang.Object> getData();
+    method public final java.util.Collection<java.lang.Object?> getData();
     method public final Object? getIdentity();
     method public final Object? getKey();
     method public final androidx.compose.ui.tooling.data.SourceLocation? getLocation();
@@ -24,7 +24,7 @@ package androidx.compose.ui.tooling.data {
     method public final boolean isInline();
     property public final androidx.compose.ui.unit.IntRect box;
     property public final java.util.Collection<androidx.compose.ui.tooling.data.Group> children;
-    property public final java.util.Collection<java.lang.Object> data;
+    property public final java.util.Collection<java.lang.Object?> data;
     property public final Object? identity;
     property public final boolean isInline;
     property public final Object? key;
@@ -46,7 +46,7 @@ package androidx.compose.ui.tooling.data {
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class NodeGroup extends androidx.compose.ui.tooling.data.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntRect box, java.util.Collection<?> data, java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children);
+    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntRect box, java.util.Collection<? extends java.lang.Object?> data, java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children);
     method public Object getNode();
     property public java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo;
     property public final Object node;
@@ -82,7 +82,7 @@ package androidx.compose.ui.tooling.data {
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static androidx.compose.ui.tooling.data.Group asTree(androidx.compose.runtime.tooling.CompositionData);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> findParameters(androidx.compose.runtime.tooling.CompositionGroup, optional androidx.compose.ui.tooling.data.ContextCache? cache);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? getPosition(androidx.compose.ui.tooling.data.Group);
-    method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T> T? mapTree(androidx.compose.runtime.tooling.CompositionData, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? extends T> factory, optional androidx.compose.ui.tooling.data.ContextCache cache);
+    method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T> T? mapTree(androidx.compose.runtime.tooling.CompositionData, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? extends T?> factory, optional androidx.compose.ui.tooling.data.ContextCache cache);
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public interface SourceContext {

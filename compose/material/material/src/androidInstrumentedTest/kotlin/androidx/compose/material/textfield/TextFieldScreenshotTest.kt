@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.AnimationDuration
 import androidx.compose.material.GOLDEN_MATERIAL
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -153,6 +154,8 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_error_focused() {
+        // stop animation of blinking cursor
+        rule.mainClock.autoAdvance = false
         rule.setMaterialContent {
             val text = "Input"
             TextField(
@@ -165,6 +168,7 @@ class TextFieldScreenshotTest {
         }
 
         rule.onNodeWithTag(TextFieldTag).focus()
+        rule.mainClock.advanceTimeBy(AnimationDuration.toLong())
 
         assertAgainstGolden("filled_textField_focused_errorState")
     }

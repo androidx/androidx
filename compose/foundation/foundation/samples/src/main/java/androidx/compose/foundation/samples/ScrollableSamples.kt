@@ -17,15 +17,26 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
@@ -34,15 +45,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Sampled
@@ -111,5 +127,70 @@ fun CanScrollSample() {
             },
             Color.Red
         )
+    }
+}
+
+@ExperimentalFoundationApi
+@Sampled
+@Composable
+fun FocusScrollingInLazyRowSample() {
+    // a bring into view spec that pivots around the center of the scrollable container
+    val customBringIntoViewSpec = object : BringIntoViewSpec {
+        val customAnimationSpec = tween<Float>(easing = LinearEasing)
+        override val scrollAnimationSpec: AnimationSpec<Float>
+            get() = customAnimationSpec
+
+        override fun calculateScrollDistance(
+            offset: Float,
+            size: Float,
+            containerSize: Float
+        ): Float {
+            val trailingEdgeOfItemRequestingFocus = offset + size
+
+            val sizeOfItemRequestingFocus =
+                abs(trailingEdgeOfItemRequestingFocus - offset)
+            val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
+            val initialTargetForLeadingEdge =
+                containerSize / 2f - (sizeOfItemRequestingFocus / 2f)
+            val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
+
+            val targetForLeadingEdge =
+                if (childSmallerThanParent &&
+                    spaceAvailableToShowItem < sizeOfItemRequestingFocus
+                ) {
+                    containerSize - sizeOfItemRequestingFocus
+                } else {
+                    initialTargetForLeadingEdge
+                }
+
+            return offset - targetForLeadingEdge
+        }
+    }
+
+    // LocalBringIntoViewSpec will apply to all scrollables in the hierarchy.
+    CompositionLocalProvider(LocalBringIntoViewSpec provides customBringIntoViewSpec) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            items(100) {
+                var color by remember { mutableStateOf(Color.White) }
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(4.dp)
+                        .background(Color.Gray)
+                        .onFocusChanged {
+                            color = if (it.isFocused) Color.Red else Color.White
+                        }
+                        .border(5.dp, color)
+                        .focusable(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = it.toString())
+                }
+            }
+        }
     }
 }

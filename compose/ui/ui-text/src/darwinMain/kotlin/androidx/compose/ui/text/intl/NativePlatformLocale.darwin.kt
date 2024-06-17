@@ -18,30 +18,29 @@ package androidx.compose.ui.text.intl
 
 import platform.Foundation.*
 
-internal class NativeLocale(val locale: NSLocale) : PlatformLocale {
-    override val language: String
-        get() = locale.languageCode
+actual typealias PlatformLocale = NSLocale
 
-    override val script: String
-        get() = locale.scriptCode.orEmpty()
+internal actual val PlatformLocale.language: String
+    get() = languageCode
 
-    override val region: String
-        get() = locale.countryCode ?: "US"
+internal actual val PlatformLocale.script: String
+    get() = scriptCode.orEmpty()
 
-    // todo add tests to check IETF BCP47 on all platforms
-    override fun toLanguageTag(): String = locale.localeIdentifier
-}
+internal actual val PlatformLocale.region: String
+    get() = countryCode ?: "US"
+
+internal actual fun PlatformLocale.getLanguageTag(): String =  localeIdentifier
 
 internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
     object : PlatformLocaleDelegate {
         override val current: LocaleList
             get() = LocaleList(NSLocale.preferredLanguages.map {
-                Locale(NativeLocale(NSLocale(it as String)))
+                Locale(NSLocale(it as String))
             })
 
 
         override fun parseLanguageTag(languageTag: String): PlatformLocale {
-            return NativeLocale(NSLocale(languageTag))
+            return NSLocale(languageTag)
         }
     }
 

@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import kotlin.jvm.JvmInline
 
 /**
  * The [FocusDirection] is used to specify the direction for a [FocusManager.moveFocus]
@@ -24,8 +25,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  *
  * @sample androidx.compose.ui.samples.MoveFocusSample
  */
-@kotlin.jvm.JvmInline
-value class FocusDirection internal constructor(@Suppress("unused") private val value: Int) {
+@JvmInline
+value class FocusDirection internal constructor(private val value: Int) {
 
     override fun toString(): String {
         return when (this) {

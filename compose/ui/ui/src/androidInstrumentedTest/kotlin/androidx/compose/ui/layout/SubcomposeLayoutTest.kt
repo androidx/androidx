@@ -19,6 +19,7 @@ package androidx.compose.ui.layout
 import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -56,13 +57,16 @@ import androidx.compose.ui.focus.isExactly
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -71,6 +75,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -2696,6 +2701,72 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    fun deactivatedNodesAreNotPartOfChildrenSemantics() {
+        val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
+        val needChild = mutableStateOf(true)
+
+        rule.setContent {
+            SubcomposeLayout(
+                modifier = Modifier.testTag("layout"),
+                state = layoutState.value
+            ) { constraints ->
+                val node = if (needChild.value) {
+                    subcompose(Unit) {
+                        Box(Modifier.testTag("child"))
+                    }.first().measure(constraints)
+                } else {
+                    null
+                }
+                layout(10, 10) {
+                    node?.place(0, 0)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("layout")
+            .onChildren().assertCountEquals(1)
+
+        needChild.value = false
+
+        rule.onNodeWithTag("layout")
+            .onChildren().assertCountEquals(0)
+    }
+
+    @Test
+    fun measureWidthTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(1 shl 24, 100) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun measureHeightTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(100, 1 shl 24) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
     fun nestedDisposeIsCalledInOrder() {
         val disposeOrder = mutableListOf<String>()
         var active by mutableStateOf(true)
@@ -2737,37 +2808,37 @@ class SubcomposeLayoutTest {
     }
 
     @Test
-    fun measureWidthTooLarge() {
-        var exception: IllegalStateException? = null
-        rule.setContent {
-            SubcomposeLayout {
-                try {
-                    layout(1 shl 24, 100) {}
-                } catch (e: IllegalStateException) {
-                    exception = e
-                    layout(0, 0) {}
-                }
-            }
-        }
-        rule.waitForIdle()
-        assertThat(exception).isNotNull()
-    }
+    fun precomposeAndPremeasureAreNotCausingViewInvalidations() {
+        val state = SubcomposeLayoutState()
 
-    @Test
-    fun measureHeightTooLarge() {
-        var exception: IllegalStateException? = null
+        var drawingCount = 0
+
         rule.setContent {
-            SubcomposeLayout {
-                try {
-                    layout(100, 1 shl 24) {}
-                } catch (e: IllegalStateException) {
-                    exception = e
-                    layout(0, 0) {}
+            val view = LocalView.current
+            DisposableEffect(view) {
+                val listener = ViewTreeObserver.OnDrawListener { drawingCount++ }
+                view.viewTreeObserver.addOnDrawListener(listener)
+                onDispose {
+                    view.viewTreeObserver.removeOnDrawListener(listener)
                 }
             }
+            SubcomposeLayout(state) {
+                layout(10, 10) { }
+            }
         }
-        rule.waitForIdle()
-        assertThat(exception).isNotNull()
+
+        rule.runOnIdle {
+            drawingCount = 0
+
+            val handle = state.precompose(Unit) {
+                Box(Modifier.graphicsLayer().size(10.dp))
+            }
+            handle.premeasure(0, Constraints())
+        }
+
+        rule.runOnIdle {
+            assertThat(drawingCount).isEqualTo(0)
+        }
     }
 
     private fun SubcomposeMeasureScope.measure(
@@ -2825,7 +2896,7 @@ class SubcomposeLayoutTest {
     private fun SemanticsNodeInteraction.assertIsDetached() {
         assertDoesNotExist()
         // we want to verify the node is not deactivated, but such API does not exist yet
-        expectAssertionError(true) {
+        expectAssertionError {
             assertIsDeactivated()
         }
     }

@@ -19,8 +19,7 @@
 package androidx.compose.ui.benchmark
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,7 +41,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.Composable
+import androidx.compose.material.ripple
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -56,6 +55,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,16 @@ class ModifiersBenchmark(
         fun data(): Collection<Array<Any>> = listOf(
             *modifier("Modifier") { Modifier },
             *modifier("emptyElement", true) { Modifier.emptyElement() },
+            // (discouraged) composed overload that defaults to LocalIndication. Since we don't
+            // provide MaterialTheme in this benchmark, it will just be the debug indication
             *modifier("clickable", true) { Modifier.clickable { capture(it) } },
+            // overload with explicit InteractionSource parameter and a ripple - this more
+            // accurately models how clickable is used in common components like Button.
+            *modifier("clickableWithRipple", true) { Modifier.clickable(
+                // null interactionSource for lazy indication creation
+                interactionSource = null,
+                indication = ripple(),
+            ) { capture(it) } },
             *modifier("semantics", true) { Modifier.semantics { capture(it) } },
             *modifier("pointerInput") { Modifier.pointerInput(it) { capture(it) } },
             *modifier("focusable") { Modifier.focusable() },
@@ -111,7 +121,14 @@ class ModifiersBenchmark(
             *modifier("testTag") { Modifier.testTag("$it") },
             *modifier("selectableGroup") { Modifier.selectableGroup() },
             *modifier("indication") {
-                Modifier.indication(interactionSource, if (it) indication else null)
+                Modifier.indication(
+                    interactionSource,
+                    if (it) {
+                        ColorIndicationNodeFactory(Color.Blue)
+                    } else {
+                        ColorIndicationNodeFactory(Color.Red)
+                    }
+                )
             },
             *modifier("draggable") {
                 Modifier.draggable(
@@ -155,18 +172,34 @@ class ModifiersBenchmark(
 
         private val focusRequester = FocusRequester()
         private val interactionSource = MutableInteractionSource()
-        private val indication = object : Indication {
-            @Composable
-            override fun rememberUpdatedInstance(
-                interactionSource: InteractionSource
-            ): IndicationInstance {
-                return object : IndicationInstance {
-                    override fun ContentDrawScope.drawIndication() {
+
+        /**
+         * Simple IndicationNodeFactory implementation that just draws a color overlay - it
+         * purposefully does not observe interactions in order to keep the scope of the benchmark
+         * low: we want to track the performance cost of Modifier.indication, not implementations.
+         * (ripple performance is tracked separately)
+         */
+        private class ColorIndicationNodeFactory(private val color: Color) : IndicationNodeFactory {
+            override fun create(interactionSource: InteractionSource): DelegatableNode {
+                return object : Modifier.Node(), DrawModifierNode {
+                    override fun ContentDrawScope.draw() {
                         drawContent()
+                        drawRect(color = color.copy(alpha = 0.3f), size = size)
                     }
                 }
             }
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is ColorIndicationNodeFactory) return false
+
+                return color == other.color
+            }
+
+            override fun hashCode(): Int {
+                return color.hashCode()
+            }
         }
+
         private val draggableState = object : DraggableState {
             override suspend fun drag(
                 dragPriority: MutatePriority,

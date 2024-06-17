@@ -50,7 +50,6 @@ public final class androidx/compose/animation/AnimatedVisibilityKt {
 	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/RowScope;Landroidx/compose/animation/core/MutableTransitionState;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/RowScope;ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun AnimatedVisibility (ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public static final fun AnimatedVisibility (ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
 public abstract interface class androidx/compose/animation/AnimatedVisibilityScope {
@@ -65,8 +64,14 @@ public final class androidx/compose/animation/AnimatedVisibilityScope$DefaultImp
 }
 
 public final class androidx/compose/animation/AnimationModifierKt {
+	public static final fun animateContentSize (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
 	public static final fun animateContentSize (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun animateContentSize$default (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun animateContentSize$default (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface class androidx/compose/animation/BoundsTransform {
+	public abstract fun transform (Landroidx/compose/ui/geometry/Rect;Landroidx/compose/ui/geometry/Rect;)Landroidx/compose/animation/core/FiniteAnimationSpec;
 }
 
 public final class androidx/compose/animation/ColorVectorConverterKt {
@@ -165,6 +170,65 @@ public final class androidx/compose/animation/ExitTransition$Companion {
 }
 
 public abstract interface annotation class androidx/compose/animation/ExperimentalAnimationApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/animation/ExperimentalSharedTransitionApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface class androidx/compose/animation/SharedTransitionScope : androidx/compose/ui/layout/LookaheadScope {
+	public abstract fun OverlayClip (Landroidx/compose/ui/graphics/Shape;)Landroidx/compose/animation/SharedTransitionScope$OverlayClip;
+	public abstract fun isTransitionActive ()Z
+	public abstract fun rememberSharedContentState (Ljava/lang/Object;Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/SharedTransitionScope$SharedContentState;
+	public abstract fun renderInSharedTransitionScopeOverlay (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;FLkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun renderInSharedTransitionScopeOverlay$default (Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;FLkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public fun scaleInSharedContentToBounds (Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun scaleInSharedContentToBounds$default (Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public fun scaleOutSharedContentToBounds (Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun scaleOutSharedContentToBounds$default (Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public abstract fun sharedBounds (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/BoundsTransform;Landroidx/compose/animation/SharedTransitionScope$ResizeMode;Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;ZFLandroidx/compose/animation/SharedTransitionScope$OverlayClip;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun sharedBounds$default (Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/BoundsTransform;Landroidx/compose/animation/SharedTransitionScope$ResizeMode;Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;ZFLandroidx/compose/animation/SharedTransitionScope$OverlayClip;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public abstract fun sharedElement (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/animation/BoundsTransform;Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;ZFLandroidx/compose/animation/SharedTransitionScope$OverlayClip;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun sharedElement$default (Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/animation/BoundsTransform;Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;ZFLandroidx/compose/animation/SharedTransitionScope$OverlayClip;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public abstract fun sharedElementWithCallerManagedVisibility (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/SharedTransitionScope$SharedContentState;ZLandroidx/compose/animation/BoundsTransform;Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;ZFLandroidx/compose/animation/SharedTransitionScope$OverlayClip;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun sharedElementWithCallerManagedVisibility$default (Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/SharedTransitionScope$SharedContentState;ZLandroidx/compose/animation/BoundsTransform;Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;ZFLandroidx/compose/animation/SharedTransitionScope$OverlayClip;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public abstract fun skipToLookaheadSize (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface class androidx/compose/animation/SharedTransitionScope$OverlayClip {
+	public abstract fun getClipPath (Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/ui/geometry/Rect;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;)Landroidx/compose/ui/graphics/Path;
+}
+
+public abstract interface class androidx/compose/animation/SharedTransitionScope$PlaceHolderSize {
+	public static final field Companion Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize$Companion;
+	public abstract fun calculateSize-JyjRU_E (JJ)J
+}
+
+public final class androidx/compose/animation/SharedTransitionScope$PlaceHolderSize$Companion {
+	public final fun getAnimatedSize ()Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;
+	public final fun getContentSize ()Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;
+}
+
+public abstract interface class androidx/compose/animation/SharedTransitionScope$ResizeMode {
+	public static final field Companion Landroidx/compose/animation/SharedTransitionScope$ResizeMode$Companion;
+}
+
+public final class androidx/compose/animation/SharedTransitionScope$ResizeMode$Companion {
+	public final fun ScaleToBounds (Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;)Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
+	public static synthetic fun ScaleToBounds$default (Landroidx/compose/animation/SharedTransitionScope$ResizeMode$Companion;Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
+	public final fun getRemeasureToBounds ()Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
+}
+
+public final class androidx/compose/animation/SharedTransitionScope$SharedContentState {
+	public static final field $stable I
+	public final fun getClipPathInOverlay ()Landroidx/compose/ui/graphics/Path;
+	public final fun getKey ()Ljava/lang/Object;
+	public final fun getParentSharedContentState ()Landroidx/compose/animation/SharedTransitionScope$SharedContentState;
+	public final fun isMatchFound ()Z
+}
+
+public final class androidx/compose/animation/SharedTransitionScopeKt {
+	public static final fun SharedTransitionLayout (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SharedTransitionScope (Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;I)V
 }
 
 public final class androidx/compose/animation/SingleValueAnimationKt {

@@ -18,6 +18,7 @@ package androidx.compose.foundation
 
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
  * [HoverInteraction.Enter] when this element is being hovered.
  * @param enabled Controls the enabled state. When `false`, hover events will be ignored.
  */
+@Stable
 fun Modifier.hoverable(
     interactionSource: MutableInteractionSource,
     enabled: Boolean = true
@@ -66,6 +68,7 @@ private class HoverableElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "hoverable"
         properties["interactionSource"] = interactionSource
+        properties["enabled"] = true
     }
 }
 
@@ -105,7 +108,7 @@ private class HoverableNode(
         tryEmitExit()
     }
 
-    suspend fun emitEnter() {
+    private suspend fun emitEnter() {
         if (hoverInteraction == null) {
             val interaction = HoverInteraction.Enter()
             interactionSource.emit(interaction)
@@ -113,7 +116,7 @@ private class HoverableNode(
         }
     }
 
-    suspend fun emitExit() {
+    private suspend fun emitExit() {
         hoverInteraction?.let { oldValue ->
             val interaction = HoverInteraction.Exit(oldValue)
             interactionSource.emit(interaction)
@@ -121,7 +124,7 @@ private class HoverableNode(
         }
     }
 
-    fun tryEmitExit() {
+    private fun tryEmitExit() {
         hoverInteraction?.let { oldValue ->
             val interaction = HoverInteraction.Exit(oldValue)
             interactionSource.tryEmit(interaction)

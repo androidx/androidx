@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
@@ -306,6 +307,48 @@ class AnimatableTest {
             animatable.snapTo(animatable.lowerBound!! - 100f)
         }
         assertEquals(animatable.lowerBound!!, animatable.value)
+    }
+
+    @Test
+    fun testIntSize_alwaysWithinValidBounds() {
+        val animatable = Animatable(
+            initialValue = IntSize(10, 10),
+            typeConverter = IntSize.VectorConverter,
+            visibilityThreshold = IntSize.VisibilityThreshold
+        )
+
+        val values = mutableListOf<IntSize>()
+
+        runBlocking {
+            val clock = SuspendAnimationTest.TestFrameClock()
+
+            // Add frames to evaluate at
+            clock.frame(0L)
+            clock.frame(25L * 1_000_000L)
+            clock.frame(75L * 1_000_000L)
+            clock.frame(100L * 1_000_000L)
+
+            withContext(clock) {
+                // Animate linearly from -100 to 100
+                animatable.animateTo(
+                    IntSize(100, 100),
+                    keyframes {
+                        durationMillis = 100
+                        IntSize(-100, -100) at 0 using LinearEasing
+                    }
+                ) {
+                    values.add(value)
+                }
+            }
+        }
+
+        // The internal animation is expected to be: -100, -50, 50, 100. But for IntSize, we don't
+        // support negative values, so it's clamped to Zero
+        assertEquals(4, values.size)
+        assertEquals(IntSize.Zero, values[0])
+        assertEquals(IntSize.Zero, values[1])
+        assertEquals(IntSize(50, 50), values[2])
+        assertEquals(IntSize(100, 100), values[3])
     }
 
     @Test

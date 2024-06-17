@@ -144,7 +144,35 @@ class FunctionBodySkippingTransformTests(
     @Test
     fun testFunInterfaces2(): Unit = comparisonPropagation(
         """
-            import androidx.compose.ui.graphics.Color
+            import androidx.compose.runtime.Immutable
+            import androidx.compose.runtime.Stable
+
+            @Stable
+            fun Color(color: Long): Color {
+                return Color((color shl 32).toULong())
+            }
+
+            @Immutable
+            @kotlin.jvm.JvmInline
+            value class Color(val value: ULong) {
+                companion object {
+                    @Stable
+                    val Red = Color(0xFFFF0000)
+                    @Stable
+                    val Blue = Color(0xFF0000FF)
+                    @Stable
+                    val Transparent = Color(0x00000000)
+                }
+            }
+
+            @Composable
+            public fun Text(
+                text: String,
+                color: Color = Color.Transparent,
+                softWrap: Boolean = true,
+                maxLines: Int = Int.MAX_VALUE,
+                minLines: Int = 1,
+            ) {}
 
             @Composable fun condition(): Boolean = true
 
@@ -153,9 +181,6 @@ class FunctionBodySkippingTransformTests(
             }
         """,
         """
-            import androidx.compose.material.Text
-            import androidx.compose.ui.graphics.Color
-
             @Composable
             fun Button(colors: ButtonColors) {
                 Text("hello world", color = colors.getColor())
@@ -1256,6 +1281,30 @@ class FunctionBodySkippingTransformTests(
             fun Text(value: String) {}
         """
     )
+
+    @Test // regression test for 336571300
+    fun test_groupAroundIfComposeCallInIfConditionWithShortCircuit() =
+        verifyGoldenComposeIrTransform(
+            source = """
+                import androidx.compose.runtime.*
+
+                @Composable
+                fun Test() {
+                    ReceiveValue(if (state && getCondition()) 0 else 1)
+                }
+            """,
+            """
+                import androidx.compose.runtime.*
+
+                val state by mutableStateOf(true)
+
+                @Composable
+                fun getCondition() = remember { mutableStateOf(false) }.value
+
+                @Composable
+                fun ReceiveValue(value: Int) { }
+            """
+        )
 }
 
 class FunctionBodySkippingTransformTestsNoSource(
@@ -1367,5 +1416,44 @@ class FunctionBodySkippingTransformTestsNoSource(
                 used(i)
             }
         """.trimIndent()
+    )
+
+    @Test
+    fun testComposable() = verifyGoldenComposeIrTransform(
+        source = """
+            interface NewProfileOBViewModel {
+                fun overrideMe(): @Type () -> Unit
+            }
+
+            class ReturningProfileObViewModel : NewProfileOBViewModel {
+                override fun overrideMe(): @Type () -> Unit = {}
+            }
+
+            @Target(AnnotationTarget.TYPE)
+            annotation class Type
+        """
+    )
+
+    @Test
+    fun testInlineCallInsideComposableInlineFunction() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+            import androidx.compose.foundation.layout.*
+
+            @Composable
+            fun Test(count: Int) {
+                Row {
+                    repeat(count) {
+                        Text("A")
+                    }
+                }
+            }
+        """,
+        extra = """
+            import androidx.compose.runtime.*
+
+            @Composable
+            fun Text(value: String) {}
+        """
     )
 }

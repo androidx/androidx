@@ -17,6 +17,9 @@ class UnstableDelegateProp {
     A(X(listOf(StableClass())))
     A(StableDelegateProp())
     A(UnstableDelegateProp())
+    A(SingleParamProp(0))
+    A(SingleParamNonProp(0))
+    A(SingleParamProp(Any()))
 }
 
 //
@@ -52,16 +55,27 @@ class UnstableDelegateProp {
 @Composable
 fun A(y: Any, %composer: Composer?, %changed: Int) {
   %composer = %composer.startRestartGroup(<>)
-  sourceInformation(%composer, "C(A)<A(X(li...>,<A(Stab...>,<A(Unst...>:Test.kt")
-  if (isTraceInProgress()) {
-    traceEventStart(<>, %changed, -1, <>)
+  sourceInformation(%composer, "C(A)<A(X(li...>,<A(Stab...>,<A(Unst...>,<A(Sing...>,<A(Sing...>,<A(Sing...>:Test.kt")
+  val %dirty = %changed
+  if (%changed and 0b0110 == 0) {
+    %dirty = %dirty or if (%composer.changedInstance(y)) 0b0100 else 0b0010
   }
-  used(y)
-  A(X(listOf(StableClass())), %composer, 0b1000)
-  A(StableDelegateProp(), %composer, 0)
-  A(UnstableDelegateProp(), %composer, UnstableDelegate.%stable)
-  if (isTraceInProgress()) {
-    traceEventEnd()
+  if (%dirty and 0b0011 != 0b0010 || !%composer.skipping) {
+    if (isTraceInProgress()) {
+      traceEventStart(<>, %dirty, -1, <>)
+    }
+    used(y)
+    A(X(listOf(StableClass())), %composer, 0)
+    A(StableDelegateProp(), %composer, 0)
+    A(UnstableDelegateProp(), %composer, UnstableDelegate.%stable)
+    A(SingleParamProp(0), %composer, SingleParamProp.%stable)
+    A(SingleParamNonProp(0), %composer, SingleParamNonProp.%stable)
+    A(SingleParamProp(Any()), %composer, 0)
+    if (isTraceInProgress()) {
+      traceEventEnd()
+    }
+  } else {
+    %composer.skipToGroupEnd()
   }
   %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
     A(y, %composer, updateChangedFlags(%changed or 0b0001))

@@ -255,14 +255,17 @@ private fun SaveableStateRegistry.requireCanBeSaved(value: Any?) {
                         "rememberSaveable()."
                 }
             } else {
-                "$value cannot be saved using the current SaveableStateRegistry. The default " +
-                    "implementation only supports types which can be stored inside the Bundle" +
-                    ". Please consider implementing a custom Saver for this class and pass it" +
-                    " to rememberSaveable()."
+                generateCannotBeSavedErrorMessage(value)
             }
         )
     }
 }
+
+internal fun generateCannotBeSavedErrorMessage(value: Any): String =
+    "$value cannot be saved using the current SaveableStateRegistry. The default " +
+        "implementation only supports types which can be stored inside the Bundle" +
+        ". Please consider implementing a custom Saver for this class and pass it" +
+        " to rememberSaveable()."
 
 /**
  * The maximum radix available for conversion to and from strings.

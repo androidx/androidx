@@ -73,6 +73,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         sourceSets {
             commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                implementation(project(":collection:collection"))
                 api(project(":compose:foundation:foundation"))
                 api(project(":compose:runtime:runtime"))
 
@@ -100,8 +101,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
             }
 
+            jbMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jbMain)
+            nativeMain.dependsOn(jbMain)
+
             jsWasmMain {
-                dependsOn(commonMain)
+                dependsOn(jbMain)
             }
 
             jsMain {

@@ -286,8 +286,7 @@ internal constructor(
 
         if (min >= max) {
             throw IllegalArgumentException(
-                "Invalid range: min=$min, max=$max; min must " +
-                    "be strictly < max"
+                "Invalid range: min=$min, max=$max; min must be strictly < max"
             )
         }
         this.primaries = xyPrimaries(primaries)
@@ -297,10 +296,7 @@ internal constructor(
         } else {
             if (transform.size != 9) {
                 throw IllegalArgumentException(
-                    (
-                        "Transform must have 9 entries! Has " +
-                            "${transform.size}"
-                        )
+                    "Transform must have 9 entries! Has ${transform.size}"
                 )
             }
             this.transform = transform

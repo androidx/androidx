@@ -217,11 +217,11 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         // Backwards select through "text7" so that the selection is "text7 ".
         val char46Position = positionForCharacterScrolled(46)
         onTextField.performTouchInput { moveTo(char46Position) }
-        assertSelectionEquals(48 to 42)
+        assertSelectionEquals(53 to 42)
         assertOneMagnifierExistsAt(char46Position)
 
         onTextField.performTouchInput { up() }
-        assertSelectionEquals(48 to 42)
+        assertSelectionEquals(53 to 42)
         assertNoMagnifierExists()
     }
 
@@ -308,11 +308,11 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         // Backwards select through "text7" so that the selection is "text7 ".
         val char46Position = positionForCharacterScrolled(46)
         onTextField.performTouchInput { moveTo(char46Position) }
-        assertSelectionEquals(48 to 42)
+        assertSelectionEquals(53 to 42)
         assertOneMagnifierExistsAt(char46Position)
 
         onTextField.performTouchInput { up() }
-        assertSelectionEquals(48 to 42)
+        assertSelectionEquals(53 to 42)
         assertNoMagnifierExists()
     }
 

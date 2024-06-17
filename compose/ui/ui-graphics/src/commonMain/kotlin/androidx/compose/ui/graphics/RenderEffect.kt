@@ -50,6 +50,7 @@ fun BlurEffect(radiusX: Float, radiusY: Float, edgeTreatment: TileMode = TileMod
  * [RenderEffect] that will blur the contents of an optional input [RenderEffect]. If no
  * input [RenderEffect] is provided, the drawing commands on the [GraphicsLayerScope] this
  * [RenderEffect] is configured on will be blurred.
+ * @param renderEffect Optional input [RenderEffect] to be blurred
  * @param radiusX Blur radius in the horizontal direction
  * @param radiusY Blur radius in the vertical direction
  * @param edgeTreatment Strategy used to render pixels outside of bounds of the original input

@@ -16,27 +16,34 @@
 
 package androidx.compose.foundation.text
 
+import android.view.inputmethod.CursorAnchorInfo
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.ExtractedText
+import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.setFocusableContent
+import androidx.compose.foundation.text.input.InputMethodInterceptor
+import androidx.compose.foundation.text.input.internal.InputMethodManager
+import androidx.compose.foundation.text.input.internal.LegacyTextInputMethodRequest
+import androidx.compose.foundation.text.input.internal.inputMethodManagerFactory
+import androidx.compose.foundation.text.input.internal.update
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -44,16 +51,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -62,7 +67,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class CoreTextFieldInputServiceIntegrationTest {
@@ -71,8 +75,7 @@ class CoreTextFieldInputServiceIntegrationTest {
     val rule = createComposeRule()
 
     private lateinit var focusManager: FocusManager
-    private val platformTextInputService = FakePlatformTextInputService()
-    private val textInputService = TextInputService(platformTextInputService)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     @Test
     fun textField_ImeOptions_isPassedTo_platformTextInputService() {
@@ -86,27 +89,25 @@ class CoreTextFieldInputServiceIntegrationTest {
             imeAction = ImeAction.Search
         )
 
-        var focused = false
-
         setContent {
             CoreTextField(
                 value = value,
                 imeOptions = imeOptions,
                 modifier = Modifier
-                    .testTag(testTag)
-                    .onFocusChanged { focused = it.isFocused },
+                    .testTag(testTag),
                 onValueChange = {}
             )
         }
 
         rule.onNodeWithTag(testTag).performClick()
 
-        rule.runOnIdle {
-            assertThat(focused).isTrue()
-
-            assertThat(platformTextInputService.inputStarted).isTrue()
-            assertThat(platformTextInputService.lastInputValue).isEqualTo(value)
-            assertThat(platformTextInputService.lastInputImeOptions).isEqualTo(imeOptions)
+        val expectedImeOptions = EditorInfo().apply { update("", TextRange.Zero, imeOptions) }
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(this.imeOptions).isEqualTo(expectedImeOptions.imeOptions)
+            assertThat(this.inputType).isEqualTo(expectedImeOptions.inputType)
+            assertThat(this.privateImeOptions).isEqualTo(expectedImeOptions.privateImeOptions)
+            assertThat(this.initialSelStart).isEqualTo(expectedImeOptions.initialSelStart)
+            assertThat(this.initialSelEnd).isEqualTo(expectedImeOptions.initialSelEnd)
         }
     }
 
@@ -139,11 +140,8 @@ class CoreTextFieldInputServiceIntegrationTest {
             focusRequester2.requestFocus()
         }
 
-        rule.runOnIdle {
-            assertThat(platformTextInputService.startInputCalls).isEqualTo(2)
-            assertThat(platformTextInputService.stopInputCalls).isEqualTo(1)
-            assertThat(platformTextInputService.inputStarted).isTrue()
-        }
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)
     }
 
     @Test
@@ -161,7 +159,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         rule.onNodeWithTag("TextField1").performClick()
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @Test
@@ -180,7 +178,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         rule.runOnIdle { focusRequester.requestFocus() }
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @Test
@@ -196,13 +194,13 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
         // Request focus and wait for keyboard.
         rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
 
         // Act.
         rule.runOnIdle { focusManager.clearFocus() }
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -258,13 +256,13 @@ class CoreTextFieldInputServiceIntegrationTest {
             }
         }
         rule.runOnIdle { focusRequester1.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
 
         // Act.
         rule.runOnIdle { focusRequester2.requestFocus() }
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @Test
@@ -283,13 +281,13 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
         // Request focus and wait for keyboard.
         rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
 
         // Act.
         composeField = false
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -307,13 +305,13 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
         // Request focus and wait for keyboard.
         rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
 
         // Act.
         enabled = false
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -331,13 +329,13 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
         // Request focus and wait for keyboard.
         rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
 
         // Act.
         readOnly = true
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -355,13 +353,13 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
         // Request focus and wait for keyboard.
         rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
+        inputMethodInterceptor.assertNoSessionActive()
 
         // Act.
         readOnly = false
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @Test
@@ -370,7 +368,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         lateinit var textLayoutResult: TextLayoutResult
         val focusRequester = FocusRequester()
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             CoreTextField(
                 value = value,
                 modifier = Modifier.focusRequester(focusRequester),
@@ -379,18 +377,11 @@ class CoreTextFieldInputServiceIntegrationTest {
             )
         }
 
-        rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect).isEqualTo(null)
-        }
-
         rule.runOnUiThread {
             focusRequester.requestFocus()
         }
 
-        rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect)
-                .isEqualTo(textLayoutResult.getBoundingBox(6))
-        }
+        assertFocusedRect(textLayoutResult.getBoundingBox(6).roundToIntRect())
     }
 
     @Test
@@ -400,7 +391,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         lateinit var textLayoutResult: TextLayoutResult
         val focusRequester = FocusRequester()
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             Box(Modifier.offset { offset }) {
                 CoreTextField(
                     value = value,
@@ -411,27 +402,19 @@ class CoreTextFieldInputServiceIntegrationTest {
             }
         }
 
-        rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect).isEqualTo(null)
-        }
-
         rule.runOnUiThread {
             focusRequester.requestFocus()
         }
 
-        rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect).isEqualTo(
-                textLayoutResult.getBoundingBox(6).translate(offset.toOffset())
-            )
-        }
+        assertFocusedRect(
+            textLayoutResult.getBoundingBox(6).translate(offset.toOffset()).roundToIntRect()
+        )
 
         offset = IntOffset(10, 20)
 
-        rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect).isEqualTo(
-                textLayoutResult.getBoundingBox(6).translate(offset.toOffset())
-            )
-        }
+        assertFocusedRect(
+            textLayoutResult.getBoundingBox(6).translate(offset.toOffset()).roundToIntRect()
+        )
     }
 
     @Test
@@ -440,7 +423,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         var value by mutableStateOf(TextFieldValue(""))
         lateinit var textLayoutResult: TextLayoutResult
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             CoreTextField(
                 value = value,
                 modifier = Modifier.testTag(tag),
@@ -450,66 +433,113 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
 
         rule.onNodeWithTag(tag).performClick()
-        rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect?.topLeft)
-                .isEqualTo(Offset.Zero)
+        inputMethodInterceptor.withCurrentRequest<LegacyTextInputMethodRequest> {
+            assertThat(focusedRect?.toComposeIntRect()?.topLeft).isEqualTo(IntOffset.Zero)
         }
 
         value = TextFieldValue("a", TextRange(1))
         rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect)
-                .isEqualTo(textLayoutResult.getBoundingBox(0))
+            assertFocusedRect(textLayoutResult.getBoundingBox(0).roundToIntRect())
         }
 
         value = TextFieldValue("a\nbc", TextRange(4))
         rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect)
-                .isEqualTo(textLayoutResult.getBoundingBox(3))
+            assertFocusedRect(textLayoutResult.getBoundingBox(3).roundToIntRect())
         }
 
         value = TextFieldValue("a\nbc", TextRange(3))
         rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect)
-                .isEqualTo(textLayoutResult.getBoundingBox(3))
+            assertFocusedRect(textLayoutResult.getBoundingBox(3).roundToIntRect())
         }
 
         value = TextFieldValue("a\nbc", TextRange(2))
         rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect)
-                .isEqualTo(textLayoutResult.getBoundingBox(2))
+            assertFocusedRect(textLayoutResult.getBoundingBox(2).roundToIntRect())
         }
 
         value = TextFieldValue("a\nbc", TextRange(0))
         rule.runOnIdle {
-            assertThat(platformTextInputService.focusedRect)
-                .isEqualTo(textLayoutResult.getBoundingBox(0))
+            assertFocusedRect(textLayoutResult.getBoundingBox(0).roundToIntRect())
         }
     }
 
     @Test
-    fun updateTextLayoutResultCalledOnGlobalPositionChanged() {
+    fun cursorAnchorInfoIsUpdated_whenMonitoringAndGlobalOffsetChanges() {
+        val cursorAnchorInfos = mutableListOf<CursorAnchorInfo>()
+        val fakeInputMethodManager = object : InputMethodManager {
+            override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
+                cursorAnchorInfos += cursorAnchorInfo
+            }
+
+            override fun startStylusHandwriting() {}
+            override fun isActive(): Boolean = true
+            override fun restartInput() {}
+            override fun showSoftInput() {}
+            override fun hideSoftInput() {}
+            override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
+            override fun updateSelection(
+                selectionStart: Int,
+                selectionEnd: Int,
+                compositionStart: Int,
+                compositionEnd: Int
+            ) {
+            }
+        }
+        inputMethodManagerFactory = { fakeInputMethodManager }
         var offset by mutableStateOf(IntOffset(0, 10))
         val value = TextFieldValue("abc\nefg", TextRange(6))
-        lateinit var textLayoutResult: TextLayoutResult
         val focusRequester = FocusRequester()
-        val matrix = Matrix()
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             Box(Modifier.offset { offset }) {
-                CoreTextField(value = value,
+                CoreTextField(
+                    value = value,
                     modifier = Modifier.focusRequester(focusRequester),
                     onValueChange = { },
-                    onTextLayout = { textLayoutResult = it })
+                )
             }
+        }
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+
+        // Need to turn on monitoring to get notified.
+        inputMethodInterceptor.withInputConnection {
+            requestCursorUpdates(InputConnection.CURSOR_UPDATE_MONITOR)
         }
 
         rule.runOnIdle {
-            assertThat(platformTextInputService.lastInputValue).isNull()
-            assertThat(platformTextInputService.offsetMapping).isNull()
-            assertThat(platformTextInputService.textLayoutResult).isNull()
-            assertThat(platformTextInputService.textFieldToRootTransform).isNull()
-            assertThat(platformTextInputService.innerTextFieldBounds).isNull()
-            assertThat(platformTextInputService.decorationBoxBounds).isNull()
+            assertThat(cursorAnchorInfos).isEmpty()
+        }
+
+        offset = IntOffset(10, 20)
+
+        rule.runOnIdle {
+            assertThat(cursorAnchorInfos).hasSize(1)
+        }
+    }
+
+    @Test
+    fun textField_stopAndStartInput_whenToggleWindowFocus() {
+        val value = TextFieldValue("abc")
+        val focusRequester = FocusRequester()
+
+        val focusWindow = mutableStateOf(true)
+        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focused
+        }
+
+        setContent {
+            CompositionLocalProvider(
+                LocalWindowInfo provides createWindowInfo(focusWindow.value)
+            ) {
+                CoreTextField(
+                    value = value,
+                    onValueChange = {},
+                    modifier = Modifier.focusRequester(focusRequester)
+                )
+            }
         }
 
         rule.runOnUiThread {
@@ -517,103 +547,35 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
 
         rule.runOnIdle {
-            assertThat(platformTextInputService.lastInputValue).isEqualTo(value)
-            assertThat(platformTextInputService.offsetMapping).isNotNull()
-            assertThat(platformTextInputService.textLayoutResult).isNotNull()
-            assertThat(platformTextInputService.textLayoutResult).isEqualTo(textLayoutResult)
-            platformTextInputService.textFieldToRootTransform!!.invoke(matrix)
-            assertThat(matrix.values).isEqualTo(Matrix().apply {
-                translate(offset.x.toFloat(), offset.y.toFloat())
-            }.values)
-            assertThat(platformTextInputService.innerTextFieldBounds).isNotNull()
-            assertThat(platformTextInputService.decorationBoxBounds).isNotNull()
+            inputMethodInterceptor.assertSessionActive()
         }
 
-        offset = IntOffset(10, 20)
-
+        focusWindow.value = false
         rule.runOnIdle {
-            platformTextInputService.textFieldToRootTransform!!.invoke(matrix)
-            assertThat(matrix.values).isEqualTo(Matrix().apply {
-                translate(offset.x.toFloat(), offset.y.toFloat())
-            }.values)
+            inputMethodInterceptor.assertNoSessionActive()
+        }
+
+        focusWindow.value = true
+        rule.runOnIdle {
+            inputMethodInterceptor.assertSessionActive()
         }
     }
 
-    private fun setContent(content: @Composable () -> Unit) {
-        rule.setContent {
-            focusManager = LocalFocusManager.current
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService,
-                content = content
-            )
+    private fun setContent(
+        extraItemForInitialFocus: Boolean = true,
+        content: @Composable () -> Unit
+    ) {
+        rule.setFocusableContent(extraItemForInitialFocus) {
+            inputMethodInterceptor.Content {
+                focusManager = LocalFocusManager.current
+                content()
+            }
         }
     }
 
-    private class FakePlatformTextInputService : PlatformTextInputService {
-        var startInputCalls = 0
-        var stopInputCalls = 0
-        var inputStarted = false
-        var keyboardShown = false
-        var focusedRect: Rect? = null
-
-        var lastInputValue: TextFieldValue? = null
-        var lastInputImeOptions: ImeOptions? = null
-
-        var offsetMapping: OffsetMapping? = null
-        var textLayoutResult: TextLayoutResult? = null
-        var textFieldToRootTransform: ((Matrix) -> Unit)? = null
-        var innerTextFieldBounds: Rect? = null
-        var decorationBoxBounds: Rect? = null
-
-        override fun startInput(
-            value: TextFieldValue,
-            imeOptions: ImeOptions,
-            onEditCommand: (List<EditCommand>) -> Unit,
-            onImeActionPerformed: (ImeAction) -> Unit
-        ) {
-            startInputCalls++
-            inputStarted = true
-            keyboardShown = true
-            lastInputValue = value
-            lastInputImeOptions = imeOptions
-        }
-
-        override fun stopInput() {
-            stopInputCalls++
-            inputStarted = false
-            keyboardShown = false
-        }
-
-        override fun showSoftwareKeyboard() {
-            keyboardShown = true
-        }
-
-        override fun hideSoftwareKeyboard() {
-            keyboardShown = false
-        }
-
-        override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-            // Tests don't care.
-        }
-
-        override fun notifyFocusedRect(rect: Rect) {
-            focusedRect = rect
-        }
-
-        override fun updateTextLayoutResult(
-            textFieldValue: TextFieldValue,
-            offsetMapping: OffsetMapping,
-            textLayoutResult: TextLayoutResult,
-            textFieldToRootTransform: (Matrix) -> Unit,
-            innerTextFieldBounds: Rect,
-            decorationBoxBounds: Rect
-        ) {
-            lastInputValue = textFieldValue
-            this.offsetMapping = offsetMapping
-            this.textLayoutResult = textLayoutResult
-            this.textFieldToRootTransform = textFieldToRootTransform
-            this.innerTextFieldBounds = innerTextFieldBounds
-            this.decorationBoxBounds = decorationBoxBounds
+    private fun assertFocusedRect(expected: IntRect?) {
+        inputMethodInterceptor.withCurrentRequest<LegacyTextInputMethodRequest> {
+            assertThat(focusedRect?.toComposeIntRect()).isEqualTo(expected)
         }
     }
 }

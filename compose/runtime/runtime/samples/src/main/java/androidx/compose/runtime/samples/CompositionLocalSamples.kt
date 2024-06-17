@@ -22,6 +22,7 @@ import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 
 @Sampled
 fun createCompositionLocal() {
@@ -34,6 +35,86 @@ fun compositionLocalProvider() {
     fun App(user: User) {
         CompositionLocalProvider(ActiveUser provides user) {
             SomeScreen()
+        }
+    }
+}
+
+@Sampled
+fun compositionLocalComputedByDefault() {
+    val LocalBaseValue = compositionLocalOf { 10 }
+    val LocalLargerValue = compositionLocalWithComputedDefaultOf {
+        LocalBaseValue.currentValue + 10
+    }
+}
+
+@Sampled
+fun compositionLocalProvidedComputed() {
+    val LocalValue = compositionLocalOf { 10 }
+    val LocalLargerValue = compositionLocalOf { 12 }
+
+    @Composable
+    fun App() {
+        CompositionLocalProvider(
+            LocalLargerValue providesComputed {
+                LocalValue.currentValue + 10
+            }
+        ) {
+            SomeScreen()
+        }
+    }
+}
+
+@Sampled
+fun compositionLocalComputedAfterProvidingLocal() {
+    val LocalValue = compositionLocalOf { 10 }
+    val LocalLargerValue = compositionLocalOf { 12 }
+    val LocalComputedValue = compositionLocalWithComputedDefaultOf {
+        LocalValue.currentValue + 4
+    }
+
+    // In this example `LocalLargerValue` needs to be re-provided
+    // whenever `LocalValue` is provided to keep its value larger
+    // then `LocalValue`. However, `LocalComputedValue` does not
+    // need to be re-provided to stay larger than `LocalValue` as
+    // it is calculated based on the currently provided value for
+    // `LocalValue`. Whenever `LocalValue` is provided the value
+    // of `LocalComputedValue` is computed based on the currently
+    // provided value for `LocalValue`.
+
+    @Composable
+    fun App() {
+        // Value is 10, the default value for LocalValue
+        val value = LocalValue.current
+        // Value is 12, the default value
+        val largerValue = LocalLargerValue.current
+        // Value is computed to be 14
+        val computedValue = LocalComputedValue.current
+        CompositionLocalProvider(
+            LocalValue provides 20
+        ) {
+            // Value is 20 provided above
+            val nestedValue = LocalValue.current
+            // Value is still 12 as an updated value was not re-provided
+            val nestedLargerValue = LocalLargerValue.current
+            // Values is computed to be 24; LocalValue.current + 4
+            val nestedComputedValue = LocalComputedValue.current
+            CompositionLocalProvider(
+                LocalLargerValue provides LocalValue.current + 2
+            ) {
+                // Value is 22 provided above
+                val newLargerValue = LocalLargerValue.current
+
+                CompositionLocalProvider(
+                    LocalValue provides 50
+                ) {
+                    // Value is now 50 provided above
+                    val finalValue = LocalValue.current
+                    // Value is still 22
+                    val finalLargerValue = LocalLargerValue.current
+                    // Value is now computed to be 54
+                    val finalComputed = LocalComputedValue.current
+                }
+            }
         }
     }
 }

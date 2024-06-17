@@ -19,7 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -36,8 +36,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
-import androidx.compose.ui.util.fastFirstOrNull
-import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -47,12 +46,13 @@ internal fun rememberPagerMeasurePolicy(
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
-    beyondBoundsPageCount: Int,
+    beyondViewportPageCount: Int,
     pageSpacing: Dp,
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
-    snapPositionInLayout: SnapPositionInLayout,
+    snapPosition: SnapPosition,
+    coroutineScope: CoroutineScope,
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
@@ -63,10 +63,13 @@ internal fun rememberPagerMeasurePolicy(
     verticalAlignment,
     pageSpacing,
     pageSize,
-    snapPositionInLayout,
+    snapPosition,
     pageCount,
+    beyondViewportPageCount,
+    coroutineScope
 ) {
     { containerConstraints ->
+        state.measurementScopeInvalidator.attachToScope()
         val isVertical = orientation == Orientation.Vertical
         checkScrollableContainerConstraints(
             containerConstraints,
@@ -126,8 +129,9 @@ internal fun rememberPagerMeasurePolicy(
             )
         }
 
-        val pageAvailableSize =
-            with(pageSize) { calculateMainAxisPageSize(mainAxisAvailableSize, spaceBetweenPages) }
+        val pageAvailableSize = with(pageSize) {
+            calculateMainAxisPageSize(mainAxisAvailableSize, spaceBetweenPages).coerceAtLeast(0)
+        }
 
         state.premeasureConstraints = Constraints(
             maxWidth = if (orientation == Orientation.Vertical) {
@@ -145,10 +149,19 @@ internal fun rememberPagerMeasurePolicy(
 
         val currentPage: Int
         val currentPageOffset: Int
-        val pageSizeWithSpacing = pageAvailableSize + spaceBetweenPages
+
         Snapshot.withoutReadObservation {
             currentPage = state.matchScrollPositionWithKey(itemProvider, state.currentPage)
-            currentPageOffset = state.calculateCurrentPageLayoutOffset(pageSizeWithSpacing)
+            currentPageOffset = snapPosition.currentPageOffset(
+                mainAxisAvailableSize,
+                pageAvailableSize,
+                spaceBetweenPages,
+                beforeContentPadding,
+                afterContentPadding,
+                state.currentPage,
+                state.currentPageOffsetFraction,
+                state.pageCount
+            )
         }
 
         val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices(
@@ -156,65 +169,39 @@ internal fun rememberPagerMeasurePolicy(
             beyondBoundsInfo = state.beyondBoundsInfo
         )
 
-        measurePager(
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
-            constraints = contentConstraints,
-            pageCount = pageCount(),
-            spaceBetweenPages = spaceBetweenPages,
-            mainAxisAvailableSize = mainAxisAvailableSize,
-            visualPageOffset = visualItemOffset,
-            pageAvailableSize = pageAvailableSize,
-            beyondBoundsPageCount = beyondBoundsPageCount,
-            orientation = orientation,
-            currentPage = currentPage,
-            currentPageOffset = currentPageOffset,
-            horizontalAlignment = horizontalAlignment,
-            verticalAlignment = verticalAlignment,
-            pagerItemProvider = itemProvider,
-            reverseLayout = reverseLayout,
-            pinnedPages = pinnedPages,
-            snapPositionInLayout = snapPositionInLayout,
-            placementScopeInvalidator = state.placementScopeInvalidator,
-            layout = { width, height, placement ->
-                layout(
-                    containerConstraints.constrainWidth(width + totalHorizontalPadding),
-                    containerConstraints.constrainHeight(height + totalVerticalPadding),
-                    emptyMap(),
-                    placement
-                )
-            }
-        ).also {
-            state.applyMeasureResult(it)
-        }
+        // todo: wrap with snapshot when b/341782245 is resolved
+        val measureResult =
+            measurePager(
+                beforeContentPadding = beforeContentPadding,
+                afterContentPadding = afterContentPadding,
+                constraints = contentConstraints,
+                pageCount = pageCount(),
+                spaceBetweenPages = spaceBetweenPages,
+                mainAxisAvailableSize = mainAxisAvailableSize,
+                visualPageOffset = visualItemOffset,
+                pageAvailableSize = pageAvailableSize,
+                beyondViewportPageCount = beyondViewportPageCount,
+                orientation = orientation,
+                currentPage = currentPage,
+                currentPageOffset = currentPageOffset,
+                horizontalAlignment = horizontalAlignment,
+                verticalAlignment = verticalAlignment,
+                pagerItemProvider = itemProvider,
+                reverseLayout = reverseLayout,
+                pinnedPages = pinnedPages,
+                snapPosition = snapPosition,
+                placementScopeInvalidator = state.placementScopeInvalidator,
+                coroutineScope = coroutineScope,
+                layout = { width, height, placement ->
+                    layout(
+                        containerConstraints.constrainWidth(width + totalHorizontalPadding),
+                        containerConstraints.constrainHeight(height + totalVerticalPadding),
+                        emptyMap(),
+                        placement
+                    )
+                }
+            )
+        state.applyMeasureResult(measureResult)
+        measureResult
     }
-}
-
-private const val DEBUG = PagerDebugEnable
-private inline fun debugLog(generateMsg: () -> String) {
-    if (DEBUG) {
-        println("PagerMeasurePolicy: ${generateMsg()}")
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun PagerState.calculateCurrentPageLayoutOffset(pageSizeWithSpacing: Int): Int {
-    val previousPassOffset =
-        layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == currentPage }?.offset
-            ?: 0
-
-    val previousPassFraction = if (pageSizeWithSpacing == 0) {
-        currentPageOffsetFraction
-    } else {
-        ((-previousPassOffset.toFloat()) / (pageSizeWithSpacing))
-    }
-
-    val fractionDiff = currentPageOffsetFraction - previousPassFraction
-    debugLog {
-        "\npreviousPassOffset=$previousPassOffset" +
-            "\npreviousPassFraction=$previousPassFraction" +
-            "\nfractionDiff=$fractionDiff"
-    }
-
-    return -(fractionDiff * pageSizeWithSpacing - previousPassOffset).roundToInt()
 }

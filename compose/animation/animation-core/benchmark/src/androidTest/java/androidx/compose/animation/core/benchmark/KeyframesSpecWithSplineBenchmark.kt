@@ -93,7 +93,7 @@ class KeyframesSpecWithSplineBenchmark {
         // Cal the first frame before measuring, to guarantee the spline interpolation is built
         vectorized.getValueFromNanos(
             // Avoid using a number that may match one of the given timestamps, it will prevent the
-            // MonoSpline from initializing, an irrational number factor should work well
+            // MonoSpline from initializing, a number with periodic decimals should work well
             playTimeNanos = playTimeNanosToEvaluate * 2 / 3L,
             initialValue = initialVector,
             targetValue = targetVector,
@@ -132,7 +132,7 @@ class KeyframesSpecWithSplineBenchmark {
         // Cal the first frame before measuring, to guarantee the spline interpolation is built
         vectorized.getValueFromNanos(
             // Avoid using a number that may match one of the given timestamps, it will prevent the
-            // MonoSpline from initializing, an irrational number factor should work well
+            // MonoSpline from initializing, a number with periodic decimals should work well
             playTimeNanos = playTimeNanosToEvaluate * 2 / 3L,
             initialValue = initialVector,
             targetValue = targetVector,

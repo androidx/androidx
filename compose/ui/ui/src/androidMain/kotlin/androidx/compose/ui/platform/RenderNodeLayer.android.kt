@@ -21,7 +21,6 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Fields
@@ -30,14 +29,13 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * RenderNode implementation of OwnedLayer.
@@ -45,10 +43,10 @@ import androidx.compose.ui.unit.LayoutDirection
 @RequiresApi(Build.VERSION_CODES.M)
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
-    drawBlock: (Canvas) -> Unit,
+    drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
     invalidateParentLayer: () -> Unit
 ) : OwnedLayer, GraphicLayerInfo {
-    private var drawBlock: ((Canvas) -> Unit)? = drawBlock
+    private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
     /**
@@ -61,7 +59,7 @@ internal class RenderNodeLayer(
                 ownerView.notifyLayerIsDirty(this, value)
             }
         }
-    private val outlineResolver = OutlineResolver(ownerView.density)
+    private val outlineResolver = OutlineResolver()
     private var isDestroyed = false
     private var drawnWithZ = false
 
@@ -111,11 +109,7 @@ internal class RenderNodeLayer(
 
     private var mutatedFields: Int = 0
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ) {
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.transformOrigin = scope.transformOrigin
@@ -173,15 +167,14 @@ internal class RenderNodeLayer(
             renderNode.compositingStrategy = scope.compositingStrategy
         }
         val shapeChanged = outlineResolver.update(
-            scope.shape,
+            scope.outline,
             scope.alpha,
             clipToOutline,
             scope.shadowElevation,
-            layoutDirection,
-            density
+            scope.size,
         )
         if (outlineResolver.cacheIsDirty) {
-            renderNode.setOutline(outlineResolver.outline)
+            renderNode.setOutline(outlineResolver.androidOutline)
         }
         val isClippingManually = clipToOutline && !outlineResolver.outlineClipSupported
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
@@ -226,8 +219,7 @@ internal class RenderNodeLayer(
                 renderNode.top + height
             )
         ) {
-            outlineResolver.update(Size(width.toFloat(), height.toFloat()))
-            renderNode.setOutline(outlineResolver.outline)
+            renderNode.setOutline(outlineResolver.androidOutline)
             invalidate()
             matrixCache.invalidate()
         }
@@ -271,7 +263,7 @@ internal class RenderNodeLayer(
         }
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         val androidCanvas = canvas.nativeCanvas
         if (androidCanvas.isHardwareAccelerated) {
             updateDisplayList()
@@ -308,7 +300,7 @@ internal class RenderNodeLayer(
             canvas.translate(left, top)
             canvas.concat(matrixCache.calculateMatrix(renderNode))
             clipRenderNode(canvas)
-            drawBlock?.invoke(canvas)
+            drawBlock?.invoke(canvas, null)
             canvas.restore()
             isDirty = false
         }
@@ -331,8 +323,10 @@ internal class RenderNodeLayer(
             } else {
                 null
             }
-            drawBlock?.let {
-                renderNode.record(canvasHolder, clipPath, it)
+            drawBlock?.let { drawBlock ->
+                renderNode.record(canvasHolder, clipPath) {
+                    drawBlock(it, null)
+                }
             }
             isDirty = false
         }
@@ -371,7 +365,10 @@ internal class RenderNodeLayer(
         }
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
+    override fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
         isDirty = false
         isDestroyed = false
         drawnWithZ = false

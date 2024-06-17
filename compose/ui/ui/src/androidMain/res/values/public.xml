@@ -15,4 +15,5 @@
   -->
 
 <resources>
+    <public name="hide_in_inspector_tag" type="id" />
 </resources>

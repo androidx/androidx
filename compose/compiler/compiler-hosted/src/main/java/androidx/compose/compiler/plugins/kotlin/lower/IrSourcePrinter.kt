@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
+import org.jetbrains.kotlin.ir.declarations.IrAnonymousInitializer
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
@@ -522,8 +523,7 @@ class IrSourcePrinterVisitor(
                 val param = symbol.owner.valueParameters[i]
                 val isLambda = arg is IrFunctionExpression ||
                     (arg is IrBlock &&
-                        (arg.origin == IrStatementOrigin.LAMBDA ||
-                            arg.origin == IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE))
+                        (arg.origin == IrStatementOrigin.LAMBDA))
                 if (isLambda) {
                     arg.unwrapLambda()?.let {
                         returnTargetToCall[it] = this
@@ -881,7 +881,7 @@ class IrSourcePrinterVisitor(
                 lhs.print()
                 print("--")
             }
-            IrStatementOrigin.LAMBDA, IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE -> {
+            IrStatementOrigin.LAMBDA -> {
                 val function = expression.statements[0] as IrFunction
                 function.printAsLambda()
             }
@@ -894,17 +894,19 @@ class IrSourcePrinterVisitor(
                 val rhsStatement = expression.statements[1]
                 val rhs = when (rhsStatement) {
                     is IrBlock -> {
-                        val target = rhsStatement.statements[1]
-                        when (target) {
-                            is IrVariable -> target.initializer
-                            else -> target
-                        }
+                        if (rhsStatement.statements.size == 2) {
+                            val target = rhsStatement.statements[1]
+                            when (target) {
+                                is IrVariable -> target.initializer
+                                else -> target
+                            }
+                        } else rhsStatement
                     }
                     else -> {
                         rhsStatement
                     }
-                } as IrWhen
-                val call = rhs.branches.last().result as? IrCall
+                } as? IrWhen
+                val call = rhs?.let { it.branches.last().result as? IrCall }
                 if (call == null) {
                     expression.statements.printJoin("\n")
                     return
@@ -1303,7 +1305,11 @@ class IrSourcePrinterVisitor(
 
     override fun visitFunctionReference(expression: IrFunctionReference) {
         val function = expression.symbol.owner
+
         expression.printExplicitReceiver("::")
+        if (expression.dispatchReceiver == null && expression.extensionReceiver == null) {
+            print("::")
+        }
 
         val prop = (function as? IrSimpleFunction)?.correspondingPropertySymbol?.owner
 
@@ -1407,6 +1413,15 @@ class IrSourcePrinterVisitor(
 
     override fun visitTypeAlias(declaration: IrTypeAlias) {
         print("<<TYPEALIAS>>")
+    }
+
+    override fun visitAnonymousInitializer(declaration: IrAnonymousInitializer) {
+        println("init {")
+        indented {
+            declaration.body.print()
+        }
+        println()
+        println("}")
     }
 
     private fun IrType.renderSrc() =

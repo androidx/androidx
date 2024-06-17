@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,7 +42,6 @@ val PagerStateInteractions = listOf(
     }
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateDrivenPage() {
     val pagerState = rememberPagerState { PagesCount }
@@ -59,7 +57,6 @@ private fun StateDrivenPage() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateDrivenPageWithMonitor() {
     val pagerState = rememberPagerState { PagesCount }
@@ -76,7 +73,6 @@ private fun StateDrivenPageWithMonitor() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateMonitoringPager() {
     val pagerState = rememberPagerState { PagesCount }
@@ -91,7 +87,6 @@ private fun StateMonitoringPager() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PageMonitor(modifier: Modifier, pagerState: PagerState) {
     Column(modifier.fillMaxWidth()) {
@@ -104,7 +99,6 @@ private fun PageMonitor(modifier: Modifier, pagerState: PagerState) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StateMonitoringCustomPageSize() {
     val pagerState = rememberPagerState { PagesCount }

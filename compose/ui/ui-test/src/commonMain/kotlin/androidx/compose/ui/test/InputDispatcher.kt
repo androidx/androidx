@@ -17,7 +17,6 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.identityHashCode
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.node.RootForTest
@@ -547,11 +546,12 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a scroll event on [scrollWheel] by [delta]. Negative values correspond to
-     * rotating the scroll wheel leftward or upward, positive values correspond to rotating the
-     * scroll wheel rightward or downward.
+     * Generates a scroll event on [scrollWheel] by [delta].
+     *
+     * Positive [delta] values correspond to scrolling forward (new content appears at the bottom
+     * of a column, or at the end of a row), negative values correspond to scrolling backward
+     * (new content appears at the top of a column, or at the start of a row).
      */
-    // TODO(fresen): verify the sign of the horizontal scroll axis (is left negative or positive?)
     @OptIn(ExperimentalTestApi::class)
     fun enqueueMouseScroll(delta: Float, scrollWheel: ScrollWheel) {
         val mouse = mouseInputState
@@ -712,6 +712,30 @@ internal abstract class InputDispatcher(
 
     protected abstract fun KeyInputState.enqueueUp(key: Key)
 
+    /**
+     * Used to control lock key toggling behaviour on different platforms. Defaults to Android-style
+     * toggling. To change toggling behaviour, override this method and switch to using
+     * [LockKeyState.isLockKeyOnExcludingOffPress], or implement a different toggling behaviour.
+     */
+    protected open val KeyInputState.capsLockOn: Boolean
+        get() = capsLockState.isLockKeyOnIncludingOffPress
+
+    /**
+     * Used to control lock key toggling behaviour on different platforms. Defaults to Android-style
+     * toggling. To change toggling behaviour, override this method and switch to using
+     * [LockKeyState.isLockKeyOnExcludingOffPress], or implement a different toggling behaviour.
+     */
+    protected open val KeyInputState.numLockOn: Boolean
+        get() = numLockState.isLockKeyOnIncludingOffPress
+
+    /**
+     * Used to control lock key toggling behaviour on different platforms. Defaults to Android-style
+     * toggling. To change toggling behaviour, override this method and switch to using
+     * [LockKeyState.isLockKeyOnExcludingOffPress], or implement a different toggling behaviour.
+     */
+    protected open val KeyInputState.scrollLockOn: Boolean
+        get() = scrollLockState.isLockKeyOnIncludingOffPress
+
     @OptIn(ExperimentalTestApi::class)
     protected abstract fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel)
 
@@ -785,6 +809,56 @@ internal class MouseInputState {
 }
 
 /**
+ * Toggling states for lock keys.
+ *
+ * Note that lock keys may not be toggled in the same way across all platforms.
+ *
+ * Take caps lock as an example; consistently, all platforms turn caps lock on upon the first
+ * key down event, and it stays on after the subsequent key up. However, on some platforms caps
+ * lock will turn off immediately upon the next key down event (MacOS for example), whereas
+ * other platforms (e.g. Linux, Android) wait for the next key up event before turning caps
+ * lock off.
+ *
+ * This enum breaks the lock key state down into four possible options - depending upon the
+ * interpretation of these four states, Android-like or MacOS-like behaviour can both be achieved.
+ *
+ * To get Android-like behaviour, use [isLockKeyOnIncludingOffPress],
+ * whereas for MacOS-style behaviour, use [isLockKeyOnExcludingOffPress].
+ */
+internal enum class LockKeyState(val state: Int) {
+    UP_AND_OFF(0),
+    DOWN_AND_ON(1),
+    UP_AND_ON(2),
+    DOWN_AND_OPTIONAL(3);
+
+    /**
+     * Whether or not the lock key is on. The lock key is considered on from the start of the
+     * "on press" until the end of the "off press", i.e. from the first key down event to the
+     * second key up event of the corresponding lock key.
+     */
+    val isLockKeyOnIncludingOffPress get() = state > 0
+
+    /**
+     * Whether or not the lock key is on. The lock key is considered on from the start of the
+     * "on press" until the start of the "off press", i.e. from the first key down event to the
+     * second key down event of the corresponding lock key.
+     */
+    val isLockKeyOnExcludingOffPress get() = this == DOWN_AND_ON || this == UP_AND_ON
+
+    /**
+     * Returns the next state in the cycle of lock key states.
+     */
+    fun next(): LockKeyState {
+        return when (this) {
+            UP_AND_OFF -> DOWN_AND_ON
+            DOWN_AND_ON -> UP_AND_ON
+            UP_AND_ON -> DOWN_AND_OPTIONAL
+            DOWN_AND_OPTIONAL -> UP_AND_OFF
+        }
+    }
+}
+
+/**
  * The current key input state. Contains the keys that are pressed, the down time of the
  * keyboard (which is the time of the last key down event), the state of the lock keys and
  * the device ID.
@@ -796,9 +870,9 @@ internal class KeyInputState {
     var repeatKey: Key? = null
     var repeatCount = 0
     var lastRepeatTime = downTime
-    var capsLockOn = false
-    var numLockOn = false
-    var scrollLockOn = false
+    var capsLockState: LockKeyState = LockKeyState.UP_AND_OFF
+    var numLockState: LockKeyState = LockKeyState.UP_AND_OFF
+    var scrollLockState: LockKeyState = LockKeyState.UP_AND_OFF
 
     fun isKeyDown(key: Key): Boolean = downKeys.contains(key)
 
@@ -808,6 +882,7 @@ internal class KeyInputState {
             repeatKey = null
             repeatCount = 0
         }
+        updateLockKeys(key)
     }
 
     fun setKeyDown(key: Key) {
@@ -819,24 +894,12 @@ internal class KeyInputState {
 
     /**
      * Updates lock key state values.
-     *
-     * Note that lock keys may not be toggled in the same way across all platforms.
-     *
-     * Take caps lock as an example; consistently, all platforms turn caps lock on upon the first
-     * key down event, and it stays on after the subsequent key up. However, on some platforms caps
-     * lock will turn off immediately upon the next key down event (MacOS for example), whereas
-     * other platforms (e.g. linux) wait for the next key up event before turning caps lock off.
-     *
-     * By calling this function whenever a lock key is pressed down, MacOS-like behaviour is
-     * achieved.
      */
-    // TODO(Onadim): Investigate how lock key toggling is handled in Android, ChromeOS and Windows.
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun updateLockKeys(key: Key) {
         when (key) {
-            Key.CapsLock -> capsLockOn = !capsLockOn
-            Key.NumLock -> numLockOn = !numLockOn
-            Key.ScrollLock -> scrollLockOn = !scrollLockOn
+            Key.CapsLock -> capsLockState = capsLockState.next()
+            Key.NumLock -> numLockState = numLockState.next()
+            Key.ScrollLock -> scrollLockState = scrollLockState.next()
         }
     }
 }

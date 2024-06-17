@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.text.PlatformStringDelegate
-import androidx.compose.ui.text.intl.NativeLocale
 import androidx.compose.ui.text.intl.PlatformLocale
 import platform.Foundation.*
 
@@ -29,33 +28,33 @@ import platform.Foundation.*
 @Suppress("CAST_NEVER_SUCCEEDS")
 internal class NativeStringDelegate : PlatformStringDelegate {
     override fun toUpperCase(string: String, locale: PlatformLocale): String =
-        toUpperCase(string as NSString, locale as NativeLocale)
+        toUpperCase(string as NSString, locale)
 
-    private inline fun toUpperCase(string: NSString, locale: NativeLocale): String =
-        string.uppercaseStringWithLocale(locale.locale)
+    private inline fun toUpperCase(string: NSString, locale: PlatformLocale): String =
+        string.uppercaseStringWithLocale(locale)
 
     override fun toLowerCase(string: String, locale: PlatformLocale): String =
-        toLowerCase(string as NSString, locale as NativeLocale)
+        toLowerCase(string as NSString, locale)
 
-    private inline fun toLowerCase(string: NSString, locale: NativeLocale): String =
-        string.lowercaseStringWithLocale(locale.locale)
+    private inline fun toLowerCase(string: NSString, locale: PlatformLocale): String =
+        string.lowercaseStringWithLocale(locale)
 
     override fun capitalize(string: String, locale: PlatformLocale): String =
         string.replaceFirstChar {
             if (it.isLowerCase())
-                capitalize(it.toString() as NSString, locale as NativeLocale)
+                capitalize(it.toString() as NSString, locale)
             else
                 it.toString()
         }
 
-    private inline fun capitalize(string: NSString, locale: NativeLocale): String =
-        string.capitalizedStringWithLocale(locale.locale)
+    private inline fun capitalize(string: NSString, locale: PlatformLocale): String =
+        string.capitalizedStringWithLocale(locale)
 
     override fun decapitalize(string: String, locale: PlatformLocale): String =
-        string.replaceFirstChar { decapitalize(it.toString() as NSString, locale as NativeLocale) }
+        string.replaceFirstChar { decapitalize(it.toString() as NSString, locale) }
 
-    private inline fun decapitalize(string: NSString, locale: NativeLocale): String =
-        string.lowercaseStringWithLocale(locale.locale)
+    private inline fun decapitalize(string: NSString, locale: PlatformLocale): String =
+        string.lowercaseStringWithLocale(locale)
 }
 
 internal actual fun ActualStringDelegate(): PlatformStringDelegate =

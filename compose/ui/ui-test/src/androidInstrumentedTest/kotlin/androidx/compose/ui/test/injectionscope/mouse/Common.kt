@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.test.injectionscope.mouse
 
+import androidx.compose.testutils.TestViewConfiguration
+import androidx.compose.testutils.WithViewConfiguration
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -38,6 +40,18 @@ object Common {
     val PrimarySecondaryButton = PointerButtons(
         MouseButton.Primary.buttonId or MouseButton.Secondary.buttonId
     )
+    val SecondaryButton = PointerButtons(MouseButton.Secondary.buttonId)
+
+    const val ClickDuration = 60L // MouseInjectionScope.SingleClickDelayMillis
+    private const val DoubleClickMin = 40L
+    private const val DoubleClickMax = 200L
+    const val DefaultDoubleClickTimeMillis = (DoubleClickMin + DoubleClickMax) / 2
+    const val DefaultLongClickTimeMillis = 300L
+    private val testViewConfiguration = TestViewConfiguration(
+        doubleTapMinTimeMillis = DoubleClickMin,
+        doubleTapTimeoutMillis = DoubleClickMax,
+        longPressTimeoutMillis = DefaultLongClickTimeMillis
+    )
 
     fun runMouseInputInjectionTest(
         mouseInput: MouseInjectionScope.() -> Unit,
@@ -46,7 +60,9 @@ object Common {
         mainClock.autoAdvance = false
         val recorder = SinglePointerInputRecorder()
         setContent {
-            ClickableTestBox(recorder)
+            WithViewConfiguration(testViewConfiguration) {
+                ClickableTestBox(recorder)
+            }
         }
         onNodeWithTag(ClickableTestBox.defaultTag).performMouseInput(mouseInput)
         runOnIdle { recorder.verifyEvents(*eventVerifiers) }

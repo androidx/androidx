@@ -201,7 +201,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             windowContainer = windowContainer,
             renderSettings = renderSettings,
         ).apply {
-            focusManager.releaseFocus()
             setBounds(0, 0, width, height)
             contentComponent.isFocusable = isFocusable
             contentComponent.isRequestFocusEnabled = isRequestFocusEnabled
@@ -210,19 +209,12 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             _focusListeners.forEach(contentComponent::addFocusListener)
             contentComponent.addFocusListener(object : FocusListener {
                 override fun focusGained(e: FocusEvent) {
-                    // The focus can be switched from the child component inside SwingPanel.
-                    // In that case, SwingPanel will take care of it.
-                    if (!isParentOf(e.oppositeComponent)) {
-                        focusManager.requestFocus()
+                    if (!e.isTemporary && !e.isFocusGainedHandledBySwingPanel(this@ComposePanel)) {
                         when (e.cause) {
-                            FocusEvent.Cause.TRAVERSAL_FORWARD -> {
-                                focusManager.moveFocus(FocusDirection.Next)
-                            }
-                            FocusEvent.Cause.TRAVERSAL_BACKWARD -> {
-                                focusManager.moveFocus(FocusDirection.Previous)
-                            }
                             FocusEvent.Cause.UNKNOWN, FocusEvent.Cause.ACTIVATION -> {
-                                focusManager.moveFocus(FocusDirection.Enter)
+                                if (!focusManager.hasFocus) {
+                                    focusManager.takeFocus(FocusDirection.Next)
+                                }
                             }
                             else -> Unit
                         }

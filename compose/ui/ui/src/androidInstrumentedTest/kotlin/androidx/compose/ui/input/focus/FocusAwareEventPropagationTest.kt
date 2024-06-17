@@ -84,7 +84,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     @Test
     fun noFocusable_doesNotDeliverEvent() {
         // Arrange.
-        var error: IllegalStateException? = null
         rule.setContent {
             Box(
                 modifier = Modifier.onFocusAwareEvent {
@@ -95,25 +94,15 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         }
 
         // Act.
-        try {
-            rule.onRoot().performFocusAwareInput(sentEvent)
-        } catch (exception: IllegalStateException) {
-            error = exception
-        }
+        rule.onRoot().performFocusAwareInput(sentEvent)
 
         // Assert.
-        assertThat(receivedEvent).isNull()
-        when (nodeType) {
-            KeyInput, InterruptedSoftKeyboardInput ->
-                assertThat(error!!.message).contains("do not have an active focus target")
-            RotaryInput -> assertThat(error).isNull()
-        }
+        rule.runOnIdle { assertThat(receivedEvent).isNull() }
     }
 
     @Test
     fun unfocusedFocusable_doesNotDeliverEvent() {
         // Arrange.
-        var error: IllegalStateException? = null
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
@@ -126,18 +115,10 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         }
 
         // Act.
-        try {
-            rule.onRoot().performFocusAwareInput(sentEvent)
-        } catch (exception: IllegalStateException) {
-            error = exception
-        }
+        rule.onRoot().performFocusAwareInput(sentEvent)
 
         // Assert.
-        assertThat(receivedEvent).isNull()
-        when (nodeType) {
-            KeyInput -> assertThat(error!!.message).contains("do not have an active focus target")
-            InterruptedSoftKeyboardInput, RotaryInput -> assertThat(receivedEvent).isNull()
-        }
+        rule.runOnIdle { assertThat(receivedEvent).isNull() }
     }
 
     @Test
@@ -526,7 +507,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     }
 
     private fun ComposeContentTestRule.setContentWithInitialFocus(content: @Composable () -> Unit) {
-        setFocusableContent(content)
+        setFocusableContent(content = content)
         runOnIdle { initialFocus.requestFocus() }
     }
 
