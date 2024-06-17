@@ -31,9 +31,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     namespace "androidx.window.testing"
 }
 
@@ -49,7 +46,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
 
     testImplementation(libs.robolectric)

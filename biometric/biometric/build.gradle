@@ -29,9 +29,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     compileSdk = 35
 }
 
@@ -63,7 +60,6 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation("androidx.fragment:fragment-testing:1.4.1")
 }
 

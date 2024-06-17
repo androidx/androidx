@@ -42,7 +42,6 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
 }
 
 android {
@@ -55,7 +54,6 @@ android {
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
-        multiDexEnabled true
     }
 
     buildTypes.configureEach {

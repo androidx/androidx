@@ -49,9 +49,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     lintOptions {
         disable("InvalidPackage")
     }

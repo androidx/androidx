@@ -16,9 +16,6 @@ plugins {
 
 android {
     compileSdkPreview "VanillaIceCream"
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.activity"
 }
 
@@ -46,7 +43,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.activity", module: "activity"
     })

@@ -18,9 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
-    <application
-        android:name="androidx.multidex.MultiDexApplication"
-        android:supportsRtl="true">
+    <application android:supportsRtl="true">
         <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"
                   android:theme="@style/Theme.AppCompat"/>
     </application>

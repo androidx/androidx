@@ -55,7 +55,6 @@ dependencies {
     testImplementation(project(":camera:camera-camera2"))
     testImplementation(project(":camera:camera-testing"))
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -76,10 +75,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
-
     lintOptions {
         enable 'CameraXQuirksClassDetector'
     }

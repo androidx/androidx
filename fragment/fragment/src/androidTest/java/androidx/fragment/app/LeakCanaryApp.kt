@@ -16,6 +16,6 @@
 
 package androidx.fragment.app
 
-import androidx.multidex.MultiDexApplication
+import android.app.Application
 
-class LeakCanaryApp : MultiDexApplication()
+class LeakCanaryApp : Application()

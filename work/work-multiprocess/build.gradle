@@ -30,9 +30,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -54,7 +51,6 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
 }
 
 androidx {

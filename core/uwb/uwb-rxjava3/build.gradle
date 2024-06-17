@@ -46,13 +46,11 @@ dependencies {
     androidTestImplementation('com.google.android.gms:play-services-nearby:19.2.0', {
         exclude group: "androidx.core"
     })
-    androidTestImplementation(libs.multidex)
 }
 
 android {
     defaultConfig {
         minSdkVersion 31
-        multiDexEnabled = true
     }
 
     namespace "androidx.core.uwb.rxjava3"

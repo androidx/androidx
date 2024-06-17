@@ -34,10 +34,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-
     lintOptions {
         enable 'CameraXQuirksClassDetector'
     }
