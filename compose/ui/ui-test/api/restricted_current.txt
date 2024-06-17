@@ -388,9 +388,9 @@ package androidx.compose.ui.test {
   }
 
   public final class MouseInjectionScopeKt {
-    method public static void animateAlong(androidx.compose.ui.test.MouseInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis);
-    method public static void animateBy(androidx.compose.ui.test.MouseInjectionScope, long delta, optional long durationMillis);
-    method public static void animateTo(androidx.compose.ui.test.MouseInjectionScope, long position, optional long durationMillis);
+    method public static void animateMoveAlong(androidx.compose.ui.test.MouseInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis);
+    method public static void animateMoveBy(androidx.compose.ui.test.MouseInjectionScope, long delta, optional long durationMillis);
+    method public static void animateMoveTo(androidx.compose.ui.test.MouseInjectionScope, long position, optional long durationMillis);
     method public static void click(androidx.compose.ui.test.MouseInjectionScope, optional long position, optional int button);
     method public static void doubleClick(androidx.compose.ui.test.MouseInjectionScope, optional long position, optional int button);
     method public static void dragAndDrop(androidx.compose.ui.test.MouseInjectionScope, long start, long end, optional int button, optional long durationMillis);
