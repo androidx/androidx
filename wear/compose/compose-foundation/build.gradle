@@ -32,7 +32,7 @@ plugins {
 }
 
 dependencies {
-    api project(':compose:foundation:foundation')
+    api("androidx.compose.foundation:foundation:1.6.0")
     api("androidx.compose.ui:ui:1.6.0")
     api("androidx.compose.ui:ui-text:1.6.0")
     api("androidx.compose.runtime:runtime:1.6.0")
