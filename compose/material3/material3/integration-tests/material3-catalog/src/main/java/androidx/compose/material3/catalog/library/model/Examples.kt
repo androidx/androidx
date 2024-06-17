@@ -63,6 +63,8 @@ import androidx.compose.material3.samples.ElevatedSplitButtonSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
+import androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedLargeTopAppBarWithSubtitle
+import androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedMediumTopAppBarWithSubtitle
 import androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
@@ -153,9 +155,11 @@ import androidx.compose.material3.samples.ShortNavigationBarWithHorizontalItemsS
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
+import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBarWithSubtitle
 import androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
 import androidx.compose.material3.samples.SimpleTextFieldSample
 import androidx.compose.material3.samples.SimpleTopAppBar
+import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
 import androidx.compose.material3.samples.SliderSample
 import androidx.compose.material3.samples.SliderWithCustomThumbSample
 import androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
@@ -606,11 +610,25 @@ val TopAppBarExamples =
             SimpleTopAppBar()
         },
         Example(
+            name = "SimpleTopAppBarWithSubtitle",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+        ) {
+            SimpleTopAppBarWithSubtitle()
+        },
+        Example(
             name = "SimpleCenterAlignedTopAppBar",
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
         ) {
             SimpleCenterAlignedTopAppBar()
+        },
+        Example(
+            name = "SimpleCenterAlignedTopAppBarWithSubtitle",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+        ) {
+            SimpleCenterAlignedTopAppBarWithSubtitle()
         },
         Example(
             name = "PinnedTopAppBar",
@@ -634,11 +652,25 @@ val TopAppBarExamples =
             ExitUntilCollapsedMediumTopAppBar()
         },
         Example(
+            name = "ExitUntilCollapsedCenterAlignedMediumTopAppBarWithSubtitle",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+        ) {
+            ExitUntilCollapsedCenterAlignedMediumTopAppBarWithSubtitle()
+        },
+        Example(
             name = "ExitUntilCollapsedLargeTopAppBar",
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
         ) {
             ExitUntilCollapsedLargeTopAppBar()
+        },
+        Example(
+            name = "ExitUntilCollapsedCenterAlignedLargeTopAppBarWithSubtitle",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+        ) {
+            ExitUntilCollapsedCenterAlignedLargeTopAppBarWithSubtitle()
         },
     )
 

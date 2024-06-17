@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 class AppBarScreenshotTest {
 
     @get:Rule val composeTestRule = createComposeRule()
@@ -78,6 +78,60 @@ class AppBarScreenshotTest {
         }
 
         assertAppBarAgainstGolden(goldenIdentifier = "smallAppBar_lightTheme")
+    }
+
+    @Test
+    fun smallAppBar_withSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = { Text("Subtitle") },
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(goldenIdentifier = "smallAppBar_withSubtitle_lightTheme")
+    }
+
+    @Test
+    fun smallAppBar_withoutSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = {},
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(goldenIdentifier = "smallAppBar_withoutSubtitle_lightTheme")
     }
 
     @Test
@@ -170,6 +224,64 @@ class AppBarScreenshotTest {
     }
 
     @Test
+    fun centerAlignedAppBar_withSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = { Text("Subtitle") },
+                    titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(goldenIdentifier = "centerAlignedAppBar_withSubtitle_lightTheme")
+    }
+
+    @Test
+    fun centerAlignedAppBar_withoutSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = {},
+                    titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "centerAlignedAppBar_withoutSubtitle_lightTheme"
+        )
+    }
+
+    @Test
     fun centerAlignedAppBar_darkTheme() {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(TopAppBarTestTag)) {
@@ -222,6 +334,95 @@ class AppBarScreenshotTest {
     }
 
     @Test
+    fun mediumAppBar_centerAligned_withSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                MediumTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = { Text("Subtitle") },
+                    titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "mediumAppBar_centerAligned_withSubtitle_lightTheme"
+        )
+    }
+
+    @Test
+    fun mediumAppBar_centerAligned_withoutSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                MediumTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = null,
+                    titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "mediumAppBar_centerAligned_withoutSubtitle_lightTheme"
+        )
+    }
+
+    @Test
+    fun mediumAppBar_startAligned_withSubtitle_darkTheme() {
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                MediumTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = { Text("Subtitle") },
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "mediumAppBar_startAligned_withSubtitle_darkTheme"
+        )
+    }
+
+    @Test
     fun mediumAppBar_darkTheme() {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(TopAppBarTestTag)) {
@@ -271,6 +472,95 @@ class AppBarScreenshotTest {
         }
 
         assertAppBarAgainstGolden(goldenIdentifier = "largeAppBar_lightTheme")
+    }
+
+    @Test
+    fun largeAppBar_centerAligned_withSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                LargeTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = { Text("Subtitle") },
+                    titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "largeAppBar_centerAligned_withSubtitle_lightTheme"
+        )
+    }
+
+    @Test
+    fun largeAppBar_centerAligned_withoutSubtitle_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                LargeTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = null,
+                    titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "largeAppBar_centerAligned_withoutSubtitle_lightTheme"
+        )
+    }
+
+    @Test
+    fun largeAppBar_startAligned_withSubtitle_darkTheme() {
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                LargeTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    title = { Text("Title") },
+                    subtitle = { Text("Subtitle") },
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
+                        }
+                    }
+                )
+            }
+        }
+
+        assertAppBarAgainstGolden(
+            goldenIdentifier = "largeAppBar_startAligned_withSubtitle_darkTheme"
+        )
     }
 
     @Test
