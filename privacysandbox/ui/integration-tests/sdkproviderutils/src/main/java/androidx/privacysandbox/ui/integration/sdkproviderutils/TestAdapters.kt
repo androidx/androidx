@@ -77,7 +77,7 @@ class TestAdapters(private val sdkContext: Context) {
                 )
         }
 
-        private inner class BannerAdSession(private val adView: View) : SandboxedUiAdapter.Session {
+        private inner class BannerAdSession(private val adView: View) : AbstractSession() {
             override val view: View
                 get() = adView
 

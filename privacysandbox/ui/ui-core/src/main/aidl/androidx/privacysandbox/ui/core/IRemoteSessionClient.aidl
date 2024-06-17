@@ -22,7 +22,8 @@ import android.view.SurfaceControlViewHost.SurfacePackage;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IRemoteSessionClient {
     void onRemoteSessionOpened(in SurfacePackage surfacePackage,
-        IRemoteSessionController remoteSessionController, boolean isZOrderOnTop);
+        IRemoteSessionController remoteSessionController,
+        boolean isZOrderOnTop, boolean hasObservers);
     void onRemoteSessionError(String exception);
     void onResizeRequested(int width, int height);
     void onSessionUiFetched(in SurfacePackage surfacePackage);

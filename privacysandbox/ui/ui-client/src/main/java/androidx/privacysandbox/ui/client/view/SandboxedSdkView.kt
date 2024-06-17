@@ -106,6 +106,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             override fun surfaceCreated(p0: SurfaceHolder) {
                 updateAndSetClippingBounds(true)
                 viewTreeObserver.addOnGlobalLayoutListener(globalLayoutChangeListener)
+                viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
             }
 
             override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
@@ -116,6 +117,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     // This will only be invoked when the content view has been set and the window is attached.
     private val globalLayoutChangeListener =
         ViewTreeObserver.OnGlobalLayoutListener { updateAndSetClippingBounds() }
+
+    private val scrollChangedListener =
+        ViewTreeObserver.OnScrollChangedListener { signalMeasurer?.maybeSendSignals() }
 
     private var adapter: SandboxedUiAdapter? = null
     private var client: Client? = null
@@ -131,6 +135,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
     private var viewContainingPoolingContainerListener: View? = null
     private var poolingContainerListener = PoolingContainerListener {}
+    internal var signalMeasurer: SandboxedSdkViewSignalMeasurer? = null
 
     /** Adds a state change listener to the UI session and immediately reports the current state. */
     fun addStateChangedListener(stateChangedListener: SandboxedSdkUiSessionStateChangedListener) {
@@ -148,6 +153,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         if (this.adapter === sandboxedUiAdapter) return
         client?.close()
         client = null
+        signalMeasurer = null
         this.adapter = sandboxedUiAdapter
         checkClientOpenSession()
     }
@@ -225,7 +231,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     private fun removeContentView() {
-        removeCallbacks()
         if (childCount == 1) {
             super.removeViewAt(0)
         }
@@ -234,6 +239,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private fun removeCallbacks() {
         (contentView as? SurfaceView)?.holder?.removeCallback(surfaceChangedCallback)
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutChangeListener)
+        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
     internal fun setContentView(contentView: View) {
@@ -251,6 +257,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
 
         // Wait for the next frame commit before sending an ACTIVE state change to listeners.
+        // TODO(b/338196636): Unregister this when necessary.
         CompatImpl.registerFrameCommitCallback(viewTreeObserver) {
             stateListenerManager.currentUiSessionState = Active
         }
@@ -262,6 +269,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     internal fun onClientClosedSession(error: Throwable? = null) {
         removeContentView()
+        signalMeasurer?.dropPendingUpdates()
+        signalMeasurer = null
         stateListenerManager.currentUiSessionState =
             if (error != null) {
                 SandboxedSdkUiSessionState.Error(error)
@@ -339,6 +348,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         previousHeight = height
         previousWidth = width
         checkClientOpenSession()
+        signalMeasurer?.maybeSendSignals()
     }
 
     private fun closeClient() {
@@ -388,6 +398,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     override fun onDetachedFromWindow() {
+        removeCallbacks()
         if (!this.isWithinPoolingContainer) {
             closeClient()
         }
@@ -501,7 +512,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
                 session.close()
                 return
             }
-            sandboxedSdkView?.setContentView(session.view)
+            val view = checkNotNull(sandboxedSdkView) { "SandboxedSdkView should not be null" }
+            view.setContentView(session.view)
             this.session = session
             val width = pendingWidth
             val height = pendingHeight
@@ -512,6 +524,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             pendingConfiguration = null
             pendingZOrderOnTop?.let { session.notifyZOrderChanged(it) }
             pendingZOrderOnTop = null
+            if (session.signalOptions.isNotEmpty()) {
+                view.signalMeasurer = SandboxedSdkViewSignalMeasurer(view, session)
+            }
         }
 
         override fun onSessionError(throwable: Throwable) {
