@@ -1297,7 +1297,6 @@ class BinaryCompatibilityCheckerTest {
         // - Signature version: 2
         // - Show manifest properties: true
         // - Show declarations: true
-        
         // Library unique name: <androidx:library>
         $content
         """

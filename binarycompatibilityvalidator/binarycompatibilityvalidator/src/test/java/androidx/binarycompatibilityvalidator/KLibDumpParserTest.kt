@@ -22,7 +22,9 @@ import org.jetbrains.kotlin.library.abi.AbiClassKind
 import org.jetbrains.kotlin.library.abi.AbiCompoundName
 import org.jetbrains.kotlin.library.abi.AbiModality
 import org.jetbrains.kotlin.library.abi.AbiQualifiedName
+import org.jetbrains.kotlin.library.abi.AbiSignatureVersion
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
+import org.jetbrains.kotlin.library.abi.LibraryAbi
 import org.junit.Test
 
 @OptIn(ExperimentalLibraryAbiReader::class)
@@ -230,6 +232,16 @@ class KlibDumpParserTest {
     }
 
     @Test
+    fun parsesSignatureVersion() {
+        val parsed = KlibDumpParser(exampleMetadata).parse()
+        assertThat(parsed).isNotNull()
+        assertThat(parsed.keys).hasSize(1)
+        val abi: LibraryAbi = parsed.values.single()
+        assertThat(abi.signatureVersions)
+            .containsExactly(AbiSignatureVersion.resolveByVersionNumber(2))
+    }
+
+    @Test
     fun parseFullCollectionKlibDumpSucceeds() {
         val parsed = KlibDumpParser(collectionDump).parse()
         assertThat(parsed).isNotNull()
@@ -263,5 +275,19 @@ class KlibDumpParserTest {
             }
         assertThat(iosQNames).containsExactly("my.lib/myIosFun", "my.lib/commonFun")
         assertThat(linuxQNames).containsExactly("my.lib/myLinuxFun", "my.lib/commonFun")
+    }
+
+    companion object {
+        private val exampleMetadata =
+            """
+            // KLib ABI Dump
+            // Targets: [linuxX64]
+            // Rendering settings:
+            // - Signature version: 2
+            // - Show manifest properties: true
+            // - Show declarations: true
+            // Library unique name: <androidx:library>
+        """
+                .trimIndent()
     }
 }
