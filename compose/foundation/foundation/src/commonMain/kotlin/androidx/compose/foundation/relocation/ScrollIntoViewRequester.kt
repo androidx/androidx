@@ -21,6 +21,7 @@ package androidx.compose.foundation.relocation
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.unit.toSize
@@ -44,7 +45,14 @@ internal suspend fun DelegatableNode.scrollIntoView(rect: Rect? = null) {
     if (!node.isAttached) return
     val layoutCoordinates = requireLayoutCoordinates()
     val parent = findBringIntoViewParent() ?: return
-    parent.bringChildIntoView(layoutCoordinates) {
+    parent.scrollIntoView(layoutCoordinates, rect)
+}
+
+internal suspend fun BringIntoViewParent.scrollIntoView(
+    layoutCoordinates: LayoutCoordinates,
+    rect: Rect? = null
+) {
+    bringChildIntoView(layoutCoordinates) {
         // If the rect is not specified, use a rectangle representing the entire composable.
         // If the coordinates are detached when this call is made, we don't bother even
         // submitting the request, but if the coordinates become detached while the request
