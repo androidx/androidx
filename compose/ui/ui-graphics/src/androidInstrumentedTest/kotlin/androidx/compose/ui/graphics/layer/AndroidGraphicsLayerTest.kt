@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics.layer
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
@@ -44,7 +43,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -150,8 +148,7 @@ class AndroidGraphicsLayerTest {
                     .toImageBitmap()
                     .toPixelMap()
                     .verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            },
-            verifySoftwareRender = false // Only supported in hardware accelerated use cases
+            }
         )
     }
 
@@ -196,6 +193,9 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    // this test is failing on API 21 as there toImageBitmap() is using software rendering
+    // and we reverted the software rendering b/333866398
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
         // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
@@ -212,8 +212,7 @@ class AndroidGraphicsLayerTest {
                     }
                 drawIntoCanvas { layer.drawForPersistence(it) }
             },
-            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) },
-            verifySoftwareRender = false
+            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
         )
     }
 
@@ -741,8 +740,7 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -819,7 +817,6 @@ class AndroidGraphicsLayerTest {
                 }
             },
             usePixelCopy = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -877,8 +874,7 @@ class AndroidGraphicsLayerTest {
                 }
                 Assert.assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -971,8 +967,7 @@ class AndroidGraphicsLayerTest {
                     )
                 }
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -1008,8 +1003,7 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(nonPureRedCount > 0)
             },
-            entireScene = false,
-            verifySoftwareRender = false // RenderEffect only supported with hardware acceleration
+            entireScene = false
         )
     }
 
@@ -1122,8 +1116,7 @@ class AndroidGraphicsLayerTest {
                     assertPixelColor(Color.Black, 0, height - 1)
                     assertPixelColor(expectedCenter, width / 2, height / 2)
                 }
-            },
-            verifySoftwareRender = false // ModulateAlpha only supported with hardware acceleration
+            }
         )
     }
 
@@ -1488,8 +1481,7 @@ class AndroidGraphicsLayerTest {
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: (suspend (PixelMap) -> Unit)? = null,
         entireScene: Boolean = false,
-        usePixelCopy: Boolean = false,
-        verifySoftwareRender: Boolean = true
+        usePixelCopy: Boolean = false
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
         var androidGraphicsContext: GraphicsContext? = null
@@ -1583,16 +1575,6 @@ class AndroidGraphicsLayerTest {
                         bitmap.toPixelMap()
                     }
                 runBlocking { verify(pixelMap) }
-                if (verifySoftwareRender) {
-                    val softwareRenderLatch = CountDownLatch(1)
-                    var softwareBitmap: Bitmap? = null
-                    testActivity!!.runOnUiThread {
-                        softwareBitmap = doSoftwareRender(target)
-                        softwareRenderLatch.countDown()
-                    }
-                    assertTrue(softwareRenderLatch.await(300, TimeUnit.MILLISECONDS))
-                    runBlocking { verify(softwareBitmap!!.asImageBitmap().toPixelMap()) }
-                }
             }
         } finally {
             val detachLatch = CountDownLatch(1)
@@ -1611,13 +1593,6 @@ class AndroidGraphicsLayerTest {
             }
             scenario?.moveToState(Lifecycle.State.DESTROYED)
         }
-    }
-
-    private fun doSoftwareRender(target: View): Bitmap {
-        val bitmap = Bitmap.createBitmap(target.width, target.height, Bitmap.Config.ARGB_8888)
-        val softwareCanvas = Canvas(bitmap)
-        target.draw(softwareCanvas)
-        return bitmap
     }
 
     private class GraphicsContextHostDrawable(

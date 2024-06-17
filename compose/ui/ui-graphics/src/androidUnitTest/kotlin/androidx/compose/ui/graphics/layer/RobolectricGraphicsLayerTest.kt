@@ -65,6 +65,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -82,6 +83,7 @@ class RobolectricGraphicsLayerTest {
         val TEST_SIZE = IntSize(TEST_WIDTH, TEST_HEIGHT)
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testGraphicsLayerBitmap() {
         lateinit var layer: GraphicsLayer
@@ -119,6 +121,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testDrawLayer() {
         var layer: GraphicsLayer? = null
@@ -139,6 +142,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testDrawAfterDiscard() {
         var layer: GraphicsLayer? = null
@@ -160,6 +164,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
         // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
@@ -177,6 +182,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRecordLayerWithSize() {
         graphicsLayerTest(
@@ -191,6 +197,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRecordLayerWithOffset() {
         var layer: GraphicsLayer? = null
@@ -213,6 +220,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testSetOffset() {
         var layer: GraphicsLayer? = null
@@ -238,6 +246,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testSetAlpha() {
         var layer: GraphicsLayer? = null
@@ -266,6 +275,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testSetScaleX() {
         var layer: GraphicsLayer? = null
@@ -294,6 +304,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testSetScaleY() {
         var layer: GraphicsLayer? = null
@@ -322,6 +333,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testDefaultPivot() {
         var layer: GraphicsLayer? = null
@@ -347,6 +359,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testBottomRightPivot() {
         var layer: GraphicsLayer? = null
@@ -371,6 +384,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testTranslationX() {
         var layer: GraphicsLayer? = null
@@ -393,6 +407,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRectOutlineWithNonZeroTopLeft() {
         graphicsLayerTest(
@@ -414,6 +429,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRoundRectOutlineWithNonZeroTopLeft() {
         graphicsLayerTest(
@@ -435,6 +451,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRecordOverwritesPreviousRecord() {
         graphicsLayerTest(
@@ -448,6 +465,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testTranslationY() {
         var layer: GraphicsLayer? = null
@@ -470,6 +488,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRotationX() {
         var layer: GraphicsLayer? = null
@@ -498,6 +517,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRotationY() {
         var layer: GraphicsLayer? = null
@@ -525,6 +545,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRotationZ() {
         var layer: GraphicsLayer? = null
@@ -579,6 +600,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testUnboundedClip() {
         var layer: GraphicsLayer?
@@ -602,6 +624,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testBoundedClip() {
         var layer: GraphicsLayer?
@@ -632,6 +655,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testCompositingStrategyAuto() {
         var layer: GraphicsLayer?
@@ -671,6 +695,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testCompositingStrategyOffscreen() {
         var layer: GraphicsLayer?
@@ -704,6 +729,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testCameraDistanceWithRotationY() {
         var layer: GraphicsLayer?
@@ -732,6 +758,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testTintColorFilter() {
         var layer: GraphicsLayer?
@@ -756,6 +783,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testBlendMode() {
         var layer: GraphicsLayer?
@@ -807,6 +835,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRectOutlineClip() {
         var layer: GraphicsLayer?
@@ -851,6 +880,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testPathOutlineClip() {
         var layer: GraphicsLayer?
@@ -906,6 +936,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testRoundRectOutlineClip() {
         var layer: GraphicsLayer?
@@ -960,6 +991,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun setOutlineExtensionAppliesValuesCorrectly() {
         graphicsLayerTest(
@@ -984,6 +1016,7 @@ class RobolectricGraphicsLayerTest {
         )
     }
 
+    @Ignore("Software rendering support was reverted. b/333866398")
     @Test
     fun testSwitchingFromClipToBoundsToClipToOutline() {
         val targetColor = Color.Red
