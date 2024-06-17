@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.demos.text
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -79,6 +80,7 @@ fun TextLineHeightDemo() {
         val lineHeightStyleEnabled = remember { mutableStateOf(false) }
         var lineHeightAlignment = remember { mutableStateOf(LineHeightStyle.Default.alignment) }
         var lineHeightTrim = remember { mutableStateOf(LineHeightStyle.Default.trim) }
+        var lineHeightMode = remember { mutableStateOf(LineHeightStyle.Default.mode) }
         val includeFontPadding = remember { mutableStateOf(false) }
         val applyMaxLines = remember { mutableStateOf(false) }
         val ellipsize = remember { mutableStateOf(false) }
@@ -93,7 +95,8 @@ fun TextLineHeightDemo() {
             LineHeightStyleConfiguration(
                 lineHeightStyleEnabled,
                 lineHeightTrim,
-                lineHeightAlignment
+                lineHeightAlignment,
+                lineHeightMode,
             )
             Spacer(Modifier.padding(16.dp))
             TextWithLineHeight(
@@ -103,7 +106,8 @@ fun TextLineHeightDemo() {
                 if (lineHeightStyleEnabled.value) {
                     LineHeightStyle(
                         alignment = lineHeightAlignment.value,
-                        trim = lineHeightTrim.value
+                        trim = lineHeightTrim.value,
+                        mode = lineHeightMode.value,
                     )
                 } else null,
                 includeFontPadding.value,
@@ -176,7 +180,8 @@ private fun LineHeightConfiguration(
 private fun LineHeightStyleConfiguration(
     lineHeightStyleEnabled: MutableState<Boolean>,
     lineHeightTrim: MutableState<Trim>,
-    lineHeightAlignment: MutableState<LineHeightStyle.Alignment>
+    lineHeightAlignment: MutableState<LineHeightStyle.Alignment>,
+    lineHeightMode: MutableState<LineHeightStyle.Mode>,
 ) {
     Column(Modifier.horizontalScroll(rememberScrollState())) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -189,6 +194,7 @@ private fun LineHeightStyleConfiguration(
         Column(Modifier.padding(horizontal = 16.dp)) {
             LineHeightTrimOptions(lineHeightTrim, lineHeightStyleEnabled.value)
             LineHeightAlignmentOptions(lineHeightAlignment, lineHeightStyleEnabled.value)
+            LineHeightModeOptions(lineHeightMode, lineHeightStyleEnabled.value)
         }
     }
 }
@@ -249,6 +255,39 @@ private fun LineHeightTrimOptions(lineHeightTrim: MutableState<Trim>, enabled: B
             ) {
                 RadioButton(
                     selected = (option == lineHeightTrim.value),
+                    onClick = null,
+                    enabled = enabled
+                )
+                Text(text = option.toString().split(".").last(), style = HintStyle)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LineHeightModeOptions(
+    lineHeightMode: MutableState<LineHeightStyle.Mode>,
+    enabled: Boolean
+) {
+    // Unable to use IntArray because of private value class ctor/accessors.
+    @SuppressLint("PrimitiveInCollection")
+    val options = listOf(LineHeightStyle.Mode.Fixed, LineHeightStyle.Mode.Minimum)
+
+    Row(modifier = Modifier.selectableGroup(), verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "mode:", style = HintStyle)
+        options.forEach { option ->
+            Row(
+                Modifier.height(56.dp)
+                    .selectable(
+                        selected = (option == lineHeightMode.value),
+                        onClick = { lineHeightMode.value = option },
+                        role = Role.RadioButton,
+                        enabled = enabled
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = (option == lineHeightMode.value),
                     onClick = null,
                     enabled = enabled
                 )
