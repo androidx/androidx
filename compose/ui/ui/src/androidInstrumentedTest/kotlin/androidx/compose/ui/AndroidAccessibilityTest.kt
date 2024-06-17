@@ -4005,6 +4005,63 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testSemanticsHitTest_unimportantTraversalProperties() {
+        // Arrange.
+        setContent {
+            Box(
+                Modifier.size(100.dp).testTag(tag).semantics {
+                    isTraversalGroup = true
+                    traversalIndex = 1f
+                }
+            ) {}
+        }
+        val bounds = with(rule.density) { rule.onNodeWithTag(tag).getBoundsInRoot().toRect() }
+
+        // Act.
+        val hitNodeId =
+            rule.runOnIdle {
+                delegate.hitTestSemanticsAt(
+                    bounds.left + bounds.width / 2,
+                    bounds.top + bounds.height / 2
+                )
+            }
+
+        // Assert it doesn't hit the tagged node since it only has unimportant properties.
+        rule.runOnIdle { assertThat(hitNodeId).isEqualTo(InvalidId) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testAccessibilityNodeInfoTreePruned_invisibleDoesNotPrune() {
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag)) {
+                with(LocalDensity.current) {
+                    BasicText(
+                        "Child One",
+                        Modifier.zIndex(1f)
+                            .testTag(childOneTag)
+                            .semantics { invisibleToUser() }
+                            .requiredSize(50.toDp())
+                    )
+                    BasicText("Child Two", Modifier.testTag(childTwoTag).requiredSize(50.toDp()))
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
+        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
+
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
+            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
+                .isEqualTo("Child Two")
+        }
+    }
+
+    @Test
     fun testDialog_setCorrectBounds() {
         var dialogComposeView: AndroidComposeView? = null
         setContent {
