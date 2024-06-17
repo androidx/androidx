@@ -722,6 +722,21 @@ class SandboxedSdkViewTest {
         assertThat(containerWidth - newXPosition).isEqualTo(onScreenWidth)
     }
 
+    @Test
+    fun signalsSentWhenAlphaChanges() {
+        addViewToLayoutAndWaitToBeActive()
+        val session = testSandboxedUiAdapter.testSession!!
+        // Catch initial UI change so that the subsequent alpha change will be reflected in the
+        // next SandboxedSdkViewUiInfo
+        session.runAndRetrieveNextUiChange {}
+        val newAlpha = 0.5f
+        val sandboxedSdkViewUiInfo =
+            session.runAndRetrieveNextUiChange {
+                activityScenarioRule.withActivity { view.alpha = newAlpha }
+            }
+        assertThat(sandboxedSdkViewUiInfo.uiContainerOpacityHint).isEqualTo(newAlpha)
+    }
+
     /**
      * Changes the size of the view several times in quick succession, and verifies that the signals
      * sent match the width of the final change.

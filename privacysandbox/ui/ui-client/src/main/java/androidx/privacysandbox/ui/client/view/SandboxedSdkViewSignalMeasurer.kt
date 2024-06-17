@@ -44,6 +44,7 @@ internal class SandboxedSdkViewSignalMeasurer(
     private var onScreenGeometry = Rect()
     private var containerWidthPx = 0
     private var containerHeightPx = 0
+    private var opacityHint = 1.0f
     private var lastTimeSentSignals: Long = clock.uptimeMillis()
     private var scheduledTask: Runnable? = null
 
@@ -71,7 +72,12 @@ internal class SandboxedSdkViewSignalMeasurer(
             updateUiContainerInfo()
             session.notifyUiChanged(
                 SandboxedSdkViewUiInfo.toBundle(
-                    SandboxedSdkViewUiInfo(containerWidthPx, containerHeightPx, onScreenGeometry)
+                    SandboxedSdkViewUiInfo(
+                        containerWidthPx,
+                        containerHeightPx,
+                        onScreenGeometry,
+                        opacityHint
+                    )
                 )
             )
             lastTimeSentSignals = clock.uptimeMillis()
@@ -96,5 +102,6 @@ internal class SandboxedSdkViewSignalMeasurer(
         }
         containerHeightPx = view.height
         containerWidthPx = view.width
+        opacityHint = view.alpha
     }
 }
