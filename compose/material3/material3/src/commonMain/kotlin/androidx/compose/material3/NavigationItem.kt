@@ -74,7 +74,7 @@ import kotlin.math.roundToInt
 
 /** Class that describes the different supported icon positions of the navigation item. */
 @JvmInline
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 value class NavigationItemIconPosition private constructor(private val value: Int) {
     companion object {
         /* The icon is positioned on top of the label. */
@@ -226,7 +226,7 @@ constructor(
  *   for this item. You can create and pass in your own `remember`ed instance to observe
  *   [Interaction]s and customize the appearance / behavior of this item in different states
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun NavigationItem(
     selected: Boolean,
@@ -335,7 +335,7 @@ internal fun NavigationItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavigationItemLayout(
     interactionSource: InteractionSource,
