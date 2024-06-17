@@ -33,12 +33,24 @@ class SandboxedSdkViewUiInfo(
      *
      * If none of the UI container is visible on screen, each coordinate in this [Rect] will be -1.
      */
-    val onScreenGeometry: Rect
+    val onScreenGeometry: Rect,
+    /**
+     * Returns the opacity of the UI container, where available.
+     *
+     * When available, this is a value from 0 to 1, where 0 means the container is completely
+     * transparent and 1 means the container is completely opaque. This value doesn't necessarily
+     * reflect the user-visible opacity of the UI container, as shaders and other overlays can
+     * affect that.
+     *
+     * When the opacity is not available, the value will be -1.
+     */
+    val uiContainerOpacityHint: Float
 ) {
     companion object {
         private const val UI_CONTAINER_WIDTH_KEY = "uiContainerWidth"
         private const val UI_CONTAINER_HEIGHT_KEY = "uiContainerHeight"
         private const val ONSCREEN_GEOMETRY_KEY = "onScreenGeometry"
+        private const val UI_CONTAINER_OPACITY_KEY = "uiContainerOpacity"
 
         @JvmStatic
         fun fromBundle(bundle: Bundle): SandboxedSdkViewUiInfo {
@@ -48,7 +60,13 @@ class SandboxedSdkViewUiInfo(
                 checkNotNull(
                     BundleCompat.getParcelable(bundle, ONSCREEN_GEOMETRY_KEY, Rect::class.java)
                 )
-            return SandboxedSdkViewUiInfo(uiContainerWidth, uiContainerHeight, onScreenGeometry)
+            val uiContainerOpacityHint = bundle.getFloat(UI_CONTAINER_OPACITY_KEY)
+            return SandboxedSdkViewUiInfo(
+                uiContainerWidth,
+                uiContainerHeight,
+                onScreenGeometry,
+                uiContainerOpacityHint
+            )
         }
 
         @JvmStatic
@@ -57,6 +75,7 @@ class SandboxedSdkViewUiInfo(
             bundle.putInt(UI_CONTAINER_WIDTH_KEY, sandboxedSdkViewUiInfo.uiContainerWidth)
             bundle.putInt(UI_CONTAINER_HEIGHT_KEY, sandboxedSdkViewUiInfo.uiContainerHeight)
             bundle.putParcelable(ONSCREEN_GEOMETRY_KEY, sandboxedSdkViewUiInfo.onScreenGeometry)
+            bundle.putFloat(UI_CONTAINER_OPACITY_KEY, sandboxedSdkViewUiInfo.uiContainerOpacityHint)
             return bundle
         }
     }
@@ -67,7 +86,8 @@ class SandboxedSdkViewUiInfo(
 
         return onScreenGeometry == other.onScreenGeometry &&
             uiContainerWidth == other.uiContainerWidth &&
-            uiContainerHeight == other.uiContainerHeight
+            uiContainerHeight == other.uiContainerHeight &&
+            uiContainerOpacityHint == other.uiContainerOpacityHint
     }
 
     override fun hashCode(): Int {
@@ -81,6 +101,7 @@ class SandboxedSdkViewUiInfo(
         return "SandboxedSdkViewUiInfo(" +
             "uiContainerWidth=$uiContainerWidth, " +
             "uiContainerHeight=$uiContainerHeight, " +
-            "onScreenGeometry=$onScreenGeometry"
+            "onScreenGeometry=$onScreenGeometry," +
+            "uiContainerOpacityHint=$uiContainerOpacityHint"
     }
 }
