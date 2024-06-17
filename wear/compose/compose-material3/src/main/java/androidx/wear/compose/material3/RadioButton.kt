@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -52,7 +50,6 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -60,6 +57,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.material3.tokens.RadioButtonTokens
+import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitRadioButtonTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
@@ -263,7 +261,7 @@ fun SplitRadioButton(
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit
 ) {
-    val (startPadding, endPadding) = contentPadding.splitHorizontally()
+    val containerColor = colors.containerColor(enabled, selected).value
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -273,7 +271,6 @@ fun SplitRadioButton(
                 .height(IntrinsicSize.Min)
                 .width(IntrinsicSize.Max)
                 .clip(shape = shape)
-                .background(colors.containerColor(enabled, selected).value)
     ) {
         Row(
             modifier =
@@ -286,7 +283,9 @@ fun SplitRadioButton(
                     )
                     .semantics { role = Role.Button }
                     .fillMaxHeight()
-                    .then(startPadding)
+                    .clip(SPLIT_SECTIONS_SHAPE)
+                    .background(containerColor)
+                    .padding(contentPadding)
                     .weight(1.0f),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -305,8 +304,9 @@ fun SplitRadioButton(
                         content = secondaryLabel
                     ),
             )
-            Spacer(modifier = Modifier.size(SELECTION_CONTROL_SPACING))
         }
+
+        Spacer(modifier = Modifier.size(2.dp))
 
         val splitContainerColor =
             colors.splitContainerColor(enabled = enabled, selected = selected).value
@@ -320,6 +320,8 @@ fun SplitRadioButton(
                         interactionSource = selectionInteractionSource
                     )
                     .fillMaxHeight()
+                    .clip(SPLIT_SECTIONS_SHAPE)
+                    .background(containerColor)
                     .drawWithCache {
                         onDrawWithContent {
                             drawRect(color = splitContainerColor)
@@ -329,8 +331,7 @@ fun SplitRadioButton(
                     .align(Alignment.CenterVertically)
                     .width(SPLIT_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
-                    .wrapContentWidth(align = Alignment.End)
-                    .then(endPadding)
+                    .padding(contentPadding)
                     .semantics {
                         // For a selectable button, the role is always RadioButton.
                         // See also b/330869742 for issue with setting the SelectableButton role
@@ -1334,21 +1335,6 @@ private fun RowScope.Labels(
     }
 }
 
-@Composable
-private fun PaddingValues.splitHorizontally() =
-    Modifier.padding(
-        start = calculateStartPadding(LocalLayoutDirection.current),
-        end = 0.dp,
-        top = calculateTopPadding(),
-        bottom = calculateBottomPadding()
-    ) to
-        Modifier.padding(
-            start = 0.dp,
-            end = calculateEndPadding(layoutDirection = LocalLayoutDirection.current),
-            top = calculateTopPadding(),
-            bottom = calculateBottomPadding()
-        )
-
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 private val SELECTION_CONTROL_WIDTH = 32.dp
@@ -1357,5 +1343,6 @@ private val SELECTION_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
 private val SPLIT_WIDTH = 52.dp
-private val CONTROL_WIDTH = 32.dp
+private val CONTROL_WIDTH = 24.dp
 private val CONTROL_HEIGHT = 24.dp
+private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
