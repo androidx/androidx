@@ -28,8 +28,9 @@ import java.util.Collections
 abstract class ActionParameters internal constructor() {
 
     /**
-     * Key for [ActionParameters] values. Type T is the type of the associated value. The [Key.name]
-     * must be unique, keys with the same name are considered equal.
+     * Key for [ActionParameters] values. Type T is the type of the associated value. T must be a
+     * primitive or Parcelable type. The [Key.name] must be unique, keys with the same name are
+     * considered equal.
      */
     class Key<T : Any>(val name: String) {
         /**
@@ -157,7 +158,8 @@ internal constructor(internal val map: MutableMap<Key<out Any>, Any> = mutableMa
 
 /**
  * Returns a new read-only Parameters, from the specified contents. The key element in the given
- * pairs will point to the corresponding value element.
+ * pairs will point to the corresponding value element. All values must be either of primitive or
+ * Parcelable types.
  *
  * If multiple pairs have the same key, the resulting map will contain only the value from the last
  * of those pairs.
@@ -167,7 +169,8 @@ fun actionParametersOf(vararg pairs: ActionParameters.Pair<out Any>): ActionPara
 
 /**
  * Returns a new MutableParameters, from the specified contents. The key element in the given pairs
- * will point to the corresponding value element.
+ * will point to the corresponding value element. All values must be either of primitive or
+ * Parcelable types.
  *
  * If multiple pairs have the same key, the resulting Parameters will contain only the value from
  * the last of those pairs.
