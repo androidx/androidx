@@ -109,7 +109,7 @@ fun PanZoomRotateBox(
 
 internal fun Float.toRadians() = this * PI.toFloat() / 180f
 
-private fun Offset.rotate90() = Offset(-y, x)
+internal fun Offset.rotate90() = Offset(-y, x)
 
 internal fun directionVector(angleRadians: Float) = Offset(cos(angleRadians), sin(angleRadians))
 

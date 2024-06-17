@@ -71,7 +71,8 @@ data class ShapeItem(
     val usesInnerParameters: Boolean = true
 )
 
-class ShapeParameters(
+open class ShapeParameters(
+    val name: String,
     sides: Int = 5,
     innerRadius: Float = 0.5f,
     roundness: Float = 0f,
@@ -79,7 +80,7 @@ class ShapeParameters(
     innerRoundness: Float = roundness,
     innerSmooth: Float = smooth,
     rotation: Float = 0f,
-    width: Float = 4f,
+    width: Float = 1f,
     height: Float = 1f,
     pillStarFactor: Float = .5f,
     shapeId: ShapeId = ShapeId.Polygon
@@ -99,6 +100,7 @@ class ShapeParameters(
 
     fun copy() =
         ShapeParameters(
+            this.name,
             this.sides.floatValue.roundToInt(),
             this.innerRadius.floatValue,
             this.roundness.floatValue,
@@ -123,6 +125,8 @@ class ShapeParameters(
         Circle,
         Rectangle
     }
+
+    open val isCustom: Boolean = false
 
     private fun radialToCartesian(
         radius: Float,
@@ -203,7 +207,7 @@ class ShapeParameters(
                 "Star",
                 shapegen = {
                     RoundedPolygon.star(
-                        radius = 2f,
+                        radius = 1f,
                         numVerticesPerRadius = this.sides.floatValue.roundToInt(),
                         innerRadius = this.innerRadius.floatValue,
                         rounding =
@@ -387,7 +391,18 @@ class ShapeParameters(
             ),
             ShapeItem(
                 "Circle",
-                shapegen = { RoundedPolygon.circle(this.sides.floatValue.roundToInt()) },
+                shapegen = {
+                    RoundedPolygon.circle(this.sides.floatValue.roundToInt())
+                        .transformed(
+                            Matrix().apply {
+                                scale(
+                                    x = this@ShapeParameters.width.floatValue,
+                                    y = this@ShapeParameters.height.floatValue
+                                )
+                                rotateX(rotation)
+                            }
+                        )
+                },
                 shapeOutput = {
                     shapeDescription(
                         id = "Circle",
@@ -399,6 +414,7 @@ class ShapeParameters(
                 },
                 usesSides = true,
                 usesInnerRatio = false,
+                usesWH = true,
                 usesInnerParameters = false
             ),
             ShapeItem(
@@ -470,7 +486,7 @@ class ShapeParameters(
         return description
     }
 
-    fun selectedShape() = derivedStateOf { shapes[shapeIx] }
+    open fun selectedShape() = derivedStateOf { shapes[shapeIx] }
 
     fun genShape(autoSize: Boolean = true) =
         selectedShape().value.shapegen().let { poly ->
@@ -495,6 +511,15 @@ class ShapeParameters(
         }
 }
 
+class CustomShapeParameters(name: String, private val shapegen: () -> RoundedPolygon) :
+    ShapeParameters(name) {
+    override val isCustom: Boolean = true
+
+    override fun selectedShape() = derivedStateOf {
+        ShapeItem(name = name, shapegen = shapegen, shapeOutput = { "Custom Shape: $name" })
+    }
+}
+
 @Composable
 fun ShapeEditor(params: ShapeParameters, output: (String) -> Unit, onClose: () -> Unit) {
     val shapeParams = params.selectedShape().value
@@ -511,55 +536,27 @@ fun ShapeEditor(params: ShapeParameters, output: (String) -> Unit, onClose: () -
             }
         }
         if (shapeParams.usesSides) {
-            MySlider("Sides", 3f, 20f, 1f, params.sides, shapeParams.usesSides)
+            MySlider("Sides", 3f, 20f, 1f, params.sides)
         }
         if (shapeParams.usesWH) {
-            MySlider("Width", minValue = .1f, maxValue = 20f, 1f, params.width, shapeParams.usesWH)
+            MySlider("Width", minValue = .1f, maxValue = 20f, 1f, params.width)
         }
         if (shapeParams.usesWH) {
-            MySlider("Height", 1f, maxValue = 20f, 1f, params.height, shapeParams.usesWH)
+            MySlider("Height", 1f, maxValue = 20f, 1f, params.height)
         }
         if (shapeParams.usesPillStarFactor) {
-            MySlider(
-                "Vertex Factor",
-                0f,
-                maxValue = 1f,
-                .05f,
-                params.pillStarFactor,
-                shapeParams.usesPillStarFactor
-            )
+            MySlider("Vertex Factor", 0f, maxValue = 1f, .05f, params.pillStarFactor)
         }
         if (shapeParams.usesInnerRatio) {
-            MySlider(
-                "InnerRadius",
-                0.1f,
-                0.999f,
-                0f,
-                params.innerRadius,
-                shapeParams.usesInnerRatio
-            )
+            MySlider("InnerRadius", 0.1f, 0.999f, 0f, params.innerRadius)
         }
         if (shapeParams.usesRoundness) {
-            MySlider("RoundRadius", 0f, 1f, 0f, params.roundness, shapeParams.usesRoundness)
+            MySlider("RoundRadius", 0f, 1f, 0f, params.roundness)
             MySlider("Smoothing", 0f, 1f, 0f, params.smooth)
         }
         if (shapeParams.usesInnerParameters) {
-            MySlider(
-                "InnerRoundRadius",
-                0f,
-                1f,
-                0f,
-                params.innerRoundness,
-                shapeParams.usesInnerParameters
-            )
-            MySlider(
-                "InnerSmoothing",
-                0f,
-                1f,
-                0f,
-                params.innerSmooth,
-                shapeParams.usesInnerParameters
-            )
+            MySlider("InnerRoundRadius", 0f, 1f, 0f, params.innerRoundness)
+            MySlider("InnerSmoothing", 0f, 1f, 0f, params.innerSmooth)
         }
         MySlider("Rotation", 0f, 360f, 45f, params.rotation)
 
