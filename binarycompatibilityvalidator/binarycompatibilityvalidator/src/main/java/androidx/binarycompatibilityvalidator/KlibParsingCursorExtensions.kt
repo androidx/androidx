@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.library.abi.AbiCompoundName
 import org.jetbrains.kotlin.library.abi.AbiModality
 import org.jetbrains.kotlin.library.abi.AbiPropertyKind
 import org.jetbrains.kotlin.library.abi.AbiQualifiedName
+import org.jetbrains.kotlin.library.abi.AbiSignatureVersion
 import org.jetbrains.kotlin.library.abi.AbiType
 import org.jetbrains.kotlin.library.abi.AbiTypeArgument
 import org.jetbrains.kotlin.library.abi.AbiTypeNullability
@@ -337,6 +338,16 @@ internal fun Cursor.parseUniqueName(): String? {
     return parseSymbol(uniqueNameRegex)
 }
 
+internal fun Cursor.hasSignatureVersion(): Boolean =
+    parseSymbol(signatureMarkerRegex, peek = true) != null
+
+internal fun Cursor.parseSignatureVersion(): AbiSignatureVersion? {
+    parseSymbol(signatureMarkerRegex)
+    val versionString = parseSymbol(digitRegex) ?: return null
+    val versionNumber = versionString.toInt()
+    return AbiSignatureVersion.resolveByVersionNumber(versionNumber)
+}
+
 internal fun Cursor.parseEnumEntryKind(peek: Boolean = false) =
     parseSymbol(enumEntryKindRegex, peek)
 
@@ -454,3 +465,5 @@ private val functionReceiverStringRegex = Regex("^\\([a-zA-Z0-9,\\/<>,#\\.\\s]+?
 private val getterOrSetterSignalRegex = Regex("^<(get|set)\\-")
 private val enumNameRegex = Regex("^[A-Z_]+")
 private val enumEntryKindRegex = Regex("^enum\\sentry")
+private val signatureMarkerRegex = Regex("-\\sSignature\\sversion:")
+private val digitRegex = Regex("\\d+")
