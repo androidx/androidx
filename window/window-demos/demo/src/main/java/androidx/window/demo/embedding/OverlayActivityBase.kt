@@ -29,13 +29,13 @@ import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivityOverlayActivityLayoutBinding
 import androidx.window.demo.embedding.OverlayActivityBase.OverlayMode.Companion.OVERLAY_MODE_CHANGE_WITH_ORIENTATION
 import androidx.window.demo.embedding.OverlayActivityBase.OverlayMode.Companion.OVERLAY_MODE_CUSTOMIZATION
@@ -59,7 +59,7 @@ import androidx.window.embedding.setOverlayCreateParams
 import kotlinx.coroutines.launch
 
 open class OverlayActivityBase :
-    AppCompatActivity(),
+    EdgeToEdgeActivity(),
     View.OnClickListener,
     RadioGroup.OnCheckedChangeListener,
     AdapterView.OnItemSelectedListener,

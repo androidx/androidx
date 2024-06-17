@@ -17,7 +17,6 @@
 package androidx.window.demo.area
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +30,7 @@ import androidx.window.area.WindowAreaInfo
 import androidx.window.area.WindowAreaSession
 import androidx.window.area.WindowAreaSessionCallback
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.infolog.InfoLogAdapter
 import androidx.window.demo.databinding.ActivityRearDisplayBinding
 import java.text.SimpleDateFormat
@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
  * This Activity overrides configuration changes for simplicity.
  */
 @OptIn(ExperimentalWindowApi::class)
-class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionCallback {
+class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSessionCallback {
 
     private lateinit var windowAreaController: WindowAreaController
     private var rearDisplaySession: WindowAreaSession? = null

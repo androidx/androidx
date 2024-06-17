@@ -17,7 +17,6 @@
 package androidx.window.demo.demos
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.window.demo.DisplayFeaturesLetterboxLandscapeSlimActivity
 import androidx.window.demo.DisplayFeaturesLetterboxPortraitSlimActivity
@@ -37,9 +36,10 @@ import androidx.window.demo.SplitLayoutActivity
 import androidx.window.demo.WindowMetricsActivity
 import androidx.window.demo.area.RearDisplayPresentationActivity
 import androidx.window.demo.common.DisplayFeaturesActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 
 /** Main activity that launches WindowManager demos. */
-class WindowDemosActivity : AppCompatActivity() {
+class WindowDemosActivity : EdgeToEdgeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

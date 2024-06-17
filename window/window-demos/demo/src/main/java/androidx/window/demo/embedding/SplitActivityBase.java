@@ -39,10 +39,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
 import androidx.window.WindowSdkExtensions;
 import androidx.window.demo.R;
+import androidx.window.demo.common.EdgeToEdgeActivity;
 import androidx.window.demo.databinding.ActivitySplitActivityLayoutBinding;
 import androidx.window.embedding.ActivityEmbeddingController;
 import androidx.window.embedding.ActivityEmbeddingOptions;
@@ -72,7 +72,7 @@ import java.util.Set;
  * Sample showcase of split activity rules. Allows the user to select some split configuration
  * options with checkboxes and launch activities with those options applied.
  */
-public class SplitActivityBase extends AppCompatActivity
+public class SplitActivityBase extends EdgeToEdgeActivity
         implements CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "SplitActivityTest";

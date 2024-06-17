@@ -18,10 +18,10 @@ package androidx.window.demo.embedding
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivitySplitActivityPlaceholderLayoutBinding
 
-open class SplitActivityPlaceholder : AppCompatActivity() {
+open class SplitActivityPlaceholder : EdgeToEdgeActivity() {
 
     lateinit var viewBinding: ActivitySplitActivityPlaceholderLayoutBinding
 

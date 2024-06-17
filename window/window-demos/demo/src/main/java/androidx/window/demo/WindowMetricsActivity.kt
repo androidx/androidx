@@ -18,12 +18,12 @@ package androidx.window.demo
 
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.infolog.InfoLogAdapter
 import androidx.window.layout.WindowMetricsCalculator
 
-class WindowMetricsActivity : AppCompatActivity() {
+class WindowMetricsActivity : EdgeToEdgeActivity() {
 
     private val adapter = InfoLogAdapter()
 

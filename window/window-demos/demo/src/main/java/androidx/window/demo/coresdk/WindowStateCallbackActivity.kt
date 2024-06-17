@@ -25,17 +25,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Display.DEFAULT_DISPLAY
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivityCoresdkWindowStateCallbackLayoutBinding
 import androidx.window.layout.WindowInfoTracker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** Activity to show display configuration from different system callbacks. */
-class WindowStateCallbackActivity : AppCompatActivity() {
+class WindowStateCallbackActivity : EdgeToEdgeActivity() {
 
     /**
      * [DisplayManager]s from `Activity` and `Application` are updated from different resource

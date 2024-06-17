@@ -16,7 +16,7 @@
 
 package androidx.window.demo.embedding
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 
 /** Dialog style Activity. */
-open class DialogActivity : AppCompatActivity()
+open class DialogActivity : EdgeToEdgeActivity()

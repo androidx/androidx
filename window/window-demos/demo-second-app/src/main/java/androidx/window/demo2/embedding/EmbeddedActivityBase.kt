@@ -20,11 +20,11 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.WindowSdkExtensions
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.util.PictureInPictureUtil
 import androidx.window.demo2.R
 import androidx.window.demo2.databinding.ActivityEmbeddedBinding
@@ -32,7 +32,7 @@ import androidx.window.embedding.ActivityEmbeddingController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-open class EmbeddedActivityBase : AppCompatActivity() {
+open class EmbeddedActivityBase : EdgeToEdgeActivity() {
     lateinit var viewBinding: ActivityEmbeddedBinding
     private lateinit var activityEmbeddingController: ActivityEmbeddingController
     private lateinit var windowInfoView: TextView
