@@ -19,7 +19,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -39,7 +38,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
-@ExperimentalFoundationApi
 sealed interface BringIntoViewRequester {
     /**
      * Bring this item into bounds by making all the scrollable parents scroll appropriately.
@@ -75,7 +73,6 @@ sealed interface BringIntoViewRequester {
  * Note: this API is experimental while we optimise the performance and find the right API shape for
  * it
  */
-@ExperimentalFoundationApi
 fun BringIntoViewRequester(): BringIntoViewRequester {
     return BringIntoViewRequesterImpl()
 }
@@ -97,11 +94,9 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
  * it
  */
 @Suppress("ModifierInspectorInfo")
-@ExperimentalFoundationApi
 fun Modifier.bringIntoViewRequester(bringIntoViewRequester: BringIntoViewRequester): Modifier =
     this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
 
-@ExperimentalFoundationApi
 private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     val modifiers = mutableVectorOf<BringIntoViewRequesterNode>()
 
@@ -110,7 +105,6 @@ private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     }
 }
 
-@ExperimentalFoundationApi
 private class BringIntoViewRequesterElement(private val requester: BringIntoViewRequester) :
     ModifierNodeElement<BringIntoViewRequesterNode>() {
     override fun create(): BringIntoViewRequesterNode {
@@ -141,7 +135,6 @@ private class BringIntoViewRequesterElement(private val requester: BringIntoView
  * access to the next [BringIntoViewParent] via [findBringIntoViewParent], and uses that parent to
  * respond to requests to [scrollIntoView].
  */
-@ExperimentalFoundationApi
 internal class BringIntoViewRequesterNode(private var requester: BringIntoViewRequester) :
     Modifier.Node() {
     override val shouldAutoInvalidate: Boolean = false

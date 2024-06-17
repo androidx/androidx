@@ -16,13 +16,11 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListAnimateScrollScope(private val state: LazyListState) :
     LazyLayoutAnimateScrollScope {
 

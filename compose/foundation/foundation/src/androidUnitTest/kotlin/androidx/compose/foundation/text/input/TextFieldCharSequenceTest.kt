@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
@@ -24,7 +23,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(JUnit4::class)
 class TextFieldCharSequenceTest {
     private val defaultSaverScope = SaverScope { true }

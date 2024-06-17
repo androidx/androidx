@@ -20,7 +20,6 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.copy
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -49,7 +48,6 @@ private inline fun debugLog(generateMsg: () -> String) {
  * A scope to allow customization of animated scroll in LazyLayouts. This scope contains all needed
  * information to perform an animatedScroll in a scrollable LazyLayout.
  */
-@ExperimentalFoundationApi
 internal interface LazyLayoutAnimateScrollScope {
 
     /** The index of the first visible item in the lazy layout. */
@@ -89,12 +87,10 @@ internal interface LazyLayoutAnimateScrollScope {
     suspend fun scroll(block: suspend ScrollScope.() -> Unit)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutAnimateScrollScope.isItemVisible(index: Int): Boolean {
     return index in firstVisibleItemIndex..lastVisibleItemIndex
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,

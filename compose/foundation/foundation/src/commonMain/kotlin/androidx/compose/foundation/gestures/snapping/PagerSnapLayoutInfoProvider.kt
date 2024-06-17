@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.pager.PagerDebugConfig
 import androidx.compose.foundation.pager.PagerLayoutInfo
@@ -220,7 +219,6 @@ private inline fun debugLog(generateMsg: () -> String) {
  * Given two possible bounds that this Pager can settle in represented by [lowerBoundOffset] and
  * [upperBoundOffset], this function will decide which one of them it will settle to.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun calculateFinalSnappingBound(
     pagerState: PagerState,
     layoutDirection: LayoutDirection,

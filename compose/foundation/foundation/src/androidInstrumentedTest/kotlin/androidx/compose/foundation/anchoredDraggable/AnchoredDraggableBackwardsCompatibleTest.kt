@@ -18,7 +18,6 @@ package androidx.compose.foundation.anchoredDraggable
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableMinFlingVelocity
@@ -40,7 +39,6 @@ import org.junit.Rule
  * Test helper that allows to test either old or new anchored draggable overloads before/after
  * aosp/3012013.
  */
-@OptIn(ExperimentalFoundationApi::class)
 abstract class AnchoredDraggableBackwardsCompatibleTest(private val testNewBehavior: Boolean) {
 
     @get:Rule val rule = createComposeRule()

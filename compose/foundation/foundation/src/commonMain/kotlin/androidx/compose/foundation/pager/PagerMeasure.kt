@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
@@ -38,7 +37,6 @@ import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutMeasureScope.measurePager(
     pageCount: Int,
     pagerItemProvider: PagerLazyLayoutItemProvider,
@@ -562,7 +560,6 @@ private fun calculateNewCurrentPage(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyLayoutMeasureScope.getAndMeasure(
     index: Int,
     childConstraints: Constraints,
@@ -592,7 +589,6 @@ private fun LazyLayoutMeasureScope.getAndMeasure(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyLayoutMeasureScope.calculatePagesOffsets(
     pages: List<MeasuredPage>,
     extraPagesBefore: List<MeasuredPage>,

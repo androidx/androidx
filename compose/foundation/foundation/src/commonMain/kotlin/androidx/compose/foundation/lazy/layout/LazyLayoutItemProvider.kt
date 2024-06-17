@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
@@ -29,7 +28,6 @@ import androidx.compose.runtime.Stable
  * change.
  */
 @Stable
-@ExperimentalFoundationApi
 interface LazyLayoutItemProvider {
 
     /** The total number of items in the lazy layout (visible or not). */
@@ -64,7 +62,6 @@ interface LazyLayoutItemProvider {
  * Finds a position of the item with the given key in the lists. This logic allows us to detect when
  * there were items added or removed before our current first item.
  */
-@ExperimentalFoundationApi
 internal fun LazyLayoutItemProvider.findIndexByKey(
     key: Any?,
     lastKnownIndex: Int,
@@ -95,6 +92,4 @@ internal fun LazyLayoutItemProvider.findIndexByKey(
  * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
  * change.
  */
-@ExperimentalFoundationApi
-@Suppress("MissingNullability")
-expect fun getDefaultLazyLayoutKey(index: Int): Any
+@Suppress("MissingNullability") expect fun getDefaultLazyLayoutKey(index: Int): Any

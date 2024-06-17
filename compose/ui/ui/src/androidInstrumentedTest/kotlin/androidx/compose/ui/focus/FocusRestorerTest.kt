@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -45,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 // TODO: Move these tests to foundation after saveFocusedChild and restoreFocusedChild are stable.
-@ExperimentalFoundationApi
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusRestorerTest {

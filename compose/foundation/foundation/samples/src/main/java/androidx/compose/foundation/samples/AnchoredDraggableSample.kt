@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.samples
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
@@ -225,7 +222,6 @@ fun AnchoredDraggableCatchAnimatingWidgetSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun AnchoredDraggableWithOverscrollSample() {

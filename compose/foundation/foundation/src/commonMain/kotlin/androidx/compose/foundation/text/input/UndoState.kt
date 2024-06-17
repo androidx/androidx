@@ -16,10 +16,7 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 /** Defines an interactable undo history. */
-@ExperimentalFoundationApi
 class UndoState internal constructor(private val state: TextFieldState) {
 
     /**

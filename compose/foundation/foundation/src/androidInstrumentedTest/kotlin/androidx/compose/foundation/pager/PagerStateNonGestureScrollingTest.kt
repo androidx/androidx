@@ -17,7 +17,6 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
@@ -55,7 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest(config) {

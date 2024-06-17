@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.list.assertIsNotPlaced
@@ -43,7 +42,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 class LazyStaggeredGridPinnableContainerTest {
 

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -26,8 +25,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * the least to bring the requested region into view.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalFoundationApi
-@ExperimentalFoundationApi
 actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
     staticCompositionLocalOf {
         BringIntoViewSpec.DefaultBringIntoViewSpec

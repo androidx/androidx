@@ -18,7 +18,6 @@ package androidx.compose.foundation.benchmark
 
 import android.view.MotionEvent
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.benchmark.lazy.MotionEventHelper
 import androidx.compose.foundation.gestures.Orientation
@@ -111,7 +110,6 @@ class OverscrollBenchmark {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class OverscrollTestCase : LayeredComposeTestCase(), ToggleableTestCase {
 
     private lateinit var view: View

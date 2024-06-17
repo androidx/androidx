@@ -17,7 +17,6 @@
 package androidx.compose.foundation.benchmark.pager
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.benchmark.lazy.LazyBenchmarkTestCase
 import androidx.compose.foundation.benchmark.lazy.LazyItem
 import androidx.compose.foundation.benchmark.lazy.toggleStateBenchmark
@@ -51,7 +50,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class PagerScrollingBenchmark(private val testCase: PagerScrollingTestCase) {
@@ -203,7 +201,6 @@ class PagerScrollingBenchmark(private val testCase: PagerScrollingTestCase) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 data class PagerScrollingTestCase(
     private val name: String,
     val isVertical: Boolean,
@@ -217,7 +214,6 @@ data class PagerScrollingTestCase(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 class PagerRemeasureTestCase(
     val addNewItemOnToggle: Boolean,
     val content:

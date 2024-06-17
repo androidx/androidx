@@ -143,7 +143,6 @@ internal fun LazyGrid(
 /** lazy grid slots configuration */
 internal class LazyGridSlots(val sizes: IntArray, val positions: IntArray)
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberLazyGridMeasurePolicy(
     /** Items provider of the list. */

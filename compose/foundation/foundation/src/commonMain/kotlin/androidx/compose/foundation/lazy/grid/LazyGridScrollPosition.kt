@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
@@ -27,7 +26,6 @@ import androidx.compose.runtime.setValue
  * Contains the current scroll position represented by the first visible item index and the first
  * visible item scroll offset.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridScrollPosition(initialIndex: Int = 0, initialScrollOffset: Int = 0) {
     var index by mutableIntStateOf(initialIndex)
         private set

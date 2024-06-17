@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text2
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,7 +70,6 @@ fun BasicTextFieldOutputTransformationDemos() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InsertReplaceDeleteDemo() {
     val state = remember { TextFieldState("abc def ghi") }
@@ -201,7 +199,6 @@ private fun InsertReplaceDeleteDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PhoneNumberAsYouTypeDemo() {
     BasicTextField(
@@ -213,7 +210,6 @@ private fun PhoneNumberAsYouTypeDemo() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PhoneNumberFullTemplateDemo() {
     BasicTextField(
@@ -227,7 +223,6 @@ private fun PhoneNumberFullTemplateDemo() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Stable
 private data class PhoneNumberOutputTransformation(private val pad: Boolean) :
     OutputTransformation {
@@ -246,7 +241,6 @@ private data class PhoneNumberOutputTransformation(private val pad: Boolean) :
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private object OnlyDigitsFilter : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
         if ("""\D""".toRegex().containsMatchIn(asCharSequence())) {
@@ -255,7 +249,6 @@ private object OnlyDigitsFilter : InputTransformation {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private val demoDecorationBox = TextFieldDecorator { innerField ->
     Box(Modifier.padding(16.dp)) { innerField() }
 }

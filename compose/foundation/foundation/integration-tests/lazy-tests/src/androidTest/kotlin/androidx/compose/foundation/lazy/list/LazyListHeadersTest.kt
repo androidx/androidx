@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.lazy.list
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollBy
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class LazyListHeadersTest {
 
     private val LazyListTag = "LazyList"

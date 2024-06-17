@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.TextRange

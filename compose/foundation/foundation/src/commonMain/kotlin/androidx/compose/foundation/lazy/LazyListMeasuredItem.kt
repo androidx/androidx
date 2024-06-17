@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
@@ -34,7 +33,6 @@ import androidx.compose.ui.util.fastForEachIndexed
  * the user emit multiple layout nodes in the item callback.
  */
 internal class LazyListMeasuredItem
-@ExperimentalFoundationApi
 constructor(
     override val index: Int,
     private val placeables: List<Placeable>,

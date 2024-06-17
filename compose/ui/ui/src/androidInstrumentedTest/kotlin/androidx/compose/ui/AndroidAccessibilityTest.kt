@@ -45,7 +45,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -371,7 +370,6 @@ class AndroidAccessibilityTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testCreateAccessibilityNodeInfo_forSecureTextField() {
         // Arrange.

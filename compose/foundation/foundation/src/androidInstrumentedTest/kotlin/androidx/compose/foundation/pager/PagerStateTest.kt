@@ -24,7 +24,6 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
@@ -47,7 +46,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 class PagerStateTest : SingleParamBasePagerTest() {
 

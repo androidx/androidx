@@ -18,7 +18,6 @@ package androidx.compose.foundation.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -34,7 +33,6 @@ private enum class DraggableAnchorsSampleValue {
     End
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @Suppress("unused")
 @MediumTest

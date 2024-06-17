@@ -103,7 +103,6 @@ fun TransformableSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun TransformableSampleInsideScroll() {

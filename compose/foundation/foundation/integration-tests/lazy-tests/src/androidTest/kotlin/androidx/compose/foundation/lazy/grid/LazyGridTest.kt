@@ -20,7 +20,6 @@ package androidx.compose.foundation.lazy.grid
 
 import android.os.Build
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -89,7 +88,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyGridTest(private val orientation: Orientation) :

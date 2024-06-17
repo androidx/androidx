@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.TransformEvent.TransformDelta
 import androidx.compose.foundation.gestures.TransformEvent.TransformStarted
@@ -58,7 +57,6 @@ import kotlinx.coroutines.launch
  *   detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.transformable(
     state: TransformableState,
     lockRotationOnZoomPan: Boolean = false,
@@ -87,7 +85,6 @@ fun Modifier.transformable(
  *   detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
-@ExperimentalFoundationApi
 fun Modifier.transformable(
     state: TransformableState,
     canPan: (Offset) -> Boolean,

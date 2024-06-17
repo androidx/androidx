@@ -16,15 +16,12 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 /**
  * Common parts backing the interval-based content of lazy layout defined through `item` DSL.
  *
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
-@ExperimentalFoundationApi
 abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.Interval> {
     abstract val intervals: IntervalList<Interval>
 
@@ -62,7 +59,6 @@ abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.In
      * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
      * change.
      */
-    @ExperimentalFoundationApi
     interface Interval {
         /** Returns item key based on a local index for the current interval. */
         val key: ((index: Int) -> Any)?

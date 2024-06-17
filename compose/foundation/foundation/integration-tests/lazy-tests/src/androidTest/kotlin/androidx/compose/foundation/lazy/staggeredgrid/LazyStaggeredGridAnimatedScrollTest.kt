@@ -18,7 +18,6 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.grid.isEqualTo
@@ -43,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyStaggeredGridAnimatedScrollTest(orientation: Orientation) :

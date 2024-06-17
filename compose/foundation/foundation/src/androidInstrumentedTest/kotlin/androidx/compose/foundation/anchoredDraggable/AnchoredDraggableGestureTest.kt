@@ -19,7 +19,6 @@ package androidx.compose.foundation.anchoredDraggable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AtomicLong
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.C
@@ -72,7 +71,6 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-@OptIn(ExperimentalFoundationApi::class)
 class AnchoredDraggableGestureTest(testNewBehavior: Boolean) :
     AnchoredDraggableBackwardsCompatibleTest(testNewBehavior) {
 

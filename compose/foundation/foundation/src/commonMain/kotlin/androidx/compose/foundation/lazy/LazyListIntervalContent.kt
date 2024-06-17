@@ -16,12 +16,10 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListIntervalContent(
     content: LazyListScope.() -> Unit,
 ) : LazyLayoutIntervalContent<LazyListInterval>(), LazyListScope {
@@ -58,7 +56,6 @@ internal class LazyListIntervalContent(
         )
     }
 
-    @ExperimentalFoundationApi
     override fun stickyHeader(
         key: Any?,
         contentType: Any?,
@@ -71,7 +68,6 @@ internal class LazyListIntervalContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),

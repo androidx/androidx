@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 
@@ -33,7 +32,6 @@ import androidx.compose.runtime.collection.mutableVectorOf
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
-@ExperimentalFoundationApi
 sealed interface IntervalList<out T> {
 
     /**
@@ -89,7 +87,6 @@ sealed interface IntervalList<out T> {
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
-@ExperimentalFoundationApi
 class MutableIntervalList<T> : IntervalList<T> {
     private val intervals = mutableVectorOf<IntervalList.Interval<T>>()
 
@@ -173,7 +170,6 @@ class MutableIntervalList<T> : IntervalList<T> {
  * Finds the index of the interval which contains the highest value of
  * [IntervalList.Interval.startIndex] that is less than or equal to the given [itemIndex].
  */
-@ExperimentalFoundationApi
 private fun <T> MutableVector<IntervalList.Interval<T>>.binarySearch(itemIndex: Int): Int {
     var left = 0
     var right = lastIndex

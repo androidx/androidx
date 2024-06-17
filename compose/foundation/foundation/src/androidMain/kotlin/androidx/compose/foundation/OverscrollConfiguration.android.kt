@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
  * @param drawPadding the amount of padding to apply from scrollable container bounds to the effect
  *   before drawing it, if the platform effect is a glow effect, otherwise ignored.
  */
-@ExperimentalFoundationApi
 @Stable
 class OverscrollConfiguration(
     val glowColor: Color = Color(0xff666666), // taken from EdgeEffect.java defaults
@@ -68,7 +67,5 @@ class OverscrollConfiguration(
  * Note: this is experimental since the underlying [OverscrollConfiguration] is also experimental.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
 val LocalOverscrollConfiguration =
     compositionLocalOf<OverscrollConfiguration?> { OverscrollConfiguration() }

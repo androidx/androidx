@@ -29,7 +29,6 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.OverscrollEffect
@@ -103,7 +102,6 @@ import kotlinx.coroutines.launch
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
  */
-@OptIn(ExperimentalFoundationApi::class)
 fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     reverseDirection: Boolean,
@@ -149,7 +147,6 @@ fun <T> Modifier.anchoredDraggable(
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
  */
-@OptIn(ExperimentalFoundationApi::class)
 fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
@@ -200,10 +197,7 @@ fun <T> Modifier.anchoredDraggable(
  * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
- *
- * This API is experimental as it uses [OverscrollEffect], which is experimental.
  */
-@ExperimentalFoundationApi
 fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     reverseDirection: Boolean,
@@ -253,10 +247,7 @@ fun <T> Modifier.anchoredDraggable(
  * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
- *
- * This API is experimental as it uses [OverscrollEffect], which is experimental.
  */
-@ExperimentalFoundationApi
 fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
@@ -278,7 +269,6 @@ fun <T> Modifier.anchoredDraggable(
             flingBehavior = flingBehavior
         )
 
-@OptIn(ExperimentalFoundationApi::class)
 private class AnchoredDraggableElement<T>(
     private val state: AnchoredDraggableState<T>,
     private val orientation: Orientation,
@@ -356,7 +346,6 @@ private class AnchoredDraggableElement<T>(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class AnchoredDraggableNode<T>(
     private var state: AnchoredDraggableState<T>,
     private var orientation: Orientation,
@@ -550,7 +539,6 @@ private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
  *
  * See the DraggableAnchors factory method to construct drag anchors using a default implementation.
  */
-@ExperimentalFoundationApi
 interface DraggableAnchors<T> {
 
     /**
@@ -608,7 +596,6 @@ interface DraggableAnchors<T> {
  * corresponding [Float] positions. This [DraggableAnchorsConfig] is used to construct an immutable
  * [DraggableAnchors] instance later on.
  */
-@ExperimentalFoundationApi
 class DraggableAnchorsConfig<T> {
 
     internal val anchors = MutableObjectFloatMap<T>()
@@ -631,7 +618,6 @@ class DraggableAnchorsConfig<T> {
  * @return A new [DraggableAnchors] instance with the anchor positions set by the `builder`
  *   function.
  */
-@ExperimentalFoundationApi
 fun <T : Any> DraggableAnchors(builder: DraggableAnchorsConfig<T>.() -> Unit): DraggableAnchors<T> =
     MapDraggableAnchors(DraggableAnchorsConfig<T>().apply(builder).anchors)
 
@@ -671,7 +657,6 @@ interface AnchoredDragScope {
  *   reached.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
-@ExperimentalFoundationApi
 @Deprecated(ConfigurationMovedToModifier, level = DeprecationLevel.WARNING)
 fun <T> AnchoredDraggableState(
     initialValue: T,
@@ -709,7 +694,6 @@ fun <T> AnchoredDraggableState(
  *   exceed in order to animate to the next state, even if the [positionalThreshold] has not been
  *   reached.
  */
-@ExperimentalFoundationApi
 @Deprecated(ConfigurationMovedToModifier, level = DeprecationLevel.WARNING)
 fun <T> AnchoredDraggableState(
     initialValue: T,
@@ -744,7 +728,6 @@ fun <T> AnchoredDraggableState(
  * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
-@OptIn(ExperimentalFoundationApi::class) // DraggableAnchors is still experimental
 @Stable
 class AnchoredDraggableState<T>(
     initialValue: T,
@@ -1195,7 +1178,6 @@ class AnchoredDraggableState<T>(
             )
 
         /** The default [Saver] implementation for [AnchoredDraggableState]. */
-        @ExperimentalFoundationApi
         @Deprecated(ConfigurationMovedToModifier, level = DeprecationLevel.WARNING)
         @Suppress("DEPRECATION")
         fun <T : Any> Saver(
@@ -1230,7 +1212,6 @@ class AnchoredDraggableState<T>(
  * @throws CancellationException if the interaction interrupted by another interaction like a
  *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
  */
-@OptIn(ExperimentalFoundationApi::class)
 suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
@@ -1238,7 +1219,6 @@ suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private suspend fun <T> AnchoredDraggableState<T>.animateTo(
     velocity: Float,
     anchoredDragScope: AnchoredDragScope,
@@ -1273,7 +1253,6 @@ private suspend fun <T> AnchoredDraggableState<T>.animateTo(
  * @throws CancellationException if the interaction interrupted by another interaction like a
  *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
  */
-@OptIn(ExperimentalFoundationApi::class)
 suspend fun <T> AnchoredDraggableState<T>.animateTo(
     targetValue: T,
     animationSpec: AnimationSpec<Float> =
@@ -1305,7 +1284,6 @@ suspend fun <T> AnchoredDraggableState<T>.animateTo(
  * @throws CancellationException if the interaction interrupted bt another interaction like a
  *   gesture interaction or another programmatic interaction like [animateTo] or [snapTo] call.
  */
-@OptIn(ExperimentalFoundationApi::class)
 suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
     targetValue: T,
     velocity: Float,
@@ -1388,7 +1366,6 @@ suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
  *
  * @return The suggested target anchor
  */
-@ExperimentalFoundationApi
 private fun <T> DraggableAnchors<T>.computeTarget(
     currentOffset: Float,
     currentValue: T,
@@ -1507,7 +1484,6 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
 
 private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(MutableObjectFloatMap())
 
-@OptIn(ExperimentalFoundationApi::class)
 private class MapDraggableAnchors<T>(private val anchors: ObjectFloatMap<T>) : DraggableAnchors<T> {
 
     override fun positionOf(value: T): Float = anchors.getOrDefault(value, Float.NaN)
@@ -1623,7 +1599,6 @@ internal fun <T> anchoredDraggableFlingBehavior(
             )
     )
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun <T> AnchoredDraggableLayoutInfoProvider(
     state: AnchoredDraggableState<T>,
     positionalThreshold: (totalDistance: Float) -> Float,

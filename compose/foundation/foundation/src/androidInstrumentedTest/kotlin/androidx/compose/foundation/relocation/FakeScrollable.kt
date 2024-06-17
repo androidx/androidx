@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +28,6 @@ import androidx.compose.ui.geometry.Rect
  * [onBringIntoView]. Note that [onBringIntoView] will not be called if [parentOffset] is zero,
  * since that means the scrollable doesn't actually need to scroll anything to satisfy the request.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.fakeScrollable(
     parentOffset: Offset = Offset.Zero,
     onBringIntoView: suspend (() -> Rect?) -> Unit

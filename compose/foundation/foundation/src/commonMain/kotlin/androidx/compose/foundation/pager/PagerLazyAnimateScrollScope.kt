@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 
@@ -25,7 +24,6 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
  * scope contains information about the layout where animated scroll can be performed as well as the
  * necessary tools to do that respecting the scroll mutation priority.
  */
-@ExperimentalFoundationApi
 internal fun PagerLazyAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {
 
