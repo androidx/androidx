@@ -33,6 +33,9 @@ import kotlinx.serialization.serializer
  *
  * Returns a [SavedStateHandle] populated with arguments from [route].
  *
+ * Note: To use this api in non-instrumented tests, run with robolectric. This is because android's
+ * [Bundle] is necessarily integrated into the parsing of route arguments.
+ *
  * @param route The route to extract argument values from
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
  *   does not use custom NavTypes.
