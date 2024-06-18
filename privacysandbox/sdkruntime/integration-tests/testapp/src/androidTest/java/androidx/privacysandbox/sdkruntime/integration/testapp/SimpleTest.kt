@@ -21,7 +21,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -45,17 +44,6 @@ class SimpleTest {
             val api = runBlocking { loadSdk() }
             val apiResult = api.invert(false)
             assertThat(apiResult).isTrue()
-        }
-    }
-
-    @Test
-    fun failTest() {
-        activityScenarioRule.withActivity {
-            val api = runBlocking { loadSdk() }
-            val apiResult = api.invert(false)
-            assertWithMessage("Expected fail: Testing CI integration, will be deleted later")
-                .that(apiResult)
-                .isFalse()
         }
     }
 }
