@@ -20,6 +20,7 @@ import android.os.Build
 import android.view.Choreographer
 import android.view.Display
 import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.collection.mutableVectorOf
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalView
 import kotlin.math.max
 
+@ExperimentalFoundationApi
 @Composable
 internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
     return if (RobolectricImpl != null) {
@@ -75,6 +77,7 @@ internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
  *    precompose on the different thread this issue is also not so critical given that we don't need
  *    to calculate the deadline. Tracking bug: 187393922
  */
+@ExperimentalFoundationApi
 internal class AndroidPrefetchScheduler(private val view: View) :
     PrefetchScheduler, RememberObserver, Runnable, Choreographer.FrameCallback {
 
@@ -202,6 +205,7 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     }
 }
 
+@ExperimentalFoundationApi
 private val RobolectricImpl =
     if (Build.FINGERPRINT.lowercase() == "robolectric") {
         object : PrefetchScheduler {
