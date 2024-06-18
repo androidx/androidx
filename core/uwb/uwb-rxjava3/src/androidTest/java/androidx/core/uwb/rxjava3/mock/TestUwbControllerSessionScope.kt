@@ -17,6 +17,7 @@
 package androidx.core.uwb.rxjava3.mock
 
 import androidx.core.uwb.RangingCapabilities
+import androidx.core.uwb.RangingControleeParameters
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
@@ -48,6 +49,10 @@ class TestUwbControllerSessionScope(
     }
 
     override suspend fun reconfigureRangingInterval(intervalSkipCount: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters) {
         TODO("Not yet implemented")
     }
 
