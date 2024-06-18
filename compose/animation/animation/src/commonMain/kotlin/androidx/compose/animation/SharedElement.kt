@@ -71,7 +71,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
             foundMatch = false
         }
         if (states.isNotEmpty()) {
-            SharedTransitionObserver.observeReads(this, updateMatch, observingVisibilityChange)
+            scope.observeReads(this, updateMatch, observingVisibilityChange)
         }
     }
 
@@ -145,16 +145,16 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     fun addState(sharedElementState: SharedElementInternalState) {
         states.add(sharedElementState)
-        SharedTransitionObserver.observeReads(this, updateMatch, observingVisibilityChange)
+        scope.observeReads(this, updateMatch, observingVisibilityChange)
     }
 
     fun removeState(sharedElementState: SharedElementInternalState) {
         states.remove(sharedElementState)
         if (states.isEmpty()) {
             updateMatch()
-            SharedTransitionObserver.clear(this)
+            scope.clearObservation(scope = this)
         } else {
-            SharedTransitionObserver.observeReads(this, updateMatch, observingVisibilityChange)
+            scope.observeReads(scope = this, updateMatch, observingVisibilityChange)
         }
     }
 }
