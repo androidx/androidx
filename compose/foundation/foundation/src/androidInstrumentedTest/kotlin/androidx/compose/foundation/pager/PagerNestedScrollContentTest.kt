@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -63,6 +64,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config = config) {

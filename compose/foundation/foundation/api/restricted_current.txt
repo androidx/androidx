@@ -1193,15 +1193,15 @@ package androidx.compose.foundation.lazy.layout {
     method public void schedulePrefetch(int index, long constraints);
   }
 
-  public sealed interface PrefetchRequest {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PrefetchRequest {
     method public boolean execute(androidx.compose.foundation.lazy.layout.PrefetchRequestScope);
   }
 
-  public interface PrefetchRequestScope {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchRequestScope {
     method public long availableTimeNanos();
   }
 
-  public interface PrefetchScheduler {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchScheduler {
     method public void schedulePrefetch(androidx.compose.foundation.lazy.layout.PrefetchRequest prefetchRequest);
   }
 

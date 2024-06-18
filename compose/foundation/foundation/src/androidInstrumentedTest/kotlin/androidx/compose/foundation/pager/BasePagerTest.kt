@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import android.view.View
 import androidx.compose.foundation.BaseLazyLayoutTestWithOrientation
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -115,6 +116,7 @@ open class BasePagerTest(private val config: ParamConfig) :
             this.fillMaxHeight()
         }
 
+    @OptIn(ExperimentalFoundationApi::class)
     internal fun createPager(
         initialPage: Int = 0,
         initialPageOffsetFraction: Float = 0f,

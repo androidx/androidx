@@ -16,10 +16,12 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.PrefetchRequest
 import androidx.compose.foundation.lazy.layout.PrefetchRequestScope
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 
+@ExperimentalFoundationApi
 internal class TestPrefetchScheduler : PrefetchScheduler {
 
     private var activeRequests = mutableListOf<PrefetchRequest>()
