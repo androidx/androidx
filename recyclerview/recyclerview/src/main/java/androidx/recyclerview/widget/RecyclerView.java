@@ -14639,7 +14639,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     private static final class Api35Impl {
         @DoNotInline
         public static void setFrameContentVelocity(View view, float velocity) {
-            view.setFrameContentVelocity(velocity);
+            try {
+                view.setFrameContentVelocity(velocity);
+            } catch (LinkageError e) {
+                // The setFrameContentVelocity method is unavailable on this device.
+            }
         }
     }
 }
