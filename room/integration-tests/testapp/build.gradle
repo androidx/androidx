@@ -107,7 +107,7 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata:2.6.1")
-    androidTestImplementation(libs.guava)
+    androidTestImplementation(libs.guavaAndroid)
 
     // libs.findbugs dependency resolves an app/testapp version conflict.
     androidTestImplementation(libs.findbugs)
