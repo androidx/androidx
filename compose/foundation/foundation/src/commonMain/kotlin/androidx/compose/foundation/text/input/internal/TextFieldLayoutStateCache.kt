@@ -212,6 +212,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                     if (newResult != cachedResult) {
                         updateCacheIfWritable {
                             this.visualText = visualText
+                            this.composition = visualText.composition
                             this.singleLine = nonMeasureInputs.singleLine
                             this.softWrap = nonMeasureInputs.softWrap
                             this.textStyle = nonMeasureInputs.textStyle
