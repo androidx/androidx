@@ -1015,6 +1015,31 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> headlineContent, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? overlineContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingContent, optional androidx.compose.material3.ListItemColors colors, optional float tonalElevation, optional float shadowElevation);
   }
 
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class LoadingIndicatorDefaults {
+    method @androidx.compose.runtime.Composable public long getContainerColor();
+    method public float getContainerHeight();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
+    method public float getContainerWidth();
+    method public java.util.List<androidx.graphics.shapes.RoundedPolygon> getDeterminateIndicatorPolygons();
+    method public java.util.List<androidx.graphics.shapes.RoundedPolygon> getIndeterminateIndicatorPolygons();
+    method @androidx.compose.runtime.Composable public long getIndicatorColor();
+    method public float getIndicatorSize();
+    property @androidx.compose.runtime.Composable public final long ContainerColor;
+    property public final float ContainerHeight;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape ContainerShape;
+    property public final float ContainerWidth;
+    property public final java.util.List<androidx.graphics.shapes.RoundedPolygon> DeterminateIndicatorPolygons;
+    property public final java.util.List<androidx.graphics.shapes.RoundedPolygon> IndeterminateIndicatorPolygons;
+    property @androidx.compose.runtime.Composable public final long IndicatorColor;
+    property public final float IndicatorSize;
+    field public static final androidx.compose.material3.LoadingIndicatorDefaults INSTANCE;
+  }
+
+  public final class LoadingIndicatorKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LoadingIndicator(optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long indicatorColor, optional androidx.compose.ui.graphics.Shape containerShape, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> indicatorPolygons);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LoadingIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long indicatorColor, optional androidx.compose.ui.graphics.Shape containerShape, optional java.util.List<androidx.graphics.shapes.RoundedPolygon> indicatorPolygons);
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public abstract sealed class MaterialShapes {
     field public static final androidx.compose.material3.MaterialShapes.Companion Companion;
   }
@@ -2519,15 +2544,20 @@ package androidx.compose.material3.pulltorefresh {
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class PullToRefreshDefaults {
     method @androidx.compose.runtime.Composable public void Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long color, optional float threshold);
     method @androidx.compose.runtime.Composable public void IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional float threshold, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float elevation, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public long getContainerColor();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void LoadingIndicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long color, optional float elevation, optional float threshold);
+    method @Deprecated @androidx.compose.runtime.Composable public long getContainerColor();
     method public float getElevation();
-    method @androidx.compose.runtime.Composable public long getIndicatorColor();
+    method @Deprecated @androidx.compose.runtime.Composable public long getIndicatorColor();
+    method @androidx.compose.runtime.Composable public long getLoadingIndicatorColor();
+    method @androidx.compose.runtime.Composable public long getLoadingIndicatorContainerColor();
     method public float getPositionalThreshold();
     method public androidx.compose.ui.graphics.Shape getShape();
     property public final float Elevation;
     property public final float PositionalThreshold;
-    property @androidx.compose.runtime.Composable public final long containerColor;
-    property @androidx.compose.runtime.Composable public final long indicatorColor;
+    property @Deprecated @androidx.compose.runtime.Composable public final long containerColor;
+    property @Deprecated @androidx.compose.runtime.Composable public final long indicatorColor;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final long loadingIndicatorColor;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final long loadingIndicatorContainerColor;
     property public final androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.compose.material3.pulltorefresh.PullToRefreshDefaults INSTANCE;
   }
