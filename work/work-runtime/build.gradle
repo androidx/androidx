@@ -45,7 +45,6 @@ android {
         }
     }
     defaultConfig {
-        multiDexEnabled = true
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
@@ -77,7 +76,6 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

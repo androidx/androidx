@@ -18,7 +18,6 @@ dependencies {
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
 
     implementation(libs.material)
-    implementation(libs.multidex)
     implementation(libs.guava)
 }
 
@@ -31,7 +30,6 @@ android {
     }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
-        multiDexEnabled true
     }
     lint {
         baseline = file("lint-baseline.xml")

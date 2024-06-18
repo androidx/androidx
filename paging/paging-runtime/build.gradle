@@ -30,9 +30,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.paging.runtime"
 }
 
@@ -62,7 +59,6 @@ dependencies {
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.multidex)
 }
 
 androidx {

@@ -22,7 +22,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.multidex)
 
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(projectOrArtifact(":room:room-ktx"))
@@ -35,7 +34,6 @@ dependencies {
 
     ksp(projectOrArtifact(":room:room-compiler"))
 
-    implementation(libs.multidex)
     implementation(projectOrArtifact(":recyclerview:recyclerview"))
     implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
@@ -58,9 +56,6 @@ dependencies {
 
 android {
     namespace "androidx.paging.integration.testapp"
-    defaultConfig {
-        multiDexEnabled = true
-    }
 }
 
 // Enable parameter names to support Room incremental when its a project() dep.

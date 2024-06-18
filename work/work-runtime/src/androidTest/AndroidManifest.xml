@@ -26,7 +26,7 @@
         android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
-    <application android:name="androidx.multidex.MultiDexApplication">
+    <application>
         <service android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="specialUse" />
         <service

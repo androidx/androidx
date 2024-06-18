@@ -34,7 +34,6 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -43,10 +42,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
-
     lintOptions {
         enable 'CameraXQuirksClassDetector'
     }

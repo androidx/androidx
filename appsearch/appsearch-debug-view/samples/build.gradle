@@ -29,9 +29,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.appsearch.debugview.samples"
 }
 
@@ -40,7 +37,6 @@ dependencies {
 
     api('androidx.annotation:annotation:1.1.0')
 
-    implementation(libs.multidex)
     implementation project(':appsearch:appsearch')
     implementation project(':appsearch:appsearch-local-storage')
     implementation project(':appsearch:appsearch-debug-view')

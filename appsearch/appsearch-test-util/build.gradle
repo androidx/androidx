@@ -28,7 +28,6 @@ dependencies {
     implementation('androidx.collection:collection:1.1.0')
     implementation(libs.truth)
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
@@ -44,8 +43,4 @@ androidx {
 
 android {
     namespace "androidx.appsearch.testutil"
-
-    defaultConfig {
-        multiDexEnabled true
-    }
 }

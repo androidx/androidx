@@ -33,7 +33,6 @@ dependencies {
     androidTestImplementation(project(":recyclerview:recyclerview"), {
         exclude group: "androidx.swiperefreshlayout", module: "swiperefreshlayout"
     })
-    androidTestImplementation(libs.multidex)
 }
 
 androidx {
@@ -45,8 +44,5 @@ androidx {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     namespace "androidx.swiperefreshlayout"
 }

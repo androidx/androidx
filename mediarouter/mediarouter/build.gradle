@@ -51,7 +51,6 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -65,9 +64,6 @@ dependencies {
 android {
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
-    }
-    defaultConfig {
-        multiDexEnabled true
     }
     namespace "androidx.mediarouter"
 }

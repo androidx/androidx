@@ -37,7 +37,6 @@ dependencies {
     androidTestImplementation project(':appsearch:appsearch')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation project(':appsearch:appsearch-test-util')
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
@@ -53,8 +52,4 @@ androidx {
 
 android {
     namespace "androidx.appsearch.ktx"
-
-    defaultConfig {
-        multiDexEnabled true
-    }
 }

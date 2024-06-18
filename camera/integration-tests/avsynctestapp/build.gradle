@@ -26,8 +26,6 @@ android {
 
     defaultConfig {
         applicationId "androidx.camera.integration.avsync"
-        minSdkVersion 21
-        multiDexEnabled true
     }
 
     buildTypes {
