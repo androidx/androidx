@@ -90,6 +90,7 @@ private fun getPendingIntentForAction(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
+                                flags.toString()
                             )
                     }
                 },
@@ -106,6 +107,7 @@ private fun getPendingIntentForAction(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
+                                flags.toString(),
                             )
                     }
                 }
@@ -136,6 +138,7 @@ private fun getPendingIntentForAction(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
+                                flags.toString(),
                             )
                     }
                 },
@@ -233,6 +236,7 @@ private fun getFillInIntentForAction(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
+                                flags.toString(),
                             )
                     }
                 }
