@@ -22,8 +22,15 @@ import androidx.navigation.NavType
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.typeOf
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -706,6 +713,28 @@ class NavTypeConverterTest {
         assertThat(serializer<Array<List<Double>>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun noMatchOnFieldSerializers() {
+        @Serializable
+        class TestClass(@Serializable(with = ArgClassSerializer::class) val arg: ArgClass)
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                serializer<TestClass>()
+                    .descriptor
+                    .getElementDescriptor(0)
+                    .matchKType(typeOf<ArgClass>())
+            }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Custom serializers declared directly on a class field via " +
+                    "@Serializable(with = ...) is currently not supported by safe args for both " +
+                    "custom types and third-party types. Please use @Serializable or " +
+                    "@Serializable(with = ...) on the class or object declaration."
+            )
+    }
+
     @Serializable
     class TestBaseClass(val arg: Int) {
         @Serializable class Nested
@@ -736,4 +765,15 @@ class NavTypeConverterTest {
     }
 
     @Serializable class TestSerializable(val arg: Int, val arg2: String) : java.io.Serializable
+
+    class ArgClass
+
+    class ArgClassSerializer : KSerializer<ArgClass> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("LocalDate", PrimitiveKind.STRING)
+
+        override fun deserialize(decoder: Decoder): ArgClass = ArgClass()
+
+        override fun serialize(encoder: Encoder, value: ArgClass) {}
+    }
 }
