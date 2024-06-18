@@ -30,8 +30,14 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
  * Represent input parameters to the [AdSelectionManager#getAdSelectionData] API.
  *
  * @param seller AdTechIdentifier of the seller, for example "www.example-ssp.com".
- * @param coordinatorOriginUri The coordinator origin Uri where the public keys for encryption are
- *   fetched from.
+ * @param coordinatorOriginUri The coordinator origin Uri from which GetAdSelectionData API should
+ *   fetch the decryption key. The origin must use HTTPS URI. The origin will only contain the
+ *   scheme, hostname and port of the URL. If the origin is not provided or is null, PPAPI will use
+ *   the default coordinator URI. The origin must belong to a list of pre-approved coordinator
+ *   origins. Otherwise, [AdSelectionManager#getAdSelectionData] will throw an
+ *   [IllegalArgumentException]. See <a
+ *   href="https://developers.google.com/privacy-sandbox/relevance/aggregation-service#coordinator">
+ *   Developer Guide</a> for more details.
  */
 @OptIn(ExperimentalFeatures.Ext12OptIn::class)
 @ExperimentalFeatures.Ext10OptIn
