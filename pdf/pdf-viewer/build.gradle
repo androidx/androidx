@@ -60,6 +60,7 @@ android {
 
     defaultConfig {
         minSdkVersion 30
+        compileSdkVersion 35
     }
 
     buildFeatures {
