@@ -143,6 +143,8 @@ interface MainTestClock {
      *
      * @param timeoutMillis The time after which this method throws an exception if the given
      *   condition is not satisfied. This is test clock time, not the wall clock or cpu time.
+     * @param condition A function returning true if the condition is satisfied and false if it is
+     *   not.
      * @throws ComposeTimeoutException the condition is not satisfied after [timeoutMillis].
      */
     fun advanceTimeUntil(timeoutMillis: Long = 1_000, condition: () -> Boolean)
