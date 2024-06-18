@@ -106,7 +106,8 @@ internal constructor(
             if (matcher.start() > appendPos) {
                 uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())))
             }
-            uriRegex.append("([^/]+?)")
+            // allows for empty path arguments
+            uriRegex.append("([^/]*?|)")
             appendPos = matcher.end()
         }
         if (appendPos < uri.length) {
