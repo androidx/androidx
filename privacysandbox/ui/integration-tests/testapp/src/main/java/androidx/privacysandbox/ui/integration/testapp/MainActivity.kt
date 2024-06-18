@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var contentFromAssetsToggleButton: SwitchMaterial
     private lateinit var mediationDropDownMenu: Spinner
     @AdType private var adType = AdType.NON_WEBVIEW
-    @MediationOption private var sdkType = MediationOption.NON_MEDIATED
+    @MediationOption private var mediationOption = MediationOption.NON_MEDIATED
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     AdType.NON_WEBVIEW
                 }
-            currentFragment.handleLoadAdFromDrawer(adType, sdkType)
+            currentFragment.handleLoadAdFromDrawer(adType, mediationOption)
         }
     }
 
@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     AdType.WEBVIEW
                 }
-            currentFragment.handleLoadAdFromDrawer(adType, sdkType)
+            currentFragment.handleLoadAdFromDrawer(adType, mediationOption)
         }
     }
 
@@ -206,7 +206,7 @@ class MainActivity : AppCompatActivity() {
                             MediationOption.SDK_RUNTIME_MEDIATEE.toLong() ||
                             appOwnedMediationEnabled)
 
-                    sdkType =
+                    mediationOption =
                         if (mediationEnabled) {
                             if (appOwnedMediationEnabled) {
                                 MediationOption.IN_APP_MEDIATEE
@@ -216,7 +216,7 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             MediationOption.NON_MEDIATED
                         }
-                    currentFragment.handleLoadAdFromDrawer(adType, sdkType)
+                    currentFragment.handleLoadAdFromDrawer(adType, mediationOption)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
