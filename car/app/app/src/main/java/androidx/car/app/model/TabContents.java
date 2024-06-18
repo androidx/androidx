@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabContentsConstraints;
@@ -91,6 +92,11 @@ public class TabContents implements Content {
         mTemplate = builder.mTemplate;
     }
 
+    @ExperimentalCarApi
+    TabContents(TabContents.Api8Builder builder) {
+        mTemplate = builder.mTemplate;
+    }
+
     /** Constructs an empty instance, used by serialization code. */
     private TabContents() {
         mTemplate = null;
@@ -136,6 +142,47 @@ public class TabContents implements Content {
          */
         public Builder(@NonNull Template template) {
             TabContentsConstraints.API_7.validateOrThrow(requireNonNull(template));
+            mTemplate = template;
+        }
+    }
+
+    /** A builder of {@link TabContents} which supports templates added in API 8. */
+    @ExperimentalCarApi
+    public static final class Api8Builder {
+        @NonNull
+        Template mTemplate;
+
+        /**
+         * Constructs the {@link TabContents} defined by this builder.
+         */
+        @NonNull
+        public TabContents build() {
+            return new TabContents(this);
+        }
+
+        /**
+         * Creates a {@link TabContents.Api8Builder} instance using the given {@link Template} to
+         * display as contents.
+         *
+         * <p>There should be no title, Header {@link Action} or {@link ActionStrip} set on the
+         * template. The host will ignore these.
+         *
+         * <p>From Car API 8, the following template types are supported as content:
+         * <ul>
+         *     <li>{@code ListTemplate}
+         *     <li>{@code PaneTemplate}
+         *     <li>{@code GridTemplate}
+         *     <li>{@code MessageTemplate}
+         *     <li>{@code SearchTemplate}
+         *     <li>{@code NavigationTemplate}
+         *     <li>{@code SectionedItemTemplate}
+         * </ul>
+         *
+         * @throws NullPointerException     if {@code template} is null
+         * @throws IllegalArgumentException if {@code template} does not meet the requirements
+         */
+        public Api8Builder(@NonNull Template template) {
+            TabContentsConstraints.API_8.validateOrThrow(requireNonNull(template));
             mTemplate = template;
         }
     }
