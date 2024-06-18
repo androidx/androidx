@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
@@ -37,22 +38,61 @@ import kotlin.math.sqrt
  *
  * @param modifier The [CurvedModifier] to apply to this curved composable.
  * @param radialAlignment How to align this component if it's thinner than the container.
+ * @param rotationLocked if set to true, doesn't rotate the composable and only moves it into
+ *   position. Note that this is not taken into account when computing the size this will take in
+ *   the layout, so it's best suited for square/circular things and may require manual sizing when
+ *   used in other contexts.
  * @param content The composable(s) that will be wrapped and laid out as part of the parent
  *   container. This has a [BoxScope], since it's wrapped inside a Box.
  */
 public fun CurvedScope.curvedComposable(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
+    rotationLocked: Boolean = false,
     content: @Composable BoxScope.() -> Unit
 ) =
     add(
-        CurvedComposableChild(curvedLayoutDirection.absoluteClockwise(), radialAlignment, content),
+        CurvedComposableChild(
+            curvedLayoutDirection.absoluteClockwise(),
+            radialAlignment,
+            rotationLocked,
+            content
+        ),
+        modifier
+    )
+
+/**
+ * Component that allows normal composables to be part of a [CurvedLayout].
+ *
+ * @param modifier The [CurvedModifier] to apply to this curved composable.
+ * @param radialAlignment How to align this component if it's thinner than the container.
+ * @param content The composable(s) that will be wrapped and laid out as part of the parent
+ *   container. This has a [BoxScope], since it's wrapped inside a Box.
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for " +
+        "Wear OS 1.4. A newer overload is available with additional parameter to control rotation.",
+    level = DeprecationLevel.HIDDEN
+)
+public fun CurvedScope.curvedComposable(
+    modifier: CurvedModifier = CurvedModifier,
+    radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
+    content: @Composable BoxScope.() -> Unit
+) =
+    add(
+        CurvedComposableChild(
+            curvedLayoutDirection.absoluteClockwise(),
+            radialAlignment,
+            false,
+            content
+        ),
         modifier
     )
 
 internal class CurvedComposableChild(
     val clockwise: Boolean,
     val radialAlignment: CurvedAlignment.Radial,
+    val rotationLocked: Boolean,
     val content: @Composable BoxScope.() -> Unit
 ) : CurvedChild() {
     lateinit var placeable: Placeable
@@ -107,7 +147,7 @@ internal class CurvedComposableChild(
     ): Float = parentStartAngleRadians.also { this.parentSweepRadians = parentSweepRadians }
 
     override fun (Placeable.PlacementScope).placeIfNeeded() =
-        place(placeable, layoutInfo!!, parentSweepRadians, clockwise)
+        place(placeable, layoutInfo!!, parentSweepRadians, clockwise, rotationLocked)
 
     /**
      * Compute the inner and outer radii of the annulus sector required to fit the given box.
@@ -140,7 +180,8 @@ internal fun (Placeable.PlacementScope).place(
     placeable: Placeable,
     layoutInfo: CurvedLayoutInfo,
     parentSweepRadians: Float,
-    clockwise: Boolean
+    clockwise: Boolean,
+    rotationLocked: Boolean = false
 ) {
     with(layoutInfo) {
         // Distance from the center of the CurvedRow to the top left of the component.
@@ -165,13 +206,19 @@ internal fun (Placeable.PlacementScope).place(
         placeable.placeWithLayer(
             x = positionX,
             y = positionY,
-            layerBlock = {
-                rotationZ = rotationAngle.toDegrees() - 270f
-                // Rotate around the center of the placeable.
-                transformOrigin = TransformOrigin.Center
-            }
+            layerBlock =
+                if (rotationLocked) DefaultLayerBlock
+                else {
+                    {
+                        rotationZ = rotationAngle.toDegrees() - 270f
+                        // Rotate around the center of the placeable.
+                        transformOrigin = TransformOrigin.Center
+                    }
+                }
         )
     }
 }
+
+private val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}
 
 private fun pow2(x: Float): Float = x * x

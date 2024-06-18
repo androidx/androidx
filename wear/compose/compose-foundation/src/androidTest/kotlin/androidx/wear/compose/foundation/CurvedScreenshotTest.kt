@@ -258,6 +258,18 @@ class CurvedScreenshotTest {
         }
     }
 
+    @Test
+    fun composable_rotationLock() {
+        verify_composable_screenshot {
+            CurvedLayout(Modifier.fillMaxSize()) {
+                curvedComposable { Box(Modifier.size(20.dp).background(Color.Red)) }
+                curvedComposable(rotationLocked = true) {
+                    Box(Modifier.size(20.dp).background(Color.Green))
+                }
+            }
+        }
+    }
+
     private fun CurvedScope.layout_direction_block() {
         basicCurvedText("A")
         curvedColumn {

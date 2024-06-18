@@ -16,7 +16,10 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,8 +38,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -48,6 +54,7 @@ import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.angularSize
 import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedBox
@@ -301,6 +308,48 @@ fun CurvedBoxDemo() {
                 Box(modifier = Modifier.width(40.dp).height(60.dp).background(Color.Green))
             }
             curvedComposable { WhiteCircle() }
+        }
+    }
+}
+
+@Composable
+private fun SampleIcon(
+    @DrawableRes id: Int,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    background: Color = Color.Black,
+) {
+    Box(
+        modifier
+            .size(40.dp)
+            .border(2.dp, Color.White, CircleShape)
+            .clip(CircleShape)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .background(background, CircleShape)
+            .padding(3.dp)
+            .paint(painterResource(id), contentScale = ContentScale.Fit)
+    )
+}
+
+@Composable
+fun CurvedIconsDemo() {
+    Box(Modifier.fillMaxSize().padding(10.dp), contentAlignment = Alignment.Center) {
+        CurvedLayout(
+            modifier = Modifier.fillMaxSize(),
+            anchor = 90f,
+            angularDirection = CurvedDirection.Angular.CounterClockwise
+        ) {
+            curvedComposable(rotationLocked = true) { Text("Foo", color = Color.White) }
+            listOf(R.drawable.ic_skip_previous, R.drawable.ic_play, R.drawable.ic_skip_next)
+                .forEach {
+                    curvedComposable(
+                        modifier = CurvedModifier.angularSize(40f),
+                        rotationLocked = true
+                    ) {
+                        SampleIcon(it)
+                    }
+                }
+            curvedComposable(rotationLocked = true) { Text("Bar", color = Color.White) }
         }
     }
 }

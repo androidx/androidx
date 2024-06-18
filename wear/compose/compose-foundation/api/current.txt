@@ -82,7 +82,8 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedComposableKt {
-    method public static void curvedComposable(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional float radialAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method public static void curvedComposable(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional float radialAlignment, optional boolean rotationLocked, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @Deprecated public static void curvedComposable(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional float radialAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
   public interface CurvedDirection {
