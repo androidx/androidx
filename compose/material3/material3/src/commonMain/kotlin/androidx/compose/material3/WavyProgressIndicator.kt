@@ -28,7 +28,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
@@ -846,39 +848,48 @@ private fun PathProgressIndicator(
     // Holds the start and end progress fractions.
     val progressDrawingCache = remember { CircularProgressDrawingCache() }
     val direction = if (LocalLayoutDirection.current == LayoutDirection.Ltr) 1f else -1f
-    Spacer(
-        modifier
-            .progressSemantics()
+    Box(modifier = modifier) {
+        Spacer(
             // Apply the rotation from the animation.
-            .graphicsLayer { rotationZ = globalRotation.value * direction }
-            .drawWithCache {
-                val trackGapSize = gapSize.toPx()
-                with(progressDrawingCache) {
-                    // Update the paths and set a fixed start and end progress values to create a
-                    // gap between the start and end when we cut pieced from the PathMeasure to
-                    // draw.
-                    // Note that the path we construct here only take into account the progress
-                    // Stroke when being calculated. The track's Stroke is applied when drawing
-                    // only.
-                    updatePaths(
-                        size = size,
-                        progressPath = progressPath,
-                        trackPath = trackPath,
-                        enableProgressMotion = false,
-                        startProgress = 0f,
-                        endProgress = progressAnimation.value,
-                        amplitude = 1f,
-                        waveOffset = 0f,
-                        wavelength = wavelength.toPx(),
-                        gapSize = trackGapSize,
-                        stroke = stroke,
-                        trackStroke = trackStroke
-                    )
-                }
-                onDrawWithContent {
-                    if (layoutDirection == LayoutDirection.Rtl) {
-                        // Scaling on the X will flip the drawing for RTL
-                        scale(scaleX = -1f, scaleY = 1f) {
+            Modifier.fillMaxSize()
+                .graphicsLayer { rotationZ = globalRotation.value * direction }
+                .drawWithCache {
+                    val trackGapSize = gapSize.toPx()
+                    with(progressDrawingCache) {
+                        // Update the paths and set a fixed start and end progress values to create
+                        // a gap between the start and end when we cut pieced from the PathMeasure
+                        // to draw.
+                        // Note that the path we construct here only take into account the progress
+                        // Stroke when being calculated. The track's Stroke is applied when drawing
+                        // only.
+                        updatePaths(
+                            size = size,
+                            progressPath = progressPath,
+                            trackPath = trackPath,
+                            enableProgressMotion = false,
+                            startProgress = 0f,
+                            endProgress = progressAnimation.value,
+                            amplitude = 1f,
+                            waveOffset = 0f,
+                            wavelength = wavelength.toPx(),
+                            gapSize = trackGapSize,
+                            stroke = stroke,
+                            trackStroke = trackStroke
+                        )
+                    }
+                    onDrawWithContent {
+                        if (layoutDirection == LayoutDirection.Rtl) {
+                            // Scaling on the X will flip the drawing for RTL
+                            scale(scaleX = -1f, scaleY = 1f) {
+                                drawCircularIndicator(
+                                    color = color,
+                                    trackColor = trackColor,
+                                    stroke = stroke,
+                                    trackStroke = trackStroke,
+                                    drawingCache = progressDrawingCache
+                                )
+                            }
+                        } else {
                             drawCircularIndicator(
                                 color = color,
                                 trackColor = trackColor,
@@ -887,18 +898,13 @@ private fun PathProgressIndicator(
                                 drawingCache = progressDrawingCache
                             )
                         }
-                    } else {
-                        drawCircularIndicator(
-                            color = color,
-                            trackColor = trackColor,
-                            stroke = stroke,
-                            trackStroke = trackStroke,
-                            drawingCache = progressDrawingCache
-                        )
                     }
                 }
-            }
-    )
+        )
+        // To overcome b/347736702 we are separating the progressSemantics() call to an independent
+        // spacer, and wrap the spacer with the indicator content and this spacer in a Box.
+        Spacer(modifier = Modifier.fillMaxSize().progressSemantics())
+    }
 }
 
 /** Draws the track and the progress of a circular progress indicator. */
