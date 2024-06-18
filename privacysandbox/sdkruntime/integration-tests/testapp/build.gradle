@@ -24,7 +24,6 @@ android {
         applicationId 'androidx.privacysandbox.sdkruntime.integration.testapp'
         compileSdk 34
         compileSdkExtension 10
-        minSdk 34
     }
     privacySandbox {
         enable = true

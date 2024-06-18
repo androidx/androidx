@@ -16,10 +16,16 @@
 
 package androidx.privacysandbox.sdkruntime.integration.testsdk
 
+import android.util.Log
 import androidx.privacysandbox.sdkruntime.integration.testaidl.ISdkApi
 
 class TestSdk : ISdkApi.Stub() {
     override fun invert(value: Boolean): Boolean {
+        Log.i(TAG, "TestSdk#invert($value)")
         return !value
+    }
+
+    companion object {
+        private const val TAG = "TestSdk"
     }
 }
