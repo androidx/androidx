@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import android.view.accessibility.AccessibilityNodeProvider
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,6 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@OptIn(ExperimentalFoundationApi::class)
 @RunWith(Parameterized::class)
 class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = config) {
 
