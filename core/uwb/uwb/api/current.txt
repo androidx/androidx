@@ -26,6 +26,14 @@ package androidx.core.uwb {
     property public final java.util.Set<java.lang.Integer> supportedSlotDurations;
   }
 
+  public final class RangingControleeParameters {
+    ctor public RangingControleeParameters(int subSessionId, optional byte[]? subSessionKey);
+    method public int getSubSessionId();
+    method public byte[]? getSubSessionKey();
+    property public final int subSessionId;
+    property public final byte[]? subSessionKey;
+  }
+
   public final class RangingMeasurement {
     ctor public RangingMeasurement(float value);
     method public float getValue();
@@ -138,6 +146,7 @@ package androidx.core.uwb {
   }
 
   public interface UwbControllerSessionScope extends androidx.core.uwb.UwbClientSessionScope {
+    method public suspend Object? addControlee(androidx.core.uwb.UwbAddress address, androidx.core.uwb.RangingControleeParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? addControlee(androidx.core.uwb.UwbAddress address, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.core.uwb.UwbComplexChannel getUwbComplexChannel();
     method public suspend Object? reconfigureRangingInterval(int intervalSkipCount, kotlin.coroutines.Continuation<? super kotlin.Unit>);

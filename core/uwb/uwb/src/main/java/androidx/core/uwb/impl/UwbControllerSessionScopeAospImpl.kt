@@ -17,6 +17,7 @@
 package androidx.core.uwb.impl
 
 import androidx.core.uwb.RangingCapabilities
+import androidx.core.uwb.RangingControleeParameters
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbComplexChannel
 import androidx.core.uwb.UwbControllerSessionScope
@@ -53,6 +54,20 @@ internal class UwbControllerSessionScopeAospImpl(
     override suspend fun reconfigureRangingInterval(intervalSkipCount: Int) {
         try {
             return uwbClient.reconfigureRangingInterval(intervalSkipCount)
+        } catch (e: Exception) {
+            throw (e)
+        }
+    }
+
+    override suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters) {
+        val uwbAddress = androidx.core.uwb.backend.UwbAddress()
+        uwbAddress.address = address.address
+        val controleeParams = androidx.core.uwb.backend.RangingControleeParameters()
+        controleeParams.address = uwbAddress
+        controleeParams.subSessionId = parameters.subSessionId
+        controleeParams.subSessionKey = parameters.subSessionKey
+        try {
+            uwbClient.addControleeWithSessionParams(controleeParams)
         } catch (e: Exception) {
             throw (e)
         }

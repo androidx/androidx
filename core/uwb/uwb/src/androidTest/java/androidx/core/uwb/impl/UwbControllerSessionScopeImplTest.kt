@@ -16,6 +16,7 @@
 
 package androidx.core.uwb.impl
 
+import androidx.core.uwb.RangingControleeParameters
 import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.common.TestCommons.Companion.COMPLEX_CHANNEL
@@ -180,5 +181,27 @@ class UwbControllerSessionScopeImplTest {
         // cancel and wait for the job to terminate.
         job.cancel()
         runBlocking { job.join() }
+    }
+
+    @Test
+    public fun testAddControleeIndividualKeyCase_success() {
+        val job = startRanging()
+
+        // a non-null RangingResult should return from the TestUwbClient.
+        if (rangingResult != null) {
+            assertThat(rangingResult is RangingResult.RangingResultPosition).isTrue()
+            assertThat(rangingResult!!.device.address.address).isEqualTo(NEIGHBOR_1)
+        } else {
+            stopRanging(job)
+            Assert.fail()
+        }
+
+        runBlocking {
+            uwbControllerSession.addControlee(UwbAddress(NEIGHBOR_2), RangingControleeParameters(1))
+            delay(500)
+        }
+        assertThat(rangingResult is RangingResult.RangingResultPosition).isTrue()
+        assertThat(rangingResult!!.device.address.address).isEqualTo(NEIGHBOR_2)
+        stopRanging(job)
     }
 }
