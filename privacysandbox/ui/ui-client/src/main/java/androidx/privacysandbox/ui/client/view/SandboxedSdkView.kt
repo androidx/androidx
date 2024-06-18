@@ -237,6 +237,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     private fun removeCallbacks() {
+        // TODO(b/3131677): Handle leak of listeners when this is called.
         (contentView as? SurfaceView)?.holder?.removeCallback(surfaceChangedCallback)
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutChangeListener)
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
@@ -403,7 +404,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     override fun onDetachedFromWindow() {
-        removeCallbacks()
         if (!this.isWithinPoolingContainer) {
             closeClient()
         }
