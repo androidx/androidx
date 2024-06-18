@@ -26,6 +26,7 @@ class ConfigBuilder {
     lateinit var applicationId: String
     var isMicrobenchmark: Boolean = false
     var isMacrobenchmark: Boolean = false
+    var enablePrivacySandbox: Boolean = false
     var isPostsubmit: Boolean = true
     lateinit var minSdk: String
     val tags = mutableListOf<String>()
@@ -55,6 +56,10 @@ class ConfigBuilder {
     }
 
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
+
+    fun enablePrivacySandbox(enablePrivacySandbox: Boolean) = apply {
+        this.enablePrivacySandbox = enablePrivacySandbox
+    }
 
     fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
 
@@ -139,6 +144,9 @@ class ConfigBuilder {
         // Post install commands after SuiteApkInstaller is declared
         if (isMicrobenchmark) {
             sb.append(benchmarkPostInstallCommandOption(applicationId))
+        }
+        if (enablePrivacySandbox) {
+            sb.append(PRIVACY_SANDBOX_ENABLE_PREPARER)
         }
         sb.append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
@@ -394,6 +402,18 @@ private val MACROBENCHMARK_POSTSUBMIT_LISTENERS =
 private val FLAKY_TEST_OPTION =
     """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+
+"""
+        .trimIndent()
+
+private val PRIVACY_SANDBOX_ENABLE_PREPARER =
+    """
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="cmd sdk_sandbox set-state --enabled"/>
+    <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
+    <option name="teardown-command" value="cmd sdk_sandbox set-state --reset"/>
+    <option name="teardown-command" value="device_config set_sync_disabled_for_tests none" />
+    </target_preparer>
 
 """
         .trimIndent()
