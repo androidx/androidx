@@ -3959,6 +3959,20 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectEmptyString() {
+        @Serializable @SerialName("test") class TestClass(val arg: String)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass("")) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).isEqualTo("")
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectEmptyStringList() {
         @Serializable @SerialName("test") class TestClass(val arg: List<String>)
 
