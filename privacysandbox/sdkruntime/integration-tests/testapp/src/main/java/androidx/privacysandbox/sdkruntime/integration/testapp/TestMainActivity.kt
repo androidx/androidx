@@ -20,56 +20,33 @@ import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import androidx.privacysandbox.sdkruntime.integration.testaidl.ISdkApi
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class TestMainActivity : Activity() {
 
     private lateinit var sdkSandboxManager: SdkSandboxManagerCompat
 
-    private val loadSdkLatch = CountDownLatch(1)
-
-    private var sdkApi: ISdkApi? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
-
-        if (sdkApi == null) {
-            Log.i(TAG, "Loading SDK")
-            CoroutineScope(Dispatchers.Default).launch {
-                try {
-                    val loadedSdk = sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
-                    onLoadedSdk(loadedSdk)
-                } catch (e: LoadSdkCompatException) {
-                    Log.i(
-                        TAG,
-                        "loadSdk failed with errorCode: " +
-                            e.loadSdkErrorCode +
-                            " and errorMsg: " +
-                            e.message
-                    )
-                }
-            }
-        }
     }
 
-    fun waitForSdkApiLoaded(): ISdkApi {
-        loadSdkLatch.await(5, TimeUnit.SECONDS)
-        return sdkApi!!
-    }
-
-    private fun onLoadedSdk(sandboxedSdk: SandboxedSdkCompat) {
+    suspend fun loadSdk(): ISdkApi {
+        Log.i(TAG, "Loading SDK")
+        val loadedSdk = sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
+        val sdkApi = ISdkApi.Stub.asInterface(loadedSdk.getInterface())
         Log.i(TAG, "Loaded successfully")
-        sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
-        loadSdkLatch.countDown()
+        return sdkApi
+    }
+
+    fun unloadAllSdks() {
+        sdkSandboxManager
+            .getSandboxedSdks()
+            .mapNotNull(SandboxedSdkCompat::getSdkInfo)
+            .map(SandboxedSdkInfo::name)
+            .forEach(sdkSandboxManager::unloadSdk)
     }
 
     companion object {
