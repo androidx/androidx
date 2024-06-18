@@ -127,32 +127,6 @@ class SharePointerInputWithSiblingTest {
     }
 
     @Test
-    fun stackedBox_doSharePointerWithCousin() {
-        var box1Clicked = false
-        var box2Clicked = false
-
-        rule.setContent {
-            Box(Modifier.size(50.dp)) {
-                Box(Modifier.fillMaxSize().testTag("box1").testPointerInput { box1Clicked = true })
-
-                Box(Modifier.fillMaxSize()) {
-                    Box(
-                        Modifier.fillMaxSize().testTag("box2").testPointerInput(
-                            sharePointerInputWithSibling = true
-                        ) {
-                            box2Clicked = true
-                        }
-                    )
-                }
-            }
-        }
-
-        rule.onNodeWithTag("box2").performClick()
-        assertThat(box1Clicked).isTrue()
-        assertThat(box2Clicked).isTrue()
-    }
-
-    @Test
     fun stackedBox_parentDisallowShare_notSharePointerWithCousin() {
         var box1Clicked = false
         var box2Clicked = false
@@ -179,7 +153,7 @@ class SharePointerInputWithSiblingTest {
     }
 
     @Test
-    fun stackedBox_doSharePointer_untilFirstBoxDisallowShare() {
+    fun stackedBox_doSharePointerWithSiblings_untilFirstBoxDisallowShare() {
         var box1Clicked = false
         var box2Clicked = false
         var box3Clicked = false
