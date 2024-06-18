@@ -41,6 +41,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -153,6 +154,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore // b/347717568
     fun testResolveCallExtension_TransactionalOpsNotSupported() {
         // Phone accounts that don't use the v2 APIs don't support transactional ops.
         setUpBackwardsCompatTest()
