@@ -1015,6 +1015,88 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> headlineContent, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? overlineContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingContent, optional androidx.compose.material3.ListItemColors colors, optional float tonalElevation, optional float shadowElevation);
   }
 
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public abstract sealed class MaterialShapes {
+    field public static final androidx.compose.material3.MaterialShapes.Companion Companion;
+  }
+
+  public static final class MaterialShapes.Companion {
+    method public androidx.graphics.shapes.RoundedPolygon getArch();
+    method public androidx.graphics.shapes.RoundedPolygon getArrow();
+    method public androidx.graphics.shapes.RoundedPolygon getBoom();
+    method public androidx.graphics.shapes.RoundedPolygon getBun();
+    method public androidx.graphics.shapes.RoundedPolygon getBurst();
+    method public androidx.graphics.shapes.RoundedPolygon getCircle();
+    method public androidx.graphics.shapes.RoundedPolygon getClamShell();
+    method public androidx.graphics.shapes.RoundedPolygon getClover4Leaf();
+    method public androidx.graphics.shapes.RoundedPolygon getClover8Leaf();
+    method public androidx.graphics.shapes.RoundedPolygon getCookie12Sided();
+    method public androidx.graphics.shapes.RoundedPolygon getCookie4Sided();
+    method public androidx.graphics.shapes.RoundedPolygon getCookie6Sided();
+    method public androidx.graphics.shapes.RoundedPolygon getCookie7Sided();
+    method public androidx.graphics.shapes.RoundedPolygon getCookie9Sided();
+    method public androidx.graphics.shapes.RoundedPolygon getDiamond();
+    method public androidx.graphics.shapes.RoundedPolygon getFan();
+    method public androidx.graphics.shapes.RoundedPolygon getFlower();
+    method public androidx.graphics.shapes.RoundedPolygon getGem();
+    method public androidx.graphics.shapes.RoundedPolygon getGhostish();
+    method public androidx.graphics.shapes.RoundedPolygon getHeart();
+    method public androidx.graphics.shapes.RoundedPolygon getOval();
+    method public androidx.graphics.shapes.RoundedPolygon getPentagon();
+    method public androidx.graphics.shapes.RoundedPolygon getPill();
+    method public androidx.graphics.shapes.RoundedPolygon getPixelCircle();
+    method public androidx.graphics.shapes.RoundedPolygon getPixelTriangle();
+    method public androidx.graphics.shapes.RoundedPolygon getPuffy();
+    method public androidx.graphics.shapes.RoundedPolygon getPuffyDiamond();
+    method public androidx.graphics.shapes.RoundedPolygon getSemiCircle();
+    method public androidx.graphics.shapes.RoundedPolygon getSlanted();
+    method public androidx.graphics.shapes.RoundedPolygon getSoftBoom();
+    method public androidx.graphics.shapes.RoundedPolygon getSoftBurst();
+    method public androidx.graphics.shapes.RoundedPolygon getSquare();
+    method public androidx.graphics.shapes.RoundedPolygon getSunny();
+    method public androidx.graphics.shapes.RoundedPolygon getTriangle();
+    method public androidx.graphics.shapes.RoundedPolygon getVerySunny();
+    property public final androidx.graphics.shapes.RoundedPolygon Arch;
+    property public final androidx.graphics.shapes.RoundedPolygon Arrow;
+    property public final androidx.graphics.shapes.RoundedPolygon Boom;
+    property public final androidx.graphics.shapes.RoundedPolygon Bun;
+    property public final androidx.graphics.shapes.RoundedPolygon Burst;
+    property public final androidx.graphics.shapes.RoundedPolygon Circle;
+    property public final androidx.graphics.shapes.RoundedPolygon ClamShell;
+    property public final androidx.graphics.shapes.RoundedPolygon Clover4Leaf;
+    property public final androidx.graphics.shapes.RoundedPolygon Clover8Leaf;
+    property public final androidx.graphics.shapes.RoundedPolygon Cookie12Sided;
+    property public final androidx.graphics.shapes.RoundedPolygon Cookie4Sided;
+    property public final androidx.graphics.shapes.RoundedPolygon Cookie6Sided;
+    property public final androidx.graphics.shapes.RoundedPolygon Cookie7Sided;
+    property public final androidx.graphics.shapes.RoundedPolygon Cookie9Sided;
+    property public final androidx.graphics.shapes.RoundedPolygon Diamond;
+    property public final androidx.graphics.shapes.RoundedPolygon Fan;
+    property public final androidx.graphics.shapes.RoundedPolygon Flower;
+    property public final androidx.graphics.shapes.RoundedPolygon Gem;
+    property public final androidx.graphics.shapes.RoundedPolygon Ghostish;
+    property public final androidx.graphics.shapes.RoundedPolygon Heart;
+    property public final androidx.graphics.shapes.RoundedPolygon Oval;
+    property public final androidx.graphics.shapes.RoundedPolygon Pentagon;
+    property public final androidx.graphics.shapes.RoundedPolygon Pill;
+    property public final androidx.graphics.shapes.RoundedPolygon PixelCircle;
+    property public final androidx.graphics.shapes.RoundedPolygon PixelTriangle;
+    property public final androidx.graphics.shapes.RoundedPolygon Puffy;
+    property public final androidx.graphics.shapes.RoundedPolygon PuffyDiamond;
+    property public final androidx.graphics.shapes.RoundedPolygon SemiCircle;
+    property public final androidx.graphics.shapes.RoundedPolygon Slanted;
+    property public final androidx.graphics.shapes.RoundedPolygon SoftBoom;
+    property public final androidx.graphics.shapes.RoundedPolygon SoftBurst;
+    property public final androidx.graphics.shapes.RoundedPolygon Square;
+    property public final androidx.graphics.shapes.RoundedPolygon Sunny;
+    property public final androidx.graphics.shapes.RoundedPolygon Triangle;
+    property public final androidx.graphics.shapes.RoundedPolygon VerySunny;
+  }
+
+  public final class MaterialShapesKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional androidx.compose.ui.graphics.Path path, optional int startAngle);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.ui.graphics.Shape toShape(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
+  }
+
   public final class MaterialTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.ColorScheme getColorScheme();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.Shapes getShapes();
