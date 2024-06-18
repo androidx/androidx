@@ -44,6 +44,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -434,6 +435,7 @@ class WavyProgressIndicatorTest {
             .assertIsSquareWithSize(WavyProgressIndicatorDefaults.CircularContainerSize)
     }
 
+    @Ignore("b/347736702") // TODO: Ignoring this until the underlying issue at b/347771353 is fixed
     @Test
     fun indeterminateCircularWavyProgressIndicator_progress() {
         val tag = "circular"
