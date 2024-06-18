@@ -43,6 +43,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -507,6 +508,21 @@ class TextFieldLayoutStateCacheTest {
                 )
                 .isTrue()
         }
+    }
+
+    @Test
+    fun value_returnsCachedLayout_whenCompositionDoesNotChange() {
+        textFieldState.editAsUser(inputTransformation = null) {
+            replace(0, length, "hello")
+            setSelection(0, 0)
+            setComposition(0, 5)
+        }
+        updateNonMeasureInputs()
+        updateMeasureInputs()
+        val initialLayout = cache.value
+        // this shouldn't cause a recompute
+        val secondLayout = cache.value
+        assertThat(initialLayout).isSameInstanceAs(secondLayout)
     }
 
     @Test
