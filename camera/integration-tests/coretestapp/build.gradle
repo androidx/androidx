@@ -23,8 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.core"
-        versionCode 1
-        multiDexEnabled true
 
         externalNativeBuild {
             cmake {

@@ -123,9 +123,6 @@ androidXMultiplatform {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     namespace "androidx.graphics.shapes"
 }
 

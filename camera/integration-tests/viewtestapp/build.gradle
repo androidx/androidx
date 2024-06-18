@@ -24,8 +24,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.view"
-        versionCode 1
-        multiDexEnabled true
     }
 
     sourceSets {
@@ -45,9 +43,6 @@ android {
         }
     }
 
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
     namespace "androidx.camera.integration.view"
 }
 

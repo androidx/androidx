@@ -45,10 +45,6 @@ androidXMultiplatform {
             it.compilationName = "instrumentedTest"
             it.defaultSourceSetName = "androidInstrumentedTest"
             it.sourceSetTreeName = "test"
-        }.configure {
-            it.multidex {
-                it.enable = true
-            }
         }
     }
 
@@ -108,7 +104,6 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.mockitoAndroid5)
-                implementation(libs.multidex)
             }
         }
 

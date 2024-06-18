@@ -24,7 +24,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.viewfinder"
-        multiDexEnabled true
     }
 
     buildTypes {

@@ -55,7 +55,6 @@ android {
                 targets "icing"
             }
         }
-        multiDexEnabled true
     }
     externalNativeBuild {
         cmake {
@@ -88,7 +87,6 @@ dependencies {
     implementation("androidx.core:core:1.6.0")
 
     androidTestImplementation project(':appsearch:appsearch-test-util')
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)

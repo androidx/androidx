@@ -117,7 +117,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(':internal-testutils-runtime'))
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
 
@@ -133,9 +132,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     sourceSets {
         androidTest {
             assets {

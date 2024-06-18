@@ -46,9 +46,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     buildFeatures {
         aidl = true
     }
