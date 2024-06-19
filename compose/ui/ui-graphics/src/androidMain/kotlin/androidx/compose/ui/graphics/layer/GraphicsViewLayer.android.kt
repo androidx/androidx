@@ -445,8 +445,6 @@ internal class GraphicsViewLayer(
         }
     }
 
-    override val supportsSoftwareRendering: Boolean = mayRenderInSoftware
-
     private fun recordDrawingOperations() {
         try {
             canvasHolder.drawInto(PlaceholderCanvas) {
