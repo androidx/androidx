@@ -591,6 +591,9 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.TypeBuilders.BoolProp? getUnderline();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp? getVariant();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontWeightProp? getWeight();
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String DEFAULT_SYSTEM_FONT = "default";
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FLEX_FONT = "roboto-flex";
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FONT = "roboto";
   }
 
   public static final class LayoutElementBuilders.FontStyle.Builder {
@@ -610,9 +613,6 @@ package androidx.wear.protolayout {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setVariant(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.protolayout.LayoutElementBuilders.FontWeightProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(int);
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String DEFAULT_SYSTEM_FONT = "default";
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FLEX_FONT = "roboto-flex";
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FONT = "roboto";
   }
 
   @Deprecated public static final class LayoutElementBuilders.FontStyles {
