@@ -68,28 +68,28 @@ class DraggableAnchorsTest {
     }
 
     @Test
-    fun draggableAnchors_minAnchor() {
+    fun draggableAnchors_minPosition() {
         val anchors = DraggableAnchors {
             A at -100f
             B at 100f
         }
-        assertThat(anchors.minAnchor()).isEqualTo(-100f)
+        assertThat(anchors.minPosition()).isEqualTo(-100f)
     }
 
     @Test
-    fun draggableAnchors_maxAnchor() {
+    fun draggableAnchors_maxPosition() {
         val anchors = DraggableAnchors {
             A at -100f
             B at 100f
         }
-        assertThat(anchors.maxAnchor()).isEqualTo(100f)
+        assertThat(anchors.maxPosition()).isEqualTo(100f)
     }
 
     @Test
-    fun draggableAnchors_hasAnchorFor() {
+    fun draggableAnchors_hasPositionFor() {
         val anchors = DraggableAnchors { A at 100f }
         assertThat(anchors.positionOf(A)).isEqualTo(100f)
-        assertThat(anchors.hasAnchorFor(A)).isTrue()
+        assertThat(anchors.hasPositionFor(A)).isTrue()
     }
 }
 

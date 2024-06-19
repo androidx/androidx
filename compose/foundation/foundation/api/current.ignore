@@ -1,5 +1,19 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#anchorAt(int):
+    Added method androidx.compose.foundation.gestures.DraggableAnchors.anchorAt(int)
+AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#hasPositionFor(T):
+    Added method androidx.compose.foundation.gestures.DraggableAnchors.hasPositionFor(T)
+AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#maxPosition():
+    Added method androidx.compose.foundation.gestures.DraggableAnchors.maxPosition()
+AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#minPosition():
+    Added method androidx.compose.foundation.gestures.DraggableAnchors.minPosition()
+AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#positionAt(int):
+    Added method androidx.compose.foundation.gestures.DraggableAnchors.positionAt(int)
 AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridItemInfo#getSpan():
     Added method androidx.compose.foundation.lazy.grid.LazyGridItemInfo.getSpan()
 AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo#getMaxSpan():
     Added method androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo.getMaxSpan()
+
+
+ParameterNameChange: androidx.compose.foundation.gestures.DraggableAnchors#positionOf(T) parameter #0:
+    Attempted to change parameter name from value to anchor in method androidx.compose.foundation.gestures.DraggableAnchors.positionOf

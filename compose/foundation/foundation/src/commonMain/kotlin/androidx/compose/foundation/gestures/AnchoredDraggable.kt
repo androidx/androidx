@@ -17,8 +17,6 @@
 package androidx.compose.foundation.gestures
 
 import androidx.annotation.FloatRange
-import androidx.collection.MutableObjectFloatMap
-import androidx.collection.ObjectFloatMap
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
@@ -435,8 +433,8 @@ private class AnchoredDraggableNode<T>(
                     availableVelocity ->
                     val consumed = fling(velocity.reverseIfNeeded().toFloat())
                     val currentOffset = state.requireOffset()
-                    val minAnchor = state.anchors.minAnchor()
-                    val maxAnchor = state.anchors.maxAnchor()
+                    val minAnchor = state.anchors.minPosition()
+                    val maxAnchor = state.anchors.maxPosition()
                     // return consumed velocity only if we are reaching the min/max anchors
                     if (currentOffset >= maxAnchor || currentOffset <= minAnchor) {
                         consumed.toVelocity()
@@ -538,27 +536,31 @@ private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
  * Structure that represents the anchors of a [AnchoredDraggableState].
  *
  * See the DraggableAnchors factory method to construct drag anchors using a default implementation.
+ * This structure does not make any guarantees about ordering of the anchors.
  */
 interface DraggableAnchors<T> {
 
+    /** The amount of anchors */
+    val size: Int
+
     /**
-     * Get the anchor position for an associated [value]
+     * Get the anchor position for an associated [anchor]
      *
-     * @param value The value to look up
+     * @param anchor The value to look up
      * @return The position of the anchor, or [Float.NaN] if the anchor does not exist
      */
-    fun positionOf(value: T): Float
+    fun positionOf(anchor: T): Float
 
     /**
-     * Whether there is an anchor position associated with the [value]
+     * Whether there is an anchor position associated with the [anchor]
      *
-     * @param value The value to look up
+     * @param anchor The value to look up
      * @return true if there is an anchor for this value, false if there is no anchor for this value
      */
-    fun hasAnchorFor(value: T): Boolean
+    fun hasPositionFor(anchor: T): Boolean
 
     /**
-     * Find the closest anchor to the [position].
+     * Find the closest anchor value to the [position].
      *
      * @param position The position to start searching from
      * @return The closest anchor or null if the anchors are empty
@@ -566,7 +568,7 @@ interface DraggableAnchors<T> {
     fun closestAnchor(position: Float): T?
 
     /**
-     * Find the closest anchor to the [position], in the specified direction.
+     * Find the closest anchor value to the [position], in the specified direction.
      *
      * @param position The position to start searching from
      * @param searchUpwards Whether to search upwards from the current position or downwards
@@ -575,20 +577,31 @@ interface DraggableAnchors<T> {
     fun closestAnchor(position: Float, searchUpwards: Boolean): T?
 
     /** The smallest anchor, or [Float.NEGATIVE_INFINITY] if the anchors are empty. */
-    fun minAnchor(): Float
+    fun minPosition(): Float
 
     /** The biggest anchor, or [Float.POSITIVE_INFINITY] if the anchors are empty. */
-    fun maxAnchor(): Float
+    fun maxPosition(): Float
+
+    /** Get the anchor key at the specified index, or null if the index is out of bounds. */
+    fun anchorAt(index: Int): T?
 
     /**
-     * Iterate over all the anchors and corresponding positions.
-     *
-     * @param block The action to invoke with the anchor and position
+     * Get the anchor position at the specified index, or [Float.NaN] if the index is out of bounds.
      */
-    fun forEach(block: (anchor: T, position: Float) -> Unit)
+    fun positionAt(index: Int): Float
+}
 
-    /** The amount of anchors */
-    val size: Int
+/**
+ * Iterate over all the anchors.
+ *
+ * @param block The action to invoke with the key and position
+ */
+inline fun <T> DraggableAnchors<T>.forEach(block: (key: T, position: Float) -> Unit) {
+    for (i in 0 until size) {
+        val key =
+            requireNotNull(anchorAt(i)) { "There was no key at index $i. Please report a bug." }
+        block(key, positionAt(i))
+    }
 }
 
 /**
@@ -598,7 +611,8 @@ interface DraggableAnchors<T> {
  */
 class DraggableAnchorsConfig<T> {
 
-    internal val anchors = MutableObjectFloatMap<T>()
+    internal val keys = mutableListOf<T>()
+    internal var positions = FloatArray(size = 5) { Float.NaN }
 
     /**
      * Set the anchor position for [this] anchor.
@@ -607,7 +621,26 @@ class DraggableAnchorsConfig<T> {
      */
     @Suppress("BuilderSetStyle")
     infix fun T.at(position: Float) {
-        anchors[this] = position
+        keys.add(this)
+        if (positions.size < keys.size) {
+            expandPositions()
+        }
+        positions[keys.size - 1] = position
+    }
+
+    internal fun buildPositions(): FloatArray {
+        // We might have expanded more than we actually need, so trim the array
+        return positions.copyOfRange(
+            fromIndex = 0,
+            // toIndex is exclusive, so we need to take the entire keys.size, not just - 1
+            toIndex = keys.size
+        )
+    }
+
+    internal fun buildKeys(): List<T> = keys
+
+    private fun expandPositions() {
+        positions = positions.copyOf(keys.size + 2)
     }
 }
 
@@ -618,8 +651,10 @@ class DraggableAnchorsConfig<T> {
  * @return A new [DraggableAnchors] instance with the anchor positions set by the `builder`
  *   function.
  */
-fun <T : Any> DraggableAnchors(builder: DraggableAnchorsConfig<T>.() -> Unit): DraggableAnchors<T> =
-    MapDraggableAnchors(DraggableAnchorsConfig<T>().apply(builder).anchors)
+fun <T : Any> DraggableAnchors(builder: DraggableAnchorsConfig<T>.() -> Unit): DraggableAnchors<T> {
+    val config = DraggableAnchorsConfig<T>().apply(builder)
+    return DefaultDraggableAnchors(keys = config.buildKeys(), anchors = config.buildPositions())
+}
 
 /**
  * Scope used for suspending anchored drag blocks. Allows to set [AnchoredDraggableState.offset] to
@@ -1094,7 +1129,7 @@ class AnchoredDraggableState<T>(
         dragPriority: MutatePriority = MutatePriority.Default,
         block: suspend AnchoredDragScope.(anchor: DraggableAnchors<T>, targetValue: T) -> Unit
     ) {
-        if (anchors.hasAnchorFor(targetValue)) {
+        if (anchors.hasPositionFor(targetValue)) {
             try {
                 dragMutex.mutate(dragPriority) {
                     dragTarget = targetValue
@@ -1128,8 +1163,8 @@ class AnchoredDraggableState<T>(
      */
     internal fun newOffsetForDelta(delta: Float) =
         ((if (offset.isNaN()) 0f else offset) + delta).coerceIn(
-            anchors.minAnchor(),
-            anchors.maxAnchor()
+            anchors.minPosition(),
+            anchors.maxPosition()
         )
 
     /**
@@ -1482,84 +1517,95 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
     }
 }
 
-private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(MutableObjectFloatMap())
+private fun <T> emptyDraggableAnchors() = DefaultDraggableAnchors<T>(emptyList(), FloatArray(0))
 
-private class MapDraggableAnchors<T>(private val anchors: ObjectFloatMap<T>) : DraggableAnchors<T> {
+private val GetOrNan: (Int) -> Float = { Float.NaN }
 
-    override fun positionOf(value: T): Float = anchors.getOrDefault(value, Float.NaN)
+private class DefaultDraggableAnchors<T>(
+    private val keys: List<T>,
+    private val anchors: FloatArray
+) : DraggableAnchors<T> {
 
-    override fun hasAnchorFor(value: T) = anchors.containsKey(value)
+    init {
+        assert(keys.size == anchors.size) {
+            "DraggableAnchors were constructed with " +
+                "inconsistent key-value sizes. Keys: $keys | Anchors: ${anchors.toList()}"
+        }
+    }
+
+    override fun positionOf(anchor: T): Float {
+        val index = keys.indexOf(anchor)
+        return anchors.getOrElse(index, GetOrNan)
+    }
+
+    override fun hasPositionFor(anchor: T) = keys.indexOf(anchor) != -1
 
     override fun closestAnchor(position: Float): T? {
-        var minAnchor: T? = null
+        var minAnchorIndex = -1
         var minDistance = Float.POSITIVE_INFINITY
-        anchors.forEach { anchor, anchorPosition ->
+        anchors.forEachIndexed { index, anchorPosition ->
             val distance = abs(position - anchorPosition)
             if (distance <= minDistance) {
-                minAnchor = anchor
+                minAnchorIndex = index
                 minDistance = distance
             }
         }
-        return minAnchor
+        return keys[minAnchorIndex]
     }
 
     override fun closestAnchor(position: Float, searchUpwards: Boolean): T? {
-        var minAnchor: T? = null
+        var minAnchorIndex = -1
         var minDistance = Float.POSITIVE_INFINITY
-        anchors.forEach { anchor, anchorPosition ->
+        anchors.forEachIndexed { index, anchorPosition ->
             val delta = if (searchUpwards) anchorPosition - position else position - anchorPosition
             val distance = if (delta < 0) Float.POSITIVE_INFINITY else delta
             if (distance <= minDistance) {
-                minAnchor = anchor
+                minAnchorIndex = index
                 minDistance = distance
             }
         }
-        return minAnchor
+        return keys[minAnchorIndex]
     }
 
-    override fun minAnchor() = anchors.minValueOrNaN()
+    override fun minPosition() = anchors.minOrNull() ?: Float.NaN
 
-    override fun maxAnchor() = anchors.maxValueOrNaN()
+    override fun maxPosition() = anchors.maxOrNull() ?: Float.NaN
 
-    override val size: Int
-        get() = anchors.size
+    override val size = anchors.size
+
+    override fun anchorAt(index: Int) = keys.getOrNull(index)
+
+    override fun positionAt(index: Int) = anchors.getOrElse(index, GetOrNan)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is MapDraggableAnchors<*>) return false
 
-        return anchors == other.anchors
+        other as DefaultDraggableAnchors<*>
+
+        if (keys != other.keys) return false
+        if (!anchors.contentEquals(other.anchors)) return false
+        if (size != other.size) return false
+
+        return true
     }
 
-    override fun hashCode() = 31 * anchors.hashCode()
-
-    override fun toString() = "MapDraggableAnchors($anchors)"
-
-    override fun forEach(block: (anchor: T, position: Float) -> Unit) {
-        anchors.forEach(block)
+    override fun hashCode(): Int {
+        var result = keys.hashCode()
+        result = 31 * result + anchors.contentHashCode()
+        result = 31 * result + size
+        return result
     }
-}
 
-private fun <K> ObjectFloatMap<K>.minValueOrNaN(): Float {
-    if (size == 1) return Float.NaN
-    var minValue = Float.POSITIVE_INFINITY
-    forEachValue { value ->
-        if (value <= minValue) {
-            minValue = value
+    override fun toString() = buildString {
+        append("DraggableAnchors(anchors={")
+        for (i in 0 until size) {
+            append("${anchorAt(0)}=${positionAt(i)}")
+            if (i < size - 1) {
+                append(", ")
+            }
         }
+        append("})")
     }
-    return minValue
-}
-
-private fun <K> ObjectFloatMap<K>.maxValueOrNaN(): Float {
-    if (size == 1) return Float.NaN
-    var maxValue = Float.NEGATIVE_INFINITY
-    forEachValue { value ->
-        if (value >= maxValue) {
-            maxValue = value
-        }
-    }
-    return maxValue
 }
 
 internal val AnchoredDraggableMinFlingVelocity = 125.dp

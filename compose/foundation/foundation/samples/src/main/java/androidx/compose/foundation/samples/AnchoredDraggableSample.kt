@@ -28,6 +28,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.forEach
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -331,7 +332,10 @@ fun DraggableAnchorsSample() {
                     state =
                         rememberDraggableState { delta ->
                             offset =
-                                (offset + delta).coerceIn(anchors.minAnchor(), anchors.maxAnchor())
+                                (offset + delta).coerceIn(
+                                    anchors.minPosition(),
+                                    anchors.maxPosition()
+                                )
                         },
                     orientation = Orientation.Horizontal,
                     onDragStopped = { velocity ->
