@@ -119,10 +119,11 @@ object MaterialTheme {
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param content The content of this theme
  */
-// TODO: Mark as experimental if scope is changed to public
+@ExperimentalMaterial3ExpressiveApi
 @Composable
-internal fun MaterialExpressiveTheme(
+fun MaterialExpressiveTheme(
     colorScheme: ColorScheme? = null,
     shapes: Shapes? = null,
     typography: Typography? = null,
