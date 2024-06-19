@@ -166,19 +166,17 @@ fun composableLambdaN(
     return result
 }
 
-// TODO fix wasm
-
-//@Suppress
-//@ComposeCompilerApi
-//@Composable
-//fun rememberComposableLambdaN(
-//    key: Int,
-//    tracked: Boolean,
-//    arity: Int,
-//    block: Any
-//): ComposableLambdaN = remember { ComposableLambdaNImpl(key, tracked, arity) }.also {
-//    it.update(block)
-//}
+@Suppress
+@ComposeCompilerApi
+@Composable
+fun rememberComposableLambdaN(
+    key: Int,
+    tracked: Boolean,
+    arity: Int,
+    block: Any
+): ComposableLambdaN = remember { ComposableLambdaNImpl(key, tracked, arity) }.also {
+    it.update(block)
+}
 
 @Suppress("unused")
 @ComposeCompilerApi
