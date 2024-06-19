@@ -201,6 +201,19 @@ class CameraUseCaseAdapterTest {
     }
 
     @Test
+    fun addUseCases_updateExistingUseCases() {
+        // Arrange.
+        adapter.addUseCases(setOf(preview))
+        adapter.attachUseCases()
+
+        // Act.
+        adapter.addUseCases(setOf(video))
+
+        // Assert.
+        assertThat(fakeCamera.useCaseUpdateHistory).containsExactly(preview)
+    }
+
+    @Test
     fun attachUseCases_cameraConfigIsConfigured() {
         // Arrange: Prepare two sets of CameraConfig and CameraUseCaseAdapter.
         val cameraConfig1 = FakeCameraConfig()
