@@ -32,8 +32,8 @@ class PoolingContainerFragment : BaseFragment() {
     private lateinit var inflatedView: View
     private lateinit var recyclerView: RecyclerView
 
-    override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
-        (recyclerView.adapter as CustomAdapter).handleDrawerStateChange(isDrawerOpen)
+    override fun getSandboxedSdkViews(): List<SandboxedSdkView> {
+        return (recyclerView.adapter as CustomAdapter).sandboxedSdkViewSet.toList()
     }
 
     override fun handleLoadAdFromDrawer(
@@ -69,14 +69,9 @@ class PoolingContainerFragment : BaseFragment() {
         zOrder: Boolean = true
     ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
-        private val sandboxedSdkViewSet = mutableSetOf<SandboxedSdkView>()
+        val sandboxedSdkViewSet = mutableSetOf<SandboxedSdkView>()
         private val childCount = 3
         private var zOrderOnTop = zOrder
-
-        fun handleDrawerStateChange(isDrawerOpen: Boolean) {
-            zOrderOnTop = !isDrawerOpen
-            sandboxedSdkViewSet.forEach { view -> view.orderProviderUiAboveClientUi(!isDrawerOpen) }
-        }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val sandboxedSdkView: SandboxedSdkView = view.findViewById(R.id.recyclerview_ad_view)

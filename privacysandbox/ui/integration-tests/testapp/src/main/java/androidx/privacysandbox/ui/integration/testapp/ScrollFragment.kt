@@ -31,9 +31,8 @@ class ScrollFragment : BaseFragment() {
     private lateinit var clippingBoundBannerView: SandboxedSdkView
     private lateinit var inflatedView: View
 
-    override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
-        bottomBannerView.orderProviderUiAboveClientUi(!isDrawerOpen)
-        clippingBoundBannerView.orderProviderUiAboveClientUi(!isDrawerOpen)
+    override fun getSandboxedSdkViews(): List<SandboxedSdkView> {
+        return listOf(bottomBannerView, clippingBoundBannerView)
     }
 
     override fun onCreateView(

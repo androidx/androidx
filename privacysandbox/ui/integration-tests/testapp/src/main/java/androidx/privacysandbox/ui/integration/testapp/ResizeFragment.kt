@@ -32,8 +32,8 @@ class ResizeFragment : BaseFragment() {
     private lateinit var resizeFromSdkButton: Button
     private lateinit var inflatedView: View
 
-    override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
-        resizableBannerView.orderProviderUiAboveClientUi(!isDrawerOpen)
+    override fun getSandboxedSdkViews(): List<SandboxedSdkView> {
+        return listOf(resizableBannerView)
     }
 
     override fun handleLoadAdFromDrawer(

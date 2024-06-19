@@ -69,13 +69,12 @@ abstract class BaseFragment : Fragment() {
     }
 
     /**
-     * Called when the app's drawer layout state changes. When called, change the Z-order of any
-     * [SandboxedSdkView] owned by the fragment to ensure that the remote UI is not drawn over the
-     * drawer. If the drawer is open, move all remote views to Z-below, otherwise move them to
-     * Z-above.
+     * Returns the list of [SandboxedSdkView]s that are currently displayed inside this fragment.
+     *
+     * This will be called when the drawer is opened or closed, to automatically flip the Z-ordering
+     * of any remote views.
      */
-    // TODO(b/343436839) : Handle this automatically
-    abstract fun handleDrawerStateChange(isDrawerOpen: Boolean)
+    abstract fun getSandboxedSdkViews(): List<SandboxedSdkView>
 
     /**
      * Called when the @AdType or @MediationOption of any [SandboxedSdkView] inside the fragment is
@@ -96,6 +95,10 @@ abstract class BaseFragment : Fragment() {
     ) {
         val sdkBundle = sdkApi.loadBannerAd(adType, mediationOption, waitInsideOnDraw)
         sandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkBundle))
+    }
+
+    fun handleDrawerStateChange(isDrawerOpen: Boolean) {
+        getSandboxedSdkViews().forEach { it.orderProviderUiAboveClientUi(!isDrawerOpen) }
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
