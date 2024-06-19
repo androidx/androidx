@@ -102,7 +102,7 @@ class DraggableAnchorsBenchmark {
     }
 
     @Test
-    fun hasAnchorFor() {
+    fun hasPositionFor() {
         val anchors = DraggableAnchors {
             DraggableAnchorsSampleValue.Start at 0f
             DraggableAnchorsSampleValue.HalfStart at 100f
@@ -110,11 +110,11 @@ class DraggableAnchorsBenchmark {
             DraggableAnchorsSampleValue.HalfEnd at 300f
             DraggableAnchorsSampleValue.End at 400f
         }
-        benchmarkRule.measureRepeated { anchors.hasAnchorFor(DraggableAnchorsSampleValue.Center) }
+        benchmarkRule.measureRepeated { anchors.hasPositionFor(DraggableAnchorsSampleValue.Center) }
     }
 
     @Test
-    fun minAnchor() {
+    fun minPosition() {
         val anchors = DraggableAnchors {
             DraggableAnchorsSampleValue.Start at 0f
             DraggableAnchorsSampleValue.HalfStart at 100f
@@ -122,11 +122,11 @@ class DraggableAnchorsBenchmark {
             DraggableAnchorsSampleValue.HalfEnd at 300f
             DraggableAnchorsSampleValue.End at 400f
         }
-        benchmarkRule.measureRepeated { anchors.minAnchor() }
+        benchmarkRule.measureRepeated { anchors.minPosition() }
     }
 
     @Test
-    fun maxAnchor() {
+    fun maxPosition() {
         val anchors = DraggableAnchors {
             DraggableAnchorsSampleValue.Start at 0f
             DraggableAnchorsSampleValue.HalfStart at 100f
@@ -134,6 +134,6 @@ class DraggableAnchorsBenchmark {
             DraggableAnchorsSampleValue.HalfEnd at 300f
             DraggableAnchorsSampleValue.End at 400f
         }
-        benchmarkRule.measureRepeated { anchors.maxAnchor() }
+        benchmarkRule.measureRepeated { anchors.maxPosition() }
     }
 }
