@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.text.handwriting.HandwritingBoundsVerticalOffset
 import androidx.compose.foundation.text.handwriting.handwritingDetector
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.performStylusClick
@@ -32,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -39,6 +39,7 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.Ignore
 import org.junit.runner.RunWith
 
 @MediumTest
@@ -70,24 +71,14 @@ internal class HandwritingDetectorTest {
                 Spacer(
                     modifier =
                         Modifier.fillMaxWidth()
-                            .height(HandwritingBoundsVerticalOffset)
+                            .height(40.dp)
                             .handwritingDetector { callbackCount++ }
                             .testTag(detectorTag)
                 )
                 // This spacer is within the extended handwriting bounds of the detector
-                Spacer(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .height(HandwritingBoundsVerticalOffset)
-                            .testTag(insideSpacerTag)
-                )
+                Spacer(modifier = Modifier.fillMaxWidth().height(10.dp).testTag(insideSpacerTag))
                 // This spacer is outside the extended handwriting bounds of the detector
-                Spacer(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .height(HandwritingBoundsVerticalOffset)
-                            .testTag(outsideSpacerTag)
-                )
+                Spacer(modifier = Modifier.fillMaxWidth().height(10.dp).testTag(outsideSpacerTag))
             }
         }
     }
@@ -99,7 +90,10 @@ internal class HandwritingDetectorTest {
         assertHandwritingDelegationPrepared()
     }
 
+    // Extended bounds is reverted due to b/346850837 will enable it when we support extended
+    // bounds for handwriting again.
     @Test
+    @Ignore
     fun detector_handwritingInExtendedBounds_preparesDelegation() {
         // This spacer is within the extended handwriting bounds of the detector
         rule.onNodeWithTag(insideSpacerTag).performStylusHandwriting()
@@ -108,6 +102,7 @@ internal class HandwritingDetectorTest {
     }
 
     @Test
+    @Ignore
     fun detector_handwritingOutsideExtendedBounds_notPreparesDelegation() {
         // This spacer is outside the extended handwriting bounds of the detector
         rule.onNodeWithTag(outsideSpacerTag).performStylusHandwriting()
