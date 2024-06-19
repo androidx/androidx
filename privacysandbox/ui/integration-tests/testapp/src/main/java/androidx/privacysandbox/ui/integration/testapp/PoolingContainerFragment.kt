@@ -38,10 +38,12 @@ class PoolingContainerFragment : BaseFragment() {
 
     override fun handleLoadAdFromDrawer(
         @AdType adType: Int,
-        @MediationOption mediationOption: Int
+        @MediationOption mediationOption: Int,
+        drawViewabilityLayer: Boolean
     ) {
         currentAdType = adType
         currentMediationOption = mediationOption
+        shouldDrawViewabilityLayer = drawViewabilityLayer
         val recyclerViewAdapter = CustomAdapter(adType, mediationOption, zOrder = false)
         recyclerView.adapter = recyclerViewAdapter
     }
@@ -94,7 +96,12 @@ class PoolingContainerFragment : BaseFragment() {
             childSandboxedSdkView.orderProviderUiAboveClientUi(zOrderOnTop)
             if (!sandboxedSdkViewSet.contains(childSandboxedSdkView)) {
                 try {
-                    loadBannerAd(adType, mediationOption, childSandboxedSdkView)
+                    loadBannerAd(
+                        adType,
+                        mediationOption,
+                        childSandboxedSdkView,
+                        shouldDrawViewabilityLayer
+                    )
                 } catch (e: Exception) {
                     Log.w(TAG, "Ad not loaded $e")
                 }

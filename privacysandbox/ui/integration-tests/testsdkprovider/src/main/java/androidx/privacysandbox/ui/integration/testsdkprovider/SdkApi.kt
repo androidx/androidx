@@ -17,6 +17,9 @@
 package androidx.privacysandbox.ui.integration.testsdkprovider
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Process
 import android.util.Log
@@ -44,30 +47,34 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     override fun loadBannerAd(
         @AdType adType: Int,
         @MediationOption mediationOption: Int,
-        waitInsideOnDraw: Boolean
+        waitInsideOnDraw: Boolean,
+        drawViewability: Boolean
     ): Bundle {
         val isMediation =
             (mediationOption == MediationOption.SDK_RUNTIME_MEDIATEE ||
                 mediationOption == MediationOption.IN_APP_MEDIATEE)
         val isAppOwnedMediation = (mediationOption == MediationOption.IN_APP_MEDIATEE)
-        return if (isMediation) {
-            loadMediatedTestAd(isAppOwnedMediation, adType, waitInsideOnDraw)
-        } else {
-            when (adType) {
-                AdType.NON_WEBVIEW -> {
-                    loadNonWebViewBannerAd("Simple Ad", waitInsideOnDraw)
-                }
-                AdType.WEBVIEW -> {
-                    loadWebViewBannerAd()
-                }
-                AdType.WEBVIEW_FROM_LOCAL_ASSETS -> {
-                    loadWebViewBannerAdFromLocalAssets()
-                }
-                else -> {
-                    loadNonWebViewBannerAd("Ad type not present", waitInsideOnDraw)
+        val adapter: SandboxedUiAdapter =
+            if (isMediation) {
+                loadMediatedTestAd(isAppOwnedMediation, adType, waitInsideOnDraw)
+            } else {
+                when (adType) {
+                    AdType.NON_WEBVIEW -> {
+                        loadNonWebViewBannerAd("Simple Ad", waitInsideOnDraw)
+                    }
+                    AdType.WEBVIEW -> {
+                        loadWebViewBannerAd()
+                    }
+                    AdType.WEBVIEW_FROM_LOCAL_ASSETS -> {
+                        loadWebViewBannerAdFromLocalAssets()
+                    }
+                    else -> {
+                        loadNonWebViewBannerAd("Ad type not present", waitInsideOnDraw)
+                    }
                 }
             }
-        }
+        measurementManager.startObserving(adapter, drawViewability)
+        return adapter.toCoreLibInfo(sdkContext)
     }
 
     /** Kill sandbox process */
@@ -75,28 +82,29 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
         Process.killProcess(Process.myPid())
     }
 
-    private fun loadWebViewBannerAd(): Bundle {
-        return testAdapters.WebViewBannerAd().toCoreLibInfo(sdkContext)
+    private fun loadWebViewBannerAd(): SandboxedUiAdapter {
+        return testAdapters.WebViewBannerAd()
     }
 
-    private fun loadWebViewBannerAdFromLocalAssets(): Bundle {
-        val ad = testAdapters.WebViewAdFromLocalAssets()
-        measurementManager.startObserving(ad)
-        return ad.toCoreLibInfo(sdkContext)
+    private fun loadWebViewBannerAdFromLocalAssets(): SandboxedUiAdapter {
+        return testAdapters.WebViewAdFromLocalAssets()
     }
 
-    private fun loadNonWebViewBannerAd(text: String, waitInsideOnDraw: Boolean): Bundle {
-        return testAdapters.TestBannerAd(text, waitInsideOnDraw).toCoreLibInfo(sdkContext)
+    private fun loadNonWebViewBannerAd(
+        text: String,
+        waitInsideOnDraw: Boolean
+    ): SandboxedUiAdapter {
+        return testAdapters.TestBannerAd(text, waitInsideOnDraw)
     }
 
     private fun loadMediatedTestAd(
         isAppMediatee: Boolean,
         @AdType adType: Int,
         waitInsideOnDraw: Boolean = false
-    ): Bundle {
+    ): SandboxedUiAdapter {
         val mediateeBannerAdBundle =
             getMediateeBannerAdBundle(isAppMediatee, adType, waitInsideOnDraw)
-        return MediatedBannerAd(mediateeBannerAdBundle).toCoreLibInfo(sdkContext)
+        return MediatedBannerAd(mediateeBannerAdBundle)
     }
 
     override fun requestResize(width: Int, height: Int) {}
@@ -149,30 +157,47 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     }
 
     class MeasurementManager {
-        fun startObserving(adapter: SandboxedUiAdapter) {
-            adapter.addObserverFactory(SessionObserverFactoryImpl())
+        fun startObserving(adapter: SandboxedUiAdapter, drawViewability: Boolean) {
+            adapter.addObserverFactory(SessionObserverFactoryImpl(drawViewability))
         }
 
-        private inner class SessionObserverFactoryImpl : SessionObserverFactory {
+        private inner class SessionObserverFactoryImpl(val drawViewability: Boolean) :
+            SessionObserverFactory {
 
             override fun create(): SessionObserver {
                 return SessionObserverImpl()
             }
 
             private inner class SessionObserverImpl : SessionObserver {
+                lateinit var view: View
 
                 override fun onSessionOpened(sessionObserverContext: SessionObserverContext) {
                     Log.i(TAG, "onSessionOpened $sessionObserverContext")
+                    view = checkNotNull(sessionObserverContext.view)
                 }
 
                 override fun onUiContainerChanged(uiContainerInfo: Bundle) {
-                    // TODO(b/330515740): Reflect this event in the app UI.
                     val sandboxedSdkViewUiInfo = SandboxedSdkViewUiInfo.fromBundle(uiContainerInfo)
+                    if (drawViewability) {
+                        // draw a red rectangle over the received onScreenGeometry of the view
+                        drawRedRectangle(sandboxedSdkViewUiInfo.onScreenGeometry)
+                    }
                     Log.i(TAG, "onUiContainerChanged $sandboxedSdkViewUiInfo")
                 }
 
                 override fun onSessionClosed() {
                     Log.i(TAG, "session closed")
+                }
+
+                private fun drawRedRectangle(bounds: Rect) {
+                    view.overlay.clear()
+                    val viewabilityRect =
+                        GradientDrawable().apply {
+                            shape = GradientDrawable.RECTANGLE
+                            setStroke(10, Color.RED)
+                        }
+                    viewabilityRect.bounds = bounds
+                    view.overlay.add(viewabilityRect)
                 }
             }
         }

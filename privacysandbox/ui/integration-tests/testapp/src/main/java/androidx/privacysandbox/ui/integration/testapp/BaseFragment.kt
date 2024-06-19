@@ -81,20 +81,27 @@ abstract class BaseFragment : Fragment() {
      * Called when the @AdType or @MediationOption of any [SandboxedSdkView] inside the fragment is
      * changed using the toggle switches in the drawer.
      *
-     * Set the value of [currentAdType] and [currentMediationOption] inside the method using the
-     * parameters passed to it, then call [loadBannerAd] method using the parameters along with the
-     * [SandboxedSdkView] for which the new Ad needs to be loaded.
+     * Set the value of [currentAdType], [currentMediationOption] and [shouldDrawViewabilityLayer]
+     * inside the method using the parameters passed to it, then call [loadBannerAd] method using
+     * the parameters along with the [SandboxedSdkView] for which the new Ad needs to be loaded.
      */
     // TODO(b/343436839) : Handle this automatically
-    abstract fun handleLoadAdFromDrawer(adType: Int, mediationOption: Int)
+    // TODO(b/348194843): Clean up the options
+    abstract fun handleLoadAdFromDrawer(
+        adType: Int,
+        mediationOption: Int,
+        drawViewabilityLayer: Boolean
+    )
 
     fun loadBannerAd(
         @AdType adType: Int,
         @MediationOption mediationOption: Int,
         sandboxedSdkView: SandboxedSdkView,
+        drawViewabilityLayer: Boolean,
         waitInsideOnDraw: Boolean = false
     ) {
-        val sdkBundle = sdkApi.loadBannerAd(adType, mediationOption, waitInsideOnDraw)
+        val sdkBundle =
+            sdkApi.loadBannerAd(adType, mediationOption, waitInsideOnDraw, drawViewabilityLayer)
         sandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkBundle))
     }
 
@@ -124,5 +131,6 @@ abstract class BaseFragment : Fragment() {
         const val TAG = "TestSandboxClient"
         @AdType var currentAdType = AdType.NON_WEBVIEW
         @MediationOption var currentMediationOption = MediationOption.NON_MEDIATED
+        var shouldDrawViewabilityLayer = false
     }
 }

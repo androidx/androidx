@@ -49,9 +49,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var triggerSandboxDeathButton: Button
     private lateinit var webViewToggleButton: SwitchMaterial
     private lateinit var contentFromAssetsToggleButton: SwitchMaterial
+    private lateinit var viewabilityToggleButton: SwitchMaterial
     private lateinit var mediationDropDownMenu: Spinner
     @AdType private var adType = AdType.NON_WEBVIEW
     @MediationOption private var mediationOption = MediationOption.NON_MEDIATED
+    private var drawViewabilityLayer = false
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -62,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.navigation_view)
         contentFromAssetsToggleButton = findViewById(R.id.content_from_assets_switch)
         webViewToggleButton = findViewById(R.id.load_webview)
+        viewabilityToggleButton = findViewById(R.id.display_viewability_switch)
         triggerSandboxDeathButton = findViewById(R.id.trigger_sandbox_death)
         mediationDropDownMenu = findViewById(R.id.mediation_dropdown_menu)
 
@@ -106,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         }
         initializeWebViewToggleSwitch()
         initializeContentFromAssetsToggleButton()
+        initializeViewabilityToggleButton()
         initializeMediationDropDown()
     }
 
@@ -132,12 +136,14 @@ class MainActivity : AppCompatActivity() {
         webViewToggleButton.isEnabled = false
         contentFromAssetsToggleButton.isEnabled = false
         mediationDropDownMenu.isEnabled = false
+        viewabilityToggleButton.isEnabled = false
     }
 
     private fun enableAllControls() {
         webViewToggleButton.isEnabled = true
         contentFromAssetsToggleButton.isEnabled = webViewToggleButton.isChecked
         mediationDropDownMenu.isEnabled = true
+        viewabilityToggleButton.isEnabled = true
     }
 
     private fun initializeWebViewToggleSwitch() {
@@ -154,7 +160,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     AdType.NON_WEBVIEW
                 }
-            currentFragment.handleLoadAdFromDrawer(adType, mediationOption)
+            loadAllAds()
         }
     }
 
@@ -166,7 +172,14 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     AdType.WEBVIEW
                 }
-            currentFragment.handleLoadAdFromDrawer(adType, mediationOption)
+            loadAllAds()
+        }
+    }
+
+    private fun initializeViewabilityToggleButton() {
+        viewabilityToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            drawViewabilityLayer = isChecked
+            loadAllAds()
         }
     }
 
@@ -216,7 +229,7 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             MediationOption.NON_MEDIATED
                         }
-                    currentFragment.handleLoadAdFromDrawer(adType, mediationOption)
+                    loadAllAds()
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -276,6 +289,11 @@ class MainActivity : AppCompatActivity() {
         currentFragment = fragment
         title?.let { runOnUiThread { setTitle(it) } }
         return true
+    }
+
+    /** Loads all ads in the current fragment. */
+    private fun loadAllAds() {
+        currentFragment.handleLoadAdFromDrawer(adType, mediationOption, drawViewabilityLayer)
     }
 
     companion object {
