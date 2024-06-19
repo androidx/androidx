@@ -17,6 +17,7 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
@@ -88,6 +89,7 @@ internal abstract class VelocityPathFinder {
     }
 }
 
+@OptIn(ExperimentalVelocityTrackerApi::class)
 internal fun VelocityPathFinder(
     startPosition: Offset,
     endPosition: Offset,
