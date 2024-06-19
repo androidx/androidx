@@ -65,6 +65,13 @@ internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
     }
 }
 
+/**
+ * Whether the selection handle is in the visible bound of the TextField.
+ */
+internal actual fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+    isStartHandle: Boolean
+): Boolean = isSelectionHandleInVisibleBoundDefault(isStartHandle)
+
 internal fun TextFieldSelectionManager.contextMenuBuilder(
     contextMenuState: ContextMenuState
 ): ContextMenuScope.() -> Unit = {

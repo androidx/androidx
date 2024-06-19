@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 
@@ -76,7 +77,7 @@ internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
 private fun calculateSelectionMagnifierCenterIOS(
     manager: TextFieldSelectionManager,
     magnifierSize: IntSize,
-    density : Float,
+    density: Float,
 ): Offset {
 
     // state read of currentDragPosition so that we always recompose on drag position changes
@@ -136,3 +137,38 @@ private fun calculateSelectionMagnifierCenterIOS(
 }
 
 private const val HideThresholdDp = 36
+
+/**
+ * Multiplier for height tolerance calculation.
+ * iOS has different location for the knobs of selection handles (leading - top, trailing - bottom),
+ * and they might be not seen in mixed BiDi text, so this tolerance is required for their visibility in this case
+ * if more than 80% of selection handle is visible, it should be shown
+ */
+private const val HeightToleranceFactor = 0.2f
+
+/**
+ * Whether the selection handle is in the visible bound of the TextField.
+ */
+internal actual fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+    isStartHandle: Boolean
+): Boolean {
+    val visibleBounds = state?.layoutCoordinates?.visibleBounds() ?: return false
+
+    val handlePositionInText = if (isStartHandle) value.selection.start else value.selection.end
+    val line = state?.layoutResult?.value?.getLineForOffset(handlePositionInText) ?: 0
+    val handleHeight =
+        state?.layoutResult?.value?.multiParagraph?.getLineHeight(line) ?: 0f
+    val handleOffset = getHandlePosition(isStartHandle)
+
+    return isSelectionHandleIsVisible(isStartHandle, handleOffset, handleHeight, visibleBounds)
+}
+
+internal fun isSelectionHandleIsVisible(isStartHandle: Boolean, position: Offset, height: Float, visibleBounds: Rect): Boolean {
+    val containsHorizontal = position.x in visibleBounds.left..visibleBounds.right
+    val heightTolerance = height * HeightToleranceFactor
+    val toleratedY =
+        if (isStartHandle) position.y - height + heightTolerance else position.y - heightTolerance
+    val containsVertical = toleratedY in visibleBounds.top..visibleBounds.bottom
+
+    return containsHorizontal && containsVertical
+}
