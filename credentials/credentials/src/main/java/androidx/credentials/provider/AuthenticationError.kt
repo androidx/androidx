@@ -49,8 +49,14 @@ constructor(
             "androidx.credentials.provider.BIOMETRIC_AUTH_ERROR_CODE"
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK = "BIOMETRIC_AUTH_ERROR_CODE"
+        @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE =
             "androidx.credentials.provider.BIOMETRIC_AUTH_ERROR_MESSAGE"
+        @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK = "BIOMETRIC_AUTH_ERROR_MESSAGE"
         // The majority of this is unexpected to be sent, or the values are equal,
         // but should it arrive for any reason, is handled properly. This way
         // providers can be confident the Jetpack codes alone are enough.
