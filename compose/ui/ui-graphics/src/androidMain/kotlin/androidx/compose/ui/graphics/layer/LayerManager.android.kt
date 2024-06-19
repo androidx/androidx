@@ -19,8 +19,6 @@ package androidx.compose.ui.graphics.layer
 import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.M
 import android.os.Looper
 import android.os.Message
 import android.view.Surface
@@ -37,8 +35,7 @@ import androidx.core.os.HandlerCompat
  */
 internal class LayerManager(val canvasHolder: CanvasHolder) {
 
-    private val activeLayerSet = mutableScatterSetOf<GraphicsLayer>()
-    private val nonActiveLayerCache = WeakCache<GraphicsLayer>()
+    private val layerSet = mutableScatterSetOf<GraphicsLayer>()
 
     /**
      * Create a placeholder ImageReader instance that we will use to issue a single draw call for
@@ -50,15 +47,12 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
 
     private val handler =
         HandlerCompat.createAsync(Looper.getMainLooper()) {
-            persistLayers(activeLayerSet)
+            persistLayers(layerSet)
             true
         }
 
-    fun takeFromCache(ownerId: Long): GraphicsLayer? =
-        nonActiveLayerCache.pop()?.also { it.reuse(ownerId) }
-
     fun persist(layer: GraphicsLayer) {
-        activeLayerSet.add(layer)
+        layerSet.add(layer)
         if (!handler.hasMessages(0)) {
             // we don't run persistLayers() synchronously in order to do less work as there
             // might be a lot of new layers created during one frame. however we also want
@@ -71,11 +65,8 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     }
 
     fun release(layer: GraphicsLayer) {
-        if (activeLayerSet.remove(layer)) {
+        if (layerSet.remove(layer)) {
             layer.discardDisplayList()
-            if (SDK_INT >= M) { // L throws during RenderThread when reusing the Views.
-                nonActiveLayerCache.push(layer)
-            }
         }
     }
 
@@ -137,7 +128,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
      */
     fun updateLayerPersistence() {
         destroy()
-        persistLayers(activeLayerSet)
+        persistLayers(layerSet)
     }
 
     companion object {
