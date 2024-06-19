@@ -22,7 +22,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
+import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraEffect
@@ -34,6 +34,7 @@ import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
+import androidx.camera.core.ExperimentalCameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.InitializationException
@@ -302,6 +303,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * @see CameraInfo.isLogicalMultiCameraSupported
      * @see CameraInfo.getPhysicalCameraInfos
      */
+    @OptIn(ExperimentalCameraInfo::class)
     @MainThread
     fun bindToLifecycle(singleCameraConfigs: List<SingleCameraConfig?>): ConcurrentCamera {
         if (singleCameraConfigs.size < 2) {
@@ -469,6 +471,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      *   camera to be used for the given use cases.
      */
     @Suppress("unused")
+    @OptIn(ExperimentalCameraInfo::class)
     internal fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
@@ -626,6 +629,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          * @sample androidx.camera.lifecycle.samples.bindConcurrentCameraSample
          * @return List of combinations of [CameraInfo].
          */
+        @OptIn(ExperimentalCameraInfo::class)
         get() {
             requireNonNull(mCameraX)
             requireNonNull(mCameraX!!.cameraFactory.cameraCoordinator)
@@ -649,7 +653,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             return availableConcurrentCameraInfos
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalCameraInfo
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
         val cameraInfoInternal =
             cameraSelector.select(mCameraX!!.cameraRepository.cameras).cameraInfoInternal
