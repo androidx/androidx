@@ -381,7 +381,7 @@ public final class CameraUseCaseAdapter implements Camera {
             mCameraInternal.detachUseCases(cameraUseCasesToDetach);
 
             // Update StreamSpec for UseCases to keep.
-            if (!cameraUseCasesToDetach.isEmpty()) {
+            if (cameraUseCasesToDetach.isEmpty()) {
                 // Only do this if we are not removing UseCase, because updating SessionConfig
                 // when removing UseCases may lead to flickering.
                 for (UseCase useCase : cameraUseCasesToKeep) {
@@ -391,6 +391,9 @@ public final class CameraUseCaseAdapter implements Camera {
                         if (config != null && hasImplementationOptionChanged(newStreamSpec,
                                 useCase.getSessionConfig())) {
                             useCase.updateSuggestedStreamSpecImplementationOptions(config);
+                        }
+                        if (mAttached) {
+                            mCameraInternal.onUseCaseUpdated(useCase);
                         }
                     }
                 }
