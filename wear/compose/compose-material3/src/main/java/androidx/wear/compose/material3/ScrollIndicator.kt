@@ -226,9 +226,7 @@ object ScrollIndicatorDefaults {
 
     internal val indicatorHeight = 50.dp
     internal val indicatorWidth = 4.dp
-
-    // TODO: replace with scaffold constant when it is available
-    internal val edgePadding = 2.dp
+    internal val edgePadding = ScaffoldDefaults.edgePadding
 }
 
 /**
@@ -750,13 +748,11 @@ private fun ContentDrawScope.drawCurvedIndicator(
             startMidArc - startAngleOffset
         )
     val topArcIndicatorWidth = lerp(0f, indicatorWidthPx, topRadiusFraction)
-
     // Calculate start angle for top segment.
     val startTopArc = startAngleOffset - sweepDegrees / 2
     // Represents an offset for top arc which moves when topRadiusFraction changes.
     val startTopArcOffset =
         pixelsHeightToDegrees(indicatorWidthPx * (1 - topRadiusFraction) / 2, usableRadius)
-
     // Calculate scale fraction for bottom arc
     val bottomRadiusFraction =
         inverseLerp(
@@ -771,7 +767,6 @@ private fun ContentDrawScope.drawCurvedIndicator(
     // Represents an offset for bottom arc which moves when bottomRadiusFraction changes.
     val startBottomArcOffset =
         pixelsHeightToDegrees(indicatorWidthPx * (1 - bottomRadiusFraction) / 2, usableRadius)
-
     // Draw top arc (unselected/background)
     drawArc(
         color = background,
@@ -782,7 +777,6 @@ private fun ContentDrawScope.drawCurvedIndicator(
         size = arcSize,
         style = Stroke(width = topArcIndicatorWidth, cap = StrokeCap.Round)
     )
-
     // Draw mid arc (selected/thumb)
     drawArc(
         color = color,
@@ -793,7 +787,6 @@ private fun ContentDrawScope.drawCurvedIndicator(
         size = arcSize,
         style = Stroke(width = indicatorWidthPx, cap = StrokeCap.Round)
     )
-
     // Draw bottom arc (unselected/background)
     drawArc(
         color = background,

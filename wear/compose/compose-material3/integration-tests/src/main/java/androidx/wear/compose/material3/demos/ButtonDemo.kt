@@ -18,16 +18,13 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
@@ -58,10 +55,7 @@ import androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
 @Composable
 fun ButtonDemo() {
     val context = LocalContext.current
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleButtonSample() }
         item {
@@ -95,10 +89,7 @@ fun ButtonDemo() {
 @Composable
 fun FilledTonalButtonDemo() {
     val context = LocalContext.current
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleFilledTonalButtonSample() }
         item {
@@ -136,10 +127,7 @@ fun FilledTonalButtonDemo() {
 @Composable
 fun OutlinedButtonDemo() {
     val context = LocalContext.current
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleOutlinedButtonSample() }
         item {
@@ -177,10 +165,7 @@ fun OutlinedButtonDemo() {
 @Composable
 fun ChildButtonDemo() {
     val context = LocalContext.current
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleChildButtonSample() }
         item {
@@ -218,10 +203,7 @@ fun ChildButtonDemo() {
 @Composable
 fun CompactButtonDemo() {
     val context = LocalContext.current
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("2 slot compact button") } }
         item { CompactButtonSample() }
         item {
@@ -307,10 +289,7 @@ fun CompactButtonDemo() {
 
 @Composable
 fun MultilineButtonDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("3 line label") } }
         item { MultilineButton(enabled = true) }
         item { MultilineButton(enabled = false) }
@@ -330,10 +309,7 @@ fun MultilineButtonDemo() {
 
 @Composable
 fun AvatarButtonDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("Label + Avatar") } }
         item { AvatarButton(enabled = true) }
         item { AvatarButton(enabled = false) }

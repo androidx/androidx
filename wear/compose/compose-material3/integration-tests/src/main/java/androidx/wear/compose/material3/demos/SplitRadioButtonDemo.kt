@@ -17,19 +17,16 @@
 package androidx.wear.compose.material3.demos
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.SplitRadioButton
 import androidx.wear.compose.material3.Text
@@ -39,10 +36,7 @@ fun SplitRadioButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
     var selectedMultiLineRadioIndex by remember { mutableIntStateOf(0) }
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("Split Radio Button") } }
         item {
             DemoSplitRadioButton(enabled = true, (selectedRadioIndex == 0)) {

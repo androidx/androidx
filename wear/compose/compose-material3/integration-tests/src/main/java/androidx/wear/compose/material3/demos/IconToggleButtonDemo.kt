@@ -18,7 +18,6 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -33,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconToggleButton
@@ -44,10 +42,7 @@ import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun IconToggleButtonDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("Icon Toggle Button", textAlign = TextAlign.Center) } }
         item {
             Row {
