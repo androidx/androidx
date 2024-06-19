@@ -88,6 +88,7 @@ import androidx.compose.ui.unit.dp
  *   separation from a patterned background. Note that It will not affect z index of the Surface. If
  *   you want to change the drawing order you can use `Modifier.zIndex`.
  * @param border Optional border to draw on top of the surface
+ * @param content The content to be displayed on this Surface
  */
 @Composable
 @NonRestartableComposable
@@ -187,6 +188,7 @@ fun Surface(
  *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
  *   or preview the surface in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content to be displayed on this Surface
  */
 @Composable
 @NonRestartableComposable
@@ -289,6 +291,7 @@ fun Surface(
  *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
  *   or preview the surface in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content to be displayed on this Surface
  */
 @Composable
 @NonRestartableComposable
@@ -393,6 +396,7 @@ fun Surface(
  *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
  *   or preview the surface in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content to be displayed on this Surface
  */
 @Composable
 @NonRestartableComposable

@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
  * @param border Optional border to draw on top of the card
  * @param elevation The z-coordinate at which to place this card. This controls the size of the
  *   shadow below the card.
+ * @param content The content displayed on the card.
  */
 @Composable
 @NonRestartableComposable
@@ -97,6 +98,7 @@ fun Card(
  *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
  *   preview the card in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ * @param content The content displayed on the card.
  */
 @ExperimentalMaterialApi
 @Composable
