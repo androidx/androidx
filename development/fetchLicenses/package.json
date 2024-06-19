@@ -18,7 +18,7 @@
     "@types/express": "^4.17.21",
     "@types/node": "20.14.1",
     "express": "^4.19.2",
-    "puppeteer": "^22.10.0"
+    "puppeteer": "^22.11.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.3",
