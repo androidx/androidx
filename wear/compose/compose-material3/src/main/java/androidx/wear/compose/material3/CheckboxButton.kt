@@ -20,18 +20,32 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -41,11 +55,14 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.CheckboxButtonTokens
 import androidx.wear.compose.material3.tokens.MotionTokens
+import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitCheckboxButtonTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
@@ -228,18 +245,77 @@ fun SplitCheckboxButton(
     contentPadding: PaddingValues = CheckboxButtonDefaults.ContentPadding,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit
-) =
-    androidx.wear.compose.materialcore.SplitToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        label =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled = enabled, checked = checked),
-                textStyle = SplitCheckboxButtonTokens.LabelFont.value,
-                content = label
-            ),
-        onClick = onContainerClick,
-        toggleControl = {
+) {
+    val containerColor = colors.containerColor(enabled, checked).value
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = MIN_HEIGHT)
+                .height(IntrinsicSize.Min)
+                .width(IntrinsicSize.Max)
+                .clip(shape = shape)
+    ) {
+        Row(
+            modifier =
+                Modifier.clickable(
+                        enabled = enabled,
+                        onClick = onContainerClick,
+                        indication = ripple(),
+                        interactionSource = containerInteractionSource,
+                        onClickLabel = containerClickLabel,
+                    )
+                    .semantics { role = Role.Button }
+                    .fillMaxHeight()
+                    .clip(SPLIT_SECTIONS_SHAPE)
+                    .background(containerColor)
+                    .padding(contentPadding)
+                    .weight(1.0f),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Labels(
+                label =
+                    provideScopeContent(
+                        contentColor = colors.contentColor(enabled = enabled, checked = checked),
+                        textStyle = SplitCheckboxButtonTokens.LabelFont.value,
+                        content = label
+                    ),
+                secondaryLabel =
+                    provideNullableScopeContent(
+                        contentColor =
+                            colors.secondaryContentColor(enabled = enabled, checked = checked),
+                        textStyle = SplitCheckboxButtonTokens.SecondaryLabelFont.value,
+                        content = secondaryLabel
+                    ),
+            )
+        }
+
+        Spacer(modifier = Modifier.size(2.dp))
+
+        val splitBackground = colors.splitContainerColor(enabled, checked).value
+        Box(
+            modifier =
+                Modifier.toggleable(
+                        enabled = enabled,
+                        value = checked,
+                        onValueChange = onCheckedChange,
+                        indication = ripple(),
+                        interactionSource = toggleInteractionSource
+                    )
+                    .fillMaxHeight()
+                    .clip(SPLIT_SECTIONS_SHAPE)
+                    .background(containerColor)
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawRect(color = splitBackground)
+                            drawContent()
+                        }
+                    }
+                    .align(Alignment.CenterVertically)
+                    .width(SPLIT_WIDTH)
+                    .wrapContentHeight(align = Alignment.CenterVertically)
+                    .padding(contentPadding)
+        ) {
             Checkbox(
                 checked = checked,
                 enabled = enabled,
@@ -256,30 +332,9 @@ fun SplitCheckboxButton(
                     colors.checkmarkColor(enabled = enabled, checked = checked)
                 }
             )
-        },
-        selectionControl = null,
-        modifier = modifier.defaultMinSize(minHeight = MIN_HEIGHT).height(IntrinsicSize.Min),
-        secondaryLabel =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled = enabled, checked = checked),
-                textStyle = SplitCheckboxButtonTokens.SecondaryLabelFont.value,
-                content = secondaryLabel
-            ),
-        backgroundColor = { isEnabled, isChecked ->
-            colors.containerColor(enabled = isEnabled, checked = isChecked)
-        },
-        splitBackgroundColor = { isEnabled, isChecked ->
-            colors.splitContainerColor(enabled = isEnabled, checked = isChecked)
-        },
-        enabled = enabled,
-        checkedInteractionSource = toggleInteractionSource,
-        clickInteractionSource = containerInteractionSource,
-        onClickLabel = containerClickLabel,
-        contentPadding = contentPadding,
-        shape = shape,
-        labelSpacerSize = CheckboxButtonDefaults.LabelSpacerSize,
-        ripple = ripple()
-    )
+        }
+    }
+}
 
 /** Contains the default values used by [CheckboxButton]s and [SplitCheckboxButton]s */
 object CheckboxButtonDefaults {
@@ -1375,15 +1430,32 @@ private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
     )
 }
 
+@Composable
+private fun RowScope.Labels(
+    label: @Composable RowScope.() -> Unit,
+    secondaryLabel: @Composable (RowScope.() -> Unit)?
+) {
+    Column(modifier = Modifier.weight(1.0f)) {
+        Row(content = label)
+        if (secondaryLabel != null) {
+            Spacer(modifier = Modifier.size(CheckboxButtonDefaults.LabelSpacerSize))
+            Row(content = secondaryLabel)
+        }
+    }
+}
+
 private val TOGGLE_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
 
-private val CHECKBOX_WIDTH = 32.dp
+private val CHECKBOX_WIDTH = 24.dp
 private val CHECKBOX_HEIGHT = 24.dp
 private val BOX_STROKE = 2.dp
 private val BOX_RADIUS = 2.dp
 private val BOX_SIZE = 18.dp
+
+private val SPLIT_WIDTH = 52.dp
+private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
