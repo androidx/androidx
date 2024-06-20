@@ -18,6 +18,7 @@ package androidx.compose.ui.test.injectionscope.touch
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
+import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /** Tests of [VelocityPathFinder] creates paths that will lead to the desired velocity. */
+@OptIn(ExperimentalVelocityTrackerApi::class)
 @RunWith(Parameterized::class)
 class VelocityPathFinderTest(private val config: TestConfig) {
     data class TestConfig(
