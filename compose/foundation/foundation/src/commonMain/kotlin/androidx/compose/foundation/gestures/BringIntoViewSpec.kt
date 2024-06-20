@@ -33,8 +33,6 @@ expect val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
 /**
  * The configuration of how a scrollable reacts to bring into view requests.
  *
- * Note: API shape and naming are still being refined, therefore API is marked as experimental.
- *
  * Check the following sample for a use case usage of this API:
  *
  * @sample androidx.compose.foundation.samples.FocusScrollingInLazyRowSample
