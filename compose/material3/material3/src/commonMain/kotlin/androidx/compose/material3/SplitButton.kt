@@ -505,11 +505,8 @@ object SplitButtonDefaults {
      */
     private val MinHeight = ButtonDefaults.MinHeight
 
-    /**
-     * Default minimum width of the [TrailingButton]. Ratio 1 is recommended for the trailing
-     * button, so it follows the min height of the split button
-     */
-    private val TrailingButtonMinWidth = MinHeight
+    /** Default minimum width of the [TrailingButton]. */
+    private val TrailingButtonMinWidth = LeadingButtonMinWidth
 
     /**
      * Create a default `leading` button that has the same visual as a Filled[Button]. To create a
