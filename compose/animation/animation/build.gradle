@@ -95,6 +95,8 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
+                implementation(libs.leakcanary)
+                implementation(libs.leakcanaryInstrumentation)
                 implementation("androidx.compose.foundation:foundation:1.2.1")
                 implementation(project(":compose:material3:material3"))
                 implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
