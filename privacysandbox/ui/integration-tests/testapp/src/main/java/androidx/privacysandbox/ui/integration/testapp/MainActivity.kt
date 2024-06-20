@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var currentFragment: BaseFragment
     private lateinit var triggerSandboxDeathButton: Button
     private lateinit var webViewToggleButton: SwitchMaterial
+    private lateinit var zOrderToggleButton: SwitchMaterial
     private lateinit var contentFromAssetsToggleButton: SwitchMaterial
     private lateinit var viewabilityToggleButton: SwitchMaterial
     private lateinit var mediationDropDownMenu: Spinner
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer)
         navigationView = findViewById(R.id.navigation_view)
         contentFromAssetsToggleButton = findViewById(R.id.content_from_assets_switch)
+        zOrderToggleButton = findViewById(R.id.zorder_below_switch)
         webViewToggleButton = findViewById(R.id.load_webview)
         viewabilityToggleButton = findViewById(R.id.display_viewability_switch)
         triggerSandboxDeathButton = findViewById(R.id.trigger_sandbox_death)
@@ -107,10 +109,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-        initializeWebViewToggleSwitch()
-        initializeContentFromAssetsToggleButton()
-        initializeViewabilityToggleButton()
-        initializeMediationDropDown()
+        initializeToggles()
     }
 
     override fun onDestroy() {
@@ -132,11 +131,20 @@ class MainActivity : AppCompatActivity() {
         currentFragment.getSdkApi().triggerProcessDeath()
     }
 
+    private fun initializeToggles() {
+        initializeWebViewToggleSwitch()
+        initializeContentFromAssetsToggleButton()
+        initializeViewabilityToggleButton()
+        initializeMediationDropDown()
+        initializeZOrderToggleButton()
+    }
+
     private fun disableAllControls() {
         webViewToggleButton.isEnabled = false
         contentFromAssetsToggleButton.isEnabled = false
         mediationDropDownMenu.isEnabled = false
         viewabilityToggleButton.isEnabled = false
+        zOrderToggleButton.isEnabled = false
     }
 
     private fun enableAllControls() {
@@ -144,6 +152,7 @@ class MainActivity : AppCompatActivity() {
         contentFromAssetsToggleButton.isEnabled = webViewToggleButton.isChecked
         mediationDropDownMenu.isEnabled = true
         viewabilityToggleButton.isEnabled = true
+        zOrderToggleButton.isEnabled = true
     }
 
     private fun initializeWebViewToggleSwitch() {
@@ -234,6 +243,12 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
+    }
+
+    private fun initializeZOrderToggleButton() {
+        zOrderToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            BaseFragment.isZOrderOnTop = !isChecked
+        }
     }
 
     private fun initializeOptionsButton() {
