@@ -17,9 +17,7 @@
 package androidx.compose.runtime.internal
 
 @Suppress("NOTHING_TO_INLINE")
-internal actual inline fun Float.equalsWithNanFix(other: Float): Boolean =
-    this == other
+internal actual inline fun Float.equalsWithNanFix(other: Float): Boolean = (this == other)
 
 @Suppress("NOTHING_TO_INLINE")
-internal actual inline fun Double.equalsWithNanFix(other: Double): Boolean =
-    this == other
+internal actual inline fun Double.equalsWithNanFix(other: Double): Boolean = (this == other)

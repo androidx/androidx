@@ -21,7 +21,6 @@ import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentMap
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
 import androidx.compose.runtime.synchronized
-import androidx.compose.runtime.createSynchronizedObject
 import kotlin.jvm.JvmName
 
 /**

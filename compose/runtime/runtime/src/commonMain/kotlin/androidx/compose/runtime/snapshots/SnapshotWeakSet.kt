@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.internal.WeakReference
 import androidx.compose.runtime.internal.identityHashCode
@@ -51,7 +50,6 @@ internal class SnapshotWeakSet<T : Any> {
     /**
      * Add [value] to the set and return `true` if it was added or `false` if it already existed.
      */
-    @OptIn(InternalComposeApi::class)
     fun add(value: T): Boolean {
         val index: Int
         val size = size
@@ -205,7 +203,6 @@ internal class SnapshotWeakSet<T : Any> {
         return -(size + 1)
     }
 
-    @OptIn(InternalComposeApi::class)
     @TestOnly
     internal fun isValid(): Boolean {
         val size = size

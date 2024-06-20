@@ -929,7 +929,6 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             rememberManager: RememberManager
         ): Unit = block(applier, slots, rememberManager)
 
-        @OptIn(InternalComposeApi::class)
         override fun toString() =
             "TestOperation(ints = $ints, objects = $objects)@${identityHashCode(this)}"
     }
