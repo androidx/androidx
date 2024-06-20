@@ -31,8 +31,10 @@ import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import org.jetbrains.skia.FontMgr
+import org.jetbrains.skia.FontMgrWithFallback
 import org.jetbrains.skia.paragraph.FontCollection
 import org.jetbrains.skia.paragraph.TypefaceFontProvider
+import org.jetbrains.skia.paragraph.TypefaceFontProviderWithFallback
 
 expect sealed class PlatformFont() : Font {
     abstract val identity: String
@@ -196,14 +198,14 @@ class FontLoadResult(val typeface: SkTypeface?, val aliases: List<String>)
 
 internal class FontCache {
     internal val fonts = FontCollection()
-    private val fontProvider = TypefaceFontProvider()
+    private val fontProvider = TypefaceFontProviderWithFallback()
     private val registered: MutableSet<String> = HashSet()
     private val typefacesCache: Cache<String, SkTypeface> = ExpireAfterAccessCache(
         60_000_000_000 // 1 minute
     )
 
     init {
-        fonts.setDefaultFontManager(FontMgr.default)
+        fonts.setDefaultFontManager(FontMgrWithFallback(fontProvider))
         fonts.setAssetFontManager(fontProvider)
     }
 
