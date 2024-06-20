@@ -59,6 +59,20 @@ package androidx.compose.material3.adaptive.layout {
     property public final String Hidden;
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public sealed interface PaneExpansionStateKey {
+    field public static final androidx.compose.material3.adaptive.layout.PaneExpansionStateKey.Companion Companion;
+  }
+
+  public static final class PaneExpansionStateKey.Companion {
+    method public androidx.compose.material3.adaptive.layout.PaneExpansionStateKey getDefault();
+    property public final androidx.compose.material3.adaptive.layout.PaneExpansionStateKey Default;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public sealed interface PaneExpansionStateKeyProvider {
+    method public androidx.compose.material3.adaptive.layout.PaneExpansionStateKey getPaneExpansionStateKey();
+    property public abstract androidx.compose.material3.adaptive.layout.PaneExpansionStateKey paneExpansionStateKey;
+  }
+
   public final class PaneKt {
     method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void AnimatedPane(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.AnimatedPaneScope,kotlin.Unit> content);
   }
@@ -150,12 +164,14 @@ package androidx.compose.material3.adaptive.layout {
     property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue implements androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider {
     ctor public ThreePaneScaffoldValue(String primary, String secondary, String tertiary);
     method public operator String get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role);
+    method public androidx.compose.material3.adaptive.layout.PaneExpansionStateKey getPaneExpansionStateKey();
     method public String getPrimary();
     method public String getSecondary();
     method public String getTertiary();
+    property public androidx.compose.material3.adaptive.layout.PaneExpansionStateKey paneExpansionStateKey;
     property public final String primary;
     property public final String secondary;
     property public final String tertiary;

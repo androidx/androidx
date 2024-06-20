@@ -87,8 +87,7 @@ internal fun ThreePaneScaffold(
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    // TODO(conradchen): Moves to use the specific remember function
-    paneExpansionState: PaneExpansionState = remember { PaneExpansionState() },
+    paneExpansionState: PaneExpansionState = rememberPaneExpansionState(),
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
@@ -116,8 +115,7 @@ internal fun ThreePaneScaffold(
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    // TODO(conradchen): Moves to use the specific remember function
-    paneExpansionState: PaneExpansionState = remember { PaneExpansionState() },
+    paneExpansionState: PaneExpansionState = rememberPaneExpansionState(),
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
