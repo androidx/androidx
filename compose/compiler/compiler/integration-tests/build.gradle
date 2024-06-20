@@ -42,7 +42,5 @@ tasks.withType(Test).configureEach { test ->
     test.dependsOn(":compose:compiler:compiler:publish")
     if (!isPlayground(project)) {
         test.dependsOn(":compose:runtime:runtime:publish")
-        test.dependsOn(":collection:collection:publish")
-        test.dependsOn(":annotation:annotation:publish")
     }
 }
