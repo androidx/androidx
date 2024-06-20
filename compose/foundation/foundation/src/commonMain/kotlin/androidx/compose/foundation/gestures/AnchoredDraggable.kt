@@ -1580,7 +1580,7 @@ private class DefaultDraggableAnchors<T>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
-        other as DefaultDraggableAnchors<*>
+        if (other !is DefaultDraggableAnchors<*>) return false
 
         if (keys != other.keys) return false
         if (!anchors.contentEquals(other.anchors)) return false
