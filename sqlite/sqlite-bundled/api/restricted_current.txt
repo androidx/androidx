@@ -1,15 +1,7 @@
 // Signature format: 4.0
 package androidx.sqlite.driver.bundled {
 
-  public final class BundledSQLiteDriver implements androidx.sqlite.SQLiteDriver {
-    ctor public BundledSQLiteDriver();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getThreadingMode();
-    method public androidx.sqlite.SQLiteConnection open(String fileName);
-    method public androidx.sqlite.SQLiteConnection open(String fileName, int flags);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final int threadingMode;
-  }
-
-  public final class BundledSQLiteKt {
+  public final class BundledSQLite {
     field public static final int SQLITE_OPEN_CREATE = 4; // 0x4
     field public static final int SQLITE_OPEN_EXRESCODE = 33554432; // 0x2000000
     field public static final int SQLITE_OPEN_FULLMUTEX = 65536; // 0x10000
@@ -19,6 +11,14 @@ package androidx.sqlite.driver.bundled {
     field public static final int SQLITE_OPEN_READONLY = 1; // 0x1
     field public static final int SQLITE_OPEN_READWRITE = 2; // 0x2
     field public static final int SQLITE_OPEN_URI = 64; // 0x40
+  }
+
+  public final class BundledSQLiteDriver implements androidx.sqlite.SQLiteDriver {
+    ctor public BundledSQLiteDriver();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getThreadingMode();
+    method public androidx.sqlite.SQLiteConnection open(String fileName);
+    method public androidx.sqlite.SQLiteConnection open(String fileName, int flags);
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final int threadingMode;
   }
 
 }
