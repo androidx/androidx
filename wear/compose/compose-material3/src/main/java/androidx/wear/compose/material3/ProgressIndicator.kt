@@ -31,9 +31,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ProgressIndicatorDefaults.StartAngle
@@ -93,9 +91,7 @@ fun CircularProgressIndicator(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier
-            .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
-            }
+            .clearAndSetSemantics {}
             .fillMaxSize()
             .focusable()
             .drawWithCache {
