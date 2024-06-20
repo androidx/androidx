@@ -1092,6 +1092,88 @@ class RippleTest {
     }
 
     /**
+     * Regression test for b/348379457 : going from enabled -> disabled -> enabled should show a
+     * valid ripple, and going to disabled after that should not crash.
+     */
+    @Test
+    fun rippleConfigurationToggleBetweenEnabledAndDisabled() {
+        val interactionSource = MutableInteractionSource()
+
+        val contentColor = Color.Black
+
+        var rippleConfiguration: RippleConfiguration? by mutableStateOf(RippleConfiguration())
+        val dragStart1 = DragInteraction.Start()
+        val dragStop1 = DragInteraction.Stop(dragStart1)
+        val dragStart2 = DragInteraction.Start()
+        val dragStop2 = DragInteraction.Stop(dragStart2)
+        val dragStart3 = DragInteraction.Start()
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                Surface(contentColor = contentColor) {
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides rippleConfiguration
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(interactionSource, ripple(), bounded = true)
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(dragStart1) } }
+        rule.waitForIdle()
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel =
+                captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+            val expectedColor = calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(dragStop1) } }
+        // Disable the ripple
+        rule.runOnIdle { rippleConfiguration = null }
+
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(dragStart2) } }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel =
+                captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+            // There should not be a ripple
+            Truth.assertThat(Color(centerPixel)).isEqualTo(RippleBoxBackgroundColor)
+        }
+
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(dragStop2) } }
+        // Enable the ripple again
+        rule.runOnIdle { rippleConfiguration = RippleConfiguration() }
+
+        // The ripple should show again
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(dragStart3) } }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel =
+                captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+            val expectedColor = calculateResultingRippleColor(contentColor, rippleOpacity = 0.08f)
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+
+        // Disable the ripple again
+        rule.runOnIdle { rippleConfiguration = null }
+        // Should not crash
+        rule.waitForIdle()
+    }
+
+    /**
      * Asserts that the resultant color of the ripple on screen matches [expectedCenterPixelColor].
      *
      * @param interactionSource the [MutableInteractionSource] driving the ripple
