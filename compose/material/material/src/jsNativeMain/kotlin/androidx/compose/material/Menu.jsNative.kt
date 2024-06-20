@@ -47,7 +47,7 @@ actual fun DropdownMenuItem(
     modifier: Modifier,
     enabled: Boolean,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     content: @Composable RowScope.() -> Unit
 ) {
     DropdownMenuItemContent(
