@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmName("SQLite")
+
 package androidx.sqlite
+
+import kotlin.jvm.JvmName
 
 /** Executes a single SQL statement that returns no values. */
 fun SQLiteConnection.execSQL(sql: String) {

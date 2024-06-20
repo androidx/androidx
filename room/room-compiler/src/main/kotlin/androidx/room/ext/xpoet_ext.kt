@@ -45,7 +45,7 @@ object SupportDbTypeNames {
 }
 
 object SQLiteDriverTypeNames {
-    val SQLITE_KT = XClassName.get(SQLITE_PACKAGE, "SQLiteKt")
+    val SQLITE = XClassName.get(SQLITE_PACKAGE, "SQLite")
     val DRIVER = XClassName.get(SQLITE_PACKAGE, "SQLiteDriver")
     val CONNECTION = XClassName.get(SQLITE_PACKAGE, "SQLiteConnection")
     val STATEMENT = XClassName.get(SQLITE_PACKAGE, "SQLiteStatement")
@@ -286,7 +286,7 @@ object RoomMemberNames {
 }
 
 object SQLiteDriverMemberNames {
-    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE_KT.packageMember("execSQL")
+    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE.packageMember("execSQL")
 }
 
 val DEFERRED_TYPES =
