@@ -175,14 +175,15 @@ constructor(
             } catch (e: InterruptedException) {
                 // Ignore, and continue
             }
-            val openRetryError: Throwable =
+            var openRetryError: Throwable =
                 try {
                     return getWritableOrReadableDatabase(writable)
                 } catch (t: Throwable) {
                     t
                 }
+
+            // Callback error (onCreate, onUpgrade, onOpen, etc), possibly user error.
             if (openRetryError is CallbackException) {
-                // Callback error (onCreate, onUpgrade, onOpen, etc), possibly user error.
                 val cause = openRetryError.cause
                 when (openRetryError.callbackName) {
                     CallbackName.ON_CONFIGURE,
@@ -192,17 +193,19 @@ constructor(
                     CallbackName.ON_OPEN -> {}
                 }
                 // If callback exception is not an SQLiteException, then more certainly it is not
-                // recoverable.
+                // recoverable, rethrow.
                 if (cause !is SQLiteException) {
                     throw cause
                 }
-            } else if (openRetryError is SQLiteException) {
-                // Ideally we are looking for SQLiteCantOpenDatabaseException and similar, but
-                // corruption can manifest in others forms.
-                if (name == null || !allowDataLossOnRecovery) {
-                    throw openRetryError
-                }
-            } else {
+                // Exception in callback is a SQLiteException, might be recoverable.
+                openRetryError = cause
+            }
+
+            // Ideally we are looking for SQLiteCantOpenDatabaseException and similar, but
+            // corruption can manifest in others forms so check if error is SQLiteException as
+            // that might be recoverable, unless it's an in-memory database or data loss is not
+            // allowed.
+            if (openRetryError !is SQLiteException || name == null || !allowDataLossOnRecovery) {
                 throw openRetryError
             }
 
