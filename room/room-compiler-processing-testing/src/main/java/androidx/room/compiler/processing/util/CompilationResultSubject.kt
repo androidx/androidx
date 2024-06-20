@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import com.google.common.truth.Fact.fact
 import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
+import com.google.common.truth.PrimitiveByteArraySubject
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
@@ -50,6 +51,8 @@ internal constructor(
 
     internal abstract val generatedSources: List<Source>
 
+    internal abstract val generatedResources: List<Resource>
+
     val diagnostics = diagnostics.mapValues { it.value.filterNot { it.isIgnored() } }
 
     fun diagnosticsOfKind(kind: Diagnostic.Kind) = diagnostics[kind].orEmpty()
@@ -65,7 +68,7 @@ internal constructor(
     override fun toString(): String {
         return buildString {
             appendLine("CompilationResult (with $testRunnerName)")
-            Diagnostic.Kind.values().forEach { kind ->
+            Diagnostic.Kind.entries.forEach { kind ->
                 val messages = diagnosticsOfKind(kind)
                 appendLine("${kind.name}: ${messages.size}")
                 messages.forEach { appendLine(it) }
@@ -302,7 +305,7 @@ internal constructor(
     }
 
     /**
-     * Asserts that a file with the given [relativePath] was generated.
+     * Asserts that a source file with the given [relativePath] was generated.
      *
      * @see generatedSource
      */
@@ -343,6 +346,16 @@ internal constructor(
                 fact("actual", match.contents),
             )
         }
+    }
+
+    /** Asserts that a resource file with the given [relativePath] was generated. */
+    fun generatedResourceFileWithPath(relativePath: String): PrimitiveByteArraySubject {
+        val match =
+            compilationResult.generatedResources.firstOrNull { it.relativePath == relativePath }
+        if (match == null) {
+            failWithActual(simpleFact("Didn't generate file with path: $relativePath"))
+        }
+        return Truth.assertThat(match!!.openInputStream().readAllBytes())
     }
 
     /**
@@ -461,10 +474,11 @@ internal constructor(
 @ExperimentalProcessingApi
 internal class JavaCompileTestingCompilationResult(
     testRunner: CompilationTestRunner,
-    @Suppress("unused") private val delegate: Compilation,
+    private val delegate: Compilation,
     processor: SyntheticJavacProcessor,
     diagnostics: Map<Diagnostic.Kind, List<DiagnosticMessage>>,
-    override val generatedSources: List<Source>
+    override val generatedSources: List<Source>,
+    override val generatedResources: List<Resource>
 ) :
     CompilationResult(
         testRunnerName = testRunner.name,
@@ -480,8 +494,7 @@ internal class JavaCompileTestingCompilationResult(
 }
 
 @ExperimentalProcessingApi
-internal class KotlinCompilationResult
-constructor(
+internal class KotlinCompilationResult(
     testRunner: CompilationTestRunner,
     processor: SyntheticProcessor,
     private val delegate: TestCompilationResult
@@ -494,6 +507,9 @@ constructor(
     ) {
     override val generatedSources: List<Source>
         get() = delegate.generatedSources
+
+    override val generatedResources: List<Resource>
+        get() = delegate.generatedResources
 
     override fun rawOutput(): String {
         return delegate.diagnostics

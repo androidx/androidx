@@ -33,7 +33,6 @@ import java.nio.file.Path
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
 import kotlin.io.path.extension
-import kotlin.io.path.nameWithoutExtension
 
 internal class KspFiler(
     private val delegate: CodeGenerator,
@@ -107,8 +106,8 @@ internal class KspFiler(
             originatingElements.map { it.originatingElementForPoet() }.toOriginatingElements()
         return createNewFile(
             originatingElements = kspFilerOriginatingElements,
-            packageName = filePath.parent?.toString() ?: "",
-            fileName = filePath.nameWithoutExtension,
+            packageName = "",
+            fileName = filePath.toString().substringBeforeLast("."),
             extensionName = filePath.extension,
             aggregating = mode == XFiler.Mode.Aggregating
         )
