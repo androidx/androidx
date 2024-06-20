@@ -156,9 +156,6 @@ fun Modifier.scrollable(
  *   when scroll requests are received from the focus system. If null is provided the system will
  *   use the behavior provided by [LocalBringIntoViewSpec] which by default has a platform dependent
  *   implementation.
- *
- * Note: This API is experimental as it brings support for some experimental features:
- * [overscrollEffect] and [bringIntoViewSpec].
  */
 @Stable
 fun Modifier.scrollable(
