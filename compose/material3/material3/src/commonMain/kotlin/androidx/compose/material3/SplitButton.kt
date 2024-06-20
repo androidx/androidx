@@ -735,14 +735,8 @@ private fun rememberTrailingButtonShape(progress: () -> Float) = remember {
                 CornerRadius(size.height / 2),
                 originalLeftCornerRadius
             )
-        val endRoundRect =
-            RoundRect(
-                rect,
-                CornerRadius(size.height / 2),
-                CornerRadius(size.height / 2),
-                CornerRadius(size.height / 2),
-                CornerRadius(size.height / 2)
-            )
+        val endRoundRect = RoundRect(rect, CornerRadius(size.height / 2))
+
         val roundRect = lerp(originalRoundRect, endRoundRect, progress.invoke())
         addRoundRect(roundRect)
     }
