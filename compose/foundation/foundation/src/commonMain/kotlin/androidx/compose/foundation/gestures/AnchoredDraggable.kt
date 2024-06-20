@@ -540,7 +540,7 @@ private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
  */
 interface DraggableAnchors<T> {
 
-    /** The amount of anchors */
+    /** The number of anchors */
     val size: Int
 
     /**
@@ -576,10 +576,10 @@ interface DraggableAnchors<T> {
      */
     fun closestAnchor(position: Float, searchUpwards: Boolean): T?
 
-    /** The smallest anchor, or [Float.NEGATIVE_INFINITY] if the anchors are empty. */
+    /** The smallest anchor position, or [Float.NEGATIVE_INFINITY] if the anchors are empty. */
     fun minPosition(): Float
 
-    /** The biggest anchor, or [Float.POSITIVE_INFINITY] if the anchors are empty. */
+    /** The biggest anchor position, or [Float.POSITIVE_INFINITY] if the anchors are empty. */
     fun maxPosition(): Float
 
     /** Get the anchor key at the specified index, or null if the index is out of bounds. */
