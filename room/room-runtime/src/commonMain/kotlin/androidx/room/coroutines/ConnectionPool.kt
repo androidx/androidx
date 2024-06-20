@@ -63,6 +63,9 @@ internal interface ConnectionPool {
      * the pool is closed.
      */
     fun close()
+
+    /** Internal exception thrown to rollback a transaction. */
+    class RollbackException(val result: Any?) : Throwable()
 }
 
 /**

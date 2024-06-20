@@ -16,17 +16,17 @@
 
 package androidx.room
 
+import androidx.room.coroutines.AndroidSQLiteDriverConnectionPool
 import androidx.room.coroutines.ConnectionPool
-import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.coroutines.newConnectionPool
 import androidx.room.coroutines.newSingleConnectionPool
 import androidx.room.driver.SupportSQLiteConnection
+import androidx.room.driver.SupportSQLiteConnectionPool
 import androidx.room.driver.SupportSQLiteDriver
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import androidx.sqlite.use
+import androidx.sqlite.driver.AndroidSQLiteDriver
 
 /**
  * An Android platform specific [RoomConnectionManager] with backwards compatibility with
@@ -41,7 +41,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     private val connectionPool: ConnectionPool
 
     internal val supportOpenHelper: SupportSQLiteOpenHelper?
-        get() = (connectionPool as? SupportConnectionPool)?.supportDriver?.openHelper
+        get() = (connectionPool as? SupportSQLiteConnectionPool)?.supportDriver?.openHelper
 
     private var supportDatabase: SupportSQLiteDatabase? = null
 
@@ -64,12 +64,19 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                     .callback(SupportOpenHelperCallback(openDelegate.version))
                     .build()
             this.connectionPool =
-                SupportConnectionPool(
+                SupportSQLiteConnectionPool(
                     SupportSQLiteDriver(config.sqliteOpenHelperFactory.create(openHelperConfig))
                 )
         } else {
             this.connectionPool =
-                if (configuration.name == null) {
+                if (config.sqliteDriver is AndroidSQLiteDriver) {
+                    // Special-case the Android driver and use a pass-through pool since the Android
+                    // bindings internally already have a thread-confined connection pool.
+                    AndroidSQLiteDriverConnectionPool(
+                        driver = DriverWrapper(config.sqliteDriver),
+                        fileName = configuration.name ?: ":memory:"
+                    )
+                } else if (configuration.name == null) {
                     // An in-memory database must use a single connection pool.
                     newSingleConnectionPool(
                         driver = DriverWrapper(config.sqliteDriver),
@@ -100,7 +107,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         val configWithCompatibilityCallback =
             config.installOnOpenCallback { db -> supportDatabase = db }
         this.connectionPool =
-            SupportConnectionPool(
+            SupportSQLiteConnectionPool(
                 SupportSQLiteDriver(
                     supportOpenHelperFactory.invoke(configWithCompatibilityCallback)
                 )
@@ -181,103 +188,6 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
 
         override fun dropAllTables(connection: SQLiteConnection) {
             error("NOP delegate should never be called")
-        }
-    }
-
-    /**
-     * An implementation of a connection pool used in compatibility mode. This impl doesn't do any
-     * connection management since the SupportSQLite* APIs already internally do.
-     */
-    private class SupportConnectionPool(val supportDriver: SupportSQLiteDriver) : ConnectionPool {
-        private val supportConnection by
-            lazy(LazyThreadSafetyMode.PUBLICATION) {
-                val fileName = supportDriver.openHelper.databaseName ?: ":memory:"
-                SupportPooledConnection(supportDriver.open(fileName))
-            }
-
-        override suspend fun <R> useConnection(
-            isReadOnly: Boolean,
-            block: suspend (Transactor) -> R
-        ): R {
-            return block.invoke(supportConnection)
-        }
-
-        override fun close() {
-            supportDriver.openHelper.close()
-        }
-    }
-
-    private class SupportPooledConnection(val delegate: SupportSQLiteConnection) :
-        Transactor, RawConnectionAccessor {
-
-        private var currentTransactionType: Transactor.SQLiteTransactionType? = null
-
-        override val rawConnection: SQLiteConnection
-            get() = delegate
-
-        override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
-            return delegate.prepare(sql).use { block.invoke(it) }
-        }
-
-        // TODO(b/318767291): Add coroutine confinement like RoomDatabase.withTransaction
-        override suspend fun <R> withTransaction(
-            type: Transactor.SQLiteTransactionType,
-            block: suspend TransactionScope<R>.() -> R
-        ): R {
-            return transaction(type, block)
-        }
-
-        private suspend fun <R> transaction(
-            type: Transactor.SQLiteTransactionType,
-            block: suspend TransactionScope<R>.() -> R
-        ): R {
-            val db = delegate.db
-            if (!db.inTransaction()) {
-                currentTransactionType = type
-            }
-            when (type) {
-                Transactor.SQLiteTransactionType.DEFERRED -> db.beginTransactionReadOnly()
-                Transactor.SQLiteTransactionType.IMMEDIATE -> db.beginTransactionNonExclusive()
-                Transactor.SQLiteTransactionType.EXCLUSIVE -> db.beginTransaction()
-            }
-            try {
-                val result = SupportTransactor<R>().block()
-                db.setTransactionSuccessful()
-                return result
-            } catch (rollback: RollbackException) {
-                @Suppress("UNCHECKED_CAST") return rollback.result as R
-            } finally {
-                db.endTransaction()
-                if (!db.inTransaction()) {
-                    currentTransactionType = null
-                }
-            }
-        }
-
-        override suspend fun inTransaction(): Boolean {
-            return delegate.db.inTransaction()
-        }
-
-        private class RollbackException(val result: Any?) : Throwable()
-
-        private inner class SupportTransactor<T> : TransactionScope<T>, RawConnectionAccessor {
-
-            override val rawConnection: SQLiteConnection
-                get() = this@SupportPooledConnection.rawConnection
-
-            override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
-                return this@SupportPooledConnection.usePrepared(sql, block)
-            }
-
-            override suspend fun <R> withNestedTransaction(
-                block: suspend (TransactionScope<R>) -> R
-            ): R {
-                return transaction(checkNotNull(currentTransactionType), block)
-            }
-
-            override suspend fun rollback(result: T): Nothing {
-                throw RollbackException(result)
-            }
         }
     }
 
