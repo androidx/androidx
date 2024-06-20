@@ -123,7 +123,6 @@ androidXMultiplatform {
                 implementation(libs.byteBuddy)
             }
         }
-        androidMain.kotlin.srcDirs("${supportRootFolder}/text/text/src/main/java")
     }
 }
 
