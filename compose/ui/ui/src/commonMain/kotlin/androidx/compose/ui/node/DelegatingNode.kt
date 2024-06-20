@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.node
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.checkPrecondition
-import androidx.compose.runtime.TestOnly
 
 /**
  * A [Modifier.Node] which is able to delegate work to other [Modifier.Node] instances.
@@ -52,11 +52,11 @@ abstract class DelegatingNode : Modifier.Node() {
 
     internal var delegate: Modifier.Node? = null
 
-    @TestOnly
+    @VisibleForTesting
     internal fun <T : DelegatableNode> delegateUnprotected(delegatableNode: T): T =
         delegate(delegatableNode)
 
-    @TestOnly internal fun undelegateUnprotected(instance: DelegatableNode) = undelegate(instance)
+    @VisibleForTesting internal fun undelegateUnprotected(instance: DelegatableNode) = undelegate(instance)
 
     override fun setAsDelegateTo(owner: Modifier.Node) {
         super.setAsDelegateTo(owner)
