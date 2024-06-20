@@ -130,15 +130,30 @@ public class PerfettoHelper(
                     .stdout
                     .trim()
 
-            val expectedSuffix = "\nEXITCODE=0"
-            if (!perfettoCmdOutput.endsWith(expectedSuffix)) {
-                throw perfettoStartupException(
-                    "Perfetto unexpected exit code, output = $perfettoCmdOutput",
-                    null
+            Log.i(LOG_TAG, "Perfetto output - $perfettoCmdOutput")
+            val parseResult = parsePerfettoCommandOutput(perfettoCmdOutput)
+            check(parseResult != null) {
+                "Perfetto unexpected exit code, output = $perfettoCmdOutput"
+            }
+            val (exitCode, pid) = parseResult
+            check(exitCode == 0 || exitCode == 2) {
+                "Perfetto unexpected exit code, output = $perfettoCmdOutput"
+            }
+            if (exitCode == 2) {
+                // https://source.corp.google.com/h/googleplex-android/platform/superproject/main/+/main:external/perfetto/src/perfetto_cmd/perfetto_cmd.h;l=109;drc=c244200710b3089cb4a3c24fe6e3ee5f6fd0f8df
+                // This means some of the data sources that Perfetto is using are not ready.
+                // Perfetto already logs which data sources are not ready, so we don't need to do
+                // any additional reporting here.
+                Log.w(
+                    LOG_TAG,
+                    """
+                        Some perfetto data sources may not be ready.
+                        Look at the `perfetto` log tag for additional information.
+                    """
+                        .trimIndent()
                 )
             }
-            Log.i(LOG_TAG, "Perfetto output - $perfettoCmdOutput")
-            perfettoPid = perfettoCmdOutput.removeSuffix(expectedSuffix).toInt()
+            perfettoPid = pid
         } catch (ioe: IOException) {
             throw perfettoStartupException("Unable to start perfetto tracing", ioe)
         }
@@ -424,6 +439,29 @@ public class PerfettoHelper(
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
                 val inputStream = instrumentation.context.assets.open("${tool}_$suffix")
                 return Shell.createRunnableExecutable(tool, inputStream)
+            }
+        }
+
+        private val PERFETTO_COMMAND_OUTPUT_REGEX =
+            """(?<pid>\d+)(?<whitespace>\W+)?EXITCODE=(?<code>\d+)$""".toRegex()
+
+        /**
+         * Parses the output of the perfetto start command, and pulls the `exitCode` and the `pid`
+         * of the process from the output.
+         */
+        fun parsePerfettoCommandOutput(output: String): Pair<Int, Int>? {
+            val matchResult = PERFETTO_COMMAND_OUTPUT_REGEX.matchEntire(output)
+            return if (matchResult == null) {
+                null
+            } else {
+                // Using named groups requires API 26.
+                val pid = matchResult.groups[1]?.value?.toIntOrNull()
+                val exitCode = matchResult.groups[3]?.value?.toIntOrNull()
+                if (pid != null && exitCode != null) {
+                    exitCode to pid
+                } else {
+                    null
+                }
             }
         }
 
