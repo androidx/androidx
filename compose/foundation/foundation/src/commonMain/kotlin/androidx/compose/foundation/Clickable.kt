@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -59,6 +60,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toOffset
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -416,60 +418,6 @@ internal expect val KeyEvent.isPress: Boolean
 
 /** Whether the specified [KeyEvent] should trigger a click for a clickable component. */
 internal expect val KeyEvent.isClick: Boolean
-
-internal fun Modifier.genericClickableWithoutGesture(
-    interactionSource: MutableInteractionSource,
-    indication: Indication?,
-    indicationScope: CoroutineScope,
-    currentKeyPressInteractions: MutableMap<Key, PressInteraction.Press>,
-    keyClickOffset: State<Offset>,
-    enabled: Boolean = true,
-    onClickLabel: String? = null,
-    role: Role? = null,
-    onLongClickLabel: String? = null,
-    onLongClick: (() -> Unit)? = null,
-    onClick: () -> Unit
-): Modifier {
-    fun Modifier.detectPressAndClickFromKey() = this.onKeyEvent { keyEvent ->
-        when {
-            enabled && keyEvent.isPress -> {
-                // If the key already exists in the map, keyEvent is a repeat event.
-                // We ignore it as we only want to emit an interaction for the initial key press.
-                if (!currentKeyPressInteractions.containsKey(keyEvent.key)) {
-                    val press = PressInteraction.Press(keyClickOffset.value)
-                    currentKeyPressInteractions[keyEvent.key] = press
-                    indicationScope.launch { interactionSource.emit(press) }
-                    true
-                } else {
-                    false
-                }
-            }
-            enabled && keyEvent.isClick -> {
-                currentKeyPressInteractions.remove(keyEvent.key)?.let {
-                    indicationScope.launch {
-                        interactionSource.emit(PressInteraction.Release(it))
-                    }
-                }
-                onClick()
-                true
-            }
-            else -> false
-        }
-    }
-    return this then
-        ClickableSemanticsElement(
-            enabled = enabled,
-            role = role,
-            onLongClickLabel = onLongClickLabel,
-            onLongClick = onLongClick,
-            onClickLabel = onClickLabel,
-            onClick = onClick
-        )
-            .detectPressAndClickFromKey()
-            .indication(interactionSource, indication)
-            .hoverable(enabled = enabled, interactionSource = interactionSource)
-            .focusable(enabled = enabled, interactionSource = interactionSource)
-}
 
 private class ClickableElement(
     private val interactionSource: MutableInteractionSource?,
@@ -1192,54 +1140,6 @@ internal abstract class AbstractClickableNode(
     override val traverseKey: Any = TraverseKey
 
     companion object TraverseKey
-}
-
-private class ClickableSemanticsElement(
-    private val enabled: Boolean,
-    private val role: Role?,
-    private val onLongClickLabel: String?,
-    private val onLongClick: (() -> Unit)?,
-    private val onClickLabel: String?,
-    private val onClick: () -> Unit
-) : ModifierNodeElement<ClickableSemanticsNode>() {
-    override fun create() = ClickableSemanticsNode(
-        enabled = enabled,
-        role = role,
-        onLongClickLabel = onLongClickLabel,
-        onLongClick = onLongClick,
-        onClickLabel = onClickLabel,
-        onClick = onClick
-    )
-
-    override fun update(node: ClickableSemanticsNode) {
-        node.update(enabled, onClickLabel, role, onClick, onLongClickLabel, onLongClick)
-    }
-
-    override fun InspectorInfo.inspectableProperties() = Unit
-
-    override fun hashCode(): Int {
-        var result = enabled.hashCode()
-        result = 31 * result + role.hashCode()
-        result = 31 * result + onLongClickLabel.hashCode()
-        result = 31 * result + onLongClick.hashCode()
-        result = 31 * result + onClickLabel.hashCode()
-        result = 31 * result + onClick.hashCode()
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ClickableSemanticsElement) return false
-
-        if (enabled != other.enabled) return false
-        if (role != other.role) return false
-        if (onLongClickLabel != other.onLongClickLabel) return false
-        if (onLongClick !== other.onLongClick) return false
-        if (onClickLabel != other.onClickLabel) return false
-        if (onClick !== other.onClick) return false
-
-        return true
-    }
 }
 
 internal class ClickableSemanticsNode(
