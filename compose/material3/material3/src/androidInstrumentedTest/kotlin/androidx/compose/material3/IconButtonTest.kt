@@ -15,6 +15,7 @@
  */
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -50,6 +53,7 @@ import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isToggleable
@@ -61,6 +65,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -85,6 +90,41 @@ class IconButtonTest {
             .assertHeightIsEqualTo(IconButtonAccessibilitySize)
             .assertTouchWidthIsEqualTo(IconButtonAccessibilitySize)
             .assertTouchHeightIsEqualTo(IconButtonAccessibilitySize)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconButton_wideShape() {
+        val shape = ShapeDefaults.Medium
+        val background = Color.Yellow
+        val iconButtonColor = Color.Blue
+        rule.setMaterialContent(lightColorScheme()) {
+            Surface(color = background) {
+                Box {
+                    IconButton(
+                        onClick = { /* doSomething() */ },
+                        modifier =
+                            Modifier.semantics(mergeDescendants = true) {}
+                                .testTag(IconTestTag)
+                                .size(50.dp),
+                        shape = shape,
+                        colors =
+                            IconButtonDefaults.iconButtonColors(containerColor = iconButtonColor)
+                    ) {}
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(IconTestTag)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = shape,
+                shapeColor = iconButtonColor,
+                backgroundColor = background,
+                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+            )
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
