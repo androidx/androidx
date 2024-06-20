@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.protolayout.StateBuilders.State#getKeyToValueMapping():
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.StateBuilders.State.getKeyToValueMapping()

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.watchface.editor.EditorSession#complicationsDataSourceInfo:
+    Attempted to change nullability of androidx.wear.watchface.complications.ComplicationDataSourceInfo (from NONNULL to NULLABLE) in property EditorSession.complicationsDataSourceInfo
+InvalidNullConversion: androidx.wear.watchface.editor.EditorSession#getComplicationsDataSourceInfo():
+    Attempted to change nullability of androidx.wear.watchface.complications.ComplicationDataSourceInfo (from NONNULL to NULLABLE) in method androidx.wear.watchface.editor.EditorSession.getComplicationsDataSourceInfo()

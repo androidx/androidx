@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.tiles.renderer.TileRenderer#setState(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>>) parameter #0:
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in parameter arg1 in androidx.wear.tiles.renderer.TileRenderer.setState(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>> arg1)
