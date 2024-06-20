@@ -24,9 +24,6 @@ import androidx.compose.ui.graphics.Color
 /**
  * Metadata for overscroll effects for android platform.
  *
- * Note: this API is experimental and liable to be changed / removed. [glowColor] and [drawPadding]
- * only apply before Android S and so might be misleading to have in a generic configuration object.
- *
  * @param glowColor color for the glow effect, if the platform effect is a glow effect, otherwise
  *   ignored.
  * @param drawPadding the amount of padding to apply from scrollable container bounds to the effect
@@ -63,8 +60,6 @@ class OverscrollConfiguration(
 /**
  * Composition local to provide configuration for scrolling containers down the hierarchy. `null`
  * means there will be no overscroll at all.
- *
- * Note: this is experimental since the underlying [OverscrollConfiguration] is also experimental.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val LocalOverscrollConfiguration =
