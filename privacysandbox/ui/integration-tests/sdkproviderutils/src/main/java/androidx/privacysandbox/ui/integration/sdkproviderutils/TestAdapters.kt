@@ -145,6 +145,16 @@ class TestAdapters(private val sdkContext: Context) {
         private val text: String
     ) : View(context) {
 
+        init {
+            setOnClickListener {
+                Log.i(TAG, "Click on ad detected")
+                val visitUrl = Intent(Intent.ACTION_VIEW)
+                visitUrl.data = Uri.parse(GOOGLE_URL)
+                visitUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(visitUrl)
+            }
+        }
+
         private val viewColor = Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
 
         @SuppressLint("BanThreadSleep")
@@ -161,14 +171,6 @@ class TestAdapters(private val sdkContext: Context) {
 
             canvas.drawColor(viewColor)
             canvas.drawText(text, 75F, 75F, paint)
-
-            setOnClickListener {
-                Log.i(TAG, "Click on ad detected")
-                val visitUrl = Intent(Intent.ACTION_VIEW)
-                visitUrl.data = Uri.parse(GOOGLE_URL)
-                visitUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(visitUrl)
-            }
         }
     }
 
