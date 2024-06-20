@@ -91,6 +91,26 @@ class DraggableAnchorsTest {
         assertThat(anchors.positionOf(A)).isEqualTo(100f)
         assertThat(anchors.hasPositionFor(A)).isTrue()
     }
+
+    @Test
+    fun draggableAnchors_equality_equalAnchors() {
+        val anchors1 = DraggableAnchors { A at 100f }
+        val anchors2 = DraggableAnchors { A at 100f }
+        assertThat(anchors1).isEqualTo(anchors2)
+    }
+
+    @Test
+    fun draggableAnchors_equality_inequalAnchors() {
+        val anchors1 = DraggableAnchors { A at 100f }
+        val anchors2 = DraggableAnchors { B at 100f }
+        assertThat(anchors1).isNotEqualTo(anchors2)
+    }
+
+    @Test
+    fun draggableAnchors_equality_differentObject() {
+        val anchors = DraggableAnchors { A at 100f }
+        assertThat(anchors).isNotEqualTo("Test")
+    }
 }
 
 private enum class TestValue {
