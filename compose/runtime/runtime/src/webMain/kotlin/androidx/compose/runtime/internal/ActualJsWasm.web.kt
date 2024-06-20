@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.internal
 
-// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
-@InternalComposeApi
-@Deprecated("Made internal. It wasn't supposed to be public")
-fun identityHashCode(instance: Any?): Int  =
-    androidx.compose.runtime.internal.identityHashCode(instance)
+// TODO: https://youtrack.jetbrains.com/issue/COMPOSE-1286/Properly-implement-WeakReference-on-Web
+internal actual class WeakReference<T : Any> actual constructor(reference: T) {
+    private val workaroundReference: T = reference
+    actual fun get(): T? = workaroundReference
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime.internal
 
 import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.Stable
 
 @ComposeCompilerApi

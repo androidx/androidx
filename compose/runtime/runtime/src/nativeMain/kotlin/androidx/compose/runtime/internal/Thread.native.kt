@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.internal
 
-// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
-@InternalComposeApi
-@Deprecated("Made internal. It wasn't supposed to be public")
-fun identityHashCode(instance: Any?): Int  =
-    androidx.compose.runtime.internal.identityHashCode(instance)
+import kotlinx.atomicfu.atomic
+
+private val threadCounter = atomic(0L)
+
+@kotlin.native.concurrent.ThreadLocal
+private var threadId: Long = threadCounter.addAndGet(1)
+
+internal actual fun currentThreadId(): Long = threadId
+
+internal actual fun currentThreadName(): String = "thread@$threadId"

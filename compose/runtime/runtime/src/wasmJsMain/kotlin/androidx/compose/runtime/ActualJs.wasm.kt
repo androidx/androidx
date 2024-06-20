@@ -16,10 +16,6 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.snapshots.SnapshotContextElement
-import androidx.compose.runtime.snapshots.SnapshotMutableState
-import kotlin.coroutines.CoroutineContext
 import kotlinx.browser.window
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -33,80 +29,8 @@ private external fun dynamicGetInt(obj: JsAny, index: String): Int?
 @JsFun("(obj) => typeof obj")
 private external fun jsTypeOf(a: JsAny?): String
 
-/**
- * We intentionally use the default `instance.hashCode()` here.
- * The consequence is that the returned values can be more often not unique,
- * but it's not required for correctness (absolute uniqueness can't be guaranteed on any platform).
- * It has good performance comparing with alternatives.
- *
- * For more details have a look:
- * https://kotlinlang.slack.com/archives/G010KHY484C/p1706547846376149
- * Quote: "...we optimize for the case where hash code is unique, but it is not required for correctness"
- *
- * And here: https://jetbrains.slack.com/archives/C047QCXNLTX/p1706536405443729
- */
+// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
 @InternalComposeApi
-actual fun identityHashCode(instance: Any?): Int {
-    if (instance == null) {
-        return 0
-    }
-    return instance.hashCode()
-}
-
-actual annotation class CompositionContextLocal {}
-
-@JsFun("""
-(() => {
-const memoizeIdentityHashCodeMap = new WeakMap();
-let nextHash = 1;
-return (obj) => {
-    const res = memoizeIdentityHashCodeMap.get(obj);
-    if (res === undefined) {
-        const value = nextHash++;
-        memoizeIdentityHashCodeMap.set(obj, value);
-        return value;
-    }
-    return res;
-}
-})()"""
-)
-private external fun getIdentityHashCode(instance: JsAny): Int
-
-actual annotation class TestOnly
-
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock = MonotonicClockImpl()
-
-@OptIn(ExperimentalTime::class)
-private class MonotonicClockImpl : MonotonicFrameClock {
-    override suspend fun <R> withFrameNanos(
-        onFrame: (Long) -> R
-    ): R = suspendCoroutine { continuation ->
-        window.requestAnimationFrame {
-            val duration = it.toDuration(DurationUnit.MILLISECONDS)
-            val result = onFrame(duration.inWholeNanoseconds)
-            continuation.resume(result)
-        }
-    }
-}
-
-@ExperimentalComposeApi
-internal actual class SnapshotContextElementImpl actual constructor(
-    private val snapshot: Snapshot
-) : SnapshotContextElement {
-
-    init {
-        error("provide SnapshotContextElementImpl when coroutines lib has necessary APIs")
-    }
-
-    override val key: CoroutineContext.Key<*>
-        get() = SnapshotContextElement
-}
-
-internal actual fun logError(message: String, e: Throwable) {
-    println(message)
-    e.printStackTrace()
-}
-
-internal actual fun currentThreadId(): Long = 0
-
-internal actual fun currentThreadName(): String = "main"
+@Deprecated("Made internal. It wasn't supposed to be public")
+fun identityHashCode(instance: Any?): Int =
+    androidx.compose.runtime.internal.identityHashCode(instance)

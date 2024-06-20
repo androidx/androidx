@@ -148,52 +148,32 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
-            jbMain.dependsOn(commonMain)
-            jbTest.dependsOn(commonTest)
+            nonAndroidMain.dependsOn(commonMain)
+            nonJvmMain.dependsOn(commonMain)
+            webMain.dependsOn(nonAndroidMain)
+            webMain.dependsOn(nonJvmMain)
 
-            jsMain {
+            desktopMain.dependsOn(nonAndroidMain)
+            nativeMain.dependsOn(nonAndroidMain)
+            nativeMain.dependsOn(nonJvmMain)
+            jsMain.dependsOn(webMain)
+            wasmJsMain.dependsOn(webMain)
+
+            nonJvmMain {
                 dependencies {
-                    implementation(libs.kotlinStdlibJs)
+                    implementation(libs.atomicFu)
                 }
             }
-
-            jsNativeMain.dependsOn(jbMain)
-            jsWasmMain.dependsOn(jsNativeMain)
-            jsMain.dependsOn(jsWasmMain)
-            desktopMain.dependsOn(jbMain)
 
             desktopTest.dependsOn(jbTest)
             jsTest.dependsOn(jbTest)
             nativeTest.dependsOn(jbTest)
-
-            wasmJsMain.dependsOn(jsWasmMain)
+            jbTest.dependsOn(commonTest)
             wasmJsTest.dependsOn(jbTest)
 
-            nativeMain {
-                dependsOn(jsNativeMain)
-                dependencies {
-                    implementation(libs.atomicFu)
-                }
-            }
+            linuxMain.dependsOn(nativeMain)
+            linuxTest.dependsOn(nativeTest)
 
-            jbMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.atomicFu)
-                }
-            }
-            desktopMain.dependsOn(jbMain)
-            jsNativeMain.dependsOn(jbMain)
-
-            linuxMain {
-                dependsOn(nativeMain)
-            }
-
-            linuxTest {
-                dependsOn(nativeTest)
-            }
-
-            linuxArm64Main.dependsOn(linuxMain)
             linuxArm64Test.dependsOn(linuxTest)
             linuxX64Main.dependsOn(linuxMain)
             linuxX64Test.dependsOn(linuxTest)

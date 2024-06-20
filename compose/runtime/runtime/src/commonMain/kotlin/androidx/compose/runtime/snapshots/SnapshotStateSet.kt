@@ -20,6 +20,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
+import androidx.compose.runtime.synchronized
+import kotlin.jvm.JvmName
 
 /**
  * An implementation of [MutableSet] that can be observed and snapshot. This is the result type
@@ -225,6 +227,8 @@ private val sync = SynchronizedObject()
 private class StateSetIterator<T>(val set: SnapshotStateSet<T>, val iterator: Iterator<T>) :
     MutableIterator<T> {
     var current: T? = null
+    @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+    @kotlin.js.JsName("_hasNext")
     var next: T? = null
     var modification = set.modification
 

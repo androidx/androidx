@@ -16,66 +16,8 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.snapshots.SnapshotContextElement
-import kotlin.coroutines.CoroutineContext
-import kotlin.experimental.ExperimentalNativeApi
-import kotlin.native.identityHashCode
-import kotlin.system.getTimeNanos
-import kotlin.time.ExperimentalTime
-import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.yield
-
-private val threadCounter = atomic(0L)
-
-@kotlin.native.concurrent.ThreadLocal
-private var threadId: Long = threadCounter.addAndGet(1)
-
-@OptIn(ExperimentalNativeApi::class)
-internal actual class WeakReference<T : Any> actual constructor(reference: T) {
-    val kotlinNativeReference = kotlin.native.ref.WeakReference<T>(reference)
-    actual fun get(): T? = kotlinNativeReference.get()
-}
-
-@OptIn(ExperimentalNativeApi::class)
+// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
 @InternalComposeApi
-actual fun identityHashCode(instance: Any?): Int =
-    instance.identityHashCode()
-
-actual annotation class TestOnly
-
-actual typealias CompositionContextLocal = kotlin.native.concurrent.ThreadLocal
-
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock = MonotonicClockImpl()
-
-@OptIn(ExperimentalTime::class)
-private class MonotonicClockImpl : MonotonicFrameClock {
-    override suspend fun <R> withFrameNanos(
-        onFrame: (Long) -> R
-    ): R {
-        yield()
-        return onFrame(getTimeNanos())
-    }
-}
-
-@ExperimentalComposeApi
-internal actual class SnapshotContextElementImpl actual constructor(
-    private val snapshot: Snapshot
-) : SnapshotContextElement {
-
-    init {
-        error("provide SnapshotContextElementImpl when coroutines lib has necessary APIs")
-    }
-
-    override val key: CoroutineContext.Key<*>
-        get() = SnapshotContextElement
-}
-
-internal actual fun logError(message: String, e: Throwable) {
-    println(message)
-    e.printStackTrace()
-}
-
-internal actual fun currentThreadId(): Long = threadId
-
-internal actual fun currentThreadName(): String = "thread@$threadId"
+@Deprecated("Made internal. It wasn't supposed to be public")
+fun identityHashCode(instance: Any?): Int  =
+    androidx.compose.runtime.internal.identityHashCode(instance)
