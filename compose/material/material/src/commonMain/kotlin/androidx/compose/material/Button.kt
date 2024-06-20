@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.dp
  *   this button in different states. See [ButtonDefaults.buttonColors].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -164,6 +165,7 @@ fun Button(
  *   this button in different states. See [ButtonDefaults.outlinedButtonColors].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
 @NonRestartableComposable
@@ -221,6 +223,7 @@ fun OutlinedButton(
  *   this button in different states. See [ButtonDefaults.textButtonColors].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param content The content displayed on the button, expected to be text.
  */
 @Composable
 @NonRestartableComposable

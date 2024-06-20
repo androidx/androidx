@@ -904,6 +904,7 @@ object DrawerDefaults {
  * @param modifier the [Modifier] to be applied to this item
  * @param icon optional icon for this item, typically an [Icon]
  * @param badge optional badge to show on this item from the end side
+ * @param shape optional shape for the active indicator
  * @param colors [NavigationDrawerItemColors] that will be used to resolve the colors used for this
  *   item in different states. See [NavigationDrawerItemDefaults.colors].
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and

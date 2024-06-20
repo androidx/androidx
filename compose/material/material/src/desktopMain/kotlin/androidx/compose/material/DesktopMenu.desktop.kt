@@ -209,6 +209,7 @@ fun DropdownMenu(
  * @param state The open/closed state of the menu.
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by tapping
  *   outside the menu's bounds
+ * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Deprecated(
     level = DeprecationLevel.HIDDEN,

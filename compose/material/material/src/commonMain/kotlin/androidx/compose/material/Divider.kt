@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
  * ![Dividers
  * image](https://developer.android.com/images/reference/androidx/compose/material/dividers.png)
  *
+ * @param modifier Modifier to be applied to the divider line
  * @param color color of the divider line
  * @param thickness thickness of the divider line, 1 dp is used by default. Using [Dp.Hairline] will
  *   produce a single pixel divider regardless of screen density.
