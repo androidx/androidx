@@ -116,6 +116,22 @@ esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
+# override JAVA_HOME, because CI machines have it and it points to very old JDK
+platform_suffix="x86"
+case "$(arch)" in
+  arm64* )
+    platform_suffix="arm64"
+esac
+
+# Pick the correct fullsdk for this OS.
+if [ $darwin == "true" ]; then
+    plat="darwin"
+else
+    plat="linux"
+fi
+
+export ANDROIDX_JDK21="$APP_HOME/../../../../prebuilts/jdk/jdk21/$plat-$platform_suffix"
+export JAVA_HOME=$ANDROIDX_JDK21
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
