@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextDecoration
  */
 actual fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
+    linkStyles: TextLinkStyles?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString {
     throw UnsupportedOperationException("Compose Multiplatform doesn't support parseAsHtml")
