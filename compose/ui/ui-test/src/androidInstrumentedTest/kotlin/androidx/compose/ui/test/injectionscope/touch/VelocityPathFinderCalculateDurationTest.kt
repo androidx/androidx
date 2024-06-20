@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalVelocityTrackerApi::class)
+
 package androidx.compose.ui.test.injectionscope.touch
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
+import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis

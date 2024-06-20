@@ -2007,6 +2007,9 @@ package androidx.compose.ui.input.pointer {
 
 package androidx.compose.ui.input.pointer.util {
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This an opt-in flag to test the Velocity Tracker strategy algorithm used " + "for calculating gesture velocities in Compose.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalVelocityTrackerApi {
+  }
+
   public final class VelocityTracker {
     ctor public VelocityTracker();
     method public void addPosition(long timeMillis, long position);
@@ -2027,9 +2030,9 @@ package androidx.compose.ui.input.pointer.util {
 
   public final class VelocityTrackerKt {
     method public static void addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange event);
-    method public static boolean getVelocityTrackerStrategyUseImpulse();
-    method public static void setVelocityTrackerStrategyUseImpulse(boolean);
-    property public static final boolean VelocityTrackerStrategyUseImpulse;
+    method @SuppressCompatibility @androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi public static boolean getVelocityTrackerStrategyUseImpulse();
+    method @SuppressCompatibility @androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi public static void setVelocityTrackerStrategyUseImpulse(boolean);
+    property @SuppressCompatibility @androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi public static final boolean VelocityTrackerStrategyUseImpulse;
   }
 
 }

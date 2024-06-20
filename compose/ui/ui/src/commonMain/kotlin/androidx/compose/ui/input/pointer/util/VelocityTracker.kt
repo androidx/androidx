@@ -45,6 +45,7 @@ private const val HorizonMilliseconds: Int = 100
  *
  * The quality of the velocity estimation will be better if more data points have been received.
  */
+@OptIn(ExperimentalVelocityTrackerApi::class)
 class VelocityTracker {
 
     private val strategy =
@@ -630,4 +631,14 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
  */
 @Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:Suppress("GetterSetterNames")
+@get:ExperimentalVelocityTrackerApi
+@set:ExperimentalVelocityTrackerApi
+@ExperimentalVelocityTrackerApi
 var VelocityTrackerStrategyUseImpulse = false
+
+@RequiresOptIn(
+    "This an opt-in flag to test the Velocity Tracker strategy algorithm used " +
+        "for calculating gesture velocities in Compose."
+)
+@Retention(AnnotationRetention.BINARY)
+annotation class ExperimentalVelocityTrackerApi
