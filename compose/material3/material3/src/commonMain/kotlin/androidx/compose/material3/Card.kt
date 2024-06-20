@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.Dp
  *   [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
  *   also: [Surface].
  * @param border the border to draw around the container of this card
+ * @param content The content displayed on the card
  */
 @Composable
 fun Card(
@@ -131,6 +132,7 @@ fun Card(
  *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
  *   preview the card in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ * @param content The content displayed on the card
  */
 @Composable
 fun Card(
@@ -186,6 +188,7 @@ fun Card(
  *   This controls the size of the shadow below the card. Additionally, when the container color is
  *   [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
  *   also: [Surface].
+ * @param content The content displayed on the card
  */
 @Composable
 fun ElevatedCard(
@@ -236,6 +239,7 @@ fun ElevatedCard(
  *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
  *   preview the card in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ * @param content The content displayed on the card
  */
 @Composable
 fun ElevatedCard(
@@ -286,6 +290,7 @@ fun ElevatedCard(
  *   [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
  *   also: [Surface].
  * @param border the border to draw around the container of this card
+ * @param content The content displayed on the card
  */
 @Composable
 fun OutlinedCard(
@@ -338,6 +343,7 @@ fun OutlinedCard(
  *   emitting [Interaction]s for this card. You can use this to change the card's appearance or
  *   preview the card in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ * @param content The content displayed on the card
  */
 @Composable
 fun OutlinedCard(
@@ -387,6 +393,7 @@ object CardDefaults {
      * @param focusedElevation the elevation used when the [Card] is focused.
      * @param hoveredElevation the elevation used when the [Card] is hovered.
      * @param draggedElevation the elevation used when the [Card] is dragged.
+     * @param disabledElevation the elevation used when the [Card] is disabled.
      */
     @Composable
     fun cardElevation(
@@ -416,6 +423,7 @@ object CardDefaults {
      * @param focusedElevation the elevation used when the [ElevatedCard] is focused.
      * @param hoveredElevation the elevation used when the [ElevatedCard] is hovered.
      * @param draggedElevation the elevation used when the [ElevatedCard] is dragged.
+     * @param disabledElevation the elevation used when the [Card] is disabled.
      */
     @Composable
     fun elevatedCardElevation(

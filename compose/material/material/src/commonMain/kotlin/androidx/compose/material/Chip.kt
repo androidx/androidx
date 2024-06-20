@@ -80,6 +80,7 @@ import androidx.compose.ui.unit.dp
  *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ * @param shape defines the chip's shape as well as its shadow
  * @param border Border to draw around the chip. Pass `null` here for no border.
  * @param colors [ChipColors] that will be used to resolve the background and content color for this
  *   chip in different states. See [ChipDefaults.chipColors].
@@ -405,6 +406,7 @@ object ChipDefaults {
      * @param backgroundColor the background color of this chip when enabled
      * @param contentColor the content color of this chip when enabled, there is a separate param
      *   for icon colors
+     * @param leadingIconContentColor the leading icon content color of this chip when enabled
      * @param disabledBackgroundColor the background color of this chip when not enabled
      * @param disabledContentColor the content color of this chip when not enabled
      * @param disabledLeadingIconContentColor the color of this chip's start icon when not enabled
