@@ -181,7 +181,7 @@ class AndroidGraphicsLayerTest {
                     graphicsContext.createGraphicsLayer().apply {
                         assertEquals(IntSize.Zero, this.size)
                         record { drawRect(Color.Red) }
-                        discardDisplayList()
+                        emulateTrimMemory()
                     }
                 drawLayer(layer!!)
             },
@@ -1458,6 +1458,31 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer)
             },
             verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
+        )
+    }
+
+    @Test
+    fun testReleasingLayerDuringPersistenceLogicIsNotCrashing() {
+        lateinit var layer1: GraphicsLayer
+        lateinit var layer2: GraphicsLayer
+        graphicsLayerTest(
+            block = { context ->
+                // creating new layers will also schedule a persistence pass in Handler
+                layer1 = context.createGraphicsLayer()
+                layer2 = context.createGraphicsLayer()
+                layer2.record(Density(1f), Ltr, IntSize(10, 10)) { drawRect(Color.Red) }
+                layer1.record(Density(1f), Ltr, IntSize(10, 10)) { drawLayer(layer2) }
+                // we release layer2, but as it is drawn into layer1 its content is not discarded.
+                context.releaseGraphicsLayer(layer2)
+                // layer1 loses its content without us updating the dependency tracking
+                layer1.emulateTrimMemory()
+            },
+            verify = {
+                // just verifying there is no crash in layer persistence logic
+                // there was an issue where the next persistence logic will re-draw layer1 content
+                // and during this draw we fully release layer2. this was removing an item from
+                // a set which is currently being iterated on.
+            }
         )
     }
 

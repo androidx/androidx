@@ -152,7 +152,7 @@ class RobolectricGraphicsLayerTest {
                     graphicsContext.createGraphicsLayer().apply {
                         assertEquals(IntSize.Zero, this.size)
                         record { drawRect(Color.Red) }
-                        discardDisplayList()
+                        emulateTrimMemory()
                     }
                 drawLayer(layer!!)
             },

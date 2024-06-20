@@ -23,7 +23,9 @@ import android.os.Looper
 import android.os.Message
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.collection.MutableObjectList
 import androidx.collection.ScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.core.os.HandlerCompat
@@ -51,6 +53,9 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             true
         }
 
+    private var postponedReleaseRequests: MutableObjectList<GraphicsLayer>? = null
+    private var persistenceIterationInProgress = false
+
     fun persist(layer: GraphicsLayer) {
         layerSet.add(layer)
         if (!handler.hasMessages(0)) {
@@ -65,8 +70,17 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     }
 
     fun release(layer: GraphicsLayer) {
-        if (layerSet.remove(layer)) {
-            layer.discardDisplayList()
+        if (!persistenceIterationInProgress) {
+            if (layerSet.remove(layer)) {
+                layer.discardDisplayList()
+            }
+        } else {
+            // we can't remove an item from a list, which is currently being iterated.
+            // so we use a second list to remember such requests
+            val requests =
+                postponedReleaseRequests
+                    ?: mutableObjectListOf<GraphicsLayer>().also { postponedReleaseRequests = it }
+            requests.add(layer)
         }
     }
 
@@ -103,11 +117,18 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
 
+            persistenceIterationInProgress = true
             canvasHolder.drawInto(canvas) {
                 canvas.save()
                 canvas.clipRect(0, 0, 1, 1)
                 layers.forEach { layer -> layer.drawForPersistence(this) }
                 canvas.restore()
+            }
+            persistenceIterationInProgress = false
+            val requests = postponedReleaseRequests
+            if (requests != null && requests.isNotEmpty()) {
+                requests.forEach { release(it) }
+                requests.clear()
             }
             surface.unlockCanvasAndPost(canvas)
         }
