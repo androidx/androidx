@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastRoundToInt
+import org.jetbrains.annotations.TestOnly
 
 @Suppress("NotCloseable")
 actual class GraphicsLayer
@@ -649,6 +650,16 @@ internal constructor(internal val impl: GraphicsLayerImpl, private val layerMana
     internal fun discardDisplayList() {
         // discarding means we don't draw children layer anymore and need to remove dependencies:
         childDependenciesTracker.removeDependencies { it.onRemovedFromParentLayer() }
+        impl.discardDisplayList()
+    }
+
+    /**
+     * When the system is sending trim memory request all the render nodes will discard their
+     * display list. in this case we are not being notified about that and don't update
+     * [childDependenciesTracker], as it is done when we call [discardDisplayList] manually
+     */
+    @TestOnly
+    internal fun emulateTrimMemory() {
         impl.discardDisplayList()
     }
 
