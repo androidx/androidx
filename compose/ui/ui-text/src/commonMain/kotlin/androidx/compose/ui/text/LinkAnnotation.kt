@@ -16,11 +16,23 @@
 
 package androidx.compose.ui.text
 
-/** An annotation that represents a clickable part of the text. */
+/**
+ * An annotation that represents a clickable part of the text.
+ *
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
+ */
 abstract class LinkAnnotation private constructor() {
-    /** Interaction listener triggered when user interacts with this link. */
+    /**
+     * Interaction listener triggered when user interacts with this link.
+     *
+     * @sample androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
+     */
     abstract val linkInteractionListener: LinkInteractionListener?
-    /** Style configuration for this link in different states */
+    /**
+     * Style configuration for this link in different states.
+     *
+     * @sample androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
+     */
     abstract val styles: TextLinkStyles?
 
     /**
@@ -30,6 +42,8 @@ abstract class LinkAnnotation private constructor() {
      * its [LinkInteractionListener.onClick] method will be called instead and so you need to then
      * handle opening url manually (for example by calling
      * [androidx.compose.ui.platform.UriHandler]).
+     *
+     * @see LinkAnnotation
      */
     class Url(
         val url: String,
@@ -62,6 +76,8 @@ abstract class LinkAnnotation private constructor() {
     /**
      * An annotation that contains a clickable marked with [tag]. When clicking on the text to which
      * this annotation is attached, the app will trigger a [linkInteractionListener] listener.
+     *
+     * @see LinkAnnotation
      */
     class Clickable(
         val tag: String,

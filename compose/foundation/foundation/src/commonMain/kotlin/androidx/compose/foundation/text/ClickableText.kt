@@ -61,9 +61,13 @@ import androidx.compose.ui.text.style.TextOverflow
  * @see BasicText
  * @see androidx.compose.ui.input.pointer.pointerInput
  * @see androidx.compose.foundation.gestures.detectTapGestures
+ * @see androidx.compose.ui.text.LinkAnnotation
  */
 @Composable
-@Deprecated("Use Text or BasicText and pass an AnnotatedString that contains a LinkAnnotation")
+@Deprecated(
+    "Use Text or BasicText and pass an AnnotatedString that contains a LinkAnnotation. " +
+        "Check LinkAnnotation's documentation for more details and samples."
+)
 fun ClickableText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
