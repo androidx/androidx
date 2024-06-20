@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.demos.focus
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview(widthDp = 200, heightDp = 400)
 @Composable
 fun LazyListChildFocusDemos() {

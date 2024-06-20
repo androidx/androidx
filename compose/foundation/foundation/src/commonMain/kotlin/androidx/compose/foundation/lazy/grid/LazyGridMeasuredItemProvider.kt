@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
@@ -23,8 +24,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 
 /** Abstracts away the subcomposition from the measuring logic. */
-internal abstract class LazyGridMeasuredItemProvider
-constructor(
+@OptIn(ExperimentalFoundationApi::class)
+internal abstract class LazyGridMeasuredItemProvider(
     private val itemProvider: LazyGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
     private val defaultMainAxisSpacing: Int
