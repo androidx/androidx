@@ -493,15 +493,17 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
          * @return the actual startDestination of the given graph.
          */
         @JvmStatic
-        public fun NavGraph.findStartDestination(): NavDestination =
-            generateSequence(findNode(startDestinationId)) {
-                    if (it is NavGraph) {
-                        it.findNode(it.startDestinationId)
-                    } else {
-                        null
-                    }
+        public fun NavGraph.findStartDestination(): NavDestination = childHierarchy().last()
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun NavGraph.childHierarchy(): Sequence<NavDestination> =
+            generateSequence(this as NavDestination) {
+                if (it is NavGraph) {
+                    it.findNode(it.startDestinationId)
+                } else {
+                    null
                 }
-                .last()
+            }
     }
 }
 

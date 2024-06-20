@@ -625,6 +625,130 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateSingleTopSharedStartDestination() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "graph_one") {
+                navigation(route = "graph_one", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+                navigation(route = "graph_two", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+            }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+
+        navController.navigate("graph_one") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateSingleTopSharedStartDestinationDifferentGraph() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "graph_one") {
+                navigation(route = "graph_one", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+                navigation(route = "graph_two", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+            }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+
+        navController.navigate("graph_two") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest"
+            )
+            .inOrder()
+
+        // should be single top
+        navController.navigate("graph_two") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest"
+            )
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateSingleTopSharedStartDestinationAlternatingGraph() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "graph_one") {
+                navigation(route = "graph_one", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+                navigation(route = "graph_two", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+            }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+
+        // go to different graph
+        navController.navigate("graph_two") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest"
+            )
+            .inOrder()
+
+        // go back to original graph
+        navController.navigate("graph_one") { launchSingleTop = true }
+        // should not be single top
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest",
+                "graph_one",
+                "shared_startDest",
+            )
+            .inOrder()
+
+        // single top to original graph again
+        navController.navigate("graph_one") { launchSingleTop = true }
+        // should be single top
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest",
+                "graph_one",
+                "shared_startDest",
+            )
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     @Suppress("DEPRECATION")
     fun testNavigateViaDeepLink() {
         val navController = createNavController()
