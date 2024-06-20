@@ -21,6 +21,7 @@ package androidx.sqlite.db
  * Run [body] in a transaction marking it as successful if it completes without exception.
  *
  * @param exclusive Run in `EXCLUSIVE` mode when true, `IMMEDIATE` mode otherwise.
+ * @param body Lambda to be run in the transaction.
  */
 inline fun <T> SupportSQLiteDatabase.transaction(
     exclusive: Boolean = true,
