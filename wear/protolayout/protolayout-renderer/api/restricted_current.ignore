@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config#getPlatformDataProviders():
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config.getPlatformDataProviders()
+InvalidNullConversion: androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config.Builder#addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, androidx.wear.protolayout.expression.PlatformDataKey<?>...) parameter #1:
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in parameter arg2 in androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config.Builder.addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider arg1, androidx.wear.protolayout.expression.PlatformDataKey<?>... arg2)
