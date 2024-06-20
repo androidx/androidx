@@ -305,6 +305,7 @@ private class DelegatingThemeAwareRippleNode(
 
     private fun removeRipple() {
         rippleNode?.let { undelegate(it) }
+        rippleNode = null
     }
 }
 
