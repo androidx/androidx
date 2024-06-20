@@ -1065,7 +1065,7 @@ internal class LegacyTextFieldState(
 }
 
 /** Request focus on tap. If already focused, makes sure the keyboard is requested. */
-private fun requestFocusAndShowKeyboardIfNeeded(
+internal fun requestFocusAndShowKeyboardIfNeeded(
     state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     allowKeyboard: Boolean
