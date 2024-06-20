@@ -17,8 +17,10 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -47,6 +49,7 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -198,6 +201,7 @@ class DepthSortedSetTest {
         override val autofillTree: AutofillTree get() = throw IllegalStateException()
         @ExperimentalComposeUiApi
         override val autofill: Autofill? get() = throw IllegalStateException()
+        override val semanticAutofill: SemanticAutofill? get() = throw IllegalStateException()
         override val density: Density get() = throw IllegalStateException()
         override val textInputService: TextInputService get() = throw IllegalStateException()
         override val softwareKeyboardController get() = throw IllegalStateException()
@@ -234,6 +238,10 @@ class DepthSortedSetTest {
         ): OwnedLayer = throw IllegalStateException()
         override fun onSemanticsChange() = throw IllegalStateException()
         override fun onLayoutChange(layoutNode: LayoutNode) = throw IllegalStateException()
+
+        @InternalComposeUiApi
+        override fun onInteropViewLayoutChange(view: InteropView) = throw IllegalStateException()
+
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? = throw IllegalStateException()
         override val measureIteration: Long get() = throw IllegalStateException()
         override val viewConfiguration: ViewConfiguration get() = throw IllegalStateException()

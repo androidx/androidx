@@ -22,9 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -83,6 +85,7 @@ import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.trace
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -308,6 +311,8 @@ internal class RootNodeOwner(
         override val textToolbar get() = platformContext.textToolbar
         override val autofillTree = AutofillTree()
         override val autofill: Autofill?  get() = null
+        // TODO https://youtrack.jetbrains.com/issue/CMP-1572/Support-SemanticAutofill
+        override val semanticAutofill: SemanticAutofill? get() = null
         override val density get() = this@RootNodeOwner.density
         override val textInputService = TextInputService(platformContext.textInputService)
         override val softwareKeyboardController =
@@ -449,6 +454,9 @@ internal class RootNodeOwner(
                 semanticsNodeId = layoutNode.semanticsId
             )
         }
+
+        @InternalComposeUiApi
+        override fun onInteropViewLayoutChange(view: InteropView) {}
 
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
             return when (keyEvent.key) {
