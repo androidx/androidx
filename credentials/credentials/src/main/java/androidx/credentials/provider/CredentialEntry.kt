@@ -168,6 +168,10 @@ internal constructor(
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEDUPLICATION_ID"
         internal const val SLICE_HINT_BIOMETRIC_PROMPT_DATA =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_BIOMETRIC_PROMPT_DATA"
+        internal const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
+        internal const val SLICE_HINT_CRYPTO_OP_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CRYPTO_OP_ID"
 
         /**
          * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack

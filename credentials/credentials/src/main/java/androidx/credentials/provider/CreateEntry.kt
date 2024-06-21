@@ -32,6 +32,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.provider.CreateEntry.Api28Impl.addToSlice
+import androidx.credentials.provider.utils.requiresSlicePropertiesWorkaround
 import java.time.Instant
 import java.util.Collections
 
@@ -361,12 +362,27 @@ internal constructor(
         private fun addToSlice(createEntry: CreateEntry, sliceBuilder: Slice.Builder) {
             val biometricPromptData = createEntry.biometricPromptData
             if (biometricPromptData != null) {
-                val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
-                sliceBuilder.addBundle(
-                    biometricBundle,
-                    /*subType=*/ null,
-                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
-                )
+                if (requiresSlicePropertiesWorkaround()) {
+                    sliceBuilder.addInt(
+                        biometricPromptData.allowedAuthenticators,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                    )
+                    biometricPromptData.cryptoObject?.let {
+                        sliceBuilder.addLong(
+                            biometricPromptData.cryptoObject.operationHandle,
+                            /*subType=*/ null,
+                            listOf(SLICE_HINT_CRYPTO_OP_ID)
+                        )
+                    }
+                } else {
+                    val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
+                    sliceBuilder.addBundle(
+                        biometricBundle,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                    )
+                }
             }
         }
 
@@ -583,6 +599,10 @@ internal constructor(
             "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
         private const val SLICE_HINT_BIOMETRIC_PROMPT_DATA =
             "androidx.credentials.provider.createEntry.SLICE_HINT_BIOMETRIC_PROMPT_DATA"
+        private const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
+        private const val SLICE_HINT_CRYPTO_OP_ID =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_CRYPTO_OP_ID"
         private const val AUTO_SELECT_TRUE_STRING = "true"
         private const val AUTO_SELECT_FALSE_STRING = "false"
         private const val SLICE_SPEC_TYPE = "CreateEntry"

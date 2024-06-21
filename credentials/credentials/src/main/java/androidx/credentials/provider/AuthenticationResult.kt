@@ -41,6 +41,9 @@ class AuthenticationResult(
         const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE =
             "androidx.credentials.provider.BIOMETRIC_AUTH_RESULT"
         @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK = "BIOMETRIC_AUTH_RESULT"
+        @VisibleForTesting
         internal val biometricFrameworkToJetpackResultMap =
             linkedMapOf(
                 BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC to

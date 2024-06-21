@@ -30,6 +30,7 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
+import androidx.credentials.provider.utils.requiresSlicePropertiesWorkaround
 import java.util.stream.Collectors
 
 /**
@@ -76,7 +77,10 @@ class PendingIntentHandler {
                 Log.i(TAG, "Request not found in pendingIntent")
                 return frameworkReq
             }
-            val biometricPromptResult = retrieveBiometricPromptResult(intent)
+            val biometricPromptResult =
+                if (requiresSlicePropertiesWorkaround())
+                    retrieveBiometricPromptResultFallback(intent)
+                else retrieveBiometricPromptResult(intent)
             return try {
                 ProviderCreateCredentialRequest(
                     callingRequest =
@@ -100,34 +104,40 @@ class PendingIntentHandler {
             }
         }
 
-        private fun retrieveBiometricPromptResult(intent: Intent): BiometricPromptResult? {
+        private fun retrieveBiometricPromptResult(
+            intent: Intent,
+            resultKey: String? = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE,
+            errorKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR,
+            errorMessageKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
+        ): BiometricPromptResult? {
             if (intent.extras == null) {
                 return null
             }
-            if (
-                intent.extras!!.containsKey(AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE)
-            ) {
-                val authResultType =
-                    intent.extras!!.getInt(AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE)
+            if (intent.extras!!.containsKey(resultKey)) {
+                val authResultType = intent.extras!!.getInt(resultKey)
                 return BiometricPromptResult(
                     authenticationResult = AuthenticationResult(authResultType)
                 )
-            } else if (
-                intent.extras!!.containsKey(AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR)
-            ) {
-                val authResultError =
-                    intent.extras!!.getInt(AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR)
+            } else if (intent.extras!!.containsKey(errorKey)) {
+                val authResultError = intent.extras!!.getInt(errorKey)
                 return BiometricPromptResult(
                     authenticationError =
                         AuthenticationError(
                             authResultError,
-                            intent.extras?.getCharSequence(
-                                AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
-                            )
+                            intent.extras?.getCharSequence(errorMessageKey)
                         )
                 )
             }
             return null
+        }
+
+        private fun retrieveBiometricPromptResultFallback(intent: Intent): BiometricPromptResult? {
+            return retrieveBiometricPromptResult(
+                intent,
+                resultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK,
+                errorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK,
+                errorMessageKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
+            )
         }
 
         /**
@@ -193,7 +203,10 @@ class PendingIntentHandler {
                 Log.i(TAG, "Get request from framework is null")
                 return null
             }
-            val biometricPromptResult = retrieveBiometricPromptResult(intent)
+            val biometricPromptResult =
+                if (requiresSlicePropertiesWorkaround())
+                    retrieveBiometricPromptResultFallback(intent)
+                else retrieveBiometricPromptResult(intent)
             return ProviderGetCredentialRequest.createFrom(
                 frameworkReq.credentialOptions
                     .stream()
