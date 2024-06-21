@@ -25,6 +25,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -58,6 +59,7 @@ import androidx.navigation.get
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlinx.coroutines.launch
 
 /**
  * Provides a place in the Compose hierarchy for self contained navigation to occur.
@@ -602,6 +604,8 @@ public fun NavHost(
             SeekableTransitionState(backStackEntry)
         }
 
+        val transition = rememberTransition(transitionState, label = "entry")
+
         if (inPredictiveBack) {
             LaunchedEffect(progress) {
                 val previousEntry = currentBackStack[currentBackStack.size - 2]
@@ -613,11 +617,31 @@ public fun NavHost(
                 // are already on the current state
                 if (transitionState.currentState != backStackEntry) {
                     transitionState.animateTo(backStackEntry)
+                } else {
+                    // convert from nanoseconds to milliseconds
+                    val totalDuration = transition.totalDurationNanos / 1000000
+                    // When the predictive back gesture is cancel, we need to manually animate
+                    // the SeekableTransitionState from where it left off, to zero and then
+                    // snapTo the final position.
+                    animate(
+                        transitionState.fraction,
+                        0f,
+                        animationSpec = tween((transitionState.fraction * totalDuration).toInt())
+                    ) { value, _ ->
+                        this@LaunchedEffect.launch {
+                            if (value > 0) {
+                                // Seek the original transition back to the currentState
+                                transitionState.seekTo(value)
+                            }
+                            if (value == 0f) {
+                                // Once we animate to the start, we need to snap to the right state.
+                                transitionState.snapTo(backStackEntry)
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        val transition = rememberTransition(transitionState, label = "entry")
 
         transition.AnimatedContent(
             modifier,
