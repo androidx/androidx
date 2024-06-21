@@ -332,9 +332,13 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleChild(i: Int): Accessible? {
-            return semanticsNode.replacedChildren.getOrNull(i)?.id?.let { id ->
-                controller.accessibleByNodeId(id)
-            } ?: auxiliaryChildren[i - semanticsNode.replacedChildren.size]
+            val replacedChildren = semanticsNode.replacedChildren
+            val replacedChildrenSize = replacedChildren.size
+            return if (i < replacedChildrenSize) {
+                controller.accessibleByNodeId(replacedChildren[i].id)
+            } else {
+                auxiliaryChildren[i - replacedChildrenSize]
+            }
         }
 
         override fun getLocale(): Locale = Locale.getDefault()
