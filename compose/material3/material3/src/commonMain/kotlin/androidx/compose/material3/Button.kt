@@ -77,7 +77,7 @@ import androidx.compose.ui.unit.dp
  * Choose the best button for an action based on the amount of emphasis it needs. The more important
  * an action is, the higher emphasis its button should be.
  * - See [OutlinedButton] for a medium-emphasis button with a border.
- * - See [ElevatedButton] for an [OutlinedButton] with a shadow.
+ * - See [ElevatedButton] for an [FilledTonalButton] with a shadow.
  * - See [TextButton] for a low-emphasis button with no border.
  * - See [FilledTonalButton] for a middle ground between [OutlinedButton] and [Button].
  *
