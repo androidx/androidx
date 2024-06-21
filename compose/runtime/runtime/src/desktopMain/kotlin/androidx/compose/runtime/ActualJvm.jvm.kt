@@ -16,21 +16,8 @@
 
 package androidx.compose.runtime
 
-import kotlinx.coroutines.delay
-
-@Deprecated(
-    "MonotonicFrameClocks are not globally applicable across platforms. " +
-        "Use an appropriate local clock."
-)
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock get() = SixtyFpsMonotonicFrameClock
-
-private object SixtyFpsMonotonicFrameClock : MonotonicFrameClock {
-    private const val fps = 60
-
-    override suspend fun <R> withFrameNanos(
-        onFrame: (Long) -> R
-    ): R {
-        delay(1000L / fps)
-        return onFrame(System.nanoTime())
-    }
-}
+// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
+@InternalComposeApi
+@Deprecated("Made internal. It wasn't supposed to be public")
+fun identityHashCode(instance: Any?): Int =
+    androidx.compose.runtime.internal.identityHashCode(instance)
