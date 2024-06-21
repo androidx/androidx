@@ -53,6 +53,12 @@ fun interface Alignment {
          * size` meaning that the box will be positioned partially or completely outside the area.
          */
         fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int
+
+        /**
+         * Combine this instance's horizontal alignment with [other]'s vertical alignment to create
+         * an [Alignment].
+         */
+        operator fun plus(other: Vertical): Alignment = CombinedAlignment(this, other)
     }
 
     /**
@@ -68,6 +74,12 @@ fun interface Alignment {
          * meaning that the box will be positioned partially or completely outside the area.
          */
         fun align(size: Int, space: Int): Int
+
+        /**
+         * Combine this instance's vertical alignment with [other]'s horizontal alignment to create
+         * an [Alignment].
+         */
+        operator fun plus(other: Horizontal): Alignment = CombinedAlignment(other, this)
     }
 
     /** A collection of common [Alignment]s aware of layout direction. */
@@ -92,6 +104,17 @@ fun interface Alignment {
         @Stable val Start: Horizontal = BiasAlignment.Horizontal(-1f)
         @Stable val CenterHorizontally: Horizontal = BiasAlignment.Horizontal(0f)
         @Stable val End: Horizontal = BiasAlignment.Horizontal(1f)
+    }
+}
+
+private class CombinedAlignment(
+    private val horizontal: Alignment.Horizontal,
+    private val vertical: Alignment.Vertical,
+) : Alignment {
+    override fun align(size: IntSize, space: IntSize, layoutDirection: LayoutDirection): IntOffset {
+        val x = horizontal.align(size.width, space.width, layoutDirection)
+        val y = vertical.align(size.height, space.height)
+        return IntOffset(x, y)
     }
 }
 
@@ -158,6 +181,13 @@ data class BiasAlignment(val horizontalBias: Float, val verticalBias: Float) : A
             val resolvedBias = if (layoutDirection == LayoutDirection.Ltr) bias else -1 * bias
             return (center * (1 + resolvedBias)).fastRoundToInt()
         }
+
+        override fun plus(other: Alignment.Vertical): Alignment {
+            return when (other) {
+                is Vertical -> BiasAlignment(bias, other.bias)
+                else -> super.plus(other)
+            }
+        }
     }
 
     /**
@@ -176,6 +206,14 @@ data class BiasAlignment(val horizontalBias: Float, val verticalBias: Float) : A
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
             return (center * (1 + bias)).fastRoundToInt()
+        }
+
+        override fun plus(other: Alignment.Horizontal): Alignment {
+            return when (other) {
+                is Horizontal -> BiasAlignment(other.bias, bias)
+                is BiasAbsoluteAlignment.Horizontal -> BiasAbsoluteAlignment(other.bias, bias)
+                else -> super.plus(other)
+            }
         }
     }
 }
@@ -228,6 +266,13 @@ data class BiasAbsoluteAlignment(val horizontalBias: Float, val verticalBias: Fl
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
             return (center * (1 + bias)).fastRoundToInt()
+        }
+
+        override fun plus(other: Alignment.Vertical): Alignment {
+            return when (other) {
+                is BiasAlignment.Vertical -> BiasAbsoluteAlignment(bias, other.bias)
+                else -> super.plus(other)
+            }
         }
     }
 }
