@@ -26,6 +26,7 @@ import androidx.compose.ui.LayerType
 import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
+import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
@@ -78,6 +79,7 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  *  for window coordinate space.
  * @property useSwingGraphics Flag indicating if offscreen rendering to Swing graphics is used.
  * @property layerType The type of layer used for Popup/Dialog.
+ * @property renderSettings The settings for rendering.
  */
 internal class ComposeContainer(
     val container: JLayeredPane,
@@ -88,6 +90,7 @@ internal class ComposeContainer(
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
+    private val renderSettings: RenderSettings,
 ) : WindowFocusListener, WindowListener, LifecycleOwner, ViewModelStoreOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
@@ -338,7 +341,13 @@ internal class ComposeContainer(
         return if (useSwingGraphics) {
             SwingSkiaLayerComponent(mediator, renderDelegate, skiaLayerAnalytics)
         } else {
-            WindowSkiaLayerComponent(mediator, windowContext, renderDelegate, skiaLayerAnalytics)
+            WindowSkiaLayerComponent(
+                mediator,
+                windowContext,
+                renderDelegate,
+                skiaLayerAnalytics,
+                renderSettings
+            )
         }
     }
 
@@ -381,7 +390,8 @@ internal class ComposeContainer(
                 density = density,
                 layoutDirection = layoutDirection,
                 focusable = focusable,
-                compositionContext = compositionContext
+                compositionContext = compositionContext,
+                renderSettings = renderSettings
             )
             LayerType.OnComponent -> SwingComposeSceneLayer(
                 composeContainer = this,

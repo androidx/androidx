@@ -59,7 +59,9 @@ internal class ComposeWindowPanel(
             // but it's always disabled here. Using fallback instead of [check] to support
             // opening separate windows from [ComposePanel] with such layer type.
             if (it == LayerType.OnComponent) LayerType.OnSameCanvas else it
-        }
+        },
+        // TODO: Add RenderingSettings to ComposeWindowPanel constructor
+        renderSettings = RenderSettings.Default
     )
     private val composeContainer
         get() = requireNotNull(_composeContainer) {

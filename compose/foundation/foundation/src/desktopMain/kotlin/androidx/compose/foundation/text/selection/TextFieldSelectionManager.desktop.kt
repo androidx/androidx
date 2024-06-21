@@ -24,3 +24,10 @@ import androidx.compose.ui.input.pointer.PointerEvent
  * Magnification is not supported on desktop.
  */
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier = this
+
+/**
+ * Whether the selection handle is in the visible bound of the TextField.
+ */
+internal actual fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+    isStartHandle: Boolean
+): Boolean = isSelectionHandleInVisibleBoundDefault(isStartHandle)

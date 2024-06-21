@@ -16,10 +16,18 @@
 
 package androidx.compose.mpp.demo
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
+import java.io.IOException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 fun main(args: Array<String>) = singleWindowApplication(
     title = "Compose MPP demo",
@@ -28,5 +36,29 @@ fun main(args: Array<String>) = singleWindowApplication(
     val app = remember {
         App(initialScreenName = args.getOrNull(0))
     }
-    app.Content()
+    val fontFamilyResolver = LocalFontFamilyResolver.current
+    val fontsLoaded = remember { mutableStateOf(false) }
+
+    if (fontsLoaded.value) {
+        app.Content()
+    }
+
+    LaunchedEffect(Unit) {
+        val fontBytes = getResourceBytes("NotoColorEmoji.ttf")!!
+        val fontFamily = FontFamily(listOf(Font("NotoColorEmoji", fontBytes)))
+        fontFamilyResolver.preload(fontFamily)
+        fontsLoaded.value = true
+    }
+}
+
+suspend fun getResourceBytes(resourceName: String): ByteArray? = withContext(Dispatchers.IO) {
+    val classLoader = Thread.currentThread().contextClassLoader
+    try {
+        classLoader.getResourceAsStream(resourceName).use { inputStream ->
+            return@withContext inputStream?.readBytes()
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        return@withContext null
+    }
 }
