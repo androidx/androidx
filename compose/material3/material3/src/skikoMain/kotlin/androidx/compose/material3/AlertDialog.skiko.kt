@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.DialogProperties
+import kotlin.js.JsName
+import kotlin.jvm.JvmName
 
 // Keep expect/actual for maintain binary compatibility.
 // `@file:JvmName` doesn't work here because Android and Desktop were published with different names
@@ -59,3 +61,28 @@ actual fun AlertDialog(
     tonalElevation = tonalElevation,
     properties = properties
 )
+
+@Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+@JvmName("BasicAlertDialog")
+@JsName("BasicAlertDialog")
+@ExperimentalMaterial3Api
+@Composable
+fun BasicAlertDialogDeprecated(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    properties: DialogProperties,
+    content: @Composable () -> Unit
+) = BasicAlertDialog(onDismissRequest, modifier, properties, content)
+
+@Suppress("DEPRECATION")
+@JvmName("AlertDialog")
+@JsName("AlertDialog")
+@Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+@ExperimentalMaterial3Api
+@Composable
+fun AlertDialogDeprecated(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+    content: @Composable () -> Unit
+) = AlertDialog(onDismissRequest, modifier, properties, content)
