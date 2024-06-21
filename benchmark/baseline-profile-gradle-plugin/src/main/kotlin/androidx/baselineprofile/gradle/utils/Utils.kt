@@ -16,7 +16,7 @@
 
 package androidx.baselineprofile.gradle.utils
 
-import org.gradle.configurationcache.extensions.capitalized
+import java.util.Locale
 
 fun camelCase(vararg strings: String): String {
     if (strings.isEmpty()) return ""
@@ -30,3 +30,15 @@ fun camelCase(vararg strings: String): String {
         }
         .toString()
 }
+
+private fun CharSequence.capitalized(): String =
+    when {
+        isEmpty() -> ""
+        else ->
+            get(0).let { initial ->
+                when {
+                    initial.isLowerCase() -> initial.titlecase(Locale.getDefault()) + substring(1)
+                    else -> toString()
+                }
+            }
+    }
