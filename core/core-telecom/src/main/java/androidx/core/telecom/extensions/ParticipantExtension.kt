@@ -165,10 +165,11 @@ class ParticipantExtension(
     /**
      * The active participant associated with this call, if it exists
      *
-     * @param p the participant that is marked as active or `null` if there is no active participant
+     * @param participant the participant that is marked as active or `null` if there is no active
+     *   participant
      */
-    suspend fun updateActiveParticipant(p: Participant?) {
-        activeParticipant.emit(p)
+    suspend fun updateActiveParticipant(participant: Participant?) {
+        activeParticipant.emit(participant)
     }
 
     /**

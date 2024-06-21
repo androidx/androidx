@@ -51,7 +51,7 @@ class VoipCall(
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
-        init: suspend CallControlScope.() -> Unit
+        init: CallControlScope.() -> Unit
     ) {
         callsManager.addCallWithExtensions(
             callAttributes,
