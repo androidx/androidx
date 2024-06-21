@@ -16,10 +16,16 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.internal.colorUtil.Cam
+import androidx.compose.material3.internal.colorUtil.CamUtils.lstarFromInt
+import androidx.compose.material3.internal.colorUtil.CamUtils.yFromLstar
+import androidx.compose.material3.internal.colorUtil.Frame
 import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -165,6 +171,192 @@ class ColorUtilTest {
         assertColorWithinTolerance(Color(0xFFFFC7FF), Color.Blue.setLuminance(98f), 1f)
         assertColorWithinTolerance(Color(0xFFFFCAFF), Color.Blue.setLuminance(99f), 1f)
         assertColorWithinTolerance(Color(0xFFFFCDFF), Color.Blue.setLuminance(100f), 1f)
+    }
+
+    @Test
+    fun yFromMidgray() {
+        assertEquals(18.418, yFromLstar(50.0), 0.001)
+    }
+
+    @Test
+    fun yFromBlack() {
+        assertEquals(0.0, yFromLstar(0.0), 0.001)
+    }
+
+    @Test
+    fun yFromWhite() {
+        assertEquals(100.0, yFromLstar(100.0), 0.001)
+    }
+
+    @Test
+    fun camFromRed() {
+        val cam: Cam = Cam.fromInt(RED)
+        assertEquals(46.445f, cam.j, 0.001f)
+        assertEquals(113.357f, cam.chroma, 0.001f)
+        assertEquals(27.408f, cam.hue, 0.001f)
+        assertEquals(89.494f, cam.m, 0.001f)
+        assertEquals(91.889f, cam.s, 0.001f)
+    }
+
+    @Test
+    fun camFromGreen() {
+        val cam: Cam = Cam.fromInt(GREEN)
+        assertEquals(79.331f, cam.j, 0.001f)
+        assertEquals(108.410f, cam.chroma, 0.001f)
+        assertEquals(142.139f, cam.hue, 0.001f)
+        assertEquals(85.587f, cam.m, 0.001f)
+        assertEquals(78.604f, cam.s, 0.001f)
+    }
+
+    @Test
+    fun camFromBlue() {
+        val cam: Cam = Cam.fromInt(BLUE)
+        assertEquals(25.465f, cam.j, 0.001f)
+        assertEquals(87.230f, cam.chroma, 0.001f)
+        assertEquals(282.788f, cam.hue, 0.001f)
+        assertEquals(68.867f, cam.m, 0.001f)
+        assertEquals(93.674f, cam.s, 0.001f)
+    }
+
+    @Test
+    fun camFromBlack() {
+        val cam: Cam = Cam.fromInt(BLACK)
+        assertEquals(0.0f, cam.j, 0.001f)
+        assertEquals(0.0f, cam.chroma, 0.001f)
+        assertEquals(0.0f, cam.hue, 0.001f)
+        assertEquals(0.0f, cam.m, 0.001f)
+        assertEquals(0.0f, cam.s, 0.001f)
+    }
+
+    @Test
+    fun camFromWhite() {
+        val cam: Cam = Cam.fromInt(WHITE)
+        assertEquals(100.0f, cam.j, 0.001f)
+        assertEquals(2.869f, cam.chroma, 0.001f)
+        assertEquals(209.492f, cam.hue, 0.001f)
+        assertEquals(2.265f, cam.m, 0.001f)
+        assertEquals(12.068f, cam.s, 0.001f)
+    }
+
+    @Test
+    fun redFromGamutMap() {
+        val cam: Cam = Cam.fromInt(RED)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(RED))
+        assertEquals(RED, color)
+    }
+
+    @Test
+    fun greenFromGamutMap() {
+        val cam: Cam = Cam.fromInt(GREEN)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(GREEN))
+        assertEquals(GREEN, color)
+    }
+
+    @Test
+    fun blueFromGamutMap() {
+        val cam: Cam = Cam.fromInt(BLUE)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(BLUE))
+        assertEquals(BLUE, color)
+    }
+
+    @Test
+    fun whiteFromGamutMap() {
+        val cam: Cam = Cam.fromInt(WHITE)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(WHITE))
+        assertEquals(WHITE, color)
+    }
+
+    @Test
+    fun blackFromGamutMap() {
+        val cam: Cam = Cam.fromInt(BLACK)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(BLACK))
+        assertEquals(BLACK, color)
+    }
+
+    @Test
+    fun midgrayFromGamutMap() {
+        val cam: Cam = Cam.fromInt(MIDGRAY)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(MIDGRAY))
+        assertEquals(MIDGRAY, color)
+    }
+
+    @Test
+    fun randomGreenFromGamutMap() {
+        val colorToTest = -0xff6e00
+        val cam: Cam = Cam.fromInt(colorToTest)
+        val color: Int = Cam.getInt(cam.hue, cam.chroma, lstarFromInt(colorToTest))
+        assertEquals(colorToTest.toLong(), color.toLong())
+    }
+
+    @Test
+    fun gamutMapArbitraryHCL() {
+        val color: Int = Cam.getInt(309.0f, 40.0f, 70.0f)
+        val cam: Cam = Cam.fromInt(color)
+
+        assertEquals(308.759f, cam.hue, 0.001f)
+        assertEquals(40.148f, cam.chroma, 0.001f)
+        assertEquals(70.029f, lstarFromInt(color), 0.001f)
+    }
+
+    @Test
+    fun ucsCoordinates() {
+        val cam: Cam = Cam.fromInt(RED)
+
+        assertEquals(59.584f, cam.jstar, 0.001f)
+        assertEquals(43.297f, cam.astar, 0.001f)
+        assertEquals(22.451f, cam.bstar, 0.001f)
+    }
+
+    @Test
+    fun deltaEWhiteToBlack() {
+        assertEquals(25.661f, Cam.fromInt(WHITE).distance(Cam.fromInt(BLACK)), 0.001f)
+    }
+
+    @Test
+    fun deltaERedToBlue() {
+        assertEquals(21.415f, Cam.fromInt(RED).distance(Cam.fromInt(BLUE)), 0.001f)
+    }
+
+    @Test
+    fun viewingConditions_default() {
+        val vc = Frame.Default
+
+        assertEquals(0.184f, vc.n, 0.001f)
+        assertEquals(29.981f, vc.aw, 0.001f)
+        assertEquals(1.016f, vc.nbb, 0.001f)
+        assertEquals(1.021f, vc.rgbD[0], 0.001f)
+        assertEquals(0.986f, vc.rgbD[1], 0.001f)
+        assertEquals(0.933f, vc.rgbD[2], 0.001f)
+        assertEquals(0.789f, vc.flRoot, 0.001f)
+    }
+
+    @LargeTest
+    @Test
+    fun testHctReflexivity() {
+        for (i in 0..0x00ffffff) {
+            val color = -0x1000000 or i
+            val hct: Cam = Cam.fromInt(color)
+            val reconstructedFromHct: Int = Cam.getInt(hct.hue, hct.chroma, lstarFromInt(color))
+
+            assertEquals(
+                "input was " +
+                    Integer.toHexString(color) +
+                    "; output was " +
+                    Integer.toHexString(reconstructedFromHct),
+                color.toLong(),
+                reconstructedFromHct.toLong()
+            )
+        }
+    }
+
+    companion object {
+        const val BLACK: Int = -0x1000000
+        const val WHITE: Int = -0x1
+        const val MIDGRAY: Int = -0x888889
+
+        const val RED: Int = -0x10000
+        const val GREEN: Int = -0xff0100
+        const val BLUE: Int = -0xffff01
     }
 
     private fun assertColorWithinTolerance(expected: Color, actual: Color, tolerance: Float = 1f) {
