@@ -45,12 +45,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastRoundToInt
+import org.jetbrains.annotations.TestOnly
 
 @Suppress("NotCloseable")
 actual class GraphicsLayer internal constructor(
     internal val impl: GraphicsLayerImpl,
-    private val layerManager: LayerManager,
-    ownerViewId: Long
+    private val layerManager: LayerManager
 ) {
     private var density = DefaultDensity
     private var layoutDirection = LayoutDirection.Ltr
@@ -565,10 +565,8 @@ actual class GraphicsLayer internal constructor(
         discardContentIfReleasedAndHaveNoParentLayerUsages()
     }
 
-    private var skipOutlineConfiguration = false
-
     private fun configureOutline() {
-        if (outlineDirty && !skipOutlineConfiguration) {
+        if (outlineDirty) {
             val outlineIsNeeded = clip || shadowElevation > 0f
             if (!outlineIsNeeded) {
                 impl.setOutline(null)
@@ -596,8 +594,8 @@ actual class GraphicsLayer internal constructor(
                     impl.setOutline(roundRectOutline)
                 }
             }
-            outlineDirty = false
         }
+        outlineDirty = false
     }
 
     private inline fun <T> resolveOutlinePosition(block: (Offset, Size) -> T): T {
@@ -671,6 +669,16 @@ actual class GraphicsLayer internal constructor(
     }
 
     /**
+     * When the system is sending trim memory request all the render nodes will discard their
+     * display list. in this case we are not being notified about that and don't update
+     * [childDependenciesTracker], as it is done when we call [discardDisplayList] manually
+     */
+    @TestOnly
+    internal fun emulateTrimMemory() {
+        impl.discardDisplayList()
+    }
+
+    /**
      * The ID of the layer. This is used by tooling to match a layer to the associated
      * LayoutNode.
      */
@@ -681,8 +689,8 @@ actual class GraphicsLayer internal constructor(
      * The uniqueDrawingId of the owner view of this graphics layer. This is used by
      * tooling to match a layer to the associated owner View.
      */
-    var ownerViewId: Long = ownerViewId
-        private set
+    val ownerViewId: Long
+        get() = impl.ownerId
 
     actual val outline: Outline
         get() {
@@ -830,51 +838,6 @@ actual class GraphicsLayer internal constructor(
     actual suspend fun toImageBitmap(): ImageBitmap =
         SnapshotImpl.toBitmap(this).asImageBitmap()
 
-    internal fun reuse(ownerViewId: Long) {
-        // apply new owner id
-        this.ownerViewId = ownerViewId
-
-        // mark the layer as not released
-        isReleased = false
-
-        // prepare the implementation to be reused
-        impl.onReused()
-
-        // forget the previous draw lambda
-        drawBlock = {}
-
-        // multiple of the setters can cause configureOutline() calls, however we don't want
-        // to execute it multiple times, so we set this flag to true
-        skipOutlineConfiguration = true
-
-        // reset properties to the default values
-        alpha = 1f
-        blendMode = BlendMode.SrcOver
-        colorFilter = null
-        pivotOffset = Offset.Unspecified
-        scaleX = 1f
-        scaleY = 1f
-        translationX = 0f
-        translationY = 0f
-        shadowElevation = 0f
-        rotationX = 0f
-        rotationY = 0f
-        rotationZ = 0f
-        ambientShadowColor = Color.Black
-        spotShadowColor = Color.Black
-        cameraDistance = DefaultCameraDistance
-        renderEffect = null
-        compositingStrategy = CompositingStrategy.Auto
-        clip = false
-        size = IntSize.Zero
-        topLeft = IntOffset.Zero
-        setRectOutline()
-
-        // unset this flag. if outlineDirty is true we will call configureOutline() again when
-        // the layer will be drawn for the first time.
-        skipOutlineConfiguration = false
-    }
-
     companion object {
 
         private val SnapshotImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -895,6 +858,12 @@ internal interface GraphicsLayerImpl {
      * LayoutNode.
      */
     val layerId: Long
+
+    /**
+     * The uniqueDrawingId of the owner view of this graphics layer. This is used by tooling to
+     * match a layer to the associated owner AndroidComposeView.
+     */
+    val ownerId: Long
 
     /**
      * @see GraphicsLayer.compositingStrategy
@@ -1029,8 +998,6 @@ internal interface GraphicsLayerImpl {
      * Calculate the current transformation matrix for the layer implementation
      */
     fun calculateMatrix(): android.graphics.Matrix
-
-    fun onReused() {}
 
     companion object {
         val DefaultDrawBlock: DrawScope.() -> Unit = { drawRect(Color.Transparent) }
