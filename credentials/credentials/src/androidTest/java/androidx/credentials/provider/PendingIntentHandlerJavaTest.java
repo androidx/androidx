@@ -505,7 +505,7 @@ public class PendingIntentHandlerJavaTest {
         if (biometricPromptResult.isSuccessful()) {
             assertNotNull(biometricPromptResult.getAuthenticationResult());
             String extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE;
-            if (EntryUtilsKt.getBuildsUsingSliceProperties().contains(buildId)) {
+            if (EntryUtilsKt.requiresSlicePropertiesWorkaround()) {
                 extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK;
             }
             intent.putExtra(extraResultKey,
@@ -514,7 +514,7 @@ public class PendingIntentHandlerJavaTest {
             assertNotNull(biometricPromptResult.getAuthenticationError());
             String extraErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR;
             String extraErrorMessageKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE;
-            if (EntryUtilsKt.getBuildsUsingSliceProperties().contains(buildId)) {
+            if (EntryUtilsKt.requiresSlicePropertiesWorkaround()) {
                 extraErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK;
                 extraErrorMessageKey = AuthenticationError
                         .EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK;

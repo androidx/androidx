@@ -17,7 +17,6 @@
 package androidx.credentials.provider.utils
 
 import android.os.Build
-import androidx.annotation.RestrictTo
 
 internal const val ANDROID_15_BETA_3 = "AP31.240517.022"
 internal const val ANDROID_15_BETA_2_2 = "AP31.240426.023.B4"
@@ -32,6 +31,5 @@ internal val buildsUsingSliceProperties =
  * requiring this to be introduced for backwards compatibility. Beyond this temporary use case, the
  * library owners aim to no longer utilize this functionality.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun requiresSlicePropertiesWorkaround(): Boolean =
     buildsUsingSliceProperties.contains(Build.ID)
