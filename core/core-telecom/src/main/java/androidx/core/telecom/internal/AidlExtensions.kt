@@ -71,6 +71,10 @@ internal class ParticipantStateListenerRemote(binder: IParticipantStateListener)
 internal class CapabilityExchangeRemote(binder: ICapabilityExchange) :
     ICapabilityExchange by binder
 
+@ExperimentalAppActions
+internal class CapabilityExchangeListenerRemote(binder: ICapabilityExchangeListener) :
+    ICapabilityExchangeListener by binder
+
 /**
  * The implementation of the capability exchange listener, which is used by the InCallService to
  * create and remove extensions.
