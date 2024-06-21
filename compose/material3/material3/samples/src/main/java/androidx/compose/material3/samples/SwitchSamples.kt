@@ -41,7 +41,8 @@ fun SwitchSample() {
     Switch(
         modifier = Modifier.semantics { contentDescription = "Demo" },
         checked = checked,
-        onCheckedChange = { checked = it })
+        onCheckedChange = { checked = it }
+    )
 }
 
 @Preview
@@ -49,23 +50,20 @@ fun SwitchSample() {
 @Composable
 fun SwitchWithThumbIconSample() {
     var checked by remember { mutableStateOf(true) }
-    // Icon isn't focusable, no need for content description
-    val icon: (@Composable () -> Unit)? = if (checked) {
-        {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                modifier = Modifier.size(SwitchDefaults.IconSize),
-            )
-        }
-    } else {
-        null
-    }
 
     Switch(
         modifier = Modifier.semantics { contentDescription = "Demo with icon" },
         checked = checked,
         onCheckedChange = { checked = it },
-        thumbContent = icon
+        thumbContent = {
+            if (checked) {
+                // Icon isn't focusable, no need for content description
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                )
+            }
+        }
     )
 }

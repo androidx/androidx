@@ -16,26 +16,38 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.internal.MenuPosition
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.rememberAccessibilityServiceState
 import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
@@ -44,7 +56,21 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 /**
  * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design Exposed Dropdown Menu</a>.
@@ -94,20 +120,21 @@ expect fun ExposedDropdownMenuBox(
 abstract class ExposedDropdownMenuBoxScope {
     /**
      * Modifier which should be applied to a [TextField] (or [OutlinedTextField]) placed inside the
-     * scope. It's responsible for properly anchoring the [ExposedDropdownMenu], handling semantics
-     * of the component, and requesting focus.
+     * scope. It's responsible for handling menu expansion state on click, applying semantics to
+     * the component, and requesting focus.
      */
     abstract fun Modifier.menuAnchor(): Modifier
 
     /**
-     * Modifier which should be applied to an [ExposedDropdownMenu] placed inside the scope. It's
-     * responsible for setting the width of the [ExposedDropdownMenu], which will match the width of
-     * the [TextField] (if [matchTextFieldWidth] is set to true). It will also change the height of
-     * [ExposedDropdownMenu], so it'll take the largest possible height to not overlap the
-     * [TextField] and the software keyboard.
+     * Modifier which should be applied to a menu placed inside the [ExposedDropdownMenuBoxScope].
+     * It will set constraints on the width and height of the menu so it will not overlap the
+     * text field or software keyboard.
      *
-     * @param matchTextFieldWidth whether the menu should match the width of the text field to which
-     * it's attached. If set to `true`, the width will match the width of the text field.
+     * [ExposedDropdownMenu] applies this modifier automatically, so this is only needed when
+     * using custom menu components.
+     *
+     * @param matchTextFieldWidth whether the menu's width should be forcefully constrained to
+     * match the width of the text field to which it's attached.
      */
     abstract fun Modifier.exposedDropdownSize(
         matchTextFieldWidth: Boolean = true
@@ -121,7 +148,20 @@ abstract class ExposedDropdownMenuBoxScope {
      * @param onDismissRequest called when the user requests to dismiss the menu, such as by
      * tapping outside the menu's bounds
      * @param modifier the [Modifier] to be applied to this menu
-     * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+     * @param scrollState a [ScrollState] used by the menu's content for items vertical scrolling
+     * @param focusable whether the menu is focusable. If the text field is editable, this should
+     * be set to `false` so the menu doesn't steal focus from the input method. In the presence of
+     * certain accessibility services, this value will be overwritten to `true` to preserve
+     * accessibility.
+     * @param matchTextFieldWidth whether the menu's width should be forcefully constrained to
+     * match the width of the text field to which it's attached.
+     * @param shape the shape of the menu
+     * @param containerColor the container color of the menu
+     * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary
+     * color overlay is applied on top of the container. A higher tonal elevation value will result
+     * in a darker color in light theme and lighter color in dark theme. See also: [Surface].
+     * @param shadowElevation the elevation for the shadow below the menu
+     * @param border the border to draw around the container of the menu. Pass `null` for no border.
      * @param content the content of the menu
      */
     @Suppress("ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE")
@@ -131,7 +171,14 @@ abstract class ExposedDropdownMenuBoxScope {
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
         scrollState: ScrollState = rememberScrollState(),
-        content: @Composable ColumnScope.() -> Unit
+        focusable: Boolean = true,
+        matchTextFieldWidth: Boolean = true,
+        shape: Shape = MenuDefaults.shape,
+        containerColor: Color = MenuDefaults.containerColor,
+        tonalElevation: Dp = MenuDefaults.TonalElevation,
+        shadowElevation: Dp = MenuDefaults.ShadowElevation,
+        border: BorderStroke? = null,
+        content: @Composable ColumnScope.() -> Unit,
     ) {
         ExposedDropdownMenuDefaultImpl(
             expanded, onDismissRequest, modifier, scrollState, content
@@ -156,16 +203,19 @@ object ExposedDropdownMenuDefaults {
     /**
      * Default trailing icon for Exposed Dropdown Menu.
      *
-     * @param expanded whether [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] is expanded or not.
-     * Affects the appearance of the icon.
+     * @param expanded whether the menu is expanded or not. Affects the appearance of the icon.
+     * @param modifier the [Modifier] to be applied to this icon
      */
     @ExperimentalMaterial3Api
     @Composable
-    fun TrailingIcon(expanded: Boolean) {
+    fun TrailingIcon(
+        expanded: Boolean,
+        modifier: Modifier = Modifier,
+    ) {
         Icon(
             Icons.Filled.ArrowDropDown,
             null,
-            Modifier.rotate(if (expanded) 180f else 0f)
+            modifier.rotate(if (expanded) 180f else 0f)
         )
     }
 
@@ -484,6 +534,11 @@ object ExposedDropdownMenuDefaults {
         horizontal = ExposedDropdownMenuItemHorizontalPadding,
         vertical = 0.dp
     )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    @ExperimentalMaterial3Api
+    @Composable
+    fun TrailingIcon(expanded: Boolean) = TrailingIcon(expanded, Modifier)
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable

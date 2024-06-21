@@ -18,6 +18,7 @@ package androidx.compose.material3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -86,8 +87,7 @@ class TabTest {
 
     private val icon = Icons.Filled.Favorite
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -112,13 +112,15 @@ class TabTest {
             }
         }
 
-        rule.onNodeWithTag("tab")
+        rule
+            .onNodeWithTag("tab")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsEnabled()
             .assertHasClickAction()
 
-        rule.onNodeWithTag("tab")
+        rule
+            .onNodeWithTag("tab")
             .onParent()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
     }
@@ -137,7 +139,8 @@ class TabTest {
             }
         }
 
-        rule.onNodeWithTag("tab")
+        rule
+            .onNodeWithTag("tab")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsNotEnabled()
@@ -158,13 +161,15 @@ class TabTest {
             }
         }
 
-        rule.onNodeWithTag("leadingIconTab")
+        rule
+            .onNodeWithTag("leadingIconTab")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsEnabled()
             .assertHasClickAction()
 
-        rule.onNodeWithTag("leadingIconTab")
+        rule
+            .onNodeWithTag("leadingIconTab")
             .onParent()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
     }
@@ -184,7 +189,8 @@ class TabTest {
             }
         }
 
-        rule.onNodeWithTag("leadingIconTab")
+        rule
+            .onNodeWithTag("leadingIconTab")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsNotEnabled()
@@ -254,8 +260,7 @@ class TabTest {
                     selectedTabIndex = state,
                     indicator = {
                         Box(
-                            Modifier
-                                .tabIndicatorOffset(state)
+                            Modifier.tabIndicatorOffset(state)
                                 .fillMaxWidth()
                                 .height(indicatorHeight)
                                 .background(color = Color.Red)
@@ -276,7 +281,8 @@ class TabTest {
 
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag("indicator", true)
+        rule
+            .onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
                 expectedTop = tabRowBounds.height - indicatorHeight
@@ -287,11 +293,40 @@ class TabTest {
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        rule.onNodeWithTag("indicator", true)
+        rule
+            .onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = (tabRowBounds.width / 2),
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
+    }
+
+    @Test
+    fun tabRow_indicatorHeight() {
+        val indicatorHeight = 1.dp
+        val titles = listOf("TAB 1", "TAB 2")
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag("tabRow").fillMaxSize(), propagateMinConstraints = true) {
+                PrimaryTabRow(
+                    selectedTabIndex = 1,
+                    indicator = {
+                        Box(
+                            Modifier.tabIndicatorOffset(1)
+                                .fillMaxWidth()
+                                .height(indicatorHeight)
+                                .background(color = Color.Red)
+                                .testTag("indicator")
+                        )
+                    }
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(selected = index == 1, onClick = {}, text = { Text(title) })
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("indicator", true).assertHeightIsEqualTo(indicatorHeight)
     }
 
     @Test
@@ -322,7 +357,8 @@ class TabTest {
 
         val tabRowBounds = rule.onNodeWithTag("tabRow").getBoundsInRoot()
 
-        rule.onNodeWithTag("divider", true)
+        rule
+            .onNodeWithTag("divider", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
                 expectedTop = tabRowBounds.height - DividerTokens.Thickness
@@ -337,17 +373,12 @@ class TabTest {
             val titles = listOf("TAB")
 
             Box {
-                SecondaryTabRow(
-                    modifier = Modifier.testTag("tabRow"),
-                    selectedTabIndex = state
-                ) {
+                SecondaryTabRow(modifier = Modifier.testTag("tabRow"), selectedTabIndex = state) {
                     titles.forEachIndexed { index, title ->
                         Tab(
                             selected = state == index,
                             onClick = { state = index },
-                            text = {
-                                Text(title, Modifier.testTag("text"))
-                            }
+                            text = { Text(title, Modifier.testTag("text")) }
                         )
                     }
                 }
@@ -368,17 +399,12 @@ class TabTest {
             val titles = listOf("TAB")
 
             Box {
-                SecondaryTabRow(
-                    modifier = Modifier.testTag("tabRow"),
-                    selectedTabIndex = state
-                ) {
+                SecondaryTabRow(modifier = Modifier.testTag("tabRow"), selectedTabIndex = state) {
                     titles.forEachIndexed { index, title ->
                         Tab(
                             selected = state == index,
                             onClick = { state = index },
-                            text = {
-                                Text(title, Modifier.testTag("text"))
-                            },
+                            text = { Text(title, Modifier.testTag("text")) },
                             icon = { Icon(Icons.Filled.Favorite, null) }
                         )
                     }
@@ -408,17 +434,12 @@ class TabTest {
             val titles = listOf("Two line \n text")
 
             Box {
-                SecondaryTabRow(
-                    modifier = Modifier.testTag("tabRow"),
-                    selectedTabIndex = state
-                ) {
+                SecondaryTabRow(modifier = Modifier.testTag("tabRow"), selectedTabIndex = state) {
                     titles.forEachIndexed { index, title ->
                         Tab(
                             selected = state == index,
                             onClick = { state = index },
-                            text = {
-                                Text(title, Modifier.testTag("text"), maxLines = 2)
-                            }
+                            text = { Text(title, Modifier.testTag("text"), maxLines = 2) }
                         )
                     }
                 }
@@ -437,16 +458,11 @@ class TabTest {
     fun leadingIconTab_textAndIconPosition() {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
-                SecondaryTabRow(
-                    modifier = Modifier.testTag("tabRow"),
-                    selectedTabIndex = 0
-                ) {
+                SecondaryTabRow(modifier = Modifier.testTag("tabRow"), selectedTabIndex = 0) {
                     LeadingIconTab(
                         selected = true,
                         onClick = {},
-                        text = {
-                            Text("TAB", Modifier.testTag("text"))
-                        },
+                        text = { Text("TAB", Modifier.testTag("text")) },
                         icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) }
                     )
                 }
@@ -482,10 +498,9 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicator = @Composable { tabPositions: List<TabPosition> ->
+            val indicator: @Composable TabIndicatorScope.(index: Int) -> Unit = { index ->
                 Box(
-                    Modifier
-                        .tabIndicatorOffset(tabPositions[state])
+                    Modifier.tabIndicatorOffset(index)
                         .fillMaxWidth()
                         .height(indicatorHeight)
                         .background(color = Color.Red)
@@ -497,7 +512,7 @@ class TabTest {
                 SecondaryScrollableTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = state,
-                    indicator = indicator
+                    indicator = { indicator(state) }
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(
@@ -513,7 +528,8 @@ class TabTest {
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
         val tabRowPadding = 52.dp
         // Indicator should be placed in the bottom left of the first tab
-        rule.onNodeWithTag("indicator", true)
+        rule
+            .onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 // Tabs in a scrollable tab row are offset 52.dp from each end
                 expectedLeft = tabRowPadding,
@@ -525,7 +541,8 @@ class TabTest {
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        rule.onNodeWithTag("indicator", true)
+        rule
+            .onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = tabRowPadding + minimumTabWidth,
                 expectedTop = tabRowBounds.height - indicatorHeight
@@ -560,7 +577,8 @@ class TabTest {
 
         val tabRowBounds = rule.onNodeWithTag("tabRow").getBoundsInRoot()
 
-        rule.onNodeWithTag("divider", true)
+        rule
+            .onNodeWithTag("divider", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
                 expectedTop = tabRowBounds.height - DividerTokens.Thickness,
@@ -570,173 +588,126 @@ class TabTest {
 
     @Test
     fun fixedTabRow_initialTabSelected() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                TextTabs()
-            }
+        rule.setMaterialContent(lightColorScheme()) { TextTabs() }
 
         // Only the first tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(3)
-            .apply {
-                get(0).assertIsSelected()
-                get(1).assertIsNotSelected()
-                get(2).assertIsNotSelected()
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(3).apply {
+            get(0).assertIsSelected()
+            get(1).assertIsNotSelected()
+            get(2).assertIsNotSelected()
+        }
     }
 
     @Test
     fun fixedTabRow_selectNewTab() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                TextTabs()
-            }
+        rule.setMaterialContent(lightColorScheme()) { TextTabs() }
 
         val nodes = rule.onAllNodes(isSelectable())
 
         // Only the first tab should be selected
-        nodes
-            .assertCountEquals(3)
-            .apply {
-                get(0).assertIsSelected()
-                get(1).assertIsNotSelected()
-                get(2).assertIsNotSelected()
-            }
+        nodes.assertCountEquals(3).apply {
+            get(0).assertIsSelected()
+            get(1).assertIsNotSelected()
+            get(2).assertIsNotSelected()
+        }
 
         // Click the last tab
         nodes[2].performClick()
 
         // Now only the last tab should be selected
-        nodes
-            .assertCountEquals(3)
-            .apply {
-                get(0).assertIsNotSelected()
-                get(1).assertIsNotSelected()
-                get(2).assertIsSelected()
-            }
+        nodes.assertCountEquals(3).apply {
+            get(0).assertIsNotSelected()
+            get(1).assertIsNotSelected()
+            get(2).assertIsSelected()
+        }
     }
 
     @Test
     fun fixedLeadingIconTabRow_initialTabSelected() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                LeadingIconTabs()
-            }
+        rule.setMaterialContent(lightColorScheme()) { LeadingIconTabs() }
 
         // Only the first tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(3)
-            .apply {
-                get(0).assertIsSelected()
-                get(1).assertIsNotSelected()
-                get(2).assertIsNotSelected()
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(3).apply {
+            get(0).assertIsSelected()
+            get(1).assertIsNotSelected()
+            get(2).assertIsNotSelected()
+        }
     }
 
     @Test
     fun leadingIconTabRow_selectNewTab() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                LeadingIconTabs()
-            }
+        rule.setMaterialContent(lightColorScheme()) { LeadingIconTabs() }
 
         // Only the first tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(3)
-            .apply {
-                get(0).assertIsSelected()
-                get(1).assertIsNotSelected()
-                get(2).assertIsNotSelected()
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(3).apply {
+            get(0).assertIsSelected()
+            get(1).assertIsNotSelected()
+            get(2).assertIsNotSelected()
+        }
 
         // Click the last tab
         rule.onAllNodes(isSelectable())[2].performClick()
 
         // Now only the last tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(3)
-            .apply {
-                get(0).assertIsNotSelected()
-                get(1).assertIsNotSelected()
-                get(2).assertIsSelected()
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(3).apply {
+            get(0).assertIsNotSelected()
+            get(1).assertIsNotSelected()
+            get(2).assertIsSelected()
+        }
     }
 
     @Test
     fun scrollableTabRow_initialTabSelected() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                ScrollingTextTabs()
-            }
+        rule.setMaterialContent(lightColorScheme()) { ScrollingTextTabs() }
 
         // Only the first tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(10)
-            .apply {
-                get(0).assertIsSelected()
-                (1..9).forEach {
-                    get(it).assertIsNotSelected()
-                }
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(10).apply {
+            get(0).assertIsSelected()
+            (1..9).forEach { get(it).assertIsNotSelected() }
+        }
     }
 
     @Test
     fun scrollableTabRow_offScreenTabInitiallySelected() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                var state by remember { mutableStateOf(9) }
-                val titles = List(10) { "Tab ${it + 1}" }
-                SecondaryScrollableTabRow(selectedTabIndex = state) {
-                    titles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = state == index,
-                            onClick = { state = index },
-                            text = { Text(title) }
-                        )
-                    }
+        rule.setMaterialContent(lightColorScheme()) {
+            var state by remember { mutableStateOf(9) }
+            val titles = List(10) { "Tab ${it + 1}" }
+            SecondaryScrollableTabRow(selectedTabIndex = state) {
+                titles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = state == index,
+                        onClick = { state = index },
+                        text = { Text(title) }
+                    )
                 }
             }
+        }
 
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(10)
-            .apply {
-                // The last tab should be selected and displayed (scrolled to)
-                get(9)
-                    .assertIsSelected()
-                    .assertIsDisplayed()
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(10).apply {
+            // The last tab should be selected and displayed (scrolled to)
+            get(9).assertIsSelected().assertIsDisplayed()
+        }
     }
 
     @Test
     fun scrollableTabRow_selectNewTab() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                ScrollingTextTabs()
-            }
+        rule.setMaterialContent(lightColorScheme()) { ScrollingTextTabs() }
 
         // Only the first tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(10)
-            .apply {
-                get(0).assertIsSelected()
-                (1..9).forEach {
-                    get(it).assertIsNotSelected()
-                }
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(10).apply {
+            get(0).assertIsSelected()
+            (1..9).forEach { get(it).assertIsNotSelected() }
+        }
 
         // Click the second tab
         rule.onAllNodes(isSelectable())[1].performClick()
 
         // Now only the second tab should be selected
-        rule.onAllNodes(isSelectable())
-            .assertCountEquals(10)
-            .apply {
-                get(0).assertIsNotSelected()
-                get(1).assertIsSelected()
-                (2..9).forEach {
-                    get(it).assertIsNotSelected()
-                }
-            }
+        rule.onAllNodes(isSelectable()).assertCountEquals(10).apply {
+            get(0).assertIsNotSelected()
+            get(1).assertIsSelected()
+            (2..9).forEach { get(it).assertIsNotSelected() }
+        }
     }
 
     @Test
@@ -747,10 +718,9 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
 
-            val indicator = @Composable { tabPositions: List<TabPosition> ->
+            val indicator: @Composable TabIndicatorScope.(index: Int) -> Unit = { index ->
                 TabRowDefaults.SecondaryIndicator(
-                    Modifier
-                        .tabIndicatorOffset(tabPositions[state])
+                    Modifier.tabIndicatorOffset(index, matchContentSize = false)
                         .testTag("indicator")
                 )
             }
@@ -758,7 +728,7 @@ class TabTest {
             Box {
                 SecondaryScrollableTabRow(
                     selectedTabIndex = state,
-                    indicator = indicator
+                    indicator = { indicator(state) }
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(
@@ -816,12 +786,9 @@ class TabTest {
             }
         }
 
-        rule.onNodeWithTag("tab")
-            .performClick()
+        rule.onNodeWithTag("tab").performClick()
 
-        rule.runOnIdle {
-            assertThat(clicks).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(clicks).isEqualTo(0) }
     }
 
     @Test
@@ -840,12 +807,9 @@ class TabTest {
             }
         }
 
-        rule.onNodeWithTag("tab")
-            .performClick()
+        rule.onNodeWithTag("tab").performClick()
 
-        rule.runOnIdle {
-            assertThat(clicks).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(clicks).isEqualTo(0) }
     }
 
     @Test
@@ -871,26 +835,21 @@ class TabTest {
     @Test
     fun tabRow_layoutHeightRespected() {
         var height by mutableStateOf(0.dp)
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                var state by remember { mutableStateOf(0) }
-                val titles = listOf("Tab 1", "Tab 2", "Tab 3")
-                Column(
-                    Modifier
-                        .heightIn(max = height)
-                        .testTag("Tabs")
-                ) {
-                    SecondaryTabRow(selectedTabIndex = state) {
-                        titles.forEachIndexed { index, title ->
-                            Tab(
-                                selected = state == index,
-                                onClick = { state = index },
-                                text = { Text(text = title) }
-                            )
-                        }
+        rule.setMaterialContent(lightColorScheme()) {
+            var state by remember { mutableStateOf(0) }
+            val titles = listOf("Tab 1", "Tab 2", "Tab 3")
+            Column(Modifier.heightIn(max = height).testTag("Tabs")) {
+                SecondaryTabRow(selectedTabIndex = state) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = state == index,
+                            onClick = { state = index },
+                            text = { Text(text = title) }
+                        )
                     }
                 }
             }
+        }
 
         rule.onNodeWithTag("Tabs").assertHeightIsEqualTo(height)
 
@@ -903,26 +862,21 @@ class TabTest {
     @Test
     fun scrollableTabRow_layoutHeightRespected() {
         var height by mutableStateOf(0.dp)
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                var state by remember { mutableStateOf(0) }
-                val titles = listOf("Tab 1", "Tab 2", "Tab 3")
-                Column(
-                    Modifier
-                        .heightIn(max = height)
-                        .testTag("Tabs")
-                ) {
-                    SecondaryScrollableTabRow(selectedTabIndex = state) {
-                        titles.forEachIndexed { index, title ->
-                            Tab(
-                                selected = state == index,
-                                onClick = { state = index },
-                                text = { Text(text = title) }
-                            )
-                        }
+        rule.setMaterialContent(lightColorScheme()) {
+            var state by remember { mutableStateOf(0) }
+            val titles = listOf("Tab 1", "Tab 2", "Tab 3")
+            Column(Modifier.heightIn(max = height).testTag("Tabs")) {
+                SecondaryScrollableTabRow(selectedTabIndex = state) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = state == index,
+                            onClick = { state = index },
+                            text = { Text(text = title) }
+                        )
                     }
                 }
             }
+        }
 
         rule.onNodeWithTag("Tabs").assertHeightIsEqualTo(height)
 
@@ -935,10 +889,7 @@ class TabTest {
     @Test
     fun tabRow_noTabsHasHeightZero() {
         rule.setMaterialContent(lightColorScheme()) {
-            SecondaryTabRow(
-                modifier = Modifier.testTag("tabRow"),
-                selectedTabIndex = 0
-            ) {}
+            SecondaryTabRow(modifier = Modifier.testTag("tabRow"), selectedTabIndex = 0) {}
         }
 
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()

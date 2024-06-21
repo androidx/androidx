@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.annotation.FloatRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.Test
@@ -32,16 +31,19 @@ class ArrangementTest {
         val targetLargeSize = 56f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
 
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize + targetMediumSize + targetSmallSize,
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(1),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace = targetLargeSize + targetMediumSize + targetSmallSize,
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(1),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize).isEqualTo(targetMediumSize)
         assertThat(arrangement?.smallSize).isEqualTo(targetSmallSize)
@@ -52,16 +54,19 @@ class ArrangementTest {
         val targetSmallSize = 56f
         val targetLargeSize = 56f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize + targetMediumSize + targetSmallSize - 10f,
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(1),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace = targetLargeSize + targetMediumSize + targetSmallSize - 10f,
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(1),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
         assertThat(arrangement?.smallSize).isEqualTo(targetSmallSize - 10f)
@@ -72,16 +77,19 @@ class ArrangementTest {
         val targetSmallSize = 40f
         val targetLargeSize = 40f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize + targetMediumSize + targetSmallSize + 10f,
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(1),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace = targetLargeSize + targetMediumSize + targetSmallSize + 10f,
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(1),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
         assertThat(arrangement?.smallSize).isEqualTo(targetSmallSize + 10f)
@@ -93,18 +101,20 @@ class ArrangementTest {
         val targetLargeSize = 40f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val mediumAdjustment = targetMediumSize * .05f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize +
-                targetMediumSize +
-                targetSmallSize - mediumAdjustment,
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(1),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace =
+                    targetLargeSize + targetMediumSize + targetSmallSize - mediumAdjustment,
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(1),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
             .isEqualTo((targetMediumSize - mediumAdjustment).roundToInt())
@@ -117,18 +127,20 @@ class ArrangementTest {
         val targetLargeSize = 56f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val mediumAdjustment = targetMediumSize * .05f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize +
-                targetMediumSize +
-                targetSmallSize + mediumAdjustment,
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(1),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace =
+                    targetLargeSize + targetMediumSize + targetSmallSize + mediumAdjustment,
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(1),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
             .isEqualTo((targetMediumSize + mediumAdjustment).roundToInt())
@@ -141,19 +153,23 @@ class ArrangementTest {
         val targetLargeSize = 40f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val smallAdjustment = 10f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize +
-                targetMediumSize +
-                (targetSmallSize * 2) +
-                (smallAdjustment * 2),
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(2),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace =
+                    targetLargeSize +
+                        targetMediumSize +
+                        (targetSmallSize * 2) +
+                        (smallAdjustment * 2),
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(2),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
         assertThat(arrangement?.smallSize).isEqualTo(targetSmallSize + smallAdjustment)
@@ -166,18 +182,21 @@ class ArrangementTest {
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val smallAdjustment = 10f
 
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = targetLargeSize +
-                targetMediumSize +
-                (targetSmallSize * 2) - (smallAdjustment * 2),
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(2),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(1),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(1)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace =
+                    targetLargeSize + targetMediumSize + (targetSmallSize * 2) -
+                        (smallAdjustment * 2),
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(2),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(1),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(1)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
         assertThat(arrangement?.smallSize).isEqualTo(targetSmallSize - smallAdjustment)
@@ -189,19 +208,23 @@ class ArrangementTest {
         val targetLargeSize = 56f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val mediumAdjustment = targetMediumSize * .05f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = (targetLargeSize * 2) +
-                (targetMediumSize * 2) +
-                (targetSmallSize * 2) +
-                (mediumAdjustment * 2),
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(2),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(2),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(2)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace =
+                    (targetLargeSize * 2) +
+                        (targetMediumSize * 2) +
+                        (targetSmallSize * 2) +
+                        (mediumAdjustment * 2),
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(2),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(2),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(2)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
             .isEqualTo((targetMediumSize + mediumAdjustment).roundToInt())
@@ -214,18 +237,21 @@ class ArrangementTest {
         val targetLargeSize = 40f * 3f
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val mediumAdjustment = targetMediumSize * .05f
-        val arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = (targetLargeSize * 2) +
-                (targetMediumSize * 2) +
-                (targetSmallSize * 2) - (mediumAdjustment * 2),
-            targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
-            smallCounts = intArrayOf(2),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(2),
-            targetLargeSize = targetLargeSize,
-            largeCounts = intArrayOf(2)
-        )
+        val arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace =
+                    (targetLargeSize * 2) + (targetMediumSize * 2) + (targetSmallSize * 2) -
+                        (mediumAdjustment * 2),
+                itemSpacing = 0f,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = 40f,
+                maxSmallSize = 56f,
+                smallCounts = intArrayOf(2),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(2),
+                targetLargeSize = targetLargeSize,
+                largeCounts = intArrayOf(2)
+            )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
             .isEqualTo((targetMediumSize - mediumAdjustment).roundToInt())

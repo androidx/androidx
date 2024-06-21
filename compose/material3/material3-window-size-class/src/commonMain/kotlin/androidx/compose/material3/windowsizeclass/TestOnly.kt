@@ -16,5 +16,4 @@
 
 package androidx.compose.material3.windowsizeclass
 
-@MustBeDocumented
-expect annotation class TestOnly()
+@MustBeDocumented expect annotation class TestOnly()

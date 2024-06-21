@@ -23,7 +23,9 @@ data class Theme(
     val fontScaleMode: FontScaleMode = FontScaleMode.System,
     val textDirection: TextDirection = TextDirection.System,
 ) {
-    constructor(map: Map<String, Float>) : this(
+    constructor(
+        map: Map<String, Float>
+    ) : this(
         themeMode = ThemeMode.values()[map.getValue(ThemeModeKey).toInt()],
         colorMode = ColorMode.values()[map.getValue(ColorModeKey).toInt()],
         fontScale = map.getValue(FontScaleKey).toFloat(),
@@ -31,13 +33,14 @@ data class Theme(
         textDirection = TextDirection.values()[map.getValue(TextDirectionKey).toInt()],
     )
 
-    fun toMap() = mapOf(
-        ThemeModeKey to themeMode.ordinal.toFloat(),
-        ColorModeKey to colorMode.ordinal.toFloat(),
-        FontScaleKey to fontScale,
-        FontScaleModeKey to fontScaleMode.ordinal.toFloat(),
-        TextDirectionKey to textDirection.ordinal.toFloat(),
-    )
+    fun toMap() =
+        mapOf(
+            ThemeModeKey to themeMode.ordinal.toFloat(),
+            ColorModeKey to colorMode.ordinal.toFloat(),
+            FontScaleKey to fontScale,
+            FontScaleModeKey to fontScaleMode.ordinal.toFloat(),
+            TextDirectionKey to textDirection.ordinal.toFloat(),
+        )
 }
 
 /**
@@ -68,8 +71,8 @@ enum class ColorMode(val label: String) {
      */
     Baseline("Baseline"),
     /**
-     * Build a color scheme from a pre-selected color palette that behaves the same as a dynamic color
-     * palette.
+     * Build a color scheme from a pre-selected color palette that behaves the same as a dynamic
+     * color palette.
      *
      * Useful for testing dynamic color schemes on devices that don't support dynamic colors.
      */
@@ -77,14 +80,19 @@ enum class ColorMode(val label: String) {
     /**
      * Build a color scheme from the dynamic colors taken from the Android System.
      *
-     * If the dynamic colors are not available, the baseline color scheme will be used as a fallback.
+     * If the dynamic colors are not available, the baseline color scheme will be used as a
+     * fallback.
      */
-    Dynamic("Dynamic (Android 12+)"),
+    Dynamic("Dynamic (Android 12+)");
+
+    override fun toString(): String = label
 }
 
 enum class FontScaleMode(val label: String) {
     Custom("Custom"),
-    System("System"),
+    System("System");
+
+    override fun toString(): String = label
 }
 
 enum class ThemeMode {

@@ -41,8 +41,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onSibling
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.max
-import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -57,15 +55,12 @@ class BadgeTest {
 
     private val icon = Icons.Filled.Favorite
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun badge_noContent_size() {
         rule
-            .setMaterialContentForSizeAssertions {
-                Badge()
-            }
+            .setMaterialContentForSizeAssertions { Badge() }
             .assertHeightIsEqualTo(BadgeTokens.Size)
             .assertWidthIsEqualTo(BadgeTokens.Size)
     }
@@ -73,9 +68,7 @@ class BadgeTest {
     @Test
     fun badge_shortContent_size() {
         rule
-            .setMaterialContentForSizeAssertions {
-                Badge { Text("1") }
-            }
+            .setMaterialContentForSizeAssertions { Badge { Text("1") } }
             .assertHeightIsEqualTo(BadgeTokens.LargeSize)
             .assertWidthIsEqualTo(BadgeTokens.LargeSize)
     }
@@ -83,9 +76,7 @@ class BadgeTest {
     @Test
     fun badge_longContent_size() {
         rule
-            .setMaterialContentForSizeAssertions {
-                Badge { Text("999+") }
-            }
+            .setMaterialContentForSizeAssertions { Badge { Text("999+") } }
             .assertHeightIsEqualTo(BadgeTokens.LargeSize)
             .assertWidthIsAtLeast(BadgeTokens.LargeSize)
     }
@@ -96,9 +87,7 @@ class BadgeTest {
         val customHeight = 6.dp
         rule
             .setMaterialContentForSizeAssertions {
-                Badge(modifier = Modifier.size(customWidth, customHeight)) {
-                    Text("1")
-                }
+                Badge(modifier = Modifier.size(customWidth, customHeight)) { Text("1") }
             }
             .assertHeightIsEqualTo(customHeight)
             .assertWidthIsEqualTo(customWidth)
@@ -115,7 +104,8 @@ class BadgeTest {
             Badge(modifier = Modifier.testTag(TestBadgeTag))
         }
 
-        rule.onNodeWithTag(TestBadgeTag)
+        rule
+            .onNodeWithTag(TestBadgeTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -128,75 +118,54 @@ class BadgeTest {
 
     @Test
     fun badgeBox_noContent_position() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                BadgedBox(badge = { Badge(Modifier.testTag(TestBadgeTag)) }) {
-                    Icon(
-                        icon,
-                        null,
-                        modifier = Modifier.testTag(TestAnchorTag)
-                    )
-                }
+        rule.setMaterialContent(lightColorScheme()) {
+            BadgedBox(badge = { Badge(Modifier.testTag(TestBadgeTag)) }) {
+                Icon(icon, null, modifier = Modifier.testTag(TestAnchorTag))
             }
+        }
         val badge = rule.onNodeWithTag(TestBadgeTag)
         val anchorBounds = rule.onNodeWithTag(TestAnchorTag).getUnclippedBoundsInRoot()
-        val badgeBounds = badge.getUnclippedBoundsInRoot()
         badge.assertPositionInRootIsEqualTo(
-            expectedLeft =
-            anchorBounds.right + BadgeOffset +
-                max((BadgeTokens.Size - badgeBounds.width) / 2, 0.dp),
-            expectedTop = -badgeBounds.height / 2
+            expectedLeft = anchorBounds.right - BadgeOffset,
+            expectedTop = anchorBounds.top
         )
     }
 
     @Test
     fun badgeBox_shortContent_position() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                BadgedBox(badge = { Badge { Text("8") } }) {
-                    Icon(
-                        icon,
-                        null,
-                        modifier = Modifier.testTag(TestAnchorTag)
-                    )
-                }
+        rule.setMaterialContent(lightColorScheme()) {
+            BadgedBox(badge = { Badge { Text("8") } }) {
+                Icon(icon, null, modifier = Modifier.testTag(TestAnchorTag))
             }
+        }
         val badge = rule.onNodeWithTag(TestAnchorTag).onSibling()
         val anchorBounds = rule.onNodeWithTag(TestAnchorTag).getUnclippedBoundsInRoot()
         val badgeBounds = badge.getUnclippedBoundsInRoot()
+
+        val totalBadgeHorizontalOffset =
+            -BadgeWithContentHorizontalOffset + BadgeWithContentHorizontalPadding
         badge.assertPositionInRootIsEqualTo(
-            expectedLeft = anchorBounds.right + BadgeWithContentHorizontalOffset + max
-                (
-                (
-                    BadgeTokens.LargeSize - badgeBounds.width
-                    ) / 2,
-                0.dp
-            ),
-            expectedTop = -badgeBounds.height / 2 + BadgeWithContentVerticalOffset
+            expectedLeft = anchorBounds.right + totalBadgeHorizontalOffset,
+            expectedTop = -badgeBounds.height + BadgeWithContentVerticalOffset
         )
     }
 
     @Test
     fun badgeBox_longContent_position() {
-        rule
-            .setMaterialContent(lightColorScheme()) {
-                BadgedBox(badge = { Badge { Text("999+") } }) {
-                    Icon(
-                        icon,
-                        null,
-                        modifier = Modifier.testTag(TestAnchorTag)
-                    )
-                }
+        rule.setMaterialContent(lightColorScheme()) {
+            BadgedBox(badge = { Badge { Text("999+") } }) {
+                Icon(icon, null, modifier = Modifier.testTag(TestAnchorTag))
             }
+        }
         val badge = rule.onNodeWithTag(TestAnchorTag).onSibling()
         val anchorBounds = rule.onNodeWithTag(TestAnchorTag).getUnclippedBoundsInRoot()
         val badgeBounds = badge.getUnclippedBoundsInRoot()
 
-        val totalBadgeHorizontalOffset = BadgeWithContentHorizontalOffset +
-            BadgeWithContentHorizontalPadding
+        val totalBadgeHorizontalOffset =
+            -BadgeWithContentHorizontalOffset + BadgeWithContentHorizontalPadding
         badge.assertPositionInRootIsEqualTo(
             expectedLeft = anchorBounds.right + totalBadgeHorizontalOffset,
-            expectedTop = -badgeBounds.height / 2 + BadgeWithContentVerticalOffset
+            expectedTop = -badgeBounds.height + BadgeWithContentVerticalOffset
         )
     }
 
@@ -204,18 +173,15 @@ class BadgeTest {
     fun badge_notMergingDescendants_withOwnContentDescription() {
         rule.setMaterialContent(lightColorScheme()) {
             BadgedBox(
-                badge = {
-                    Badge { Text("99+") }
-                },
-                modifier = Modifier.testTag(TestBadgeTag).semantics {
-                    this.contentDescription = "more than 99 new email"
-                }
+                badge = { Badge { Text("99+") } },
+                modifier =
+                    Modifier.testTag(TestBadgeTag).semantics {
+                        this.contentDescription = "more than 99 new email"
+                    }
             ) {
                 Text(
                     "inbox",
-                    Modifier.semantics {
-                        this.contentDescription = "inbox"
-                    }.testTag(TestAnchorTag)
+                    Modifier.semantics { this.contentDescription = "inbox" }.testTag(TestAnchorTag)
                 )
             }
         }
@@ -226,11 +192,10 @@ class BadgeTest {
 
     @Test
     fun badgeBox_size() {
-        rule.setMaterialContentForSizeAssertions {
-            BadgedBox(badge = { Badge { Text("999+") } }) {
-                Icon(icon, null)
+        rule
+            .setMaterialContentForSizeAssertions {
+                BadgedBox(badge = { Badge { Text("999+") } }) { Icon(icon, null) }
             }
-        }
             .assertWidthIsEqualTo(icon.defaultWidth)
             .assertHeightIsEqualTo(icon.defaultHeight)
     }
@@ -241,23 +206,12 @@ class BadgeTest {
         val badgeTag = "badgeTag"
 
         rule.setMaterialContent(lightColorScheme()) {
-            Box(
-                modifier = Modifier.size(50.dp)
-                    .testTag(greatGrandParentTag)
-            ) {
+            Box(modifier = Modifier.size(50.dp).testTag(greatGrandParentTag)) {
                 Box {
                     BadgedBox(
-                        badge = {
-                            Badge(modifier = Modifier
-                                .testTag(badgeTag)
-                            ) { Text("999+") }
-                        }
+                        badge = { Badge(modifier = Modifier.testTag(badgeTag)) { Text("999+") } }
                     ) {
-                        Icon(
-                            icon,
-                            null,
-                            modifier = Modifier.size(40.dp)
-                        )
+                        Icon(icon, null, modifier = Modifier.size(40.dp))
                     }
                 }
             }

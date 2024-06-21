@@ -50,11 +50,9 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3Api::class)
 class SegmentedButtonTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun toggleableSegmentedButton_itemsDisplay() {
@@ -63,11 +61,7 @@ class SegmentedButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             MultiChoiceSegmentedButtonRow {
                 values.forEach {
-                    SegmentedButton(
-                        shape = RectangleShape,
-                        checked = false,
-                        onCheckedChange = {}
-                    ) {
+                    SegmentedButton(shape = RectangleShape, checked = false, onCheckedChange = {}) {
                         Text(it)
                     }
                 }
@@ -84,11 +78,7 @@ class SegmentedButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             SingleChoiceSegmentedButtonRow {
                 values.forEach {
-                    SegmentedButton(
-                        shape = RectangleShape,
-                        selected = false,
-                        onClick = {}
-                    ) {
+                    SegmentedButton(shape = RectangleShape, selected = false, onClick = {}) {
                         Text(it)
                     }
                 }
@@ -123,9 +113,7 @@ class SegmentedButtonTest {
         rule.onNodeWithText("Day").assertIsOn()
         rule.onNodeWithText("Month").assertIsOff()
 
-        rule.runOnIdle {
-            checked = false
-        }
+        rule.runOnIdle { checked = false }
 
         rule.onNodeWithText("Day").assertIsOff()
         rule.onNodeWithText("Month").assertIsOn()
@@ -186,34 +174,10 @@ class SegmentedButtonTest {
     fun segmentedButton_Sizing() {
         val itemSize = 60.dp
 
-        rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp, parentMaxHeight = 100.dp
-        ) {
-            MultiChoiceSegmentedButtonRow {
-                SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
-                    Text(modifier = Modifier.width(60.dp), text = "Day")
-                }
-                SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
-                    Text(modifier = Modifier.width(30.dp), text = "Month")
-                }
-            }
-        }
-            .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
-            .assertHeightIsEqualTo(48.dp)
-    }
-
-    @Test
-    fun segmentedButton_fontScale_correctSizing() {
-        val itemSize = 60.dp
-
-        rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp, parentMaxHeight = 100.dp
-        ) {
-            CompositionLocalProvider(
-                LocalDensity provides Density(
-                    density = LocalDensity.current.density,
-                    fontScale = 2f
-                )
+        rule
+            .setMaterialContentForSizeAssertions(
+                parentMaxWidth = 300.dp,
+                parentMaxHeight = 100.dp
             ) {
                 MultiChoiceSegmentedButtonRow {
                     SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
@@ -224,7 +188,41 @@ class SegmentedButtonTest {
                     }
                 }
             }
-        }
+            .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
+            .assertHeightIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun segmentedButton_fontScale_correctSizing() {
+        val itemSize = 60.dp
+
+        rule
+            .setMaterialContentForSizeAssertions(
+                parentMaxWidth = 300.dp,
+                parentMaxHeight = 100.dp
+            ) {
+                CompositionLocalProvider(
+                    LocalDensity provides
+                        Density(density = LocalDensity.current.density, fontScale = 2f)
+                ) {
+                    MultiChoiceSegmentedButtonRow {
+                        SegmentedButton(
+                            checked = false,
+                            onCheckedChange = {},
+                            shape = RectangleShape
+                        ) {
+                            Text(modifier = Modifier.width(60.dp), text = "Day")
+                        }
+                        SegmentedButton(
+                            checked = false,
+                            onCheckedChange = {},
+                            shape = RectangleShape
+                        ) {
+                            Text(modifier = Modifier.width(30.dp), text = "Month")
+                        }
+                    }
+                }
+            }
             .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
             .assertHeightIsEqualTo(53.dp)
     }
@@ -235,9 +233,10 @@ class SegmentedButtonTest {
         var specColor: Color = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
             specColor = OutlinedSegmentedButtonTokens.OutlineColor.value
-            border = SegmentedButtonDefaults.borderStroke(
-                color = SegmentedButtonDefaults.colors().borderColor(true, true)
-            )
+            border =
+                SegmentedButtonDefaults.borderStroke(
+                    color = SegmentedButtonDefaults.colors().borderColor(true, true)
+                )
         }
 
         assertThat((border.brush as SolidColor).value).isEqualTo(specColor)
@@ -248,12 +247,13 @@ class SegmentedButtonTest {
     fun segmentedButtonBorderColor_customColors_resolvesCorrectly() {
         lateinit var colors: SegmentedButtonColors
         rule.setMaterialContent(lightColorScheme()) {
-            colors = SegmentedButtonDefaults.colors(
-                activeBorderColor = Color.Magenta,
-                inactiveBorderColor = Color.Cyan,
-                disabledActiveBorderColor = Color.Yellow,
-                disabledInactiveBorderColor = Color.Green,
-            )
+            colors =
+                SegmentedButtonDefaults.colors(
+                    activeBorderColor = Color.Magenta,
+                    inactiveBorderColor = Color.Cyan,
+                    disabledActiveBorderColor = Color.Yellow,
+                    disabledInactiveBorderColor = Color.Green,
+                )
         }
 
         assertThat(colors.borderColor(active = true, enabled = true)).isEqualTo(Color.Magenta)

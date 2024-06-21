@@ -1,18 +1,18 @@
 /*
-* Copyright 2023 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package androidx.compose.material3.samples
 
@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -38,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -58,18 +56,18 @@ fun SegmentedButtonSingleSelectSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
 fun SegmentedButtonMultiSelectSample() {
     val checkedList = remember { mutableStateListOf<Int>() }
     val options = listOf("Favorites", "Trending", "Saved")
-    val icons = listOf(
-        Icons.Filled.StarBorder,
-        Icons.AutoMirrored.Filled.TrendingUp,
-        Icons.Filled.BookmarkBorder
-    )
+    val icons =
+        listOf(
+            Icons.Filled.StarBorder,
+            Icons.AutoMirrored.Filled.TrendingUp,
+            Icons.Filled.BookmarkBorder
+        )
     MultiChoiceSegmentedButtonRow {
         options.forEachIndexed { index, label ->
             SegmentedButton(

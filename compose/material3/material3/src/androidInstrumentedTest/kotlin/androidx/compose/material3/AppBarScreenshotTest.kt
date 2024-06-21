@@ -50,11 +50,9 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class AppBarScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun smallAppBar_lightTheme() {
@@ -69,15 +67,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -103,15 +96,10 @@ class AppBarScreenshotTest {
                     },
                     scrollBehavior = behavior,
                     windowInsets = WindowInsets(top = 30.dp),
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -142,15 +130,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -173,15 +156,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -204,15 +182,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -235,15 +208,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -266,15 +234,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -297,15 +260,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -328,15 +286,10 @@ class AppBarScreenshotTest {
                             )
                         }
                     },
-                    title = {
-                        Text("Title")
-                    },
+                    title = { Text("Title") },
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Like"
-                            )
+                            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Like")
                         }
                     }
                 )
@@ -353,10 +306,7 @@ class AppBarScreenshotTest {
                 BottomAppBar(
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Menu"
-                            )
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
                         }
                     },
                     floatingActionButton = {
@@ -385,10 +335,7 @@ class AppBarScreenshotTest {
                 BottomAppBar(
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Menu"
-                            )
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
                         }
                     },
                     floatingActionButton = {
@@ -414,7 +361,8 @@ class AppBarScreenshotTest {
         goldenIdentifier: String,
         testTag: String = TopAppBarTestTag
     ) {
-        composeTestRule.onNodeWithTag(testTag)
+        composeTestRule
+            .onNodeWithTag(testTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

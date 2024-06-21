@@ -21,9 +21,14 @@ package androidx.compose.material3.catalog.library.model
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
-import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomNavigationRail
+import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldWithNavigationSample
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
@@ -35,7 +40,6 @@ import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
-import androidx.compose.material3.samples.CarouselSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
 import androidx.compose.material3.samples.ChipGroupReflowSample
@@ -64,6 +68,7 @@ import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonTextSample
+import androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
 import androidx.compose.material3.samples.FancyIndicatorContainerTabs
 import androidx.compose.material3.samples.FancyIndicatorTabs
 import androidx.compose.material3.samples.FancyTabs
@@ -75,6 +80,8 @@ import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
+import androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
+import androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
 import androidx.compose.material3.samples.IconButtonSample
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
@@ -105,17 +112,21 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithCaret
+import androidx.compose.material3.samples.PlainTooltipWithCustomCaret
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTextTabs
 import androidx.compose.material3.samples.PullToRefreshSample
 import androidx.compose.material3.samples.PullToRefreshSampleCustomState
 import androidx.compose.material3.samples.PullToRefreshScalingSample
+import androidx.compose.material3.samples.PullToRefreshViewModelSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
 import androidx.compose.material3.samples.RangeSliderWithCustomComponents
 import androidx.compose.material3.samples.RichTooltipSample
+import androidx.compose.material3.samples.RichTooltipWithCaretSample
+import androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
 import androidx.compose.material3.samples.RichTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.ScaffoldWithCoroutinesSnackbar
 import androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
@@ -160,6 +171,7 @@ import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSuppor
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
+import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.runtime.Composable
@@ -173,6 +185,33 @@ data class Example(
     val content: @Composable () -> Unit
 )
 
+private const val AdaptiveExampleDescription = "Adaptive examples"
+private const val AdaptiveExampleSourceUrl = "$AdaptiveSampleSourceUrl/ThreePaneScaffoldSamples.kt"
+val AdaptiveExamples =
+    listOf(
+        Example(
+            name = ::ListDetailPaneScaffoldSample.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) {
+            ListDetailPaneScaffoldSample()
+        },
+        Example(
+            name = ::ListDetailPaneScaffoldSampleWithExtraPane.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) {
+            ListDetailPaneScaffoldSampleWithExtraPane()
+        },
+        Example(
+            name = ::ListDetailPaneScaffoldWithNavigationSample.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) {
+            ListDetailPaneScaffoldWithNavigationSample()
+        }
+    )
+
 private const val BadgeExampleDescription = "Badge examples"
 private const val BadgeExampleSourceUrl = "$SampleSourceUrl/BadgeSamples.kt"
 val BadgeExamples =
@@ -181,7 +220,9 @@ val BadgeExamples =
             name = ::NavigationBarItemWithBadge.name,
             description = BadgeExampleDescription,
             sourceUrl = BadgeExampleSourceUrl
-        ) { NavigationBarItemWithBadge() }
+        ) {
+            NavigationBarItemWithBadge()
+        }
     )
 
 private const val BottomSheetExampleDescription = "Bottom Sheet examples"
@@ -192,17 +233,23 @@ val BottomSheetExamples =
             name = ::ModalBottomSheetSample.name,
             description = BottomSheetExampleDescription,
             sourceUrl = BottomSheetExampleSourceUrl
-        ) { ModalBottomSheetSample() },
+        ) {
+            ModalBottomSheetSample()
+        },
         Example(
             name = ::SimpleBottomSheetScaffoldSample.name,
             description = BottomSheetExampleDescription,
             sourceUrl = BottomSheetExampleSourceUrl
-        ) { SimpleBottomSheetScaffoldSample() },
+        ) {
+            SimpleBottomSheetScaffoldSample()
+        },
         Example(
             name = ::BottomSheetScaffoldNestedScrollSample.name,
             description = BottomSheetExampleDescription,
             sourceUrl = BottomSheetExampleSourceUrl
-        ) { BottomSheetScaffoldNestedScrollSample() }
+        ) {
+            BottomSheetScaffoldNestedScrollSample()
+        }
     )
 
 private const val ButtonsExampleDescription = "Button examples"
@@ -213,240 +260,271 @@ val ButtonsExamples =
             name = ::ButtonSample.name,
             description = ButtonsExampleDescription,
             sourceUrl = ButtonsExampleSourceUrl,
-        ) { ButtonSample() },
+        ) {
+            ButtonSample()
+        },
         Example(
             name = ::ElevatedButtonSample.name,
             description = ButtonsExampleDescription,
             sourceUrl = ButtonsExampleSourceUrl,
-        ) { ElevatedButtonSample() },
+        ) {
+            ElevatedButtonSample()
+        },
         Example(
             name = ::FilledTonalButtonSample.name,
             description = ButtonsExampleDescription,
             sourceUrl = ButtonsExampleSourceUrl,
-        ) { FilledTonalButtonSample() },
+        ) {
+            FilledTonalButtonSample()
+        },
         Example(
             name = ::OutlinedButtonSample.name,
             description = ButtonsExampleDescription,
             sourceUrl = ButtonsExampleSourceUrl,
-        ) { OutlinedButtonSample() },
+        ) {
+            OutlinedButtonSample()
+        },
         Example(
             name = ::TextButtonSample.name,
             description = ButtonsExampleDescription,
             sourceUrl = ButtonsExampleSourceUrl,
-        ) { TextButtonSample() },
+        ) {
+            TextButtonSample()
+        },
         Example(
             name = ::ButtonWithIconSample.name,
             description = ButtonsExampleDescription,
             sourceUrl = ButtonsExampleSourceUrl,
-        ) { ButtonWithIconSample() }
+        ) {
+            ButtonWithIconSample()
+        }
     )
 
 private const val CardsExampleDescription = "Cards examples"
 private const val CardsExampleSourceUrl = "$SampleSourceUrl/CardSamples.kt"
-val CardExamples = listOf(
-    Example(
-        name = ::CardSample.name,
-        description = CardsExampleDescription,
-        sourceUrl = CardsExampleSourceUrl
-    ) {
-        CardSample()
-    },
-    Example(
-        name = ::ClickableCardSample.name,
-        description = CardsExampleDescription,
-        sourceUrl = CardsExampleSourceUrl
-    ) {
-        ClickableCardSample()
-    },
-    Example(
-        name = ::ElevatedCardSample.name,
-        description = CardsExampleDescription,
-        sourceUrl = CardsExampleSourceUrl
-    ) {
-        ElevatedCardSample()
-    },
-    Example(
-        name = ::ClickableElevatedCardSample.name,
-        description = CardsExampleDescription,
-        sourceUrl = CardsExampleSourceUrl
-    ) {
-        ClickableElevatedCardSample()
-    },
-    Example(
-        name = ::OutlinedCardSample.name,
-        description = CardsExampleDescription,
-        sourceUrl = CardsExampleSourceUrl
-    ) {
-        OutlinedCardSample()
-    },
-    Example(
-        name = ::ClickableOutlinedCardSample.name,
-        description = CardsExampleDescription,
-        sourceUrl = CardsExampleSourceUrl
-    ) {
-        ClickableOutlinedCardSample()
-    }
-)
+val CardExamples =
+    listOf(
+        Example(
+            name = ::CardSample.name,
+            description = CardsExampleDescription,
+            sourceUrl = CardsExampleSourceUrl
+        ) {
+            CardSample()
+        },
+        Example(
+            name = ::ClickableCardSample.name,
+            description = CardsExampleDescription,
+            sourceUrl = CardsExampleSourceUrl
+        ) {
+            ClickableCardSample()
+        },
+        Example(
+            name = ::ElevatedCardSample.name,
+            description = CardsExampleDescription,
+            sourceUrl = CardsExampleSourceUrl
+        ) {
+            ElevatedCardSample()
+        },
+        Example(
+            name = ::ClickableElevatedCardSample.name,
+            description = CardsExampleDescription,
+            sourceUrl = CardsExampleSourceUrl
+        ) {
+            ClickableElevatedCardSample()
+        },
+        Example(
+            name = ::OutlinedCardSample.name,
+            description = CardsExampleDescription,
+            sourceUrl = CardsExampleSourceUrl
+        ) {
+            OutlinedCardSample()
+        },
+        Example(
+            name = ::ClickableOutlinedCardSample.name,
+            description = CardsExampleDescription,
+            sourceUrl = CardsExampleSourceUrl
+        ) {
+            ClickableOutlinedCardSample()
+        }
+    )
 
 private const val CarouselExampleDescription = "Carousel examples"
 private const val CarouselExampleSourceUrl = "$SampleSourceUrl/CarouselSamples.kt"
-val CarouselExamples = listOf(
-    Example(
-        name = ::CarouselSample.name,
-        description = CarouselExampleDescription,
-        sourceUrl = CarouselExampleSourceUrl
-    ) {
-        CarouselSample()
-    }
-)
+val CarouselExamples =
+    listOf(
+        Example(
+            name = ::HorizontalMultiBrowseCarouselSample.name,
+            description = CarouselExampleDescription,
+            sourceUrl = CarouselExampleSourceUrl
+        ) {
+            HorizontalMultiBrowseCarouselSample()
+        },
+        Example(
+            name = ::HorizontalUncontainedCarouselSample.name,
+            description = CarouselExampleDescription,
+            sourceUrl = CarouselExampleSourceUrl
+        ) {
+            HorizontalUncontainedCarouselSample()
+        },
+        Example(
+            name = ::FadingHorizontalMultiBrowseCarouselSample.name,
+            description = CarouselExampleDescription,
+            sourceUrl = CarouselExampleSourceUrl
+        ) {
+            FadingHorizontalMultiBrowseCarouselSample()
+        }
+    )
 
 private const val CheckboxesExampleDescription = "Checkboxes examples"
 private const val CheckboxesExampleSourceUrl = "$SampleSourceUrl/CheckboxSamples.kt"
-val CheckboxesExamples = listOf(
-    Example(
-        name = ::CheckboxSample.name,
-        description = CheckboxesExampleDescription,
-        sourceUrl = CheckboxesExampleSourceUrl
-    ) {
-        CheckboxSample()
-    },
-    Example(
-        name = ::CheckboxWithTextSample.name,
-        description = CheckboxesExampleDescription,
-        sourceUrl = CheckboxesExampleSourceUrl
-    ) {
-        CheckboxWithTextSample()
-    },
-    Example(
-        name = ::TriStateCheckboxSample.name,
-        description = CheckboxesExampleDescription,
-        sourceUrl = CheckboxesExampleSourceUrl
-    ) {
-        TriStateCheckboxSample()
-    }
-)
+val CheckboxesExamples =
+    listOf(
+        Example(
+            name = ::CheckboxSample.name,
+            description = CheckboxesExampleDescription,
+            sourceUrl = CheckboxesExampleSourceUrl
+        ) {
+            CheckboxSample()
+        },
+        Example(
+            name = ::CheckboxWithTextSample.name,
+            description = CheckboxesExampleDescription,
+            sourceUrl = CheckboxesExampleSourceUrl
+        ) {
+            CheckboxWithTextSample()
+        },
+        Example(
+            name = ::TriStateCheckboxSample.name,
+            description = CheckboxesExampleDescription,
+            sourceUrl = CheckboxesExampleSourceUrl
+        ) {
+            TriStateCheckboxSample()
+        }
+    )
 
 private const val ChipsExampleDescription = "Chips examples"
 private const val ChipsExampleSourceUrl = "$SampleSourceUrl/ChipSamples.kt"
-val ChipsExamples = listOf(
-    Example(
-        name = ::AssistChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        AssistChipSample()
-    },
-    Example(
-        name = ::ElevatedAssistChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        ElevatedAssistChipSample()
-    },
-    Example(
-        name = ::FilterChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        FilterChipSample()
-    },
-    Example(
-        name = ::ElevatedFilterChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        ElevatedFilterChipSample()
-    },
-    Example(
-        name = ::FilterChipWithLeadingIconSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        FilterChipWithLeadingIconSample()
-    },
-    Example(
-        name = ::InputChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        InputChipSample()
-    },
-    Example(
-        name = ::InputChipWithAvatarSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        InputChipWithAvatarSample()
-    },
-    Example(
-        name = ::SuggestionChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        SuggestionChipSample()
-    },
-    Example(
-        name = ::ElevatedSuggestionChipSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        ElevatedSuggestionChipSample()
-    },
-    Example(
-        name = ::ChipGroupSingleLineSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        ChipGroupSingleLineSample()
-    },
-    Example(
-        name = ::ChipGroupReflowSample.name,
-        description = ChipsExampleDescription,
-        sourceUrl = ChipsExampleSourceUrl
-    ) {
-        ChipGroupReflowSample()
-    }
-)
+val ChipsExamples =
+    listOf(
+        Example(
+            name = ::AssistChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            AssistChipSample()
+        },
+        Example(
+            name = ::ElevatedAssistChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            ElevatedAssistChipSample()
+        },
+        Example(
+            name = ::FilterChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            FilterChipSample()
+        },
+        Example(
+            name = ::ElevatedFilterChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            ElevatedFilterChipSample()
+        },
+        Example(
+            name = ::FilterChipWithLeadingIconSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            FilterChipWithLeadingIconSample()
+        },
+        Example(
+            name = ::InputChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            InputChipSample()
+        },
+        Example(
+            name = ::InputChipWithAvatarSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            InputChipWithAvatarSample()
+        },
+        Example(
+            name = ::SuggestionChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            SuggestionChipSample()
+        },
+        Example(
+            name = ::ElevatedSuggestionChipSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            ElevatedSuggestionChipSample()
+        },
+        Example(
+            name = ::ChipGroupSingleLineSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            ChipGroupSingleLineSample()
+        },
+        Example(
+            name = ::ChipGroupReflowSample.name,
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl
+        ) {
+            ChipGroupReflowSample()
+        }
+    )
 
 private const val DatePickerExampleDescription = "Date picker examples"
 private const val DatePickerExampleSourceUrl = "$SampleSourceUrl/DatePickerSamples.kt"
-val DatePickerExamples = listOf(
-    Example(
-        name = ::DatePickerSample.name,
-        description = DatePickerExampleDescription,
-        sourceUrl = DatePickerExampleSourceUrl
-    ) {
-        DatePickerSample()
-    },
-    Example(
-        name = ::DatePickerDialogSample.name,
-        description = DatePickerExampleDescription,
-        sourceUrl = DatePickerExampleSourceUrl
-    ) {
-        DatePickerDialogSample()
-    },
-    Example(
-        name = ::DatePickerWithDateSelectableDatesSample.name,
-        description = DatePickerExampleDescription,
-        sourceUrl = DatePickerExampleSourceUrl
-    ) {
-        DatePickerWithDateSelectableDatesSample()
-    },
-    Example(
-        name = ::DateInputSample.name,
-        description = DatePickerExampleDescription,
-        sourceUrl = DatePickerExampleSourceUrl
-    ) {
-        DateInputSample()
-    },
-    Example(
-        name = ::DateRangePickerSample.name,
-        description = DatePickerExampleDescription,
-        sourceUrl = DatePickerExampleSourceUrl
-    ) {
-        DateRangePickerSample()
-    },
-)
+val DatePickerExamples =
+    listOf(
+        Example(
+            name = ::DatePickerSample.name,
+            description = DatePickerExampleDescription,
+            sourceUrl = DatePickerExampleSourceUrl
+        ) {
+            DatePickerSample()
+        },
+        Example(
+            name = ::DatePickerDialogSample.name,
+            description = DatePickerExampleDescription,
+            sourceUrl = DatePickerExampleSourceUrl
+        ) {
+            DatePickerDialogSample()
+        },
+        Example(
+            name = ::DatePickerWithDateSelectableDatesSample.name,
+            description = DatePickerExampleDescription,
+            sourceUrl = DatePickerExampleSourceUrl
+        ) {
+            DatePickerWithDateSelectableDatesSample()
+        },
+        Example(
+            name = ::DateInputSample.name,
+            description = DatePickerExampleDescription,
+            sourceUrl = DatePickerExampleSourceUrl
+        ) {
+            DateInputSample()
+        },
+        Example(
+            name = ::DateRangePickerSample.name,
+            description = DatePickerExampleDescription,
+            sourceUrl = DatePickerExampleSourceUrl
+        ) {
+            DateRangePickerSample()
+        },
+    )
 
 private const val DialogExampleDescription = "Dialog examples"
 private const val DialogExampleSourceUrl = "$SampleSourceUrl/AlertDialogSamples.kt"
@@ -456,38 +534,51 @@ val DialogExamples =
             name = ::AlertDialogSample.name,
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
-        ) { AlertDialogSample() },
+        ) {
+            AlertDialogSample()
+        },
         Example(
             name = ::AlertDialogWithIconSample.name,
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
-        ) { AlertDialogWithIconSample() },
+        ) {
+            AlertDialogWithIconSample()
+        },
         Example(
             name = ::BasicAlertDialogSample.name,
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
-        ) { BasicAlertDialogSample() },
+        ) {
+            BasicAlertDialogSample()
+        },
     )
 
 private const val BottomAppBarsExampleDescription = "Bottom app bar examples"
 private const val BottomAppBarsExampleSourceUrl = "$SampleSourceUrl/AppBarSamples.kt"
-val BottomAppBarsExamples = listOf(
-    Example(
-        name = ::SimpleBottomAppBar.name,
-        description = BottomAppBarsExampleDescription,
-        sourceUrl = BottomAppBarsExampleSourceUrl,
-    ) { SimpleBottomAppBar() },
-    Example(
-        name = ::BottomAppBarWithFAB.name,
-        description = BottomAppBarsExampleDescription,
-        sourceUrl = BottomAppBarsExampleSourceUrl,
-    ) { BottomAppBarWithFAB() },
-    Example(
-        name = ::ExitAlwaysBottomAppBar.name,
-        description = BottomAppBarsExampleDescription,
-        sourceUrl = BottomAppBarsExampleSourceUrl,
-    ) { ExitAlwaysBottomAppBar() }
-)
+val BottomAppBarsExamples =
+    listOf(
+        Example(
+            name = ::SimpleBottomAppBar.name,
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            SimpleBottomAppBar()
+        },
+        Example(
+            name = ::BottomAppBarWithFAB.name,
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            BottomAppBarWithFAB()
+        },
+        Example(
+            name = ::ExitAlwaysBottomAppBar.name,
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            ExitAlwaysBottomAppBar()
+        }
+    )
 
 private const val TopAppBarExampleDescription = "Top app bar examples"
 private const val TopAppBarExampleSourceUrl = "$SampleSourceUrl/AppBarSamples.kt"
@@ -497,32 +588,44 @@ val TopAppBarExamples =
             name = ::SimpleTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { SimpleTopAppBar() },
+        ) {
+            SimpleTopAppBar()
+        },
         Example(
             name = ::SimpleCenterAlignedTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { SimpleCenterAlignedTopAppBar() },
+        ) {
+            SimpleCenterAlignedTopAppBar()
+        },
         Example(
             name = ::PinnedTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { PinnedTopAppBar() },
+        ) {
+            PinnedTopAppBar()
+        },
         Example(
             name = ::EnterAlwaysTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { EnterAlwaysTopAppBar() },
+        ) {
+            EnterAlwaysTopAppBar()
+        },
         Example(
             name = ::ExitUntilCollapsedMediumTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { ExitUntilCollapsedMediumTopAppBar() },
+        ) {
+            ExitUntilCollapsedMediumTopAppBar()
+        },
         Example(
             name = ::ExitUntilCollapsedLargeTopAppBar.name,
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
-        ) { ExitUntilCollapsedLargeTopAppBar() },
+        ) {
+            ExitUntilCollapsedLargeTopAppBar()
+        },
     )
 
 private const val ExtendedFABExampleDescription = "Extended FAB examples"
@@ -533,17 +636,23 @@ val ExtendedFABExamples =
             name = ::ExtendedFloatingActionButtonSample.name,
             description = ExtendedFABExampleDescription,
             sourceUrl = ExtendedFABExampleSourceUrl,
-        ) { ExtendedFloatingActionButtonSample() },
+        ) {
+            ExtendedFloatingActionButtonSample()
+        },
         Example(
             name = ::ExtendedFloatingActionButtonTextSample.name,
             description = ExtendedFABExampleDescription,
             sourceUrl = ExtendedFABExampleSourceUrl,
-        ) { ExtendedFloatingActionButtonTextSample() },
+        ) {
+            ExtendedFloatingActionButtonTextSample()
+        },
         Example(
             name = ::AnimatedExtendedFloatingActionButtonSample.name,
             description = ExtendedFABExampleDescription,
             sourceUrl = ExtendedFABExampleSourceUrl,
-        ) { AnimatedExtendedFloatingActionButtonSample() },
+        ) {
+            AnimatedExtendedFloatingActionButtonSample()
+        },
     )
 
 private const val FloatingActionButtonsExampleDescription = "Floating action button examples"
@@ -555,51 +664,58 @@ val FloatingActionButtonsExamples =
             name = ::FloatingActionButtonSample.name,
             description = FloatingActionButtonsExampleDescription,
             sourceUrl = FloatingActionButtonsExampleSourceUrl,
-        ) { FloatingActionButtonSample() },
+        ) {
+            FloatingActionButtonSample()
+        },
         Example(
             name = ::LargeFloatingActionButtonSample.name,
             description = FloatingActionButtonsExampleDescription,
             sourceUrl = FloatingActionButtonsExampleSourceUrl,
-        ) { LargeFloatingActionButtonSample() },
+        ) {
+            LargeFloatingActionButtonSample()
+        },
         Example(
             name = ::SmallFloatingActionButtonSample.name,
             description = FloatingActionButtonsExampleDescription,
             sourceUrl = FloatingActionButtonsExampleSourceUrl,
-        ) { SmallFloatingActionButtonSample() }
+        ) {
+            SmallFloatingActionButtonSample()
+        }
     )
 
 private const val ListsExampleDescription = "List examples"
 private const val ListsExampleSourceUrl = "$SampleSourceUrl/ListSamples.kt"
-val ListsExamples = listOf(
-    Example(
-        name = ::OneLineListItem.name,
-        description = ListsExampleDescription,
-        sourceUrl = ListsExampleSourceUrl
-    ) {
-        OneLineListItem()
-    },
-    Example(
-        name = ::TwoLineListItem.name,
-        description = ListsExampleDescription,
-        sourceUrl = ListsExampleSourceUrl
-    ) {
-        TwoLineListItem()
-    },
-    Example(
-        name = ::ThreeLineListItemWithOverlineAndSupporting.name,
-        description = ListsExampleDescription,
-        sourceUrl = ListsExampleSourceUrl
-    ) {
-        ThreeLineListItemWithOverlineAndSupporting()
-    },
-    Example(
-        name = ::ThreeLineListItemWithExtendedSupporting.name,
-        description = ListsExampleDescription,
-        sourceUrl = ListsExampleSourceUrl
-    ) {
-        ThreeLineListItemWithExtendedSupporting()
-    },
-)
+val ListsExamples =
+    listOf(
+        Example(
+            name = ::OneLineListItem.name,
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl
+        ) {
+            OneLineListItem()
+        },
+        Example(
+            name = ::TwoLineListItem.name,
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl
+        ) {
+            TwoLineListItem()
+        },
+        Example(
+            name = ::ThreeLineListItemWithOverlineAndSupporting.name,
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl
+        ) {
+            ThreeLineListItemWithOverlineAndSupporting()
+        },
+        Example(
+            name = ::ThreeLineListItemWithExtendedSupporting.name,
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl
+        ) {
+            ThreeLineListItemWithExtendedSupporting()
+        },
+    )
 
 private const val IconButtonExampleDescription = "Icon button examples"
 private const val IconButtonExampleSourceUrl = "$SampleSourceUrl/IconButtonSamples.kt"
@@ -609,76 +725,100 @@ val IconButtonExamples =
             name = ::IconButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { IconButtonSample() },
+        ) {
+            IconButtonSample()
+        },
+        Example(
+            name = ::TintedIconButtonSample.name,
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+        ) {
+            TintedIconButtonSample()
+        },
         Example(
             name = ::IconToggleButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { IconToggleButtonSample() },
+        ) {
+            IconToggleButtonSample()
+        },
         Example(
             name = ::FilledIconButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { FilledIconButtonSample() },
+        ) {
+            FilledIconButtonSample()
+        },
         Example(
             name = ::FilledIconToggleButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { FilledIconToggleButtonSample() },
+        ) {
+            FilledIconToggleButtonSample()
+        },
         Example(
             name = ::FilledTonalIconButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { FilledTonalIconButtonSample() },
+        ) {
+            FilledTonalIconButtonSample()
+        },
         Example(
             name = ::FilledTonalIconToggleButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { FilledTonalIconToggleButtonSample() },
+        ) {
+            FilledTonalIconToggleButtonSample()
+        },
         Example(
             name = ::OutlinedIconButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { OutlinedIconButtonSample() },
+        ) {
+            OutlinedIconButtonSample()
+        },
         Example(
             name = ::OutlinedIconToggleButtonSample.name,
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
-        ) { OutlinedIconToggleButtonSample() }
+        ) {
+            OutlinedIconToggleButtonSample()
+        }
     )
 
 private const val MenusExampleDescription = "Menus examples"
 private const val MenusExampleSourceUrl = "$SampleSourceUrl/MenuSamples.kt"
-val MenusExamples = listOf(
-    Example(
-        name = ::MenuSample.name,
-        description = MenusExampleDescription,
-        sourceUrl = MenusExampleSourceUrl
-    ) {
-        MenuSample()
-    },
-    Example(
-        name = ::MenuWithScrollStateSample.name,
-        description = MenusExampleDescription,
-        sourceUrl = MenusExampleSourceUrl
-    ) {
-        MenuWithScrollStateSample()
-    },
-    Example(
-        name = ::ExposedDropdownMenuSample.name,
-        description = MenusExampleDescription,
-        sourceUrl = MenusExampleSourceUrl
-    ) {
-        ExposedDropdownMenuSample()
-    },
-    Example(
-        name = ::EditableExposedDropdownMenuSample.name,
-        description = MenusExampleDescription,
-        sourceUrl = MenusExampleSourceUrl
-    ) {
-        EditableExposedDropdownMenuSample()
-    },
-)
+val MenusExamples =
+    listOf(
+        Example(
+            name = ::MenuSample.name,
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl
+        ) {
+            MenuSample()
+        },
+        Example(
+            name = ::MenuWithScrollStateSample.name,
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl
+        ) {
+            MenuWithScrollStateSample()
+        },
+        Example(
+            name = ::ExposedDropdownMenuSample.name,
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl
+        ) {
+            ExposedDropdownMenuSample()
+        },
+        Example(
+            name = ::EditableExposedDropdownMenuSample.name,
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl
+        ) {
+            EditableExposedDropdownMenuSample()
+        },
+    )
 
 private const val NavigationBarExampleDescription = "Navigation bar examples"
 private const val NavigationBarExampleSourceUrl = "$SampleSourceUrl/NavigationBarSamples.kt"
@@ -688,12 +828,16 @@ val NavigationBarExamples =
             name = ::NavigationBarSample.name,
             description = NavigationBarExampleDescription,
             sourceUrl = NavigationBarExampleSourceUrl,
-        ) { NavigationBarSample() },
+        ) {
+            NavigationBarSample()
+        },
         Example(
             name = ::NavigationBarWithOnlySelectedLabelsSample.name,
             description = NavigationBarExampleDescription,
             sourceUrl = NavigationBarExampleSourceUrl,
-        ) { NavigationBarWithOnlySelectedLabelsSample() },
+        ) {
+            NavigationBarWithOnlySelectedLabelsSample()
+        },
     )
 
 private const val NavigationRailExampleDescription = "Navigation rail examples"
@@ -704,44 +848,51 @@ val NavigationRailExamples =
             name = ::NavigationRailSample.name,
             description = NavigationRailExampleDescription,
             sourceUrl = NavigationRailExampleSourceUrl,
-        ) { NavigationRailSample() },
+        ) {
+            NavigationRailSample()
+        },
         Example(
             name = ::NavigationRailWithOnlySelectedLabelsSample.name,
             description = NavigationRailExampleDescription,
             sourceUrl = NavigationRailExampleSourceUrl,
-        ) { NavigationRailWithOnlySelectedLabelsSample() },
+        ) {
+            NavigationRailWithOnlySelectedLabelsSample()
+        },
         Example(
             name = ::NavigationRailBottomAlignSample.name,
             description = NavigationRailExampleDescription,
             sourceUrl = NavigationRailExampleSourceUrl,
-        ) { NavigationRailBottomAlignSample() },
+        ) {
+            NavigationRailBottomAlignSample()
+        },
     )
 
 private const val NavigationDrawerExampleDescription = "Navigation drawer examples"
 private const val NavigationDrawerExampleSourceUrl = "$SampleSourceUrl/DrawerSamples.kt"
-val NavigationDrawerExamples = listOf(
-    Example(
-        name = ::ModalNavigationDrawerSample.name,
-        description = NavigationDrawerExampleDescription,
-        sourceUrl = NavigationDrawerExampleSourceUrl
-    ) {
-        ModalNavigationDrawerSample()
-    },
-    Example(
-        name = ::PermanentNavigationDrawerSample.name,
-        description = NavigationDrawerExampleDescription,
-        sourceUrl = NavigationDrawerExampleSourceUrl
-    ) {
-        PermanentNavigationDrawerSample()
-    },
-    Example(
-        name = ::DismissibleNavigationDrawerSample.name,
-        description = NavigationDrawerExampleDescription,
-        sourceUrl = NavigationDrawerExampleSourceUrl
-    ) {
-        DismissibleNavigationDrawerSample()
-    }
-)
+val NavigationDrawerExamples =
+    listOf(
+        Example(
+            name = ::ModalNavigationDrawerSample.name,
+            description = NavigationDrawerExampleDescription,
+            sourceUrl = NavigationDrawerExampleSourceUrl
+        ) {
+            ModalNavigationDrawerSample()
+        },
+        Example(
+            name = ::PermanentNavigationDrawerSample.name,
+            description = NavigationDrawerExampleDescription,
+            sourceUrl = NavigationDrawerExampleSourceUrl
+        ) {
+            PermanentNavigationDrawerSample()
+        },
+        Example(
+            name = ::DismissibleNavigationDrawerSample.name,
+            description = NavigationDrawerExampleDescription,
+            sourceUrl = NavigationDrawerExampleSourceUrl
+        ) {
+            DismissibleNavigationDrawerSample()
+        }
+    )
 
 private const val NavigationSuiteScaffoldExampleDescription = "Navigation suite scaffold examples"
 private const val NavigationSuiteScaffoldExampleSourceUrl =
@@ -752,496 +903,543 @@ val NavigationSuiteScaffoldExamples =
             name = ::NavigationSuiteScaffoldSample.name,
             description = NavigationSuiteScaffoldExampleDescription,
             sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
-        ) { NavigationSuiteScaffoldSample() },
+        ) {
+            NavigationSuiteScaffoldSample()
+        },
         Example(
             name = ::NavigationSuiteScaffoldCustomConfigSample.name,
             description = NavigationSuiteScaffoldExampleDescription,
             sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
-        ) { NavigationSuiteScaffoldCustomConfigSample() },
+        ) {
+            NavigationSuiteScaffoldCustomConfigSample()
+        },
+        Example(
+            name = ::NavigationSuiteScaffoldCustomNavigationRail.name,
+            description = NavigationSuiteScaffoldExampleDescription,
+            sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
+        ) {
+            NavigationSuiteScaffoldCustomNavigationRail()
+        },
     )
 
 private const val ProgressIndicatorsExampleDescription = "Progress indicators examples"
-private const val ProgressIndicatorsExampleSourceUrl = "$SampleSourceUrl/" +
-    "ProgressIndicatorSamples.kt"
-val ProgressIndicatorsExamples = listOf(
-    Example(
-        name = ::LinearProgressIndicatorSample.name,
-        description = ProgressIndicatorsExampleDescription,
-        sourceUrl = ProgressIndicatorsExampleSourceUrl
-    ) {
-        LinearProgressIndicatorSample()
-    },
-    Example(
-        name = ::IndeterminateLinearProgressIndicatorSample.name,
-        description = ProgressIndicatorsExampleDescription,
-        sourceUrl = ProgressIndicatorsExampleSourceUrl
-    ) {
-        IndeterminateLinearProgressIndicatorSample()
-    },
-    Example(
-        name = ::CircularProgressIndicatorSample.name,
-        description = ProgressIndicatorsExampleDescription,
-        sourceUrl = ProgressIndicatorsExampleSourceUrl
-    ) {
-        CircularProgressIndicatorSample()
-    },
-    Example(
-        name = ::IndeterminateCircularProgressIndicatorSample.name,
-        description = ProgressIndicatorsExampleDescription,
-        sourceUrl = ProgressIndicatorsExampleSourceUrl
-    ) {
-        IndeterminateCircularProgressIndicatorSample()
-    }
-)
+private const val ProgressIndicatorsExampleSourceUrl =
+    "$SampleSourceUrl/" + "ProgressIndicatorSamples.kt"
+val ProgressIndicatorsExamples =
+    listOf(
+        Example(
+            name = ::LinearProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            LinearProgressIndicatorSample()
+        },
+        Example(
+            name = ::IndeterminateLinearProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            IndeterminateLinearProgressIndicatorSample()
+        },
+        Example(
+            name = ::CircularProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            CircularProgressIndicatorSample()
+        },
+        Example(
+            name = ::IndeterminateCircularProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            IndeterminateCircularProgressIndicatorSample()
+        }
+    )
 
 private const val PullToRefreshExampleDescription = "Pull-to-refresh examples"
 private const val PullToRefreshExampleSourceUrl = "$SampleSourceUrl/PullToRefreshSamples.kt"
-val PullToRefreshExamples = listOf(
-    Example(
-        name = ::PullToRefreshSample.name,
-        description = PullToRefreshExampleDescription,
-        sourceUrl = PullToRefreshExampleSourceUrl
-    ) {
-        PullToRefreshSample()
-    },
-    Example(
-        name = ::PullToRefreshScalingSample.name,
-        description = PullToRefreshExampleDescription,
-        sourceUrl = PullToRefreshExampleSourceUrl
-    ) {
-        PullToRefreshScalingSample()
-    },
-    Example(
-        name = ::PullToRefreshSampleCustomState.name,
-        description = PullToRefreshExampleDescription,
-        sourceUrl = PullToRefreshExampleSourceUrl
-    ) {
-        PullToRefreshSampleCustomState()
-    }
-)
+val PullToRefreshExamples =
+    listOf(
+        Example(
+            name = ::PullToRefreshSample.name,
+            description = PullToRefreshExampleDescription,
+            sourceUrl = PullToRefreshExampleSourceUrl
+        ) {
+            PullToRefreshSample()
+        },
+        Example(
+            name = ::PullToRefreshScalingSample.name,
+            description = PullToRefreshExampleDescription,
+            sourceUrl = PullToRefreshExampleSourceUrl
+        ) {
+            PullToRefreshScalingSample()
+        },
+        Example(
+            name = ::PullToRefreshSampleCustomState.name,
+            description = PullToRefreshExampleDescription,
+            sourceUrl = PullToRefreshExampleSourceUrl
+        ) {
+            PullToRefreshSampleCustomState()
+        },
+        Example(
+            name = ::PullToRefreshViewModelSample.name,
+            description = PullToRefreshExampleDescription,
+            sourceUrl = PullToRefreshExampleSourceUrl
+        ) {
+            PullToRefreshViewModelSample()
+        },
+    )
 
 private const val RadioButtonsExampleDescription = "Radio buttons examples"
 private const val RadioButtonsExampleSourceUrl = "$SampleSourceUrl/RadioButtonSamples.kt"
-val RadioButtonsExamples = listOf(
-    Example(
-        name = ::RadioButtonSample.name,
-        description = RadioButtonsExampleDescription,
-        sourceUrl = RadioButtonsExampleSourceUrl
-    ) {
-        RadioButtonSample()
-    },
-    Example(
-        name = ::RadioGroupSample.name,
-        description = RadioButtonsExampleDescription,
-        sourceUrl = RadioButtonsExampleSourceUrl
-    ) {
-        RadioGroupSample()
-    },
-)
+val RadioButtonsExamples =
+    listOf(
+        Example(
+            name = ::RadioButtonSample.name,
+            description = RadioButtonsExampleDescription,
+            sourceUrl = RadioButtonsExampleSourceUrl
+        ) {
+            RadioButtonSample()
+        },
+        Example(
+            name = ::RadioGroupSample.name,
+            description = RadioButtonsExampleDescription,
+            sourceUrl = RadioButtonsExampleSourceUrl
+        ) {
+            RadioGroupSample()
+        },
+    )
 
 private const val SearchBarExampleDescription = "Search bar examples"
 private const val SearchBarExampleSourceUrl = "$SampleSourceUrl/SearchBarSamples.kt"
-val SearchBarExamples = listOf(
-    Example(
-        name = ::SearchBarSample.name,
-        description = SearchBarExampleDescription,
-        sourceUrl = SearchBarExampleSourceUrl
-    ) {
-        SearchBarSample()
-    },
-    Example(
-        name = ::DockedSearchBarSample.name,
-        description = SearchBarExampleDescription,
-        sourceUrl = SearchBarExampleSourceUrl
-    ) {
-        DockedSearchBarSample()
-    }
-)
+val SearchBarExamples =
+    listOf(
+        Example(
+            name = ::SearchBarSample.name,
+            description = SearchBarExampleDescription,
+            sourceUrl = SearchBarExampleSourceUrl
+        ) {
+            SearchBarSample()
+        },
+        Example(
+            name = ::DockedSearchBarSample.name,
+            description = SearchBarExampleDescription,
+            sourceUrl = SearchBarExampleSourceUrl
+        ) {
+            DockedSearchBarSample()
+        }
+    )
 
 private const val SegmentedButtonExampleDescription = "Segmented Button examples"
 private const val SegmentedButtonSourceUrl = "$SampleSourceUrl/SegmentedButtonSamples.kt"
-val SegmentedButtonExamples = listOf(
-    Example(
-        name = ::SegmentedButtonSingleSelectSample.name,
-        description = SegmentedButtonExampleDescription,
-        sourceUrl = SegmentedButtonSourceUrl
-    ) {
-        SegmentedButtonSingleSelectSample()
-    },
-    Example(
-        name = ::SegmentedButtonMultiSelectSample.name,
-        description = SegmentedButtonExampleDescription,
-        sourceUrl = SegmentedButtonSourceUrl
-    ) {
-        SegmentedButtonMultiSelectSample()
-    },
-)
+val SegmentedButtonExamples =
+    listOf(
+        Example(
+            name = ::SegmentedButtonSingleSelectSample.name,
+            description = SegmentedButtonExampleDescription,
+            sourceUrl = SegmentedButtonSourceUrl
+        ) {
+            SegmentedButtonSingleSelectSample()
+        },
+        Example(
+            name = ::SegmentedButtonMultiSelectSample.name,
+            description = SegmentedButtonExampleDescription,
+            sourceUrl = SegmentedButtonSourceUrl
+        ) {
+            SegmentedButtonMultiSelectSample()
+        },
+    )
 
 private const val SlidersExampleDescription = "Sliders examples"
 private const val SlidersExampleSourceUrl = "$SampleSourceUrl/SliderSamples.kt"
-val SlidersExamples = listOf(
-    Example(
-        name = ::SliderSample.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        SliderSample()
-    },
-    Example(
-        name = ::StepsSliderSample.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        StepsSliderSample()
-    },
-    Example(
-        name = ::SliderWithCustomThumbSample.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        SliderWithCustomThumbSample()
-    },
-    Example(
-        name = ::SliderWithCustomTrackAndThumb.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        SliderWithCustomTrackAndThumb()
-    },
-    Example(
-        name = ::RangeSliderSample.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        RangeSliderSample()
-    },
-    Example(
-        name = ::StepRangeSliderSample.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        StepRangeSliderSample()
-    },
-    Example(
-        name = ::RangeSliderWithCustomComponents.name,
-        description = SlidersExampleDescription,
-        sourceUrl = SlidersExampleSourceUrl
-    ) {
-        RangeSliderWithCustomComponents()
-    }
-)
+val SlidersExamples =
+    listOf(
+        Example(
+            name = ::SliderSample.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            SliderSample()
+        },
+        Example(
+            name = ::StepsSliderSample.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            StepsSliderSample()
+        },
+        Example(
+            name = ::SliderWithCustomThumbSample.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            SliderWithCustomThumbSample()
+        },
+        Example(
+            name = ::SliderWithCustomTrackAndThumb.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            SliderWithCustomTrackAndThumb()
+        },
+        Example(
+            name = ::RangeSliderSample.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            RangeSliderSample()
+        },
+        Example(
+            name = ::StepRangeSliderSample.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            StepRangeSliderSample()
+        },
+        Example(
+            name = ::RangeSliderWithCustomComponents.name,
+            description = SlidersExampleDescription,
+            sourceUrl = SlidersExampleSourceUrl
+        ) {
+            RangeSliderWithCustomComponents()
+        }
+    )
 
 private const val SnackbarsExampleDescription = "Snackbars examples"
 private const val SnackbarsExampleSourceUrl = "$SampleSourceUrl/ScaffoldSamples.kt"
-val SnackbarsExamples = listOf(
-    Example(
-        name = ::ScaffoldWithSimpleSnackbar.name,
-        description = SnackbarsExampleDescription,
-        sourceUrl = SnackbarsExampleSourceUrl
-    ) {
-        ScaffoldWithSimpleSnackbar()
-    },
-    Example(
-        name = ::ScaffoldWithIndefiniteSnackbar.name,
-        description = SnackbarsExampleDescription,
-        sourceUrl = SnackbarsExampleSourceUrl
-    ) {
-        ScaffoldWithIndefiniteSnackbar()
-    },
-    Example(
-        name = ::ScaffoldWithCustomSnackbar.name,
-        description = SnackbarsExampleDescription,
-        sourceUrl = SnackbarsExampleSourceUrl
-    ) {
-        ScaffoldWithCustomSnackbar()
-    },
-    Example(
-        name = ::ScaffoldWithCoroutinesSnackbar.name,
-        description = SnackbarsExampleDescription,
-        sourceUrl = SnackbarsExampleSourceUrl
-    ) {
-        ScaffoldWithCoroutinesSnackbar()
-    },
-    Example(
-        name = ::ScaffoldWithMultilineSnackbar.name,
-        description = SnackbarsExampleDescription,
-        sourceUrl = SnackbarsExampleSourceUrl
-    ) {
-        ScaffoldWithMultilineSnackbar()
-    }
-)
+val SnackbarsExamples =
+    listOf(
+        Example(
+            name = ::ScaffoldWithSimpleSnackbar.name,
+            description = SnackbarsExampleDescription,
+            sourceUrl = SnackbarsExampleSourceUrl
+        ) {
+            ScaffoldWithSimpleSnackbar()
+        },
+        Example(
+            name = ::ScaffoldWithIndefiniteSnackbar.name,
+            description = SnackbarsExampleDescription,
+            sourceUrl = SnackbarsExampleSourceUrl
+        ) {
+            ScaffoldWithIndefiniteSnackbar()
+        },
+        Example(
+            name = ::ScaffoldWithCustomSnackbar.name,
+            description = SnackbarsExampleDescription,
+            sourceUrl = SnackbarsExampleSourceUrl
+        ) {
+            ScaffoldWithCustomSnackbar()
+        },
+        Example(
+            name = ::ScaffoldWithCoroutinesSnackbar.name,
+            description = SnackbarsExampleDescription,
+            sourceUrl = SnackbarsExampleSourceUrl
+        ) {
+            ScaffoldWithCoroutinesSnackbar()
+        },
+        Example(
+            name = ::ScaffoldWithMultilineSnackbar.name,
+            description = SnackbarsExampleDescription,
+            sourceUrl = SnackbarsExampleSourceUrl
+        ) {
+            ScaffoldWithMultilineSnackbar()
+        }
+    )
 
 private const val SwitchExampleDescription = "Switch examples"
 private const val SwitchExampleSourceUrl = "$SampleSourceUrl/SwitchSamples.kt"
-val SwitchExamples = listOf(
-    Example(
-        name = ::SwitchSample.name,
-        description = SwitchExampleDescription,
-        sourceUrl = SwitchExampleSourceUrl
-    ) {
-        SwitchSample()
-    },
-
-    Example(
-        name = ::SwitchWithThumbIconSample.name,
-        description = SwitchExampleDescription,
-        sourceUrl = SwitchExampleSourceUrl
-    ) {
-        SwitchWithThumbIconSample()
-    },
-)
+val SwitchExamples =
+    listOf(
+        Example(
+            name = ::SwitchSample.name,
+            description = SwitchExampleDescription,
+            sourceUrl = SwitchExampleSourceUrl
+        ) {
+            SwitchSample()
+        },
+        Example(
+            name = ::SwitchWithThumbIconSample.name,
+            description = SwitchExampleDescription,
+            sourceUrl = SwitchExampleSourceUrl
+        ) {
+            SwitchWithThumbIconSample()
+        },
+    )
 
 private const val TabsExampleDescription = "Tabs examples"
 private const val TabsExampleSourceUrl = "$SampleSourceUrl/TabSamples.kt"
-val TabsExamples = listOf(
-    Example(
-        name = ::PrimaryTextTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        PrimaryTextTabs()
-    },
-    Example(
-        name = ::PrimaryIconTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        PrimaryIconTabs()
-    },
-    Example(
-        name = ::SecondaryTextTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        SecondaryTextTabs()
-    },
-    Example(
-        name = ::SecondaryIconTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        SecondaryIconTabs()
-    },
-    Example(
-        name = ::TextAndIconTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        TextAndIconTabs()
-    },
-    Example(
-        name = ::LeadingIconTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        LeadingIconTabs()
-    },
-    Example(
-        name = ::ScrollingPrimaryTextTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        ScrollingPrimaryTextTabs()
-    },
-    Example(
-        name = ::ScrollingSecondaryTextTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        ScrollingSecondaryTextTabs()
-    },
-    Example(
-        name = ::FancyTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        FancyTabs()
-    },
-    Example(
-        name = ::FancyIndicatorTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        FancyIndicatorTabs()
-    },
-    Example(
-        name = ::FancyIndicatorContainerTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        FancyIndicatorContainerTabs()
-    },
-    Example(
-        name = ::ScrollingFancyIndicatorContainerTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        ScrollingFancyIndicatorContainerTabs()
-    }
-)
+val TabsExamples =
+    listOf(
+        Example(
+            name = ::PrimaryTextTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            PrimaryTextTabs()
+        },
+        Example(
+            name = ::PrimaryIconTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            PrimaryIconTabs()
+        },
+        Example(
+            name = ::SecondaryTextTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            SecondaryTextTabs()
+        },
+        Example(
+            name = ::SecondaryIconTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            SecondaryIconTabs()
+        },
+        Example(
+            name = ::TextAndIconTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            TextAndIconTabs()
+        },
+        Example(
+            name = ::LeadingIconTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            LeadingIconTabs()
+        },
+        Example(
+            name = ::ScrollingPrimaryTextTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            ScrollingPrimaryTextTabs()
+        },
+        Example(
+            name = ::ScrollingSecondaryTextTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            ScrollingSecondaryTextTabs()
+        },
+        Example(
+            name = ::FancyTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            FancyTabs()
+        },
+        Example(
+            name = ::FancyIndicatorTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            FancyIndicatorTabs()
+        },
+        Example(
+            name = ::FancyIndicatorContainerTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            FancyIndicatorContainerTabs()
+        },
+        Example(
+            name = ::ScrollingFancyIndicatorContainerTabs.name,
+            description = TabsExampleDescription,
+            sourceUrl = TabsExampleSourceUrl
+        ) {
+            ScrollingFancyIndicatorContainerTabs()
+        }
+    )
 
 private const val TimePickerDescription = "Time Picker examples"
 private const val TimePickerSourceUrl = "$SampleSourceUrl/TimePicker.kt"
-val TimePickerExamples = listOf(
-    Example(
-        name = ::TimePickerSample.name,
-        description = TimePickerDescription,
-        sourceUrl = TimePickerSourceUrl
-    ) {
-        TimePickerSample()
-    },
-    Example(
-        name = ::TimeInputSample.name,
-        description = TimePickerDescription,
-        sourceUrl = TimePickerSourceUrl
-    ) {
-        TimeInputSample()
-    },
-    Example(
-        name = ::TimePickerSwitchableSample.name,
-        description = TimePickerDescription,
-        sourceUrl = TimePickerSourceUrl
-    ) {
-        TimePickerSwitchableSample()
-    },
-)
+val TimePickerExamples =
+    listOf(
+        Example(
+            name = ::TimePickerSample.name,
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl
+        ) {
+            TimePickerSample()
+        },
+        Example(
+            name = ::TimeInputSample.name,
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl
+        ) {
+            TimeInputSample()
+        },
+        Example(
+            name = ::TimePickerSwitchableSample.name,
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl
+        ) {
+            TimePickerSwitchableSample()
+        },
+    )
 
 private const val TextFieldsExampleDescription = "Text fields examples"
 private const val TextFieldsExampleSourceUrl = "$SampleSourceUrl/TextFieldSamples.kt"
-val TextFieldsExamples = listOf(
-    Example(
-        name = ::SimpleTextFieldSample.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        SimpleTextFieldSample()
-    },
-    Example(
-        name = ::TextFieldSample.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldSample()
-    },
-    Example(
-        name = ::SimpleOutlinedTextFieldSample.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        SimpleOutlinedTextFieldSample()
-    },
-    Example(
-        name = ::OutlinedTextFieldSample.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        OutlinedTextFieldSample()
-    },
-    Example(
-        name = ::TextFieldWithIcons.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldWithIcons()
-    },
-    Example(
-        name = ::TextFieldWithPlaceholder.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldWithPlaceholder()
-    },
-    Example(
-        name = ::TextFieldWithPrefixAndSuffix.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldWithPrefixAndSuffix()
-    },
-    Example(
-        name = ::TextFieldWithErrorState.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldWithErrorState()
-    },
-    Example(
-        name = ::TextFieldWithSupportingText.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldWithSupportingText()
-    },
-    Example(
-        name = ::PasswordTextField.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        PasswordTextField()
-    },
-    Example(
-        name = ::TextFieldWithHideKeyboardOnImeAction.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextFieldWithHideKeyboardOnImeAction()
-    },
-    Example(
-        name = ::TextArea.name,
-        description = TextFieldsExampleDescription,
-        sourceUrl = TextFieldsExampleSourceUrl
-    ) {
-        TextArea()
-    }
-).map {
-    // By default text field samples are minimal and don't have a `width` modifier to restrict the
-    // width. As a result, they grow horizontally if enough text is typed. To prevent this behavior
-    // in Catalog app the code below restricts the width of every text field sample
-    it.copy(content = {
-        Box(
-            Modifier
-                .wrapContentWidth()
-                .width(280.dp)
-        ) { it.content() }
-    })
-}
+val TextFieldsExamples =
+    listOf(
+            Example(
+                name = ::SimpleTextFieldSample.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                SimpleTextFieldSample()
+            },
+            Example(
+                name = ::TextFieldSample.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldSample()
+            },
+            Example(
+                name = ::SimpleOutlinedTextFieldSample.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                SimpleOutlinedTextFieldSample()
+            },
+            Example(
+                name = ::OutlinedTextFieldSample.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                OutlinedTextFieldSample()
+            },
+            Example(
+                name = ::TextFieldWithIcons.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithIcons()
+            },
+            Example(
+                name = ::TextFieldWithPlaceholder.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithPlaceholder()
+            },
+            Example(
+                name = ::TextFieldWithPrefixAndSuffix.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithPrefixAndSuffix()
+            },
+            Example(
+                name = ::TextFieldWithErrorState.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithErrorState()
+            },
+            Example(
+                name = ::TextFieldWithSupportingText.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithSupportingText()
+            },
+            Example(
+                name = ::PasswordTextField.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                PasswordTextField()
+            },
+            Example(
+                name = ::TextFieldWithHideKeyboardOnImeAction.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithHideKeyboardOnImeAction()
+            },
+            Example(
+                name = ::TextArea.name,
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextArea()
+            }
+        )
+        .map {
+            // By default text field samples are minimal and don't have a `width` modifier to
+            // restrict the
+            // width. As a result, they grow horizontally if enough text is typed. To prevent this
+            // behavior
+            // in Catalog app the code below restricts the width of every text field sample
+            it.copy(content = { Box(Modifier.wrapContentWidth().width(280.dp)) { it.content() } })
+        }
 
 private const val TooltipsExampleDescription = "Tooltips examples"
 private const val TooltipsExampleSourceUrl = "$SampleSourceUrl/TooltipSamples.kt"
-val TooltipsExamples = listOf(
-    Example(
-        name = ::PlainTooltipSample.name,
-        description = TooltipsExampleDescription,
-        sourceUrl = TooltipsExampleSourceUrl
-    ) {
-        PlainTooltipSample()
-    },
-    Example(
-        name = ::PlainTooltipWithManualInvocationSample.name,
-        description = TooltipsExampleDescription,
-        sourceUrl = TooltipsExampleSourceUrl
-    ) {
-        PlainTooltipWithManualInvocationSample()
-    },
-    Example(
-        name = ::PlainTooltipWithCaret.name,
-        description = TooltipsExampleDescription,
-        sourceUrl = TooltipsExampleSourceUrl
-    ) {
-        PlainTooltipWithCaret()
-    },
-    Example(
-        name = ::RichTooltipSample.name,
-        description = TooltipsExampleDescription,
-        sourceUrl = TooltipsExampleSourceUrl
-    ) {
-        RichTooltipSample()
-    },
-    Example(
-        name = ::RichTooltipWithManualInvocationSample.name,
-        description = TooltipsExampleDescription,
-        sourceUrl = TooltipsExampleSourceUrl
-    ) {
-        RichTooltipWithManualInvocationSample()
-    }
-)
+val TooltipsExamples =
+    listOf(
+        Example(
+            name = ::PlainTooltipSample.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            PlainTooltipSample()
+        },
+        Example(
+            name = ::PlainTooltipWithManualInvocationSample.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            PlainTooltipWithManualInvocationSample()
+        },
+        Example(
+            name = ::PlainTooltipWithCaret.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            PlainTooltipWithCaret()
+        },
+        Example(
+            name = ::PlainTooltipWithCustomCaret.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            PlainTooltipWithCustomCaret()
+        },
+        Example(
+            name = ::RichTooltipSample.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            RichTooltipSample()
+        },
+        Example(
+            name = ::RichTooltipWithManualInvocationSample.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            RichTooltipWithManualInvocationSample()
+        },
+        Example(
+            name = ::RichTooltipWithCaretSample.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            RichTooltipWithCaretSample()
+        },
+        Example(
+            name = ::RichTooltipWithCustomCaretSample.name,
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl
+        ) {
+            RichTooltipWithCustomCaretSample()
+        }
+    )

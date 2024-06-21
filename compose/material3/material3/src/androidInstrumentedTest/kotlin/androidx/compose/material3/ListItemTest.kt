@@ -18,8 +18,13 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.tokens.ListTokens
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -27,10 +32,12 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -48,18 +55,18 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ListItemTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val icon24x24 by lazy { ImageBitmap(width = 24.dp.toIntPx(), height = 24.dp.toIntPx()) }
     val icon40x40 by lazy { ImageBitmap(width = 40.dp.toIntPx(), height = 40.dp.toIntPx()) }
+    val ListTag = "list"
+    val LeadingTag = "leading"
+    val TrailingTag = "trailing"
 
     @Test
     fun listItem_withEmptyHeadline_doesNotCrash() {
         rule
-            .setMaterialContentForSizeAssertions {
-                ListItem(headlineContent = {})
-            }
+            .setMaterialContentForSizeAssertions { ListItem(headlineContent = {}) }
             .assertHeightIsEqualTo(ListTokens.ListItemOneLineContainerHeight)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
@@ -135,6 +142,99 @@ class ListItemTest {
     }
 
     @Test
+    fun listItem_oneLine_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemOneLineContainerHeight,
+            verticalPadding = ListItemVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun listItem_twoLine_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemTwoLineContainerHeight,
+            verticalPadding = ListItemVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    supportingContent = { Text("Secondary text") },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun listItem_threeLine_overline_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemThreeLineContainerHeight,
+            verticalPadding = ListItemThreeLineVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun listItem_threeLine_noOverline_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemThreeLineContainerHeight,
+            verticalPadding = ListItemThreeLineVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    supportingContent = {
+                        Text(
+                            "Very very very very very very long supporting text " +
+                                "which will span at least two lines"
+                        )
+                    },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    private fun testIntrinsicMeasurements(
+        expectedHeight: Dp,
+        verticalPadding: Dp,
+        content: @Composable () -> Unit,
+    ) {
+        rule.setMaterialContent(lightColorScheme(), composable = content)
+
+        rule.onNodeWithTag(ListTag, useUnmergedTree = true).assertHeightIsEqualTo(expectedHeight)
+        rule
+            .onNodeWithTag(LeadingTag, useUnmergedTree = true)
+            .assertHeightIsEqualTo(expectedHeight - verticalPadding * 2)
+        rule
+            .onNodeWithTag(TrailingTag, useUnmergedTree = true)
+            .assertHeightIsEqualTo(expectedHeight - verticalPadding * 2)
+    }
+
+    @Test
     fun listItem_oneLine_positioning_noIcon() {
         val listItemHeight = ListTokens.ListItemOneLineContainerHeight
         val expectedStartPadding = LeadingContentEndPadding
@@ -152,10 +252,7 @@ class ListItemTest {
                         Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     trailingContent = {
-                        Image(
-                            icon24x24,
-                            null,
-                            Modifier.saveLayout(trailingPosition, trailingSize))
+                        Image(icon24x24, null, Modifier.saveLayout(trailingPosition, trailingSize))
                     }
                 )
             }
@@ -163,19 +260,17 @@ class ListItemTest {
 
         val ds = rule.onRoot().getUnclippedBoundsInRoot()
         rule.runOnIdleWithDensity {
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - textSize.value!!.height) / 2f
-            )
+            assertThat(textPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - textSize.value!!.height) / 2f)
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                ds.width.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - trailingSize.value!!.height) / 2f
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(ds.width.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - trailingSize.value!!.height) / 2f)
         }
     }
 
@@ -196,30 +291,27 @@ class ListItemTest {
                         Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     leadingContent = {
-                        Image(
-                            icon24x24,
-                            null,
-                            Modifier.saveLayout(iconPosition, iconSize))
+                        Image(icon24x24, null, Modifier.saveLayout(iconPosition, iconSize))
                     }
                 )
             }
         }
         rule.runOnIdleWithDensity {
-            assertThat(iconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(iconPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - iconSize.value!!.height) / 2f
-            )
+            assertThat(iconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(iconPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - iconSize.value!!.height) / 2f)
 
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    iconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - textSize.value!!.height) / 2f
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - textSize.value!!.height) / 2f)
         }
     }
 
@@ -247,40 +339,37 @@ class ListItemTest {
                     Image(
                         icon24x24,
                         null,
-                        Modifier.saveLayout(leadingIconPosition, leadingIconSize))
+                        Modifier.saveLayout(leadingIconPosition, leadingIconSize)
+                    )
                 },
                 trailingContent = {
-                    Text(
-                        "meta",
-                        Modifier.saveLayout(trailingPosition, trailingSize)
-                    )
+                    Text("meta", Modifier.saveLayout(trailingPosition, trailingSize))
                 }
             )
         }
         rule.runOnIdleWithDensity {
-            assertThat(leadingIconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(leadingIconPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - leadingIconSize.value!!.height) / 2f
-            )
+            assertThat(leadingIconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(leadingIconPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - leadingIconSize.value!!.height) / 2f)
 
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    leadingIconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - textSize.value!!.height) / 2f
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        leadingIconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - textSize.value!!.height) / 2f)
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                listItemWidth.toPx() - trailingSize.value!!.width -
-                    expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - trailingSize.value!!.height) / 2f
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(listItemWidth.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - trailingSize.value!!.height) / 2f)
         }
     }
 
@@ -300,10 +389,7 @@ class ListItemTest {
             Box {
                 ListItem(
                     headlineContent = {
-                        Text(
-                            "Primary text",
-                            Modifier.saveLayout(textPosition, textSize)
-                        )
+                        Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     supportingContent = {
                         Text(
@@ -312,10 +398,7 @@ class ListItemTest {
                         )
                     },
                     trailingContent = {
-                        Text(
-                            "meta",
-                            Modifier.saveLayout(trailingPosition, trailingSize)
-                        )
+                        Text("meta", Modifier.saveLayout(trailingPosition, trailingSize))
                     }
                 )
             }
@@ -324,27 +407,22 @@ class ListItemTest {
         rule.runOnIdleWithDensity {
             val totalTextHeight = textSize.value!!.height + secondaryTextSize.value!!.height
 
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - totalTextHeight) / 2f
-            )
+            assertThat(textPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - totalTextHeight) / 2f)
 
-            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(secondaryTextPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - totalTextHeight) / 2f + textSize.value!!.height
-            )
+            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(secondaryTextPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - totalTextHeight) / 2f + textSize.value!!.height)
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                ds.width.toPx() - trailingSize.value!!.width -
-                    expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - trailingSize.value!!.height) / 2f
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(ds.width.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - trailingSize.value!!.height) / 2f)
         }
     }
 
@@ -364,10 +442,7 @@ class ListItemTest {
             Box {
                 ListItem(
                     headlineContent = {
-                        Text(
-                            "Primary text",
-                            Modifier.saveLayout(textPosition, textSize)
-                        )
+                        Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     supportingContent = {
                         Text(
@@ -384,28 +459,32 @@ class ListItemTest {
         rule.runOnIdleWithDensity {
             val totalTextHeight = textSize.value!!.height + secondaryTextSize.value!!.height
 
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - totalTextHeight) / 2f
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - totalTextHeight) / 2f)
 
-            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(secondaryTextPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - totalTextHeight) / 2f + textSize.value!!.height
-            )
+            assertThat(secondaryTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(secondaryTextPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - totalTextHeight) / 2f + textSize.value!!.height)
 
-            assertThat(iconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(iconPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - iconSize.value!!.height) / 2f
-            )
+            assertThat(iconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(iconPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - iconSize.value!!.height) / 2f)
         }
     }
 
@@ -441,51 +520,50 @@ class ListItemTest {
                     Image(
                         icon24x24,
                         null,
-                        Modifier.saveLayout(leadingIconPosition, leadingIconSize))
+                        Modifier.saveLayout(leadingIconPosition, leadingIconSize)
+                    )
                 },
                 trailingContent = {
-                    Text(
-                        "meta",
-                        Modifier.saveLayout(trailingPosition, trailingSize)
-                    )
+                    Text("meta", Modifier.saveLayout(trailingPosition, trailingSize))
                 }
             )
         }
         rule.runOnIdleWithDensity {
             val totalTextHeight = textSize.value!!.height + secondaryTextSize.value!!.height
 
-            assertThat(leadingIconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(leadingIconPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - leadingIconSize.value!!.height) / 2f
-            )
+            assertThat(leadingIconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(leadingIconPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - leadingIconSize.value!!.height) / 2f)
 
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    leadingIconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - totalTextHeight) / 2f
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        leadingIconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - totalTextHeight) / 2f)
 
-            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    leadingIconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(secondaryTextPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - totalTextHeight) / 2f + textSize.value!!.height
-            )
+            assertThat(secondaryTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        leadingIconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(secondaryTextPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - totalTextHeight) / 2f + textSize.value!!.height)
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                listItemWidth.toPx() - trailingSize.value!!.width -
-                    expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                (listItemHeight.toPx() - trailingSize.value!!.height) / 2f
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(listItemWidth.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y)
+                .isWithin(1f)
+                .of((listItemHeight.toPx() - trailingSize.value!!.height) / 2f)
         }
     }
 
@@ -508,14 +586,12 @@ class ListItemTest {
             Box {
                 ListItem(
                     headlineContent = {
-                        Text(
-                            "Primary text",
-                            Modifier.saveLayout(textPosition, textSize)
-                        )
+                        Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     supportingContent = {
                         Text(
-                            "Very long supporting text which will span two lines",
+                            "Very very very very very very long supporting text " +
+                                "which will span at least two lines",
                             Modifier.saveLayout(secondaryTextPosition, secondaryTextSize)
                         )
                     },
@@ -530,36 +606,33 @@ class ListItemTest {
         }
         val ds = rule.onRoot().getUnclippedBoundsInRoot()
         rule.runOnIdleWithDensity {
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
 
-            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(secondaryTextPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx() + textSize.value!!.height
-            )
+            assertThat(secondaryTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(secondaryTextPosition.value!!.y)
+                .isWithin(1f)
+                .of(expectedTopPadding.toPx() + textSize.value!!.height)
 
-            assertThat(iconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(iconPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(iconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(iconPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                ds.width.toPx() - trailingSize.value!!.width -
-                    expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(ds.width.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
         }
     }
 
@@ -590,10 +663,7 @@ class ListItemTest {
                         )
                     },
                     headlineContent = {
-                        Text(
-                            "Primary text",
-                            Modifier.saveLayout(textPosition, textSize)
-                        )
+                        Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     supportingContent = {
                         Text(
@@ -602,17 +672,10 @@ class ListItemTest {
                         )
                     },
                     leadingContent = {
-                        Image(
-                            icon40x40,
-                            null,
-                            Modifier.saveLayout(iconPosition, iconSize)
-                        )
+                        Image(icon40x40, null, Modifier.saveLayout(iconPosition, iconSize))
                     },
                     trailingContent = {
-                        Text(
-                            "meta",
-                            Modifier.saveLayout(trailingPosition, trailingSize)
-                        )
+                        Text("meta", Modifier.saveLayout(trailingPosition, trailingSize))
                     }
                 )
             }
@@ -620,45 +683,48 @@ class ListItemTest {
 
         val ds = rule.onRoot().getUnclippedBoundsInRoot()
         rule.runOnIdleWithDensity {
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx() + overlineTextSize.value!!.height
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of(expectedTopPadding.toPx() + overlineTextSize.value!!.height)
 
-            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(secondaryTextPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx() + overlineTextSize.value!!.height +
-                textSize.value!!.height
-            )
+            assertThat(secondaryTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(secondaryTextPosition.value!!.y)
+                .isWithin(1f)
+                .of(
+                    expectedTopPadding.toPx() +
+                        overlineTextSize.value!!.height +
+                        textSize.value!!.height
+                )
 
-            assertThat(iconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(iconPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(iconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(iconPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                ds.width.toPx() - trailingSize.value!!.width -
-                    expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(ds.width.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
 
-            assertThat(overlineTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() + iconSize.value!!.width +
-                    expectedContentStartPadding.toPx()
-            )
-            assertThat(overlineTextPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(overlineTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        iconSize.value!!.width +
+                        expectedContentStartPadding.toPx()
+                )
+            assertThat(overlineTextPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
         }
     }
 
@@ -685,10 +751,7 @@ class ListItemTest {
             ListItem(
                 modifier = Modifier.size(width = listItemWidth, height = listItemHeight),
                 overlineContent = {
-                    Text(
-                        "OVERLINE",
-                        Modifier.saveLayout(overlineTextPosition, overlineTextSize)
-                    )
+                    Text("OVERLINE", Modifier.saveLayout(overlineTextPosition, overlineTextSize))
                 },
                 headlineContent = {
                     Text("Primary text", Modifier.saveLayout(textPosition, textSize))
@@ -703,59 +766,57 @@ class ListItemTest {
                     Image(
                         icon24x24,
                         null,
-                        Modifier.saveLayout(leadingIconPosition, leadingIconSize))
+                        Modifier.saveLayout(leadingIconPosition, leadingIconSize)
+                    )
                 },
                 trailingContent = {
-                    Text(
-                        "meta",
-                        Modifier.saveLayout(trailingPosition, trailingSize)
-                    )
+                    Text("meta", Modifier.saveLayout(trailingPosition, trailingSize))
                 }
             )
         }
         rule.runOnIdleWithDensity {
-            assertThat(leadingIconPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx()
-            )
-            assertThat(leadingIconPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(leadingIconPosition.value!!.x).isWithin(1f).of(expectedStartPadding.toPx())
+            assertThat(leadingIconPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
 
-            assertThat(overlineTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    leadingIconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(overlineTextPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(overlineTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        leadingIconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(overlineTextPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
 
-            assertThat(textPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    leadingIconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(textPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx() + overlineTextSize.value!!.height
-            )
+            assertThat(textPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        leadingIconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(textPosition.value!!.y)
+                .isWithin(1f)
+                .of(expectedTopPadding.toPx() + overlineTextSize.value!!.height)
 
-            assertThat(secondaryTextPosition.value!!.x).isWithin(1f).of(
-                expectedStartPadding.toPx() +
-                    leadingIconSize.value!!.width +
-                    expectedTextStartPadding.toPx()
-            )
-            assertThat(secondaryTextPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx() + overlineTextSize.value!!.height +
-                textSize.value!!.height
-            )
+            assertThat(secondaryTextPosition.value!!.x)
+                .isWithin(1f)
+                .of(
+                    expectedStartPadding.toPx() +
+                        leadingIconSize.value!!.width +
+                        expectedTextStartPadding.toPx()
+                )
+            assertThat(secondaryTextPosition.value!!.y)
+                .isWithin(1f)
+                .of(
+                    expectedTopPadding.toPx() +
+                        overlineTextSize.value!!.height +
+                        textSize.value!!.height
+                )
 
-            assertThat(trailingPosition.value!!.x).isWithin(1f).of(
-                listItemWidth.toPx() - trailingSize.value!!.width -
-                    expectedEndPadding.toPx()
-            )
-            assertThat(trailingPosition.value!!.y).isWithin(1f).of(
-                expectedTopPadding.toPx()
-            )
+            assertThat(trailingPosition.value!!.x)
+                .isWithin(1f)
+                .of(listItemWidth.toPx() - trailingSize.value!!.width - expectedEndPadding.toPx())
+            assertThat(trailingPosition.value!!.y).isWithin(1f).of(expectedTopPadding.toPx())
         }
     }
 

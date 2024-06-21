@@ -43,11 +43,9 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalMaterial3Api::class)
 class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     private val wrap = Modifier.wrapContentSize(Alignment.Center)
     private val wrapperTestTag = "dateRangeInputWrapper"
@@ -84,11 +82,12 @@ class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 val startDayMillis = dayInUtcMilliseconds(year = 2021, month = 3, dayOfMonth = 6)
                 val endDayMillis = dayInUtcMilliseconds(year = 2022, month = 1, dayOfMonth = 10)
                 DateRangePicker(
-                    state = rememberDateRangePickerState(
-                        initialSelectedStartDateMillis = startDayMillis,
-                        initialSelectedEndDateMillis = endDayMillis,
-                        initialDisplayMode = DisplayMode.Input
-                    ),
+                    state =
+                        rememberDateRangePickerState(
+                            initialSelectedStartDateMillis = startDayMillis,
+                            initialSelectedEndDateMillis = endDayMillis,
+                            initialDisplayMode = DisplayMode.Input
+                        ),
                     showModeToggle = false
                 )
             }
@@ -106,7 +105,8 @@ class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
             .toEpochMilli()
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(wrapperTestTag)
+        rule
+            .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -117,10 +117,11 @@ class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     class ColorSchemeWrapper(val name: String, val colorScheme: ColorScheme) {

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,10 +45,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CheckboxSample() {
     val checkedState = remember { mutableStateOf(true) }
-    Checkbox(
-        checked = checkedState.value,
-        onCheckedChange = { checkedState.value = it }
-    )
+    Checkbox(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
 }
 
 @Preview
@@ -56,8 +54,7 @@ fun CheckboxSample() {
 fun CheckboxWithTextSample() {
     val (checkedState, onStateChange) = remember { mutableStateOf(true) }
     Row(
-        Modifier
-            .fillMaxWidth()
+        Modifier.fillMaxWidth()
             .height(56.dp)
             .toggleable(
                 value = checkedState,
@@ -89,11 +86,11 @@ fun TriStateCheckboxSample() {
         val (state2, onStateChange2) = remember { mutableStateOf(true) }
 
         // TriStateCheckbox state reflects state of dependent checkboxes
-        val parentState = remember(state, state2) {
-            if (state && state2) ToggleableState.On
-            else if (!state && !state2) ToggleableState.Off
-            else ToggleableState.Indeterminate
-        }
+        val parentState =
+            remember(state, state2) {
+                if (state && state2) ToggleableState.On
+                else if (!state && !state2) ToggleableState.Off else ToggleableState.Indeterminate
+            }
         // click on TriStateCheckbox can set state for dependent checkboxes
         val onParentClick = {
             val s = parentState != ToggleableState.On
@@ -104,15 +101,48 @@ fun TriStateCheckboxSample() {
         // The sample below composes just basic checkboxes which are not fully accessible on their
         // own. See the CheckboxWithTextSample as a way to ensure your checkboxes are fully
         // accessible.
-        TriStateCheckbox(
-            state = parentState,
-            onClick = onParentClick,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.triStateToggleable(
+                    state = parentState,
+                    onClick = onParentClick,
+                    role = Role.Checkbox
+                )
+        ) {
+            TriStateCheckbox(
+                state = parentState,
+                onClick = null,
+            )
+            Text("Receive Emails")
+        }
         Spacer(Modifier.size(25.dp))
-        Column(Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)) {
-            Checkbox(state, onStateChange)
+        Column(Modifier.padding(24.dp, 0.dp, 0.dp, 0.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier.toggleable(
+                        value = state,
+                        onValueChange = onStateChange,
+                        role = Role.Checkbox
+                    )
+            ) {
+                Checkbox(state, null)
+                Text("Daily")
+            }
             Spacer(Modifier.size(25.dp))
-            Checkbox(state2, onStateChange2)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier.toggleable(
+                        value = state2,
+                        onValueChange = onStateChange2,
+                        role = Role.Checkbox
+                    )
+            ) {
+                Checkbox(state2, null)
+                Text("Weekly")
+            }
         }
     }
 }

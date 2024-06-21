@@ -78,23 +78,22 @@ fun CatalogTopAppBar(
                         Icon(
                             imageVector =
                                 if (favorite) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                            tint = if (favorite)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                LocalContentColor.current,
-                            contentDescription = null
+                            tint =
+                                if (favorite) MaterialTheme.colorScheme.primary
+                                else LocalContentColor.current,
+                            contentDescription = stringResource(id = R.string.favorite_button)
                         )
                     }
                     IconButton(onClick = onThemeClick) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_palette_24dp),
-                            contentDescription = null
+                            contentDescription = stringResource(id = R.string.change_theme_button)
                         )
                     }
                     IconButton(onClick = { moreMenuExpanded = true }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = null
+                            contentDescription = stringResource(id = R.string.more_menu_button)
                         )
                     }
                 }
@@ -137,7 +136,7 @@ fun CatalogTopAppBar(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = null
+                        contentDescription = stringResource(id = R.string.back_button)
                     )
                 }
             }
@@ -158,10 +157,7 @@ private fun MoreMenu(
     onPrivacyClick: () -> Unit,
     onLicensesClick: () -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest
-    ) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
         DropdownMenuItem(
             text = { Text(stringResource(id = R.string.view_design_guidelines)) },
             onClick = onGuidelinesClick

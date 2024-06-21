@@ -17,7 +17,10 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertIsNotEqualTo
 import androidx.compose.ui.Modifier
@@ -52,11 +55,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SnackbarTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    private val longText = "Message is very long and long and long and long and long " +
-        "and long and long and long and long and long and long"
+    private val longText =
+        "Message is very long and long and long and long and long " +
+            "and long and long and long and long and long and long"
 
     @Test
     fun defaultSnackbar_semantics() {
@@ -65,24 +68,42 @@ class SnackbarTest {
             Box {
                 Snackbar(
                     content = { Text("Message") },
-                    action = {
-                        TextButton(onClick = { clicked = true }) {
-                            Text("UNDO")
-                        }
-                    }
+                    action = { TextButton(onClick = { clicked = true }) { Text("UNDO") } }
                 )
             }
         }
 
-        rule.onNodeWithText("Message")
-            .assertExists()
+        rule.onNodeWithText("Message").assertExists()
 
         assertThat(clicked).isFalse()
 
-        rule.onNodeWithText("UNDO")
-            .performClick()
+        rule.onNodeWithText("UNDO").performClick()
 
         assertThat(clicked).isTrue()
+    }
+
+    @Test
+    fun snackbar_emptyContent() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Snackbar {
+                // empty content should not crash
+            }
+        }
+    }
+
+    @Test
+    fun snackbar_noTextInContent() {
+        val snackbarHeight = 48.dp
+        val contentSize = 20.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            Snackbar {
+                // non-text content should not crash
+                Box(Modifier.testTag("content").size(contentSize))
+            }
+        }
+        rule
+            .onNodeWithTag("content")
+            .assertTopPositionInRootIsEqualTo((snackbarHeight - contentSize) / 2)
     }
 
     @Test
@@ -98,7 +119,9 @@ class SnackbarTest {
         val snackbarData =
             object : SnackbarData {
                 override val visuals: SnackbarVisuals = snackbarVisuals
+
                 override fun performAction() {}
+
                 override fun dismiss() {
                     clicked = true
                 }
@@ -116,17 +139,13 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextOnly_defaultSizes() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp
-        ) {
-            Snackbar(
-                content = {
-                    Text("Message")
+        val snackbar =
+            rule
+                .setMaterialContentForSizeAssertions(parentMaxWidth = 300.dp) {
+                    Snackbar(content = { Text("Message") })
                 }
-            )
-        }
-            .assertWidthIsEqualTo(300.dp)
-            .assertHeightIsEqualTo(48.dp)
+                .assertWidthIsEqualTo(300.dp)
+                .assertHeightIsEqualTo(48.dp)
 
         val firstBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(FirstBaseline)
         val lastBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(LastBaseline)
@@ -144,16 +163,12 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextOnly_bigFont_centered() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp
-        ) {
-            Snackbar(
-                content = {
-                    Text("Message", fontSize = 30.sp)
+        val snackbar =
+            rule
+                .setMaterialContentForSizeAssertions(parentMaxWidth = 300.dp) {
+                    Snackbar(content = { Text("Message", fontSize = 30.sp) })
                 }
-            )
-        }
-            .assertWidthIsEqualTo(300.dp)
+                .assertWidthIsEqualTo(300.dp)
 
         val firstBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(FirstBaseline)
         val lastBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(LastBaseline)
@@ -171,25 +186,23 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextAndButton_alignment() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp
-        ) {
-            Snackbar(
-                content = {
-                    Text("Message")
-                },
-                action = {
-                    TextButton(
-                        onClick = {},
-                        modifier = Modifier.clipToBounds().testTag("button")
-                    ) {
-                        Text("Undo")
-                    }
+        val snackbar =
+            rule
+                .setMaterialContentForSizeAssertions(parentMaxWidth = 300.dp) {
+                    Snackbar(
+                        content = { Text("Message") },
+                        action = {
+                            TextButton(
+                                onClick = {},
+                                modifier = Modifier.clipToBounds().testTag("button")
+                            ) {
+                                Text("Undo")
+                            }
+                        }
+                    )
                 }
-            )
-        }
-            .assertWidthIsEqualTo(300.dp)
-            .assertHeightIsEqualTo(48.dp)
+                .assertWidthIsEqualTo(300.dp)
+                .assertHeightIsEqualTo(48.dp)
 
         val textBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(FirstBaseline)
         val buttonBaseLine = rule.onNodeWithTag("button").getAlignmentLinePosition(FirstBaseline)
@@ -210,24 +223,18 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextAndButton_bigFont_alignment() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 400.dp
-        ) {
-            val fontSize = 30.sp
-            Snackbar(
-                content = {
-                    Text("Message", fontSize = fontSize)
-                },
-                action = {
-                    TextButton(
-                        onClick = {},
-                        modifier = Modifier.testTag("button")
-                    ) {
-                        Text("Undo", fontSize = fontSize)
+        val snackbar =
+            rule.setMaterialContentForSizeAssertions(parentMaxWidth = 400.dp) {
+                val fontSize = 30.sp
+                Snackbar(
+                    content = { Text("Message", fontSize = fontSize) },
+                    action = {
+                        TextButton(onClick = {}, modifier = Modifier.testTag("button")) {
+                            Text("Undo", fontSize = fontSize)
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
 
         val textBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(FirstBaseline)
         val buttonBaseLine = rule.onNodeWithTag("button").getAlignmentLinePosition(FirstBaseline)
@@ -248,17 +255,13 @@ class SnackbarTest {
 
     @Test
     fun snackbar_longText_sizes() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp
-        ) {
-            Snackbar(
-                content = {
-                    Text(longText, Modifier.testTag("text"), maxLines = 2)
+        val snackbar =
+            rule
+                .setMaterialContentForSizeAssertions(parentMaxWidth = 300.dp) {
+                    Snackbar(content = { Text(longText, Modifier.testTag("text"), maxLines = 2) })
                 }
-            )
-        }
-            .assertWidthIsEqualTo(300.dp)
-            .assertHeightIsEqualTo(68.dp)
+                .assertWidthIsEqualTo(300.dp)
+                .assertHeightIsEqualTo(68.dp)
 
         val firstBaseline = rule.onNodeWithTag("text").getFirstBaselinePosition()
         val lastBaseline = rule.onNodeWithTag("text").getLastBaselinePosition()
@@ -278,25 +281,20 @@ class SnackbarTest {
 
     @Test
     fun snackbar_longTextAndButton_alignment() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp
-        ) {
-            Snackbar(
-                content = {
-                    Text(longText, Modifier.testTag("text"), maxLines = 2)
-                },
-                action = {
-                    TextButton(
-                        modifier = Modifier.testTag("button"),
-                        onClick = {}
-                    ) {
-                        Text("Undo")
-                    }
+        val snackbar =
+            rule
+                .setMaterialContentForSizeAssertions(parentMaxWidth = 300.dp) {
+                    Snackbar(
+                        content = { Text(longText, Modifier.testTag("text"), maxLines = 2) },
+                        action = {
+                            TextButton(modifier = Modifier.testTag("button"), onClick = {}) {
+                                Text("Undo")
+                            }
+                        }
+                    )
                 }
-            )
-        }
-            .assertWidthIsEqualTo(300.dp)
-            .assertHeightIsEqualTo(68.dp)
+                .assertWidthIsEqualTo(300.dp)
+                .assertHeightIsEqualTo(68.dp)
 
         val textFirstBaseLine = rule.onNodeWithTag("text").getFirstBaselinePosition()
         val textLastBaseLine = rule.onNodeWithTag("text").getLastBaselinePosition()
@@ -305,8 +303,7 @@ class SnackbarTest {
         textLastBaseLine.assertIsNotEqualTo(0.dp, "last baseline")
         textFirstBaseLine.assertIsNotEqualTo(textLastBaseLine, "first baseline")
 
-        rule.onNodeWithTag("text")
-            .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
+        rule.onNodeWithTag("text").assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
 
         val buttonBounds = rule.onNodeWithTag("button").getUnclippedBoundsInRoot()
         val snackBounds = snackbar.getUnclippedBoundsInRoot()
@@ -317,38 +314,35 @@ class SnackbarTest {
 
     @Test
     fun snackbar_textAndButtonOnSeparateLine_alignment() {
-        val snackbar = rule.setMaterialContentForSizeAssertions(
-            parentMaxWidth = 300.dp
-        ) {
-            Snackbar(
-                content = {
-                    Text("Message", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
-                },
-                action = {
-                    TextButton(
-                        onClick = {},
-                        modifier = Modifier.testTag("button")
-                    ) {
-                        Text("Undo", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
-                    }
-                },
-                actionOnNewLine = true
-            )
-        }
+        val snackbar =
+            rule.setMaterialContentForSizeAssertions(parentMaxWidth = 300.dp) {
+                Snackbar(
+                    content = {
+                        Text("Message", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
+                    },
+                    action = {
+                        TextButton(onClick = {}, modifier = Modifier.testTag("button")) {
+                            Text("Undo", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
+                        }
+                    },
+                    actionOnNewLine = true
+                )
+            }
 
         val textFirstBaseLine = rule.onNodeWithText("Message").getFirstBaselinePosition()
         val textLastBaseLine = rule.onNodeWithText("Message").getLastBaselinePosition()
         val textBounds = rule.onNodeWithText("Message").getUnclippedBoundsInRoot()
         val buttonBounds = rule.onNodeWithTag("button").getUnclippedBoundsInRoot()
 
-        rule.onNodeWithText("Message")
-            .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
+        rule.onNodeWithText("Message").assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
 
         val lastBaselineToBottom = max(18.dp, 48.dp - textLastBaseLine)
 
-        rule.onNodeWithTag("button").assertTopPositionInRootIsEqualTo(
-            lastBaselineToBottom + textBounds.top + textLastBaseLine
-        )
+        rule
+            .onNodeWithTag("button")
+            .assertTopPositionInRootIsEqualTo(
+                lastBaselineToBottom + textBounds.top + textLastBaseLine
+            )
 
         snackbar
             .assertHeightIsEqualTo(2.dp + buttonBounds.top + buttonBounds.height)
@@ -358,34 +352,32 @@ class SnackbarTest {
     @Test
     fun defaultSnackbar_dataVersion_proxiesParameters() {
         var clicked = false
-        val snackbarVisuals = object : SnackbarVisuals {
-            override val message: String = "Data message"
-            override val actionLabel: String = "UNDO"
-            override val withDismissAction: Boolean = false
-            override val duration: SnackbarDuration = SnackbarDuration.Short
-        }
-        val snackbarData = object : SnackbarData {
-            override val visuals: SnackbarVisuals = snackbarVisuals
-
-            override fun performAction() {
-                clicked = true
+        val snackbarVisuals =
+            object : SnackbarVisuals {
+                override val message: String = "Data message"
+                override val actionLabel: String = "UNDO"
+                override val withDismissAction: Boolean = false
+                override val duration: SnackbarDuration = SnackbarDuration.Short
             }
+        val snackbarData =
+            object : SnackbarData {
+                override val visuals: SnackbarVisuals = snackbarVisuals
 
-            override fun dismiss() {}
-        }
+                override fun performAction() {
+                    clicked = true
+                }
+
+                override fun dismiss() {}
+            }
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                Snackbar(snackbarData = snackbarData)
-            }
+            Box { Snackbar(snackbarData = snackbarData) }
         }
 
-        rule.onNodeWithText("Data message")
-            .assertExists()
+        rule.onNodeWithText("Data message").assertExists()
 
         assertThat(clicked).isFalse()
 
-        rule.onNodeWithText("UNDO")
-            .performClick()
+        rule.onNodeWithText("UNDO").performClick()
 
         assertThat(clicked).isTrue()
     }
