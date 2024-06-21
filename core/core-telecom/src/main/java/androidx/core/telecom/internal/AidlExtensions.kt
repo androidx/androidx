@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.internal
 
+import android.util.Log
 import androidx.core.telecom.extensions.IActionsResultCallback
 import androidx.core.telecom.extensions.ICallDetailsListener
 import androidx.core.telecom.extensions.ICapabilityExchange
@@ -53,6 +54,11 @@ internal class ParticipantActions(
     }
 }
 
+/** Remote interface used by InCallServices to send action events to the VOIP application. */
+@ExperimentalAppActions
+internal class ParticipantActionsRemote(binder: IParticipantActions) :
+    IParticipantActions by binder
+
 /**
  * Remote interface used to notify the ICS of participant state information
  *
@@ -71,9 +77,47 @@ internal class ParticipantStateListenerRemote(binder: IParticipantStateListener)
 internal class CapabilityExchangeRemote(binder: ICapabilityExchange) :
     ICapabilityExchange by binder
 
+/**
+ * Remote interface for [ICapabilityExchangeListener] that InCallServices use to communicate with
+ * the remote VOIP application.
+ */
 @ExperimentalAppActions
 internal class CapabilityExchangeListenerRemote(binder: ICapabilityExchangeListener) :
     ICapabilityExchangeListener by binder
+
+/**
+ * Adapter class that implements [IParticipantStateListener] AIDL and calls the associated callbacks
+ */
+@ExperimentalAppActions
+internal class ParticipantStateListener(
+    private val updateParticipants: (Set<Participant>) -> Unit,
+    private val updateActiveParticipant: (Int?) -> Unit,
+    private val updateRaisedHands: (Set<Int>) -> Unit,
+    private val finishSync: (ParticipantActionsRemote?) -> Unit
+) : IParticipantStateListener.Stub() {
+    override fun updateParticipants(participants: Array<out Participant>?) {
+        updateParticipants.invoke(participants?.toSet() ?: emptySet())
+    }
+
+    override fun updateActiveParticipant(activeParticipant: Int) {
+        if (activeParticipant < 0) {
+            updateActiveParticipant.invoke(null)
+        } else {
+            updateActiveParticipant.invoke(activeParticipant)
+        }
+    }
+
+    override fun updateRaisedHandsAction(participants: IntArray?) {
+        updateRaisedHands.invoke(participants?.toSet() ?: emptySet())
+    }
+
+    override fun finishSync(cb: IParticipantActions?) {
+        if (cb == null) {
+            Log.w("AidlExtensions", "finishSync returned null actions!")
+        }
+        finishSync.invoke(cb?.let { ParticipantActionsRemote(it) })
+    }
+}
 
 /**
  * The implementation of the capability exchange listener, which is used by the InCallService to

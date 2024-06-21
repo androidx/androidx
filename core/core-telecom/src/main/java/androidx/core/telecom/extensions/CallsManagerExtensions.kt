@@ -115,6 +115,7 @@ internal data class CallEvent(val event: ExtensionEvent, val extras: Bundle)
  *   implementation of [ExtensionInitializationScope.onCall] will be called.
  * @see CallsManager.addCall
  */
+// TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
@@ -170,6 +171,7 @@ suspend fun CallsManager.addCallWithExtensions(
  * implementation of [onCall] will be run, which should manage the call and extension states during
  * the lifetime of when the call is active.
  */
+// TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
