@@ -19,6 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.kruth.assertThat
 import androidx.room.DatabaseProcessingStep
+import androidx.room.RoomKspProcessor
 import androidx.room.RoomProcessor
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XType
@@ -42,6 +43,8 @@ import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.auto.service.processor.AutoServiceProcessor
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -59,10 +62,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class DatabaseProcessorTest {
     companion object {
         const val DATABASE_PREFIX =
@@ -1534,31 +1536,39 @@ class DatabaseProcessorTest {
     }
 
     @Test
-    fun exportSchemaToJarResources() {
+    fun exportSchemaToJarResources(@TestParameter withKotlinSrc: Boolean) {
         val dbSource =
-            Source.java(
-                "foo.bar.MyDb",
-                """
-            package foo.bar;
-            import androidx.room.*;
-            @Database(entities = {User.class}, version = 1, exportSchema = true)
-            public abstract class MyDb extends RoomDatabase {}
-            """
-                    .trimIndent()
-            )
-        val lib =
-            compileFiles(
-                sources = listOf(dbSource, USER),
-                annotationProcessors = listOf(RoomProcessor()),
-                options = mapOf("room.exportSchemaResource" to "true"),
-                includeSystemClasspath = false
-            )
-        assertThat(
-                lib.any { libDir ->
-                    libDir.walkTopDown().any { it.endsWith("schemas/foo.bar.MyDb/1.json") }
-                }
-            )
-            .isTrue()
+            if (withKotlinSrc) {
+                Source.kotlin(
+                    "foo/bar/MyDb.kt",
+                    """
+                    package foo.bar
+                    import androidx.room.*
+                    @Database(entities = [User::class], version = 1, exportSchema = true)
+                    abstract class MyDb : RoomDatabase()
+                    """
+                        .trimIndent()
+                )
+            } else {
+                Source.java(
+                    "foo.bar.MyDb",
+                    """
+                    package foo.bar;
+                    import androidx.room.*;
+                    @Database(entities = {User.class}, version = 1, exportSchema = true)
+                    public abstract class MyDb extends RoomDatabase {}
+                    """
+                        .trimIndent()
+                )
+            }
+        runProcessorTest(
+            sources = listOf(dbSource, USER),
+            javacProcessors = listOf(RoomProcessor()),
+            symbolProcessorProviders = listOf(RoomKspProcessor.Provider()),
+            options = mapOf("room.exportSchemaResource" to "true"),
+        ) {
+            it.generatedResourceFileWithPath("schemas/foo.bar.MyDb/1.json")
+        }
     }
 
     @Test

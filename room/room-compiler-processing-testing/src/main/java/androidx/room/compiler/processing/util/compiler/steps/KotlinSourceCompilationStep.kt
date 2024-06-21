@@ -55,11 +55,11 @@ internal object KotlinSourceCompilationStep : KotlinCompilationStep {
                         listOf(workingDir.resolve(CLASS_OUT_FOLDER_NAME)) +
                             arguments.additionalClasspaths,
                     // NOTE: ideally, we should remove kotlin sources but we know that there are no
-                    // more
-                    // kotlin steps so we skip unnecessary work
+                    // more kotlin steps so we skip unnecessary work
                     sourceSets = arguments.sourceSets
                 ),
-            outputClasspath = listOf(result.compiledClasspath)
+            outputClasspath = listOf(result.compiledClasspath),
+            generatedResources = emptyList()
         )
     }
 
