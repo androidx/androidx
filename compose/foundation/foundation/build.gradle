@@ -110,6 +110,9 @@ androidXMultiplatform {
                 implementation(libs.dexmakerMockito)
                 implementation(libs.mockitoCore)
                 implementation(libs.mockitoKotlin)
+
+                implementation(libs.leakcanary)
+                implementation(libs.leakcanaryInstrumentation)
             }
         }
 
