@@ -272,7 +272,7 @@ actual fun DropdownMenuItem(
     enabled: Boolean,
     colors: MenuItemColors,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
 ) {
     DropdownMenuItemContent(
         text = text,
