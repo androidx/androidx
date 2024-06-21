@@ -21,12 +21,15 @@ import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.DiagnosticMessage
 import androidx.room.compiler.processing.util.JavaCompileTestingCompilationResult
+import androidx.room.compiler.processing.util.JavaFileObjectResource
+import androidx.room.compiler.processing.util.Resource
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.toDiagnosticMessages
 import com.google.testing.compile.Compilation
 import com.google.testing.compile.Compiler
 import java.io.File
 import javax.annotation.processing.Processor
+import javax.tools.JavaFileObject
 
 @ExperimentalProcessingApi
 internal class JavacCompilationTestRunner(
@@ -43,21 +46,19 @@ internal class JavacCompilationTestRunner(
         val syntheticJavacProcessor = SyntheticJavacProcessor(params.config, params.handlers)
         val processors = testProcessors + syntheticJavacProcessor
         val sources =
-            if (params.sources.isEmpty()) {
+            params.sources.ifEmpty {
                 // synthesize a source to trigger compilation
                 listOf(
                     Source.java(
                         qName = "xprocessing.generated.SyntheticSource",
                         code =
                             """
-                    package xprocessing.generated;
-                    public class SyntheticSource {}
-                    """
+                            package xprocessing.generated;
+                            public class SyntheticSource {}
+                            """
                                 .trimIndent()
                     )
                 )
-            } else {
-                params.sources
             }
 
         val optionsArg = params.options.entries.map { "-A${it.key}=${it.value}" }
@@ -76,12 +77,23 @@ internal class JavacCompilationTestRunner(
         val compilation = compiler.compile(javaFileObjects.keys)
         val generatedSources =
             if (compilation.status() == Compilation.Status.SUCCESS) {
-                compilation.generatedSourceFiles().associate { it to Source.fromJavaFileObject(it) }
+                compilation.generatedSourceFiles().associateWith { Source.fromJavaFileObject(it) }
             } else {
                 compilation
                     .diagnostics()
                     .mapNotNull { it.source }
-                    .associate { it to Source.fromJavaFileObject(it) }
+                    .associateWith { Source.fromJavaFileObject(it) }
+            }
+        val generatedResources: List<Resource> =
+            if (compilation.status() == Compilation.Status.SUCCESS) {
+                compilation
+                    .generatedFiles()
+                    .filter { it.kind == JavaFileObject.Kind.OTHER }
+                    .map {
+                        JavaFileObjectResource(it.toUri().path.substringAfter("CLASS_OUTPUT/"), it)
+                    }
+            } else {
+                emptyList()
             }
 
         val diagnostics: List<DiagnosticMessage> =
@@ -92,7 +104,8 @@ internal class JavacCompilationTestRunner(
             delegate = compilation,
             processor = syntheticJavacProcessor,
             diagnostics = diagnostics.groupBy { it.kind },
-            generatedSources = generatedSources.values.toList()
+            generatedSources = generatedSources.values.toList(),
+            generatedResources = generatedResources
         )
     }
 }
