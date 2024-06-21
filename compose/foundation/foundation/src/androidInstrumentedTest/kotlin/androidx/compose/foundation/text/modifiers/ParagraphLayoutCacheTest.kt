@@ -343,6 +343,15 @@ class ParagraphLayoutCacheTest {
         assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNotNull()
     }
 
+    @Test
+    fun hugeString_doesntCrash() {
+        val text = "A".repeat(100_000)
+        val style = createTextStyle(fontSize = 100.sp)
+        val subject =
+            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+        subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+    }
+
     private fun createTextStyle(
         fontSize: TextUnit,
         letterSpacing: TextUnit = TextUnit.Unspecified
