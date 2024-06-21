@@ -60,7 +60,7 @@ internal class InternalMutatorMutex {
         fun cancel() = job.cancel()
     }
 
-    private val currentMutator = AtomicReference<Mutator?>(null)
+    private val currentMutator = InternalAtomicReference<Mutator?>(null)
     private val mutex = Mutex()
 
     private fun tryMutateOrCancel(mutator: Mutator) {

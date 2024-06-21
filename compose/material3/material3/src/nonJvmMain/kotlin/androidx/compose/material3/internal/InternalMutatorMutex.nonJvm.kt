@@ -18,7 +18,7 @@ package androidx.compose.material3.internal
 
 import kotlinx.atomicfu.atomic
 
-internal actual class AtomicReference<V> actual constructor(value: V) {
+internal actual class InternalAtomicReference<V> actual constructor(value: V) {
     private val delegate = atomic(value)
     actual fun get() = delegate.value
     actual fun set(value: V) {
