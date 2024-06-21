@@ -61,10 +61,12 @@ package androidx.compose.ui {
 
   @androidx.compose.runtime.Stable public static fun interface Alignment.Horizontal {
     method public int align(int size, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public default operator androidx.compose.ui.Alignment plus(androidx.compose.ui.Alignment.Vertical other);
   }
 
   @androidx.compose.runtime.Stable public static fun interface Alignment.Vertical {
     method public int align(int size, int space);
+    method public default operator androidx.compose.ui.Alignment plus(androidx.compose.ui.Alignment.Horizontal other);
   }
 
   @androidx.compose.runtime.Immutable public final class BiasAbsoluteAlignment implements androidx.compose.ui.Alignment {
@@ -85,6 +87,7 @@ package androidx.compose.ui {
     method public float component1();
     method public androidx.compose.ui.BiasAbsoluteAlignment.Horizontal copy(float bias);
     method public float getBias();
+    method public androidx.compose.ui.Alignment plus(androidx.compose.ui.Alignment.Vertical other);
     property public final float bias;
   }
 
@@ -106,6 +109,7 @@ package androidx.compose.ui {
     method public float component1();
     method public androidx.compose.ui.BiasAlignment.Horizontal copy(float bias);
     method public float getBias();
+    method public androidx.compose.ui.Alignment plus(androidx.compose.ui.Alignment.Vertical other);
     property public final float bias;
   }
 
@@ -115,6 +119,7 @@ package androidx.compose.ui {
     method public float component1();
     method public androidx.compose.ui.BiasAlignment.Vertical copy(float bias);
     method public float getBias();
+    method public androidx.compose.ui.Alignment plus(androidx.compose.ui.Alignment.Horizontal other);
     property public final float bias;
   }
 
