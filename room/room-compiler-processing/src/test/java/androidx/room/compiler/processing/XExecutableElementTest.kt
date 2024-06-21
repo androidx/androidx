@@ -29,6 +29,7 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
+import androidx.room.compiler.processing.util.kspProcessingEnv
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.testing.junit.testparameterinjector.TestParameter
@@ -124,7 +125,15 @@ class XExecutableElementTest {
                 assertThat(method.isVarArgs()).isTrue()
                 assertThat(method.parameters.single().type.asTypeName())
                     .isEqualTo(
-                        XTypeName.getArrayName(String::class.asClassName().copy(nullable = true))
+                        XTypeName.getArrayName(
+                                if (it.isKsp && it.kspProcessingEnv.isKsp2) {
+                                    XTypeName.getProducerExtendsName(
+                                        String::class.asClassName().copy(nullable = true)
+                                    )
+                                } else {
+                                    String::class.asClassName().copy(nullable = true)
+                                }
+                            )
                             .copy(nullable = true)
                     )
             }
