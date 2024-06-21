@@ -54,13 +54,12 @@ val WearMaterial3Demos =
             ComposableDemo("Icon Button") { IconButtonDemo() },
             ComposableDemo("Text Toggle Button") { TextToggleButtonDemo() },
             ComposableDemo("Icon Toggle Button") { IconToggleButtonDemo() },
-            ComposableDemo("Switch") { SwitchDemos() },
             ComposableDemo("Checkbox Button") { CheckboxButtonDemo() },
             ComposableDemo("Split Checkbox Button") { SplitCheckboxButtonDemo() },
             ComposableDemo("Radio Button") { RadioButtonDemo() },
             ComposableDemo("Split Radio Button") { SplitRadioButtonDemo() },
-            ComposableDemo("Toggle Button") { ToggleButtonDemo() },
-            ComposableDemo("Split Toggle Button") { SplitToggleButtonDemo() },
+            ComposableDemo("Switch Button") { SwitchButtonDemo() },
+            ComposableDemo("Split Switch Button") { SplitSwitchButtonDemo() },
             Material3DemoCategory(
                 "Stepper",
                 listOf(

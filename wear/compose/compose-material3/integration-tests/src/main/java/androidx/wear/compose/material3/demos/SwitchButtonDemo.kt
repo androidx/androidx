@@ -33,25 +33,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Composable
-fun ToggleButtonDemo() {
+fun SwitchButtonDemo() {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item { ListHeader { Text("Switch") } }
-        item { DemoToggleSwitch(enabled = true, initiallyChecked = true) }
-        item { DemoToggleSwitch(enabled = true, initiallyChecked = false) }
+        item { DemoSwitchButton(enabled = true, initiallyChecked = true) }
+        item { DemoSwitchButton(enabled = true, initiallyChecked = false) }
         item { ListHeader { Text("Disabled Switch") } }
-        item { DemoToggleSwitch(enabled = false, initiallyChecked = true) }
-        item { DemoToggleSwitch(enabled = false, initiallyChecked = false) }
+        item { DemoSwitchButton(enabled = false, initiallyChecked = true) }
+        item { DemoSwitchButton(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Icon") } }
         item {
-            DemoToggleSwitch(
+            DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label",
@@ -60,7 +59,7 @@ fun ToggleButtonDemo() {
             }
         }
         item {
-            DemoToggleSwitch(
+            DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label",
@@ -71,7 +70,7 @@ fun ToggleButtonDemo() {
         }
         item { ListHeader { Text("Multi-line") } }
         item {
-            DemoToggleSwitch(
+            DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
@@ -79,14 +78,14 @@ fun ToggleButtonDemo() {
             )
         }
         item {
-            DemoToggleSwitch(
+            DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoToggleSwitch(
+            DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max",
@@ -97,7 +96,7 @@ fun ToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoToggleSwitch(
+private fun DemoSwitchButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
@@ -105,7 +104,7 @@ private fun DemoToggleSwitch(
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
-    ToggleButton(
+    SwitchButton(
         modifier = Modifier.fillMaxWidth(),
         icon = content,
         label = {
@@ -129,7 +128,6 @@ private fun DemoToggleSwitch(
             }
         },
         checked = checked,
-        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
         enabled = enabled,
     )
