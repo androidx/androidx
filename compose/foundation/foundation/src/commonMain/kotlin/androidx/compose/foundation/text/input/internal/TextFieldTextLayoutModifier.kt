@@ -136,9 +136,15 @@ internal class TextFieldTextLayoutModifierNode(
             constraints = constraints,
         )
 
-        val placeable = measurable.measure(
-            Constraints.fixed(result.size.width, result.size.height)
-        )
+        val placeable =
+            measurable.measure(
+                Constraints.fitPrioritizingWidth(
+                    minWidth = result.size.width,
+                    maxWidth = result.size.width,
+                    minHeight = result.size.height,
+                    maxHeight = result.size.height
+                )
+            )
 
         // calculate the min height for single line text to prevent text cuts.
         // for single line text maxLines puts in max height constraint based on
