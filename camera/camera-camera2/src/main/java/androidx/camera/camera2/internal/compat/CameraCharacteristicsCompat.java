@@ -131,7 +131,7 @@ public class CameraCharacteristicsCompat {
             try {
                 map = get(
                         CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            } catch (AssertionError e) {
+            } catch (NullPointerException | AssertionError e) {
                 // Some devices may throw AssertionError when querying stream configuration map
                 // from CameraCharacteristics during bindToLifecycle. Catch the AssertionError and
                 // throw IllegalArgumentException so app level can decide how to handle.
