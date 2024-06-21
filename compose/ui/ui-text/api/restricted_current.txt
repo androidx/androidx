@@ -139,6 +139,7 @@ package androidx.compose.ui.text {
 
   public static final class LinkAnnotation.Clickable extends androidx.compose.ui.text.LinkAnnotation {
     ctor public LinkAnnotation.Clickable(String tag, optional androidx.compose.ui.text.TextLinkStyles? styles, androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method public androidx.compose.ui.text.LinkAnnotation.Clickable copy(optional String tag, optional androidx.compose.ui.text.TextLinkStyles? styles, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
     method public androidx.compose.ui.text.LinkInteractionListener? getLinkInteractionListener();
     method public androidx.compose.ui.text.TextLinkStyles? getStyles();
     method public String getTag();
@@ -149,6 +150,7 @@ package androidx.compose.ui.text {
 
   public static final class LinkAnnotation.Url extends androidx.compose.ui.text.LinkAnnotation {
     ctor public LinkAnnotation.Url(String url, optional androidx.compose.ui.text.TextLinkStyles? styles, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method public androidx.compose.ui.text.LinkAnnotation.Url copy(optional String url, optional androidx.compose.ui.text.TextLinkStyles? styles, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
     method public androidx.compose.ui.text.LinkInteractionListener? getLinkInteractionListener();
     method public androidx.compose.ui.text.TextLinkStyles? getStyles();
     method public String getUrl();
