@@ -724,6 +724,10 @@ public abstract interface class androidx/compose/runtime/State {
 	public abstract fun getValue ()Ljava/lang/Object;
 }
 
+public final class androidx/compose/runtime/SynchronizationKt {
+	public static final synthetic fun synchronizedt (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
 public final class androidx/compose/runtime/Updater {
 	public static final synthetic fun box-impl (Landroidx/compose/runtime/Composer;)Landroidx/compose/runtime/Updater;
 	public static fun constructor-impl (Landroidx/compose/runtime/Composer;)Landroidx/compose/runtime/Composer;
@@ -816,7 +820,6 @@ public abstract interface class androidx/compose/runtime/internal/ComposableLamb
 public final class androidx/compose/runtime/internal/ComposableLambdaKt {
 	public static final fun composableLambda (Landroidx/compose/runtime/Composer;IZLjava/lang/Object;)Landroidx/compose/runtime/internal/ComposableLambda;
 	public static final fun composableLambdaInstance (IZLjava/lang/Object;)Landroidx/compose/runtime/internal/ComposableLambda;
-	public static final fun rememberComposableLambda (IZLjava/lang/Object;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/internal/ComposableLambda;
 }
 
 public abstract interface class androidx/compose/runtime/internal/ComposableLambdaN : kotlin/jvm/functions/FunctionN {
@@ -825,7 +828,6 @@ public abstract interface class androidx/compose/runtime/internal/ComposableLamb
 public final class androidx/compose/runtime/internal/ComposableLambdaN_jvmKt {
 	public static final fun composableLambdaN (Landroidx/compose/runtime/Composer;IZILjava/lang/Object;)Landroidx/compose/runtime/internal/ComposableLambdaN;
 	public static final fun composableLambdaNInstance (IZILjava/lang/Object;)Landroidx/compose/runtime/internal/ComposableLambdaN;
-	public static final fun rememberComposableLambdaN (IZILjava/lang/Object;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/internal/ComposableLambdaN;
 }
 
 public abstract interface annotation class androidx/compose/runtime/internal/Decoy : java/lang/annotation/Annotation {
