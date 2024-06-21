@@ -13,15 +13,25 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+
     implementation(project(":appcompat:appcompat"))
+    implementation(project(':appcompat:appcompat-resources'))
     implementation(project(":cardview:cardview"))
+    implementation(project(':core:core'))
     implementation(project(":drawerlayout:drawerlayout"))
     implementation(project(":gridlayout:gridlayout"))
     implementation(project(":palette:palette"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":recyclerview:recyclerview-selection"))
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    api(libs.material)
+    implementation(libs.material)
+    implementation(libs.androidx.annotation)
+    implementation('androidx.collection:collection:1.1.0')
+    implementation('androidx.loader:loader:1.0.0')
+    implementation('androidx.cursoradapter:cursoradapter:1.0.0')
+    implementation('androidx.lifecycle:lifecycle-viewmodel:2.6.2')
+    implementation('androidx.fragment:fragment:1.5.4')
+    implementation('androidx.coordinatorlayout:coordinatorlayout:1.1.0')
+    implementation('androidx.viewpager:viewpager:1.0.0')
 }
 
 android {
