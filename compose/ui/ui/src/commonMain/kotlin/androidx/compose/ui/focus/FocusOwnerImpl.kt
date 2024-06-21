@@ -65,7 +65,11 @@ internal class FocusOwnerImpl(
     internal var rootFocusNode = FocusTargetNode(focusability = Focusability.Never)
 
     private val focusInvalidationManager =
-        FocusInvalidationManager(onRequestApplyChangesListener, ::invalidateOwnerFocusState)
+        FocusInvalidationManager(
+            onRequestApplyChangesListener,
+            ::invalidateOwnerFocusState,
+            ::rootState
+        )
 
     override val focusTransactionManager: FocusTransactionManager = FocusTransactionManager()
 
