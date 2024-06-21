@@ -237,6 +237,12 @@ package androidx.compose.foundation.layout {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
+  public final class InsetsHelper_androidKt {
+    method @androidx.compose.runtime.Composable public static androidx.core.graphics.Insets roundToAndroidXInsets(androidx.compose.ui.unit.DpRect);
+    method public static androidx.core.graphics.Insets toAndroidXInsets(androidx.compose.ui.unit.IntRect);
+    method public static androidx.compose.ui.unit.IntRect toComposeIntRect(androidx.core.graphics.Insets);
+  }
+
   public final class IntrinsicKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier height(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.IntrinsicSize intrinsicSize);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeight(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.IntrinsicSize intrinsicSize);
