@@ -65,7 +65,7 @@ internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteract
                 "interactions if the element would measure smaller"
     }
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identityHashCode(this)
 
     override fun equals(other: Any?) = (other === this)
 }
