@@ -348,6 +348,12 @@ class TextMeasurerTest {
             .isEqualTo(TextDecoration.LineThrough)
     }
 
+    @Test
+    fun emptyConstraints_hugeString_dontCrash() {
+        val subject = textMeasurer()
+        subject.measure("A".repeat(100_000), TextStyle.Default)
+    }
+
     private fun textLayoutInput(
         text: AnnotatedString = AnnotatedString("Hello"),
         style: TextStyle = TextStyle.Default,
