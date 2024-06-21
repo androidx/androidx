@@ -497,6 +497,8 @@ public final class androidx/compose/ui/graphics/Matrix {
 	public static final fun map-impl ([FLandroidx/compose/ui/geometry/MutableRect;)V
 	public static final fun map-impl ([FLandroidx/compose/ui/geometry/Rect;)Landroidx/compose/ui/geometry/Rect;
 	public static final fun reset-impl ([F)V
+	public static final fun resetToPivotedTransform-impl ([FFFFFFFFFFFF)V
+	public static synthetic fun resetToPivotedTransform-impl$default ([FFFFFFFFFFFFILjava/lang/Object;)V
 	public static final fun rotateX-impl ([FF)V
 	public static final fun rotateY-impl ([FF)V
 	public static final fun rotateZ-impl ([FF)V

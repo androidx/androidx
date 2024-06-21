@@ -54,10 +54,6 @@ public final class androidx/compose/runtime/BroadcastFrameClock : androidx/compo
 	public fun withFrameNanos (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public abstract interface annotation class androidx/compose/runtime/CheckResult : java/lang/annotation/Annotation {
-	public abstract fun suggest ()Ljava/lang/String;
-}
-
 public abstract interface annotation class androidx/compose/runtime/Composable : java/lang/annotation/Annotation {
 }
 
@@ -226,9 +222,6 @@ public abstract interface class androidx/compose/runtime/Composition {
 public abstract class androidx/compose/runtime/CompositionContext {
 	public static final field $stable I
 	public abstract fun getEffectCoroutineContext ()Lkotlin/coroutines/CoroutineContext;
-}
-
-public abstract interface annotation class androidx/compose/runtime/CompositionContextLocal : java/lang/annotation/Annotation {
 }
 
 public final class androidx/compose/runtime/CompositionKt {
@@ -704,6 +697,8 @@ public final class androidx/compose/runtime/SnapshotStateKt {
 	public static final fun mutableStateMapOf ([Lkotlin/Pair;)Landroidx/compose/runtime/snapshots/SnapshotStateMap;
 	public static final fun mutableStateOf (Ljava/lang/Object;Landroidx/compose/runtime/SnapshotMutationPolicy;)Landroidx/compose/runtime/MutableState;
 	public static synthetic fun mutableStateOf$default (Ljava/lang/Object;Landroidx/compose/runtime/SnapshotMutationPolicy;ILjava/lang/Object;)Landroidx/compose/runtime/MutableState;
+	public static final fun mutableStateSetOf ()Landroidx/compose/runtime/snapshots/SnapshotStateSet;
+	public static final fun mutableStateSetOf ([Ljava/lang/Object;)Landroidx/compose/runtime/snapshots/SnapshotStateSet;
 	public static final fun neverEqualPolicy ()Landroidx/compose/runtime/SnapshotMutationPolicy;
 	public static final fun produceState (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
 	public static final fun produceState (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
@@ -727,10 +722,6 @@ public abstract interface annotation class androidx/compose/runtime/StableMarker
 
 public abstract interface class androidx/compose/runtime/State {
 	public abstract fun getValue ()Ljava/lang/Object;
-}
-
-public final class androidx/compose/runtime/SynchronizationKt {
-	public static final fun synchronized (Landroidx/compose/runtime/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/runtime/Updater {
@@ -1015,7 +1006,7 @@ public final class androidx/compose/runtime/snapshots/SnapshotContextElementKt {
 public final class androidx/compose/runtime/snapshots/SnapshotKt {
 	public static final fun current (Landroidx/compose/runtime/snapshots/StateRecord;)Landroidx/compose/runtime/snapshots/StateRecord;
 	public static final fun current (Landroidx/compose/runtime/snapshots/StateRecord;Landroidx/compose/runtime/snapshots/Snapshot;)Landroidx/compose/runtime/snapshots/StateRecord;
-	public static final fun getLock ()Landroidx/compose/runtime/SynchronizedObject;
+	public static final fun getLock ()Ljava/lang/Object;
 	public static final fun getSnapshotInitializer ()Landroidx/compose/runtime/snapshots/Snapshot;
 	public static final fun notifyWrite (Landroidx/compose/runtime/snapshots/Snapshot;Landroidx/compose/runtime/snapshots/StateObject;)V
 	public static final fun readable (Landroidx/compose/runtime/snapshots/StateRecord;Landroidx/compose/runtime/snapshots/StateObject;)Landroidx/compose/runtime/snapshots/StateRecord;
@@ -1066,6 +1057,10 @@ public final class androidx/compose/runtime/snapshots/SnapshotStateList : androi
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class androidx/compose/runtime/snapshots/SnapshotStateListKt {
+	public static final fun SnapshotStateList (ILkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/snapshots/SnapshotStateList;
+}
+
 public final class androidx/compose/runtime/snapshots/SnapshotStateMap : androidx/compose/runtime/snapshots/StateObject, java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
 	public static final field $stable I
 	public fun <init> ()V
@@ -1102,6 +1097,29 @@ public final class androidx/compose/runtime/snapshots/SnapshotStateObserver {
 	public final fun start ()V
 	public final fun stop ()V
 	public final fun withNoObservations (Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class androidx/compose/runtime/snapshots/SnapshotStateSet : androidx/compose/runtime/snapshots/StateObject, java/util/RandomAccess, java/util/Set, kotlin/jvm/internal/markers/KMutableSet {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun add (Ljava/lang/Object;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public fun contains (Ljava/lang/Object;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun getFirstStateRecord ()Landroidx/compose/runtime/snapshots/StateRecord;
+	public fun getSize ()I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun prependStateRecord (Landroidx/compose/runtime/snapshots/StateRecord;)V
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun retainAll (Ljava/util/Collection;)Z
+	public final fun size ()I
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public final fun toSet ()Ljava/util/Set;
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface annotation class androidx/compose/runtime/snapshots/StateFactoryMarker : java/lang/annotation/Annotation {

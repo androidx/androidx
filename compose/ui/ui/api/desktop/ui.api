@@ -2379,7 +2379,7 @@ public abstract interface class androidx/compose/ui/layout/IntrinsicMeasureScope
 
 public abstract interface class androidx/compose/ui/layout/LayoutCoordinates {
 	public abstract fun get (Landroidx/compose/ui/layout/AlignmentLine;)I
-	public fun getIntroducesFrameOfReference ()Z
+	public fun getIntroducesMotionFrameOfReference ()Z
 	public abstract fun getParentCoordinates ()Landroidx/compose/ui/layout/LayoutCoordinates;
 	public abstract fun getParentLayoutCoordinates ()Landroidx/compose/ui/layout/LayoutCoordinates;
 	public abstract fun getProvidedAlignmentLines ()Ljava/util/Set;
@@ -2388,10 +2388,11 @@ public abstract interface class androidx/compose/ui/layout/LayoutCoordinates {
 	public abstract fun localBoundingBoxOf (Landroidx/compose/ui/layout/LayoutCoordinates;Z)Landroidx/compose/ui/geometry/Rect;
 	public static synthetic fun localBoundingBoxOf$default (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;ZILjava/lang/Object;)Landroidx/compose/ui/geometry/Rect;
 	public abstract fun localPositionOf-R5De75A (Landroidx/compose/ui/layout/LayoutCoordinates;J)J
+	public fun localPositionOf-S_NoaFU (Landroidx/compose/ui/layout/LayoutCoordinates;JZ)J
+	public static synthetic fun localPositionOf-S_NoaFU$default (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JZILjava/lang/Object;)J
 	public abstract fun localToRoot-MK-Hz9U (J)J
 	public fun localToScreen-MK-Hz9U (J)J
 	public abstract fun localToWindow-MK-Hz9U (J)J
-	public fun positionInLocalFrameOfReference-R5De75A (Landroidx/compose/ui/layout/LayoutCoordinates;J)J
 	public fun screenToLocal-MK-Hz9U (J)J
 	public fun transformFrom-EL8BTi8 (Landroidx/compose/ui/layout/LayoutCoordinates;[F)V
 	public fun transformToScreen-58bKbWc ([F)V
@@ -2399,10 +2400,11 @@ public abstract interface class androidx/compose/ui/layout/LayoutCoordinates {
 }
 
 public final class androidx/compose/ui/layout/LayoutCoordinates$DefaultImpls {
-	public static fun getIntroducesFrameOfReference (Landroidx/compose/ui/layout/LayoutCoordinates;)Z
+	public static fun getIntroducesMotionFrameOfReference (Landroidx/compose/ui/layout/LayoutCoordinates;)Z
 	public static synthetic fun localBoundingBoxOf$default (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;ZILjava/lang/Object;)Landroidx/compose/ui/geometry/Rect;
+	public static fun localPositionOf-S_NoaFU (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JZ)J
+	public static synthetic fun localPositionOf-S_NoaFU$default (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JZILjava/lang/Object;)J
 	public static fun localToScreen-MK-Hz9U (Landroidx/compose/ui/layout/LayoutCoordinates;J)J
-	public static fun positionInLocalFrameOfReference-R5De75A (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;J)J
 	public static fun screenToLocal-MK-Hz9U (Landroidx/compose/ui/layout/LayoutCoordinates;J)J
 	public static fun transformFrom-EL8BTi8 (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;[F)V
 	public static fun transformToScreen-58bKbWc (Landroidx/compose/ui/layout/LayoutCoordinates;[F)V
@@ -2479,10 +2481,8 @@ public final class androidx/compose/ui/layout/LayoutModifierKt {
 
 public abstract interface class androidx/compose/ui/layout/LookaheadScope {
 	public abstract fun getLookaheadScopeCoordinates (Landroidx/compose/ui/layout/Placeable$PlacementScope;)Landroidx/compose/ui/layout/LayoutCoordinates;
-	public fun localLookaheadPositionOf-RE3cj74 (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;J)J
-	public static synthetic fun localLookaheadPositionOf-RE3cj74$default (Landroidx/compose/ui/layout/LookaheadScope;Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JILjava/lang/Object;)J
-	public fun positionInLocalLookaheadFrameOfReference-RE3cj74 (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;J)J
-	public static synthetic fun positionInLocalLookaheadFrameOfReference-RE3cj74$default (Landroidx/compose/ui/layout/LookaheadScope;Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JILjava/lang/Object;)J
+	public fun localLookaheadPositionOf-au-aQtc (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JZ)J
+	public static synthetic fun localLookaheadPositionOf-au-aQtc$default (Landroidx/compose/ui/layout/LookaheadScope;Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LayoutCoordinates;JZILjava/lang/Object;)J
 	public abstract fun toLookaheadCoordinates (Landroidx/compose/ui/layout/LayoutCoordinates;)Landroidx/compose/ui/layout/LayoutCoordinates;
 }
 
@@ -2698,7 +2698,7 @@ public abstract class androidx/compose/ui/layout/Placeable$PlacementScope {
 	public final fun placeWithLayer-aW-9-wM (Landroidx/compose/ui/layout/Placeable;JLandroidx/compose/ui/graphics/layer/GraphicsLayer;F)V
 	public static synthetic fun placeWithLayer-aW-9-wM$default (Landroidx/compose/ui/layout/Placeable$PlacementScope;Landroidx/compose/ui/layout/Placeable;JFLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun placeWithLayer-aW-9-wM$default (Landroidx/compose/ui/layout/Placeable$PlacementScope;Landroidx/compose/ui/layout/Placeable;JLandroidx/compose/ui/graphics/layer/GraphicsLayer;FILjava/lang/Object;)V
-	public final fun withCurrentFrameOfReferencePlacement (Lkotlin/jvm/functions/Function1;)V
+	public final fun withMotionFrameOfReferencePlacement (Lkotlin/jvm/functions/Function1;)V
 }
 
 public abstract interface annotation class androidx/compose/ui/layout/PlacementScopeMarker : java/lang/annotation/Annotation {
