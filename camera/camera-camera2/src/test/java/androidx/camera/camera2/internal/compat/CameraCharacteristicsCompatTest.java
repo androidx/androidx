@@ -139,12 +139,25 @@ public class CameraCharacteristicsCompatTest {
         verify(cameraCharacteristics, times(2)).get(CameraCharacteristics.SENSOR_ORIENTATION);
     }
 
-
     @Test(expected = IllegalArgumentException.class)
-    public void getStreamConfigurationMapCompat() {
+    public void getStreamConfigurationMapCompat_assertionError() {
         CameraCharacteristics cameraCharacteristics = spy(mCharacteristics);
         when(cameraCharacteristics.get(SCALER_STREAM_CONFIGURATION_MAP)).thenThrow(
-                new AssertionError("cannot get stream configuration map"));
+                new AssertionError(
+                        "At least one stream configuration for IMPLEMENTATION_DEFINED must exist"));
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA_ID_0);
+
+        characteristicsCompat.getStreamConfigurationMapCompat();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getStreamConfigurationMapCompat_nullPointerException() {
+        CameraCharacteristics cameraCharacteristics = spy(mCharacteristics);
+        when(cameraCharacteristics.get(SCALER_STREAM_CONFIGURATION_MAP)).thenThrow(
+                new NullPointerException(
+                        "At least one of color/depth/heic configurations must not be null"));
         CameraCharacteristicsCompat characteristicsCompat =
                 CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
                         CAMERA_ID_0);
