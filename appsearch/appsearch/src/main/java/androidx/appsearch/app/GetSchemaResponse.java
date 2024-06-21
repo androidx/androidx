@@ -348,9 +348,25 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         private Map<String, InternalVisibilityConfig.Builder> mVisibilityConfigBuilders;
         private boolean mBuilt = false;
 
-        /** Create a {@link Builder} object} */
+        /** Creates a new {@link Builder} */
         public Builder() {
             setVisibilitySettingSupported(true);
+        }
+
+        /** Creates a new {@link Builder} from the given {@link GetSchemaResponse}. */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        public Builder(@NonNull GetSchemaResponse getSchemaResponse) {
+            setVisibilitySettingSupported(true);
+            mVersion = getSchemaResponse.mVersion;
+            mSchemas.addAll(getSchemaResponse.mSchemas);
+            if (getSchemaResponse.mVisibilityConfigs != null) {
+                int count = getSchemaResponse.mVisibilityConfigs.size();
+                for (int i = 0; i < count; i++) {
+                    InternalVisibilityConfig config = getSchemaResponse.mVisibilityConfigs.get(i);
+                    mVisibilityConfigBuilders.put(config.getSchemaType(),
+                            new InternalVisibilityConfig.Builder(config));
+                }
+            }
         }
 
         /**
@@ -361,18 +377,29 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         @CanIgnoreReturnValue
         @NonNull
         public Builder setVersion(@IntRange(from = 0) int version) {
+            Preconditions.checkArgument(version >= 0, "Version must be a non-negative number.");
             resetIfBuilt();
             mVersion = version;
             return this;
         }
 
-        /**  Adds one {@link AppSearchSchema} to the schema list.  */
+        /** Adds one {@link AppSearchSchema} to the schema list. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addSchema(@NonNull AppSearchSchema schema) {
             Preconditions.checkNotNull(schema);
             resetIfBuilt();
             mSchemas.add(schema);
+            return this;
+        }
+
+        /** Clears all {@link AppSearchSchema}s from the list of schemas. */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearSchemas() {
+            resetIfBuilt();
+            mSchemas.clear();
             return this;
         }
 
@@ -547,6 +574,45 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
                     getOrCreateVisibilityConfigBuilder(schemaType);
             for (SchemaVisibilityConfig visibleToConfig : visibleToConfigs) {
                 visibilityConfigBuilder.addVisibleToConfig(visibleToConfig);
+            }
+            return this;
+        }
+
+        /**
+         * Clears the visibility settings configured through
+         * {@link Builder#addSchemaTypeNotDisplayedBySystem},
+         * {@link Builder#setSchemaTypeVisibleToPackages},
+         * {@link Builder#setRequiredPermissionsForSchemaTypeVisibility},
+         * {@link Builder#setPubliclyVisibleSchema(String, PackageIdentifier)}, and
+         * {@link Builder#setSchemaTypeVisibleToConfigs} for the given {@code schemaType}.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearSchemaTypeVisibilityConfig(@NonNull String schemaType) {
+            Preconditions.checkNotNull(schemaType);
+            resetIfBuilt();
+            if (mVisibilityConfigBuilders != null) {
+                mVisibilityConfigBuilders.remove(schemaType);
+            }
+            return this;
+        }
+
+        /**
+         * Clears the visibility settings configured through
+         * {@link Builder#addSchemaTypeNotDisplayedBySystem},
+         * {@link Builder#setSchemaTypeVisibleToPackages},
+         * {@link Builder#setRequiredPermissionsForSchemaTypeVisibility},
+         * {@link Builder#setPubliclyVisibleSchema(String, PackageIdentifier)}, and
+         * {@link Builder#setSchemaTypeVisibleToConfigs} for all schema types.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearSchemaTypeVisibilityConfigs() {
+            resetIfBuilt();
+            if (mVisibilityConfigBuilders != null) {
+                mVisibilityConfigBuilders.clear();
             }
             return this;
         }

@@ -94,6 +94,7 @@ package androidx.appsearch.app {
 
   public static final class AppSearchBatchResult.Builder<KeyType, ValueType> {
     ctor public AppSearchBatchResult.Builder();
+    ctor public AppSearchBatchResult.Builder(androidx.appsearch.app.AppSearchBatchResult<KeyType!,ValueType!>);
     method public androidx.appsearch.app.AppSearchBatchResult<KeyType!,ValueType!> build();
     method public androidx.appsearch.app.AppSearchBatchResult.Builder<KeyType!,ValueType!> setFailure(KeyType, int, String?);
     method public androidx.appsearch.app.AppSearchBatchResult.Builder<KeyType!,ValueType!> setResult(KeyType, androidx.appsearch.app.AppSearchResult<ValueType!>);
@@ -146,11 +147,15 @@ package androidx.appsearch.app {
   }
 
   public static final class AppSearchSchema.Builder {
+    ctor public AppSearchSchema.Builder(androidx.appsearch.app.AppSearchSchema);
     ctor public AppSearchSchema.Builder(String);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_ADD_PARENT_TYPE) public androidx.appsearch.app.AppSearchSchema.Builder addParentType(String);
     method public androidx.appsearch.app.AppSearchSchema.Builder addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig);
     method public androidx.appsearch.app.AppSearchSchema build();
+    method public androidx.appsearch.app.AppSearchSchema.Builder clearParentTypes();
+    method public androidx.appsearch.app.AppSearchSchema.Builder clearProperties();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_SET_DESCRIPTION) public androidx.appsearch.app.AppSearchSchema.Builder setDescription(String);
+    method public androidx.appsearch.app.AppSearchSchema.Builder setSchemaType(String);
   }
 
   public static final class AppSearchSchema.BytesPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
@@ -406,9 +411,13 @@ package androidx.appsearch.app {
 
   public static final class GetSchemaResponse.Builder {
     ctor public GetSchemaResponse.Builder();
+    ctor public GetSchemaResponse.Builder(androidx.appsearch.app.GetSchemaResponse);
     method public androidx.appsearch.app.GetSchemaResponse.Builder addSchema(androidx.appsearch.app.AppSearchSchema);
     method public androidx.appsearch.app.GetSchemaResponse.Builder addSchemaTypeNotDisplayedBySystem(String);
     method public androidx.appsearch.app.GetSchemaResponse build();
+    method public androidx.appsearch.app.GetSchemaResponse.Builder clearSchemaTypeVisibilityConfig(String);
+    method public androidx.appsearch.app.GetSchemaResponse.Builder clearSchemaTypeVisibilityConfigs();
+    method public androidx.appsearch.app.GetSchemaResponse.Builder clearSchemas();
     method public androidx.appsearch.app.GetSchemaResponse.Builder setPubliclyVisibleSchema(String, androidx.appsearch.app.PackageIdentifier);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.util.Set<java.lang.Integer!>!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setSchemaTypeVisibleToConfigs(String, java.util.Set<androidx.appsearch.app.SchemaVisibilityConfig!>);
@@ -443,9 +452,11 @@ package androidx.appsearch.app {
   }
 
   public static final class JoinSpec.Builder {
+    ctor public JoinSpec.Builder(androidx.appsearch.app.JoinSpec);
     ctor public JoinSpec.Builder(String);
     method public androidx.appsearch.app.JoinSpec build();
     method public androidx.appsearch.app.JoinSpec.Builder setAggregationScoringStrategy(int);
+    method public androidx.appsearch.app.JoinSpec.Builder setChildPropertyExpression(String);
     method public androidx.appsearch.app.JoinSpec.Builder setMaxJoinedResultCount(int);
     method public androidx.appsearch.app.JoinSpec.Builder setNestedSearch(String, androidx.appsearch.app.SearchSpec);
   }
@@ -663,6 +674,7 @@ package androidx.appsearch.app {
 
   public static final class SearchSpec.Builder {
     ctor public SearchSpec.Builder();
+    ctor public SearchSpec.Builder(androidx.appsearch.app.SearchSpec);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder addEmbeddingParameters(androidx.appsearch.app.EmbeddingVector!...);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder addEmbeddingParameters(java.util.Collection<androidx.appsearch.app.EmbeddingVector!>);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterDocumentClasses(Class<? extends java.lang.Object!>!...) throws androidx.appsearch.exceptions.AppSearchException;
@@ -686,6 +698,18 @@ package androidx.appsearch.app {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS) public androidx.appsearch.app.SearchSpec.Builder addSearchStringParameters(java.lang.String!...);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS) public androidx.appsearch.app.SearchSpec.Builder addSearchStringParameters(java.util.List<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec build();
+    method public androidx.appsearch.app.SearchSpec.Builder clearEmbeddingParameters();
+    method public androidx.appsearch.app.SearchSpec.Builder clearFilterNamespaces();
+    method public androidx.appsearch.app.SearchSpec.Builder clearFilterPackageNames();
+    method public androidx.appsearch.app.SearchSpec.Builder clearFilterProperties();
+    method public androidx.appsearch.app.SearchSpec.Builder clearFilterSchemas();
+    method public androidx.appsearch.app.SearchSpec.Builder clearInformationalRankingExpressions();
+    method public androidx.appsearch.app.SearchSpec.Builder clearJoinSpec();
+    method public androidx.appsearch.app.SearchSpec.Builder clearProjections();
+    method public androidx.appsearch.app.SearchSpec.Builder clearPropertyWeights();
+    method public androidx.appsearch.app.SearchSpec.Builder clearResultGrouping();
+    method public androidx.appsearch.app.SearchSpec.Builder clearSearchSourceLogTag();
+    method public androidx.appsearch.app.SearchSpec.Builder clearSearchStringParameters();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public androidx.appsearch.app.SearchSpec.Builder setDefaultEmbeddingSearchMetricType(int);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) public androidx.appsearch.app.SearchSpec.Builder setJoinSpec(androidx.appsearch.app.JoinSpec);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.LIST_FILTER_HAS_PROPERTY_FUNCTION) public androidx.appsearch.app.SearchSpec.Builder setListFilterHasPropertyFunctionEnabled(boolean);
@@ -771,6 +795,7 @@ package androidx.appsearch.app {
 
   public static final class SetSchemaRequest.Builder {
     ctor public SetSchemaRequest.Builder();
+    ctor public SetSchemaRequest.Builder(androidx.appsearch.app.SetSchemaRequest);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG) public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClassVisibleToConfig(Class<? extends java.lang.Object!>, androidx.appsearch.app.SchemaVisibilityConfig) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClasses(Class<? extends java.lang.Object!>!...) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClasses(java.util.Collection<? extends java.lang.Class<? extends java.lang.Object!>!>) throws androidx.appsearch.exceptions.AppSearchException;
@@ -781,9 +806,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchemas(java.util.Collection<androidx.appsearch.app.AppSearchSchema!>);
     method public androidx.appsearch.app.SetSchemaRequest build();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG) public androidx.appsearch.app.SetSchemaRequest.Builder clearDocumentClassVisibleToConfigs(Class<? extends java.lang.Object!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SetSchemaRequest.Builder clearMigrators();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForDocumentClassVisibility(Class<? extends java.lang.Object!>) throws androidx.appsearch.exceptions.AppSearchException;
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForSchemaTypeVisibility(String);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG) public androidx.appsearch.app.SetSchemaRequest.Builder clearSchemaTypeVisibleToConfigs(String);
+    method public androidx.appsearch.app.SetSchemaRequest.Builder clearSchemas();
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassDisplayedBySystem(Class<? extends java.lang.Object!>, boolean) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassVisibilityForPackage(Class<? extends java.lang.Object!>, boolean, androidx.appsearch.app.PackageIdentifier) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);

@@ -154,6 +154,16 @@ public final class Flags {
     public static final String FLAG_ENABLE_ABSTRACT_SYNTAX_TREES =
             FLAG_PREFIX + "enable_abstract_syntax_trees";
 
+    /**
+     * Enables additional builder copy constructors for
+     * {@link androidx.appsearch.app.AppSearchSchema},
+     * {@link androidx.appsearch.app.SetSchemaRequest}, {@link androidx.appsearch.app.SearchSpec},
+     * {@link androidx.appsearch.app.JoinSpec}, {@link androidx.appsearch.app.AppSearchBatchResult},
+     * and {@link androidx.appsearch.app.GetSchemaResponse}.
+     */
+    public static final String FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS =
+            FLAG_PREFIX + "enable_additional_builder_copy_constructors";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -283,6 +293,17 @@ public final class Flags {
 
     /** Whether AppSearch can create and use abstract syntax trees. */
     public static boolean enableAbstractSyntaxTrees() {
+        return true;
+    }
+
+    /**
+     * Whether additional builder copy constructors for
+     * {@link androidx.appsearch.app.AppSearchSchema},
+     * {@link androidx.appsearch.app.SetSchemaRequest}, {@link androidx.appsearch.app.SearchSpec},
+     * {@link androidx.appsearch.app.JoinSpec}, {@link androidx.appsearch.app.AppSearchBatchResult},
+     * and {@link androidx.appsearch.app.GetSchemaResponse} should be enabled.
+     */
+    public static boolean enableAdditionalBuilderCopyConstructors() {
         return true;
     }
 }

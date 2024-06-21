@@ -971,4 +971,56 @@ public class AppSearchSchemaCtsTest {
                 new AppSearchSchema.EmbeddingPropertyConfig.Builder("titleEmbedding")
                         .setIndexingType(-1).build());
     }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testAppSearchSchemaBuilder_copyConstructor() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                )
+                .addParentType("Document").build();
+        AppSearchSchema schemaCopy = new AppSearchSchema.Builder(schema).build();
+        assertThat(schemaCopy.getSchemaType()).isEqualTo(schema.getSchemaType());
+        assertThat(schemaCopy.getProperties()).isEqualTo(schema.getProperties());
+        assertThat(schemaCopy.getParentTypes()).isEqualTo(schema.getParentTypes());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testAppSearchSchemaBuilder_setSchemaType() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .setSchemaType("Email2").build();
+        assertThat(schema.getSchemaType()).isEqualTo("Email2");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testAppSearchSchemaBuilder_clearProperties() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                )
+                .clearProperties().build();
+        assertThat(schema.getSchemaType()).isEqualTo("Email");
+        assertThat(schema.getProperties()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testAppSearchSchemaBuilder_clearParentTypes() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addParentType("Document").addParentType("Thing").clearParentTypes()
+                .build();
+        assertThat(schema.getSchemaType()).isEqualTo("Email");
+        assertThat(schema.getParentTypes()).isEmpty();
+    }
 }

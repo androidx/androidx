@@ -407,6 +407,32 @@ public final class SetSchemaRequest {
         private int mVersion = DEFAULT_VERSION;
         private boolean mBuilt = false;
 
+        /** Creates a new {@link SetSchemaRequest.Builder}. */
+        public Builder() {
+        }
+
+        /**
+         * Creates a {@link SetSchemaRequest.Builder} from the given {@link SetSchemaRequest}.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        public Builder(@NonNull SetSchemaRequest request) {
+            mSchemas.addAll(request.mSchemas);
+            mSchemasNotDisplayedBySystem.addAll(request.mSchemasNotDisplayedBySystem);
+            for (Map.Entry<String, Set<PackageIdentifier>> entry
+                    : request.mSchemasVisibleToPackages.entrySet()) {
+                mSchemasVisibleToPackages.put(entry.getKey(), new ArraySet<>(entry.getValue()));
+            }
+            mSchemasVisibleToPermissions = deepCopy(request.mSchemasVisibleToPermissions);
+            mPubliclyVisibleSchemas.putAll(request.mPubliclyVisibleSchemas);
+            for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
+                    request.mSchemasVisibleToConfigs.entrySet()) {
+                mSchemaVisibleToConfigs.put(entry.getKey(), new ArraySet<>(entry.getValue()));
+            }
+            mMigrators.putAll(request.mMigrators);
+            mForceOverride = request.mForceOverride;
+            mVersion = request.mVersion;
+        }
+
         /**
          * Adds one or more {@link AppSearchSchema} types to the schema.
          *
@@ -505,6 +531,18 @@ public final class SetSchemaRequest {
             return addSchemas(schemas);
         }
 // @exportToFramework:endStrip()
+
+        /**
+         * Clears all {@link AppSearchSchema}s from the list of schemas.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearSchemas() {
+            resetIfBuilt();
+            mSchemas.clear();
+            return this;
+        }
 
         /**
          * Sets whether or not documents from the provided {@code schemaType} will be displayed
@@ -714,10 +752,28 @@ public final class SetSchemaRequest {
 
 // @exportToFramework:startStrip()
         /**
-         * Specify that the schema should be publicly available, to packages which already have
-         * visibility to {@code packageIdentifier}.
+         * Specify that the documents from the provided
+         * {@link androidx.appsearch.annotation.Document} annotated class should be publicly
+         * available, to packages which already have visibility to {@code packageIdentifier}. This
+         * visibility is determined by the result of
+         * {@link android.content.pm.PackageManager#canPackageQuery}.
          *
-         * @param documentClass the document to make publicly accessible.
+         * <p> It is possible for the packageIdentifier parameter to be different from the
+         * package performing the indexing. This might happen in the case of an on-device indexer
+         * processing information about various packages. The visibility will be the same
+         * regardless of which package indexes the document, as the visibility is based on the
+         * packageIdentifier parameter.
+         *
+         * <p> If this is called repeatedly with the same
+         * {@link androidx.appsearch.annotation.Document} annotated class, the
+         * {@link PackageIdentifier} in the last call will be used as the "from" package for that
+         * class (or schema).
+         *
+         * <p> Calling this with packageIdentifier set to null is valid, and will remove public
+         * visibility for the class (or schema).
+         *
+         * @param documentClass the {@link androidx.appsearch.annotation.Document} annotated class
+         *                      to make publicly accessible.
          * @param packageIdentifier if an app can see this package via
          *                          PackageManager#canPackageQuery, it will be able to see the
          *                          documents of type {@code documentClass}.
@@ -858,6 +914,18 @@ public final class SetSchemaRequest {
             Preconditions.checkNotNull(migrators);
             resetIfBuilt();
             mMigrators.putAll(migrators);
+            return this;
+        }
+
+        /**
+         * Clears all {@link Migrator}s.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearMigrators() {
+            resetIfBuilt();
+            mMigrators.clear();
             return this;
         }
 

@@ -146,4 +146,11 @@ public class FlagsTest {
                 .isEqualTo("com.android.appsearch.flags"
                         + ".enable_abstract_syntax_trees");
     }
+
+    @Test
+    public void testFlagValue_enableAdditionalBuilderCopyConstructors() {
+        assertThat(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+                .isEqualTo(
+                        "com.android.appsearch.flags.enable_additional_builder_copy_constructors");
+    }
 }
