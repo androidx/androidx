@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("ActualJvm_jvmKt")
+@file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 // TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
