@@ -26,22 +26,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.SplitToggleButton
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SplitSwitchButton
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Sampled
 @Composable
-fun ToggleButtonWithSwitch() {
+fun SwitchButtonSample() {
     var checked by remember { mutableStateOf(true) }
-    ToggleButton(
-        label = { Text("Switch", maxLines = 3, overflow = TextOverflow.Ellipsis) },
+    SwitchButton(
+        label = { Text("Switch Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         secondaryLabel = {
             Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
         icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite icon") },
         enabled = true,
@@ -50,14 +48,14 @@ fun ToggleButtonWithSwitch() {
 
 @Sampled
 @Composable
-fun SplitToggleButtonWithSwitch() {
+fun SplitSwitchButtonSample() {
     var checked by remember { mutableStateOf(true) }
-    SplitToggleButton(
-        label = { Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis) },
+    SplitSwitchButton(
+        label = { Text("Split Switch Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         checked = checked,
-        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
-        onClick = {
+        toggleContentDescription = "Split Switch Button Sample",
+        onContainerClick = {
             /* Do something */
         },
         enabled = true,

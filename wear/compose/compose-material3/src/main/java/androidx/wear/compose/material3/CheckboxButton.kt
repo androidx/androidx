@@ -184,7 +184,7 @@ fun CheckboxButton(
  * secondary label should be start aligned.
  *
  * A [SplitCheckboxButton] has two tappable areas, one tap area for the labels and another for the
- * toggle control. The [onContainerClick] listener will be associated with the main body of the
+ * checkbox. The [onContainerClick] listener will be associated with the main body of the
  * [SplitCheckboxButton] and the [onCheckedChange] listener associated with the checkbox area only.
  *
  * Samples: Example of a SplitCheckboxButton:

@@ -27,31 +27,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.SplitToggleButton
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SplitSwitchButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun SplitToggleButtonDemo() {
+fun SplitSwitchButtonDemo() {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item { ListHeader { Text("Switch") } }
-        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = true) }
-        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = false) }
+        item { DemoSplitSwitchButton(enabled = true, initiallyChecked = true) }
+        item { DemoSplitSwitchButton(enabled = true, initiallyChecked = false) }
         item { ListHeader { Text("Disabled Switch") } }
-        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = true) }
-        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = false) }
+        item { DemoSplitSwitchButton(enabled = false, initiallyChecked = true) }
+        item { DemoSplitSwitchButton(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Multi-line") } }
         item {
-            DemoSplitToggleSwitch(
+            DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
@@ -59,14 +56,14 @@ fun SplitToggleButtonDemo() {
             )
         }
         item {
-            DemoSplitToggleSwitch(
+            DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoSplitToggleSwitch(
+            DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max",
@@ -77,7 +74,7 @@ fun SplitToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoSplitToggleSwitch(
+private fun DemoSplitSwitchButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
@@ -85,7 +82,7 @@ private fun DemoSplitToggleSwitch(
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
-    SplitToggleButton(
+    SplitSwitchButton(
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
@@ -109,12 +106,13 @@ private fun DemoSplitToggleSwitch(
                 }
             },
         checked = checked,
-        toggleControl = { Switch(modifier = Modifier.semantics { contentDescription = primary }) },
         onCheckedChange = { checked = it },
-        onClick = {
+        toggleContentDescription = primary,
+        onContainerClick = {
             val toastText = if (checked) "Checked" else "Not Checked"
             Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
+        containerClickLabel = "click",
         enabled = enabled,
     )
 }

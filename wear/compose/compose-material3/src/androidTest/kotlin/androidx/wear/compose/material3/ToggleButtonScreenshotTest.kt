@@ -60,14 +60,10 @@ class ToggleButtonScreenshotTest {
     }
 
     @Test
-    fun toggle_button_checked_switch() = verifyScreenshot {
-        sampleToggleButton(checked = true, toggleControl = { Switch() })
-    }
+    fun toggle_button_checked_switch() = verifyScreenshot { sampleSwitchButton(checked = true) }
 
     @Test
-    fun toggle_button_unchecked_switch() = verifyScreenshot {
-        sampleToggleButton(checked = false, toggleControl = { Switch() })
-    }
+    fun toggle_button_unchecked_switch() = verifyScreenshot { sampleSwitchButton(checked = false) }
 
     @Test
     fun toggle_button_checked_checkbox_rtl() =
@@ -84,13 +80,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun toggle_button_checked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = true, toggleControl = { Switch() })
+            sampleSwitchButton(checked = true)
         }
 
     @Test
     fun toggle_button_unchecked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = false, toggleControl = { Switch() })
+            sampleSwitchButton(checked = false)
         }
 
     @Test
@@ -105,12 +101,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun disabled_toggle_button_checked_switch() = verifyScreenshot {
-        sampleToggleButton(checked = true, enabled = false, toggleControl = { Switch() })
+        sampleSwitchButton(checked = true, enabled = false)
     }
 
     @Test
     fun disabled_toggle_button_unchecked_switch() = verifyScreenshot {
-        sampleToggleButton(checked = false, enabled = false, toggleControl = { Switch() })
+        sampleSwitchButton(checked = false, enabled = false)
     }
 
     @Test
@@ -128,13 +124,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun disabled_toggle_button_checked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = true, enabled = false, toggleControl = { Switch() })
+            sampleSwitchButton(checked = true, enabled = false)
         }
 
     @Test
     fun disabled_toggle_button_unchecked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = false, enabled = false, toggleControl = { Switch() })
+            sampleSwitchButton(checked = false, enabled = false)
         }
 
     @Test
@@ -149,12 +145,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun split_toggle_button_checked_switch() = verifyScreenshot {
-        sampleSplitToggleButton(checked = true, toggleControl = { Switch() })
+        sampleSplitSwitchButton(checked = true)
     }
 
     @Test
     fun split_toggle_button_unchecked_switch() = verifyScreenshot {
-        sampleSplitToggleButton(checked = false, toggleControl = { Switch() })
+        sampleSplitSwitchButton(checked = false)
     }
 
     @Test
@@ -172,13 +168,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun split_toggle_button_checked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = true, toggleControl = { Switch() })
+            sampleSplitSwitchButton(checked = true)
         }
 
     @Test
     fun split_toggle_button_unchecked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = false, toggleControl = { Switch() })
+            sampleSplitSwitchButton(checked = false)
         }
 
     @Test
@@ -193,12 +189,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun disabled_split_toggle_button_checked_switch() = verifyScreenshot {
-        sampleSplitToggleButton(checked = true, enabled = false, toggleControl = { Switch() })
+        sampleSplitSwitchButton(checked = true, enabled = false)
     }
 
     @Test
     fun disabled_split_toggle_button_unchecked_switch() = verifyScreenshot {
-        sampleSplitToggleButton(checked = false, enabled = false, toggleControl = { Switch() })
+        sampleSplitSwitchButton(checked = false, enabled = false)
     }
 
     @Test
@@ -216,13 +212,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun disabled_split_toggle_button_checked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = true, enabled = false, toggleControl = { Switch() })
+            sampleSplitSwitchButton(checked = true, enabled = false)
         }
 
     @Test
     fun disabled_split_toggle_button_unchecked_switch_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = false, enabled = false, toggleControl = { Switch() })
+            sampleSplitSwitchButton(checked = false, enabled = false)
         }
 
     @Composable
@@ -259,37 +255,34 @@ class ToggleButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleToggleButton(
+    private fun sampleSwitchButton(
         enabled: Boolean = true,
         checked: Boolean = true,
-        toggleControl: @Composable ToggleControlScope.() -> Unit = { Switch() },
     ) {
-        ToggleButton(
+        SwitchButton(
             icon = { TestIcon() },
             label = { Text("ToggleButton") },
             secondaryLabel = { Text("Secondary label") },
             checked = checked,
             enabled = enabled,
-            toggleControl = toggleControl,
             onCheckedChange = {},
             modifier = Modifier.testTag(TEST_TAG),
         )
     }
 
     @Composable
-    private fun sampleSplitToggleButton(
+    private fun sampleSplitSwitchButton(
         checked: Boolean = true,
         enabled: Boolean = true,
-        toggleControl: @Composable ToggleControlScope.() -> Unit = {}
     ) {
-        SplitToggleButton(
+        SplitSwitchButton(
             label = { Text("SplitToggleButton") },
             secondaryLabel = { Text("Secondary label") },
             checked = checked,
             enabled = enabled,
-            toggleControl = toggleControl,
             onCheckedChange = {},
-            onClick = {},
+            onContainerClick = {},
+            toggleContentDescription = "",
             modifier = Modifier.testTag(TEST_TAG),
         )
     }
