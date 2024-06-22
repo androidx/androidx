@@ -34,7 +34,7 @@ dokka = "1.8.20-dev-214"
 espresso = "3.6.0-rc01"
 espressoDevice = "1.0.0-rc01"
 grpc = "1.52.0"
-guavaJre = "31.1-jre"
+guavaJre = "33.2.1-jre"
 hilt = "2.49"
 incap = "0.2"
 jcodec = "0.2.5"
@@ -141,6 +141,7 @@ hiltAndroidTesting = { module = "com.google.dagger:hilt-android-testing", versio
 hiltAndroidGradlePluginz = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 hiltCompiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hiltCore = { module = "com.google.dagger:hilt-core", version.ref = "hilt" }
+intellijCore = { module = "com.android.tools.external.com-intellij:intellij-core", version.ref = "androidLint" }
 intellijAnnotations = { module = "com.intellij:annotations", version = "12.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
@@ -165,6 +166,7 @@ guavaListenableFuture = { module = "com.google.guava:listenablefuture", version 
 guavaTestlib = { module = "com.google.guava:guava-testlib", version.ref = "guavaJre" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
+intellijKotlinCompiler = { module = "com.android.tools.external.com-intellij:kotlin-compiler", version.ref = "androidLint" }
 kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable" }
 kotlinBenchmarkRuntime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinBenchmark" }
 kotlinBom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
@@ -208,6 +210,7 @@ ktfmt = { module = "com.facebook:ktfmt", version.ref = "ktfmt" }
 kxml2 = { module = "net.sf.kxml:kxml2", version = "2.3.0" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
+lintModel = { module = "com.android.tools.lint:lint-model", version.ref = "androidLint" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
 media3Common = { module = "androidx.media3:media3-common", version.ref = "media3" }
 media3Cast = { module = "androidx.media3:media3-cast", version.ref = "media3" }
@@ -253,6 +256,7 @@ retrofitConverterWire = { module = "com.squareup.retrofit2:converter-wire", vers
 robolectric = { module = "org.robolectric:robolectric", version = "4.12.2" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
+sdklib = { module = "com.android.tools:sdklib", version.ref = "androidLint" }
 shadow = { module = "com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin", version = "8.1.1" }
 skiko = { module = "org.jetbrains.skiko:skiko-awt", version.ref = "skiko" }
 skikoCommon = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
@@ -277,6 +281,7 @@ testRunner = { module = "androidx.test:runner", version.ref = "androidxTestRunne
 testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.2.0" }
 truth = { module = "com.google.truth:truth", version = "1.0.1" }
 toml = { module = "org.tomlj:tomlj", version = "1.0.0" }
+uast = { module = "com.android.tools.external.org-jetbrains:uast", version.ref = "androidLint" }
 viewBinding = { module = "androidx.databinding:viewbinding", version = "4.1.2" }
 wireGradlePluginz = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }
 wireRuntime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
