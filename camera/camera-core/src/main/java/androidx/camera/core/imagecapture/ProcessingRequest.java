@@ -57,6 +57,8 @@ class ProcessingRequest {
     private final List<Integer> mStageIds;
 
     @NonNull final ListenableFuture<Void> mCaptureFuture;
+    static final int PROGRESS_NOT_RECEIVED = -1;
+    private int mLastCaptureProcessProgressed = PROGRESS_NOT_RECEIVED;
 
     ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
@@ -146,7 +148,10 @@ class ProcessingRequest {
 
     @MainThread
     void onCaptureProcessProgressed(int progress) {
-        mCallback.onCaptureProcessProgressed(progress);
+        if (mLastCaptureProcessProgressed != progress) {
+            mLastCaptureProcessProgressed = progress;
+            mCallback.onCaptureProcessProgressed(progress);
+        }
     }
 
     /**
@@ -154,6 +159,11 @@ class ProcessingRequest {
      */
     @MainThread
     void onImageCaptured() {
+        // If process progress has ever been sent, ensure progress 100 is sent before image sent.
+        if (mLastCaptureProcessProgressed != PROGRESS_NOT_RECEIVED) {
+            onCaptureProcessProgressed(100);
+        }
+
         mCallback.onImageCaptured();
     }
 

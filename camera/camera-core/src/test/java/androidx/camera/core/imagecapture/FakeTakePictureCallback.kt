@@ -30,7 +30,7 @@ internal class FakeTakePictureCallback : TakePictureCallback {
     var captureFailure: ImageCaptureException? = null
     var processFailure: ImageCaptureException? = null
     var onDiskResult: OutputFileResults? = null
-    var captureProcessProgress = -1
+    var captureProcessProgressList: MutableList<Int> = mutableListOf()
     var onPostviewBitmapAvailable: Bitmap? = null
 
     var aborted = false
@@ -64,7 +64,7 @@ internal class FakeTakePictureCallback : TakePictureCallback {
     }
 
     override fun onCaptureProcessProgressed(progress: Int) {
-        captureProcessProgress = progress
+        captureProcessProgressList.add(progress)
     }
 
     override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
