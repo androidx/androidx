@@ -185,10 +185,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
          */
         if (!project.usingMaxDepVersions()) {
             project.plugins.apply("com.autonomousapps.dependency-analysis")
-            project.tasks
-                .withType(com.autonomousapps.tasks.BuildHealthTask::class.java)
-                .configureEach { it.cacheEvenIfNoOutputs() }
-            buildOnServerTask.dependsOn("buildHealth")
         }
     }
 

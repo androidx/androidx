@@ -300,9 +300,5 @@ docs-tip-of-tree:docs completing
 i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
 # buildPrivacySandboxSdkApksForDebug (b/329101823)
 Extracted sandbox SDK APK for.*
-# > Task :appcompat:appcompat:findDeclaredProcsDebug
-Could not reflectively access processor class 'androidx\.resourceinspection\.processor\.ResourceInspectionProcessor'
-# > Task :buildHealth
-There were dependency violations\. See report at file://\$OUT_DIR/androidx/build/reports/dependency\-analysis/build\-health\-report\.txt
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
