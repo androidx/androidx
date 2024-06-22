@@ -721,6 +721,8 @@ class AdvancedSessionProcessorTest {
         // OnePlus doesn't support physical camera well.
         assumeFalse("oneplus".equals(Build.BRAND, ignoreCase = true))
         assumeAllowsSharedSurface()
+        // Physical CameraId doesn't work on OnePlus
+        assumeFalse(Build.BRAND.uppercase().equals("ONEPLUS"))
         val physicalCameraIdList = getPhysicalCameraId(cameraSelector)
         assumeTrue(physicalCameraIdList.isNotEmpty())
 

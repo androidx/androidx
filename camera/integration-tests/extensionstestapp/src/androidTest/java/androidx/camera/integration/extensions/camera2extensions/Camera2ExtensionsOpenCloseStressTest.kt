@@ -49,12 +49,13 @@ class Camera2ExtensionsOpenCloseStressTest(private val config: CameraIdExtension
     companion object {
         @ClassRule @JvmField val stressTest = StressTestRule()
 
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = Camera2ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
     @Before
