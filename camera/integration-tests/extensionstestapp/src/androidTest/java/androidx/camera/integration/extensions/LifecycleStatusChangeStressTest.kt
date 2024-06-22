@@ -79,9 +79,9 @@ class LifecycleStatusChangeStressTest(private val config: CameraXExtensionTestPa
             Manifest.permission.RECORD_AUDIO,
         )
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-
     companion object {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
@@ -159,7 +159,6 @@ class LifecycleStatusChangeStressTest(private val config: CameraXExtensionTestPa
         with(activityScenario) {
             use {
                 waitForPreviewViewStreaming()
-
                 repeat(repeatCount) {
                     withActivity {
                         resetPreviewViewIdleStateIdlingResource()

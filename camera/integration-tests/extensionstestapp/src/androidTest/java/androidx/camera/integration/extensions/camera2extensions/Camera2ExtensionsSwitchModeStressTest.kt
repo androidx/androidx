@@ -49,6 +49,7 @@ class Camera2ExtensionsSwitchModeStressTest(private val config: CameraIdExtensio
 
     companion object {
         @ClassRule @JvmField val stressTest = StressTestRule()
+        val context = ApplicationProvider.getApplicationContext<Context>()
 
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
