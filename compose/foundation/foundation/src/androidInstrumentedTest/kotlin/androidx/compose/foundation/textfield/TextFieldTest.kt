@@ -78,8 +78,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -1533,6 +1535,25 @@ class TextFieldTest : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(tfvState.value.selection).isEqualTo(TextRange(targetOffset))
+    }
+
+    @Test
+    fun doesNotStopBeingTextEditor_whenWindowFocusLost() {
+        var windowFocus by mutableStateOf(true)
+        inputMethodInterceptor.setContent {
+            CompositionLocalProvider(
+                LocalWindowInfo provides
+                    object : WindowInfo {
+                        override val isWindowFocused: Boolean
+                            get() = windowFocus
+                    }
+            ) {
+                BasicTextField("", {}, Modifier.testTag(Tag))
+            }
+        }
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.runOnIdle { windowFocus = false }
+        inputMethodInterceptor.assertSessionActive()
     }
 }
 

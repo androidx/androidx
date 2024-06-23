@@ -219,10 +219,7 @@ class CoreTextFieldHandwritingTest {
 
         focusWindow.value = false
         rule.waitForIdle()
-        performHandwritingAndExpect(stylusHandwritingStarted = false)
-
-        focusWindow.value = true
-        rule.waitForIdle()
+        // only losing window focus does not stop the ongoing input session
         performHandwritingAndExpect(stylusHandwritingStarted = true)
     }
 
