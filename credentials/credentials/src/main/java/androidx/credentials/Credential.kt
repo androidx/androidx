@@ -34,9 +34,9 @@ internal constructor(
     val type: String,
     val data: Bundle,
 ) {
-    internal companion object {
+    companion object {
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used from java tests
         fun createFrom(type: String, data: Bundle): Credential {
             return try {
                 when (type) {
@@ -44,6 +44,7 @@ internal constructor(
                         PasswordCredential.createFrom(data)
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         PublicKeyCredential.createFrom(data)
+                    RestoreCredential.TYPE_RESTORE_CREDENTIAL -> RestoreCredential.createFrom(data)
                     else -> throw FrameworkClassParsingException()
                 }
             } catch (e: FrameworkClassParsingException) {

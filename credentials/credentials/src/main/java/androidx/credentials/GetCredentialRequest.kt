@@ -58,7 +58,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
  *   immediately when there is no available credentials instead of falling back to discovering
  *   remote options, and false (default) otherwise
- * @throws IllegalArgumentException If [credentialOptions] is empty
+ * @throws IllegalArgumentException If [credentialOptions] is empty or contains
+ *   [GetRestoreCredentialOption] with another option (i.e. [GetPasswordOption] or
+ *   [GetPublicKeyCredentialOption]).
  */
 class GetCredentialRequest
 @JvmOverloads
@@ -73,6 +75,15 @@ constructor(
 
     init {
         require(credentialOptions.isNotEmpty()) { "credentialOptions should not be empty" }
+        if (credentialOptions.size > 1) {
+            for (option in credentialOptions) {
+                if (option is GetRestoreCredentialOption) {
+                    throw IllegalArgumentException(
+                        "Only a single GetRestoreCredentialOption should be provided."
+                    )
+                }
+            }
+        }
     }
 
     /** A builder for [GetCredentialRequest]. */

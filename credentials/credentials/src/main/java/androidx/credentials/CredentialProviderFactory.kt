@@ -57,6 +57,35 @@ internal class CredentialProviderFactory(val context: Context) {
     }
 
     /**
+     * Returns the best available provider. The best available provider is determined by the
+     * provided [request]. If the provided request is for the use-case of [RestoreCredential], then
+     * the pre-U provider is used. If not, then the provider is determined by the API level.
+     *
+     * @param request is a credential request of either [CreateRestoreCredentialRequest],
+     *   [ClearCredentialRequestTypes.ClearRestoreCredential], or [GetCredentialRequest] that can
+     *   determine [CredentialProvider] type.
+     * @return the best available provider, or null if no provider is available.
+     */
+    fun getBestAvailableProvider(
+        request: Any,
+        shouldFallbackToPreU: Boolean = true
+    ): CredentialProvider? {
+        if (
+            request is CreateRestoreCredentialRequest ||
+                request == ClearCredentialRequestTypes.CLEAR_RESTORE_CREDENTIAL
+        ) {
+            return tryCreatePreUOemProvider()
+        } else if (request is GetCredentialRequest) {
+            for (option in request.credentialOptions) {
+                if (option is GetRestoreCredentialOption) {
+                    return tryCreatePreUOemProvider()
+                }
+            }
+        }
+        return getBestAvailableProvider(shouldFallbackToPreU)
+    }
+
+    /**
      * Returns the best available provider. Pre-U, the provider is determined by the provider
      * library that the developer includes in the app. Developer must not add more than one provider
      * library. Post-U, providers will be registered with the framework, and enabled by the user.
