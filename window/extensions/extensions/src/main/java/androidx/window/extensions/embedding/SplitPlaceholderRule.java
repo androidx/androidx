@@ -129,7 +129,6 @@ public class SplitPlaceholderRule extends SplitRule {
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary/placeholder container.
      */
-    // TODO(b/238905747): Add api guard for extensions.
     @RequiresVendorApiLevel(level = 2)
     @SplitPlaceholderFinishBehavior
     public int getFinishPrimaryWithPlaceholder() {
@@ -270,7 +269,6 @@ public class SplitPlaceholderRule extends SplitRule {
         /**
          * @see SplitPlaceholderRule#getFinishPrimaryWithPlaceholder()
          */
-        // TODO(b/238905747): Add api guard for extensions.
         @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setFinishPrimaryWithPlaceholder(
