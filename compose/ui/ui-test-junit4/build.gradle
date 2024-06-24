@@ -85,14 +85,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:animation:animation"))
                 implementation(project(":compose:test-utils"))
@@ -108,25 +102,13 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:animation:animation-core"))
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.truth)
                 implementation(libs.robolectric)
-            }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
             }
         }
     }

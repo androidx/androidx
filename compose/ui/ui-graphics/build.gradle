@@ -91,14 +91,7 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -112,7 +105,6 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -120,17 +112,6 @@ androidXMultiplatform {
                 implementation(libs.truth)
                 implementation(libs.robolectric)
                 implementation(project(":compose:test-utils"))
-            }
-        }
-
-        desktopTest {
-            resources.srcDirs += "src/desktopTest/res"
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.skikoCurrentOs)
             }
         }
     }
@@ -155,12 +136,4 @@ androidxCompose {
 
 android {
     namespace "androidx.compose.ui.graphics"
-}
-
-if (KmpPlatformsKt.enableDesktop(project)) {
-    tasks.withType(Test).configureEach {
-        if (name.equals("desktopTest")) {
-            systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
-        }
-    }
 }

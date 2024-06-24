@@ -81,16 +81,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:ui:ui-test"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:test-utils"))
                 implementation(project(":internal-testutils-fonts"))
@@ -114,7 +106,7 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -125,17 +117,6 @@ androidXMultiplatform {
                 implementation(libs.mockitoKotlin4)
                 implementation(libs.byteBuddy)
                 implementation(project(":constraintlayout:constraintlayout-compose"))
-            }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.skikoCurrentOs)
-                implementation(libs.mockitoCore)
-                implementation(libs.mockitoKotlin)
             }
         }
     }
