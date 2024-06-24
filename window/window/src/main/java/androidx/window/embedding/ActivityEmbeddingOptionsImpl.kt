@@ -54,10 +54,10 @@ internal object ActivityEmbeddingOptionsImpl {
      * Type: [Int]
      *
      * Valid values are:
-     * - 0: [EmbeddingBounds.Alignment.ALIGN_TOP]
-     * - 1: [EmbeddingBounds.Alignment.ALIGN_LEFT]
-     * - 2: [EmbeddingBounds.Alignment.ALIGN_BOTTOM]
-     * - 3: [EmbeddingBounds.Alignment.ALIGN_RIGHT]
+     * - 0: [EmbeddingBounds.Alignment.ALIGN_LEFT]
+     * - 1: [EmbeddingBounds.Alignment.ALIGN_TOP]
+     * - 2: [EmbeddingBounds.Alignment.ALIGN_RIGHT]
+     * - 3: [EmbeddingBounds.Alignment.ALIGN_BOTTOM]
      */
     private const val KEY_EMBEDDING_BOUNDS_ALIGNMENT =
         "androidx.window.embedding.EmbeddingBounds.alignment"
@@ -144,6 +144,20 @@ internal object ActivityEmbeddingOptionsImpl {
         "androidx.window.embedding.EmbeddingBounds.dimension_value"
 
     /**
+     * Key of [ActivityStack] alignment relative to the parent container.
+     *
+     * Type: [Int]
+     *
+     * Valid values are:
+     * - 0: [EmbeddingBounds.Alignment.ALIGN_LEFT]
+     * - 1: [EmbeddingBounds.Alignment.ALIGN_TOP]
+     * - 2: [EmbeddingBounds.Alignment.ALIGN_RIGHT]
+     * - 3: [EmbeddingBounds.Alignment.ALIGN_BOTTOM]
+     */
+    private const val KEY_ACTIVITY_STACK_ALIGNMENT =
+        "androidx.window.embedding.ActivityStackAlignment"
+
+    /**
      * Puts [OverlayCreateParams] information to [android.app.ActivityOptions] bundle to launch the
      * overlay container
      *
@@ -170,6 +184,15 @@ internal object ActivityEmbeddingOptionsImpl {
                 putDimension(KEY_EMBEDDING_BOUNDS_HEIGHT, embeddingBounds.height)
             }
         )
+    }
+
+    /**
+     * Puts the alignment of the overlay [ActivityStack] relative to its parent container.
+     *
+     * It could be used as a hint of the open/close animation direction.
+     */
+    internal fun Bundle.putActivityStackAlignment(embeddingBounds: EmbeddingBounds) {
+        putInt(KEY_ACTIVITY_STACK_ALIGNMENT, embeddingBounds.alignment.value)
     }
 
     internal fun Bundle.getOverlayAttributes(): OverlayAttributes? {

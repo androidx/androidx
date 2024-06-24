@@ -24,6 +24,7 @@ import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.embedding.ActivityEmbeddingOptionsImpl.getOverlayAttributes
+import androidx.window.embedding.ActivityEmbeddingOptionsImpl.putActivityStackAlignment
 import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
@@ -114,6 +115,11 @@ internal open class OverlayControllerImpl(
                             parentContainerInfo.windowLayoutInfo
                         ),
                     )
+
+                // TODO(b/295805497): Migrate to either custom animation APIs or new
+                //  ActivityStackAttributes APIs.
+                // Set alignment to the bundle options as the hint of the animation direction.
+                params.launchOptions.putActivityStackAlignment(overlayAttributes.bounds)
                 return@setActivityStackAttributesCalculator overlayAttributes
                     .toActivityStackAttributes(parentContainerInfo)
             }

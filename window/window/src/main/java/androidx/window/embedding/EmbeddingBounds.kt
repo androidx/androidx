@@ -200,26 +200,26 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
 
         override fun toString(): String =
             when (value) {
-                0 -> "top"
-                1 -> "left"
-                2 -> "bottom"
-                3 -> "right"
+                0 -> "left"
+                1 -> "top"
+                2 -> "right"
+                3 -> "bottom"
                 else -> "unknown position:$value"
             }
 
         companion object {
 
-            /** Specifies that the bounds is at the top of the parent window container. */
-            @JvmField val ALIGN_TOP = Alignment(0)
-
             /** Specifies that the bounds is at the left of the parent window container. */
-            @JvmField val ALIGN_LEFT = Alignment(1)
+            @JvmField val ALIGN_LEFT = Alignment(0)
 
-            /** Specifies that the bounds is at the bottom of the parent window container. */
-            @JvmField val ALIGN_BOTTOM = Alignment(2)
+            /** Specifies that the bounds is at the top of the parent window container. */
+            @JvmField val ALIGN_TOP = Alignment(1)
 
             /** Specifies that the bounds is at the right of the parent window container. */
-            @JvmField val ALIGN_RIGHT = Alignment(3)
+            @JvmField val ALIGN_RIGHT = Alignment(2)
+
+            /** Specifies that the bounds is at the bottom of the parent window container. */
+            @JvmField val ALIGN_BOTTOM = Alignment(3)
         }
     }
 
