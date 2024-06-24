@@ -19,6 +19,9 @@ package androidx.compose.material3
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.internal.CalendarModel
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -41,25 +44,25 @@ internal fun DateRangeInputContent(
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val defaultLocale = defaultLocale()
-    val dateInputFormat = remember(defaultLocale) {
-        calendarModel.getDateInputFormat(defaultLocale)
-    }
+    val dateInputFormat =
+        remember(defaultLocale) { calendarModel.getDateInputFormat(defaultLocale) }
     val errorDatePattern = getString(Strings.DateInputInvalidForPattern)
     val errorDateOutOfYearRange = getString(Strings.DateInputInvalidYearRange)
     val errorInvalidNotAllowed = getString(Strings.DateInputInvalidNotAllowed)
     val errorInvalidRange = getString(Strings.DateRangeInputInvalidRangeInput)
-    val dateInputValidator = remember(dateInputFormat, dateFormatter) {
-        DateInputValidator(
-            yearRange = yearRange,
-            selectableDates = selectableDates,
-            dateInputFormat = dateInputFormat,
-            dateFormatter = dateFormatter,
-            errorDatePattern = errorDatePattern,
-            errorDateOutOfYearRange = errorDateOutOfYearRange,
-            errorInvalidNotAllowed = errorInvalidNotAllowed,
-            errorInvalidRangeInput = errorInvalidRange
-        )
-    }
+    val dateInputValidator =
+        remember(dateInputFormat, dateFormatter) {
+            DateInputValidator(
+                yearRange = yearRange,
+                selectableDates = selectableDates,
+                dateInputFormat = dateInputFormat,
+                dateFormatter = dateFormatter,
+                errorDatePattern = errorDatePattern,
+                errorDateOutOfYearRange = errorDateOutOfYearRange,
+                errorInvalidNotAllowed = errorInvalidNotAllowed,
+                errorInvalidRangeInput = errorInvalidRange
+            )
+        }
     // Apply both start and end dates for proper validation.
     dateInputValidator.apply {
         currentStartDateMillis = selectedStartDateMillis
@@ -75,12 +78,13 @@ internal fun DateRangeInputContent(
             modifier = Modifier.weight(0.5f),
             calendarModel = calendarModel,
             label = {
-                Text(startRangeText,
-                    modifier = Modifier.semantics {
-                        contentDescription = "$startRangeText, $pattern"
-                    })
+                Text(
+                    startRangeText,
+                    modifier =
+                        Modifier.semantics { contentDescription = "$startRangeText, $pattern" }
+                )
             },
-            placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics { }) },
+            placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics {}) },
             initialDateMillis = selectedStartDateMillis,
             onDateSelectionChange = { startDateMillis ->
                 // Delegate to the onDatesSelectionChange and change just the start date.
@@ -97,12 +101,12 @@ internal fun DateRangeInputContent(
             modifier = Modifier.weight(0.5f),
             calendarModel = calendarModel,
             label = {
-                Text(endRangeText,
-                    modifier = Modifier.semantics {
-                        contentDescription = "$endRangeText, $pattern"
-                    })
+                Text(
+                    endRangeText,
+                    modifier = Modifier.semantics { contentDescription = "$endRangeText, $pattern" }
+                )
             },
-            placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics { }) },
+            placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics {}) },
             initialDateMillis = selectedEndDateMillis,
             onDateSelectionChange = { endDateMillis ->
                 // Delegate to the onDatesSelectionChange and change just the end date.

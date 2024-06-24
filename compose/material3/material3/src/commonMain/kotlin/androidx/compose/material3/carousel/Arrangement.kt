@@ -16,24 +16,23 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
 /**
  * A class that holds data about a combination of large, medium, and small items, knows how to alter
- * an arrangement to fit within an available space, and can assess the arrangement's
- * desirability according to a priority heuristic.
+ * an arrangement to fit within an available space, and can assess the arrangement's desirability
+ * according to a priority heuristic.
  */
 internal class Arrangement(
     private val priority: Int,
     val smallSize: Float,
-    private val smallCount: Int,
+    val smallCount: Int,
     val mediumSize: Float,
-    private val mediumCount: Int,
+    val mediumCount: Int,
     val largeSize: Float,
-    private val largeCount: Int
+    val largeCount: Int
 ) {
 
     private fun isValid(): Boolean {
@@ -48,9 +47,8 @@ internal class Arrangement(
     /**
      * Calculates the cost of this arrangement to determine visual desirability and adherence to
      * inputs. Cost is a value calculated based on the arrangement's `priority` and how true it is
-     * to the target large size.
-     * Arrangements have a lower cost if they have a priority closer to 1 and their `largeSize` is
-     * altered as little as possible from `targetLargeSize`.
+     * to the target large size. Arrangements have a lower cost if they have a priority closer to 1
+     * and their `largeSize` is altered as little as possible from `targetLargeSize`.
      *
      * @param targetLargeSize the size large items would like to be
      * @return a float representing the cost of this arrangement where the lower the cost the better
@@ -62,6 +60,11 @@ internal class Arrangement(
         return abs(targetLargeSize - largeSize) * priority
     }
 
+    /** Returns number of items (keylines) in the arrangement */
+    fun itemCount(): Int {
+        return largeCount + mediumCount + smallCount
+    }
+
     companion object {
         // Specifies a percentage of a medium item's size by which it can be increased or decreased
         // to help fit an arrangement into the carousel's available space.
@@ -69,8 +72,7 @@ internal class Arrangement(
 
         /**
          * Create an arrangement for all possible permutations for `smallCounts` and `largeCounts`,
-         * fit each into the available space, and return the arrangement with the lowest
-         * cost.
+         * fit each into the available space, and return the arrangement with the lowest cost.
          *
          * Keep in mind that the returned arrangements do not take into account the available space
          * from the carousel. They will all occupy varying degrees of more or less space. The caller
@@ -78,23 +80,27 @@ internal class Arrangement(
          * fitting the arrangement to the size of the carousel.
          *
          * @param availableSpace the space the arrangement needs to fit
+         * @param itemSpacing the space between items in the arrangement
          * @param targetSmallSize the size small items would like to be
-         * @param smallSizeRange the range of which small item sizes are allowed to be
+         * @param minSmallSize the minimum size of which small item sizes are allowed to be
+         * @param maxSmallSize the maximum size of which small item sizes are allowed to be
          * @param smallCounts an array of small item counts for a valid arrangement ordered by
-         * priority
+         *   priority
          * @param targetMediumSize the size medium items would like to be
          * @param mediumCounts an array of medium item counts for a valid arrangement ordered by
-         * priority
+         *   priority
          * @param targetLargeSize the size large items would like to be
          * @param largeCounts an array of large item counts for a valid arrangement ordered by
-         * priority
+         *   priority
          * @return the arrangement that is considered the most desirable and has been adjusted to
-         * fit within the available space
+         *   fit within the available space
          */
         fun findLowestCostArrangement(
             availableSpace: Float,
+            itemSpacing: Float,
             targetSmallSize: Float,
-            smallSizeRange: FloatRange,
+            minSmallSize: Float,
+            maxSmallSize: Float,
             smallCounts: IntArray,
             targetMediumSize: Float,
             mediumCounts: IntArray,
@@ -106,20 +112,24 @@ internal class Arrangement(
             for (largeCount in largeCounts) {
                 for (mediumCount in mediumCounts) {
                     for (smallCount in smallCounts) {
-                        val arrangement = fit(
-                            priority = priority,
-                            availableSpace = availableSpace,
-                            smallCount = smallCount,
-                            smallSize = targetSmallSize,
-                            smallSizeRange = smallSizeRange,
-                            mediumCount = mediumCount,
-                            mediumSize = targetMediumSize,
-                            largeCount = largeCount,
-                            largeSize = targetLargeSize,
-                        )
-                        if (lowestCostArrangement == null ||
-                            arrangement.cost(targetLargeSize) <
-                            lowestCostArrangement.cost(targetLargeSize)
+                        val arrangement =
+                            fit(
+                                priority = priority,
+                                availableSpace = availableSpace,
+                                itemSpacing = itemSpacing,
+                                smallCount = smallCount,
+                                smallSize = targetSmallSize,
+                                minSmallSize = minSmallSize,
+                                maxSmallSize = maxSmallSize,
+                                mediumCount = mediumCount,
+                                mediumSize = targetMediumSize,
+                                largeCount = largeCount,
+                                largeSize = targetLargeSize,
+                            )
+                        if (
+                            lowestCostArrangement == null ||
+                                arrangement.cost(targetLargeSize) <
+                                    lowestCostArrangement.cost(targetLargeSize)
                         ) {
                             lowestCostArrangement = arrangement
                             if (lowestCostArrangement.cost(targetLargeSize) == 0f) {
@@ -146,10 +156,13 @@ internal class Arrangement(
          * adjusting small items as much as possible, then adjusting medium items as much as
          * possible, and finally adjusting large items if the arrangement is still unable to fit.
          *
-         * @param priority The priority to place on this particular arrangement of item counts
-         * @param availableSpace The space in which to fit the arrangement
+         * @param priority the priority to place on this particular arrangement of item counts
+         * @param availableSpace the space in which to fit the arrangement
+         * @param itemSpacing the space between itens
          * @param smallCount the number of small items to fit
          * @param smallSize the size of each small item
+         * @param minSmallSize the minimum size a small item is allowed to be
+         * @param maxSmallSize the maximum size a small item is allowed to be
          * @param mediumCount the number of medium items to fit
          * @param mediumSize the size of each medium item
          * @param largeCount the number of large items to fit
@@ -159,46 +172,47 @@ internal class Arrangement(
         private fun fit(
             priority: Int,
             availableSpace: Float,
+            itemSpacing: Float,
             smallCount: Int,
             smallSize: Float,
-            smallSizeRange: FloatRange,
+            minSmallSize: Float,
+            maxSmallSize: Float,
             mediumCount: Int,
             mediumSize: Float,
             largeCount: Int,
             largeSize: Float
         ): Arrangement {
-            var arrangedSmallSize = smallSize.coerceIn(
-                smallSizeRange.from.toFloat(),
-                smallSizeRange.to.toFloat()
-            )
+            val totalItemCount = largeCount + mediumCount + smallCount
+            val availableSpaceWithoutSpacing = availableSpace - ((totalItemCount - 1) * itemSpacing)
+            var arrangedSmallSize = smallSize.coerceIn(minSmallSize, maxSmallSize)
             var arrangedMediumSize = mediumSize
             var arrangedLargeSize = largeSize
 
-            val totalSpaceTakenByArrangement = arrangedLargeSize * largeCount +
-                arrangedMediumSize * mediumCount + arrangedSmallSize * smallCount
-            val delta = availableSpace - totalSpaceTakenByArrangement
+            val totalSpaceTakenByArrangement =
+                arrangedLargeSize * largeCount +
+                    arrangedMediumSize * mediumCount +
+                    arrangedSmallSize * smallCount
+            val delta = availableSpaceWithoutSpacing - totalSpaceTakenByArrangement
             // First, resize small items within their allowable min-max range to try to fit the
             // arrangement into the available space.
             if (smallCount > 0 && delta > 0) {
                 // grow the small items
-                arrangedSmallSize += min(
-                    delta / smallCount,
-                    smallSizeRange.to.toFloat() - arrangedSmallSize
-                )
+                arrangedSmallSize += min(delta / smallCount, maxSmallSize - arrangedSmallSize)
             } else if (smallCount > 0 && delta < 0) {
                 // shrink the small items
-                arrangedSmallSize += max(
-                    delta / smallCount,
-                    smallSizeRange.from.toFloat() - arrangedSmallSize
-                )
+                arrangedSmallSize += max(delta / smallCount, minSmallSize - arrangedSmallSize)
             }
 
             // Zero out small size if there are no small items
             arrangedSmallSize = if (smallCount > 0) arrangedSmallSize else 0f
-            arrangedLargeSize = calculateLargeSize(
-                availableSpace, smallCount, arrangedSmallSize,
-                mediumCount, largeCount
-            )
+            arrangedLargeSize =
+                calculateLargeSize(
+                    availableSpaceWithoutSpacing,
+                    smallCount,
+                    arrangedSmallSize,
+                    mediumCount,
+                    largeCount
+                )
             arrangedMediumSize = (arrangedLargeSize + arrangedSmallSize) / 2f
 
             // If the large size has been adjusted away from its target size to fit the arrangement,
@@ -246,7 +260,7 @@ internal class Arrangement(
          * @param mediumCount the number of medium items in the calculation
          * @param largeCount the number of large items in the calculation
          * @return the large item size which will fit for the available space and other item
-         * constraints
+         *   constraints
          */
         private fun calculateLargeSize(
             availableSpace: Float,

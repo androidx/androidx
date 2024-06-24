@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.samples
 
-import androidx.activity.compose.BackHandler
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,10 +23,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Bookmarks
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.JoinFull
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Laptop
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Outbox
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material3.Button
 import androidx.compose.material3.DismissibleDrawerSheet
 import androidx.compose.material3.DismissibleNavigationDrawer
@@ -58,39 +74,57 @@ fun ModalNavigationDrawerSample() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     // icons to mimic drawer destinations
-    val items = listOf(Icons.Default.Favorite, Icons.Default.Face, Icons.Default.Email)
+    val items =
+        listOf(
+            Icons.Default.AccountCircle,
+            Icons.Default.Bookmarks,
+            Icons.Default.CalendarMonth,
+            Icons.Default.Dashboard,
+            Icons.Default.Email,
+            Icons.Default.Favorite,
+            Icons.Default.Group,
+            Icons.Default.Headphones,
+            Icons.Default.Image,
+            Icons.Default.JoinFull,
+            Icons.Default.Keyboard,
+            Icons.Default.Laptop,
+            Icons.Default.Map,
+            Icons.Default.Navigation,
+            Icons.Default.Outbox,
+            Icons.Default.PushPin,
+            Icons.Default.QrCode,
+            Icons.Default.Radio,
+        )
     val selectedItem = remember { mutableStateOf(items[0]) }
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Spacer(Modifier.height(12.dp))
-                items.forEach { item ->
-                    NavigationDrawerItem(
-                        icon = { Icon(item, contentDescription = null) },
-                        label = { Text(item.name) },
-                        selected = item == selectedItem.value,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            selectedItem.value = item
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
+            ModalDrawerSheet(drawerState) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Spacer(Modifier.height(12.dp))
+                    items.forEach { item ->
+                        NavigationDrawerItem(
+                            icon = { Icon(item, contentDescription = null) },
+                            label = { Text(item.name.substringAfterLast(".")) },
+                            selected = item == selectedItem.value,
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                selectedItem.value = item
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
                 }
             }
         },
         content = {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = { scope.launch { drawerState.open() } }) {
-                    Text("Click to open")
-                }
+                Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
             }
         }
     )
@@ -101,30 +135,48 @@ fun ModalNavigationDrawerSample() {
 @Composable
 fun PermanentNavigationDrawerSample() {
     // icons to mimic drawer destinations
-    val items = listOf(Icons.Default.Favorite, Icons.Default.Face, Icons.Default.Email)
+    val items =
+        listOf(
+            Icons.Default.AccountCircle,
+            Icons.Default.Bookmarks,
+            Icons.Default.CalendarMonth,
+            Icons.Default.Dashboard,
+            Icons.Default.Email,
+            Icons.Default.Favorite,
+            Icons.Default.Group,
+            Icons.Default.Headphones,
+            Icons.Default.Image,
+            Icons.Default.JoinFull,
+            Icons.Default.Keyboard,
+            Icons.Default.Laptop,
+            Icons.Default.Map,
+            Icons.Default.Navigation,
+            Icons.Default.Outbox,
+            Icons.Default.PushPin,
+            Icons.Default.QrCode,
+            Icons.Default.Radio,
+        )
     val selectedItem = remember { mutableStateOf(items[0]) }
     PermanentNavigationDrawer(
         drawerContent = {
             PermanentDrawerSheet(Modifier.width(240.dp)) {
-                Spacer(Modifier.height(12.dp))
-                items.forEach { item ->
-                    NavigationDrawerItem(
-                        icon = { Icon(item, contentDescription = null) },
-                        label = { Text(item.name) },
-                        selected = item == selectedItem.value,
-                        onClick = {
-                            selectedItem.value = item
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    )
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Spacer(Modifier.height(12.dp))
+                    items.forEach { item ->
+                        NavigationDrawerItem(
+                            icon = { Icon(item, contentDescription = null) },
+                            label = { Text(item.name.substringAfterLast(".")) },
+                            selected = item == selectedItem.value,
+                            onClick = { selectedItem.value = item },
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                    }
                 }
             }
         },
         content = {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = "Application content")
@@ -140,45 +192,58 @@ fun DismissibleNavigationDrawerSample() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     // icons to mimic drawer destinations
-    val items = listOf(Icons.Default.Favorite, Icons.Default.Face, Icons.Default.Email)
+    val items =
+        listOf(
+            Icons.Default.AccountCircle,
+            Icons.Default.Bookmarks,
+            Icons.Default.CalendarMonth,
+            Icons.Default.Dashboard,
+            Icons.Default.Email,
+            Icons.Default.Favorite,
+            Icons.Default.Group,
+            Icons.Default.Headphones,
+            Icons.Default.Image,
+            Icons.Default.JoinFull,
+            Icons.Default.Keyboard,
+            Icons.Default.Laptop,
+            Icons.Default.Map,
+            Icons.Default.Navigation,
+            Icons.Default.Outbox,
+            Icons.Default.PushPin,
+            Icons.Default.QrCode,
+            Icons.Default.Radio,
+        )
     val selectedItem = remember { mutableStateOf(items[0]) }
-    BackHandler(enabled = drawerState.isOpen) {
-        scope.launch {
-            drawerState.close()
-        }
-    }
 
     DismissibleNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DismissibleDrawerSheet {
-                Spacer(Modifier.height(12.dp))
-                items.forEach { item ->
-                    NavigationDrawerItem(
-                        icon = { Icon(item, contentDescription = null) },
-                        label = { Text(item.name) },
-                        selected = item == selectedItem.value,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            selectedItem.value = item
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    )
+            DismissibleDrawerSheet(drawerState) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Spacer(Modifier.height(12.dp))
+                    items.forEach { item ->
+                        NavigationDrawerItem(
+                            icon = { Icon(item, contentDescription = null) },
+                            label = { Text(item.name.substringAfterLast(".")) },
+                            selected = item == selectedItem.value,
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                selectedItem.value = item
+                            },
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                    }
                 }
             }
         },
         content = {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = { scope.launch { drawerState.open() } }) {
-                    Text("Click to open")
-                }
+                Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
             }
         }
     )

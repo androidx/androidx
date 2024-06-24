@@ -28,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SwipeToDismissBox
@@ -52,25 +51,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-private val items = listOf(
-    "Cupcake",
-    "Donut",
-    "Eclair",
-    "Froyo",
-    "Gingerbread",
-    "Honeycomb",
-    "Ice cream sandwich",
-    "Jelly bean",
-    "KitKat",
-    "Lollipop",
-    "Marshmallow",
-    "Nougat",
-    "Oreo",
-    "Pie"
-)
+private val items =
+    listOf(
+        "Cupcake",
+        "Donut",
+        "Eclair",
+        "Froyo",
+        "Gingerbread",
+        "Honeycomb",
+        "Ice cream sandwich",
+        "Jelly bean",
+        "KitKat",
+        "Lollipop",
+        "Marshmallow",
+        "Nougat",
+        "Oreo",
+        "Pie"
+    )
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun SwipeToDismissDemo() {
     // This is an example of a list of dismissible items, similar to what you would see in an
     // email app. Swiping left reveals a 'delete' icon and swiping right reveals a 'done' icon.
@@ -83,44 +82,46 @@ fun SwipeToDismissDemo() {
             var unread by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
 
-            val dismissState = rememberSwipeToDismissBoxState(
-                confirmValueChange = {
-                    if (it == SwipeToDismissBoxValue.StartToEnd) unread = !unread
-                    it != SwipeToDismissBoxValue.StartToEnd
-                },
-                positionalThreshold = { distance -> distance * .25f }
-            )
+            val dismissState =
+                rememberSwipeToDismissBoxState(
+                    confirmValueChange = {
+                        if (it == SwipeToDismissBoxValue.StartToEnd) unread = !unread
+                        it != SwipeToDismissBoxValue.StartToEnd
+                    },
+                    positionalThreshold = { distance -> distance * .25f }
+                )
             SwipeToDismissBox(
                 state = dismissState,
                 modifier = Modifier.padding(vertical = 4.dp),
                 backgroundContent = {
                     val direction = dismissState.dismissDirection
-                    val color by animateColorAsState(
-                        when (dismissState.targetValue) {
-                            SwipeToDismissBoxValue.Settled -> Color.LightGray
-                            SwipeToDismissBoxValue.StartToEnd -> Color.Green
-                            SwipeToDismissBoxValue.EndToStart -> Color.Red
+                    val color by
+                        animateColorAsState(
+                            when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.Settled -> Color.LightGray
+                                SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                                SwipeToDismissBoxValue.EndToStart -> Color.Red
+                            }
+                        )
+                    val alignment =
+                        when (direction) {
+                            SwipeToDismissBoxValue.StartToEnd,
+                            SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
+                            SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
                         }
-                    )
-                    val alignment = when (direction) {
-                        SwipeToDismissBoxValue.StartToEnd,
-                        SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
-                        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-                    }
-                    val icon = when (direction) {
-                        SwipeToDismissBoxValue.StartToEnd,
-                        SwipeToDismissBoxValue.Settled -> Icons.Default.Done
-                        SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
-                    }
-                    val scale by animateFloatAsState(
-                        if (dismissState.targetValue == SwipeToDismissBoxValue.Settled)
-                            0.75f else 1f
-                    )
+                    val icon =
+                        when (direction) {
+                            SwipeToDismissBoxValue.StartToEnd,
+                            SwipeToDismissBoxValue.Settled -> Icons.Default.Done
+                            SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
+                        }
+                    val scale by
+                        animateFloatAsState(
+                            if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 0.75f
+                            else 1f
+                        )
                     Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color)
-                            .padding(horizontal = 20.dp),
+                        Modifier.fillMaxSize().background(color).padding(horizontal = 20.dp),
                         contentAlignment = alignment
                     ) {
                         Icon(
@@ -136,19 +137,26 @@ fun SwipeToDismissDemo() {
                         headlineContent = {
                             Text(item, fontWeight = if (unread) FontWeight.Bold else null)
                         },
-                        modifier = Modifier.semantics {
-                            // Provide accessible alternatives to swipe actions.
-                            val label = if (unread) "Mark Read" else "Mark Unread"
-                            customActions = listOf(
-                                CustomAccessibilityAction(label) { unread = !unread; true },
-                                CustomAccessibilityAction("Delete") {
-                                    scope.launch {
-                                        dismissState.dismiss(SwipeToDismissBoxValue.EndToStart)
-                                    }
-                                    true
-                                }
-                            )
-                        },
+                        modifier =
+                            Modifier.semantics {
+                                // Provide accessible alternatives to swipe actions.
+                                val label = if (unread) "Mark Read" else "Mark Unread"
+                                customActions =
+                                    listOf(
+                                        CustomAccessibilityAction(label) {
+                                            unread = !unread
+                                            true
+                                        },
+                                        CustomAccessibilityAction("Delete") {
+                                            scope.launch {
+                                                dismissState.dismiss(
+                                                    SwipeToDismissBoxValue.EndToStart
+                                                )
+                                            }
+                                            true
+                                        }
+                                    )
+                            },
                         supportingContent = { Text("Swipe me left or right!") },
                     )
                 }

@@ -18,38 +18,38 @@ package androidx.compose.material3.pulltorefresh
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.center
@@ -60,11 +60,18 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -72,107 +79,381 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import kotlin.js.JsName
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlinx.coroutines.launch
 
 // TODO: Link to Material design specs when available.
 /**
- * Material Design pull-to-refresh indicator
- *
- * A pull-to-refresh container contains a progress indicator to indicate a users drag progress
- * towards triggering a refresh. On a refresh the progress indicator inside this container is
- * indeterminate.
+ * [PullToRefreshBox] is a container that expects a scrollable layout as content and adds gesture
+ * support for manually refreshing when the user swipes downward at the beginning of the content. By
+ * default, it uses [PullToRefreshDefaults.Indicator] as the refresh indicator.
  *
  * @sample androidx.compose.material3.samples.PullToRefreshSample
  *
+ * View models can be used as source as truth as shown in
+ *
+ * @sample androidx.compose.material3.samples.PullToRefreshViewModelSample
+ *
  * A custom state implementation can be initialized like this
+ *
  * @sample androidx.compose.material3.samples.PullToRefreshSampleCustomState
  *
  * Scaling behavior can be implemented like this
+ *
  * @sample androidx.compose.material3.samples.PullToRefreshScalingSample
  *
- * @param state the state of this [PullToRefreshContainer]
+ * @param isRefreshing whether a refresh is occurring
+ * @param onRefresh callback invoked when the user gesture crosses the threshold, thereby requesting
+ *   a refresh.
  * @param modifier the [Modifier] to be applied to this container
- * @param indicator The indicator placed inside of the [PullToRefreshContainer]. Has access to
- * [state]
- * @param shape the [Shape] of this container
- * @param containerColor the color of this container
- * @param contentColor the color of the progress indicator
+ * @param state the state that keeps track of distance pulled
+ * @param contentAlignment The default alignment inside the Box.
+ * @param indicator the indicator that will be drawn on top of the content when the user begins a
+ *   pull or a refresh is occurring
+ * @param content the content of the pull refresh container, typically a scrollable layout such as
+ *   [LazyColumn] or a layout using [Modifier.verticalScroll]
  */
 @Composable
 @ExperimentalMaterial3Api
-@Suppress("ComposableLambdaParameterPosition")
-fun PullToRefreshContainer(
-    state: PullToRefreshState,
+fun PullToRefreshBox(
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    indicator: @Composable (PullToRefreshState) -> Unit = { pullRefreshState ->
-        Indicator(state = pullRefreshState)
+    state: PullToRefreshState = rememberPullToRefreshState(),
+    contentAlignment: Alignment = Alignment.TopStart,
+    indicator: @Composable BoxScope.() -> Unit = {
+        Indicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            isRefreshing = isRefreshing,
+            state = state
+        )
     },
-    shape: Shape = PullToRefreshDefaults.shape,
-    containerColor: Color = PullToRefreshDefaults.containerColor,
-    contentColor: Color = PullToRefreshDefaults.contentColor,
+    content: @Composable BoxScope.() -> Unit
 ) {
-    // Surface is not used here, as we do not want its input-blocking behaviour, since the indicator
-    // is typically displayed above other (possibly) interactive indicator.
-    val showElevation = remember {
-        derivedStateOf { state.verticalOffset > 1f || state.isRefreshing }
-    }
-    CompositionLocalProvider(LocalContentColor provides contentColor) {
-        Box(
-            modifier = modifier
-                .size(SpinnerContainerSize)
-                .graphicsLayer {
-                    translationY = state.verticalOffset - size.height
-                }
-                .shadow(
-                    // Avoid shadow when indicator is hidden
-                    elevation = if (showElevation.value) Elevation else 0.dp,
-                    shape = shape,
-                    clip = true
-                )
-                .background(color = containerColor, shape = shape)
-        ) {
-            indicator(state)
-        }
+    Box(
+        modifier.pullToRefresh(state = state, isRefreshing = isRefreshing, onRefresh = onRefresh),
+        contentAlignment = contentAlignment
+    ) {
+        content()
+        indicator()
     }
 }
 
 /**
- * Contains the default values for [PullToRefreshContainer]
+ * A Modifier that handles the size, offset, clipping, shadow, and background drawing of a
+ * pull-to-refresh indicator, useful when implementing custom indicators.
+ * [PullToRefreshDefaults.Indicator] applies this automatically.
+ *
+ * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+ *   calculate the offset
+ * @param isRefreshing whether a refresh is occurring
+ * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+ *   release
+ * @param shape the [Shape] of this indicator
+ * @param containerColor the container color of this indicator
+ * @param elevation the elevation for the indicator
  */
 @ExperimentalMaterial3Api
+fun Modifier.pullToRefreshIndicator(
+    state: PullToRefreshState,
+    isRefreshing: Boolean,
+    threshold: Dp = PullToRefreshDefaults.PositionalThreshold,
+    shape: Shape = PullToRefreshDefaults.shape,
+    containerColor: Color = Color.Unspecified,
+    elevation: Dp = PullToRefreshDefaults.Elevation,
+): Modifier =
+    this.size(SpinnerContainerSize)
+        .drawWithContent {
+            clipRect(
+                top = 0f,
+                left = -Float.MAX_VALUE,
+                right = Float.MAX_VALUE,
+                bottom = Float.MAX_VALUE
+            ) {
+                this@drawWithContent.drawContent()
+            }
+        }
+        .graphicsLayer {
+            val showElevation = state.distanceFraction > 0f || isRefreshing
+            translationY = state.distanceFraction * threshold.roundToPx() - size.height
+            shadowElevation = if (showElevation) elevation.toPx() else 0f
+            this.shape = shape
+            clip = true
+        }
+        .background(color = containerColor, shape = shape)
+
+/**
+ * A Modifier that adds nested scroll to a container to support a pull-to-refresh gesture. When the
+ * user pulls a distance greater than [threshold] and releases the gesture, [onRefresh] is invoked.
+ * [PullToRefreshBox] applies this automatically.
+ *
+ * @param isRefreshing whether a refresh is occurring or not, if there is no gesture in progress
+ *   when isRefreshing is false the `state.distanceFraction` will animate to 0f, otherwise it will
+ *   animate to 1f
+ * @param state state that keeps track of the distance pulled
+ * @param enabled whether nested scroll events should be consumed by this modifier
+ * @param threshold how much distance can be scrolled down before [onRefresh] is invoked
+ * @param onRefresh callback that is invoked when the distance pulled is greater than [threshold]
+ */
+@ExperimentalMaterial3Api
+fun Modifier.pullToRefresh(
+    isRefreshing: Boolean,
+    state: PullToRefreshState,
+    enabled: Boolean = true,
+    threshold: Dp = PullToRefreshDefaults.PositionalThreshold,
+    onRefresh: () -> Unit,
+): Modifier =
+    this then
+        PullToRefreshElement(
+            state = state,
+            isRefreshing = isRefreshing,
+            enabled = enabled,
+            onRefresh = onRefresh,
+            threshold = threshold
+        )
+
+@OptIn(ExperimentalMaterial3Api::class)
+internal data class PullToRefreshElement(
+    val isRefreshing: Boolean,
+    val onRefresh: () -> Unit,
+    val enabled: Boolean,
+    val state: PullToRefreshState,
+    val threshold: Dp,
+) : ModifierNodeElement<PullToRefreshModifierNode>() {
+    override fun create() =
+        PullToRefreshModifierNode(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            enabled = enabled,
+            state = state,
+            threshold = threshold
+        )
+
+    override fun update(node: PullToRefreshModifierNode) {
+        node.onRefresh = onRefresh
+        node.enabled = enabled
+        node.state = state
+        node.threshold = threshold
+        if (node.isRefreshing != isRefreshing) {
+            node.isRefreshing = isRefreshing
+            node.update()
+        }
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "PullToRefreshModifierNode"
+        properties["isRefreshing"] = isRefreshing
+        properties["onRefresh"] = onRefresh
+        properties["enabled"] = enabled
+        properties["state"] = state
+        properties["threshold"] = threshold
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+internal class PullToRefreshModifierNode(
+    var isRefreshing: Boolean,
+    var onRefresh: () -> Unit,
+    var enabled: Boolean,
+    var state: PullToRefreshState,
+    var threshold: Dp,
+) : DelegatingNode(), CompositionLocalConsumerModifierNode, NestedScrollConnection {
+
+    private var nestedScrollNode: DelegatableNode =
+        nestedScrollModifierNode(
+            connection = this,
+            dispatcher = null,
+        )
+
+    private var verticalOffset by mutableFloatStateOf(0f)
+    private var distancePulled by mutableFloatStateOf(0f)
+
+    private val adjustedDistancePulled: Float
+        get() = distancePulled * DragMultiplier
+
+    private val thresholdPx
+        get() = with(currentValueOf(LocalDensity)) { threshold.roundToPx() }
+
+    private val progress
+        get() = adjustedDistancePulled / thresholdPx
+
+    override fun onAttach() {
+        delegate(nestedScrollNode)
+        coroutineScope.launch {
+            if (isRefreshing) {
+                state.snapTo(1f)
+            } else {
+                state.snapTo(0f)
+            }
+        }
+    }
+
+    override fun onPreScroll(
+        available: Offset,
+        source: NestedScrollSource,
+    ): Offset =
+        when {
+            state.isAnimating -> Offset.Zero
+            !enabled -> Offset.Zero
+            // Swiping up
+            source == NestedScrollSource.UserInput && available.y < 0 -> {
+                consumeAvailableOffset(available)
+            }
+            else -> Offset.Zero
+        }
+
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource
+    ): Offset =
+        when {
+            state.isAnimating -> Offset.Zero
+            !enabled -> Offset.Zero
+            // Swiping down
+            source == NestedScrollSource.UserInput -> {
+                val newOffset = consumeAvailableOffset(available)
+                coroutineScope.launch { state.snapTo(verticalOffset / thresholdPx) }
+
+                newOffset
+            }
+            else -> Offset.Zero
+        }
+
+    override suspend fun onPreFling(available: Velocity): Velocity {
+        return Velocity(0f, onRelease(available.y))
+    }
+
+    fun update() {
+        coroutineScope.launch {
+            if (!isRefreshing) {
+                animateToHidden()
+            } else {
+                animateToThreshold()
+            }
+        }
+    }
+
+    /** Helper method for nested scroll connection */
+    private fun consumeAvailableOffset(available: Offset): Offset {
+        val y =
+            if (isRefreshing) 0f
+            else {
+                val newOffset = (distancePulled + available.y).coerceAtLeast(0f)
+                val dragConsumed = newOffset - distancePulled
+                distancePulled = newOffset
+                verticalOffset = calculateVerticalOffset()
+                dragConsumed
+            }
+        return Offset(0f, y)
+    }
+
+    /** Helper method for nested scroll connection. Calls onRefresh callback when triggered */
+    private suspend fun onRelease(velocity: Float): Float {
+        if (isRefreshing) return 0f // Already refreshing, do nothing
+        // Trigger refresh
+        if (adjustedDistancePulled > thresholdPx) {
+            animateToThreshold()
+            onRefresh()
+        } else {
+            animateToHidden()
+        }
+
+        val consumed =
+            when {
+                // We are flinging without having dragged the pull refresh (for example a fling
+                // inside
+                // a list) - don't consume
+                distancePulled == 0f -> 0f
+                // If the velocity is negative, the fling is upwards, and we don't want to prevent
+                // the
+                // the list from scrolling
+                velocity < 0f -> 0f
+                // We are showing the indicator, and the fling is downwards - consume everything
+                else -> velocity
+            }
+        distancePulled = 0f
+        return consumed
+    }
+
+    private fun calculateVerticalOffset(): Float =
+        when {
+            // If drag hasn't gone past the threshold, the position is the adjustedDistancePulled.
+            adjustedDistancePulled <= thresholdPx -> adjustedDistancePulled
+            else -> {
+                // How far beyond the threshold pull has gone, as a percentage of the threshold.
+                val overshootPercent = abs(progress) - 1.0f
+                // Limit the overshoot to 200%. Linear between 0 and 200.
+                val linearTension = overshootPercent.coerceIn(0f, 2f)
+                // Non-linear tension. Increases with linearTension, but at a decreasing rate.
+                val tensionPercent = linearTension - linearTension.pow(2) / 4
+                // The additional offset beyond the threshold.
+                val extraOffset = thresholdPx * tensionPercent
+                thresholdPx + extraOffset
+            }
+        }
+
+    private suspend fun animateToThreshold() {
+        state.animateToThreshold()
+        distancePulled = thresholdPx.toFloat()
+        verticalOffset = thresholdPx.toFloat()
+    }
+
+    private suspend fun animateToHidden() {
+        state.animateToHidden()
+        distancePulled = 0f
+        verticalOffset = 0f
+    }
+}
+
+/** Contains the default values for [PullToRefreshBox] */
+@ExperimentalMaterial3Api
 object PullToRefreshDefaults {
-    /** The default shape for [PullToRefreshContainer] */
+    /** The default shape for [Indicator] */
     val shape: Shape = CircleShape
 
-    /** The default container color for [PullToRefreshContainer] */
-    val containerColor: Color @Composable get() = MaterialTheme.colorScheme.surfaceContainerHigh
+    /** The default container color for [Indicator] */
+    val containerColor: Color
+        @Composable get() = MaterialTheme.colorScheme.surfaceContainerHigh
 
-    /** The default container color for [PullToRefreshContainer] */
-    val contentColor: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+    /** The default indicator color for [Indicator] */
+    val indicatorColor: Color
+        @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
 
-    /**
-     * The default indicator for [PullToRefreshContainer].
-     */
+    /** The default elevation for [pullToRefreshIndicator] */
+    val Elevation = ElevationTokens.Level2
+
+    /** The default indicator for [PullToRefreshBox]. */
     @Composable
     fun Indicator(
         state: PullToRefreshState,
+        isRefreshing: Boolean,
         modifier: Modifier = Modifier,
-        color: Color = LocalContentColor.current,
+        containerColor: Color = PullToRefreshDefaults.containerColor,
+        color: Color = PullToRefreshDefaults.indicatorColor,
+        threshold: Dp = PositionalThreshold,
     ) {
-        Crossfade(
-            targetState = state.isRefreshing,
-            animationSpec = tween(durationMillis = CrossfadeDurationMs)
-        ) { refreshing ->
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+        Box(
+            modifier =
+                modifier.pullToRefreshIndicator(
+                    state = state,
+                    isRefreshing = isRefreshing,
+                    containerColor = containerColor,
+                    threshold = threshold,
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Crossfade(
+                targetState = isRefreshing,
+                animationSpec = tween(durationMillis = CrossfadeDurationMs)
+            ) { refreshing ->
                 if (refreshing) {
                     CircularProgressIndicator(
                         strokeWidth = StrokeWidth,
@@ -181,7 +462,7 @@ object PullToRefreshDefaults {
                     )
                 } else {
                     CircularArrowProgressIndicator(
-                        progress = { state.progress },
+                        progress = { state.distanceFraction },
                         color = color,
                     )
                 }
@@ -191,236 +472,96 @@ object PullToRefreshDefaults {
 }
 
 /**
- * The state that is associated with a [PullToRefreshContainer].
- * Each instance of [PullToRefreshContainer] should have its own [PullToRefreshState].
+ * The state of a [PullToRefreshBox] which tracks the distance that the container and indicator have
+ * been pulled.
+ *
+ * Each instance of [PullToRefreshBox] should have its own [PullToRefreshState].
  *
  * [PullToRefreshState] can be used with other progress indicators like so:
+ *
  * @sample androidx.compose.material3.samples.PullToRefreshLinearProgressIndicatorSample
  */
 @Stable
 @ExperimentalMaterial3Api
 interface PullToRefreshState {
-    /** The threshold (in pixels), above which if a release occurs, a refresh will be called */
-    val positionalThreshold: Float
 
     /**
-     * PullRefresh progress towards [positionalThreshold]. 0.0 indicates no progress, 1.0 indicates
-     * complete progress, > 1.0 indicates overshoot beyond the provided threshold
+     * Distance percentage towards the refresh threshold. 0.0 indicates no distance, 1.0 indicates
+     * being at the threshold offset, > 1.0 indicates overshoot beyond the provided threshold.
      */
-    @get:FloatRange(from = 0.0)
-    val progress: Float
+    @get:FloatRange(from = 0.0) val distanceFraction: Float
+
+    /** Whether the state is currently animating */
+    val isAnimating: Boolean
+        get() = false
 
     /**
-     * Indicates whether a refresh is occurring.
+     * Animate the distance towards the anchor or threshold position, where the indicator will be
+     * shown when refreshing.
      */
-    val isRefreshing: Boolean
+    suspend fun animateToThreshold()
 
-    /**
-     * Sets [isRefreshing] to true.
-     */
-    fun startRefresh()
+    /** Animate the distance towards the position where the indicator will be hidden when idle */
+    suspend fun animateToHidden()
 
-    /**
-     * Sets [isRefreshing] to false.
-     */
-    fun endRefresh()
-
-    /**
-     * The vertical offset (in pixels) for the [PullToRefreshContainer] to consume
-     */
-    @get:FloatRange(from = 0.0)
-    val verticalOffset: Float
-
-    /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of the scroll events.
-     */
-    var nestedScrollConnection: NestedScrollConnection
+    /** Snap the indicator to the desired threshold fraction */
+    suspend fun snapTo(@FloatRange(from = 0.0) targetValue: Float)
 }
 
-/**
- * Create and remember the default [PullToRefreshState].
- *
- * @param positionalThreshold The positional threshold when a refresh would be triggered
- * @param enabled a callback used to determine whether scroll events are to be handled by this
- * [PullToRefreshState]
- */
+/** Create and remember the default [PullToRefreshState]. */
 @Composable
 @ExperimentalMaterial3Api
-fun rememberPullToRefreshState(
-    positionalThreshold: Dp = PullToRefreshDefaults.PositionalThreshold,
-    enabled: () -> Boolean = { true },
-): PullToRefreshState {
-    val density = LocalDensity.current
-    val positionalThresholdPx = with(density) { positionalThreshold.toPx() }
-    return rememberSaveable(
-        positionalThresholdPx, enabled,
-        saver = PullToRefreshStateImpl.Saver(
-            positionalThreshold = positionalThresholdPx,
-            enabled = enabled,
-        )
-    ) {
-        PullToRefreshStateImpl(
-            initialRefreshing = false,
-            positionalThreshold = positionalThresholdPx,
-            enabled = enabled,
-        )
-    }
+fun rememberPullToRefreshState(): PullToRefreshState {
+    return rememberSaveable(saver = PullToRefreshStateImpl.Saver) { PullToRefreshStateImpl() }
 }
 
 /**
  * Creates a [PullToRefreshState].
  *
  * Note that in most cases, you are advised to use [rememberPullToRefreshState] when in composition.
+ */
+@JsName("funPullToRefreshState")
+@ExperimentalMaterial3Api fun PullToRefreshState(): PullToRefreshState = PullToRefreshStateImpl()
+
+/**
+ * Creates a [PullToRefreshState].
  *
- * @param positionalThresholdPx The positional threshold, in pixels, in which a refresh is triggered
- * @param initialRefreshing The initial refreshing value of [PullToRefreshState]
- * @param enabled a callback used to determine whether scroll events are to be handled by this
- * [PullToRefreshState]
+ * Note that in most cases, you are advised to use [rememberPullToRefreshState] when in composition.
  */
 @ExperimentalMaterial3Api
-fun PullToRefreshState(
-    positionalThresholdPx: Float,
-    initialRefreshing: Boolean = false,
-    enabled: () -> Boolean = { true },
-): PullToRefreshState = PullToRefreshStateImpl(
-    initialRefreshing = initialRefreshing,
-    positionalThreshold = positionalThresholdPx,
-    enabled = enabled,
-)
+internal class PullToRefreshStateImpl
+private constructor(private val anim: Animatable<Float, AnimationVector1D>) : PullToRefreshState {
+    constructor() : this(Animatable(0f, Float.VectorConverter))
 
-@ExperimentalMaterial3Api
-internal class PullToRefreshStateImpl(
-    initialRefreshing: Boolean,
-    override val positionalThreshold: Float,
-    enabled: () -> Boolean,
-) : PullToRefreshState {
+    override val distanceFraction
+        get() = anim.value
 
-    override val progress get() = adjustedDistancePulled / positionalThreshold
-    override val verticalOffset get() = _verticalOffset
+    /** Whether the state is currently animating */
+    override val isAnimating: Boolean
+        get() = anim.isRunning
 
-    override val isRefreshing get() = _refreshing
-
-    override fun startRefresh() {
-        _refreshing = true
-        _verticalOffset = positionalThreshold
+    override suspend fun animateToThreshold() {
+        anim.animateTo(1f)
     }
 
-    override fun endRefresh() {
-        _verticalOffset = 0f
-        _refreshing = false
+    override suspend fun animateToHidden() {
+        anim.animateTo(0f)
     }
 
-    override var nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPreScroll(
-            available: Offset,
-            source: NestedScrollSource,
-        ): Offset = when {
-            !enabled() -> Offset.Zero
-            // Swiping up
-            source == NestedScrollSource.Drag && available.y < 0 -> {
-                consumeAvailableOffset(available)
-            }
-            else -> Offset.Zero
-        }
-
-        override fun onPostScroll(
-            consumed: Offset,
-            available: Offset,
-            source: NestedScrollSource
-        ): Offset = when {
-            !enabled() -> Offset.Zero
-            // Swiping down
-            source == NestedScrollSource.Drag && available.y > 0 -> {
-                consumeAvailableOffset(available)
-            }
-            else -> Offset.Zero
-        }
-
-        override suspend fun onPreFling(available: Velocity): Velocity {
-            return Velocity(0f, onRelease(available.y))
-        }
-    }
-
-    /** Helper method for nested scroll connection */
-    fun consumeAvailableOffset(available: Offset): Offset {
-        val y = if (isRefreshing) 0f else {
-            val newOffset = (distancePulled + available.y).coerceAtLeast(0f)
-            val dragConsumed = newOffset - distancePulled
-            distancePulled = newOffset
-            _verticalOffset = calculateVerticalOffset()
-            dragConsumed
-        }
-        return Offset(0f, y)
-    }
-
-    /** Helper method for nested scroll connection. Calls onRefresh callback when triggered */
-    suspend fun onRelease(velocity: Float): Float {
-        if (isRefreshing) return 0f // Already refreshing, do nothing
-        // Trigger refresh
-        if (adjustedDistancePulled > positionalThreshold) {
-            startRefresh()
-        } else {
-            animateTo(0f)
-        }
-
-        val consumed = when {
-            // We are flinging without having dragged the pull refresh (for example a fling inside
-            // a list) - don't consume
-            distancePulled == 0f -> 0f
-            // If the velocity is negative, the fling is upwards, and we don't want to prevent the
-            // the list from scrolling
-            velocity < 0f -> 0f
-            // We are showing the indicator, and the fling is downwards - consume everything
-            else -> velocity
-        }
-        distancePulled = 0f
-        return consumed
-    }
-
-    suspend fun animateTo(offset: Float) {
-        animate(initialValue = _verticalOffset, targetValue = offset) { value, _ ->
-            _verticalOffset = value
-        }
-    }
-
-    /** Provides custom vertical offset behavior for [PullToRefreshContainer] */
-    fun calculateVerticalOffset(): Float = when {
-        // If drag hasn't gone past the threshold, the position is the adjustedDistancePulled.
-        adjustedDistancePulled <= positionalThreshold -> adjustedDistancePulled
-        else -> {
-            // How far beyond the threshold pull has gone, as a percentage of the threshold.
-            val overshootPercent = abs(progress) - 1.0f
-            // Limit the overshoot to 200%. Linear between 0 and 200.
-            val linearTension = overshootPercent.coerceIn(0f, 2f)
-            // Non-linear tension. Increases with linearTension, but at a decreasing rate.
-            val tensionPercent = linearTension - linearTension.pow(2) / 4
-            // The additional offset beyond the threshold.
-            val extraOffset = positionalThreshold * tensionPercent
-            positionalThreshold + extraOffset
-        }
+    override suspend fun snapTo(targetValue: Float) {
+        anim.snapTo(targetValue)
     }
 
     companion object {
-        /** The default [Saver] for [PullToRefreshStateImpl]. */
-        fun Saver(
-            positionalThreshold: Float,
-            enabled: () -> Boolean,
-        ) = Saver<PullToRefreshState, Boolean>(
-            save = { it.isRefreshing },
-            restore = { isRefreshing ->
-                PullToRefreshStateImpl(isRefreshing, positionalThreshold, enabled)
-            }
-        )
+        val Saver =
+            Saver<PullToRefreshStateImpl, Float>(
+                save = { it.anim.value },
+                restore = { PullToRefreshStateImpl(Animatable(it, Float.VectorConverter)) }
+            )
     }
-
-    internal var distancePulled by mutableFloatStateOf(0f)
-    private val adjustedDistancePulled: Float get() = distancePulled * DragMultiplier
-    private var _verticalOffset by mutableFloatStateOf(0f)
-    private var _refreshing by mutableStateOf(initialRefreshing)
 }
 
-/** The default pull indicator for [PullToRefreshContainer] */
+/** The default pull indicator for [PullToRefreshBox] */
 @Composable
 private fun CircularArrowProgressIndicator(
     progress: () -> Float,
@@ -428,15 +569,11 @@ private fun CircularArrowProgressIndicator(
 ) {
     val path = remember { Path().apply { fillType = PathFillType.EvenOdd } }
     // TODO: Consider refactoring this sub-component utilizing Modifier.Node
-    val targetAlpha by remember {
-        derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha }
-    }
+    val targetAlpha by remember { derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha } }
     val alphaState = animateFloatAsState(targetValue = targetAlpha, animationSpec = AlphaTween)
     Canvas(
-        Modifier
-            .semantics(mergeDescendants = true) {
-                progressBarRangeInfo =
-                    ProgressBarRangeInfo(progress(), 0f..1f, 0)
+        Modifier.semantics(mergeDescendants = true) {
+                progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
             }
             .size(SpinnerSize)
     ) {
@@ -466,10 +603,7 @@ private fun DrawScope.drawCircularIndicator(
         useCenter = false,
         topLeft = arcBounds.topLeft,
         size = arcBounds.size,
-        style = Stroke(
-            width = strokeWidth.toPx(),
-            cap = StrokeCap.Butt
-        )
+        style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
     )
 }
 
@@ -512,19 +646,13 @@ private fun DrawScope.drawArrow(
     arrow.reset()
     arrow.moveTo(0f, 0f) // Move to left corner
     // Line to tip of arrow
-    arrow.lineTo(
-        x = ArrowWidth.toPx() * values.scale / 2,
-        y = ArrowHeight.toPx() * values.scale
-    )
+    arrow.lineTo(x = ArrowWidth.toPx() * values.scale / 2, y = ArrowHeight.toPx() * values.scale)
     arrow.lineTo(x = ArrowWidth.toPx() * values.scale, y = 0f) // Line to right corner
 
     val radius = min(bounds.width, bounds.height) / 2f
     val inset = ArrowWidth.toPx() * values.scale / 2f
     arrow.translate(
-        Offset(
-            x = radius + bounds.center.x - inset,
-            y = bounds.center.y - strokeWidth.toPx()
-        )
+        Offset(x = radius + bounds.center.x - inset, y = bounds.center.y - strokeWidth.toPx())
     )
     rotate(degrees = values.endAngle - strokeWidth.toPx()) {
         drawPath(path = arrow, color = color, alpha = alpha, style = Stroke(strokeWidth.toPx()))
@@ -539,7 +667,6 @@ private val StrokeWidth = 2.5.dp
 private val ArcRadius = 5.5.dp
 internal val SpinnerSize = 16.dp // (ArcRadius + PullRefreshIndicatorDefaults.StrokeWidth).times(2)
 internal val SpinnerContainerSize = 40.dp
-private val Elevation = ElevationTokens.Level2
 private val ArrowWidth = 10.dp
 private val ArrowHeight = 5.dp
 
@@ -549,9 +676,9 @@ private const val MaxAlpha = 1f
 private val AlphaTween = tween<Float>(MotionTokens.DurationMedium2.toInt(), easing = LinearEasing)
 
 /**
- * The distance pulled is multiplied by this value to give us the adjusted distance pulled, which
- * is used in calculating the indicator position (when the adjusted distance pulled is less than
- * the refresh threshold, it is the indicator position, otherwise the indicator position is
- * derived from the progress).
+ * The distance pulled is multiplied by this value to give us the adjusted distance pulled, which is
+ * used in calculating the indicator position (when the adjusted distance pulled is less than the
+ * refresh threshold, it is the indicator position, otherwise the indicator position is derived from
+ * the progress).
  */
 private const val DragMultiplier = 0.5f

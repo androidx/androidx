@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.internal.format
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

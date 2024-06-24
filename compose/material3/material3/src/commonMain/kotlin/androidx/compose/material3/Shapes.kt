@@ -43,28 +43,29 @@ import androidx.compose.ui.unit.dp
  * - Large
  * - Extra Large
  *
- * You can customize the shape system for all components in the [MaterialTheme] or you can do it
- * on a per component basis.
+ * You can customize the shape system for all components in the [MaterialTheme] or you can do it on
+ * a per component basis.
  *
  * You can change the shape that a component has by overriding the shape parameter for that
  * component. For example, by default, buttons use the shape style “full.” If your product requires
  * a smaller amount of roundedness, you can override the shape parameter with a different shape
  * value like [MaterialTheme.shapes.small].
  *
- * To learn more about shapes, see [Material Design shapes](https://m3.material.io/styles/shape/overview).
+ * To learn more about shapes, see
+ * [Material Design shapes](https://m3.material.io/styles/shape/overview).
  *
  * @param extraSmall A shape style with 4 same-sized corners whose size are bigger than
- * [RectangleShape] and smaller than [Shapes.small]. By default autocomplete menu, select menu,
- * snackbars, standard menu, and text fields use this shape.
+ *   [RectangleShape] and smaller than [Shapes.small]. By default autocomplete menu, select menu,
+ *   snackbars, standard menu, and text fields use this shape.
  * @param small A shape style with 4 same-sized corners whose size are bigger than
- * [Shapes.extraSmall] and smaller than [Shapes.medium]. By default chips use this shape.
+ *   [Shapes.extraSmall] and smaller than [Shapes.medium]. By default chips use this shape.
  * @param medium A shape style with 4 same-sized corners whose size are bigger than [Shapes.small]
- * and smaller than [Shapes.large]. By default cards and small FABs use this shape.
+ *   and smaller than [Shapes.large]. By default cards and small FABs use this shape.
  * @param large A shape style with 4 same-sized corners whose size are bigger than [Shapes.medium]
- * and smaller than [Shapes.extraLarge]. By default extended FABs, FABs, and navigation drawers use
- * this shape.
+ *   and smaller than [Shapes.extraLarge]. By default extended FABs, FABs, and navigation drawers
+ *   use this shape.
  * @param extraLarge A shape style with 4 same-sized corners whose size are bigger than
- * [Shapes.large] and smaller than [CircleShape]. By default large FABs use this shape.
+ *   [Shapes.large] and smaller than [CircleShape]. By default large FABs use this shape.
  */
 @Immutable
 class Shapes(
@@ -82,13 +83,14 @@ class Shapes(
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
         extraLarge: CornerBasedShape = this.extraLarge,
-    ): Shapes = Shapes(
-        extraSmall = extraSmall,
-        small = small,
-        medium = medium,
-        large = large,
-        extraLarge = extraLarge,
-    )
+    ): Shapes =
+        Shapes(
+            extraSmall = extraSmall,
+            small = small,
+            medium = medium,
+            large = large,
+            extraLarge = extraLarge,
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -120,9 +122,7 @@ class Shapes(
     }
 }
 
-/**
- * Contains the default values used by [Shapes]
- */
+/** Contains the default values used by [Shapes] */
 object ShapeDefaults {
     /** Extra small sized corner shape */
     val ExtraSmall: CornerBasedShape = ShapeTokens.CornerExtraSmall
@@ -152,7 +152,9 @@ internal fun CornerBasedShape.bottom(): CornerBasedShape {
     return copy(topStart = CornerSize(0.0.dp), topEnd = CornerSize(0.0.dp))
 }
 
-/** Helper function for component shape tokens. Used to grab the start values of a shape parameter. */
+/**
+ * Helper function for component shape tokens. Used to grab the start values of a shape parameter.
+ */
 internal fun CornerBasedShape.start(): CornerBasedShape {
     return copy(topEnd = CornerSize(0.0.dp), bottomEnd = CornerSize(0.0.dp))
 }
@@ -164,8 +166,7 @@ internal fun CornerBasedShape.end(): CornerBasedShape {
 
 /**
  * Helper function for component shape tokens. Here is an example on how to use component color
- * tokens:
- * ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
+ * tokens: ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
  */
 internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
     return when (value) {
@@ -184,13 +185,11 @@ internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
 }
 
 /**
- * Converts a shape token key to the local shape provided by the theme
- * The color is subscribed to [LocalShapes] changes
+ * Converts a shape token key to the local shape provided by the theme The color is subscribed to
+ * [LocalShapes] changes
  */
 internal val ShapeKeyTokens.value: Shape
-    @Composable
-    @ReadOnlyComposable
-    get() = MaterialTheme.shapes.fromToken(this)
+    @Composable @ReadOnlyComposable get() = MaterialTheme.shapes.fromToken(this)
 
 /** CompositionLocal used to specify the default shapes for the surfaces. */
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

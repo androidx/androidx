@@ -52,11 +52,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class NavigationBarScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun lightTheme_defaultColors() {
@@ -204,9 +202,8 @@ class NavigationBarScreenshotTest {
                         selected = true,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = Color.Transparent
-                        )
+                        colors =
+                            NavigationBarItemDefaults.colors(indicatorColor = Color.Transparent)
                     )
                 }
             }
@@ -225,7 +222,7 @@ class NavigationBarScreenshotTest {
      *
      * @param scope [CoroutineScope] used to interact with [MutableInteractionSource]
      * @param interactionSource the [MutableInteractionSource] used for the first
-     * [NavigationBarItem]
+     *   [NavigationBarItem]
      * @param interaction the [Interaction] to assert for, or `null` if no [Interaction].
      * @param goldenIdentifier the identifier for the corresponding screenshot
      */
@@ -238,9 +235,7 @@ class NavigationBarScreenshotTest {
         if (interaction != null) {
             composeTestRule.runOnIdle {
                 // Start ripple
-                scope.launch {
-                    interactionSource.emit(interaction)
-                }
+                scope.launch { interactionSource.emit(interaction) }
             }
 
             composeTestRule.waitForIdle()
@@ -251,18 +246,19 @@ class NavigationBarScreenshotTest {
         }
 
         // Capture and compare screenshots
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }
 }
 
 /**
- * Default colored [NavigationBar] with three [NavigationBarItem]s. The first
- * [NavigationBarItem] is selected, and the rest are not.
+ * Default colored [NavigationBar] with three [NavigationBarItem]s. The first [NavigationBarItem] is
+ * selected, and the rest are not.
  *
  * @param interactionSource the [MutableInteractionSource] for the first [NavigationBarItem], to
- * control its visual state.
+ *   control its visual state.
  * @param modifier the [Modifier] applied to the navigation bar
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */

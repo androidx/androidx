@@ -44,16 +44,15 @@ fun NavigationBarItemWithBadge() {
                             val badgeNumber = "8"
                             Text(
                                 badgeNumber,
-                                modifier = Modifier.semantics {
-                                    contentDescription = "$badgeNumber new notifications"
-                                }
+                                modifier =
+                                    Modifier.semantics {
+                                        contentDescription = "$badgeNumber new notifications"
+                                    }
                             )
                         }
-                    }) {
-                    Icon(
-                        Icons.Filled.Star,
-                        contentDescription = "Favorite"
-                    )
+                    }
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = "Favorite")
                 }
             },
             selected = false,

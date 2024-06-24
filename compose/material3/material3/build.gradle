@@ -100,7 +100,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:animation:animation-core"))
 
                 api(project(":compose:foundation:foundation"))
-                api(project(":compose:material:material-icons-core"))
+                api("org.jetbrains.compose.material:material-icons-core:1.6.11") {
+                    // exclude dependencies, because they override local projects when we build 0.0.0-* version
+                    // (see https://repo1.maven.org/maven2/org/jetbrains/compose/material/material-icons-core-desktop/1.6.11/material-icons-core-desktop-1.6.11.module)
+                    exclude group: "org.jetbrains.compose.ui"
+                }
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui-graphics"))
@@ -131,6 +135,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.atomicFu)
                 }
             }
+
+            nonJvmMain.dependsOn(commonMain)
+            nativeMain.dependsOn(nonJvmMain)
+            jsWasmMain.dependsOn(nonJvmMain)
 
             desktopMain.dependsOn(skikoMain)
 
@@ -226,7 +234,7 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
     ]
     targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/material3/l10n")
     targetPackageName = "androidx.compose.material3.l10n"
-    kotlinStringsPackageName = "androidx.compose.material3"
+    kotlinStringsPackageName = "androidx.compose.material3.internal"
     stringByResourceName = [
             // These come are from the ui module resources
             "navigation_menu": "NavigationMenu",

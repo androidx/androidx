@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,27 +51,20 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MenuTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun menu_canBeTriggered() {
         var expanded by mutableStateOf(false)
 
         rule.setContent {
-            Box(
-                Modifier
-                    .requiredSize(20.dp)
-                    .background(color = Color.Blue)
-            ) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {}
-                ) {
+            Box(Modifier.requiredSize(20.dp).background(color = Color.Blue)) {
+                DropdownMenu(expanded = expanded, onDismissRequest = {}) {
                     DropdownMenuItem(
                         text = { Text("Option 1") },
                         modifier = Modifier.testTag("MenuContent"),
-                        onClick = {})
+                        onClick = {}
+                    )
                 }
             }
         }
@@ -103,25 +98,10 @@ class MenuTest {
     fun menu_hasExpectedSize() {
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .requiredSize(20.toDp())
-                        .background(color = Color.Blue)
-                ) {
-                    DropdownMenu(
-                        expanded = true,
-                        onDismissRequest = {}
-                    ) {
-                        Box(
-                            Modifier
-                                .testTag("MenuContent1")
-                                .size(70.toDp())
-                        )
-                        Box(
-                            Modifier
-                                .testTag("MenuContent2")
-                                .size(130.toDp())
-                        )
+                Box(Modifier.requiredSize(20.toDp()).background(color = Color.Blue)) {
+                    DropdownMenu(expanded = true, onDismissRequest = {}) {
+                        Box(Modifier.testTag("MenuContent1").size(70.toDp()))
+                        Box(Modifier.testTag("MenuContent2").size(130.toDp()))
                     }
                 }
             }
@@ -129,10 +109,15 @@ class MenuTest {
 
         rule.onNodeWithTag("MenuContent1").assertExists()
         rule.onNodeWithTag("MenuContent2").assertExists()
-        val node = rule.onNode(
-            isPopup() and hasAnyDescendant(hasTestTag("MenuContent1")) and
-                hasAnyDescendant(hasTestTag("MenuContent2"))
-        ).assertExists().fetchSemanticsNode()
+        val node =
+            rule
+                .onNode(
+                    isPopup() and
+                        hasAnyDescendant(hasTestTag("MenuContent1")) and
+                        hasAnyDescendant(hasTestTag("MenuContent2"))
+                )
+                .assertExists()
+                .fetchSemanticsNode()
         with(rule.density) {
             assertThat(node.size.width).isEqualTo(130)
             assertThat(node.size.height)
@@ -142,13 +127,14 @@ class MenuTest {
 
     @Test
     fun menu_scrolledContent() {
+        // TODO This test is disabled on API 33+. See b/335809611. Once popups are handled correctly
+        //  with the introduction of a default edge to edge policy, we should be able to re-enable
+        //  it.
+        Assume.assumeTrue(SDK_INT >= 33)
+
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .requiredSize(20.toDp())
-                        .background(color = Color.Blue)
-                ) {
+                Box(Modifier.requiredSize(20.toDp()).background(color = Color.Blue)) {
                     val scrollState = rememberScrollState()
                     DropdownMenu(
                         expanded = true,
@@ -156,16 +142,10 @@ class MenuTest {
                         scrollState = scrollState
                     ) {
                         repeat(100) {
-                            Box(
-                                Modifier
-                                    .testTag("MenuContent ${it + 1}")
-                                    .size(70.toDp())
-                            )
+                            Box(Modifier.testTag("MenuContent ${it + 1}").size(70.toDp()))
                         }
                     }
-                    LaunchedEffect(Unit) {
-                        scrollState.scrollTo(scrollState.maxValue)
-                    }
+                    LaunchedEffect(Unit) { scrollState.scrollTo(scrollState.maxValue) }
                 }
             }
         }
@@ -185,16 +165,12 @@ class MenuTest {
             DropdownMenuItem(
                 text = { Box(Modifier.requiredSize(40.dp)) },
                 onClick,
-                modifier = Modifier
-                    .testTag("MenuItem")
-                    .clickable(onClick = onClick),
+                modifier = Modifier.testTag("MenuItem").clickable(onClick = onClick),
             )
         }
 
         rule.onNodeWithTag("MenuItem").performClick()
 
-        rule.runOnIdle {
-            assertThat(clicked).isTrue()
-        }
+        rule.runOnIdle { assertThat(clicked).isTrue() }
     }
 }

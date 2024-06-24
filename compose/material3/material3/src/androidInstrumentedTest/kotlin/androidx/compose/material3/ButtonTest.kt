@@ -21,11 +21,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.tokens.ElevatedButtonTokens
+import androidx.compose.material3.tokens.FilledButtonTokens
+import androidx.compose.material3.tokens.FilledTonalButtonTokens
+import androidx.compose.material3.tokens.OutlinedButtonTokens
+import androidx.compose.material3.tokens.TextButtonTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -52,8 +58,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ButtonTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun defaultSemantics() {
@@ -65,7 +70,8 @@ class ButtonTest {
             }
         }
 
-        rule.onNodeWithTag(ButtonTestTag)
+        rule
+            .onNodeWithTag(ButtonTestTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsEnabled()
     }
@@ -80,7 +86,8 @@ class ButtonTest {
             }
         }
 
-        rule.onNodeWithTag(ButtonTestTag)
+        rule
+            .onNodeWithTag(ButtonTestTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsNotEnabled()
     }
@@ -93,22 +100,19 @@ class ButtonTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             Box {
-                Button(onClick = onClick, modifier = Modifier.testTag(ButtonTestTag)) {
-                    Text(text)
-                }
+                Button(onClick = onClick, modifier = Modifier.testTag(ButtonTestTag)) { Text(text) }
             }
         }
 
         // TODO(b/129400818): this actually finds the text, not the button as
         // merge semantics aren't implemented yet
-        rule.onNodeWithTag(ButtonTestTag)
+        rule
+            .onNodeWithTag(ButtonTestTag)
             // remove this and the todo
             //    rule.onNodeWithText(text)
             .performClick()
 
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -126,7 +130,8 @@ class ButtonTest {
                 }
             }
         }
-        rule.onNodeWithTag(ButtonTestTag)
+        rule
+            .onNodeWithTag(ButtonTestTag)
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -159,16 +164,14 @@ class ButtonTest {
             }
         }
 
-        rule.onNodeWithTag(button1Tag)
-            .performClick()
+        rule.onNodeWithTag(button1Tag).performClick()
 
         rule.runOnIdle {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(0)
         }
 
-        rule.onNodeWithTag(button2Tag)
-            .performClick()
+        rule.onNodeWithTag(button2Tag).performClick()
 
         rule.runOnIdle {
             assertThat(button1Counter).isEqualTo(1)
@@ -179,15 +182,10 @@ class ButtonTest {
     @Test
     fun button_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
-            Button(
-                onClick = { /* Do something! */ },
-                modifier = Modifier.testTag(ButtonTestTag)
-            ) {
+            Button(onClick = { /* Do something! */ }, modifier = Modifier.testTag(ButtonTestTag)) {
                 Text(
                     "Button",
-                    modifier = Modifier
-                        .testTag(TextTestTag)
-                        .semantics(mergeDescendants = true) {}
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
                 )
             }
         }
@@ -217,17 +215,15 @@ class ButtonTest {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = "Localized description",
-                    modifier = Modifier
-                        .size(ButtonDefaults.IconSize)
-                        .testTag(IconTestTag)
-                        .semantics(mergeDescendants = true) {}
+                    modifier =
+                        Modifier.size(ButtonDefaults.IconSize).testTag(IconTestTag).semantics(
+                            mergeDescendants = true
+                        ) {}
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
                     "Like",
-                    modifier = Modifier
-                        .testTag(TextTestTag)
-                        .semantics(mergeDescendants = true) {}
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
                 )
             }
         }
@@ -263,17 +259,15 @@ class ButtonTest {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = "Localized description",
-                    modifier = Modifier
-                        .size(ButtonDefaults.IconSize)
-                        .testTag(IconTestTag)
-                        .semantics(mergeDescendants = true) {}
+                    modifier =
+                        Modifier.size(ButtonDefaults.IconSize).testTag(IconTestTag).semantics(
+                            mergeDescendants = true
+                        ) {}
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
                     "Like",
-                    modifier = Modifier
-                        .testTag(TextTestTag)
-                        .semantics(mergeDescendants = true) {}
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
                 )
             }
         }
@@ -296,6 +290,140 @@ class ButtonTest {
             16.dp,
             "padding between end of text and end of text button."
         )
+    }
+
+    @Test
+    fun button_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                        disabledContainerColor = Color.Unspecified,
+                        disabledContentColor = Color.Unspecified,
+                    )
+                )
+                .isEqualTo(
+                    ButtonColors(
+                        containerColor = FilledButtonTokens.ContainerColor.value,
+                        contentColor = FilledButtonTokens.LabelTextColor.value,
+                        disabledContainerColor =
+                            FilledButtonTokens.DisabledContainerColor.value.copy(
+                                FilledButtonTokens.DisabledContainerOpacity
+                            ),
+                        disabledContentColor =
+                            FilledButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = FilledButtonTokens.DisabledLabelTextOpacity
+                            ),
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun filledTonalButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                        disabledContainerColor = Color.Unspecified,
+                        disabledContentColor = Color.Unspecified,
+                    )
+                )
+                .isEqualTo(
+                    ButtonColors(
+                        containerColor = FilledTonalButtonTokens.ContainerColor.value,
+                        contentColor = FilledTonalButtonTokens.LabelTextColor.value,
+                        disabledContainerColor =
+                            FilledTonalButtonTokens.DisabledContainerColor.value.copy(
+                                alpha = FilledTonalButtonTokens.DisabledContainerOpacity
+                            ),
+                        disabledContentColor =
+                            FilledTonalButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity
+                            ),
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun elevatedButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                    ButtonDefaults.elevatedButtonColors(
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                        disabledContainerColor = Color.Unspecified,
+                        disabledContentColor = Color.Unspecified,
+                    )
+                )
+                .isEqualTo(
+                    ButtonColors(
+                        containerColor = ElevatedButtonTokens.ContainerColor.value,
+                        contentColor = ElevatedButtonTokens.LabelTextColor.value,
+                        disabledContainerColor =
+                            ElevatedButtonTokens.DisabledContainerColor.value.copy(
+                                alpha = ElevatedButtonTokens.DisabledContainerOpacity
+                            ),
+                        disabledContentColor =
+                            ElevatedButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = ElevatedButtonTokens.DisabledLabelTextOpacity
+                            ),
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun outlinedButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                    ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                        disabledContainerColor = Color.Unspecified,
+                        disabledContentColor = Color.Unspecified,
+                    )
+                )
+                .isEqualTo(
+                    ButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = OutlinedButtonTokens.LabelTextColor.value,
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor =
+                            OutlinedButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = OutlinedButtonTokens.DisabledLabelTextOpacity
+                            ),
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun textButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                    ButtonDefaults.textButtonColors(
+                        containerColor = Color.Unspecified,
+                        contentColor = Color.Unspecified,
+                        disabledContainerColor = Color.Unspecified,
+                        disabledContentColor = Color.Unspecified,
+                    )
+                )
+                .isEqualTo(
+                    ButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = TextButtonTokens.LabelTextColor.value,
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor =
+                            TextButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = TextButtonTokens.DisabledLabelTextOpacity
+                            ),
+                    )
+                )
+        }
     }
 }
 

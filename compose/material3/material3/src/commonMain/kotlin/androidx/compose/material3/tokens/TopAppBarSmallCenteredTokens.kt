@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -32,6 +32,7 @@ internal object TopAppBarSmallCenteredTokens {
     val HeadlineFont = TypographyKeyTokens.TitleLarge
     val LeadingIconColor = ColorSchemeKeyTokens.OnSurface
     val LeadingIconSize = 24.0.dp
+    val OnScrollContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val OnScrollContainerElevation = ElevationTokens.Level2
     val TrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val TrailingIconSize = 24.0.dp

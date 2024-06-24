@@ -55,10 +55,10 @@ fun Example(
         onFavoriteClick = onFavoriteClick
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .consumeWindowInsets(WindowInsets.safeDrawing)
-                .padding(paddingValues),
+            modifier =
+                Modifier.fillMaxSize()
+                    .consumeWindowInsets(WindowInsets.safeDrawing)
+                    .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             example.content()
