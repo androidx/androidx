@@ -1650,7 +1650,8 @@ class AndroidViewTest {
     fun androidView_layoutChangesInvokeGlobalLayoutListener() {
         lateinit var textView1: TextView
         lateinit var textView2: TextView
-        var callbackInvocations = 0
+        // Capturing to diagnose a flaky test in CI
+        val callbackInvocations = mutableListOf<String>()
 
         @Composable
         fun GlobalLayoutAwareTextView(init: (TextView) -> Unit, modifier: Modifier = Modifier) {
@@ -1666,7 +1667,11 @@ class AndroidViewTest {
         }
 
         rule.activityRule.withActivity {
-            window.decorView.viewTreeObserver.addOnGlobalLayoutListener { callbackInvocations++ }
+            window.decorView.viewTreeObserver.addOnGlobalLayoutListener {
+                callbackInvocations +=
+                    "Captured invocation ${callbackInvocations.size + 1}:\n" +
+                        Throwable().stackTraceToString()
+            }
         }
 
         rule.setContent {
@@ -1688,8 +1693,8 @@ class AndroidViewTest {
                 "The initial layout did not invoke the viewTreeObserver's OnGlobalLayoutListener"
             )
             .that(callbackInvocations)
-            .isAtLeast(1)
-        callbackInvocations = 0
+            .hasSize(1)
+        callbackInvocations.clear()
 
         rule.runOnUiThread { textView1.text = "Foo".repeat(20) }
         rule.waitForIdle()
@@ -1699,7 +1704,7 @@ class AndroidViewTest {
                     "after re-laying out the contained AndroidView."
             )
             .that(callbackInvocations)
-            .isEqualTo(1)
+            .hasSize(1)
 
         // Reset the layouts
         rule.runOnUiThread {
@@ -1707,7 +1712,7 @@ class AndroidViewTest {
             textView2.text = ""
         }
         rule.waitForIdle()
-        callbackInvocations = 0
+        callbackInvocations.clear()
 
         // Go again, but layout two Views.
         rule.runOnUiThread {
@@ -1721,7 +1726,7 @@ class AndroidViewTest {
                     "after re-laying out multiple AndroidViews."
             )
             .that(callbackInvocations)
-            .isEqualTo(1)
+            .hasSize(1)
     }
 
     @Composable
