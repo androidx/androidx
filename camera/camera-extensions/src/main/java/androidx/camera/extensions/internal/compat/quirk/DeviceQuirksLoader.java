@@ -50,6 +50,10 @@ public class DeviceQuirksLoader {
             quirks.add(new GetAvailableKeysNeedsOnInit());
         }
 
+        if (CaptureOutputSurfaceOccupiedQuirk.load()) {
+            quirks.add(new CaptureOutputSurfaceOccupiedQuirk());
+        }
+
         return quirks;
     }
 }
