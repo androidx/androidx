@@ -314,11 +314,6 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
     if (Nodes.ParentData in selfKindSet && node is ParentDataModifierNode) {
         node.invalidateParentData()
     }
-    if (Nodes.FocusTarget in selfKindSet && node is FocusTargetNode) {
-        if (phase == Inserted) {
-            node.invalidateFocusTarget()
-        }
-    }
     if (
         Nodes.FocusProperties in selfKindSet &&
             node is FocusPropertiesModifierNode &&

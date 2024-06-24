@@ -94,6 +94,10 @@ internal class FocusTargetNode(
         if (previousFocusState != focusState) dispatchFocusCallbacks()
     }
 
+    override fun onAttach() {
+        invalidateFocusTarget()
+    }
+
     /** Clears focus if this focus target has it. */
     override fun onDetach() {
         //  Note: this is called after onEndApplyChanges, so we can't schedule any nodes for
