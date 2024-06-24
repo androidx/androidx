@@ -194,7 +194,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         List<MediaRouteDescriptor> routeDescriptors = new ArrayList<>();
         for (MediaRoute2Info route : mRoutes) {
             MediaRouteDescriptor descriptor = MediaRouter2Utils.toMediaRouteDescriptor(route);
-            if (route != null) {
+            if (descriptor != null) {
                 routeDescriptors.add(descriptor);
             }
         }

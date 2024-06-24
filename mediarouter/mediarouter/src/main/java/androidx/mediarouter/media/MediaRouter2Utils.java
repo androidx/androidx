@@ -179,7 +179,6 @@ class MediaRouter2Utils {
         return builder.build();
     }
 
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static MediaRouteDescriptor toMediaRouteDescriptor(
             @Nullable MediaRoute2Info fwkMediaRoute2Info) {
