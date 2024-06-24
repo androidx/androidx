@@ -36,6 +36,11 @@ class PoolingContainerFragment : BaseFragment() {
         return (recyclerView.adapter as CustomAdapter).sandboxedSdkViewSet.toList()
     }
 
+    override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
+        super.handleDrawerStateChange(isDrawerOpen)
+        (recyclerView.adapter as CustomAdapter).zOrderOnTop = !isDrawerOpen && isZOrderOnTop
+    }
+
     override fun handleLoadAdFromDrawer(
         @AdType adType: Int,
         @MediationOption mediationOption: Int,
@@ -44,7 +49,7 @@ class PoolingContainerFragment : BaseFragment() {
         currentAdType = adType
         currentMediationOption = mediationOption
         shouldDrawViewabilityLayer = drawViewabilityLayer
-        val recyclerViewAdapter = CustomAdapter(adType, mediationOption, zOrder = false)
+        val recyclerViewAdapter = CustomAdapter(adType, mediationOption, zOrderOnTop = false)
         recyclerView.adapter = recyclerViewAdapter
     }
 
@@ -68,12 +73,11 @@ class PoolingContainerFragment : BaseFragment() {
     private inner class CustomAdapter(
         @AdType val adType: Int,
         @MediationOption val mediationOption: Int,
-        zOrder: Boolean = true
+        var zOrderOnTop: Boolean = true
     ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
         val sandboxedSdkViewSet = mutableSetOf<SandboxedSdkView>()
         private val childCount = 3
-        private var zOrderOnTop = zOrder
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val sandboxedSdkView: SandboxedSdkView = view.findViewById(R.id.recyclerview_ad_view)
