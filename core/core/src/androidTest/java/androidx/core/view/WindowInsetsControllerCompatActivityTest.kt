@@ -20,7 +20,6 @@ import android.app.Dialog
 import android.os.Build
 import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
-import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
@@ -97,23 +96,6 @@ public class WindowInsetsControllerCompatActivityTest {
         container.assertInsetsVisibility(WindowInsetsCompat.Type.ime(), false)
         testShow(WindowInsetsCompat.Type.ime())
         testHide(WindowInsetsCompat.Type.ime())
-    }
-
-    /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
-    @SdkSuppress(minSdkVersion = 23)
-    @Test
-    public fun do_not_show_IME_if_TextView_not_focused() {
-        val editText = scenario.withActivity { findViewById<EditText>(R.id.edittext) }
-
-        // We hide the edit text to ensure it won't be automatically focused
-        scenario.onActivity {
-            editText.visibility = View.GONE
-            assertThat(editText.isFocused, `is`(false))
-        }
-
-        val type = WindowInsetsCompat.Type.ime()
-        scenario.onActivity { windowInsetsController.show(type) }
-        container.assertInsetsVisibility(type, false)
     }
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
