@@ -1317,6 +1317,19 @@ class AppBarTest {
     }
 
     @Test
+    fun bottomAppBarWithCustomArrangement_heightIsFromSpec() {
+        rule
+            .setMaterialContentForSizeAssertions {
+                BottomAppBar(
+                    horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+                    content = {}
+                )
+            }
+            .assertHeightIsEqualTo(64.dp) // TODO tokens
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
     fun bottomAppBarWithFAB_respectsWindowInsets() {
         rule
             .setMaterialContentForSizeAssertions {
