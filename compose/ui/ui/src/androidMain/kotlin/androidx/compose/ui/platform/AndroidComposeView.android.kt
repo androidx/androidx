@@ -1377,7 +1377,13 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             val (minWidth, maxWidth) = convertMeasureSpec(widthMeasureSpec)
             val (minHeight, maxHeight) = convertMeasureSpec(heightMeasureSpec)
 
-            val constraints = Constraints(minWidth, maxWidth, minHeight, maxHeight)
+            val constraints =
+                Constraints.fitPrioritizingHeight(
+                    minWidth = minWidth,
+                    maxWidth = maxWidth,
+                    minHeight = minHeight,
+                    maxHeight = maxHeight
+                )
             if (onMeasureConstraints == null) {
                 // first onMeasure after last onLayout
                 onMeasureConstraints = constraints
