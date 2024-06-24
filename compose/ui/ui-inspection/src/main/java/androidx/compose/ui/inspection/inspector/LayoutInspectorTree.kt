@@ -392,7 +392,7 @@ class LayoutInspectorTree {
             .singleOrNull { it.viewId != UNDEFINED_ID }
             ?.takeIf { node ->
                 // Take if the node has been marked as unwanted
-                node.id == UNDEFINED_ID
+                node.name.isEmpty()
             }
             ?.let { nodeWithView -> parentNode.viewId = nodeWithView.viewId }
 
