@@ -70,7 +70,7 @@ object FileUtil {
                 fos.close()
             }
         }
-        Logger.d(TAG, "Export test information to: ${file.path}")
+        Logger.d(TAG, "Wrote [$text] to: ${file.path}")
     }
 
     /**
