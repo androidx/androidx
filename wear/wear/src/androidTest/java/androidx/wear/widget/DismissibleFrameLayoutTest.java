@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
+import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -46,9 +47,12 @@ import androidx.wear.test.R;
 import androidx.wear.widget.util.FrameLocationAvoidingEdges;
 import androidx.wear.widget.util.WakeLockRule;
 
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.regex.Pattern;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -56,12 +60,16 @@ public class DismissibleFrameLayoutTest {
     private static final long MAX_WAIT_TIME = 4000; //ms
 
     private final DismissibleFrameLayout.Callback mDismissCallback = new DismissCallback();
+    private final Pattern mCuttleFishWearPattern = Pattern.compile(
+            Pattern.quote("Cuttlefish x86 Wear"), Pattern.CASE_INSENSITIVE
+    );
 
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
 
     @Test
     public void testBackDismiss() {
+        assumeNotCuttlefishWear();
         // GIVEN a freshly setup DismissibleFrameLayout
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(createDismissibleLayoutIntent())) {
@@ -81,6 +89,7 @@ public class DismissibleFrameLayoutTest {
 
     @Test
     public void testBackNotDismissIfDisabled() {
+        assumeNotCuttlefishWear();
         // GIVEN a freshly setup DismissibleFrameLayout
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(createDismissibleLayoutIntent())) {
@@ -115,6 +124,7 @@ public class DismissibleFrameLayoutTest {
 
     @Test
     public void testSwipeNotDismissIfDisabled() {
+        assumeNotCuttlefishWear();
         // GIVEN a freshly setup DismissibleFrameLayout
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(createDismissibleLayoutIntent())) {
@@ -130,6 +140,7 @@ public class DismissibleFrameLayoutTest {
 
     @Test
     public void testDisableThenEnableBackDismiss() {
+        assumeNotCuttlefishWear();
         // GIVEN a freshly setup DismissibleFrameLayout
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(createDismissibleLayoutIntent())) {
@@ -178,9 +189,9 @@ public class DismissibleFrameLayoutTest {
         }
     }
 
-
     @Test
     public void testBackDismissWithRecyclerView() {
+        assumeNotCuttlefishWear();
         // GIVEN a freshly setup DismissibleFrameLayout
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(createDismissibleLayoutWithRecyclerViewIntent())) {
@@ -274,6 +285,13 @@ public class DismissibleFrameLayoutTest {
 
     private void sendBackKey() {
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+    }
+
+    private void assumeNotCuttlefishWear() {
+        Assume.assumeFalse(
+                "Unable to test: Cuttlefish Wear devices do not work with these tests",
+                mCuttleFishWearPattern.matcher(Build.MODEL).find()
+        );
     }
 
     /** Helper class hiding the view after a successful swipe-to-dismiss. */
