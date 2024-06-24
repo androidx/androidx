@@ -26,9 +26,13 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.internal.childSemantics
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
-import androidx.compose.material3.tokens.IconButtonSmallTokens
 import androidx.compose.material3.tokens.IconButtonTokens
+import androidx.compose.material3.tokens.LargeIconButtonTokens
+import androidx.compose.material3.tokens.MediumIconButtonTokens
 import androidx.compose.material3.tokens.OutlinedIconButtonTokens
+import androidx.compose.material3.tokens.SmallIconButtonTokens
+import androidx.compose.material3.tokens.XLargeIconButtonTokens
+import androidx.compose.material3.tokens.XSmallIconButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -47,6 +51,8 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import kotlin.jvm.JvmInline
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -64,8 +70,19 @@ import androidx.compose.ui.unit.DpSize
  *
  * Simple Usage
  *
- * @sample androidx.compose.material3.samples.IconButtonSample IconButton with a color tint
+ * @sample androidx.compose.material3.samples.IconButtonSample
+ *
+ * IconButton with a color tint
+ *
  * @sample androidx.compose.material3.samples.TintedIconButtonSample
+ *
+ * Small-sized narrow round shape IconButton
+ *
+ * @sample androidx.compose.material3.samples.XSmallNarrowSquareIconButtonsSample
+ *
+ * Medium / default size round-shaped icon button
+ *
+ * @sample androidx.compose.material3.samples.MediumRoundWideIconButtonSample
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -128,14 +145,6 @@ fun IconButton(
  * IconButton with a color tint
  *
  * @sample androidx.compose.material3.samples.TintedIconButtonSample
- *
- * IconButton with smaller square narrow shape
- *
- * @sample androidx.compose.material3.samples.SmallSquareNarrowIconButtonSample
- *
- * IconButton with smaller square narrow shape
- *
- * @sample androidx.compose.material3.samples.SmallRoundWideIconButtonSample
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -346,26 +355,16 @@ fun FilledIconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) =
-    Surface(
+    SurfaceIconButton(
         onClick = onClick,
-        modifier = modifier.semantics { role = Role.Button },
+        modifier = modifier,
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled),
-        contentColor = colors.contentColor(enabled),
-        interactionSource = interactionSource
-    ) {
-        Box(
-            modifier =
-                Modifier.size(
-                    width = FilledIconButtonTokens.ContainerWidth,
-                    height = FilledIconButtonTokens.ContainerHeight
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
-    }
+        colors = colors,
+        border = null,
+        interactionSource = interactionSource,
+        content = content
+    )
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -412,26 +411,16 @@ fun FilledTonalIconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) =
-    Surface(
+    SurfaceIconButton(
         onClick = onClick,
-        modifier = modifier.semantics { role = Role.Button },
+        modifier = modifier,
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled),
-        contentColor = colors.contentColor(enabled),
-        interactionSource = interactionSource
-    ) {
-        Box(
-            modifier =
-                Modifier.size(
-                    width = FilledTonalIconButtonTokens.ContainerWidth,
-                    height = FilledTonalIconButtonTokens.ContainerHeight
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
-    }
+        colors = colors,
+        border = null,
+        interactionSource = interactionSource,
+        content = content
+    )
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -589,6 +578,10 @@ fun FilledTonalIconToggleButton(
  * button has an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.OutlinedIconButtonSample
+ *
+ * Large-sized uniform rounded shape
+ *
+ * @sample androidx.compose.material3.samples.LargeRoundUniformOutlinedIconButtonSample
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -617,6 +610,28 @@ fun OutlinedIconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) =
+    SurfaceIconButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        border = border,
+        interactionSource = interactionSource,
+        content = content
+    )
+
+@Composable
+private fun SurfaceIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    shape: Shape,
+    colors: IconButtonColors,
+    border: BorderStroke?,
+    interactionSource: MutableInteractionSource?,
+    content: @Composable () -> Unit
+) =
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -628,7 +643,11 @@ fun OutlinedIconButton(
         interactionSource = interactionSource
     ) {
         Box(
-            modifier = Modifier.size(OutlinedIconButtonTokens.ContainerSize),
+            modifier =
+                Modifier.size(
+                    width = FilledTonalIconButtonTokens.ContainerWidth,
+                    height = FilledTonalIconButtonTokens.ContainerHeight
+                ),
             contentAlignment = Alignment.Center
         ) {
             content()
@@ -704,69 +723,6 @@ fun OutlinedIconToggleButton(
 
 /** Contains the default values used by all icon button types. */
 object IconButtonDefaults {
-    /** Default ripple shape for a standard icon button. */
-    val standardShape: Shape
-        @Composable get() = IconButtonTokens.StateLayerShape.value
-
-    /** Default shape for a filled icon button. */
-    val filledShape: Shape
-        @Composable get() = FilledIconButtonTokens.ContainerShape.value
-
-    /** Default shape for an outlined icon button. */
-    val outlinedShape: Shape
-        @Composable get() = OutlinedIconButtonTokens.ContainerShape.value
-
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default round shape for any icon button. */
-    val roundShape: Shape
-        @Composable get() = IconButtonSmallTokens.ContainerShapeRound.value
-
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default square shape for any icon button. */
-    val squareShape: Shape
-        @Composable get() = IconButtonSmallTokens.ContainerShapeSquare.value
-
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default small narrow container for any icon button. */
-    val SmallIconSize: Dp = IconButtonSmallTokens.IconSize
-
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default small narrow container for any icon button. */
-    val SmallNarrowContainerSize: DpSize =
-        DpSize(
-            IconButtonSmallTokens.IconSize +
-                IconButtonSmallTokens.NarrowLeadingSpace +
-                IconButtonSmallTokens.NarrowTrailingSpace,
-            IconButtonSmallTokens.ContainerHeight
-        )
-
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default small narrow container for any icon button. */
-    val SmallContainerSize: DpSize =
-        DpSize(
-            IconButtonSmallTokens.IconSize +
-                IconButtonSmallTokens.UniformLeadingSpace +
-                IconButtonSmallTokens.UniformLeadingSpace,
-            IconButtonSmallTokens.ContainerHeight
-        )
-
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    /** Default small narrow container for any icon button. */
-    val SmallWideContainerSize: DpSize =
-        DpSize(
-            IconButtonSmallTokens.IconSize +
-                IconButtonSmallTokens.WideLeadingSpace +
-                IconButtonSmallTokens.WideTrailingSpace,
-            IconButtonSmallTokens.ContainerHeight
-        )
 
     /** Creates a [IconButtonColors] that represents the default colors used in a [IconButton]. */
     @Composable
@@ -1281,6 +1237,286 @@ object IconButtonDefaults {
         return remember(color) {
             BorderStroke(OutlinedIconButtonTokens.UnselectedOutlineWidth, color)
         }
+    }
+
+    /** Default ripple shape for a standard icon button. */
+    val standardShape: Shape
+        @Composable get() = IconButtonTokens.StateLayerShape.value
+
+    /** Default shape for a filled icon button. */
+    val filledShape: Shape
+        @Composable get() = FilledIconButtonTokens.ContainerShape.value
+
+    /** Default shape for an outlined icon button. */
+    val outlinedShape: Shape
+        @Composable get() = OutlinedIconButtonTokens.ContainerShape.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default round shape for any extra small icon button. */
+    val xSmallRoundShape: Shape
+        @Composable get() = XSmallIconButtonTokens.ContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default square shape for any extra small icon button. */
+    val xSmallSquareShape: Shape
+        @Composable get() = XSmallIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any small icon button. */
+    val smallRoundShape: Shape
+        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any small icon button. */
+    val smallSquareShape: Shape
+        @Composable get() = SmallIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any medium icon button. */
+    val mediumRoundShape: Shape
+        @Composable get() = MediumIconButtonTokens.ContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any medium icon button. */
+    val mediumSquareShape: Shape
+        @Composable get() = MediumIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any large icon button. */
+    val largeRoundShape: Shape
+        @Composable get() = LargeIconButtonTokens.ContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any large icon button. */
+    val largeSquareShape: Shape
+        @Composable get() = LargeIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any xlarge icon button. */
+    val xLargeRoundShape: Shape
+        @Composable get() = XLargeIconButtonTokens.ContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default shape for any xlarge icon button. */
+    val xLargeSquareShape: Shape
+        @Composable get() = XLargeIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default container for any extra small icon button. */
+    val xSmallIconSize: Dp = XSmallIconButtonTokens.IconSize
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default size for any small icon button. */
+    val smallIconSize: Dp = SmallIconButtonTokens.IconSize
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default container size for any medium icon button. */
+    val mediumIconSize: Dp = MediumIconButtonTokens.IconSize
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default size for any large icon button. */
+    val largeIconSize: Dp = LargeIconButtonTokens.IconSize
+
+    /** Default size for any xlarge icon button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val xLargeIconSize: Dp = XLargeIconButtonTokens.IconSize
+
+    /**
+     * Default container size for any extra small icon button.
+     *
+     * @param widthOption the width of the container
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun xSmallContainerSize(
+        widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
+    ): DpSize {
+        val horizontalSpace =
+            when (widthOption) {
+                IconButtonWidthOption.Narrow ->
+                    XSmallIconButtonTokens.NarrowLeadingSpace +
+                        XSmallIconButtonTokens.NarrowTrailingSpace
+                IconButtonWidthOption.Uniform ->
+                    XSmallIconButtonTokens.UniformLeadingSpace +
+                        XSmallIconButtonTokens.UniformLeadingSpace
+                IconButtonWidthOption.Wide ->
+                    XSmallIconButtonTokens.WideLeadingSpace +
+                        XSmallIconButtonTokens.WideTrailingSpace
+                else -> 0.dp
+            }
+        return DpSize(
+            XSmallIconButtonTokens.IconSize + horizontalSpace,
+            XSmallIconButtonTokens.ContainerHeight
+        )
+    }
+
+    /**
+     * Default container size for any small icon button.
+     *
+     * @param widthOption the width of the container
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun smallContainerSize(
+        widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
+    ): DpSize {
+        val horizontalSpace =
+            when (widthOption) {
+                IconButtonWidthOption.Narrow ->
+                    SmallIconButtonTokens.NarrowLeadingSpace +
+                        SmallIconButtonTokens.NarrowTrailingSpace
+                IconButtonWidthOption.Uniform ->
+                    SmallIconButtonTokens.UniformLeadingSpace +
+                        SmallIconButtonTokens.UniformLeadingSpace
+                IconButtonWidthOption.Wide ->
+                    SmallIconButtonTokens.WideLeadingSpace + SmallIconButtonTokens.WideTrailingSpace
+                else -> 0.dp
+            }
+        return DpSize(
+            SmallIconButtonTokens.IconSize + horizontalSpace,
+            SmallIconButtonTokens.ContainerHeight
+        )
+    }
+
+    /**
+     * Default container size for any medium icon button.
+     *
+     * @param widthOption the width of the container
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun mediumContainerSize(
+        widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
+    ): DpSize {
+        val horizontalSpace =
+            when (widthOption) {
+                IconButtonWidthOption.Narrow ->
+                    MediumIconButtonTokens.NarrowLeadingSpace +
+                        MediumIconButtonTokens.NarrowTrailingSpace
+                IconButtonWidthOption.Uniform ->
+                    MediumIconButtonTokens.UniformLeadingSpace +
+                        MediumIconButtonTokens.UniformLeadingSpace
+                IconButtonWidthOption.Wide ->
+                    MediumIconButtonTokens.WideLeadingSpace +
+                        MediumIconButtonTokens.WideTrailingSpace
+                else -> 0.dp
+            }
+        return DpSize(
+            MediumIconButtonTokens.IconSize + horizontalSpace,
+            MediumIconButtonTokens.ContainerHeight
+        )
+    }
+
+    /**
+     * Default container size for any large icon button.
+     *
+     * @param widthOption the width of the container
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun largeContainerSize(
+        widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
+    ): DpSize {
+        val horizontalSpace =
+            when (widthOption) {
+                IconButtonWidthOption.Narrow ->
+                    LargeIconButtonTokens.NarrowLeadingSpace +
+                        LargeIconButtonTokens.NarrowTrailingSpace
+                IconButtonWidthOption.Uniform ->
+                    LargeIconButtonTokens.UniformLeadingSpace +
+                        LargeIconButtonTokens.UniformLeadingSpace
+                IconButtonWidthOption.Wide ->
+                    LargeIconButtonTokens.WideLeadingSpace + LargeIconButtonTokens.WideTrailingSpace
+                else -> 0.dp
+            }
+        return DpSize(
+            LargeIconButtonTokens.IconSize + horizontalSpace,
+            LargeIconButtonTokens.ContainerHeight
+        )
+    }
+
+    /**
+     * Default container size for any extra large icon button.
+     *
+     * @param widthOption the width of the container
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun xLargeContainerSize(
+        widthOption: IconButtonWidthOption = IconButtonWidthOption.Uniform
+    ): DpSize {
+        val horizontalSpace =
+            when (widthOption) {
+                IconButtonWidthOption.Narrow ->
+                    XLargeIconButtonTokens.NarrowLeadingSpace +
+                        XLargeIconButtonTokens.NarrowTrailingSpace
+                IconButtonWidthOption.Uniform ->
+                    XLargeIconButtonTokens.UniformLeadingSpace +
+                        XLargeIconButtonTokens.UniformLeadingSpace
+                IconButtonWidthOption.Wide ->
+                    XLargeIconButtonTokens.WideLeadingSpace +
+                        XLargeIconButtonTokens.WideTrailingSpace
+                else -> 0.dp
+            }
+        return DpSize(
+            XLargeIconButtonTokens.IconSize + horizontalSpace,
+            XLargeIconButtonTokens.ContainerHeight
+        )
+    }
+
+    /** Class that describes the different supported widths of the [IconButton]. */
+    @JvmInline
+    value class IconButtonWidthOption private constructor(private val value: Int) {
+        companion object {
+            // TODO(b/342666275): update this kdoc with spec guidance
+            /*
+             * This configuration is recommended for small screens.
+             */
+            val Narrow = IconButtonWidthOption(0)
+
+            /*
+             * This configuration is recommended for medium width screens.
+             */
+            val Uniform = IconButtonWidthOption(1)
+
+            /*
+             * This configuration is recommended for wide screens.
+             */
+            val Wide = IconButtonWidthOption(2)
+        }
+
+        override fun toString() =
+            when (this) {
+                Narrow -> "Narrow"
+                Uniform -> "Uniform"
+                Wide -> "Wide"
+                else -> "Unknown"
+            }
     }
 }
 
