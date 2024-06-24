@@ -1,6 +1,20 @@
 // Signature format: 4.0
 package androidx.wear.compose.material3 {
 
+  public final class AnimatedTextDefaults {
+    field public static final int CacheSize = 5; // 0x5
+    field public static final androidx.wear.compose.material3.AnimatedTextDefaults INSTANCE;
+  }
+
+  @RequiresApi(31) public final class AnimatedTextFontRegistry {
+    ctor public AnimatedTextFontRegistry(androidx.compose.ui.text.TextStyle textStyle, androidx.compose.ui.text.font.FontVariation.Settings startFontVariationSettings, androidx.compose.ui.text.font.FontVariation.Settings endFontVariationSettings, long startFontSize, long endFontSize, androidx.compose.ui.unit.Density density, androidx.compose.ui.text.font.FontFamily.Resolver fontFamilyResolver, optional long contentColor, optional int cacheSize);
+  }
+
+  public final class AnimatedTextKt {
+    method @RequiresApi(31) @androidx.compose.runtime.Composable public static void AnimatedText(String text, androidx.wear.compose.material3.AnimatedTextFontRegistry fontRegistry, kotlin.jvm.functions.Function0<java.lang.Float> progressFraction, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment);
+    method @RequiresApi(31) @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.AnimatedTextFontRegistry rememberAnimatedTextFontRegistry(androidx.compose.ui.text.font.FontVariation.Settings startFontVariationSettings, androidx.compose.ui.text.font.FontVariation.Settings endFontVariationSettings, optional androidx.compose.ui.text.TextStyle textStyle, optional long startFontSize, optional long endFontSize);
+  }
+
   @androidx.compose.runtime.Immutable public final class ButtonColors {
     ctor public ButtonColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long secondaryContentColor, long iconColor, androidx.compose.ui.graphics.painter.Painter disabledContainerPainter, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
     ctor public ButtonColors(long containerColor, long contentColor, long secondaryContentColor, long iconColor, long disabledContainerColor, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
