@@ -31,6 +31,7 @@ internal fun Translations.ur() = mapOf(
     Strings.Dialog to "ڈائلاگ",
     Strings.MenuExpanded to "پھیلایا گیا",
     Strings.MenuCollapsed to "سکیڑا گیا",
+    Strings.ToggleDropdownMenu to "ڈراپ ڈاؤن مینیو کو ٹوگل کریں",
     Strings.SnackbarDismiss to "برخاست کریں",
     Strings.SearchBarSearch to "تلاش کریں",
     Strings.SuggestionsAvailable to "تلاش کی تجاویز نیچے دستیاب ہیں",

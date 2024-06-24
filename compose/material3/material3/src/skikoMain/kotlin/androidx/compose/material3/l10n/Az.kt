@@ -31,6 +31,7 @@ internal fun Translations.az() = mapOf(
     Strings.Dialog to "Dialoq",
     Strings.MenuExpanded to "Genişləndirilb",
     Strings.MenuCollapsed to "Yığcamlaşdırılıb",
+    Strings.ToggleDropdownMenu to "Aşağı açılan menyunu aktiv/deaktiv edin",
     Strings.SnackbarDismiss to "Rədd edin",
     Strings.SearchBarSearch to "Axtarış",
     Strings.SuggestionsAvailable to "Təkliflər aşağıdadır",

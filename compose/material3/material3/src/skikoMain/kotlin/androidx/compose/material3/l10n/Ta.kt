@@ -31,6 +31,7 @@ internal fun Translations.ta() = mapOf(
     Strings.Dialog to "உரையாடல்",
     Strings.MenuExpanded to "விரிவாக்கப்பட்டது",
     Strings.MenuCollapsed to "சுருக்கப்பட்டது",
+    Strings.ToggleDropdownMenu to "கீழ்த்தோன்றல் மெனுவை நிலைமாற்றும்",
     Strings.SnackbarDismiss to "நிராகரிக்கும்",
     Strings.SearchBarSearch to "தேடல்",
     Strings.SuggestionsAvailable to "பரிந்துரைகள் கீழே கிடைக்கும்",

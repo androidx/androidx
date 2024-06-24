@@ -31,6 +31,7 @@ internal fun Translations.et() = mapOf(
     Strings.Dialog to "Dialoog",
     Strings.MenuExpanded to "Laiendatud",
     Strings.MenuCollapsed to "Ahendatud",
+    Strings.ToggleDropdownMenu to "Rippmenüü lülitamine",
     Strings.SnackbarDismiss to "Loobu",
     Strings.SearchBarSearch to "Otsing",
     Strings.SuggestionsAvailable to "Soovitused on allpool",

@@ -31,6 +31,7 @@ internal fun Translations.iw() = mapOf(
     Strings.Dialog to "תיבת דו-שיח",
     Strings.MenuExpanded to "התפריט הנפתח מורחב",
     Strings.MenuCollapsed to "התפריט הנפתח מכווץ",
+    Strings.ToggleDropdownMenu to "החלפת המצב של התפריט הנפתח",
     Strings.SnackbarDismiss to "סגירה",
     Strings.SearchBarSearch to "חיפוש",
     Strings.SuggestionsAvailable to "הצעות מופיעות למטה",

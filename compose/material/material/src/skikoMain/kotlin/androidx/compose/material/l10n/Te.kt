@@ -23,8 +23,8 @@ import androidx.compose.material.Translations
 internal fun Translations.te() = mapOf(
     Strings.NavigationMenu to "నావిగేషన్ మెనూ",
     Strings.ExposedDropdownMenu to "డ్రాప్‌డౌన్ మెనూ",
-    Strings.CloseDrawer to "నావిగేషన్ మెనూను మూసివేయి",
-    Strings.CloseSheet to "షీట్‌ను మూసివేయి",
+    Strings.CloseDrawer to "నావిగేషన్ మెనూను మూసివేయండి",
+    Strings.CloseSheet to "షీట్‌ను మూసివేయండి",
     Strings.DefaultErrorMessage to "ఇన్‌పుట్ చెల్లదు",
     Strings.SliderRangeStart to "పరిధి ప్రారంభమయింది",
     Strings.SliderRangeEnd to "పరిధి ముగిసింది",

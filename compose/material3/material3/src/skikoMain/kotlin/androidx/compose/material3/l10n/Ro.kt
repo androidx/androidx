@@ -31,6 +31,7 @@ internal fun Translations.ro() = mapOf(
     Strings.Dialog to "Dialog",
     Strings.MenuExpanded to "Extins",
     Strings.MenuCollapsed to "Restrâns",
+    Strings.ToggleDropdownMenu to "Comută meniul drop-down",
     Strings.SnackbarDismiss to "Închide",
     Strings.SearchBarSearch to "Caută",
     Strings.SuggestionsAvailable to "Sugestii mai jos",

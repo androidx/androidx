@@ -31,6 +31,7 @@ internal fun Translations.ru() = mapOf(
     Strings.Dialog to "Диалоговое окно",
     Strings.MenuExpanded to "Развернуто",
     Strings.MenuCollapsed to "Свернуто",
+    Strings.ToggleDropdownMenu to "Показать или скрыть раскрывающееся меню",
     Strings.SnackbarDismiss to "Закрыть",
     Strings.SearchBarSearch to "Строка поиска",
     Strings.SuggestionsAvailable to "Подсказки показаны ниже",

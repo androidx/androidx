@@ -31,6 +31,7 @@ internal fun Translations.lo() = mapOf(
     Strings.Dialog to "ກ່ອງໂຕ້ຕອບ",
     Strings.MenuExpanded to "ຂະຫຍາຍແລ້ວ",
     Strings.MenuCollapsed to "ຫຍໍ້ລົງແລ້ວ",
+    Strings.ToggleDropdownMenu to "ສະ​ຫຼັບເມນູແບບເລື່ອນລົງ",
     Strings.SnackbarDismiss to "ປິດໄວ້",
     Strings.SearchBarSearch to "ຊອກຫາ",
     Strings.SuggestionsAvailable to "ມີຄຳແນະນຳຢູ່ຂ້າງລຸ່ມ",

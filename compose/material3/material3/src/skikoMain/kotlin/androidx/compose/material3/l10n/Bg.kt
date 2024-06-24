@@ -31,6 +31,7 @@ internal fun Translations.bg() = mapOf(
     Strings.Dialog to "Диалогов прозорец",
     Strings.MenuExpanded to "Разгънато",
     Strings.MenuCollapsed to "Свито",
+    Strings.ToggleDropdownMenu to "Превключване на падащото меню",
     Strings.SnackbarDismiss to "Отхвърляне",
     Strings.SearchBarSearch to "Лента за търсене",
     Strings.SuggestionsAvailable to "Предложенията са по-долу",

@@ -31,6 +31,7 @@ internal fun Translations.my() = mapOf(
     Strings.Dialog to "ဒိုင်ယာလော့",
     Strings.MenuExpanded to "ချဲ့ထားသည်",
     Strings.MenuCollapsed to "ချုံ့ထားသည်",
+    Strings.ToggleDropdownMenu to "ဆွဲချမီနူးကို ပြောင်းရန်",
     Strings.SnackbarDismiss to "ပယ်ရန်",
     Strings.SearchBarSearch to "ရှာရန်",
     Strings.SuggestionsAvailable to "အကြံပြုချက်များသည် အောက်တွင်ရှိသည်",

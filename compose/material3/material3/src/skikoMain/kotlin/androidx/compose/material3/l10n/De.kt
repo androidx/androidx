@@ -31,6 +31,7 @@ internal fun Translations.de() = mapOf(
     Strings.Dialog to "Dialogfeld",
     Strings.MenuExpanded to "Maximiert",
     Strings.MenuCollapsed to "Minimiert",
+    Strings.ToggleDropdownMenu to "Drop-down-Menü maximieren/minimieren",
     Strings.SnackbarDismiss to "Schließen",
     Strings.SearchBarSearch to "Suche",
     Strings.SuggestionsAvailable to "Vorschläge unten",

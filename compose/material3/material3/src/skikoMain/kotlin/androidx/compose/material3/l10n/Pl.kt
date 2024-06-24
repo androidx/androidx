@@ -31,6 +31,7 @@ internal fun Translations.pl() = mapOf(
     Strings.Dialog to "Okno",
     Strings.MenuExpanded to "Rozwinięte",
     Strings.MenuCollapsed to "Zwinięte",
+    Strings.ToggleDropdownMenu to "Pokaż lub ukryj menu",
     Strings.SnackbarDismiss to "Zamknij",
     Strings.SearchBarSearch to "Szukaj",
     Strings.SuggestionsAvailable to "Sugestie znajdziesz poniżej",

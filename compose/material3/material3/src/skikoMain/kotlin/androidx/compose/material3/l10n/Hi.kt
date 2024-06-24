@@ -31,6 +31,7 @@ internal fun Translations.hi() = mapOf(
     Strings.Dialog to "डायलॉग",
     Strings.MenuExpanded to "बड़ा किया गया",
     Strings.MenuCollapsed to "छोटा किया गया",
+    Strings.ToggleDropdownMenu to "ड्रॉपडाउन मेन्यू टॉगल करें",
     Strings.SnackbarDismiss to "खारिज करें",
     Strings.SearchBarSearch to "खोजें",
     Strings.SuggestionsAvailable to "सुझाव यहां मौजूद हैं",

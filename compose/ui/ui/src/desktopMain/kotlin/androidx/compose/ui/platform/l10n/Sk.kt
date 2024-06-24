@@ -23,6 +23,6 @@ import androidx.compose.ui.platform.Translations
 internal fun Translations.sk() = mapOf(
     Strings.SelectAll to "Vybrať všetko",
     Strings.Cut to "Vystrihnúť",
-    Strings.Copy to "Kopírovať",
+    Strings.Copy to "Skopírovať",
     Strings.Paste to "Prilepiť",
 )

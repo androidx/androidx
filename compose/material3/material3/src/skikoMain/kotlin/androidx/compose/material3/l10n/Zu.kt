@@ -31,6 +31,7 @@ internal fun Translations.zu() = mapOf(
     Strings.Dialog to "Ibhokisi",
     Strings.MenuExpanded to "Kunwetshiwe",
     Strings.MenuCollapsed to "Kugoqiwe",
+    Strings.ToggleDropdownMenu to "Guqula imenyu yokwehlayo",
     Strings.SnackbarDismiss to "Chitha",
     Strings.SearchBarSearch to "Sesha",
     Strings.SuggestionsAvailable to "Iziphakamiso ngezansi",

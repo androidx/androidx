@@ -31,6 +31,7 @@ internal fun Translations.km() = mapOf(
     Strings.Dialog to "ប្រអប់",
     Strings.MenuExpanded to "បាន​ពង្រីក",
     Strings.MenuCollapsed to "បាន​បង្រួម",
+    Strings.ToggleDropdownMenu to "បិទ/បើកម៉ឺនុយ​ធ្លាក់​ចុះ",
     Strings.SnackbarDismiss to "ច្រានចោល",
     Strings.SearchBarSearch to "ស្វែងរក",
     Strings.SuggestionsAvailable to "ការណែនាំខាងក្រោម",

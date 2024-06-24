@@ -31,6 +31,7 @@ internal fun Translations.ja() = mapOf(
     Strings.Dialog to "ダイアログ",
     Strings.MenuExpanded to "開いています",
     Strings.MenuCollapsed to "閉じています",
+    Strings.ToggleDropdownMenu to "プルダウン メニューを切り替えます",
     Strings.SnackbarDismiss to "閉じる",
     Strings.SearchBarSearch to "検索",
     Strings.SuggestionsAvailable to "検索候補は次のとおりです",

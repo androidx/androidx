@@ -31,6 +31,7 @@ internal fun Translations.`as`() = mapOf(
     Strings.Dialog to "ডায়ল’গ",
     Strings.MenuExpanded to "বিস্তাৰ কৰা আছে",
     Strings.MenuCollapsed to "সংকোচন কৰা আছে",
+    Strings.ToggleDropdownMenu to "ড্ৰপডাউন মেনু ট’গল কৰক",
     Strings.SnackbarDismiss to "অগ্ৰাহ্য কৰক",
     Strings.SearchBarSearch to "সন্ধান কৰক",
     Strings.SuggestionsAvailable to "তলত পৰামৰ্শ দেখুওৱা হৈছে",

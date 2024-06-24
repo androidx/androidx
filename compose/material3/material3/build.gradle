@@ -299,6 +299,7 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
             "m3c_time_picker_hour_text_field": "TimePickerHourTextField",
             "m3c_time_picker_minute_text_field": "TimePickerMinuteTextField",
             "m3c_tooltip_pane_description": "TooltipPaneDescription",
+            "m3c_dropdown_menu_toggle": "ToggleDropdownMenu"
     ]
     // This is all the locales translated by Compose on Android in the ui module:
     // https://github.com/androidx/androidx/tree/androidx-main/compose/ui/ui/src/androidMain/res

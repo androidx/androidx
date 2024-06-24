@@ -31,6 +31,7 @@ internal fun Translations.da() = mapOf(
     Strings.Dialog to "Dialogboks",
     Strings.MenuExpanded to "Udvidet",
     Strings.MenuCollapsed to "Skjult",
+    Strings.ToggleDropdownMenu to "Skift visningen af rullemenuen",
     Strings.SnackbarDismiss to "Afvis",
     Strings.SearchBarSearch to "Søg",
     Strings.SuggestionsAvailable to "Forslag nedenfor",

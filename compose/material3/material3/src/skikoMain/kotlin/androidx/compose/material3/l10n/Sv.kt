@@ -31,6 +31,7 @@ internal fun Translations.sv() = mapOf(
     Strings.Dialog to "Dialogruta",
     Strings.MenuExpanded to "Utökad",
     Strings.MenuCollapsed to "Komprimerad",
+    Strings.ToggleDropdownMenu to "Utöka/komprimera rullgardinsmeny",
     Strings.SnackbarDismiss to "Stäng",
     Strings.SearchBarSearch to "Sök",
     Strings.SuggestionsAvailable to "Se förslag nedan",

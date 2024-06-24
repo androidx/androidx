@@ -31,6 +31,7 @@ internal fun Translations.or() = mapOf(
     Strings.Dialog to "ଡାଏଲଗ",
     Strings.MenuExpanded to "ବିସ୍ତାର କରାଯାଇଛି",
     Strings.MenuCollapsed to "ସଙ୍କୁଚିତ କରାଯାଇଛି",
+    Strings.ToggleDropdownMenu to "ଡ୍ରପଡାଉନ ମେନୁକୁ ଟୋଗଲ କରନ୍ତୁ",
     Strings.SnackbarDismiss to "ଖାରଜ କରନ୍ତୁ",
     Strings.SearchBarSearch to "ସର୍ଚ୍ଚ କରନ୍ତୁ",
     Strings.SuggestionsAvailable to "ପରାମର୍ଶ ତଳେ ଦିଆଯାଇଛି",

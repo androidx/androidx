@@ -31,6 +31,7 @@ internal fun Translations.hy() = mapOf(
     Strings.Dialog to "Երկխոսության պատուհան",
     Strings.MenuExpanded to "Ծավալված է",
     Strings.MenuCollapsed to "Ծալված է",
+    Strings.ToggleDropdownMenu to "Բացել/փակել իջնող ցանկը",
     Strings.SnackbarDismiss to "Փակել",
     Strings.SearchBarSearch to "Որոնում",
     Strings.SuggestionsAvailable to "Առաջարկները հասանելի են ստորև",
