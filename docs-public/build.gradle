@@ -352,8 +352,6 @@ dependencies {
     docsWithoutApiSince("androidx.test.ext:truth:1.6.0-rc01")
     docsWithoutApiSince("androidx.test.services:storage:1.5.0-rc01")
     docsWithoutApiSince("androidx.test.uiautomator:uiautomator:2.3.0")
-    // androidx.textclassifier is not hosted in androidx
-    docsWithoutApiSince("androidx.textclassifier:textclassifier:1.0.0-alpha04")
     docs("androidx.tracing:tracing:1.3.0-alpha02")
     docs("androidx.tracing:tracing-ktx:1.3.0-alpha02")
     docs("androidx.tracing:tracing-perfetto:1.0.0")
