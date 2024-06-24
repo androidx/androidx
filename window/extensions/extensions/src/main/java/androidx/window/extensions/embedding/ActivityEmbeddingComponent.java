@@ -29,7 +29,6 @@ import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.core.util.function.Function;
 import androidx.window.extensions.util.SetCompat;
 
-
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
