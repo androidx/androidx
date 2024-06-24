@@ -931,6 +931,7 @@ internal fun expressiveLightColorScheme() =
         onPrimaryContainer = PaletteTokens.Primary30,
         onSecondaryContainer = PaletteTokens.Secondary30,
         onTertiaryContainer = PaletteTokens.Secondary30,
+        onErrorContainer = PaletteTokens.Error30
     )
 
 /**
