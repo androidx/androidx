@@ -28,6 +28,7 @@ import androidx.work.ListenableWorker
  * @param W The subtype of [ListenableWorker]
  * @param context The application [Context]
  * @param inputData The input data for the [ListenableWorker]
+ * @param tags The tags associated with this [ListenableWorker]
  * @param runAttemptCount The run attempt count of the [ListenableWorker]
  * @param triggeredContentUris The list of triggered content [Uri]s
  * @param triggeredContentAuthorities The list of triggered content authorities
