@@ -31,7 +31,10 @@ import kotlin.jvm.JvmInline
 @JvmInline
 public value class FloatFloatPair
 internal constructor(
-    /** The internal representation of the [FloatFloatPair]. */
+    /**
+     * The internal representation of the [FloatFloatPair]. [packedValue] has no guarantees for
+     * stability across library versions.
+     */
     @JvmField public val packedValue: Long
 ) {
     /**

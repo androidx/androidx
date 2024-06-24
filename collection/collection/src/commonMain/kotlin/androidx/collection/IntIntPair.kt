@@ -30,7 +30,10 @@ import kotlin.jvm.JvmInline
 @JvmInline
 public value class IntIntPair
 internal constructor(
-    /** The internal representation of the [IntIntPair]. */
+    /**
+     * The internal representation of the [IntIntPair]. [packedValue] has no guarantees for
+     * stability across library versions.
+     */
     @JvmField public val packedValue: Long
 ) {
     /**
