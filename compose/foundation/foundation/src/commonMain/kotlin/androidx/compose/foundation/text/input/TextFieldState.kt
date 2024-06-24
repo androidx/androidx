@@ -607,6 +607,13 @@ internal constructor(
  *
  * If you need to store a [TextFieldState] in another object, use the [TextFieldState.Saver] object
  * to manually save and restore the state.
+ *
+ * @param initialText The initial text state. If a different value is passed in a subsequent
+ *   recomposition, the value of the state will _not_ be updated. To update the state after it's
+ *   initialized, call methods on [TextFieldState].
+ * @param initialSelection The initial selection state. If a different value is passed in a
+ *   subsequent recomposition, the value of the state will _not_ be updated. To update the state
+ *   after it's initialized, call methods on [TextFieldState].
  */
 @Composable
 fun rememberTextFieldState(
