@@ -104,8 +104,10 @@ abstract class BaseFragment : Fragment() {
         sandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkBundle))
     }
 
-    fun handleDrawerStateChange(isDrawerOpen: Boolean) {
-        getSandboxedSdkViews().forEach { it.orderProviderUiAboveClientUi(!isDrawerOpen) }
+    open fun handleDrawerStateChange(isDrawerOpen: Boolean) {
+        getSandboxedSdkViews().forEach {
+            it.orderProviderUiAboveClientUi(!isDrawerOpen && isZOrderOnTop)
+        }
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
@@ -132,6 +134,7 @@ abstract class BaseFragment : Fragment() {
         private const val MEDIATEE_SDK_NAME =
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"
         const val TAG = "TestSandboxClient"
+        var isZOrderOnTop = true
         @AdType var currentAdType = AdType.NON_WEBVIEW
         @MediationOption var currentMediationOption = MediationOption.NON_MEDIATED
         var shouldDrawViewabilityLayer = false
