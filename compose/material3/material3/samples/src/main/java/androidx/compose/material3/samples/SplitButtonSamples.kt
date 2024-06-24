@@ -249,6 +249,7 @@ fun SplitButtonWithTextSample() {
             SplitButtonDefaults.AnimatedTrailingButton(
                 onClick = { expanded = !expanded },
                 expanded = expanded,
+                modifier = Modifier.size(40.dp)
             ) {
                 val rotation: Float by
                     animateFloatAsState(

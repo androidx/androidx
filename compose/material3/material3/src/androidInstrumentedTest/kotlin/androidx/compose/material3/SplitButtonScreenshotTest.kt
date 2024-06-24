@@ -142,15 +142,20 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             Icons.Outlined.Edit,
                             contentDescription = "Localized description",
+                            modifier = Modifier.size(28.dp)
                         )
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("My Button")
+                        Text("My Button", fontSize = 18.sp)
                     },
                     trailingContent = {
-                        Box(modifier = Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.fillMaxHeight().aspectRatio(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
-                                modifier = Modifier.graphicsLayer { this.rotationZ = 180f },
+                                modifier =
+                                    Modifier.size(38.dp).graphicsLayer { this.rotationZ = 180f },
                                 contentDescription = "Localized description"
                             )
                         }
