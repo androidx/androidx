@@ -670,6 +670,12 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * accessibility: [SemanticsActions.OnClick]
          */
         val DropdownList = Role(6)
+
+        /**
+         * This element is a number picker that a user can perform gesture to adjust and select the
+         * next or previous value.
+         */
+        val NumberPicker = Role(7)
     }
 
     override fun toString() =
@@ -681,6 +687,7 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
             Tab -> "Tab"
             Image -> "Image"
             DropdownList -> "DropdownList"
+            NumberPicker -> "NumberPicker"
             else -> "Unknown"
         }
 }
