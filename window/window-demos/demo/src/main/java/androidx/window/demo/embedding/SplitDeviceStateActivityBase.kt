@@ -25,12 +25,12 @@ import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.WindowSdkExtensions
 import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.RuleController
@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class SplitDeviceStateActivityBase :
-    AppCompatActivity(),
+    EdgeToEdgeActivity(),
     View.OnClickListener,
     RadioGroup.OnCheckedChangeListener,
     CompoundButton.OnCheckedChangeListener,

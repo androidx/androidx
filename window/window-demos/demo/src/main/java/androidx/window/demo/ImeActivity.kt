@@ -21,10 +21,10 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 
 /** Demo app that shows various IME-related features. */
-class ImeActivity : AppCompatActivity() {
+class ImeActivity : EdgeToEdgeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

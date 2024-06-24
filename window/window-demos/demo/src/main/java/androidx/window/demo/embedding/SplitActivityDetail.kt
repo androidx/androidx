@@ -20,10 +20,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivitySplitActivityListDetailLayoutBinding
 
-open class SplitActivityDetail : AppCompatActivity() {
+open class SplitActivityDetail : EdgeToEdgeActivity() {
 
     private lateinit var viewBinding: ActivitySplitActivityListDetailLayoutBinding
     private lateinit var itemDetailTextView: TextView

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.window.demo.embedding
+package androidx.window.demo.common
 
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
-import androidx.window.demo.common.EdgeToEdgeActivity
+import android.view.View
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 
-/** Activity to show a dialog. */
-class ExpandedDialogActivity : EdgeToEdgeActivity() {
+/** An activity to make its UI content edge-to-edge and fits system windows. */
+open class EdgeToEdgeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        showDialog()
     }
 
-    private fun showDialog() {
-        val dialog =
-            AlertDialog.Builder(this)
-                .setTitle("Dialog in expanded activity")
-                .setMessage("To demo showing dialog that can expand over a split")
-                .setNeutralButton("Close") { _, _ -> finish() }
-                .setOnDismissListener { finish() }
-
-        dialog.show()
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        view?.fitsSystemWindows = true
     }
 }

@@ -21,23 +21,25 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
+import androidx.window.demo.databinding.ActivitySplitActivityListLayoutBinding
 import androidx.window.demo.embedding.SplitActivityDetail.Companion.EXTRA_SELECTED_ITEM
 import androidx.window.embedding.SplitController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-open class SplitActivityList : AppCompatActivity() {
+private lateinit var viewBinding: ActivitySplitActivityListLayoutBinding
+
+open class SplitActivityList : EdgeToEdgeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_split_activity_list_layout)
-        findViewById<View>(R.id.root_split_activity_layout)
-            .setBackgroundColor(Color.parseColor("#e0f7fa"))
+        viewBinding = ActivitySplitActivityListLayoutBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+        viewBinding.root.setBackgroundColor(Color.parseColor("#e0f7fa"))
         val splitController = SplitController.getInstance(this)
 
         lifecycleScope.launch {
@@ -47,7 +49,7 @@ open class SplitActivityList : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 splitController.splitInfoList(this@SplitActivityList).collect { newSplitInfos ->
                     withContext(Dispatchers.Main) {
-                        findViewById<View>(R.id.infoButton).visibility =
+                        viewBinding.infoButton.visibility =
                             if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
                     }
                 }
