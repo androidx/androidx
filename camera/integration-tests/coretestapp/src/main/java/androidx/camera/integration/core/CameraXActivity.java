@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.core;
 
+import static android.os.Environment.getExternalStoragePublicDirectory;
+
 import static androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED;
 import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
@@ -36,6 +38,7 @@ import static androidx.camera.testing.impl.FileUtil.createParentFolder;
 import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
 import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
 import static androidx.camera.testing.impl.FileUtil.getAbsolutePathFromUri;
+import static androidx.camera.testing.impl.FileUtil.writeTextToExternalFile;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
@@ -156,10 +159,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -249,6 +249,8 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     // Launch the activity with the specified video quality.
     private static final String INTENT_EXTRA_VIDEO_QUALITY = "video_quality";
+    // Launch the activity with the view finder position log into a text file.
+    private static final String INTENT_EXTRA_LOG_VIEWFINDER_POSITION = "log_view_finder_position";
     // Launch the activity with the specified video mirror mode.
     private static final String INTENT_EXTRA_VIDEO_MIRROR_MODE = "video_mirror_mode";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
@@ -1488,17 +1490,17 @@ public class CameraXActivity extends AppCompatActivity {
                         return;
                     }
 
-                    String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
-                    if (!Objects.equals(testCase, PREVIEW_TEST_CASE)) {
+                    if (!bundle.getBoolean(INTENT_EXTRA_LOG_VIEWFINDER_POSITION)) {
                         return;
                     }
 
                     Rect rect = new Rect();
                     v.getGlobalVisibleRect(rect);
+
                     String viewFinderPositionText =
                             rect.left + "," + rect.top + "," + rect.right + "," + rect.bottom;
-                    writeTextToExternalCache(viewFinderPositionText,
-                            "camerax_view_finder_position.txt");
+                    String fileName = "camerax_view_finder_position_" + System.currentTimeMillis();
+                    writeTextToExternalStorage(viewFinderPositionText, fileName, "txt");
                 });
 
         mVideoToggle = findViewById(R.id.VideoToggle);
@@ -1652,18 +1654,12 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     /**
-     * Writes text data to a cache file in primary external directory for reading during tests.
+     * Writes text data to a file in public external directory for reading during tests.
      */
-    private void writeTextToExternalCache(@NonNull String text, @NonNull String filename) {
+    private void writeTextToExternalStorage(@NonNull String text, @NonNull String filename,
+            @NonNull String extension) {
         mFileWriterExecutorService.execute(() -> {
-            File outputFile = new File(getExternalCacheDir(), filename);
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-                writer.write(text);
-                Log.d(TAG, "Wrote [" + text + "] to " + outputFile);
-            } catch (IOException e) {
-                Log.e(TAG, "writeViewFinderPositionToFile: failed to write to " + outputFile, e);
-            }
+            writeTextToExternalFile(text, filename, extension);
         });
     }
 
@@ -1999,8 +1995,7 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     void createDefaultPictureFolderIfNotExist() {
-        File pictureFolder = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File pictureFolder = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         if (createFolder(pictureFolder)) {
             Log.e(TAG, "Failed to create directory: " + pictureFolder);
         }
