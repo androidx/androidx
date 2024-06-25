@@ -102,7 +102,10 @@ class StillCaptureProcessorTest {
         fakeCaptureProcessorImpl = FakeCaptureProcessorImpl()
     }
 
-    private fun initStillCaptureProcessor(postviewOutputSurface: OutputSurface? = null) {
+    private fun initStillCaptureProcessor(
+        postviewOutputSurface: OutputSurface? = null,
+        overrideTimestamp: Boolean = false
+    ) {
         imageReaderOutputYuv =
             ImageReaderProxys.createIsolatedReader(WIDTH, HEIGHT, ImageFormat.YUV_420_888, 2)
         stillCaptureProcessor =
@@ -110,7 +113,8 @@ class StillCaptureProcessorTest {
                 fakeCaptureProcessorImpl,
                 imageReaderOutputYuv!!.surface!!,
                 Size(WIDTH, HEIGHT),
-                postviewOutputSurface
+                postviewOutputSurface,
+                overrideTimestamp,
             )
     }
 
@@ -140,6 +144,13 @@ class StillCaptureProcessorTest {
     @Test
     fun canOutputYuv_1CaptureStage(): Unit = runBlocking {
         initStillCaptureProcessor()
+        withTimeout(10000) { openCameraAndCaptureImageAwait(listOf(1)) }
+            .use { assertThat(it.format).isEqualTo(ImageFormat.YUV_420_888) }
+    }
+
+    @Test
+    fun canOutputYuv_withOverrideTimestamp(): Unit = runBlocking {
+        initStillCaptureProcessor(overrideTimestamp = true)
         withTimeout(10000) { openCameraAndCaptureImageAwait(listOf(1)) }
             .use { assertThat(it.format).isEqualTo(ImageFormat.YUV_420_888) }
     }

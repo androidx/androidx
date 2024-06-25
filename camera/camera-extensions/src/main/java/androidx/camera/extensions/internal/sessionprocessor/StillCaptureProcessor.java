@@ -60,6 +60,7 @@ import java.util.Map;
  */
 class StillCaptureProcessor {
     private static final String TAG = "StillCaptureProcessor";
+    private static final long UNSPECIFIED_TIMESTAMP = -1;
     @NonNull
     final CaptureProcessorImpl mCaptureProcessorImpl;
     @NonNull
@@ -79,15 +80,17 @@ class StillCaptureProcessor {
     CaptureOutputSurfaceForCaptureProcessor mCaptureOutputSurface;
     @GuardedBy("mLock")
     boolean mIsClosed = false;
+    long mTimeStampForOutputImage = UNSPECIFIED_TIMESTAMP;
 
     StillCaptureProcessor(@NonNull CaptureProcessorImpl captureProcessorImpl,
             @NonNull Surface outputSurface,
             @NonNull Size surfaceSize,
-            @Nullable OutputSurface postviewOutputSurface) {
+            @Nullable OutputSurface postviewOutputSurface,
+            boolean needOverrideTimestamp) {
         mCaptureProcessorImpl = captureProcessorImpl;
 
-        mCaptureOutputSurface =
-                new CaptureOutputSurfaceForCaptureProcessor(outputSurface, surfaceSize);
+        mCaptureOutputSurface = new CaptureOutputSurfaceForCaptureProcessor(
+                outputSurface, surfaceSize, needOverrideTimestamp);
 
         mCaptureProcessorImpl.onOutputSurface(
                 mCaptureOutputSurface.getSurface(), ImageFormat.YUV_420_888);
@@ -131,6 +134,7 @@ class StillCaptureProcessor {
     void startCapture(boolean enablePostview, @NonNull List<Integer> captureIdList,
             @NonNull OnCaptureResultCallback onCaptureResultCallback) {
         Logger.d(TAG, "Start the capture: enablePostview=" + enablePostview);
+        mTimeStampForOutputImage = UNSPECIFIED_TIMESTAMP;
         synchronized (mLock) {
             Preconditions.checkState(!mIsClosed, "StillCaptureProcessor is closed. Can't invoke "
                     + "startCapture()");
@@ -256,6 +260,14 @@ class StillCaptureProcessor {
             int captureStageId) {
         mCaptureResultImageMatcher.captureResultIncoming(captureResult,
                 captureStageId);
+        // Fetch the timestamp for the 1st captureResult received.
+        if (mTimeStampForOutputImage == UNSPECIFIED_TIMESTAMP) {
+            Long timestamp = captureResult.get(CaptureResult.SENSOR_TIMESTAMP);
+            if (timestamp != null) {
+                mTimeStampForOutputImage = timestamp;
+                mCaptureOutputSurface.setOutputImageTimestamp(mTimeStampForOutputImage);
+            }
+        }
 
         synchronized (mLock) {
             if (mSourceCaptureResult == null) {
