@@ -159,7 +159,8 @@ class SeekableTransitionStateTest {
         }
 
         rule.mainClock.advanceTimeByFrame() // wait for composition after seekTo()
-        val deferred1 = coroutineScope.async { seekableTransitionState.animateTo() }
+        val deferred1 =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
         rule.mainClock.advanceTimeByFrame() // one frame to set the start time
         rule.mainClock.advanceTimeByFrame()
 
@@ -189,7 +190,8 @@ class SeekableTransitionStateTest {
         }
 
         // continue from the same place
-        val deferred2 = coroutineScope.async { seekableTransitionState.animateTo() }
+        val deferred2 =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
         rule.waitForIdle() // wait for coroutine to run
         rule.mainClock.advanceTimeByFrame() // one frame to set the start time
         rule.mainClock.advanceTimeByFrame()
@@ -306,12 +308,16 @@ class SeekableTransitionStateTest {
                     .value
         }
 
-        val deferred1 = coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+        val deferred1 =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame() // one frame to set the start time
         rule.mainClock.advanceTimeByFrame()
 
         // Running the same animation again should cancel the existing one
-        val deferred2 = coroutineScope.async { seekableTransitionState.animateTo() }
+        val deferred2 =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
 
         rule.waitForIdle() // wait for coroutine to run
         rule.mainClock.advanceTimeByFrame()
@@ -320,7 +326,10 @@ class SeekableTransitionStateTest {
         assertFalse(deferred2.isCancelled)
 
         // seeking should cancel the animation
-        val deferred3 = coroutineScope.async { seekableTransitionState.seekTo(fraction = 0.25f) }
+        val deferred3 =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(fraction = 0.25f) }
+            }
 
         rule.waitForIdle() // wait for coroutine to run
         rule.mainClock.advanceTimeByFrame()
@@ -330,7 +339,8 @@ class SeekableTransitionStateTest {
         assertTrue(deferred3.isCompleted)
 
         // start the animation again
-        val deferred4 = coroutineScope.async { seekableTransitionState.animateTo() }
+        val deferred4 =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
 
         rule.waitForIdle() // wait for coroutine to run
         rule.mainClock.advanceTimeByFrame()
@@ -453,8 +463,10 @@ class SeekableTransitionStateTest {
         // Start seek to new state. It won't complete until the initial state is
         // animated to "To"
         val seekTo =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(0f, targetState = AnimStates.Other)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(0f, targetState = AnimStates.Other)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // must recompose to Other
         rule.runOnIdle {
@@ -474,9 +486,11 @@ class SeekableTransitionStateTest {
             assertEquals(500 + (500f * 80f / 150f), animatedValue3.toFloat(), 1f)
         }
         val seekToFraction =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(fraction = 0.5f)
-                assertEquals(0.5f, seekableTransitionState.fraction)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(fraction = 0.5f)
+                    assertEquals(0.5f, seekableTransitionState.fraction)
+                }
             }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
@@ -588,9 +602,11 @@ class SeekableTransitionStateTest {
         }
 
         val seekTo =
-            coroutineScope.async {
-                // seek to Other. This won't finish until the animation finishes
-                seekableTransitionState.seekTo(0f, targetState = AnimStates.Other)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    // seek to Other. This won't finish until the animation finishes
+                    seekableTransitionState.seekTo(0f, targetState = AnimStates.Other)
+                }
             }
 
         rule.runOnIdle {
@@ -610,9 +626,11 @@ class SeekableTransitionStateTest {
             assertEquals(640f, animatedValue3.toFloat(), 1f)
         }
         val seekToHalf =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(fraction = 0.5f)
-                assertEquals(0.5f, seekableTransitionState.fraction)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(fraction = 0.5f)
+                    assertEquals(0.5f, seekableTransitionState.fraction)
+                }
             }
         rule.runOnIdle { assertEquals(500, animatedValue2) }
 
@@ -628,9 +646,11 @@ class SeekableTransitionStateTest {
             assertEquals(500, animatedValue2)
             assertEquals(1500, animatedValue3)
         }
-        coroutineScope.launch {
-            seekableTransitionState.seekTo(fraction = 1f)
-            assertEquals(1f, seekableTransitionState.fraction, 0f)
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(fraction = 1f)
+                assertEquals(1f, seekableTransitionState.fraction, 0f)
+            }
         }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
@@ -716,7 +736,9 @@ class SeekableTransitionStateTest {
             assertEquals(533f, animatedValue3.toFloat(), 1f)
         }
         val animateToOther =
-            coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
+            }
 
         rule.mainClock.advanceTimeBy(16) // composition after animateTo()
 
@@ -924,16 +946,32 @@ class SeekableTransitionStateTest {
             )
         }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.seekTo(0f, targetState = AnimStates.To) }
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(0f, targetState = AnimStates.To)
+            }
+        }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.seekTo(fraction = 0.5f) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.seekTo(fraction = 0.5f) }
+        }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.seekTo(0f, targetState = AnimStates.Other) }
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(0f, targetState = AnimStates.Other)
+            }
+        }
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame() // lock in the initial value animation start time
-        coroutineScope.launch { seekableTransitionState.seekTo(fraction = 0.5f) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.seekTo(fraction = 0.5f) }
+        }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.seekTo(0f, targetState = AnimStates.From) }
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(0f, targetState = AnimStates.From)
+            }
+        }
         rule.waitForIdle()
 
         // Now we have two initial value animations running. One is for animating
@@ -970,7 +1008,10 @@ class SeekableTransitionStateTest {
             }
         }
         rule.waitForIdle()
-        val seekTo = coroutineScope.async { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+        val seekTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
             assertTrue(seekTo.isCompleted)
@@ -1001,14 +1042,17 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        val deferred = coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+        val deferred =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            }
         rule.mainClock.advanceTimeBy(10_000L) // complete the animation
         rule.waitForIdle()
         assertTrue(deferred.isCompleted)
         assertEquals(1000, animatedValue1)
 
         // seeking after the animation has completed should not change any value
-        coroutineScope.launch { seekableTransitionState.seekTo(fraction = 0.5f) }
+        rule.runOnIdle { coroutineScope.launch { seekableTransitionState.seekTo(fraction = 0.5f) } }
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame()
         assertEquals(1000, animatedValue1)
@@ -1037,12 +1081,16 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+        }
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame()
         val deferred =
-            coroutineScope.async {
-                seekableTransitionState.animateTo(animationSpec = tween(1000, 0, LinearEasing))
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.animateTo(animationSpec = tween(1000, 0, LinearEasing))
+                }
             }
         rule.mainClock.advanceTimeByFrame() // lock in the start time
         rule.mainClock.advanceTimeBy(64)
@@ -1090,9 +1138,11 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        coroutineScope.launch {
-            seekableTransitionState.seekTo(1f, AnimStates.To)
-            seekableTransitionState.animateTo(AnimStates.From)
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(1f, AnimStates.To)
+                seekableTransitionState.animateTo(AnimStates.From)
+            }
         }
         rule.mainClock.advanceTimeByFrame() // let the composition happen after seekTo
         rule.runOnIdle { // seekTo() should run now, setting the animated value
@@ -1135,14 +1185,18 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val defer1 =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(1f, AnimStates.To)
-                seekableTransitionState.animateTo(AnimStates.From)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(1f, AnimStates.To)
+                    seekableTransitionState.animateTo(AnimStates.From)
+                }
             }
         val defer2 =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(1f, AnimStates.Other)
-                seekableTransitionState.animateTo(AnimStates.From)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(1f, AnimStates.Other)
+                    seekableTransitionState.animateTo(AnimStates.From)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // let the composition happen after seekTo
         rule.runOnIdle {
@@ -1188,14 +1242,18 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val defer1 =
-            coroutineScope.async {
-                seekableTransitionState.snapTo(AnimStates.To)
-                seekableTransitionState.animateTo(AnimStates.From)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.snapTo(AnimStates.To)
+                    seekableTransitionState.animateTo(AnimStates.From)
+                }
             }
         val defer2 =
-            coroutineScope.async {
-                seekableTransitionState.snapTo(AnimStates.Other)
-                seekableTransitionState.animateTo(AnimStates.From)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.snapTo(AnimStates.Other)
+                    seekableTransitionState.animateTo(AnimStates.From)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // let the composition happen after seekTo
         rule.runOnIdle {
@@ -1244,13 +1302,15 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        coroutineScope.launch {
-            seekableTransitionState.seekTo(1f, AnimStates.From)
-            seekableTransitionState.animateTo(AnimStates.To)
-        }
-        coroutineScope.launch {
-            seekableTransitionState.seekTo(1f, AnimStates.Other)
-            seekableTransitionState.animateTo(AnimStates.From)
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(1f, AnimStates.From)
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(1f, AnimStates.Other)
+                seekableTransitionState.animateTo(AnimStates.From)
+            }
         }
         rule.mainClock.advanceTimeByFrame() // let the composition happen after seekTo
         rule.runOnIdle { assertEquals(2000, animatedValue1) }
@@ -1292,13 +1352,15 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        coroutineScope.launch {
-            seekableTransitionState.snapTo(AnimStates.From)
-            seekableTransitionState.animateTo(AnimStates.To)
-        }
-        coroutineScope.launch {
-            seekableTransitionState.snapTo(AnimStates.Other)
-            seekableTransitionState.animateTo(AnimStates.From)
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.snapTo(AnimStates.From)
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+            coroutineScope.launch {
+                seekableTransitionState.snapTo(AnimStates.Other)
+                seekableTransitionState.animateTo(AnimStates.From)
+            }
         }
         rule.mainClock.advanceTimeByFrame() // let the composition happen after snapTo
         rule.runOnIdle { assertEquals(2000, animatedValue1) }
@@ -1336,13 +1398,21 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.seekTo(1f, AnimStates.To) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.seekTo(1f, AnimStates.To) }
+        }
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        val animation = coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
+        val animation =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        val snapTo = coroutineScope.async { seekableTransitionState.snapTo(AnimStates.From) }
+        val snapTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.snapTo(AnimStates.From) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
             assertTrue(animation.isCancelled)
@@ -1377,10 +1447,16 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        val seekTo = coroutineScope.async { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+        val seekTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle { assertTrue(seekTo.isCompleted) }
-        val snapTo = coroutineScope.async { seekableTransitionState.snapTo(AnimStates.To) }
+        val snapTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.snapTo(AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
             assertTrue(snapTo.isCompleted)
@@ -1414,10 +1490,16 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        val seekTo = coroutineScope.async { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+        val seekTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(0.5f, AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle { assertTrue(seekTo.isCompleted) }
-        val snapTo = coroutineScope.async { seekableTransitionState.snapTo(AnimStates.From) }
+        val snapTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.snapTo(AnimStates.From) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
             assertTrue(snapTo.isCompleted)
@@ -1451,17 +1533,22 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        val snapTo = coroutineScope.async { seekableTransitionState.snapTo(AnimStates.From) }
+        val snapTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.snapTo(AnimStates.From) }
+            }
         rule.mainClock.advanceTimeByFrame()
         rule.runOnIdle {
             assertTrue(snapTo.isCompleted)
             assertEquals(0, animatedValue1)
         }
         val seekAndSnap =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(0.5f, AnimStates.To)
-                seekableTransitionState.snapTo(AnimStates.From)
-                seekableTransitionState.snapTo(AnimStates.From)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(0.5f, AnimStates.To)
+                    seekableTransitionState.snapTo(AnimStates.From)
+                    seekableTransitionState.snapTo(AnimStates.From)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // seekTo
         rule.mainClock.advanceTimeByFrame() // snapTo
@@ -1498,17 +1585,21 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val seekTo =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // wait for composition after seekTo
         rule.runOnIdle { assertTrue(seekTo.isCompleted) }
-        val animateTo = coroutineScope.async { seekableTransitionState.animateTo() }
+        val animateTo =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
         rule.mainClock.advanceTimeByFrame() // lock animation clock
         rule.mainClock.advanceTimeBy(160)
         rule.runOnIdle { assertEquals(160, animatedValue1) }
 
-        val animateTo2 = coroutineScope.async { seekableTransitionState.animateTo() }
+        val animateTo2 =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
 
         rule.runOnIdle { assertTrue(animateTo.isCancelled) }
 
@@ -1551,21 +1642,26 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val seekTo =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // wait for composition after seekTo
         rule.runOnIdle { assertTrue(seekTo.isCompleted) }
-        val animateTo = coroutineScope.async { seekableTransitionState.animateTo() }
+        val animateTo =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
         rule.mainClock.advanceTimeByFrame() // lock animation clock
         rule.mainClock.advanceTimeBy(160)
         rule.runOnIdle { assertEquals(160, animatedValue1) }
 
         val animateTo2 =
-            coroutineScope.async {
-                seekableTransitionState.animateTo(
-                    animationSpec = tween(durationMillis = 200, easing = LinearEasing)
-                )
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.animateTo(
+                        animationSpec = tween(durationMillis = 200, easing = LinearEasing)
+                    )
+                }
             }
 
         rule.runOnIdle { assertTrue(animateTo.isCancelled) }
@@ -1612,21 +1708,26 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val seekTo =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // wait for composition after seekTo
         rule.runOnIdle { assertTrue(seekTo.isCompleted) }
-        val animateTo = coroutineScope.async { seekableTransitionState.animateTo() }
+        val animateTo =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.animateTo() } }
         rule.mainClock.advanceTimeByFrame() // lock animation clock
         rule.mainClock.advanceTimeBy(800) // half way
         rule.runOnIdle { assertEquals(500, animatedValue1) }
 
-        coroutineScope.launch {
-            seekableTransitionState.animateTo(
-                animationSpec =
-                    spring(visibilityThreshold = 0.01f, stiffness = Spring.StiffnessVeryLow)
-            )
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.animateTo(
+                    animationSpec =
+                        spring(visibilityThreshold = 0.01f, stiffness = Spring.StiffnessVeryLow)
+                )
+            }
         }
 
         rule.runOnIdle { assertTrue(animateTo.isCancelled) }
@@ -1667,15 +1768,21 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val seekTo =
-            coroutineScope.async {
-                seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.seekTo(fraction = 0f, targetState = AnimStates.To)
+                }
             }
         rule.mainClock.advanceTimeByFrame() // wait for composition after seekTo
         rule.runOnIdle { assertTrue(seekTo.isCompleted) }
         val springSpec = spring<Float>(dampingRatio = 2f)
         val vecSpringSpec = springSpec.vectorize(Float.VectorConverter)
         val animateTo =
-            coroutineScope.async { seekableTransitionState.animateTo(animationSpec = springSpec) }
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.animateTo(animationSpec = springSpec)
+                }
+            }
         rule.mainClock.advanceTimeByFrame() // lock animation clock
 
         // find how long it takes to get to about half way:
@@ -1713,15 +1820,17 @@ class SeekableTransitionStateTest {
                     initialVelocity = zeroVector
                 )[0]
 
-        coroutineScope.launch {
-            seekableTransitionState.animateTo(
-                animationSpec =
-                    spring(
-                        visibilityThreshold = 0.01f,
-                        stiffness = Spring.StiffnessVeryLow,
-                        dampingRatio = Spring.DampingRatioHighBouncy
-                    )
-            )
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.animateTo(
+                    animationSpec =
+                        spring(
+                            visibilityThreshold = 0.01f,
+                            stiffness = Spring.StiffnessVeryLow,
+                            dampingRatio = Spring.DampingRatioHighBouncy
+                        )
+                )
+            }
         }
 
         rule.runOnIdle { assertTrue(animateTo.isCancelled) }
@@ -1760,9 +1869,13 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.To) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.To) }
+        }
         rule.mainClock.advanceTimeBy(1700)
-        coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.From) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.From) }
+        }
         rule.mainClock.advanceTimeByFrame() // lock in the clock
         rule.runOnIdle { assertEquals(1000, animatedValue1) }
         rule.mainClock.advanceTimeByFrame()
@@ -1811,14 +1924,18 @@ class SeekableTransitionStateTest {
             )
         }
         rule.waitForIdle()
-        coroutineScope.launch {
-            seekableTransitionState.animateTo(
-                AnimStates.To,
-                animationSpec = tween(durationMillis = 160, easing = LinearEasing)
-            )
+        rule.runOnUiThread {
+            coroutineScope.launch {
+                seekableTransitionState.animateTo(
+                    AnimStates.To,
+                    animationSpec = tween(durationMillis = 160, easing = LinearEasing)
+                )
+            }
         }
         rule.mainClock.advanceTimeByFrame() // lock in the clock
-        coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.Other) }
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.Other) }
+        }
         rule.mainClock.advanceTimeByFrame() // advance one frame toward To and compose to Other
         rule.runOnIdle {
             assertEquals(100, animatedValue1)
@@ -1867,13 +1984,19 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        val seekTo = coroutineScope.async { seekableTransitionState.seekTo(1f, AnimStates.To) }
+        val seekTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(1f, AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame() // wait for composition
         rule.runOnIdle {
             assertTrue(seekTo.isCompleted)
             assertEquals(1000, animatedValue1)
         }
-        val anim = coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+        val anim =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame() // compose to current state = target state
         rule.runOnIdle {
             assertTrue(anim.isCompleted)
@@ -1905,7 +2028,8 @@ class SeekableTransitionStateTest {
             Box(Modifier.fillMaxSize().drawBehind { animatedValue1 = val1.value })
         }
         rule.waitForIdle()
-        val seekTo = coroutineScope.async { seekableTransitionState.seekTo(0.5f) }
+        val seekTo =
+            rule.runOnUiThread { coroutineScope.async { seekableTransitionState.seekTo(0.5f) } }
         rule.runOnIdle {
             assertTrue(seekTo.isCompleted)
             assertEquals(0, animatedValue1)
@@ -1952,17 +2076,24 @@ class SeekableTransitionStateTest {
             )
         }
         rule.waitForIdle()
-        val seekTo = coroutineScope.async { seekableTransitionState.seekTo(0f, AnimStates.To) }
+        val seekTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(0f, AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame() // compose to To
         assertTrue(seekTo.isCompleted)
         val seekOther =
-            coroutineScope.async { seekableTransitionState.seekTo(1f, AnimStates.Other) }
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.seekTo(1f, AnimStates.Other) }
+            }
         rule.mainClock.advanceTimeByFrame() // compose to Other
         assertFalse(seekOther.isCompleted) // should be animating animatedValue2
         val animateOther =
-            coroutineScope.async {
-                // already at the end (1f), but it should continue the animatedValue2 animation
-                seekableTransitionState.animateTo(AnimStates.Other)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    // already at the end (1f), but it should continue the animatedValue2 animation
+                    seekableTransitionState.animateTo(AnimStates.Other)
+                }
             }
         assertTrue(seekOther.isCancelled)
         assertTrue(animateOther.isActive)
@@ -2017,7 +2148,10 @@ class SeekableTransitionStateTest {
             )
         }
         rule.waitForIdle()
-        val anim = coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+        val anim =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame() // wait for composition
         rule.mainClock.advanceTimeBy(800) // half way through
         rule.runOnIdle {
@@ -2089,7 +2223,10 @@ class SeekableTransitionStateTest {
             )
         }
         rule.waitForIdle()
-        val animateTo = coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+        val animateTo =
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            }
         rule.mainClock.advanceTimeByFrame() // wait for composition
         rule.mainClock.advanceTimeBy(800) // half way through
 
@@ -2108,7 +2245,9 @@ class SeekableTransitionStateTest {
 
         // now seek to third state
         val animateOther =
-            coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
+            }
         assertTrue(animateTo.isCancelled)
         rule.mainClock.advanceTimeByFrame() // wait for composition
         rule.runOnIdle {
@@ -2191,10 +2330,12 @@ class SeekableTransitionStateTest {
         }
         rule.waitForIdle()
         val initialAnimateAndSeek =
-            coroutineScope.async {
-                seekableTransitionState.animateTo(AnimStates.To)
-                seekableTransitionState.seekTo(0.5f, targetState = AnimStates.From)
-                seekableTransitionState.seekTo(0f, targetState = AnimStates.From)
+            rule.runOnUiThread {
+                coroutineScope.async {
+                    seekableTransitionState.animateTo(AnimStates.To)
+                    seekableTransitionState.seekTo(0.5f, targetState = AnimStates.From)
+                    seekableTransitionState.seekTo(0f, targetState = AnimStates.From)
+                }
             }
         rule.mainClock.advanceTimeBy(5000)
         rule.runOnIdle {
@@ -2210,7 +2351,9 @@ class SeekableTransitionStateTest {
             }
         }
         val secondAnimate =
-            coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            rule.runOnUiThread {
+                coroutineScope.async { seekableTransitionState.animateTo(AnimStates.To) }
+            }
         rule.waitForIdle()
         // This waits for the initial state animation to finish, since we changed the initial state
         // when going from seeking to animating.
