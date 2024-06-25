@@ -100,8 +100,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:animation:animation-core"))
 
                 api(project(":compose:foundation:foundation"))
-                // TODO: Remove material icons from compilation
-                api(project(":compose:material:material-icons-core"))
+                api("org.jetbrains.compose.material:material-icons-core:1.6.11") {
+                    // exclude dependencies, because they override local projects when we build 0.0.0-* version
+                    // (see https://repo1.maven.org/maven2/org/jetbrains/compose/material/material-icons-core-desktop/1.6.11/material-icons-core-desktop-1.6.11.module)
+                    exclude group: "org.jetbrains.compose.runtime"
+                    exclude group: "org.jetbrains.compose.ui"
+                }
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui-graphics"))
