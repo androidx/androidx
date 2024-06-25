@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,11 +32,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -113,5 +120,38 @@ class ComposeViewLayoutTest {
             assertThat(width).isEqualTo(2000)
             assertThat(height).isEqualTo(2000)
         }
+    }
+
+    @Test
+    fun rootViewConfiguration() {
+        val tag = "myLayout"
+        rule.setContent { Box(Modifier.size(10.dp).testTag(tag)) }
+        assertThat(rule.onRoot().fetchSemanticsNode().layoutInfo.viewConfiguration)
+            .isSameInstanceAs(
+                rule.onNodeWithTag(tag).fetchSemanticsNode().layoutInfo.viewConfiguration
+            )
+    }
+
+    @Test
+    fun rootLayoutDirectionLtr() {
+        rule.runOnUiThread {
+            val resources = rule.activity.resources
+            val configuration = resources.configuration
+            configuration.setLayoutDirection(Locale.US)
+        }
+        rule.setContent { Box(Modifier.size(10.dp)) }
+        assertThat(rule.onRoot().fetchSemanticsNode().layoutInfo.layoutDirection)
+            .isEqualTo(LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun rootLayoutDirectionRtl() {
+        rule.runOnUiThread {
+            val configuration = rule.activity.resources.configuration
+            configuration.setLayoutDirection(Locale("fa"))
+        }
+        rule.setContent { Box(Modifier.size(10.dp)) }
+        assertThat(rule.onRoot().fetchSemanticsNode().layoutInfo.layoutDirection)
+            .isEqualTo(LayoutDirection.Rtl)
     }
 }
