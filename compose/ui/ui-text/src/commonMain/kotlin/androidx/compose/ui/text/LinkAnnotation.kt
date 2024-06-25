@@ -50,6 +50,15 @@ abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation
         override val styles: TextLinkStyles? = null,
         override val linkInteractionListener: LinkInteractionListener? = null
     ) : LinkAnnotation() {
+
+        /** Returns a copy of this [Url], optionally overriding some of the values. */
+        @Suppress("ExecutorRegistration")
+        fun copy(
+            url: String = this.url,
+            styles: TextLinkStyles? = this.styles,
+            linkInteractionListener: LinkInteractionListener? = this.linkInteractionListener
+        ) = Url(url, styles, linkInteractionListener)
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Url) return false
@@ -85,6 +94,15 @@ abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation
         // nullable for the save/restore purposes
         override val linkInteractionListener: LinkInteractionListener?
     ) : LinkAnnotation() {
+
+        /** Returns a copy of this [Clickable], optionally overriding some of the values. */
+        @Suppress("ExecutorRegistration")
+        fun copy(
+            tag: String = this.tag,
+            styles: TextLinkStyles? = this.styles,
+            linkInteractionListener: LinkInteractionListener? = this.linkInteractionListener
+        ) = Clickable(tag, styles, linkInteractionListener)
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Clickable) return false

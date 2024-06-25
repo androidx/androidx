@@ -252,22 +252,14 @@ fun AnnotatedStringWithListenerSample() {
 fun AnnotatedStringMapAnnotationsSamples(text: AnnotatedString, linkColor: Color) {
     // An example of applying color to the links in the given text where the `linkColor` would
     // usually come from the theme in your app
-    val linkStyle = TextLinkStyles(style = SpanStyle(color = linkColor))
+    val linkStyles = TextLinkStyles(style = SpanStyle(color = linkColor))
     BasicText(
         text.mapAnnotations {
             when (it.item) {
                 is LinkAnnotation.Url ->
-                    (it as Range<LinkAnnotation.Url>).copy(
-                        LinkAnnotation.Url(it.item.url, linkStyle, it.item.linkInteractionListener)
-                    )
+                    (it as Range<LinkAnnotation.Url>).copy(it.item.copy(styles = linkStyles))
                 is LinkAnnotation.Clickable ->
-                    (it as Range<LinkAnnotation.Clickable>).copy(
-                        LinkAnnotation.Clickable(
-                            it.item.tag,
-                            linkStyle,
-                            it.item.linkInteractionListener
-                        )
-                    )
+                    (it as Range<LinkAnnotation.Clickable>).copy(it.item.copy(styles = linkStyles))
                 else -> it
             }
         }
