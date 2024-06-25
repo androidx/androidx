@@ -558,7 +558,7 @@ class ButtonTest {
         val status = Status.Disabled
         rule.verifyButtonBorderColor(
             expectedBorderColor = {
-                MaterialTheme.colorScheme.outline.copy(alpha = DisabledBorderAlpha)
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAlpha)
             },
             content = { modifier: Modifier ->
                 OutlinedButton(
