@@ -38,19 +38,26 @@ import androidx.camera.extensions.internal.compat.quirk.CaptureOutputSurfaceOccu
 import androidx.camera.extensions.internal.compat.quirk.DeviceQuirks;
 
 /**
- * A workaround to use a intermedia surface when passing the capture output surface
+ * A workaround for 2 purposes:
+ * <p>1. Use a intermedia surface when passing the capture output surface
  * to a {@link androidx.camera.extensions.impl.CaptureProcessorImpl} if
  * {@link androidx.camera.extensions.internal.compat.quirk.CaptureOutputSurfaceOccupiedQuirk}
  * exists on the device. This is needed if the OEM doesn't close the internal {@link ImageWriter}
  * when the camera is closed and cause the output capture surface can't be connected to another
  * {@link ImageWriter}.
  *
- * <p>If the quirk doesn't exist, then pass along the output surface directly.
+ * <p>2. Overriding the timestamp of the output image (via an intermediate surface) to ensure it
+ * matches the timestamp in {@link androidx.camera.core.impl.CameraCaptureResult}. For devices
+ * implementing v1.2 or prior, it is possible that they don't write the same timestamp to the
+ * output image.
+ *
+ * <p>If the quirk doesn't exist, it will pass along the output surface directly.
  */
 @OptIn(markerClass = ExperimentalGetImage.class)
 public class CaptureOutputSurfaceForCaptureProcessor {
     private static final String TAG = "CaptureOutputSurface";
     private static final int MAX_IMAGES = 2;
+    private static final long UNSPECIFIED_TIMESTAMP = -1;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -61,11 +68,16 @@ public class CaptureOutputSurfaceForCaptureProcessor {
     private boolean mIsClosed = false;
     @NonNull
     private final Surface mOutputSurface;
-    boolean mNeedIntermediaSurface =
-            DeviceQuirks.get(CaptureOutputSurfaceOccupiedQuirk.class) != null;
+    private final boolean mNeedIntermediaSurface;
+    private final boolean mNeedOverrideTimestamp;
+    long mOutputImageTimeStamp = UNSPECIFIED_TIMESTAMP;
+
 
     public CaptureOutputSurfaceForCaptureProcessor(
-            @NonNull Surface surface, @NonNull Size surfaceSize) {
+            @NonNull Surface surface, @NonNull Size surfaceSize, boolean needOverrideTimestamp) {
+        mNeedOverrideTimestamp = needOverrideTimestamp;
+        mNeedIntermediaSurface = DeviceQuirks.get(CaptureOutputSurfaceOccupiedQuirk.class) != null
+                || needOverrideTimestamp;
         if (Build.VERSION.SDK_INT >= 29 && mNeedIntermediaSurface) {
             Logger.d(TAG, "Enabling intermediate surface");
             mIntermediateImageReader = ImageReaderProxys.createIsolatedReader(
@@ -83,6 +95,10 @@ public class CaptureOutputSurfaceForCaptureProcessor {
                     if (imageProxy != null) {
                         Image image = imageProxy.getImage();
                         if (image != null) {
+                            if (mNeedOverrideTimestamp
+                                    && mOutputImageTimeStamp != UNSPECIFIED_TIMESTAMP) {
+                                Api23Impl.setImageTimestamp(image, mOutputImageTimeStamp);
+                            }
                             ImageWriterCompat.queueInputImage(mImageWriter, image);
                         }
                     }
@@ -92,6 +108,15 @@ public class CaptureOutputSurfaceForCaptureProcessor {
             mOutputSurface = surface;
             mIntermediateImageReader = null;
             mImageWriter = null;
+        }
+    }
+
+    /**
+     * Set the timestamp on the output image.
+     */
+    public void setOutputImageTimestamp(long timestamp) {
+        if (mNeedOverrideTimestamp) {
+            mOutputImageTimeStamp = timestamp;
         }
     }
 
@@ -139,6 +164,15 @@ public class CaptureOutputSurfaceForCaptureProcessor {
         @DoNotInline
         static void close(ImageWriter imageWriter) {
             imageWriter.close();
+        }
+    }
+
+    @RequiresApi(23)
+    static final class Api23Impl {
+        private Api23Impl() {}
+
+        static void setImageTimestamp(@NonNull Image image, long timestamp) {
+            image.setTimestamp(timestamp);
         }
     }
 }

@@ -96,7 +96,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @GuardedBy("mLock")
     private final Map<CaptureRequest.Key<?>, Object> mParameters = new LinkedHashMap<>();
     @GuardedBy("mLock")
-    private final Map<Integer, Long> mCaptureStartedTimestampMap = new HashMap<>();
+    private final Map<Integer, Long> mRequestCompletedTimestampMap = new HashMap<>();
     private OnEnableDisableSessionDurationCheck mOnEnableDisableSessionDurationCheck =
             new OnEnableDisableSessionDurationCheck();
     @Nullable
@@ -173,7 +173,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             mStillCaptureProcessor = new StillCaptureProcessor(
                     captureProcessor, mCaptureOutputSurface.getSurface(),
                     mCaptureOutputSurface.getSize(),
-                    mPostviewOutputSurface);
+                    mPostviewOutputSurface,
+                    /* needOverrideTimestamp */ !mWillReceiveOnCaptureCompleted);
         } else {
             mCaptureOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
@@ -468,13 +469,13 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         mRequestProcessor.stopRepeating();
     }
 
-    private long getCaptureStartedTimestamp(int captureSequenceId) {
+    private long getRequestCompletedTimestamp(int captureSequenceId) {
         synchronized (mLock) {
-            Long timestamp = mCaptureStartedTimestampMap.get(captureSequenceId);
+            Long timestamp = mRequestCompletedTimestampMap.get(captureSequenceId);
             if (timestamp == null) {
                 return INVALID_TIMESTAMP;
             }
-            mCaptureStartedTimestampMap.remove(captureSequenceId);
+            mRequestCompletedTimestampMap.remove(captureSequenceId);
             return timestamp;
         }
     }
@@ -527,9 +528,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                     long frameNumber, long timestamp) {
                 if (!mIsCaptureStarted) {
                     mIsCaptureStarted = true;
-                    synchronized (mLock) {
-                        mCaptureStartedTimestampMap.put(captureSequenceId, timestamp);
-                    }
                     captureCallback.onCaptureStarted(captureSequenceId, timestamp);
                 }
             }
@@ -546,6 +544,13 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                         (RequestBuilder.RequestProcessorRequest) request;
 
                 if (mStillCaptureProcessor != null) {
+                    synchronized (mLock) {
+                        if (!mRequestCompletedTimestampMap.containsKey(captureSequenceId)) {
+                            mRequestCompletedTimestampMap.put(
+                                    captureSequenceId, cameraCaptureResult.getTimestamp());
+                        }
+                    }
+
                     mStillCaptureProcessor.notifyCaptureResult(
                             totalCaptureResult,
                             requestProcessorRequest.getCaptureStageId());
@@ -615,7 +620,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                 // If ProcessResultImpl.onCaptureCompleted won't be invoked,
                                 // We finish the capture sequence using the timestamp retrieved at
                                 // onCaptureStarted when the process() completed.
-                                long timestamp = getCaptureStartedTimestamp(captureSequenceId);
+                                long timestamp = getRequestCompletedTimestamp(captureSequenceId);
                                 if (timestamp == INVALID_TIMESTAMP) {
                                     Logger.e(TAG, "Cannot get timestamp for the capture result");
                                     captureCallback.onCaptureFailed(captureSequenceId);
