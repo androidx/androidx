@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composer.Companion.equals
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.changelist.ComposerChangeListWriter
 import androidx.compose.runtime.changelist.FixupList
-import androidx.compose.runtime.collection.IntMap
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.invokeComposable
@@ -1296,7 +1295,7 @@ internal class ComposerImpl(
     private val entersStack = IntStack()
     private var parentProvider: PersistentCompositionLocalMap =
         persistentCompositionLocalHashMapOf()
-    private var providerUpdates: IntMap<PersistentCompositionLocalMap>? = null
+    private var providerUpdates: MutableIntObjectMap<PersistentCompositionLocalMap>? = null
     private var providersInvalid = false
     private val providersInvalidStack = IntStack()
     private var reusing = false
@@ -2203,7 +2202,7 @@ internal class ComposerImpl(
         val providerUpdates =
             providerUpdates
                 ?: run {
-                    val newProviderUpdates = IntMap<PersistentCompositionLocalMap>()
+                    val newProviderUpdates = MutableIntObjectMap<PersistentCompositionLocalMap>()
                     this.providerUpdates = newProviderUpdates
                     newProviderUpdates
                 }
