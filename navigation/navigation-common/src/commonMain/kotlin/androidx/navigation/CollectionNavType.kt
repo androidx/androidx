@@ -16,8 +16,6 @@
 
 package androidx.navigation
 
-import android.net.Uri
-
 /**
  * A [NavType] for [Collection] such as arrays, lists, maps.
  *

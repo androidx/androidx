@@ -192,10 +192,6 @@ android {
     namespace "androidx.navigation.common"
 }
 
-dependencies {
-    lintPublish(project(':navigation:navigation-common-lint'))
-}
-
 androidx {
     name = "Navigation Common"
     publish = Publish.SNAPSHOT_AND_RELEASE

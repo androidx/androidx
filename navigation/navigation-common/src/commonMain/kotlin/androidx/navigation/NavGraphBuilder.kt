@@ -78,19 +78,6 @@ public inline fun NavigatorProvider.navigation(
  * @param startDestination the starting destination's route for this NavGraph
  * @param route the destination's unique route
  * @param builder the builder used to construct the graph
- *
- * @return the newly constructed nested NavGraph
- */
-public inline fun NavGraphBuilder.navigation(
-    startDestination: String, route: String, builder: NavGraphBuilder.() -> Unit
-): Unit = destination(NavGraphBuilder(provider, startDestination, route).apply(builder))
-
-/**
- * Construct a nested [NavGraph]
- *
- * @param startDestination the starting destination's route for this NavGraph
- * @param route the destination's unique route
- * @param builder the builder used to construct the graph
  * @return the newly constructed nested NavGraph
  */
 public inline fun NavGraphBuilder.navigation(

@@ -441,7 +441,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
             field = startDestRoute
         }
 
-    public val startDestDisplayName: String
+    public actual val startDestDisplayName: String
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             if (startDestIdName == null) {
