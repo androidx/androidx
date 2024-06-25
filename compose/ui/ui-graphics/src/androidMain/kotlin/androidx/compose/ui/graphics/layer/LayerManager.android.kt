@@ -102,7 +102,9 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         if (shouldPersistLayers) {
             val reader =
                 imageReader
-                    ?: ImageReader.newInstance(1, 1, PixelFormat.RGBA_8888, 1)
+                    // 3 buffers is the default max buffers amount for a swapchain. The buffers are
+                    // lazily allocated only if one is not available when it is requested.
+                    ?: ImageReader.newInstance(1, 1, PixelFormat.RGBA_8888, 3)
                         .apply {
                             // We don't care about the result, but release the buffer back to the
                             // queue
