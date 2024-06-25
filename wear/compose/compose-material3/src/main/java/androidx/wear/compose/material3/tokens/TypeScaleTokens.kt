@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_59
+// VERSION: v0_64
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -100,12 +100,12 @@ internal object TypeScaleTokens {
     val LabelSmallTracking = 0.4.sp
     val LabelSmallWeight = 500.0f
     val LabelSmallWidth = 110.0f
-    val NumeralExtraLargeWeightProminent = 760.0f
     val NumeralExtraLargeFont = TypefaceTokens.Brand
     val NumeralExtraLargeLineHeight = 60.0.sp
     val NumeralExtraLargeSize = 60.sp
     val NumeralExtraLargeTracking = 0.0.sp
     val NumeralExtraLargeWeight = 560.0f
+    val NumeralExtraLargeWeightProminent = 760.0f
     val NumeralExtraLargeWidth = 110.0f
     val NumeralExtraSmallFont = TypefaceTokens.Brand
     val NumeralExtraSmallLineHeight = 24.0.sp

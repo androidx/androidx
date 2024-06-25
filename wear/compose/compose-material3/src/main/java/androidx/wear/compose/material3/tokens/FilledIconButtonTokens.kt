@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-// VERSION: v0_12
+// VERSION: v0_64
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
-
 internal object FilledIconButtonTokens {
     val ContainerColor = ColorSchemeKeyTokens.Primary
     val ContentColor = ColorSchemeKeyTokens.OnPrimary
