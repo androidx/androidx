@@ -187,7 +187,7 @@ public interface AppSearchSession extends Closeable {
      * query language and an optional list of strings that specify the properties to be
      * restricted to. This exists as a convenience for multiple property restricts. So,
      * for example, the query `(subject:foo OR body:foo) (subject:bar OR body:bar)`
-     * could be rewritten as `search("foo bar", createList("subject", "bar"))`.
+     * could be rewritten as `search("foo bar", createList("subject", "body"))`.
      *
      * <p>propertyDefined takes a string specifying the property of interest and matches all
      * documents of any type that defines the specified property
