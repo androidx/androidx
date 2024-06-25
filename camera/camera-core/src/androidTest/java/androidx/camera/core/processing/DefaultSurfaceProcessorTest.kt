@@ -28,6 +28,7 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.ImageReaderProxys
+import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
@@ -78,13 +79,15 @@ class DefaultSurfaceProcessorTest {
         #extension GL_OES_EGL_image_external : require
         precision mediump float;
         uniform samplerExternalOES %s;
+        uniform float uAlphaScale;
         varying vec2 %s;
         void main() {
           vec4 sampleColor = texture2D(%s, %s);
-          gl_FragColor = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
+          vec4 src = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
              sampleColor.b * 0.289, sampleColor.r * 0.449 + sampleColor.g * 0.686 +
              sampleColor.b * 0.268, sampleColor.r * 0.272 + sampleColor.g * 0.534 +
              sampleColor.b * 0.131, 1.0);
+          gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);
         }
         """
 
@@ -411,11 +414,14 @@ class DefaultSurfaceProcessorTest {
             target,
             format,
             Size(WIDTH, HEIGHT),
-            Size(WIDTH, HEIGHT),
-            Rect(0, 0, WIDTH, HEIGHT),
-            /*rotationDegrees=*/ 0,
-            /*mirroring=*/ false,
-            FakeCamera(),
+            SurfaceOutput.CameraInputInfo.of(
+                Size(WIDTH, HEIGHT),
+                Rect(0, 0, WIDTH, HEIGHT),
+                FakeCamera(),
+                /*rotationDegrees=*/ 0,
+                /*mirroring=*/ false
+            ),
+            /*secondaryCameraInputInfo=*/ null,
             Matrix()
         )
 

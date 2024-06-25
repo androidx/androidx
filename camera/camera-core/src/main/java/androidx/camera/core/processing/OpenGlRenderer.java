@@ -33,6 +33,7 @@ import static androidx.camera.core.processing.util.GLUtils.checkGlThreadOrThrow;
 import static androidx.camera.core.processing.util.GLUtils.checkInitializedOrThrow;
 import static androidx.camera.core.processing.util.GLUtils.checkLocationOrThrow;
 import static androidx.camera.core.processing.util.GLUtils.chooseSurfaceAttrib;
+import static androidx.camera.core.processing.util.GLUtils.create4x4IdentityMatrix;
 import static androidx.camera.core.processing.util.GLUtils.createPBufferSurface;
 import static androidx.camera.core.processing.util.GLUtils.createProgram;
 import static androidx.camera.core.processing.util.GLUtils.createTexture;
@@ -62,7 +63,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
@@ -89,38 +89,41 @@ import javax.microedition.khronos.egl.EGL10;
  * {@link IllegalStateException} will be thrown when other methods are called.
  */
 @WorkerThread
-public final class OpenGlRenderer {
+public class OpenGlRenderer {
 
     private static final String TAG = "OpenGlRenderer";
 
-    private final AtomicBoolean mInitialized = new AtomicBoolean(false);
-    @VisibleForTesting
-    final Map<Surface, OutputSurface> mOutputSurfaceMap = new HashMap<>();
+    protected final AtomicBoolean mInitialized = new AtomicBoolean(false);
+    protected final Map<Surface, OutputSurface> mOutputSurfaceMap = new HashMap<>();
     @Nullable
-    private Thread mGlThread;
+    protected Thread mGlThread;
     @NonNull
-    private EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
+    protected EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
     @NonNull
-    private EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
+    protected EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
     @NonNull
-    private int[] mSurfaceAttrib = EMPTY_ATTRIBS;
+    protected int[] mSurfaceAttrib = EMPTY_ATTRIBS;
     @Nullable
-    private EGLConfig mEglConfig;
+    protected EGLConfig mEglConfig;
     @NonNull
-    private EGLSurface mTempSurface = EGL14.EGL_NO_SURFACE;
+    protected EGLSurface mTempSurface = EGL14.EGL_NO_SURFACE;
     @Nullable
-    private Surface mCurrentSurface;
+    protected Surface mCurrentSurface;
+    protected int mProgramHandle = -1;
+    protected int mTexMatrixLoc = -1;
+    protected int mTransMatrixLoc = -1;
+    protected int mAlphaScaleLoc = -1;
+    protected int mPositionLoc = -1;
+    protected int mTexCoordLoc = -1;
+    protected int mSamplerDefaultLoc = -1;
+    protected int mSamplerYuvLoc = -1;
+    protected int mSamplerSelectorLoc = -1;
+    protected int mExternalTexNumUnits = -1;
+    protected boolean mIsDefaultHdrShader = false;
+    @NonNull
+    protected InputFormat mCurrentInputformat = InputFormat.UNKNOWN;
+
     private int mExternalTextureId = -1;
-    private int mProgramHandle = -1;
-    private int mTexMatrixLoc = -1;
-    private int mPositionLoc = -1;
-    private int mTexCoordLoc = -1;
-    private int mSamplerDefaultLoc = -1;
-    private int mSamplerYuvLoc = -1;
-    private int mSamplerSelectorLoc = -1;
-    private int mExternalTexNumUnits = -1;
-    private boolean mIsDefaultHdrShader = false;
-    private InputFormat mCurrentInputformat = InputFormat.UNKNOWN;
 
     /**
      * Initializes the OpenGLRenderer
@@ -163,7 +166,7 @@ public final class OpenGlRenderer {
             loadLocations();
             mExternalTextureId = createTexture();
             mExternalTexNumUnits = getTexNumUnits();
-            useAndConfigureProgram();
+            useAndConfigureProgram(mExternalTextureId);
         } catch (IllegalStateException | IllegalArgumentException e) {
             releaseInternal();
             throw e;
@@ -243,11 +246,11 @@ public final class OpenGlRenderer {
 
         if (mCurrentInputformat != inputFormat) {
             mCurrentInputformat = inputFormat;
-            activateExternalTexture();
+            activateExternalTexture(mExternalTextureId);
         }
     }
 
-    private void activateExternalTexture() {
+    private void activateExternalTexture(int externalTextureId) {
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
 
         int texUnit = GLES20.GL_TEXTURE0;
@@ -262,7 +265,7 @@ public final class OpenGlRenderer {
         GLES20.glActiveTexture(texUnit);
         checkGlErrorOrThrow("glActiveTexture");
 
-        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, externalTextureId);
         checkGlErrorOrThrow("glBindTexture");
     }
 
@@ -414,7 +417,7 @@ public final class OpenGlRenderer {
         deleteTexture(texture);
         deleteFbo(fbo);
         // Set the external texture to be active.
-        activateExternalTexture();
+        activateExternalTexture(mExternalTextureId);
     }
 
     // Returns a pair of GL extension (first) and EGL extension (second) strings.
@@ -504,7 +507,7 @@ public final class OpenGlRenderer {
                 /*height=*/1);
     }
 
-    private void makeCurrent(@NonNull EGLSurface eglSurface) {
+    protected void makeCurrent(@NonNull EGLSurface eglSurface) {
         Preconditions.checkNotNull(mEglDisplay);
         Preconditions.checkNotNull(mEglContext);
         if (!EGL14.eglMakeCurrent(mEglDisplay, eglSurface, eglSurface, mEglContext)) {
@@ -512,7 +515,7 @@ public final class OpenGlRenderer {
         }
     }
 
-    private void useAndConfigureProgram() {
+    protected void useAndConfigureProgram(int textureId) {
         // Select the program.
         GLES20.glUseProgram(mProgramHandle);
         checkGlErrorOrThrow("glUseProgram");
@@ -545,8 +548,17 @@ public final class OpenGlRenderer {
                 /*normalized=*/false, texStride, TEX_BUF);
         checkGlErrorOrThrow("glVertexAttribPointer");
 
+        // Set to default value for single camera case
+        GLES20.glUniformMatrix4fv(mTransMatrixLoc,
+                /*count=*/1, /*transpose=*/false, create4x4IdentityMatrix(),
+                /*offset=*/0);
+        checkGlErrorOrThrow("glUniformMatrix4fv");
+
+        GLES20.glUniform1f(mAlphaScaleLoc, 1.0f);
+        checkGlErrorOrThrow("glUniform1f");
+
         // Activate the texture
-        activateExternalTexture();
+        activateExternalTexture(textureId);
     }
 
     private void loadLocations() {
@@ -556,6 +568,10 @@ public final class OpenGlRenderer {
         checkLocationOrThrow(mTexCoordLoc, "aTextureCoord");
         mTexMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTexMatrix");
         checkLocationOrThrow(mTexMatrixLoc, "uTexMatrix");
+        mTransMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTransMatrix");
+        checkLocationOrThrow(mTransMatrixLoc, "uTransMatrix");
+        mAlphaScaleLoc = GLES20.glGetUniformLocation(mProgramHandle, "uAlphaScale");
+        checkLocationOrThrow(mAlphaScaleLoc, "uAlphaScale");
         mSamplerDefaultLoc = GLES20.glGetUniformLocation(mProgramHandle, VAR_TEXTURE);
         checkLocationOrThrow(mSamplerDefaultLoc, VAR_TEXTURE);
         if (mIsDefaultHdrShader) {
@@ -609,6 +625,8 @@ public final class OpenGlRenderer {
         mTexMatrixLoc = -1;
         mPositionLoc = -1;
         mTexCoordLoc = -1;
+        mTransMatrixLoc = -1;
+        mAlphaScaleLoc = -1;
         mSamplerDefaultLoc = -1;
         mSamplerYuvLoc = -1;
         mSamplerSelectorLoc = -1;
@@ -621,7 +639,7 @@ public final class OpenGlRenderer {
     }
 
     @NonNull
-    private OutputSurface getOutSurfaceOrThrow(@NonNull Surface surface) {
+    protected OutputSurface getOutSurfaceOrThrow(@NonNull Surface surface) {
         Preconditions.checkState(mOutputSurfaceMap.containsKey(surface),
                 "The surface is not registered.");
 
@@ -629,7 +647,7 @@ public final class OpenGlRenderer {
     }
 
     @Nullable
-    private OutputSurface createOutputSurfaceInternal(@NonNull Surface surface) {
+    protected OutputSurface createOutputSurfaceInternal(@NonNull Surface surface) {
         EGLSurface eglSurface;
         try {
             eglSurface = createWindowSurface(mEglDisplay, requireNonNull(mEglConfig), surface,
@@ -643,7 +661,7 @@ public final class OpenGlRenderer {
         return OutputSurface.of(eglSurface, size.getWidth(), size.getHeight());
     }
 
-    private void removeOutputSurfaceInternal(@NonNull Surface surface, boolean unregister) {
+    protected void removeOutputSurfaceInternal(@NonNull Surface surface, boolean unregister) {
         // Unmake current surface.
         if (mCurrentSurface == surface) {
             mCurrentSurface = null;

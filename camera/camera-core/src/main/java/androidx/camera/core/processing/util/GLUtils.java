@@ -25,6 +25,7 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.Matrix;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -75,11 +76,12 @@ public final class GLUtils {
 
     public static final String DEFAULT_VERTEX_SHADER = String.format(Locale.US,
             "uniform mat4 uTexMatrix;\n"
+                    + "uniform mat4 uTransMatrix;\n"
                     + "attribute vec4 aPosition;\n"
                     + "attribute vec4 aTextureCoord;\n"
                     + "varying vec2 %s;\n"
                     + "void main() {\n"
-                    + "    gl_Position = aPosition;\n"
+                    + "    gl_Position = uTransMatrix * aPosition;\n"
                     + "    %s = (uTexMatrix * aTextureCoord).xy;\n"
                     + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
 
@@ -88,9 +90,10 @@ public final class GLUtils {
                     + "in vec4 aPosition;\n"
                     + "in vec4 aTextureCoord;\n"
                     + "uniform mat4 uTexMatrix;\n"
+                    + "uniform mat4 uTransMatrix;\n"
                     + "out vec2 %s;\n"
                     + "void main() {\n"
-                    + "  gl_Position = aPosition;\n"
+                    + "  gl_Position = uTransMatrix * aPosition;\n"
                     + "  %s = (uTexMatrix * aTextureCoord).xy;\n"
                     + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
 
@@ -99,8 +102,10 @@ public final class GLUtils {
                     + "precision mediump float;\n"
                     + "varying vec2 %s;\n"
                     + "uniform samplerExternalOES %s;\n"
+                    + "uniform float uAlphaScale;\n"
                     + "void main() {\n"
-                    + "    gl_FragColor = texture2D(%s, %s);\n"
+                    + "    vec4 src = texture2D(%s, %s);\n"
+                    + "    gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);\n"
                     + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE, VAR_TEXTURE, VAR_TEXTURE_COORD);
 
     public static final String HDR_FRAGMENT_SHADER = String.format(Locale.US,
@@ -111,6 +116,7 @@ public final class GLUtils {
                     + "uniform samplerExternalOES %s;\n"
                     + "uniform __samplerExternal2DY2YEXT %s;\n"
                     + "uniform int uSamplerSelector;\n"
+                    + "uniform float uAlphaScale;\n"
                     + "in vec2 %s;\n"
                     + "out vec4 outColor;\n"
                     + "\n"
@@ -125,14 +131,14 @@ public final class GLUtils {
                     + "}\n"
                     + "\n"
                     + "void main() {\n"
+                    + "  vec4 src = vec4(0.0);\n"
                     + "  if (uSamplerSelector == %d) {\n"
-                    + "    outColor = texture(%s, %s);\n"
+                    + "    src = texture(%s, %s);\n"
                     + "  } else if (uSamplerSelector == %d) {\n"
                     + "    vec3 srcYuv = texture(%s, %s).xyz;\n"
-                    + "    outColor = vec4(yuvToRgb(srcYuv), 1.0);\n"
-                    + "  } else {\n"
-                    + "    outColor = vec4(0.0);\n"
+                    + "    src = vec4(yuvToRgb(srcYuv), 1.0);\n"
                     + "  }\n"
+                    + "  outColor = vec4(src.rgb, src.a * uAlphaScale);\n"
                     + "}",
             VAR_TEXTURE,
             VAR_TEXTURE_YUV,
@@ -367,6 +373,16 @@ public final class GLUtils {
         }
 
         return requiredUnits != -1 ? requiredUnits : 3;
+    }
+
+    /**
+     * Creates a 4x4 identity matrix.
+     */
+    @NonNull
+    public static float[] create4x4IdentityMatrix() {
+        float[] matrix = new float[16];
+        Matrix.setIdentityM(matrix, /* smOffset= */ 0);
+        return matrix;
     }
 
     /**

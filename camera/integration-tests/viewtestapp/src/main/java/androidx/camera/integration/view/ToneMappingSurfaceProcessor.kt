@@ -48,15 +48,17 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
                     #extension GL_OES_EGL_image_external : require
                     precision mediump float;
                     uniform samplerExternalOES $sampler;
+                    uniform float uAlphaScale;
                     varying vec2 $fragCoords;
                     void main() {
                       vec4 sampleColor = texture2D($sampler, $fragCoords);
-                      gl_FragColor = vec4(
+                      vec4 src = vec4(
                            sampleColor.r * 0.5 + sampleColor.g * 0.8 + sampleColor.b * 0.3,
                            sampleColor.r * 0.4 + sampleColor.g * 0.7 + sampleColor.b * 0.2,
                            sampleColor.r * 0.3 + sampleColor.g * 0.5 + sampleColor.b * 0.1,
                            1.0);
-                     }
+                      gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);
+                    }
                     """
                 }
             }

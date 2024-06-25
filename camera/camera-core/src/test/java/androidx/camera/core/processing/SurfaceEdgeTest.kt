@@ -663,11 +663,14 @@ class SurfaceEdgeTest {
 
     private fun createSurfaceOutputFuture(surfaceEdge: SurfaceEdge) =
         surfaceEdge.createSurfaceOutputFuture(
-            INPUT_SIZE,
             INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-            sizeToRect(INPUT_SIZE),
-            /*rotationDegrees=*/ 0,
-            /*mirroring=*/ false,
-            FakeCamera()
+            SurfaceOutput.CameraInputInfo.of(
+                INPUT_SIZE,
+                sizeToRect(INPUT_SIZE),
+                FakeCamera(),
+                /*rotationDegrees=*/ 0,
+                /*mirroring=*/ false
+            ),
+            null
         )
 }
