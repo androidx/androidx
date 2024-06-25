@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -544,6 +545,40 @@ class BasicTextLinkTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onFocus_restoresOriginalStyle_afterFocusLost() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link", TextLinkStyles(focusedStyle = SpanStyle(background = Color.Blue)))
+            ) {
+                append("text")
+            }
+        }
+        setupContent {
+            Column {
+                Box(Modifier.size(10.dp).focusable().testTag("box"))
+                BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+            }
+        }
+
+        // link captures focus
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+
+        // link loses focus
+        rule.onNodeWithTag("box").requestFocus()
+
+        // verify link restores its unfocused style
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Blue)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_withinOtherStyle_onFocus_focusedStyleUsed() {
         val textWithLink = buildAnnotatedString {
             withStyle(SpanStyle(color = Color.Green)) {
@@ -817,6 +852,40 @@ class BasicTextLinkTest {
             assertThat(clickedAnnotation).isNotNull()
             assertThat(clickedAnnotation!!.tag).isEqualTo("qwerty")
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_doesNotReplaceNestedStyle_whenEmptyStyle() {
+        val textWithLink = buildAnnotatedString {
+            withLink(Url("link", TextLinkStyles(focusedStyle = SpanStyle(Color.Blue)))) {
+                withStyle(SpanStyle(Color.Green)) { append("text") }
+            }
+        }
+        setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
+
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Blue)
+            .assertContainsColor(Color.Green)
+
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Blue)
+            .assertContainsColor(Color.Green)
+    }
+
+    @Test
+    fun link_doesNotModifyAnnotations_whenEmptyStyles() {
+        val textWithLink = buildAnnotatedString { withLink(Url("link")) { append("text") } }
+        setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
+
+        val styles = rule.onNodeWithText("text").fetchTextLayoutResult().layoutInput.text.spanStyles
+
+        assertThat(styles).isEmpty()
     }
 
     @Composable
