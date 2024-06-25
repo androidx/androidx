@@ -304,6 +304,9 @@ public abstract class CameraController {
     private DynamicRange mVideoCaptureDynamicRange = DynamicRange.UNSPECIFIED;
 
     @NonNull
+    private DynamicRange mPreviewDynamicRange = DynamicRange.UNSPECIFIED;
+
+    @NonNull
     private Range<Integer> mVideoCaptureTargetFrameRate = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
 
     // The latest bound camera.
@@ -690,6 +693,46 @@ public abstract class CameraController {
     }
 
     /**
+     * Sets the {@link DynamicRange} for preview.
+     *
+     * <p>The dynamic range specifies how the range of colors, highlights and shadows that
+     * are displayed on a display. Some dynamic ranges will allow the preview to make full use of
+     * the extended range of brightness of a display.
+     *
+     * <p> The supported dynamic ranges of the camera can be queried using
+     * {@link CameraInfo#querySupportedDynamicRanges(Set)}.
+     *
+     * <p>It is possible to choose a high dynamic range (HDR) with unspecified encoding by providing
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}. If the dynamic range is not provided, the
+     * default value is {@link DynamicRange#SDR}.
+     *
+     * @see Preview.Builder#setDynamicRange(DynamicRange)
+     *
+     * TODO: make this public in the next release.
+     */
+    @MainThread
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setPreviewDynamicRange(@NonNull DynamicRange dynamicRange) {
+        checkMainThread();
+        mPreviewDynamicRange = dynamicRange;
+        unbindPreviewAndRecreate();
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Gets the {@link DynamicRange} for preview.
+     *
+     * TODO: make this public in the next release.
+     */
+    @MainThread
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public DynamicRange getPreviewDynamicRange() {
+        checkMainThread();
+        return mPreviewDynamicRange;
+    }
+
+    /**
      * Unbinds {@link Preview} and recreates with the latest parameters.
      */
     @MainThread
@@ -707,7 +750,7 @@ public abstract class CameraController {
         Preview.Builder builder = new Preview.Builder();
         setTargetOutputSize(builder, mPreviewTargetSize);
         setResolutionSelector(builder, mPreviewResolutionSelector);
-
+        builder.setDynamicRange(mPreviewDynamicRange);
         return builder.build();
     }
 
