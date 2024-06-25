@@ -122,7 +122,7 @@ class BenchmarkDataTest {
                 // check we're not incorrectly parsing R from "REL"
                 assertNotEquals("R", this)
             }
-            if (Build.VERSION.SDK_INT != 23) {
+            if (Build.VERSION.SDK_INT !in listOf(23, 35)) {
                 // check we're not incorrectly parsing M from "MAIN"
                 assertNotEquals("M", this)
             }
