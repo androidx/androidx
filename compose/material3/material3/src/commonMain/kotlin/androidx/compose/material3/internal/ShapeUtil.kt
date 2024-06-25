@@ -16,14 +16,22 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.util.fastForEach
 import androidx.graphics.shapes.Cubic
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.TransformResult
 import kotlin.math.PI
 import kotlin.math.atan2
+
+/** Transforms a [RoundedPolygon] with the given [Matrix] */
+internal fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon = transformed { x, y ->
+    val transformedPoint = matrix.map(Offset(x, y))
+    TransformResult(transformedPoint.x, transformedPoint.y)
+}
 
 /**
  * Gets a [Path] representation for a [RoundedPolygon] shape. Note that there is some rounding

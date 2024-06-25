@@ -262,6 +262,22 @@ private val Lists =
         sourceUrl = "$Material3SourceUrl/ListItem.kt",
         examples = ListsExamples,
     )
+
+private val LoadingIndicators =
+    Component(
+        id = nextId(),
+        name = "Loading indicators",
+        description =
+            "Loading indicators express an unspecified wait time or display the length of " +
+                "a loading process.",
+        // No loading indicator icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/loading-indicators",
+        tintIcon = true,
+        docsUrl = "$PackageSummaryUrl#loadingindicator",
+        sourceUrl = "$Material3SourceUrl/LoadingIndicator.kt",
+        examples = LoadingIndicatorsExamples,
+    )
+
 private val Menus =
     Component(
         id = nextId(),
@@ -528,6 +544,7 @@ val Components =
         FloatingAppBars,
         IconButtons,
         Lists,
+        LoadingIndicators,
         Menus,
         NavigationBar,
         NavigationDrawer,

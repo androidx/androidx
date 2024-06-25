@@ -52,6 +52,7 @@ import androidx.compose.material3.samples.DatePickerDialogSample
 import androidx.compose.material3.samples.DatePickerSample
 import androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
 import androidx.compose.material3.samples.DateRangePickerSample
+import androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
 import androidx.compose.material3.samples.DockedSearchBarSample
 import androidx.compose.material3.samples.EditableExposedDropdownMenuSample
@@ -96,6 +97,8 @@ import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
+import androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
+import androidx.compose.material3.samples.LoadingIndicatorSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
@@ -127,6 +130,7 @@ import androidx.compose.material3.samples.PullToRefreshSample
 import androidx.compose.material3.samples.PullToRefreshSampleCustomState
 import androidx.compose.material3.samples.PullToRefreshScalingSample
 import androidx.compose.material3.samples.PullToRefreshViewModelSample
+import androidx.compose.material3.samples.PullToRefreshWithLoadingIndicatorSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -821,6 +825,34 @@ val IconButtonExamples =
         }
     )
 
+private const val LoadingIndicatorsExampleDescription = "Loading indicators examples"
+private const val LoadingIndicatorsExampleSourceUrl =
+    "$SampleSourceUrl/" + "LoadingIndicatorSamples.kt"
+val LoadingIndicatorsExamples =
+    listOf(
+        Example(
+            name = "LoadingIndicatorSample",
+            description = LoadingIndicatorsExampleDescription,
+            sourceUrl = LoadingIndicatorsExampleSourceUrl
+        ) {
+            LoadingIndicatorSample()
+        },
+        Example(
+            name = "DeterminateLoadingIndicatorSample",
+            description = LoadingIndicatorsExampleDescription,
+            sourceUrl = LoadingIndicatorsExampleSourceUrl
+        ) {
+            DeterminateLoadingIndicatorSample()
+        },
+        Example(
+            name = "LoadingIndicatorPullToRefreshSample",
+            description = LoadingIndicatorsExampleDescription,
+            sourceUrl = LoadingIndicatorsExampleSourceUrl
+        ) {
+            LoadingIndicatorPullToRefreshSample()
+        },
+    )
+
 private const val MenusExampleDescription = "Menus examples"
 private const val MenusExampleSourceUrl = "$SampleSourceUrl/MenuSamples.kt"
 val MenusExamples =
@@ -1044,6 +1076,13 @@ val PullToRefreshExamples =
             sourceUrl = PullToRefreshExampleSourceUrl
         ) {
             PullToRefreshSample()
+        },
+        Example(
+            name = "PullToRefreshWithLoadingIndicatorSample",
+            description = PullToRefreshExampleDescription,
+            sourceUrl = PullToRefreshExampleSourceUrl
+        ) {
+            PullToRefreshWithLoadingIndicatorSample()
         },
         Example(
             name = "PullToRefreshScalingSample",
