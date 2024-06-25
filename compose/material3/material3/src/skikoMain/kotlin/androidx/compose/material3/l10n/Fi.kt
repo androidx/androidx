@@ -31,6 +31,7 @@ internal fun Translations.fi() = mapOf(
     Strings.Dialog to "Valintaikkuna",
     Strings.MenuExpanded to "Laajennettu",
     Strings.MenuCollapsed to "Tiivistetty",
+    Strings.ToggleDropdownMenu to "Laita avattava valikko päälle",
     Strings.SnackbarDismiss to "Ohita",
     Strings.SearchBarSearch to "Hae",
     Strings.SuggestionsAvailable to "Ehdotuksia alla",

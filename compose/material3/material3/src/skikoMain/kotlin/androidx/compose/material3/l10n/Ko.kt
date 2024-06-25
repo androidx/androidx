@@ -31,6 +31,7 @@ internal fun Translations.ko() = mapOf(
     Strings.Dialog to "대화상자",
     Strings.MenuExpanded to "펼침",
     Strings.MenuCollapsed to "접힘",
+    Strings.ToggleDropdownMenu to "전환 드롭다운 메뉴",
     Strings.SnackbarDismiss to "닫기",
     Strings.SearchBarSearch to "검색",
     Strings.SuggestionsAvailable to "아래의 추천 검색어",

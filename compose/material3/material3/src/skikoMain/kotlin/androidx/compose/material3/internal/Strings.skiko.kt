@@ -92,6 +92,8 @@ internal actual value class Strings(val value: Int) {
         actual val TooltipPaneDescription = Strings(61)
         actual val ExposedDropdownMenu = Strings(62)
         actual val ToggleDropdownMenu = Strings(63)
+        // When adding values here, make sure to also add them in material3/build.gradle,
+        // updateTranslations task (stringByResourceName parameter), and re-run the task
     }
 }
 

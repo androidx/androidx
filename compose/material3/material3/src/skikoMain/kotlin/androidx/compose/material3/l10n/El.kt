@@ -31,6 +31,7 @@ internal fun Translations.el() = mapOf(
     Strings.Dialog to "Παράθυρο διαλόγου",
     Strings.MenuExpanded to "Αναπτυγμένο",
     Strings.MenuCollapsed to "Συμπτυγμένο",
+    Strings.ToggleDropdownMenu to "Εναλλαγή αναπτυσσόμενου μενού",
     Strings.SnackbarDismiss to "Παράβλεψη",
     Strings.SearchBarSearch to "Αναζήτηση",
     Strings.SuggestionsAvailable to "Προτάσεις παρακάτω",

@@ -31,6 +31,7 @@ internal fun Translations.`is`() = mapOf(
     Strings.Dialog to "Gluggi",
     Strings.MenuExpanded to "Stækkað",
     Strings.MenuCollapsed to "Minnkað",
+    Strings.ToggleDropdownMenu to "Velja eða afvelja fellivalmynd",
     Strings.SnackbarDismiss to "Hunsa",
     Strings.SearchBarSearch to "Leit",
     Strings.SuggestionsAvailable to "Tillögur hér fyrir neðan",

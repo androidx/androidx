@@ -31,6 +31,7 @@ internal fun Translations.nl() = mapOf(
     Strings.Dialog to "Dialoogvenster",
     Strings.MenuExpanded to "Uitgevouwen",
     Strings.MenuCollapsed to "Samengevouwen",
+    Strings.ToggleDropdownMenu to "Dropdownmenu aan-/uitzetten",
     Strings.SnackbarDismiss to "Sluiten",
     Strings.SearchBarSearch to "Zoeken",
     Strings.SuggestionsAvailable to "Suggesties hieronder",

@@ -31,6 +31,7 @@ internal fun Translations.vi() = mapOf(
     Strings.Dialog to "Hộp thoại",
     Strings.MenuExpanded to "Đã mở rộng",
     Strings.MenuCollapsed to "Đã thu gọn",
+    Strings.ToggleDropdownMenu to "Bật/tắt trình đơn thả xuống",
     Strings.SnackbarDismiss to "Đóng",
     Strings.SearchBarSearch to "Tìm kiếm",
     Strings.SuggestionsAvailable to "Các đề xuất ở bên dưới",

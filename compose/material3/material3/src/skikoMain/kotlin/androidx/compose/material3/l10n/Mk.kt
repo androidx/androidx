@@ -31,6 +31,7 @@ internal fun Translations.mk() = mapOf(
     Strings.Dialog to "Дијалог",
     Strings.MenuExpanded to "Проширено",
     Strings.MenuCollapsed to "Собрано",
+    Strings.ToggleDropdownMenu to "Вклучување/исклучување паѓачко мени",
     Strings.SnackbarDismiss to "Отфрли",
     Strings.SearchBarSearch to "Пребарување",
     Strings.SuggestionsAvailable to "Предлозите се наведени подолу",

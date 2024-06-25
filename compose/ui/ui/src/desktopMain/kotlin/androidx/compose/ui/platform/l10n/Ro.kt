@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ro() = mapOf(
-    Strings.SelectAll to "Selectează-le pe toate",
+    Strings.SelectAll to "Selectează tot",
     Strings.Cut to "Decupează",
     Strings.Copy to "Copiază",
     Strings.Paste to "Inserează",

@@ -31,6 +31,7 @@ internal fun Translations.sl() = mapOf(
     Strings.Dialog to "Pogovorno okno",
     Strings.MenuExpanded to "Razširjeno",
     Strings.MenuCollapsed to "Strnjeno",
+    Strings.ToggleDropdownMenu to "Preklop spustnega menija",
     Strings.SnackbarDismiss to "Opusti",
     Strings.SearchBarSearch to "Iskanje",
     Strings.SuggestionsAvailable to "Predlogi so spodaj",

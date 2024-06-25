@@ -31,6 +31,7 @@ internal fun Translations.uz() = mapOf(
     Strings.Dialog to "Muloqot oynasi",
     Strings.MenuExpanded to "Yoyilgan",
     Strings.MenuCollapsed to "Yigʻilgan",
+    Strings.ToggleDropdownMenu to "Pastga ochiluvchi menyuni koʻrsatish/yashirish",
     Strings.SnackbarDismiss to "Yopish",
     Strings.SearchBarSearch to "Qidiruv",
     Strings.SuggestionsAvailable to "Takliflar quyida",

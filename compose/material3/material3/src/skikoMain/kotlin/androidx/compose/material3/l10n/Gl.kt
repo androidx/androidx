@@ -31,6 +31,7 @@ internal fun Translations.gl() = mapOf(
     Strings.Dialog to "Cadro de diálogo",
     Strings.MenuExpanded to "Despregado",
     Strings.MenuCollapsed to "Contraído",
+    Strings.ToggleDropdownMenu to "Activa ou desactiva o menú despregable",
     Strings.SnackbarDismiss to "Pechar",
     Strings.SearchBarSearch to "Buscar",
     Strings.SuggestionsAvailable to "Hai suxestións abaixo",

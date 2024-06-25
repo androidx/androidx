@@ -31,6 +31,7 @@ internal fun Translations.ml() = mapOf(
     Strings.Dialog to "ഡയലോഗ്",
     Strings.MenuExpanded to "വിപുലീകരിച്ചത്",
     Strings.MenuCollapsed to "ചുരുക്കിയത്",
+    Strings.ToggleDropdownMenu to "ഡ്രോപ്പ്ഡൗൺ മെനു ടോഗിൾ ചെയ്യുക",
     Strings.SnackbarDismiss to "ഡിസ്‌മിസ് ചെയ്യുക",
     Strings.SearchBarSearch to "തിരയുക",
     Strings.SuggestionsAvailable to "നിദ്ദേശങ്ങൾ ചുവടെയുണ്ട്",

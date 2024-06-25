@@ -31,6 +31,7 @@ internal fun Translations.cs() = mapOf(
     Strings.Dialog to "Dialogové okno",
     Strings.MenuExpanded to "Rozbaleno",
     Strings.MenuCollapsed to "Sbaleno",
+    Strings.ToggleDropdownMenu to "Přepnout rozbalovací nabídku",
     Strings.SnackbarDismiss to "Zavřít",
     Strings.SearchBarSearch to "Vyhledávání",
     Strings.SuggestionsAvailable to "Níže jsou k dispozici návrhy",

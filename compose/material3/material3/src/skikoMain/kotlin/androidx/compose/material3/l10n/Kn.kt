@@ -31,6 +31,7 @@ internal fun Translations.kn() = mapOf(
     Strings.Dialog to "ಡೈಲಾಗ್",
     Strings.MenuExpanded to "ವಿಸ್ತರಿಸಲಾಗಿದೆ",
     Strings.MenuCollapsed to "ಕುಗ್ಗಿಸಲಾಗಿದೆ",
+    Strings.ToggleDropdownMenu to "ಡ್ರಾಪ್‌ಡೌನ್ ಮೆನುವನ್ನು ಟಾಗಲ್ ಮಾಡಿ",
     Strings.SnackbarDismiss to "ವಜಾಗೊಳಿಸಿ",
     Strings.SearchBarSearch to "ಹುಡುಕಿ",
     Strings.SuggestionsAvailable to "ಸಲಹೆಗಳನ್ನು ಕೆಳಗೆ ನೀಡಲಾಗಿದೆ",

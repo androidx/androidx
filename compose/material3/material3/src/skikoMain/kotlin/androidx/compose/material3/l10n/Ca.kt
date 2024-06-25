@@ -31,6 +31,7 @@ internal fun Translations.ca() = mapOf(
     Strings.Dialog to "Quadre de diàleg",
     Strings.MenuExpanded to "S\'ha desplegat",
     Strings.MenuCollapsed to "S\'ha replegat",
+    Strings.ToggleDropdownMenu to "Commuta el menú desplegable",
     Strings.SnackbarDismiss to "Ignora",
     Strings.SearchBarSearch to "Cerca",
     Strings.SuggestionsAvailable to "Suggeriments a continuació",

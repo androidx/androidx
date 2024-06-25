@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.hi() = mapOf(
-    Strings.SelectAll to "सभी को चुनें",
+    Strings.SelectAll to "पूरा टेक्स्ट चुनें",
     Strings.Cut to "काटें",
     Strings.Copy to "कॉपी करें",
     Strings.Paste to "चिपकाएं",

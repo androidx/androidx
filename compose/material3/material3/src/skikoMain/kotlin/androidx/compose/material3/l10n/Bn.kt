@@ -31,6 +31,7 @@ internal fun Translations.bn() = mapOf(
     Strings.Dialog to "ডায়ালগ",
     Strings.MenuExpanded to "বড় করা হয়েছে",
     Strings.MenuCollapsed to "আড়াল করা হয়েছে",
+    Strings.ToggleDropdownMenu to "ড্রপডাউন মেনু টগল করুন",
     Strings.SnackbarDismiss to "বাতিল করুন",
     Strings.SearchBarSearch to "সার্চ করুন",
     Strings.SuggestionsAvailable to "নিচে দেওয়া সাজেশন",

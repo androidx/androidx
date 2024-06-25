@@ -31,6 +31,7 @@ internal fun Translations.ky() = mapOf(
     Strings.Dialog to "Диалог",
     Strings.MenuExpanded to "Жайылып көрсөтүлдү",
     Strings.MenuCollapsed to "Жыйыштырылды",
+    Strings.ToggleDropdownMenu to "Түрүлмө менюну өчүрүү/күйгүзүү",
     Strings.SnackbarDismiss to "Жабуу",
     Strings.SearchBarSearch to "Издөө",
     Strings.SuggestionsAvailable to "Сунуштар төмөндө келтирилди",

@@ -31,6 +31,7 @@ internal fun Translations.sw() = mapOf(
     Strings.Dialog to "Kidirisha",
     Strings.MenuExpanded to "Imepanuliwa",
     Strings.MenuCollapsed to "Imekunjwa",
+    Strings.ToggleDropdownMenu to "Badilisha hali ya menyu kunjuzi",
     Strings.SnackbarDismiss to "Ondoa",
     Strings.SearchBarSearch to "Tafuta",
     Strings.SuggestionsAvailable to "Mapendekezo yaliyo hapa chini",

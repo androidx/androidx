@@ -31,6 +31,7 @@ internal fun Translations.uk() = mapOf(
     Strings.Dialog to "Вікно",
     Strings.MenuExpanded to "Розгорнуто",
     Strings.MenuCollapsed to "Згорнуто",
+    Strings.ToggleDropdownMenu to "Згорнути або розгорнути спадне меню",
     Strings.SnackbarDismiss to "Закрити",
     Strings.SearchBarSearch to "Пошук",
     Strings.SuggestionsAvailable to "Підказки внизу",

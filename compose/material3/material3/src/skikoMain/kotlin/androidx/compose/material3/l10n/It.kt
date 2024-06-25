@@ -31,6 +31,7 @@ internal fun Translations.it() = mapOf(
     Strings.Dialog to "Finestra di dialogo",
     Strings.MenuExpanded to "Espanso",
     Strings.MenuCollapsed to "Compresso",
+    Strings.ToggleDropdownMenu to "Attiva/disattiva menu a discesa",
     Strings.SnackbarDismiss to "Chiudi",
     Strings.SearchBarSearch to "Cerca",
     Strings.SuggestionsAvailable to "Suggerimenti sotto",

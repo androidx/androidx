@@ -31,6 +31,7 @@ internal fun Translations.ms() = mapOf(
     Strings.Dialog to "Dialog",
     Strings.MenuExpanded to "Dikembangkan",
     Strings.MenuCollapsed to "Dikuncupkan",
+    Strings.ToggleDropdownMenu to "Togol menu lungsur",
     Strings.SnackbarDismiss to "Ketepikan",
     Strings.SearchBarSearch to "Carian",
     Strings.SuggestionsAvailable to "Cadangan di bawah",
