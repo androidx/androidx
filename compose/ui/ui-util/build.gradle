@@ -70,27 +70,17 @@ androidXMultiplatform {
             dependsOn(jvmMain)
         }
 
-        jvmTest {
+        androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
             }
         }
 
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.truth)
             }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
         }
     }
 }

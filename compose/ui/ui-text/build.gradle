@@ -90,14 +90,8 @@ androidXMultiplatform {
             dependsOn(jvmMain)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":internal-testutils-fonts"))
@@ -115,7 +109,7 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":internal-testutils-fonts"))
                 implementation(libs.testRules)
@@ -129,20 +123,6 @@ androidXMultiplatform {
                 implementation(libs.byteBuddy)
             }
         }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":internal-testutils-fonts"))
-            }
-        }
-
         androidMain.kotlin.srcDirs("${supportRootFolder}/text/text/src/main/java")
     }
 }

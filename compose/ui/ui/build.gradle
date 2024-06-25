@@ -123,14 +123,7 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
             dependencies {
                 implementation("androidx.fragment:fragment:1.3.0")
                 implementation("androidx.appcompat:appcompat:1.3.0")
@@ -166,7 +159,6 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -181,19 +173,6 @@ androidXMultiplatform {
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":internal-testutils-fonts"))
                 implementation(project(":compose:test-utils"))
-            }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.mockitoCore)
-                implementation(libs.mockitoKotlin)
-                implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:material:material"))
-                implementation(project(":compose:ui:ui-test-junit4"))
             }
         }
     }
@@ -231,14 +210,6 @@ androidx {
     description = "Compose UI primitives. This library contains the primitives that form the Compose UI Toolkit, such as drawing, measurement and layout."
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:ui:ui:ui-samples"))
-}
-
-if (KmpPlatformsKt.enableDesktop(project)) {
-    tasks.withType(Test).configureEach {
-        if (name.equals("desktopTest")) {
-            systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
-        }
-    }
 }
 
 android {
