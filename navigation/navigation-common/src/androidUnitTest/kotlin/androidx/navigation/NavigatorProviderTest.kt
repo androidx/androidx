@@ -47,8 +47,7 @@ class NavigatorProviderTest {
         val provider = NavigatorProvider()
         val navigator = NoNameNavigator()
         provider.addNavigator("name", navigator)
-        assertThat(provider.getNavigator<NoNameNavigator>("name"))
-            .isEqualTo(navigator)
+        assertThat(provider.getNavigator<NoNameNavigator>("name")).isEqualTo(navigator)
     }
 
     @Test
@@ -57,8 +56,7 @@ class NavigatorProviderTest {
         val navigator = EmptyNavigator()
         provider.addNavigator("name", navigator)
 
-        assertThat(provider.getNavigator<EmptyNavigator>("name"))
-            .isEqualTo(navigator)
+        assertThat(provider.getNavigator<EmptyNavigator>("name")).isEqualTo(navigator)
         try {
             provider.getNavigator(EmptyNavigator::class.java)
             fail("getNavigator(Class) with an invalid name should cause an IllegalStateException")
@@ -88,8 +86,7 @@ class NavigatorProviderTest {
         val provider = NavigatorProvider()
         val navigator = EmptyNavigator()
         provider.addNavigator(navigator)
-        assertThat(provider.getNavigator(EmptyNavigator::class.java))
-            .isEqualTo(navigator)
+        assertThat(provider.getNavigator(EmptyNavigator::class.java)).isEqualTo(navigator)
     }
 
     @Test
@@ -97,8 +94,7 @@ class NavigatorProviderTest {
         val provider = NavigatorProvider()
         val navigator = EmptyNavigator()
         provider.addNavigator(navigator)
-        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
-            .isEqualTo(navigator)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME)).isEqualTo(navigator)
     }
 
     @Test
@@ -108,8 +104,7 @@ class NavigatorProviderTest {
         val navigator = EmptyNavigator()
 
         provider.addNavigator(navigator)
-        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
-            .isEqualTo(navigator)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME)).isEqualTo(navigator)
 
         navigator.onAttach(navigatorState)
         assertWithMessage("Navigator should be attached")
@@ -137,12 +132,10 @@ class NavigatorProviderTest {
         assertThat(navigatorA).isNotEqualTo(navigatorB)
 
         provider.addNavigator(navigatorA)
-        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
-            .isEqualTo(navigatorA)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME)).isEqualTo(navigatorA)
 
         provider.addNavigator(navigatorB)
-        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
-            .isEqualTo(navigatorB)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME)).isEqualTo(navigatorB)
     }
 
     private val provider = NavigatorProvider()
@@ -186,9 +179,7 @@ class NoNameNavigator : Navigator<NavDestination>() {
     }
 }
 
-/**
- * An empty [Navigator] used to test [NavigatorProvider].
- */
+/** An empty [Navigator] used to test [NavigatorProvider]. */
 @Navigator.Name(EmptyNavigator.NAME)
 internal open class EmptyNavigator : Navigator<NavDestination>() {
 

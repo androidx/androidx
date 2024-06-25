@@ -81,8 +81,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavHostTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun testSingleDestinationSet() {
@@ -90,9 +89,7 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = createNavController(LocalContext.current)
 
-            NavHost(navController, startDestination = "first") {
-                test("first")
-            }
+            NavHost(navController, startDestination = "first") { test("first") }
         }
 
         assertWithMessage("Destination should be added to the graph")
@@ -116,12 +113,11 @@ class NavHostTest {
             .that("first" in navController.graph)
             .isTrue()
 
-        runOnUiThread {
-            navController.navigate("second")
-        }
+        runOnUiThread { navController.navigate("second") }
 
         assertWithMessage("second destination should be current")
-            .that(navController.currentDestination?.route).isEqualTo("second")
+            .that(navController.currentDestination?.route)
+            .isEqualTo("second")
     }
 
     @Test
@@ -134,8 +130,8 @@ class NavHostTest {
             var state by remember { mutableStateOf(0) }
             Column(Modifier.fillMaxSize()) {
                 NavHost(navController, startDestination = "first") {
-                    composable("first") { }
-                    composable("second") { }
+                    composable("first") {}
+                    composable("second") {}
                 }
                 Button(
                     onClick = {
@@ -152,23 +148,22 @@ class NavHostTest {
             .that("first" in navController.graph)
             .isTrue()
 
-        composeTestRule.runOnIdle {
-            navController.navigate("second")
-        }
+        composeTestRule.runOnIdle { navController.navigate("second") }
 
         composeTestRule.runOnIdle {
             assertWithMessage("second destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("second")
         }
 
-        composeTestRule.onNodeWithText(text)
-            .performClick()
+        composeTestRule.onNodeWithText(text).performClick()
 
         composeTestRule.runOnIdle {
             // ensure our click listener was fired
             assertThat(counter).isEqualTo(1)
             assertWithMessage("second destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("second")
         }
     }
 
@@ -190,7 +185,8 @@ class NavHostTest {
         }
 
         assertWithMessage("First destination should be current")
-            .that(navController.currentDestination?.route).isEqualTo("first")
+            .that(navController.currentDestination?.route)
+            .isEqualTo("first")
     }
 
     @Test
@@ -202,7 +198,9 @@ class NavHostTest {
             val context = LocalContext.current
             // added to avoid lint error b/184349025
             @SuppressLint("RememberReturnType")
-            navController = remember { createNavController(context) }
+            navController = remember {
+                createNavController(context)
+            }
 
             NavHost(navController, startDestination = state.value) {
                 test("first")
@@ -210,13 +208,12 @@ class NavHostTest {
             }
         }
 
-        runOnUiThread {
-            state.value = "second"
-        }
+        runOnUiThread { state.value = "second" }
 
         composeTestRule.runOnIdle {
             assertWithMessage("Second destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("second")
         }
     }
 
@@ -229,11 +226,11 @@ class NavHostTest {
             state = remember { mutableStateOf(0) }
             // added to avoid lint error b/184349025
             @SuppressLint("RememberReturnType")
-            navController = remember { createNavController(context) }
+            navController = remember {
+                createNavController(context)
+            }
             if (state.value == 0) {
-                NavHost(navController, startDestination = "first") {
-                    test("first")
-                }
+                NavHost(navController, startDestination = "first") { test("first") }
             }
         }
 
@@ -243,13 +240,12 @@ class NavHostTest {
         }
 
         // wait for recompose without NavHost then recompose with the NavHost
-        composeTestRule.runOnIdle {
-            state.value = 0
-        }
+        composeTestRule.runOnIdle { state.value = 0 }
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("first")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("first")
         }
     }
 
@@ -260,9 +256,7 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = rememberNavController()
             NavHost(navController, startDestination = "dialog") {
-                dialog("dialog") {
-                    Text(defaultText)
-                }
+                dialog("dialog") { Text(defaultText) }
             }
         }
 
@@ -282,16 +276,17 @@ class NavHostTest {
             val context = LocalContext.current
             state = remember { mutableStateOf(0) }
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                navController = if (savedState == null) {
-                    rememberNavController()
-                } else {
-                    NavHostController(context).apply {
-                        restoreState(savedState)
-                        setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                        navigatorProvider += ComposeNavigator()
-                        navigatorProvider += DialogNavigator()
+                navController =
+                    if (savedState == null) {
+                        rememberNavController()
+                    } else {
+                        NavHostController(context).apply {
+                            restoreState(savedState)
+                            setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
+                            navigatorProvider += ComposeNavigator()
+                            navigatorProvider += DialogNavigator()
+                        }
                     }
-                }
                 if (state.value == 0) {
                     NavHost(navController, startDestination = "first") {
                         composable("first") {
@@ -320,7 +315,8 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("first")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("first")
             assertThat(savedViewModel.value).isEqualTo(viewModel.value)
         }
     }
@@ -338,41 +334,31 @@ class NavHostTest {
 
                 if (state.value == 0) {
                     NavHost(navController, route = "graph", startDestination = "first") {
-                        composable("first") {
-                        }
-                        composable("second") {
-                            viewModel = viewModel<TestViewModel>()
-                        }
+                        composable("first") {}
+                        composable("second") { viewModel = viewModel<TestViewModel>() }
                     }
                 }
             }
         }
 
-        assertThat(navController.currentBackStackEntry?.destination?.route)
-            .isEqualTo("first")
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("first")
 
-        runOnUiThread {
-            navController.navigate("second")
-        }
+        runOnUiThread { navController.navigate("second") }
 
         composeTestRule.runOnIdle {
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("second")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
             assertThat(viewModel.wasCleared).isFalse()
         }
 
         runOnUiThread {
             navController.popBackStack("second", inclusive = true, saveState = false)
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("first")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("first")
             // dispose the NavHost and move to destroy to simulate config change
             state.value = 1
             lifecycleOwner.currentState = Lifecycle.State.DESTROYED
         }
 
-        composeTestRule.runOnIdle {
-            assertThat(viewModel.wasCleared).isTrue()
-        }
+        composeTestRule.runOnIdle { assertThat(viewModel.wasCleared).isTrue() }
     }
 
     @Test
@@ -390,45 +376,34 @@ class NavHostTest {
 
                 if (state.value == 0) {
                     NavHost(navController, route = "graph", startDestination = "first") {
-                        composable("first") {
-                        }
-                        composable("second") {
-                            viewModel_second = viewModel<TestViewModel>()
-                        }
-                        composable("third") {
-                            viewModel_third = viewModel<TestViewModel>()
-                        }
+                        composable("first") {}
+                        composable("second") { viewModel_second = viewModel<TestViewModel>() }
+                        composable("third") { viewModel_third = viewModel<TestViewModel>() }
                     }
                 }
             }
         }
 
-        assertThat(navController.currentBackStackEntry?.destination?.route)
-            .isEqualTo("first")
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("first")
 
-        runOnUiThread {
-            navController.navigate("second")
-        }
+        runOnUiThread { navController.navigate("second") }
 
         composeTestRule.waitForIdle()
 
-        runOnUiThread {
-            navController.navigate("third")
-        }
+        runOnUiThread { navController.navigate("third") }
 
         composeTestRule.runOnIdle {
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("third")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("third")
             assertThat(navController.currentBackStack.value.map { it.destination.route })
-                .containsExactly("graph", "first", "second", "third").inOrder()
+                .containsExactly("graph", "first", "second", "third")
+                .inOrder()
             assertThat(viewModel_second.wasCleared).isFalse()
             assertThat(viewModel_third.wasCleared).isFalse()
         }
 
         runOnUiThread {
             navController.popBackStack("second", inclusive = true, saveState = false)
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("first")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("first")
             // dispose the NavHost and move to destroy to simulate config change
             state.value = 1
             lifecycleOwner.currentState = Lifecycle.State.DESTROYED
@@ -447,29 +422,23 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = rememberNavController()
             NavHost(navController, startDestination = "first") {
-                composable("first") {
-                }
-                composable("second") {
-                    viewModel = viewModel()
-                }
+                composable("first") {}
+                composable("second") { viewModel = viewModel() }
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate("second")
-        }
+        composeTestRule.runOnIdle { navController.navigate("second") }
 
         composeTestRule.runOnIdle {
             assertThat(viewModel?.saveableStateHolderRef?.get()).isNotNull()
         }
 
-        composeTestRule.runOnIdle {
-            navController.popBackStack()
-        }
+        composeTestRule.runOnIdle { navController.popBackStack() }
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("first")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("first")
             assertThat(viewModel?.saveableStateHolderRef?.get()).isNull()
         }
     }
@@ -483,29 +452,21 @@ class NavHostTest {
             navController = rememberNavController()
 
             NavHost(navController, startDestination = "First") {
-                composable("First") {
-                    numberOnScreen1 = rememberSaveable { increment++ }
-                }
+                composable("First") { numberOnScreen1 = rememberSaveable { increment++ } }
                 composable("Second") {}
             }
         }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Initial number should be 0")
-                .that(numberOnScreen1)
-                .isEqualTo(0)
+            assertWithMessage("Initial number should be 0").that(numberOnScreen1).isEqualTo(0)
             numberOnScreen1 = -1
             navController.navigate("Second")
         }
 
-        composeTestRule.runOnIdle {
-            navController.popBackStack()
-        }
+        composeTestRule.runOnIdle { navController.popBackStack() }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("The number should be restored")
-                .that(numberOnScreen1)
-                .isEqualTo(0)
+            assertWithMessage("The number should be restored").that(numberOnScreen1).isEqualTo(0)
         }
     }
 
@@ -518,34 +479,23 @@ class NavHostTest {
             navController = rememberNavController()
 
             NavHost(navController, startDestination = "First") {
-                composable("First") {
-                }
-                composable("Second") {
-                    numberOnScreen2 = rememberSaveable { increment++ }
-                }
+                composable("First") {}
+                composable("Second") { numberOnScreen2 = rememberSaveable { increment++ } }
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate("Second")
-        }
+        composeTestRule.runOnIdle { navController.navigate("Second") }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Initial number should be 0")
-                .that(numberOnScreen2)
-                .isEqualTo(0)
+            assertWithMessage("Initial number should be 0").that(numberOnScreen2).isEqualTo(0)
             numberOnScreen2 = -1
             navController.popBackStack()
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate("Second")
-        }
+        composeTestRule.runOnIdle { navController.navigate("Second") }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("The number shouldn't be restored")
-                .that(numberOnScreen2)
-                .isEqualTo(1)
+            assertWithMessage("The number shouldn't be restored").that(numberOnScreen2).isEqualTo(1)
         }
     }
 
@@ -567,9 +517,7 @@ class NavHostTest {
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate("Second")
-        }
+        composeTestRule.runOnIdle { navController.navigate("Second") }
 
         composeTestRule.runOnIdle {
             assertWithMessage("Each entry should have its own SavedStateRegistry")
@@ -586,21 +534,21 @@ class NavHostTest {
         lateinit var navController: NavHostController
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
-            graph2 = navController.createGraph(startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
+            graph1 =
+                navController.createGraph(startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
+            graph2 =
+                navController.createGraph(startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
             currentGraph = graph1
             NavHost(navController, currentGraph!!)
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate("Second")
-        }
+        composeTestRule.runOnIdle { navController.navigate("Second") }
 
         composeTestRule.runOnIdle {
             assertWithMessage("Current destination should be Second")
@@ -608,9 +556,7 @@ class NavHostTest {
                 .isEqualTo("Second")
         }
 
-        composeTestRule.runOnIdle {
-            currentGraph = graph2
-        }
+        composeTestRule.runOnIdle { currentGraph = graph2 }
 
         composeTestRule.runOnIdle {
             assertWithMessage("Current destination should be Second")
@@ -627,14 +573,16 @@ class NavHostTest {
 
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
-            graph2 = navController.createGraph(startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
+            graph1 =
+                navController.createGraph(startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
+            graph2 =
+                navController.createGraph(startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
             NavHost(navController, graph1)
         }
 
@@ -674,14 +622,16 @@ class NavHostTest {
 
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(route = "route", startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
-            graph2 = navController.createGraph(route = "route", startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
+            graph1 =
+                navController.createGraph(route = "route", startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
+            graph2 =
+                navController.createGraph(route = "route", startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
             NavHost(navController, graph1)
         }
 
@@ -721,20 +671,22 @@ class NavHostTest {
 
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(startDestination = "First") {
-                composable("First") { }
-                navigation(startDestination = "Third", route = "Second") {
-                    composable("Third") { }
-                    composable("Fourth") { }
+            graph1 =
+                navController.createGraph(startDestination = "First") {
+                    composable("First") {}
+                    navigation(startDestination = "Third", route = "Second") {
+                        composable("Third") {}
+                        composable("Fourth") {}
+                    }
                 }
-            }
-            graph2 = navController.createGraph(startDestination = "First") {
-                composable("First") { }
-                navigation(startDestination = "Third", route = "Second") {
-                    composable("Third") { }
-                    composable("Fourth") { }
+            graph2 =
+                navController.createGraph(startDestination = "First") {
+                    composable("First") {}
+                    navigation(startDestination = "Third", route = "Second") {
+                        composable("Third") {}
+                        composable("Fourth") {}
+                    }
                 }
-            }
             NavHost(navController, graph1)
         }
 
@@ -778,27 +730,28 @@ class NavHostTest {
 
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
-                composable("First") { }
-                navigation(route = "Second", startDestination = "Third") {
-                    composable("Third") { }
-                    composable("Fourth") { }
+            graph1 =
+                navController.createGraph(route = "Root", startDestination = "First") {
+                    composable("First") {}
+                    navigation(route = "Second", startDestination = "Third") {
+                        composable("Third") {}
+                        composable("Fourth") {}
+                    }
                 }
-            }
-            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
-                composable("First") { }
-                navigation(route = "Second", startDestination = "Third") {
-                    composable("Third") { }
-                    composable("Fourth") { }
+            graph2 =
+                navController.createGraph(route = "Root", startDestination = "First") {
+                    composable("First") {}
+                    navigation(route = "Second", startDestination = "Third") {
+                        composable("Third") {}
+                        composable("Fourth") {}
+                    }
                 }
-            }
             NavHost(navController, graph1)
         }
 
         composeTestRule.runOnIdle {
             navController.navigate("Fourth")
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("Fourth")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("Fourth")
             // Root, First, Second, Fourth
             assertThat(navController.currentBackStack.value.size).isEqualTo(4)
         }
@@ -809,14 +762,15 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             // make sure NavController backQueue is updated with new nested destinations
-            val entryDestinations = navController.currentBackStack.value.filter {
-                !it.destination.route.equals("Root")
-            }.map { it.destination }
+            val entryDestinations =
+                navController.currentBackStack.value
+                    .filter { !it.destination.route.equals("Root") }
+                    .map { it.destination }
 
             val entryRoutes = entryDestinations.map { it.route }
-            assertThat(entryRoutes).containsExactlyElementsIn(
-                listOf("First", "Second", "Fourth")
-            ).inOrder()
+            assertThat(entryRoutes)
+                .containsExactlyElementsIn(listOf("First", "Second", "Fourth"))
+                .inOrder()
 
             assertThat(entryDestinations[0]).isSameInstanceAs(graph2Nodes[0]) // First
             assertThat(entryDestinations[1]).isSameInstanceAs(graph2Nodes[1]) // Second
@@ -835,37 +789,37 @@ class NavHostTest {
 
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
-                composable("First") { }
-                navigation(route = "Second", startDestination = "Third") {
-                    composable("Third") { }
-                    navigation(route = "Fourth", startDestination = "First") {
-                        composable("First") { }
+            graph1 =
+                navController.createGraph(route = "Root", startDestination = "First") {
+                    composable("First") {}
+                    navigation(route = "Second", startDestination = "Third") {
+                        composable("Third") {}
+                        navigation(route = "Fourth", startDestination = "First") {
+                            composable("First") {}
+                        }
                     }
                 }
-            }
-            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
-                composable("First") { }
-                navigation(route = "Second", startDestination = "Third") {
-                    composable("Third") { }
-                    navigation(route = "Fourth", startDestination = "First") {
-                        composable("First") { }
+            graph2 =
+                navController.createGraph(route = "Root", startDestination = "First") {
+                    composable("First") {}
+                    navigation(route = "Second", startDestination = "Third") {
+                        composable("Third") {}
+                        navigation(route = "Fourth", startDestination = "First") {
+                            composable("First") {}
+                        }
                     }
                 }
-            }
             NavHost(navController, graph1)
         }
 
         composeTestRule.runOnIdle {
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("First")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("First")
 
             // navigate to duplicated destination
             navController.navigate("Fourth")
             // Root, First, Second, Fourth, First
             assertThat(navController.currentBackStack.value.size).isEqualTo(5)
-            assertThat(navController.currentBackStackEntry?.destination?.route)
-                .isEqualTo("First")
+            assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("First")
             // make sure current destination's parent is the nested graph
             assertThat(navController.currentBackStackEntry?.destination?.parent?.route)
                 .isEqualTo("Fourth")
@@ -876,22 +830,22 @@ class NavHostTest {
         navController.setGraph(graph2, null)
 
         composeTestRule.runOnIdle {
-            val entryDestinations = navController.currentBackStack.value.filter {
-                !it.destination.route.equals("Root")
-            }.map { it.destination }
+            val entryDestinations =
+                navController.currentBackStack.value
+                    .filter { !it.destination.route.equals("Root") }
+                    .map { it.destination }
 
             val entryRoutes = entryDestinations.map { it.route }
-            assertThat(entryRoutes).containsExactlyElementsIn(
-                listOf("First", "Second", "Fourth", "First")
-            ).inOrder()
+            assertThat(entryRoutes)
+                .containsExactlyElementsIn(listOf("First", "Second", "Fourth", "First"))
+                .inOrder()
 
             // make sure duplicated nodes are updated with correct instances
             val dup1 = graph2Nodes[0]
             assertThat(dup1.route).isEqualTo("First")
             assertThat(entryDestinations[0]).isSameInstanceAs(dup1)
 
-            val dup2 = ((graph2Nodes[1] as NavGraph).nodes.valueAt(1) as NavGraph)
-                .nodes.valueAt(0)
+            val dup2 = ((graph2Nodes[1] as NavGraph).nodes.valueAt(1) as NavGraph).nodes.valueAt(0)
             assertThat(dup2.route).isEqualTo("First")
             assertThat(entryDestinations[3]).isSameInstanceAs(dup2)
         }
@@ -904,14 +858,16 @@ class NavHostTest {
         lateinit var navController: NavHostController
         composeTestRule.setContent {
             navController = rememberNavController()
-            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
-            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
-                composable("First") { }
-                composable("Second") { }
-            }
+            graph1 =
+                navController.createGraph(route = "Root", startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
+            graph2 =
+                navController.createGraph(route = "Root", startDestination = "First") {
+                    composable("First") {}
+                    composable("Second") {}
+                }
 
             NavHost(navController, graph1)
         }
@@ -938,9 +894,9 @@ class NavHostTest {
         assertThat(navController.currentBackStack.value.size).isEqualTo(3)
         val entryRoutes = navController.currentBackStack.value.map { it.destination.route }
         // ensure that Root did not get added a second time
-        assertThat(entryRoutes).containsExactlyElementsIn(
-            listOf("Root", "First", "Second")
-        ).inOrder()
+        assertThat(entryRoutes)
+            .containsExactlyElementsIn(listOf("Root", "First", "Second"))
+            .inOrder()
     }
 
     @Test
@@ -962,26 +918,21 @@ class NavHostTest {
         composeTestRule.mainClock.autoAdvance = true
 
         composeTestRule.runOnIdle {
-            assertThat(firstEntry?.lifecycle?.currentState)
-                .isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(firstEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.RESUMED)
         }
 
         composeTestRule.mainClock.autoAdvance = false
 
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
 
-        assertThat(firstEntry?.lifecycle?.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(firstEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
         // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
-        assertThat(firstEntry?.lifecycle?.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(firstEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
@@ -989,17 +940,13 @@ class NavHostTest {
         composeTestRule.onNodeWithText(second).assertExists()
 
         assertThat(navController.visibleEntries.value)
-            .containsExactly(
-                firstEntry,
-                navController.currentBackStackEntry
-            )
+            .containsExactly(firstEntry, navController.currentBackStackEntry)
             .inOrder()
 
         composeTestRule.mainClock.autoAdvance = true
 
         composeTestRule.runOnIdle {
-            assertThat(firstEntry?.lifecycle?.currentState)
-                .isEqualTo(Lifecycle.State.CREATED)
+            assertThat(firstEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
                 .isEqualTo(Lifecycle.State.RESUMED)
         }
@@ -1008,22 +955,18 @@ class NavHostTest {
 
         val secondEntry = navController.currentBackStackEntry
 
-        composeTestRule.runOnIdle {
-            navController.popBackStack()
-        }
+        composeTestRule.runOnIdle { navController.popBackStack() }
 
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
-        assertThat(secondEntry?.lifecycle?.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.CREATED)
 
         // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
-        assertThat(secondEntry?.lifecycle?.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.CREATED)
 
         composeTestRule.onNodeWithText(first).assertExists()
         composeTestRule.onNodeWithText(second).assertExists()
@@ -1033,8 +976,7 @@ class NavHostTest {
         composeTestRule.runOnIdle {
             assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
                 .isEqualTo(Lifecycle.State.RESUMED)
-            assertThat(secondEntry?.lifecycle?.currentState)
-                .isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(secondEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.DESTROYED)
         }
     }
 
@@ -1055,20 +997,17 @@ class NavHostTest {
                         }
                     }
                 }
-                composable(second) { }
+                composable(second) {}
             }
         }
 
         val firstEntry = navController.currentBackStackEntry
 
         composeTestRule.runOnIdle {
-            assertThat(firstEntry?.lifecycle?.currentState)
-                .isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(firstEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.RESUMED)
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
 
         val secondEntry = navController.currentBackStackEntry
 
@@ -1078,10 +1017,8 @@ class NavHostTest {
         }
 
         composeTestRule.runOnIdle {
-            assertThat(firstEntry?.lifecycle?.currentState)
-                .isEqualTo(Lifecycle.State.DESTROYED)
-            assertThat(secondEntry?.lifecycle?.currentState)
-                .isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(firstEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(secondEntry?.lifecycle?.currentState).isEqualTo(Lifecycle.State.DESTROYED)
         }
     }
 
@@ -1117,10 +1054,8 @@ class NavHostTest {
         composeTestRule.mainClock.autoAdvance = true
 
         composeTestRule.runOnIdle {
-            assertThat(firstEntry.lifecycle.currentState)
-                .isEqualTo(Lifecycle.State.CREATED)
-            assertThat(secondEntry.lifecycle.currentState)
-                .isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         }
     }
 
@@ -1134,11 +1069,9 @@ class NavHostTest {
             NavHost(navController, "start") {
                 composable("start") {
                     text = rememberSaveable { mutableStateOf("") }
-                    Column {
-                        TextField(value = text.value, onValueChange = { text.value = it })
-                    }
+                    Column { TextField(value = text.value, onValueChange = { text.value = it }) }
                 }
-                composable("second") { }
+                composable("second") {}
             }
         }
 
@@ -1150,9 +1083,7 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             navController.navigate("second") {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
 
                 launchSingleTop = true
                 restoreState = true
@@ -1161,9 +1092,7 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             navController.navigate("start") {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
 
                 launchSingleTop = true
                 restoreState = true
@@ -1181,7 +1110,7 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = rememberNavController()
             NavHost(navController, first) {
-                composable(first) { }
+                composable(first) {}
                 navigation(second, "subGraph") {
                     composable(second) {
                         model = viewModel(remember { navController.getBackStackEntry("subGraph") })
@@ -1190,13 +1119,9 @@ class NavHostTest {
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
 
-        composeTestRule.runOnIdle {
-            navController.popBackStack()
-        }
+        composeTestRule.runOnIdle { navController.popBackStack() }
 
         assertThat(model.wasCleared).isFalse()
 
@@ -1213,20 +1138,14 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = rememberNavController()
             NavHost(navController, first) {
-                composable(first) { }
-                dialog(second) {
-                    model = viewModel(it)
-                }
+                composable(first) {}
+                dialog(second) { model = viewModel(it) }
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
 
-        composeTestRule.runOnIdle {
-            navController.popBackStack()
-        }
+        composeTestRule.runOnIdle { navController.popBackStack() }
 
         assertThat(model.wasCleared).isFalse()
 
@@ -1248,7 +1167,7 @@ class NavHostTest {
             // instance is different
             navBackStackEntry?.destination
             NavHost(navController, first) {
-                composable(first) { }
+                composable(first) {}
                 navigation(second, "subGraph") {
                     composable(second) {
                         model = viewModel(remember { navController.getBackStackEntry("subGraph") })
@@ -1257,13 +1176,9 @@ class NavHostTest {
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
 
-        composeTestRule.runOnIdle {
-            navController.popBackStack()
-        }
+        composeTestRule.runOnIdle { navController.popBackStack() }
 
         assertThat(model.wasCleared).isFalse()
 
@@ -1286,9 +1201,7 @@ class NavHostTest {
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
     }
 
     @Test
@@ -1329,13 +1242,9 @@ class NavHostTest {
         }
 
         // Now navigate to a second destination in the outer NavHost
-        composeTestRule.runOnIdle {
-            navController.navigate(second)
-        }
+        composeTestRule.runOnIdle { navController.navigate(second) }
 
-        composeTestRule.runOnIdle {
-            innerLifecycleOwner.currentState = Lifecycle.State.DESTROYED
-        }
+        composeTestRule.runOnIdle { innerLifecycleOwner.currentState = Lifecycle.State.DESTROYED }
 
         // Now trigger the back button
         composeTestRule.runOnIdle {
@@ -1348,9 +1257,7 @@ class NavHostTest {
         assertThat(innerNavController.currentDestination?.route).isEqualTo("innerSecond")
 
         // Now trigger the back button
-        composeTestRule.runOnIdle {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        composeTestRule.runOnIdle { onBackPressedDispatcher.onBackPressed() }
 
         composeTestRule.waitForIdle()
         assertThat(navController.currentDestination?.route).isEqualTo(first)
@@ -1377,18 +1284,14 @@ class NavHostTest {
                         }
                         lifecycleOwner.lifecycle.addObserver(observer)
 
-                        onDispose {
-                            lifecycleOwner.lifecycle.removeObserver(observer)
-                        }
+                        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                     }
                 }
             }
         }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Lifecycle should not have been stopped")
-                .that(stopCount)
-                .isEqualTo(0)
+            assertWithMessage("Lifecycle should not have been stopped").that(stopCount).isEqualTo(0)
         }
     }
 
@@ -1406,9 +1309,7 @@ class NavHostTest {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 BackHandler { wasCalled = true }
                 NavHost(navController, startDestination = "first") {
-                    composable("first") {
-                        BackHandler { count++ }
-                    }
+                    composable("first") { BackHandler { count++ } }
                 }
             }
         }
@@ -1419,14 +1320,10 @@ class NavHostTest {
         }
 
         // move to the back ground to unregister the BackHandlers
-        composeTestRule.runOnIdle {
-            lifecycleOwner.currentState = Lifecycle.State.CREATED
-        }
+        composeTestRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
 
         // register the BackHandlers again
-        composeTestRule.runOnIdle {
-            lifecycleOwner.currentState = Lifecycle.State.RESUMED
-        }
+        composeTestRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
 
         composeTestRule.runOnUiThread {
             backPressedDispatcher?.onBackPressed()
@@ -1444,11 +1341,11 @@ class NavHostTest {
             NavHost(navController, startDestination = first) {
                 composable(first) {
                     NavHost(innerNavController, "nested1") {
-                        composable("nested1") { }
-                        composable("nested2") { }
+                        composable("nested1") {}
+                        composable("nested2") {}
                     }
                 }
-                composable(second) { }
+                composable(second) {}
             }
         }
 
@@ -1464,9 +1361,7 @@ class NavHostTest {
         composeTestRule.runOnIdle {
             navController.navigate(first) {
                 restoreState = true
-                popUpTo(second) {
-                    inclusive = true
-                }
+                popUpTo(second) { inclusive = true }
             }
         }
 

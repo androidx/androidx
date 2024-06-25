@@ -50,25 +50,19 @@ class TestNavigatorStateTest {
         val navigator = TestNavigator()
         navigator.onAttach(state)
         val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
         navigator.navigate(listOf(firstEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(secondEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         navigator.popBackStack(secondEntry, false)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @Test
@@ -76,25 +70,19 @@ class TestNavigatorStateTest {
         val navigator = FloatingWindowTestNavigator()
         navigator.onAttach(state)
         val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
         navigator.navigate(listOf(firstEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(secondEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         navigator.popBackStack(secondEntry, false)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @Test
@@ -102,55 +90,42 @@ class TestNavigatorStateTest {
         val navigator = TestTransitionNavigator()
         navigator.onAttach(state)
         val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
         navigator.navigate(listOf(firstEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         state.markTransitionComplete(firstEntry)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(secondEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
 
         state.markTransitionComplete(firstEntry)
         state.markTransitionComplete(secondEntry)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         navigator.popBackStack(secondEntry, true)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         state.markTransitionComplete(firstEntry)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         state.markTransitionComplete(secondEntry)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
         val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
         navigator.navigate(listOf(restoredSecondEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(restoredSecondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(restoredSecondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
 
         state.markTransitionComplete(firstEntry)
         state.markTransitionComplete(restoredSecondEntry)
-        assertThat(restoredSecondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(restoredSecondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -176,9 +151,8 @@ class TestNavigatorStateTest {
         state.markTransitionComplete(secondEntry)
         val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
         navigator.navigate(listOf(restoredSecondEntry), null, null)
-        assertThat(
-            state.transitionsInProgress.value.firstOrNull { it === restoredSecondEntry }
-        ).isNotNull()
+        assertThat(state.transitionsInProgress.value.firstOrNull { it === restoredSecondEntry })
+            .isNotNull()
 
         state.markTransitionComplete(firstEntry)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isFalse()
@@ -186,14 +160,11 @@ class TestNavigatorStateTest {
         state.markTransitionComplete(restoredSecondEntry)
         assertThat(state.transitionsInProgress.value.firstOrNull { it === secondEntry }).isNull()
 
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(restoredSecondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(restoredSecondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         state.markTransitionComplete(secondEntry)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @Test
@@ -208,25 +179,31 @@ class TestNavigatorStateTest {
 
         val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
         secondEntry.destination.route = "second"
-        navigator.navigate(listOf(secondEntry), navOptions {
-            popUpTo("first") { saveState = true }
-            launchSingleTop = true
-            restoreState = true
-        }, null)
+        navigator.navigate(
+            listOf(secondEntry),
+            navOptions {
+                popUpTo("first") { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            },
+            null
+        )
 
         val viewModel = ViewModelProvider(secondEntry).get(TestViewModel::class.java)
 
         navigator.popBackStack(secondEntry, true)
         val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
-        navigator.navigate(listOf(restoredSecondEntry), navOptions {
-            popUpTo("first") { saveState = true }
-            launchSingleTop = true
-            restoreState = true
-        }, null)
+        navigator.navigate(
+            listOf(restoredSecondEntry),
+            navOptions {
+                popUpTo("first") { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            },
+            null
+        )
 
-        state.transitionsInProgress.value.forEach {
-            state.markTransitionComplete(it)
-        }
+        state.transitionsInProgress.value.forEach { state.markTransitionComplete(it) }
 
         assertThat(viewModel.wasCleared).isFalse()
     }
@@ -244,20 +221,16 @@ class TestNavigatorStateTest {
         navigator.navigate(listOf(secondEntry), null, null)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
         assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         navigator.popBackStack(secondEntry, true)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
         assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
         state.markTransitionComplete(firstEntry)
         state.markTransitionComplete(secondEntry)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @Test
@@ -273,10 +246,8 @@ class TestNavigatorStateTest {
         navigator.navigate(listOf(secondEntry), null, null)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
         assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         state.markTransitionComplete(firstEntry)
         state.markTransitionComplete(secondEntry)
 
@@ -289,21 +260,15 @@ class TestNavigatorStateTest {
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
         assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
         assertThat(state.transitionsInProgress.value.contains(secondEntryReplace)).isTrue()
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntryReplace.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntryReplace.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         state.markTransitionComplete(firstEntry)
         state.markTransitionComplete(secondEntry)
         state.markTransitionComplete(secondEntryReplace)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(secondEntryReplace.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(secondEntryReplace.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -311,66 +276,57 @@ class TestNavigatorStateTest {
         val navigator = TestTransitionNavigator()
         navigator.onAttach(state)
         val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
         navigator.navigate(listOf(firstEntry), null, null)
-        navigator.testLifecycle.addObserver(object : LifecycleEventObserver {
-            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                when (event) {
-                    Lifecycle.Event.ON_STOP -> {
-                        // this is okay since the first entry will not be DESTROYED in this test.
-                        state.markTransitionComplete(firstEntry)
+        navigator.testLifecycle.addObserver(
+            object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    when (event) {
+                        Lifecycle.Event.ON_STOP -> {
+                            // this is okay since the first entry will not be DESTROYED in this
+                            // test.
+                            state.markTransitionComplete(firstEntry)
+                        }
+                        Lifecycle.Event.ON_PAUSE -> state.prepareForTransition(firstEntry)
+                        Lifecycle.Event.ON_START -> state.prepareForTransition(firstEntry)
+                        Lifecycle.Event.ON_RESUME -> state.markTransitionComplete(firstEntry)
+                        else -> {}
                     }
-                    Lifecycle.Event.ON_PAUSE -> state.prepareForTransition(firstEntry)
-                    Lifecycle.Event.ON_START -> state.prepareForTransition(firstEntry)
-                    Lifecycle.Event.ON_RESUME -> state.markTransitionComplete(firstEntry)
-                    else -> {}
                 }
             }
-        })
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        )
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         navigator.testLifecycle.currentState = Lifecycle.State.RESUMED
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         navigator.testLifecycle.currentState = Lifecycle.State.STARTED
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(secondEntry), null, null)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
 
         // Moving down to reflect a destination being on a back stack and only CREATED
         navigator.testLifecycle.currentState = Lifecycle.State.CREATED
 
         state.markTransitionComplete(secondEntry)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
 
         navigator.testLifecycle.currentState = Lifecycle.State.STARTED
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         navigator.popBackStack(secondEntry, true)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
 
         navigator.testLifecycle.currentState = Lifecycle.State.RESUMED
-        assertThat(firstEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         state.markTransitionComplete(secondEntry)
-        assertThat(secondEntry.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @Navigator.Name("test")
@@ -390,9 +346,7 @@ class TestNavigatorStateTest {
             navOptions: NavOptions?,
             navigatorExtras: Extras?
         ) {
-            entries.forEach { entry ->
-                state.pushWithTransition(entry)
-            }
+            entries.forEach { entry -> state.pushWithTransition(entry) }
         }
 
         override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
@@ -405,9 +359,8 @@ class TestNavigatorStateTest {
         override fun createDestination(): FloatingTestDestination = FloatingTestDestination(this)
     }
 
-    internal class FloatingTestDestination(
-        navigator: Navigator<out NavDestination>
-    ) : NavDestination(navigator), FloatingWindow
+    internal class FloatingTestDestination(navigator: Navigator<out NavDestination>) :
+        NavDestination(navigator), FloatingWindow
 
     class TestViewModel : ViewModel() {
         var wasCleared = false

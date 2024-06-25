@@ -46,21 +46,17 @@ import org.mockito.Mockito.mock
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryLifecycleTest {
 
-    /**
-     * Test that navigating between siblings correctly stops the previous sibling.
-     */
+    /** Test that navigating between siblings correctly stops the previous sibling. */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycle() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.start_test
-        ) {
-            test(R.id.start_test)
-            test(R.id.second_test)
-        }
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.start_test) {
+                test(R.id.start_test)
+                test(R.id.second_test)
+            }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -113,11 +109,12 @@ class NavBackStackEntryLifecycleTest {
     @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
     fun visibleEntriesFlow() = runBlocking {
         val navController = createNavController()
-        navController.graph = navController.createGraph(startDestination = 1) {
-            test(1)
-            test(2)
-            test(3)
-        }
+        navController.graph =
+            navController.createGraph(startDestination = 1) {
+                test(1)
+                test(2)
+                test(3)
+            }
 
         navController.visibleEntries
             .take(navController.graph.count())
@@ -141,11 +138,12 @@ class NavBackStackEntryLifecycleTest {
     fun visibleEntriesFlowChangedLifecycle() = runBlocking {
         val owner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val navController = createNavController(owner)
-        navController.graph = navController.createGraph(startDestination = 1) {
-            test(1)
-            test(2)
-            test(3)
-        }
+        navController.graph =
+            navController.createGraph(startDestination = 1) {
+                test(1)
+                test(2)
+                test(3)
+            }
 
         owner.currentState = Lifecycle.State.CREATED
 
@@ -174,13 +172,11 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleWithDialog() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.start_test
-        ) {
-            test(R.id.start_test)
-            dialog(R.id.second_test)
-        }
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.start_test) {
+                test(R.id.start_test)
+                dialog(R.id.second_test)
+            }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -228,22 +224,21 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
-    /**
-     * Test that all visible floating windows underneath the top one are marked started.
-     */
+    /** Test that all visible floating windows underneath the top one are marked started. */
     @UiThreadTest
     @Test
     fun testLifecycleWithConsecutiveDialogs() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            route = "graph",
-            startDestination = "start"
-        ) {
-            test("start")
-            dialog("bottomDialog")
-            dialog("midDialog")
-            dialog("topDialog")
-        }
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "start"
+            ) {
+                test("start")
+                dialog("bottomDialog")
+                dialog("midDialog")
+                dialog("topDialog")
+            }
         navController.graph = navGraph
 
         val graphEntry = navController.getBackStackEntry("graph")
@@ -277,18 +272,19 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleWithDialogsAndGraphs() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            route = "graph",
-            startDestination = "firstNested"
-        ) {
-            navigation(route = "firstNested", startDestination = "bottomDialog") {
-                dialog(route = "bottomDialog")
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "firstNested"
+            ) {
+                navigation(route = "firstNested", startDestination = "bottomDialog") {
+                    dialog(route = "bottomDialog")
+                }
+                navigation(route = "secondNested", startDestination = "midDialog") {
+                    dialog(route = "midDialog")
+                    dialog(route = "topDialog")
+                }
             }
-            navigation(route = "secondNested", startDestination = "midDialog") {
-                dialog(route = "midDialog")
-                dialog(route = "topDialog")
-            }
-        }
 
         navController.graph = navGraph
 
@@ -322,18 +318,19 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleWithDialogsAndGraphsOrdering() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            route = "graph",
-            startDestination = "firstNested"
-        ) {
-            navigation(route = "firstNested", startDestination = "bottomDialog") {
-                dialog(route = "bottomDialog")
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "firstNested"
+            ) {
+                navigation(route = "firstNested", startDestination = "bottomDialog") {
+                    dialog(route = "bottomDialog")
+                }
+                navigation(route = "secondNested", startDestination = "midDialog") {
+                    dialog(route = "midDialog")
+                    dialog(route = "topDialog")
+                }
             }
-            navigation(route = "secondNested", startDestination = "midDialog") {
-                dialog(route = "midDialog")
-                dialog(route = "topDialog")
-            }
-        }
 
         navController.graph = navGraph
 
@@ -351,34 +348,29 @@ class NavBackStackEntryLifecycleTest {
         val midDialog = navController.getBackStackEntry("midDialog")
         val midDialogObserver = mock(LifecycleEventObserver::class.java)
         midDialog.lifecycle.addObserver(midDialogObserver)
-        val inOrder = inOrder(
-            firstNestedGraphEntryObserver, bottomDialogObserver, secondNestedGraphEntryObserver,
-            midDialogObserver
-        )
-        inOrder.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(firstNestedGraphEntryObserver).onStateChanged(
-            firstNestedGraphEntry, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(secondNestedGraphEntryObserver).onStateChanged(
-            secondNestedGraphEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(secondNestedGraphEntryObserver).onStateChanged(
-            secondNestedGraphEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(secondNestedGraphEntryObserver).onStateChanged(
-            secondNestedGraphEntry, Lifecycle.Event.ON_RESUME
-        )
-        inOrder.verify(midDialogObserver).onStateChanged(
-            midDialog, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(midDialogObserver).onStateChanged(
-            midDialog, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(midDialogObserver).onStateChanged(
-            midDialog, Lifecycle.Event.ON_RESUME
-        )
+        val inOrder =
+            inOrder(
+                firstNestedGraphEntryObserver,
+                bottomDialogObserver,
+                secondNestedGraphEntryObserver,
+                midDialogObserver
+            )
+        inOrder.verify(bottomDialogObserver).onStateChanged(bottomDialog, Lifecycle.Event.ON_PAUSE)
+        inOrder
+            .verify(firstNestedGraphEntryObserver)
+            .onStateChanged(firstNestedGraphEntry, Lifecycle.Event.ON_PAUSE)
+        inOrder
+            .verify(secondNestedGraphEntryObserver)
+            .onStateChanged(secondNestedGraphEntry, Lifecycle.Event.ON_CREATE)
+        inOrder
+            .verify(secondNestedGraphEntryObserver)
+            .onStateChanged(secondNestedGraphEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(secondNestedGraphEntryObserver)
+            .onStateChanged(secondNestedGraphEntry, Lifecycle.Event.ON_RESUME)
+        inOrder.verify(midDialogObserver).onStateChanged(midDialog, Lifecycle.Event.ON_CREATE)
+        inOrder.verify(midDialogObserver).onStateChanged(midDialog, Lifecycle.Event.ON_START)
+        inOrder.verify(midDialogObserver).onStateChanged(midDialog, Lifecycle.Event.ON_RESUME)
         inOrder.verifyNoMoreInteractions()
 
         navController.navigate("topDialog")
@@ -387,18 +379,10 @@ class NavBackStackEntryLifecycleTest {
         topDialog.lifecycle.addObserver(topDialogObserver)
 
         val inOrder2 = inOrder(secondNestedGraphEntryObserver, midDialogObserver, topDialogObserver)
-        inOrder2.verify(midDialogObserver).onStateChanged(
-            midDialog, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder2.verify(topDialogObserver).onStateChanged(
-            topDialog, Lifecycle.Event.ON_CREATE
-        )
-        inOrder2.verify(topDialogObserver).onStateChanged(
-            topDialog, Lifecycle.Event.ON_START
-        )
-        inOrder2.verify(topDialogObserver).onStateChanged(
-            topDialog, Lifecycle.Event.ON_RESUME
-        )
+        inOrder2.verify(midDialogObserver).onStateChanged(midDialog, Lifecycle.Event.ON_PAUSE)
+        inOrder2.verify(topDialogObserver).onStateChanged(topDialog, Lifecycle.Event.ON_CREATE)
+        inOrder2.verify(topDialogObserver).onStateChanged(topDialog, Lifecycle.Event.ON_START)
+        inOrder2.verify(topDialogObserver).onStateChanged(topDialog, Lifecycle.Event.ON_RESUME)
         inOrder2.verifyNoMoreInteractions()
     }
 
@@ -406,17 +390,18 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleWithDialogsAndFragments() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            route = "graph",
-            startDestination = "nested"
-        ) {
-            navigation(route = "nested", startDestination = "bottomFrag") {
-                test("bottomFrag")
-                dialog(route = "bottomDialog")
-                test("topFrag")
-                dialog(route = "topDialog")
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "nested"
+            ) {
+                navigation(route = "nested", startDestination = "bottomFrag") {
+                    test("bottomFrag")
+                    dialog(route = "bottomDialog")
+                    test("topFrag")
+                    dialog(route = "topDialog")
+                }
             }
-        }
 
         navController.graph = navGraph
 
@@ -451,17 +436,18 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleWithDialogsAndFragmentsOrdering() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            route = "graph",
-            startDestination = "nested"
-        ) {
-            navigation(route = "nested", startDestination = "bottomFrag") {
-                test("bottomFrag")
-                dialog(route = "bottomDialog")
-                test("topFrag")
-                dialog(route = "topDialog")
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "nested"
+            ) {
+                navigation(route = "nested", startDestination = "bottomFrag") {
+                    test("bottomFrag")
+                    dialog(route = "bottomDialog")
+                    test("topFrag")
+                    dialog(route = "topDialog")
+                }
             }
-        }
 
         navController.graph = navGraph
 
@@ -476,33 +462,21 @@ class NavBackStackEntryLifecycleTest {
         bottomFrag.lifecycle.addObserver(bottomFragObserver)
 
         val inOrder = inOrder(graphObserver, nestedGraphEntryObserver, bottomFragObserver)
-        inOrder.verify(graphObserver).onStateChanged(
-            graphEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphEntry, Lifecycle.Event.ON_RESUME
-        )
-        inOrder.verify(nestedGraphEntryObserver).onStateChanged(
-            nestedGraphEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(nestedGraphEntryObserver).onStateChanged(
-            nestedGraphEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedGraphEntryObserver).onStateChanged(
-            nestedGraphEntry, Lifecycle.Event.ON_RESUME
-        )
-        inOrder.verify(bottomFragObserver).onStateChanged(
-            bottomFrag, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(bottomFragObserver).onStateChanged(
-            bottomFrag, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(bottomFragObserver).onStateChanged(
-            bottomFrag, Lifecycle.Event.ON_RESUME
-        )
+        inOrder.verify(graphObserver).onStateChanged(graphEntry, Lifecycle.Event.ON_CREATE)
+        inOrder.verify(graphObserver).onStateChanged(graphEntry, Lifecycle.Event.ON_START)
+        inOrder.verify(graphObserver).onStateChanged(graphEntry, Lifecycle.Event.ON_RESUME)
+        inOrder
+            .verify(nestedGraphEntryObserver)
+            .onStateChanged(nestedGraphEntry, Lifecycle.Event.ON_CREATE)
+        inOrder
+            .verify(nestedGraphEntryObserver)
+            .onStateChanged(nestedGraphEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedGraphEntryObserver)
+            .onStateChanged(nestedGraphEntry, Lifecycle.Event.ON_RESUME)
+        inOrder.verify(bottomFragObserver).onStateChanged(bottomFrag, Lifecycle.Event.ON_CREATE)
+        inOrder.verify(bottomFragObserver).onStateChanged(bottomFrag, Lifecycle.Event.ON_START)
+        inOrder.verify(bottomFragObserver).onStateChanged(bottomFrag, Lifecycle.Event.ON_RESUME)
 
         navController.navigate("bottomDialog")
         val bottomDialog = navController.getBackStackEntry("bottomDialog")
@@ -510,18 +484,14 @@ class NavBackStackEntryLifecycleTest {
         bottomDialog.lifecycle.addObserver(bottomDialogObserver)
 
         val inOrder2 = inOrder(nestedGraphEntryObserver, bottomFragObserver, bottomDialogObserver)
-        inOrder2.verify(bottomFragObserver).onStateChanged(
-            bottomFrag, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder2.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_CREATE
-        )
-        inOrder2.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_START
-        )
-        inOrder2.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_RESUME
-        )
+        inOrder2.verify(bottomFragObserver).onStateChanged(bottomFrag, Lifecycle.Event.ON_PAUSE)
+        inOrder2
+            .verify(bottomDialogObserver)
+            .onStateChanged(bottomDialog, Lifecycle.Event.ON_CREATE)
+        inOrder2.verify(bottomDialogObserver).onStateChanged(bottomDialog, Lifecycle.Event.ON_START)
+        inOrder2
+            .verify(bottomDialogObserver)
+            .onStateChanged(bottomDialog, Lifecycle.Event.ON_RESUME)
         inOrder2.verifyNoMoreInteractions()
 
         navController.navigate("topFrag")
@@ -529,30 +499,22 @@ class NavBackStackEntryLifecycleTest {
         val topFragObserver = mock(LifecycleEventObserver::class.java)
         topFrag.lifecycle.addObserver(topFragObserver)
 
-        val inOrder3 = inOrder(
-            nestedGraphEntryObserver, bottomFragObserver, bottomDialogObserver, topFragObserver
-        )
-        inOrder3.verify(bottomFragObserver).onStateChanged(
-            bottomFrag, Lifecycle.Event.ON_CREATE
-        )
-        inOrder3.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder3.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_STOP
-        )
-        inOrder3.verify(bottomDialogObserver).onStateChanged(
-            bottomDialog, Lifecycle.Event.ON_DESTROY
-        )
-        inOrder3.verify(topFragObserver).onStateChanged(
-            topFrag, Lifecycle.Event.ON_CREATE
-        )
-        inOrder3.verify(topFragObserver).onStateChanged(
-            topFrag, Lifecycle.Event.ON_START
-        )
-        inOrder3.verify(topFragObserver).onStateChanged(
-            topFrag, Lifecycle.Event.ON_RESUME
-        )
+        val inOrder3 =
+            inOrder(
+                nestedGraphEntryObserver,
+                bottomFragObserver,
+                bottomDialogObserver,
+                topFragObserver
+            )
+        inOrder3.verify(bottomFragObserver).onStateChanged(bottomFrag, Lifecycle.Event.ON_CREATE)
+        inOrder3.verify(bottomDialogObserver).onStateChanged(bottomDialog, Lifecycle.Event.ON_PAUSE)
+        inOrder3.verify(bottomDialogObserver).onStateChanged(bottomDialog, Lifecycle.Event.ON_STOP)
+        inOrder3
+            .verify(bottomDialogObserver)
+            .onStateChanged(bottomDialog, Lifecycle.Event.ON_DESTROY)
+        inOrder3.verify(topFragObserver).onStateChanged(topFrag, Lifecycle.Event.ON_CREATE)
+        inOrder3.verify(topFragObserver).onStateChanged(topFrag, Lifecycle.Event.ON_START)
+        inOrder3.verify(topFragObserver).onStateChanged(topFrag, Lifecycle.Event.ON_RESUME)
         inOrder3.verifyNoMoreInteractions()
 
         navController.navigate("topDialog")
@@ -560,39 +522,29 @@ class NavBackStackEntryLifecycleTest {
         val topDialogObserver = mock(LifecycleEventObserver::class.java)
         topDialog.lifecycle.addObserver(topDialogObserver)
         val inOrder4 = inOrder(nestedGraphEntryObserver, topFragObserver, topDialogObserver)
-        inOrder4.verify(topFragObserver).onStateChanged(
-            topFrag, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder4.verify(topDialogObserver).onStateChanged(
-            topDialog, Lifecycle.Event.ON_CREATE
-        )
-        inOrder4.verify(topDialogObserver).onStateChanged(
-            topDialog, Lifecycle.Event.ON_START
-        )
-        inOrder4.verify(topDialogObserver).onStateChanged(
-            topDialog, Lifecycle.Event.ON_RESUME
-        )
+        inOrder4.verify(topFragObserver).onStateChanged(topFrag, Lifecycle.Event.ON_PAUSE)
+        inOrder4.verify(topDialogObserver).onStateChanged(topDialog, Lifecycle.Event.ON_CREATE)
+        inOrder4.verify(topDialogObserver).onStateChanged(topDialog, Lifecycle.Event.ON_START)
+        inOrder4.verify(topDialogObserver).onStateChanged(topDialog, Lifecycle.Event.ON_RESUME)
         inOrder4.verifyNoMoreInteractions()
     }
 
     /**
-     * Test that navigating from within a nested navigation graph to one of the graph's
-     * siblings correctly stops both the previous destination and its graph.
+     * Test that navigating from within a nested navigation graph to one of the graph's siblings
+     * correctly stops both the previous destination and its graph.
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNested() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -653,10 +605,9 @@ class NavBackStackEntryLifecycleTest {
         val graphEntry = navController.getBackStackEntry(R.id.simple_child_start)
 
         navController.navigate(
-            R.id.simple_child_start_test, null,
-            navOptions {
-                launchSingleTop = true
-            }
+            R.id.simple_child_start_test,
+            null,
+            navOptions { launchSingleTop = true }
         )
 
         navController.popBackStack()
@@ -674,15 +625,13 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleNestedWithDialog() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                dialog(R.id.second_test)
             }
-            dialog(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -707,9 +656,8 @@ class NavBackStackEntryLifecycleTest {
             .that(nestedGraphBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
         assertWithMessage(
-            "The nested start destination should be started when a " +
-                "FloatingWindow is open"
-        )
+                "The nested start destination should be started when a " + "FloatingWindow is open"
+            )
             .that(nestedBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
         val secondBackStackEntry = navController.getBackStackEntry(R.id.second_test)
@@ -734,23 +682,21 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
-     * Test that navigating from within a nested navigation graph to one of the graph's
-     * siblings correctly stops both the previous destination and its graph.
+     * Test that navigating from within a nested navigation graph to one of the graph's siblings
+     * correctly stops both the previous destination and its graph.
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedOrdering() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -763,102 +709,88 @@ class NavBackStackEntryLifecycleTest {
         val nestedObserver = mock(LifecycleEventObserver::class.java)
         nestedBackStackEntry.lifecycle.addObserver(nestedObserver)
         val inOrder = inOrder(graphObserver, nestedGraphObserver, nestedObserver)
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_CREATE)
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_RESUME)
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_CREATE)
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
 
         navController.navigate(R.id.second_test)
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_STOP
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_PAUSE)
+        inOrder.verify(nestedObserver).onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_STOP)
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP)
 
         navController.popBackStack()
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
 
         inOrder.verifyNoMoreInteractions()
 
         navController.popBackStack()
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_STOP
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_DESTROY
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_PAUSE)
+        inOrder.verify(nestedObserver).onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_STOP)
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_DESTROY)
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP)
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_DESTROY
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_DESTROY)
 
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_STOP
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_DESTROY
-        )
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_PAUSE)
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_STOP)
+        inOrder
+            .verify(graphObserver)
+            .onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_DESTROY)
 
         inOrder.verifyNoMoreInteractions()
     }
@@ -873,15 +805,13 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleNestedOrderingWithDialog() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                dialog(R.id.second_test)
             }
-            dialog(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -894,77 +824,69 @@ class NavBackStackEntryLifecycleTest {
         val nestedObserver = mock(LifecycleEventObserver::class.java)
         nestedBackStackEntry.lifecycle.addObserver(nestedObserver)
         val inOrder = inOrder(graphObserver, nestedGraphObserver, nestedObserver)
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_CREATE)
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder.verify(graphObserver).onStateChanged(graphBackStackEntry, Lifecycle.Event.ON_RESUME)
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_CREATE
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_START
-        )
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_CREATE)
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_START)
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
 
         navController.navigate(R.id.second_test)
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_PAUSE)
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE)
 
         navController.popBackStack()
 
-        inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedGraphObserver)
+            .onStateChanged(nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
 
-        inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
-        )
+        inOrder
+            .verify(nestedObserver)
+            .onStateChanged(nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
 
         inOrder.verifyNoMoreInteractions()
     }
 
     /**
-     * Test that popping the last destination in a graph while navigating to a new
-     * destination in that graph keeps the graph around
+     * Test that popping the last destination in a graph while navigating to a new destination in
+     * that graph keeps the graph around
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleReplaceLastDestination() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -983,11 +905,7 @@ class NavBackStackEntryLifecycleTest {
         navController.navigate(
             R.id.nested_test,
             null,
-            navOptions {
-                popUpTo(R.id.nested_test) {
-                    inclusive = true
-                }
-            }
+            navOptions { popUpTo(R.id.nested_test) { inclusive = true } }
         )
 
         assertWithMessage("The parent graph should be resumed when its child is resumed")
@@ -1006,23 +924,21 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
-     * Test that popping the last destination in a graph while navigating correctly
-     * cleans up the previous navigation graph
+     * Test that popping the last destination in a graph while navigating correctly cleans up the
+     * previous navigation graph
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleOrphanedGraph() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -1041,11 +957,7 @@ class NavBackStackEntryLifecycleTest {
         navController.navigate(
             R.id.second_test,
             null,
-            navOptions {
-                popUpTo(R.id.nested_test) {
-                    inclusive = true
-                }
-            }
+            navOptions { popUpTo(R.id.nested_test) { inclusive = true } }
         )
 
         assertWithMessage("The parent graph should be resumed when its child is resumed")
@@ -1071,19 +983,20 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleDoubleNestedGraph() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            route = "root",
-            startDestination = "first_nested"
-        ) {
-            navigation(route = "first_nested", startDestination = "first_nested_test") {
-                test("first_nested_test")
-                navigation(route = "second_nested", startDestination = "third_nested") {
-                    navigation(route = "third_nested", startDestination = "third_nested_test") {
-                        test("third_nested_test")
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "root",
+                startDestination = "first_nested"
+            ) {
+                navigation(route = "first_nested", startDestination = "first_nested_test") {
+                    test("first_nested_test")
+                    navigation(route = "second_nested", startDestination = "third_nested") {
+                        navigation(route = "third_nested", startDestination = "third_nested_test") {
+                            test("third_nested_test")
+                        }
                     }
                 }
             }
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.route!!)
@@ -1099,12 +1012,7 @@ class NavBackStackEntryLifecycleTest {
             .that(nestedBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
 
-        navController.navigate(
-            "second_nested",
-            navOptions {
-                popUpTo("first_nested")
-            }
-        )
+        navController.navigate("second_nested", navOptions { popUpTo("first_nested") })
 
         assertWithMessage("The parent graph should be resumed when its child is resumed")
             .that(graphBackStackEntry.lifecycle.currentState)
@@ -1127,15 +1035,13 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecyclePoppedGraph() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -1154,11 +1060,7 @@ class NavBackStackEntryLifecycleTest {
         navController.navigate(
             R.id.second_test,
             null,
-            navOptions {
-                popUpTo(R.id.nested) {
-                    inclusive = true
-                }
-            }
+            navOptions { popUpTo(R.id.nested) { inclusive = true } }
         )
 
         assertWithMessage("The parent graph should be resumed when its child is resumed")
@@ -1177,23 +1079,21 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
-     * Test that navigating to a new instance of a graph leaves the previous instance in its
-     * current state.
+     * Test that navigating to a new instance of a graph leaves the previous instance in its current
+     * state.
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeated() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -1251,23 +1151,21 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
-     * Test that navigating to a new instance of a graph back to back with its previous
-     * instance creates a brand new graph instance
+     * Test that navigating to a new instance of a graph back to back with its previous instance
+     * creates a brand new graph instance
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedBackToBack() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -1310,24 +1208,22 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
-     * Test that navigating to a new instance of a graph back to back with popping the
-     * last destination from the previous instance of the graph correctly cleans up
-     * the orphaned graph and creates a new graph instance.
+     * Test that navigating to a new instance of a graph back to back with popping the last
+     * destination from the previous instance of the graph correctly cleans up the orphaned graph
+     * and creates a new graph instance.
      */
     @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedBackToBackWithOrphanedGraph() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -1348,11 +1244,7 @@ class NavBackStackEntryLifecycleTest {
         navController.navigate(
             navGraph.id,
             null,
-            navOptions {
-                popUpTo(R.id.nested_test) {
-                    inclusive = true
-                }
-            }
+            navOptions { popUpTo(R.id.nested_test) { inclusive = true } }
         )
 
         assertWithMessage("The parent graph should be destroyed when its children are destroyed")
@@ -1387,18 +1279,14 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleNestedRepeatedWithDialog() {
         val navController = createNavController()
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.nested
-        ) {
-            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
-                test(R.id.nested_test)
-                dialog(R.id.nested_second_test) {
-                    deepLink("test://test/")
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.nested) {
+                navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                    test(R.id.nested_test)
+                    dialog(R.id.nested_second_test) { deepLink("test://test/") }
                 }
+                test(R.id.second_test)
             }
-            test(R.id.second_test)
-        }
         navController.graph = navGraph
 
         val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
@@ -1460,13 +1348,11 @@ class NavBackStackEntryLifecycleTest {
     @Test
     fun testLifecycleToDestroyedWhenInitialized() {
         val navController = createNavController(TestLifecycleOwner(Lifecycle.State.INITIALIZED))
-        val navGraph = navController.navigatorProvider.navigation(
-            id = 1,
-            startDestination = R.id.start_test
-        ) {
-            test(R.id.start_test)
-            test(R.id.second_test)
-        }
+        val navGraph =
+            navController.navigatorProvider.navigation(id = 1, startDestination = R.id.start_test) {
+                test(R.id.start_test)
+                test(R.id.second_test)
+            }
         navController.graph = navGraph
 
         val startBackStackEntry = navController.getBackStackEntry(R.id.start_test)

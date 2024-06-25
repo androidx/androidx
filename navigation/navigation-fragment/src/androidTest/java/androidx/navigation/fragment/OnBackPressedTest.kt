@@ -40,9 +40,7 @@ import org.junit.runners.Parameterized
 @Suppress("DEPRECATION")
 @MediumTest
 @RunWith(Parameterized::class)
-class OnBackPressedTest(
-    private val activityClass: Class<NavigationBaseActivity>
-) {
+class OnBackPressedTest(private val activityClass: Class<NavigationBaseActivity>) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters
@@ -87,14 +85,18 @@ class OnBackPressedTest(
         with(ActivityScenario.launch(activityClass)) {
             withActivity {
                 navController.setGraph(R.navigation.nav_simple)
-                navController.navigate(R.id.empty_fragment, null, navOptions {
-                    anim {
-                        enter = R.animator.fade_enter
-                        exit = R.animator.fade_exit
-                        popEnter = R.animator.fade_enter
-                        popExit = R.animator.fade_exit
+                navController.navigate(
+                    R.id.empty_fragment,
+                    null,
+                    navOptions {
+                        anim {
+                            enter = R.animator.fade_enter
+                            exit = R.animator.fade_exit
+                            popEnter = R.animator.fade_enter
+                            popExit = R.animator.fade_exit
+                        }
                     }
-                })
+                )
                 onBackPressed()
                 assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
                     .that(navController.currentDestination?.id)
@@ -109,14 +111,15 @@ class OnBackPressedTest(
             withActivity {
                 navController.setGraph(R.navigation.nav_simple)
 
-                val navigator = navController.navigatorProvider.getNavigator(
-                    FragmentNavigator::class.java
-                )
+                val navigator =
+                    navController.navigatorProvider.getNavigator(FragmentNavigator::class.java)
                 val fragment = supportFragmentManager.findFragmentById(R.id.nav_host)
                 navController.navigate(R.id.empty_fragment)
                 fragment?.childFragmentManager?.executePendingTransactions()
 
-                navController.navigate(R.id.empty_fragment_2, null,
+                navController.navigate(
+                    R.id.empty_fragment_2,
+                    null,
                     navOptions { popUpTo(R.id.empty_fragment) { inclusive = true } }
                 )
                 fragment?.childFragmentManager?.executePendingTransactions()
@@ -140,7 +143,8 @@ class OnBackPressedTest(
             val countDownLatch = withActivity {
                 navController.setGraph(R.navigation.nav_simple)
                 navController.navigate(R.id.empty_fragment)
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .setPrimaryNavigationFragment(null)
                     .commitNow()
 
@@ -148,9 +152,8 @@ class OnBackPressedTest(
                 finishCountDownLatch
             }
             assertWithMessage(
-                "onBackPressed() should finish the activity when not the " +
-                    "primary nav"
-            )
+                    "onBackPressed() should finish the activity when not the " + "primary nav"
+                )
                 .that(countDownLatch.await(1, TimeUnit.SECONDS))
                 .isTrue()
         }
@@ -160,25 +163,25 @@ class OnBackPressedTest(
     fun testOnBackPressedWithChildBackStack() {
         with(ActivityScenario.launch(activityClass)) {
             withActivity {
-                val navHostFragment = supportFragmentManager.primaryNavigationFragment
-                    as NavHostFragment
+                val navHostFragment =
+                    supportFragmentManager.primaryNavigationFragment as NavHostFragment
                 val navHostFragmentManager = navHostFragment.childFragmentManager
                 val navController = navHostFragment.navController
                 navController.setGraph(R.navigation.nav_simple)
                 navController.navigate(R.id.child_back_stack_fragment)
                 navHostFragmentManager.executePendingTransactions()
 
-                val currentFragment = navHostFragmentManager.primaryNavigationFragment
-                    as ChildBackStackFragment
+                val currentFragment =
+                    navHostFragmentManager.primaryNavigationFragment as ChildBackStackFragment
                 assertWithMessage("Current Fragment should have a child Fragment by default")
                     .that(currentFragment.childFragment)
                     .isNotNull()
 
                 onBackPressed()
                 assertWithMessage(
-                    "onBackPressed() should not trigger NavController when there " +
-                        "is a child back stack"
-                )
+                        "onBackPressed() should not trigger NavController when there " +
+                            "is a child back stack"
+                    )
                     .that(navController.currentDestination?.id)
                     .isEqualTo(R.id.child_back_stack_fragment)
                 assertWithMessage("Child Fragment should be popped")
@@ -194,9 +197,8 @@ class OnBackPressedTest(
             withActivity {
                 navController.setGraph(R.navigation.nav_simple)
 
-                val navigator = navController.navigatorProvider.getNavigator(
-                    FragmentNavigator::class.java
-                )
+                val navigator =
+                    navController.navigatorProvider.getNavigator(FragmentNavigator::class.java)
                 val fragment = supportFragmentManager.findFragmentById(R.id.nav_host)
 
                 navController.navigate(R.id.null_view_fragment, null, null)
@@ -220,11 +222,13 @@ class OnBackPressedTest(
 }
 
 class ChildBackStackFragment : EmptyFragment() {
-    val childFragment get() = childFragmentManager.findFragmentByTag("child")
+    val childFragment
+        get() = childFragmentManager.findFragmentByTag("child")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        childFragmentManager.beginTransaction()
+        childFragmentManager
+            .beginTransaction()
             .add(Fragment(), "child")
             .addToBackStack(null)
             .commit()
@@ -233,6 +237,7 @@ class ChildBackStackFragment : EmptyFragment() {
 
 class NullViewFragment : EmptyFragment() {
     var viewAlreadyCreated = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

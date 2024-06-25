@@ -16,36 +16,23 @@
 
 package androidx.navigation
 
-/**
- * Construct a new [NavArgument]
- */
-public fun navArgument(
-    name: String,
-    builder: NavArgumentBuilder.() -> Unit
-): NamedNavArgument = NamedNavArgument(name, NavArgumentBuilder().apply(builder).build())
+/** Construct a new [NavArgument] */
+public fun navArgument(name: String, builder: NavArgumentBuilder.() -> Unit): NamedNavArgument =
+    NamedNavArgument(name, NavArgumentBuilder().apply(builder).build())
 
-/**
- * Construct a named [NavArgument] by using the [navArgument] method.
- */
-public class NamedNavArgument internal constructor(
+/** Construct a named [NavArgument] by using the [navArgument] method. */
+public class NamedNavArgument
+internal constructor(
 
-    /**
-     * The name the argument is associated with
-     */
+    /** The name the argument is associated with */
     public val name: String,
 
-    /**
-     * The [NavArgument] associated with the name
-     */
+    /** The [NavArgument] associated with the name */
     public val argument: NavArgument
 ) {
-    /**
-     * Provides destructuring access to this [NamedNavArgument]'s [name]
-     */
+    /** Provides destructuring access to this [NamedNavArgument]'s [name] */
     public operator fun component1(): String = name
 
-    /**
-     * Provides destructuring access to this [NamedNavArgument]'s [argument]
-     */
+    /** Provides destructuring access to this [NamedNavArgument]'s [argument] */
     public operator fun component2(): NavArgument = argument
 }

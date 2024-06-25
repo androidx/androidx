@@ -36,25 +36,17 @@ class NavGraphAndroidTest {
 
     @Test
     fun matchDeepLink() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination()
+        val navigatorProvider = NavigatorProvider().apply { addNavigator(NavGraphNavigator(this)) }
+        val graph =
+            navigatorProvider.getNavigator(NavGraphNavigator::class.java).createDestination()
 
-        val idArgument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .build()
+        val idArgument = NavArgument.Builder().setType(NavType.IntType).build()
         graph.addArgument("id", idArgument)
         graph.addDeepLink("www.example.com/users/{id}")
 
-        val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43")
-        )
+        val match = graph.matchDeepLink(Uri.parse("https://www.example.com/users/43"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getInt("id"))
@@ -63,24 +55,18 @@ class NavGraphAndroidTest {
 
     @Test
     fun matchDeepLinkBestMatchExact() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination()
+        val navigatorProvider = NavigatorProvider().apply { addNavigator(NavGraphNavigator(this)) }
+        val graph =
+            navigatorProvider.getNavigator(NavGraphNavigator::class.java).createDestination()
 
         graph.addDeepLink("www.example.com/users/index.html")
 
         graph.addArgument("id", nullableStringArgument(null))
         graph.addDeepLink("www.example.com/users/{id}")
 
-        val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/index.html")
-        )
+        val match = graph.matchDeepLink(Uri.parse("https://www.example.com/users/index.html"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick the exact match")
             .that(match?.matchingArgs?.size())
             .isEqualTo(0)
@@ -88,19 +74,15 @@ class NavGraphAndroidTest {
 
     @Test
     fun matchDotStar() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination()
+        val navigatorProvider = NavigatorProvider().apply { addNavigator(NavGraphNavigator(this)) }
+        val graph =
+            navigatorProvider.getNavigator(NavGraphNavigator::class.java).createDestination()
 
         graph.addDeepLink("www.example.com/.*")
         graph.addDeepLink("www.example.com/{name}")
 
         val match = graph.matchDeepLink(Uri.parse("https://www.example.com/foo"))
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick name over .*")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -108,31 +90,21 @@ class NavGraphAndroidTest {
 
     @Test
     fun matchDeepLinkBestMatch() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination()
+        val navigatorProvider = NavigatorProvider().apply { addNavigator(NavGraphNavigator(this)) }
+        val graph =
+            navigatorProvider.getNavigator(NavGraphNavigator::class.java).createDestination()
 
-        val idArgument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .build()
+        val idArgument = NavArgument.Builder().setType(NavType.IntType).build()
         graph.addArgument("id", idArgument)
         graph.addDeepLink("www.example.com/users/{id}")
 
-        val postIdArgument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .build()
+        val postIdArgument = NavArgument.Builder().setType(NavType.IntType).build()
         graph.addArgument("postId", postIdArgument)
         graph.addDeepLink("www.example.com/users/{id}/posts/{postId}")
 
-        val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43/posts/99")
-        )
+        val match = graph.matchDeepLink(Uri.parse("https://www.example.com/users/43/posts/99"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should pick the argument with more matching arguments")
             .that(match?.matchingArgs?.size())
@@ -147,11 +119,9 @@ class NavGraphAndroidTest {
 
     @Test
     fun matchDeepLinkBestMatchPathAndQuery() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination()
+        val navigatorProvider = NavigatorProvider().apply { addNavigator(NavGraphNavigator(this)) }
+        val graph =
+            navigatorProvider.getNavigator(NavGraphNavigator::class.java).createDestination()
 
         graph.addArgument("code", nullableStringArgument(null))
         graph.addDeepLink("www.example.com/users?code={code}")
@@ -159,13 +129,9 @@ class NavGraphAndroidTest {
         graph.addArgument("id", nullableStringArgument(null))
         graph.addDeepLink("www.example.com/users?id={id}")
 
-        val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users?id=1234")
-        )
+        val match = graph.matchDeepLink(Uri.parse("https://www.example.com/users?id=1234"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should pick the argument with given values")
             .that(match?.matchingArgs?.size())
@@ -177,41 +143,34 @@ class NavGraphAndroidTest {
 
     @Test
     fun matchDeepLinkBestMatchChildren() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination()
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
+        val graph =
+            navigatorProvider.getNavigator(NavGraphNavigator::class.java).createDestination()
 
-        val userDestination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
-            .createDestination()
+        val userDestination =
+            navigatorProvider.getNavigator(NoOpNavigator::class.java).createDestination()
         userDestination.id = 1
-        val idArgument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .build()
+        val idArgument = NavArgument.Builder().setType(NavType.IntType).build()
         userDestination.addArgument("id", idArgument)
         userDestination.addDeepLink("www.example.com/users/{id}")
         graph.addDestination(userDestination)
 
-        val postDestination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
-            .createDestination()
+        val postDestination =
+            navigatorProvider.getNavigator(NoOpNavigator::class.java).createDestination()
         postDestination.id = 2
-        val postIdArgument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .build()
+        val postIdArgument = NavArgument.Builder().setType(NavType.IntType).build()
         postDestination.addArgument("id", idArgument)
         postDestination.addArgument("postId", postIdArgument)
         postDestination.addDeepLink("www.example.com/users/{id}/posts/{postId}")
         graph.addDestination(postDestination)
 
-        val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43/posts/99")
-        )
+        val match = graph.matchDeepLink(Uri.parse("https://www.example.com/users/43/posts/99"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should point to correct destination")
             .that(match?.destination)
@@ -226,156 +185,190 @@ class NavGraphAndroidTest {
 
     @Test
     fun toStringStartDestIdOnly() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ID)
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
             }
-        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
-            "startDestination=0x${DESTINATION_ID.toString(16)}"
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ID)
+                }
+        val expected =
+            "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
+                "startDestination=0x${DESTINATION_ID.toString(16)}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
     @Test
     fun toStringStartDestRouteOnly() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                route = GRAPH_ROUTE
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ROUTE)
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
             }
-        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
-            "label=$GRAPH_LABEL startDestination=$DESTINATION_ROUTE"
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    route = GRAPH_ROUTE
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ROUTE)
+                }
+        val expected =
+            "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+                "label=$GRAPH_LABEL startDestination=$DESTINATION_ROUTE"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
     @Test
     fun startDestDisplayNameWithRoute() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                route = GRAPH_ROUTE
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ROUTE)
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
             }
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    route = GRAPH_ROUTE
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ROUTE)
+                }
         assertThat(graph.startDestDisplayName).isEqualTo(DESTINATION_ROUTE)
     }
 
     @Test
     fun toStringStartDestInNodes() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
-            .createDestination().apply {
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
+        val destination =
+            navigatorProvider.getNavigator(NoOpNavigator::class.java).createDestination().apply {
                 id = DESTINATION_ID
                 label = DESTINATION_LABEL
             }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ID)
-                addDestination(destination)
-            }
-        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
-            "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
-            "label=$DESTINATION_LABEL}"
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ID)
+                    addDestination(destination)
+                }
+        val expected =
+            "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
+                "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
+                "label=$DESTINATION_LABEL}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
     @Test
     fun toStringStartDestInNodesRoute() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
-            .createDestination().apply {
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
+        val destination =
+            navigatorProvider.getNavigator(NoOpNavigator::class.java).createDestination().apply {
                 route = DESTINATION_ROUTE
                 id = DESTINATION_ID
                 label = DESTINATION_LABEL
             }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                route = GRAPH_ROUTE
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ROUTE)
-                setStartDestination(DESTINATION_ID)
-                addDestination(destination)
-            }
-        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
-            "label=$GRAPH_LABEL " +
-            "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
-            "route=$DESTINATION_ROUTE label=$DESTINATION_LABEL}"
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    route = GRAPH_ROUTE
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ROUTE)
+                    setStartDestination(DESTINATION_ID)
+                    addDestination(destination)
+                }
+        val expected =
+            "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+                "label=$GRAPH_LABEL " +
+                "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
+                "route=$DESTINATION_ROUTE label=$DESTINATION_LABEL}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
     @Test
     fun toStringStartDestInNodesRouteWithStartDestID() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
-            .createDestination().apply {
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
+        val destination =
+            navigatorProvider.getNavigator(NoOpNavigator::class.java).createDestination().apply {
                 route = DESTINATION_ROUTE
                 label = DESTINATION_LABEL
             }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                route = GRAPH_ROUTE
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ROUTE)
-                setStartDestination(DESTINATION_ID)
-                addDestination(destination)
-            }
-        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
-            "label=$GRAPH_LABEL startDestination=0x${DESTINATION_ID.toString(16)}"
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    route = GRAPH_ROUTE
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ROUTE)
+                    setStartDestination(DESTINATION_ID)
+                    addDestination(destination)
+                }
+        val expected =
+            "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+                "label=$GRAPH_LABEL startDestination=0x${DESTINATION_ID.toString(16)}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
     @Test
     fun toStringStartDestInNodesRouteWithID() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
-        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
-            .createDestination().apply {
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
+        val destination =
+            navigatorProvider.getNavigator(NoOpNavigator::class.java).createDestination().apply {
                 route = DESTINATION_ROUTE
                 id = DESTINATION_ID
                 label = DESTINATION_LABEL
             }
-        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-            .createDestination().apply {
-                route = GRAPH_ROUTE
-                id = GRAPH_ID
-                label = GRAPH_LABEL
-                setStartDestination(DESTINATION_ROUTE)
-                addDestination(destination)
-            }
+        val graph =
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
+                    route = GRAPH_ROUTE
+                    id = GRAPH_ID
+                    label = GRAPH_LABEL
+                    setStartDestination(DESTINATION_ROUTE)
+                    addDestination(destination)
+                }
         // even though id was set after route, it should still be able to find the destination
         // based on route
-        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
-            "label=$GRAPH_LABEL startDestination={$destination}"
+        val expected =
+            "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+                "label=$GRAPH_LABEL startDestination={$destination}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 }

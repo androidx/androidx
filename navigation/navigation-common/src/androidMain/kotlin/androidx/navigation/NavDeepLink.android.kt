@@ -18,6 +18,7 @@ package androidx.navigation
 import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.core.os.bundleOf
 import androidx.navigation.serialization.generateRoutePattern
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -29,10 +30,10 @@ import kotlinx.serialization.serializer
 /**
  * NavDeepLink encapsulates the parsing and matching of a navigation deep link.
  *
- * This should be added to a [NavDestination] using
- * [NavDestination.addDeepLink].
+ * This should be added to a [NavDestination] using [NavDestination.addDeepLink].
  */
-public actual class NavDeepLink internal actual constructor(
+public actual class NavDeepLink
+internal actual constructor(
     /**
      * The uri pattern from the NavDeepLink.
      *
@@ -69,29 +70,23 @@ public actual class NavDeepLink internal actual constructor(
     // fragment
     private val fragArgsAndRegex: Pair<MutableList<String>, String>? by
         lazy(LazyThreadSafetyMode.NONE) { parseFragment() }
-    private val fragArgs by lazy(LazyThreadSafetyMode.NONE) {
-        fragArgsAndRegex?.first ?: mutableListOf()
-    }
-    private val fragRegex by lazy(LazyThreadSafetyMode.NONE) {
-        fragArgsAndRegex?.second
-    }
+    private val fragArgs by
+        lazy(LazyThreadSafetyMode.NONE) { fragArgsAndRegex?.first ?: mutableListOf() }
+    private val fragRegex by lazy(LazyThreadSafetyMode.NONE) { fragArgsAndRegex?.second }
     private val fragPattern by lazy {
         fragRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
     }
 
     // mime
     private var mimeTypeRegex: String? = null
-    private val mimeTypePattern by lazy {
-        mimeTypeRegex?.let { Pattern.compile(it) }
-    }
+    private val mimeTypePattern by lazy { mimeTypeRegex?.let { Pattern.compile(it) } }
 
     /** Arguments present in the deep link, including both path and query arguments. */
     internal val argumentsNames: List<String>
         get() = pathArgs + queryArgsMap.values.flatMap { it.arguments } + fragArgs
 
     public actual var isExactDeepLink: Boolean = false
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
         internal set
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -162,12 +157,12 @@ public actual class NavDeepLink internal actual constructor(
     public fun getMimeTypeMatchRating(mimeType: String): Int {
         return if (this.mimeType == null || !mimeTypePattern!!.matcher(mimeType).matches()) {
             -1
-        } else MimeType(this.mimeType)
-            .compareTo(MimeType(mimeType))
+        } else MimeType(this.mimeType).compareTo(MimeType(mimeType))
     }
 
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "NullableCollection")
-    /** Pattern.compile has no nullability for the regex parameter
+    /**
+     * Pattern.compile has no nullability for the regex parameter
      *
      * May return null if any of the following:
      * 1. missing required arguments that don't have default values
@@ -176,14 +171,11 @@ public actual class NavDeepLink internal actual constructor(
      *
      * May return empty bundle if any of the following:
      * 1. deeplink has no arguments
-     * 2. deeplink contains arguments with unknown default values (i.e. deeplink from safe args
-     * with unknown default values)
+     * 2. deeplink contains arguments with unknown default values (i.e. deeplink from safe args with
+     *    unknown default values)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun getMatchingArguments(
-        deepLink: Uri,
-        arguments: Map<String, NavArgument?>
-    ): Bundle? {
+    public fun getMatchingArguments(deepLink: Uri, arguments: Map<String, NavArgument?>): Bundle? {
         // first check overall uri pattern for quick return if general pattern does not match
         val matcher = pathPattern?.matcher(deepLink.toString()) ?: return null
         if (!matcher.matches()) {
@@ -199,17 +191,16 @@ public actual class NavDeepLink internal actual constructor(
         getMatchingUriFragment(deepLink.fragment, bundle, arguments)
 
         // Check that all required arguments are present in bundle
-        val missingRequiredArguments = arguments.missingRequiredArguments { argName ->
-            !bundle.containsKey(argName)
-        }
+        val missingRequiredArguments =
+            arguments.missingRequiredArguments { argName -> !bundle.containsKey(argName) }
         if (missingRequiredArguments.isNotEmpty()) return null
 
         return bundle
     }
 
     /**
-     * Returns a bundle containing matching path and query arguments with the requested uri.
-     * It returns empty bundle if this Deeplink's path pattern does not match with the uri.
+     * Returns a bundle containing matching path and query arguments with the requested uri. It
+     * returns empty bundle if this Deeplink's path pattern does not match with the uri.
      */
     internal fun getMatchingPathAndQueryArgs(
         deepLink: Uri?,
@@ -275,10 +266,15 @@ public actual class NavDeepLink internal actual constructor(
         bundle: Bundle,
         arguments: Map<String, NavArgument?>
     ): Boolean {
+        // key is queryParameterName (argName could be different), value is NavDeepLink.ParamQuery
         queryArgsMap.forEach { entry ->
             val paramName = entry.key
             val storedParam = entry.value
 
+            // a list of the arg values under this queryParameterName
+            // collection types (i.e. list, array) would potentially have listOf(arg1, arg2, arg3,
+            // etc..)
+            // non-collection types would usually have listOf(theArgValue)
             var inputParams = deepLink.getQueryParameters(paramName)
             if (isSingleQueryParamValueOnly) {
                 // If the deep link contains a single query param with no value,
@@ -288,50 +284,76 @@ public actual class NavDeepLink internal actual constructor(
                     inputParams = listOf(argValue)
                 }
             }
-            if (!parseInputParams(inputParams, storedParam, bundle, arguments)) {
-                // failed to parse input parameters
-                return false
-            }
+            val parseSuccess = parseInputParams(inputParams, storedParam, bundle, arguments)
+            if (!parseSuccess) return false
         }
         // parse success
         return true
     }
 
+    /**
+     * @param inputParams list of arg values under the same Uri.queryParameterName. For example:
+     * 1. sample route "...?myArg=1&myArg=2" inputParams = listOf("1", "2")
+     * 2. sample route "...?myArg=John_Doe" inputParams = listOf("John_Doe")
+     *
+     * @param storedParam the [ParamQuery] for a single Uri.queryParameter
+     */
     private fun parseInputParams(
-        inputParams: List<String>?,
+        inputParams: List<String>,
         storedParam: ParamQuery,
         bundle: Bundle,
         arguments: Map<String, NavArgument?>,
     ): Boolean {
-        inputParams?.forEach { inputParam ->
-            val argMatcher = storedParam.paramRegex?.let {
-                Pattern.compile(
-                    it, Pattern.DOTALL
-                ).matcher(inputParam)
+        val tempBundle = bundleOf()
+        // try to start off by adding an empty bundle if there is no default value.
+        storedParam.arguments.forEach { argName ->
+            val argument = arguments[argName]
+            val navType = argument?.type
+            // for CollectionNavType, only fallback to empty collection if there isn't a default
+            // value
+            if (navType is CollectionNavType && !argument.isDefaultValuePresent) {
+                navType.put(tempBundle, argName, navType.emptyCollection())
             }
+        }
+        inputParams.forEach { inputParam ->
+            val argMatcher =
+                storedParam.paramRegex?.let {
+                    Pattern.compile(it, Pattern.DOTALL).matcher(inputParam)
+                }
+            // check if this particular arg value matches the expected regex.
+            // for example, if the query was list of Int like "...?intId=1&intId=2&intId=abc",
+            // this would return false when matching "abc".
             if (argMatcher == null || !argMatcher.matches()) {
                 return false
             }
+            // iterate over each argName under the same queryParameterName
+            storedParam.arguments.mapIndexed { index, argName ->
+                // make sure we get the correct value for this particular argName
+                // i.e. if route is "...?myArg={firstName}_{lastName}"
+                // and the inputParam is "John_Doe"
+                // we need to map values to argName like this:
+                // [firstName to "John", lastName to "Doe"]
+                val value = argMatcher.group(index + 1) ?: ""
+                val argument = arguments[argName]
 
-            val queryParamBundle = Bundle()
-            try {
-                storedParam.arguments.mapIndexed { index, argName ->
-                    val value = argMatcher.group(index + 1) ?: ""
-                    val argument = arguments[argName]
-                    if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
+                try {
+                    if (!tempBundle.containsKey(argName)) {
                         // Passing in a value the exact same as the placeholder will be treated the
                         // as if no value was passed (unless value is based on String),
                         // being replaced if it is optional or throwing an error if it is required.
-                        parseArgument(queryParamBundle, argName, value, argument)
+                        parseArgument(tempBundle, argName, value, argument)
+                    } else {
+                        parseArgumentForRepeatedParam(tempBundle, argName, value, argument)
                     }
+                } catch (e: IllegalArgumentException) {
+                    // Failed to parse means that at least one of the arguments that
+                    // were supposed to fill in the query parameter was not valid.
+                    // We will need to handle it here. Values that are not handled
+                    // here will just be excluded from the argument bundle.
                 }
-                bundle.putAll(queryParamBundle)
-            } catch (e: IllegalArgumentException) {
-                // Failed to parse means that at least one of the arguments that were supposed
-                // to fill in the query parameter was not valid and therefore, we will exclude
-                // that particular parameter from the argument bundle.
             }
         }
+        bundle.putAll(tempBundle)
         // parse success
         return true
     }
@@ -347,15 +369,10 @@ public actual class NavDeepLink internal actual constructor(
     }
 
     /**
-     * Parses [value] based on the NavArgument's NavType and stores the result
-     * inside the [bundle]. Throws if parse fails.
+     * Parses [value] based on the NavArgument's NavType and stores the result inside the [bundle].
+     * Throws if parse fails.
      */
-    private fun parseArgument(
-        bundle: Bundle,
-        name: String,
-        value: String,
-        argument: NavArgument?
-    ) {
+    private fun parseArgument(bundle: Bundle, name: String, value: String, argument: NavArgument?) {
         if (argument != null) {
             val type = argument.type
             type.parseAndPut(bundle, name, value)
@@ -364,6 +381,13 @@ public actual class NavDeepLink internal actual constructor(
         }
     }
 
+    /**
+     * Parses subsequent arg values under the same queryParameterName
+     *
+     * For example with route "...?myArg=one&myArg=two&myArg=three", [bundle] is expected to already
+     * contain bundleOf([name] to "one"), and this function will parse & put values "two" and
+     * "three" into the bundle under the same [name].
+     */
     private fun parseArgumentForRepeatedParam(
         bundle: Bundle,
         name: String,
@@ -381,11 +405,11 @@ public actual class NavDeepLink internal actual constructor(
         return false
     }
 
-    /**
-     * Used to maintain query parameters and the mArguments they match with.
-     */
+    /** Used to maintain query parameters and the mArguments they match with. */
     private class ParamQuery {
         var paramRegex: String? = null
+        // list of arg names under the same queryParamName, i.e. "...?name={first}_{last}"
+        // queryParamName = "name", arguments = ["first", "last"]
         val arguments = mutableListOf<String>()
 
         fun addArgumentName(name: String) {
@@ -404,6 +428,7 @@ public actual class NavDeepLink internal actual constructor(
     private class MimeType(mimeType: String) : Comparable<MimeType> {
         var type: String
         var subType: String
+
         override fun compareTo(other: MimeType): Int {
             var result = 0
             // matching just subtypes is 1
@@ -419,8 +444,7 @@ public actual class NavDeepLink internal actual constructor(
         }
 
         init {
-            val typeAndSubType =
-                mimeType.split("/".toRegex()).dropLastWhile { it.isEmpty() }
+            val typeAndSubType = mimeType.split("/".toRegex()).dropLastWhile { it.isEmpty() }
             type = typeAndSubType[0]
             subType = typeAndSubType[1]
         }
@@ -441,13 +465,10 @@ public actual class NavDeepLink internal actual constructor(
         return result
     }
 
-    /**
-     * A builder for constructing [NavDeepLink] instances.
-     */
+    /** A builder for constructing [NavDeepLink] instances. */
     public actual class Builder {
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public actual constructor()
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public actual constructor()
 
         private var uriPattern: String? = null
         private var action: String? = null
@@ -457,7 +478,6 @@ public actual class NavDeepLink internal actual constructor(
          * Set the uri pattern for the [NavDeepLink].
          *
          * @param uriPattern The uri pattern to add to the NavDeepLink
-         *
          * @return This builder.
          */
         public actual fun setUriPattern(uriPattern: String): Builder {
@@ -473,49 +493,49 @@ public actual class NavDeepLink internal actual constructor(
          *
          * Arguments are appended based on property name and in the same order as their declaration
          * order in [T]. They are appended as query parameters if the argument has either:
-         *
          * 1. a default value
          * 2. a [NavType] of [CollectionNavType]
          *
-         * Otherwise, the argument will be appended as path parameters. The final uriPattern
-         * is generated by concatenating `uriPattern + path parameters + query parameters`.
-         *
+         * Otherwise, the argument will be appended as path parameters. The final uriPattern is
+         * generated by concatenating `uriPattern + path parameters + query parameters`.
          *
          * For example, the `name` property in this class does not meet either conditions and will
          * be appended as a path param.
+         *
          * ```
          * @Serializable
          * class MyClass(val name: String)
          * ```
-         * Given a uriPattern of "www.example.com", the generated final uriPattern
-         * will be `www.example.com/{name}`.
          *
+         * Given a uriPattern of "www.example.com", the generated final uriPattern will be
+         * `www.example.com/{name}`.
          *
          * The `name` property in this class has a default value and will be appended as a query.
+         *
          * ```
          * @Serializable
          * class MyClass(val name: String = "default")
          * ```
-         * Given a uriPattern of "www.example.com", the final generated uriPattern
-         * will be `www.example.com?name={name}`
          *
+         * Given a uriPattern of "www.example.com", the final generated uriPattern will be
+         * `www.example.com?name={name}`
          *
          * The append order is based on their declaration order in [T]
+         *
          * ```
          * @Serializable
          * class MyClass(val name: String = "default", val id: Int, val code: Int)
          * ```
-         * Given a uriPattern of "www.example.com", the final generated uriPattern
-         * will be `www.example.com/{id}/{code}?name={name}`. In this example, `name` is appended
-         * first as a query param, then `id` and `code` respectively as path params. The final
-         * pattern is then concatenated with `uriPattern + path + query`.
          *
+         * Given a uriPattern of "www.example.com", the final generated uriPattern will be
+         * `www.example.com/{id}/{code}?name={name}`. In this example, `name` is appended first as a
+         * query param, then `id` and `code` respectively as path params. The final pattern is then
+         * concatenated with `uriPattern + path + query`.
          *
          * @param T The destination's route from KClass
          * @param basePath The base uri path to append arguments onto
          * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-         * [NavType]. May be empty if [T] does not use custom NavTypes.
-         *
+         *   [NavType]. May be empty if [T] does not use custom NavTypes.
          * @return This builder.
          */
         public actual inline fun <reified T : Any> setUriPattern(
@@ -537,11 +557,9 @@ public actual class NavDeepLink internal actual constructor(
         /**
          * Set the action for the [NavDeepLink].
          *
-         * @throws IllegalArgumentException if the action is empty.
-         *
          * @param action the intent action for the NavDeepLink
-         *
          * @return This builder.
+         * @throws IllegalArgumentException if the action is empty.
          */
         public actual fun setAction(action: String): Builder {
             // if the action given at runtime is empty we should throw
@@ -554,7 +572,6 @@ public actual class NavDeepLink internal actual constructor(
          * Set the mimeType for the [NavDeepLink].
          *
          * @param mimeType the mimeType for the NavDeepLink
-         *
          * @return This builder.
          */
         public actual fun setMimeType(mimeType: String): Builder {
@@ -588,13 +605,13 @@ public actual class NavDeepLink internal actual constructor(
             /**
              * Creates a [NavDeepLink.Builder] with a set uri pattern.
              *
-             * Arguments extracted from destination [T] will be automatically appended to the
-             * base path provided in [basePath]
+             * Arguments extracted from destination [T] will be automatically appended to the base
+             * path provided in [basePath]
              *
              * @param T The destination's route from KClass
              * @param basePath The base uri path to append arguments onto
-             * @param typeMap map of destination arguments' kotlin type [KType] to its
-             * respective custom [NavType]. May be empty if [T] does not use custom NavTypes.
+             * @param typeMap map of destination arguments' kotlin type [KType] to its respective
+             *   custom [NavType]. May be empty if [T] does not use custom NavTypes.
              * @return a [Builder] instance
              */
             @JvmStatic
@@ -610,10 +627,9 @@ public actual class NavDeepLink internal actual constructor(
             /**
              * Creates a [NavDeepLink.Builder] with a set action.
              *
-             * @throws IllegalArgumentException if the action is empty.
-             *
              * @param action the intent action for the NavDeepLink
              * @return a [Builder] instance
+             * @throws IllegalArgumentException if the action is empty.
              */
             @JvmStatic
             actual fun fromAction(action: String): Builder {
@@ -681,8 +697,9 @@ public actual class NavDeepLink internal actual constructor(
                     "argument and the pattern provided in your URI will be used to " +
                     "parse each query parameter instance."
             }
-            val queryParam = queryParams.firstOrNull()
-                ?: paramName.apply { isSingleQueryParamValueOnly = true }
+            // example of singleQueryParamValueOnly "www.example.com?{arg}"
+            val queryParam =
+                queryParams.firstOrNull() ?: paramName.apply { isSingleQueryParamValueOnly = true }
             val matcher = FILL_IN_PATTERN.matcher(queryParam)
             var appendPos = 0
             val param = ParamQuery()
@@ -690,14 +707,7 @@ public actual class NavDeepLink internal actual constructor(
             while (matcher.find()) {
                 // matcher.group(1) as String = "tab" (the extracted param arg from {tab})
                 param.addArgumentName(matcher.group(1) as String)
-                argRegex.append(
-                    Pattern.quote(
-                        queryParam.substring(
-                            appendPos,
-                            matcher.start()
-                        )
-                    )
-                )
+                argRegex.append(Pattern.quote(queryParam.substring(appendPos, matcher.start())))
                 argRegex.append("(.+?)?")
                 appendPos = matcher.end()
             }
@@ -733,9 +743,7 @@ public actual class NavDeepLink internal actual constructor(
         }
 
         // get the type and subtype of the mimeType
-        val splitMimeType = MimeType(
-            mimeType
-        )
+        val splitMimeType = MimeType(mimeType)
 
         // the matching pattern can have the exact name or it can be wildcard literal (*)
         val regex = "^(${splitMimeType.type}|[*]+)/(${splitMimeType.subType}|[*]+)$"

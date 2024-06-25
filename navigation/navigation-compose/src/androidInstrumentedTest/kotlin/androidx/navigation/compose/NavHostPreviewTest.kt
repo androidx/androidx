@@ -38,16 +38,13 @@ import org.junit.Test
 
 class NavHostPreviewTest {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<PreviewActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<PreviewActivity>()
 
     @Test
     fun navHostPreviewTest() {
         // prevent auto synchronization so it doesn't actually animate the composable
         composeTestRule.mainClock.autoAdvance = false
-        composeTestRule.setContent {
-            NavHostPreview()
-        }
+        composeTestRule.setContent { NavHostPreview() }
 
         val text = composeTestRule.onNodeWithTag("text").assertExists()
         text.assertIsDisplayed()
@@ -57,9 +54,7 @@ class NavHostPreviewTest {
     fun navHostWithDialogPreviewTest() {
         // prevent auto synchronization so it doesn't actually animate the composable
         composeTestRule.mainClock.autoAdvance = false
-        composeTestRule.setContent {
-            NavHostWithDialogPreview()
-        }
+        composeTestRule.setContent { NavHostWithDialogPreview() }
 
         val text = composeTestRule.onNodeWithTag("text").assertExists()
         text.assertIsDisplayed()
@@ -81,10 +76,7 @@ fun NavHostPreview() {
         LocalInspectionMode provides true,
     ) {
         Box(Modifier.fillMaxSize().background(Color.Red)) {
-            NavHost(
-                navController = rememberNavController(),
-                startDestination = "home"
-            ) {
+            NavHost(navController = rememberNavController(), startDestination = "home") {
                 composable("home") {
                     Box(Modifier.fillMaxSize().background(Color.Blue)) {
                         Text(text = "test", modifier = Modifier.testTag("text"))
@@ -103,10 +95,7 @@ fun NavHostWithDialogPreview() {
     ) {
         val navController = rememberNavController()
         Box(Modifier.fillMaxSize().background(Color.Red)) {
-            NavHost(
-                navController = navController,
-                startDestination = "home"
-            ) {
+            NavHost(navController = navController, startDestination = "home") {
                 composable("home") {
                     Box(Modifier.fillMaxSize().background(Color.Blue)) {
                         Text(text = "test", modifier = Modifier.testTag("text"))
@@ -115,9 +104,7 @@ fun NavHostWithDialogPreview() {
                     navController.navigate("dialog")
                 }
                 dialog("dialog") {
-                    Box(
-                        Modifier.height(200.dp).background(Color.Gray).testTag("dialog")
-                    ) {
+                    Box(Modifier.height(200.dp).background(Color.Gray).testTag("dialog")) {
                         Text(text = "test", modifier = Modifier.testTag("dialog_text"))
                     }
                 }

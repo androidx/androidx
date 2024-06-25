@@ -24,10 +24,10 @@ import androidx.navigation.NavArgsLazy
 /**
  * Returns a [Lazy] delegate to access the Fragment's arguments as an [Args] instance.
  *
- * It is strongly recommended that this method only be used when the Fragment is created
- * by [androidx.navigation.NavController.navigate] with the corresponding
- * [androidx.navigation.NavDirections] object, which ensures that the required
- * arguments are present.
+ * It is strongly recommended that this method only be used when the Fragment is created by
+ * [androidx.navigation.NavController.navigate] with the corresponding
+ * [androidx.navigation.NavDirections] object, which ensures that the required arguments are
+ * present.
  *
  * ```
  * class MyFragment : Fragment() {

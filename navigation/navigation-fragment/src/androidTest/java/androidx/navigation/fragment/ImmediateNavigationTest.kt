@@ -39,9 +39,7 @@ class ImmediateNavigationTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityScenarioRule(
-        ImmediateNavigationActivity::class.java
-    )
+    var activityRule = ActivityScenarioRule(ImmediateNavigationActivity::class.java)
 
     @Test
     fun testNavigateInOnResume() {
@@ -63,9 +61,7 @@ class ImmediateNavigationTest {
                 }
             }
         }
-        activityRule.withActivity {
-            navController.navigate(R.id.immediate_test)
-        }
+        activityRule.withActivity { navController.navigate(R.id.immediate_test) }
         countDownLatch.await(1, TimeUnit.SECONDS)
     }
 }

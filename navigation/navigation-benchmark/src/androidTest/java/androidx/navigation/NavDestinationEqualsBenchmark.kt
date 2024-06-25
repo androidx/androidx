@@ -28,38 +28,35 @@ import org.junit.runner.RunWith
 @LargeTest
 class NavDestinationEqualsBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Suppress("UnusedEquals")
     @Test
     fun navGraphEquals_100() {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
         val graph1 = navigatorProvider.createGraph(100)
         val graph2 = navigatorProvider.createGraph(100)
-        benchmarkRule.measureRepeated {
-            graph1 == graph2
-        }
+        benchmarkRule.measureRepeated { graph1 == graph2 }
     }
 
-    private fun NavigatorProvider.createGraph(
-        count: Int
-    ) = getNavigator(NavGraphNavigator::class.java).createDestination().apply {
-        id = GRAPH_ID
-        setStartDestination(START_DESTINATION_ID)
-        val navigator = getNavigator(NoOpNavigator::class.java)
-        for (i in 0 until count) {
-            addDestination(
-                navigator.createDestination().apply {
-                    route = URI_PATH + i + URI_EXTRAS
-                    id = i
-                }
-            )
+    private fun NavigatorProvider.createGraph(count: Int) =
+        getNavigator(NavGraphNavigator::class.java).createDestination().apply {
+            id = GRAPH_ID
+            setStartDestination(START_DESTINATION_ID)
+            val navigator = getNavigator(NoOpNavigator::class.java)
+            for (i in 0 until count) {
+                addDestination(
+                    navigator.createDestination().apply {
+                        route = URI_PATH + i + URI_EXTRAS
+                        id = i
+                    }
+                )
+            }
         }
-    }
 
     companion object {
         const val URI_PATH = "example.com/"

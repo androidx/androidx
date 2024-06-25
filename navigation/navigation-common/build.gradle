@@ -183,7 +183,7 @@ kotlin {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     defaultConfig {
@@ -198,4 +198,5 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Common"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

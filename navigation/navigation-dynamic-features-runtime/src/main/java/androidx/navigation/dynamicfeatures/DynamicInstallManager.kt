@@ -47,9 +47,7 @@ public open class DynamicInstallManager(
 ) {
 
     internal companion object {
-        internal fun terminateLiveData(
-            status: MutableLiveData<SplitInstallSessionState>
-        ) {
+        internal fun terminateLiveData(status: MutableLiveData<SplitInstallSessionState>) {
             // Best effort leak prevention, will only work for active observers
             check(!status.hasActiveObservers()) {
                 "This DynamicInstallMonitor will not " +
@@ -69,10 +67,11 @@ public open class DynamicInstallManager(
             requestInstall(moduleName, extras.installMonitor)
             return null
         } else {
-            val progressArgs = Bundle().apply {
-                putInt(Constants.DESTINATION_ID, backStackEntry.destination.id)
-                putBundle(Constants.DESTINATION_ARGS, backStackEntry.arguments)
-            }
+            val progressArgs =
+                Bundle().apply {
+                    putInt(Constants.DESTINATION_ID, backStackEntry.destination.id)
+                    putBundle(Constants.DESTINATION_ARGS, backStackEntry.arguments)
+                }
             val dynamicNavGraph = DynamicNavGraph.getOrThrow(backStackEntry.destination)
             val navigator: Navigator<*> =
                 dynamicNavGraph.navigatorProvider[dynamicNavGraph.navigatorName]
@@ -96,10 +95,7 @@ public open class DynamicInstallManager(
         return !splitInstallManager.installedModules.contains(module)
     }
 
-    private fun requestInstall(
-        module: String,
-        installMonitor: DynamicInstallMonitor
-    ) {
+    private fun requestInstall(module: String, installMonitor: DynamicInstallMonitor) {
         check(!installMonitor.isUsed) {
             // We don't want an installMonitor in an undefined state or used by another install
             "You must pass in a fresh DynamicInstallMonitor " +
@@ -109,10 +105,7 @@ public open class DynamicInstallManager(
         val status = installMonitor.status as MutableLiveData<SplitInstallSessionState>
         installMonitor.isInstallRequired = true
 
-        val request = SplitInstallRequest
-            .newBuilder()
-            .addModule(module)
-            .build()
+        val request = SplitInstallRequest.newBuilder().addModule(module).build()
 
         splitInstallManager
             .startInstall(request)
@@ -121,21 +114,19 @@ public open class DynamicInstallManager(
                 installMonitor.splitInstallManager = splitInstallManager
                 if (sessionId == 0) {
                     // The feature is already installed, emit synthetic INSTALLED state.
-                    status.value = SplitInstallSessionState.create(
-                        sessionId,
-                        SplitInstallSessionStatus.INSTALLED,
-                        SplitInstallErrorCode.NO_ERROR,
-                        /* bytesDownloaded */ 0,
-                        /* totalBytesToDownload */ 0,
-                        listOf(module),
-                        emptyList()
-                    )
+                    status.value =
+                        SplitInstallSessionState.create(
+                            sessionId,
+                            SplitInstallSessionStatus.INSTALLED,
+                            SplitInstallErrorCode.NO_ERROR,
+                            /* bytesDownloaded */ 0,
+                            /* totalBytesToDownload */ 0,
+                            listOf(module),
+                            emptyList()
+                        )
                     terminateLiveData(status)
                 } else {
-                    val listener = SplitInstallListenerWrapper(
-                        context, status,
-                        installMonitor
-                    )
+                    val listener = SplitInstallListenerWrapper(context, status, installMonitor)
                     splitInstallManager.registerListener(listener)
                 }
             }
@@ -145,18 +136,17 @@ public open class DynamicInstallManager(
                     "Error requesting install of $module: ${exception.message}"
                 )
                 installMonitor.exception = exception
-                status.value = SplitInstallSessionState.create(
-                    /* sessionId */ 0,
-                    SplitInstallSessionStatus.FAILED,
-                    if (exception is SplitInstallException)
-                        exception.errorCode
-                    else
-                        SplitInstallErrorCode.INTERNAL_ERROR,
-                    /* bytesDownloaded */ 0,
-                    /* totalBytesToDownload */ 0,
-                    listOf(module),
-                    emptyList()
-                )
+                status.value =
+                    SplitInstallSessionState.create(
+                        /* sessionId */ 0,
+                        SplitInstallSessionStatus.FAILED,
+                        if (exception is SplitInstallException) exception.errorCode
+                        else SplitInstallErrorCode.INTERNAL_ERROR,
+                        /* bytesDownloaded */ 0,
+                        /* totalBytesToDownload */ 0,
+                        listOf(module),
+                        emptyList()
+                    )
                 terminateLiveData(status)
             }
     }
@@ -167,9 +157,7 @@ public open class DynamicInstallManager(
         private val installMonitor: DynamicInstallMonitor
     ) : SplitInstallStateUpdatedListener {
 
-        override fun onStateUpdate(
-            splitInstallSessionState: SplitInstallSessionState
-        ) {
+        override fun onStateUpdate(splitInstallSessionState: SplitInstallSessionState) {
             if (splitInstallSessionState.sessionId() == installMonitor.sessionId) {
                 if (splitInstallSessionState.status() == SplitInstallSessionStatus.INSTALLED) {
                     SplitCompat.install(context)

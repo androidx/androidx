@@ -33,9 +33,7 @@ import java.io.IOException
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
-/**
- * Class which translates a navigation XML file into a [NavGraph]
- */
+/** Class which translates a navigation XML file into a [NavGraph] */
 public class NavInflater(
     private val context: Context,
     private val navigatorProvider: NavigatorProvider
@@ -53,9 +51,11 @@ public class NavInflater(
         val attrs = Xml.asAttributeSet(parser)
         return try {
             var type: Int
-            while (parser.next().also { type = it } != XmlPullParser.START_TAG &&
-                type != XmlPullParser.END_DOCUMENT
-            ) { /* Empty loop */
+            while (
+                parser.next().also { type = it } != XmlPullParser.START_TAG &&
+                    type != XmlPullParser.END_DOCUMENT
+            ) {
+                /* Empty loop */
             }
             if (type != XmlPullParser.START_TAG) {
                 throw XmlPullParserException("No start tag found")
@@ -89,8 +89,9 @@ public class NavInflater(
         val innerDepth = parser.depth + 1
         var type: Int
         var depth = 0
-        while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT &&
-            (parser.depth.also { depth = it } >= innerDepth || type != XmlPullParser.END_TAG)
+        while (
+            parser.next().also { type = it } != XmlPullParser.END_DOCUMENT &&
+                (parser.depth.also { depth = it } >= innerDepth || type != XmlPullParser.END_TAG)
         ) {
             if (type != XmlPullParser.START_TAG) {
                 continue
@@ -125,8 +126,9 @@ public class NavInflater(
         graphResId: Int
     ) {
         res.obtainAttributes(attrs, R.styleable.NavArgument).use { array ->
-            val name = array.getString(R.styleable.NavArgument_android_name)
-                ?: throw XmlPullParserException("Arguments must have a name")
+            val name =
+                array.getString(R.styleable.NavArgument_android_name)
+                    ?: throw XmlPullParserException("Arguments must have a name")
             val argument = inflateArgument(array, res, graphResId)
             dest.addArgument(name, argument)
         }
@@ -140,8 +142,9 @@ public class NavInflater(
         graphResId: Int
     ) {
         res.obtainAttributes(attrs, R.styleable.NavArgument).use { array ->
-            val name = array.getString(R.styleable.NavArgument_android_name)
-                ?: throw XmlPullParserException("Arguments must have a name")
+            val name =
+                array.getString(R.styleable.NavArgument_android_name)
+                    ?: throw XmlPullParserException("Arguments must have a name")
             val argument = inflateArgument(array, res, graphResId)
             if (argument.isDefaultValuePresent) {
                 argument.putDefaultValue(name, bundle)
@@ -166,17 +169,18 @@ public class NavInflater(
         }
         if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
             if (navType === NavType.ReferenceType) {
-                defaultValue = if (value.resourceId != 0) {
-                    value.resourceId
-                } else if (value.type == TypedValue.TYPE_FIRST_INT && value.data == 0) {
-                    // Support "0" as a default value for reference types
-                    0
-                } else {
-                    throw XmlPullParserException(
-                        "unsupported value '${value.string}' for ${navType.name}. Must be a " +
-                            "reference to a resource."
-                    )
-                }
+                defaultValue =
+                    if (value.resourceId != 0) {
+                        value.resourceId
+                    } else if (value.type == TypedValue.TYPE_FIRST_INT && value.data == 0) {
+                        // Support "0" as a default value for reference types
+                        0
+                    } else {
+                        throw XmlPullParserException(
+                            "unsupported value '${value.string}' for ${navType.name}. Must be a " +
+                                "reference to a resource."
+                        )
+                    }
             } else if (value.resourceId != 0) {
                 if (navType == null) {
                     navType = NavType.ReferenceType
@@ -199,9 +203,8 @@ public class NavInflater(
                         defaultValue = navType.parseValue(stringValue)
                     }
                     TypedValue.TYPE_DIMENSION -> {
-                        navType = checkNavType(
-                            value, navType, NavType.IntType, argType, "dimension"
-                        )
+                        navType =
+                            checkNavType(value, navType, NavType.IntType, argType, "dimension")
                         defaultValue = value.getDimension(res.displayMetrics).toInt()
                     }
                     TypedValue.TYPE_FLOAT -> {
@@ -213,18 +216,29 @@ public class NavInflater(
                         defaultValue = value.data != 0
                     }
                     else ->
-                        if (value.type >= TypedValue.TYPE_FIRST_INT &&
-                            value.type <= TypedValue.TYPE_LAST_INT
+                        if (
+                            value.type >= TypedValue.TYPE_FIRST_INT &&
+                                value.type <= TypedValue.TYPE_LAST_INT
                         ) {
                             if (navType === NavType.FloatType) {
-                                navType = checkNavType(
-                                    value, navType, NavType.FloatType, argType, "float"
-                                )
+                                navType =
+                                    checkNavType(
+                                        value,
+                                        navType,
+                                        NavType.FloatType,
+                                        argType,
+                                        "float"
+                                    )
                                 defaultValue = value.data.toFloat()
                             } else {
-                                navType = checkNavType(
-                                    value, navType, NavType.IntType, argType, "integer"
-                                )
+                                navType =
+                                    checkNavType(
+                                        value,
+                                        navType,
+                                        NavType.IntType,
+                                        argType,
+                                        "integer"
+                                    )
                                 defaultValue = value.data
                             }
                         } else {
@@ -263,10 +277,7 @@ public class NavInflater(
             }
             if (mimeType != null) {
                 builder.setMimeType(
-                    mimeType.replace(
-                        APPLICATION_ID_PLACEHOLDER,
-                        context.packageName
-                    )
+                    mimeType.replace(APPLICATION_ID_PLACEHOLDER, context.packageName)
                 )
             }
             dest.addDeepLink(builder.build())
@@ -302,8 +313,10 @@ public class NavInflater(
             val innerDepth = parser.depth + 1
             var type: Int
             var depth = 0
-            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT &&
-                (parser.depth.also { depth = it } >= innerDepth || type != XmlPullParser.END_TAG)
+            while (
+                parser.next().also { type = it } != XmlPullParser.END_DOCUMENT &&
+                    (parser.depth.also { depth = it } >= innerDepth ||
+                        type != XmlPullParser.END_TAG)
             ) {
                 if (type != XmlPullParser.START_TAG) {
                     continue
@@ -329,11 +342,11 @@ public class NavInflater(
         private const val TAG_ACTION = "action"
         private const val TAG_INCLUDE = "include"
 
-        /**
-         */
+        /**  */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val APPLICATION_ID_PLACEHOLDER: String = "\${applicationId}"
         private val sTmpValue = ThreadLocal<TypedValue>()
+
         @Throws(XmlPullParserException::class)
         internal fun checkNavType(
             value: TypedValue,

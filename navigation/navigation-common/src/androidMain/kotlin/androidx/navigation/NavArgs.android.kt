@@ -15,7 +15,5 @@
  */
 package androidx.navigation
 
-/**
- * An interface marking generated Args classes.
- */
+/** An interface marking generated Args classes. */
 public interface NavArgs

@@ -25,9 +25,9 @@ import androidx.transition.TransitionManager
 import java.lang.ref.WeakReference
 
 /**
- * The OnDestinationChangedListener specifically for keeping a Toolbar updated.
- * This handles both updating the title and updating the Up Indicator, transitioning between
- * the drawer icon and up arrow as needed.
+ * The OnDestinationChangedListener specifically for keeping a Toolbar updated. This handles both
+ * updating the title and updating the Up Indicator, transitioning between the drawer icon and up
+ * arrow as needed.
  */
 internal class ToolbarOnDestinationChangedListener(
     toolbar: Toolbar,
@@ -49,9 +49,7 @@ internal class ToolbarOnDestinationChangedListener(
     }
 
     override fun setTitle(title: CharSequence?) {
-        toolbarWeakReference.get()?.let { toolbar ->
-            toolbar.title = title
-        }
+        toolbarWeakReference.get()?.let { toolbar -> toolbar.title = title }
     }
 
     override fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int) {

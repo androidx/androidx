@@ -30,17 +30,16 @@ class NavHostTest {
         NavController(ApplicationProvider.getApplicationContext() as Context).apply {
             navigatorProvider += TestNavigator()
         }
-    private val navHost = object : NavHost {
-        override val navController: NavController
-            get() = this@NavHostTest.navController
-    }
+    private val navHost =
+        object : NavHost {
+            override val navController: NavController
+                get() = this@NavHostTest.navController
+        }
 
     @Suppress("DEPRECATION")
     @Test
     fun createGraph() {
-        val graph = navHost.createGraph(startDestination = DESTINATION_ID) {
-            test(DESTINATION_ID)
-        }
+        val graph = navHost.createGraph(startDestination = DESTINATION_ID) { test(DESTINATION_ID) }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ID in graph)
             .isTrue()

@@ -88,17 +88,21 @@ internal class NavParser(
             }
         }
 
-        actions.groupBy { it.id.javaIdentifier.toCamelCase() }.forEach { (sanitizedName, actions) ->
-            if (actions.size > 1) {
-                context.logger.error(sameSanitizedNameActions(sanitizedName, actions), position)
+        actions
+            .groupBy { it.id.javaIdentifier.toCamelCase() }
+            .forEach { (sanitizedName, actions) ->
+                if (actions.size > 1) {
+                    context.logger.error(sameSanitizedNameActions(sanitizedName, actions), position)
+                }
             }
-        }
 
-        args.groupBy { it.sanitizedName }.forEach { (sanitizedName, args) ->
-            if (args.size > 1) {
-                context.logger.error(sameSanitizedNameArguments(sanitizedName, args), position)
+        args
+            .groupBy { it.sanitizedName }
+            .forEach { (sanitizedName, args) ->
+                if (args.size > 1) {
+                    context.logger.error(sameSanitizedNameArguments(sanitizedName, args), position)
+                }
             }
-        }
 
         val id = idValue?.let { parseId(idValue, rFilePackage, position) }
         val className = Destination.createName(id, name, applicationId)
@@ -133,9 +137,9 @@ internal class NavParser(
         val name = parser.attrValueOrError(NAMESPACE_ANDROID, ATTRIBUTE_NAME)
         val defaultValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_DEFAULT_VALUE)
         val typeString = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_TYPE)
-        val nullable = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_NULLABLE)?.let {
-            it == VALUE_TRUE
-        } ?: false
+        val nullable =
+            parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_NULLABLE)?.let { it == VALUE_TRUE }
+                ?: false
 
         if (name == null) return context.createStubArg()
 
@@ -158,60 +162,66 @@ internal class NavParser(
             return Argument(name, type, null, nullable)
         }
 
-        val defaultTypedValue = when (type) {
-            IntType -> parseIntValue(defaultValue)
-            LongType -> parseLongValue(defaultValue)
-            FloatType -> parseFloatValue(defaultValue)
-            BoolType -> parseBoolean(defaultValue)
-            ReferenceType -> {
-                when (defaultValue) {
-                    VALUE_NULL -> {
+        val defaultTypedValue =
+            when (type) {
+                IntType -> parseIntValue(defaultValue)
+                LongType -> parseLongValue(defaultValue)
+                FloatType -> parseFloatValue(defaultValue)
+                BoolType -> parseBoolean(defaultValue)
+                ReferenceType -> {
+                    when (defaultValue) {
+                        VALUE_NULL -> {
+                            context.logger.error(
+                                NavParserErrors.nullDefaultValueReference(name),
+                                xmlPosition
+                            )
+                            return context.createStubArg()
+                        }
+                        "0" -> IntValue("0")
+                        else ->
+                            parseReference(defaultValue, rFilePackage)?.let { ReferenceValue(it) }
+                    }
+                }
+                StringType -> {
+                    if (defaultValue == VALUE_NULL) {
+                        NullValue
+                    } else {
+                        StringValue(defaultValue)
+                    }
+                }
+                IntArrayType,
+                LongArrayType,
+                FloatArrayType,
+                StringArrayType,
+                BoolArrayType,
+                ReferenceArrayType,
+                is ObjectArrayType -> {
+                    if (defaultValue == VALUE_NULL) {
+                        NullValue
+                    } else {
                         context.logger.error(
-                            NavParserErrors.nullDefaultValueReference(name),
+                            NavParserErrors.defaultValueObjectType(typeString),
                             xmlPosition
                         )
                         return context.createStubArg()
                     }
-                    "0" -> IntValue("0")
-                    else -> parseReference(defaultValue, rFilePackage)?.let {
-                        ReferenceValue(it)
+                }
+                is ObjectType -> {
+                    if (defaultValue == VALUE_NULL) {
+                        NullValue
+                    } else {
+                        EnumValue(type, defaultValue)
                     }
                 }
+                else -> throw IllegalStateException("Unknown type: $type")
             }
-            StringType -> {
-                if (defaultValue == VALUE_NULL) {
-                    NullValue
-                } else {
-                    StringValue(defaultValue)
-                }
-            }
-            IntArrayType, LongArrayType, FloatArrayType, StringArrayType,
-            BoolArrayType, ReferenceArrayType, is ObjectArrayType -> {
-                if (defaultValue == VALUE_NULL) {
-                    NullValue
-                } else {
-                    context.logger.error(
-                        NavParserErrors.defaultValueObjectType(typeString),
-                        xmlPosition
-                    )
-                    return context.createStubArg()
-                }
-            }
-            is ObjectType -> {
-                if (defaultValue == VALUE_NULL) {
-                    NullValue
-                } else {
-                    EnumValue(type, defaultValue)
-                }
-            }
-            else -> throw IllegalStateException("Unknown type: $type")
-        }
 
         if (defaultTypedValue == null) {
-            val errorMessage = when (type) {
-                ReferenceType -> NavParserErrors.invalidDefaultValueReference(defaultValue)
-                else -> NavParserErrors.invalidDefaultValue(defaultValue, type)
-            }
+            val errorMessage =
+                when (type) {
+                    ReferenceType -> NavParserErrors.invalidDefaultValueReference(defaultValue)
+                    else -> NavParserErrors.invalidDefaultValue(defaultValue, type)
+                }
             context.logger.error(errorMessage, xmlPosition)
             return context.createStubArg()
         }
@@ -235,17 +245,20 @@ internal class NavParser(
             }
         }
 
-        args.groupBy { it.sanitizedName }.forEach { (sanitizedName, args) ->
-            if (args.size > 1) {
-                context.logger.error(sameSanitizedNameArguments(sanitizedName, args), position)
+        args
+            .groupBy { it.sanitizedName }
+            .forEach { (sanitizedName, args) ->
+                if (args.size > 1) {
+                    context.logger.error(sameSanitizedNameArguments(sanitizedName, args), position)
+                }
             }
-        }
 
-        val id = if (idValue != null) {
-            parseId(idValue, rFilePackage, position)
-        } else {
-            context.createStubId()
-        }
+        val id =
+            if (idValue != null) {
+                parseId(idValue, rFilePackage, position)
+            } else {
+                context.createStubId()
+            }
         val destination = destValue?.let { parseId(destValue, rFilePackage, position) }
         return Action(id, destination, args)
     }
@@ -267,12 +280,15 @@ internal class NavParser(
 internal fun inferArgument(name: String, defaultValue: String, rFilePackage: String): Argument {
     val reference = parseReference(defaultValue, rFilePackage)
     if (reference != null) {
-        val type = when (reference.resType) {
-            "color", "dimen", "integer" -> IntType
-            "bool" -> BoolType
-            "string" -> StringType
-            else -> ReferenceType
-        }
+        val type =
+            when (reference.resType) {
+                "color",
+                "dimen",
+                "integer" -> IntType
+                "bool" -> BoolType
+                "string" -> StringType
+                else -> ReferenceType
+            }
         return Argument(name, type, ReferenceValue(reference))
     }
     val longValue = parseLongValue(defaultValue)

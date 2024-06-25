@@ -52,16 +52,17 @@ public open class ComposableNavHostFragment : NavHostFragment() {
             startDestinationArgs: Bundle? = null
         ): ComposableNavHostFragment {
             return ComposableNavHostFragment().apply {
-                arguments = if (graphResId != 0 || startDestinationArgs != null) {
-                    Bundle().apply {
-                        if (graphResId != 0) {
-                            putInt(KEY_GRAPH_ID, graphResId)
+                arguments =
+                    if (graphResId != 0 || startDestinationArgs != null) {
+                        Bundle().apply {
+                            if (graphResId != 0) {
+                                putInt(KEY_GRAPH_ID, graphResId)
+                            }
+                            if (startDestinationArgs != null) {
+                                putBundle(KEY_START_DESTINATION_ARGS, startDestinationArgs)
+                            }
                         }
-                        if (startDestinationArgs != null) {
-                            putBundle(KEY_START_DESTINATION_ARGS, startDestinationArgs)
-                        }
-                    }
-                } else null
+                    } else null
             }
         }
     }

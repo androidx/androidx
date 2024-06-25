@@ -22,34 +22,30 @@ import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 
-/**
- * DSL for constructing a new [NavOptions]
- */
+/** DSL for constructing a new [NavOptions] */
 @NavOptionsDsl
 public actual class NavOptionsBuilder {
     private val builder = NavOptions.Builder()
 
     /**
-     * Whether this navigation action should launch as single-top (i.e., there will be at most
-     * one copy of a given destination on the top of the back stack).
+     * Whether this navigation action should launch as single-top (i.e., there will be at most one
+     * copy of a given destination on the top of the back stack).
      *
-     * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP]
-     * works with activites.
+     * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP] works with
+     * activities.
      */
     public actual var launchSingleTop: Boolean = false
 
     /**
-     * Whether this navigation action should restore any state previously saved
-     * by [PopUpToBuilder.saveState] or the `popUpToSaveState` attribute. If no state was
-     * previously saved with the destination ID being navigated to, this has no effect.
+     * Whether this navigation action should restore any state previously saved by
+     * [PopUpToBuilder.saveState] or the `popUpToSaveState` attribute. If no state was previously
+     * saved with the destination ID being navigated to, this has no effect.
      */
     @get:Suppress("GetterOnBuilder", "GetterSetterNames")
     @set:Suppress("SetterReturnsThis", "GetterSetterNames")
     public actual var restoreState: Boolean = false
 
-    /**
-     * Returns the current destination that the builder will pop up to.
-     */
+    /** Returns the current destination that the builder will pop up to. */
     @IdRes
     public var popUpToId: Int = -1
         internal set(value) {
@@ -58,8 +54,8 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * The destination to pop up to before navigating. All non-matching destinations
-     * from the back stack up until this destination will also be popped.
+     * The destination to pop up to before navigating. All non-matching destinations from the back
+     * stack up until this destination will also be popped.
      */
     @Deprecated("Use the popUpToId property.")
     public var popUpTo: Int
@@ -70,8 +66,8 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * The destination to pop up to before navigating. All non-matching destinations
-     * from the back stack up until this destination will also be popped.
+     * The destination to pop up to before navigating. All non-matching destinations from the back
+     * stack up until this destination will also be popped.
      */
     public actual var popUpToRoute: String? = null
         private set(value) {
@@ -81,12 +77,13 @@ public actual class NavOptionsBuilder {
                 inclusive = false
             }
         }
+
     private var inclusive = false
     private var saveState = false
 
     /**
-     * The destination to pop up to before navigating. All non-matching destinations
-     * from the back stack up until this destination will also be popped.
+     * The destination to pop up to before navigating. All non-matching destinations from the back
+     * stack up until this destination will also be popped.
      */
     @get:Suppress("GetterOnBuilder")
     public actual var popUpToRouteClass: KClass<*>? = null
@@ -98,8 +95,8 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * The destination to pop up to before navigating. All non-matching destinations
-     * from the back stack up until this destination will also be popped.
+     * The destination to pop up to before navigating. All non-matching destinations from the back
+     * stack up until this destination will also be popped.
      */
     @get:Suppress("GetterOnBuilder")
     public actual var popUpToRouteObject: Any? = null
@@ -111,8 +108,8 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * Pop up to a given destination before navigating. This pops all non-matching destinations from
+     * the back stack until this destination is found.
      */
     public fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
         popUpToId = id
@@ -123,8 +120,8 @@ public actual class NavOptionsBuilder {
     }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination routes
-     * from the back stack until the destination with a matching route is found.
+     * Pop up to a given destination before navigating. This pops all non-matching destination
+     * routes from the back stack until the destination with a matching route is found.
      *
      * @param route route for the destination
      * @param popUpToBuilder builder used to construct a popUpTo operation
@@ -138,8 +135,8 @@ public actual class NavOptionsBuilder {
     }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination routes
-     * from the back stack until the destination with a matching route is found.
+     * Pop up to a given destination before navigating. This pops all non-matching destination
+     * routes from the back stack until the destination with a matching route is found.
      *
      * @param T route from a [KClass] for the destination
      * @param popUpToBuilder builder used to construct a popUpTo operation
@@ -155,10 +152,7 @@ public actual class NavOptionsBuilder {
     // this restricted public is needed so that the public reified [popUpTo] can call
     // private popUpToRouteClass setter
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual fun <T : Any> popUpTo(
-        klass: KClass<T>,
-        popUpToBuilder: PopUpToBuilder.() -> Unit
-    ) {
+    public actual fun <T : Any> popUpTo(klass: KClass<T>, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRouteClass = klass
         popUpToId = -1
         popUpToRoute = null
@@ -168,8 +162,8 @@ public actual class NavOptionsBuilder {
     }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination routes
-     * from the back stack until the destination with a matching route is found.
+     * Pop up to a given destination before navigating. This pops all non-matching destination
+     * routes from the back stack until the destination with a matching route is found.
      *
      * @param route route from a Object for the destination
      * @param popUpToBuilder builder used to construct a popUpTo operation
@@ -192,31 +186,33 @@ public actual class NavOptionsBuilder {
      */
     public fun anim(animBuilder: AnimBuilder.() -> Unit) {
         AnimBuilder().apply(animBuilder).run {
-            this@NavOptionsBuilder.builder.setEnterAnim(enter)
+            this@NavOptionsBuilder.builder
+                .setEnterAnim(enter)
                 .setExitAnim(exit)
                 .setPopEnterAnim(popEnter)
                 .setPopExitAnim(popExit)
         }
     }
 
-    internal actual fun build() = builder.apply {
-        setLaunchSingleTop(launchSingleTop)
-        setRestoreState(restoreState)
-        if (popUpToRoute != null) {
-            setPopUpTo(popUpToRoute, inclusive, saveState)
-        } else if (popUpToRouteClass != null) {
-            setPopUpTo(popUpToRouteClass!!, inclusive, saveState)
-        } else if (popUpToRouteObject != null) {
-            setPopUpTo(popUpToRouteObject!!, inclusive, saveState)
-        } else {
-            setPopUpTo(popUpToId, inclusive, saveState)
-        }
-    }.build()
+    internal actual fun build() =
+        builder
+            .apply {
+                setLaunchSingleTop(launchSingleTop)
+                setRestoreState(restoreState)
+                if (popUpToRoute != null) {
+                    setPopUpTo(popUpToRoute, inclusive, saveState)
+                } else if (popUpToRouteClass != null) {
+                    setPopUpTo(popUpToRouteClass!!, inclusive, saveState)
+                } else if (popUpToRouteObject != null) {
+                    setPopUpTo(popUpToRouteObject!!, inclusive, saveState)
+                } else {
+                    setPopUpTo(popUpToId, inclusive, saveState)
+                }
+            }
+            .build()
 }
 
-/**
- * DSL for setting custom Animation or Animator resources on a [NavOptionsBuilder]
- */
+/** DSL for setting custom Animation or Animator resources on a [NavOptionsBuilder] */
 @NavOptionsDsl
 public class AnimBuilder {
     /**
@@ -224,36 +220,28 @@ public class AnimBuilder {
      *
      * Note: Animator resources are not supported for navigating to a new Activity
      */
-    @AnimRes
-    @AnimatorRes
-    public var enter: Int = -1
+    @AnimRes @AnimatorRes public var enter: Int = -1
 
     /**
      * The custom Animation or Animator resource for the exit animation.
      *
      * Note: Animator resources are not supported for navigating to a new Activity
      */
-    @AnimRes
-    @AnimatorRes
-    public var exit: Int = -1
+    @AnimRes @AnimatorRes public var exit: Int = -1
 
     /**
-     * The custom Animation or Animator resource for the enter animation
-     * when popping off the back stack.
+     * The custom Animation or Animator resource for the enter animation when popping off the back
+     * stack.
      *
      * Note: Animator resources are not supported for navigating to a new Activity
      */
-    @AnimRes
-    @AnimatorRes
-    public var popEnter: Int = -1
+    @AnimRes @AnimatorRes public var popEnter: Int = -1
 
     /**
-     * The custom Animation or Animator resource for the exit animation
-     * when popping off the back stack.
+     * The custom Animation or Animator resource for the exit animation when popping off the back
+     * stack.
      *
      * Note: Animator resources are not supported for navigating to a new Activity
      */
-    @AnimRes
-    @AnimatorRes
-    public var popExit: Int = -1
+    @AnimRes @AnimatorRes public var popExit: Int = -1
 }

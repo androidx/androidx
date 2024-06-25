@@ -38,8 +38,8 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 /**
  * The base class for [Fragment]s that handle dynamic feature installation.
  *
- * When extending from this class, you are responsible for forwarding installation state changes
- * to your UI via the provided hooks in [onCancelled], [onFailed], [onProgress].
+ * When extending from this class, you are responsible for forwarding installation state changes to
+ * your UI via the provided hooks in [onCancelled], [onFailed], [onProgress].
  *
  * The installation process itself is handled within the [AbstractProgressFragment] itself.
  * Navigation to the target destination will occur once the installation is completed.
@@ -52,15 +52,10 @@ public abstract class AbstractProgressFragment : Fragment {
     }
 
     private val installViewModel: InstallViewModel by lazy {
-        ViewModelProvider(
-            viewModelStore,
-            InstallViewModel.FACTORY,
-            defaultViewModelCreationExtras
-        )[InstallViewModel::class.java]
+        ViewModelProvider(viewModelStore, InstallViewModel.FACTORY, defaultViewModelCreationExtras)[
+            InstallViewModel::class.java]
     }
-    private val destinationId by lazy {
-        requireArguments().getInt(Constants.DESTINATION_ID)
-    }
+    private val destinationId by lazy { requireArguments().getInt(Constants.DESTINATION_ID) }
     private val destinationArgs: Bundle? by lazy {
         requireArguments().getBundle(Constants.DESTINATION_ARGS)
     }
@@ -70,13 +65,12 @@ public abstract class AbstractProgressFragment : Fragment {
 
     public constructor(contentLayoutId: Int) : super(contentLayoutId)
 
-    private val intentSenderLauncher = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_CANCELED) {
-            onCancelled()
+    private val intentSenderLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_CANCELED) {
+                onCancelled()
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,9 +95,8 @@ public abstract class AbstractProgressFragment : Fragment {
             monitor.status.observe(viewLifecycleOwner, StateObserver(monitor))
         }
     }
-    /**
-     * Navigates to an installed dynamic feature module or kicks off installation.
-     */
+
+    /** Navigates to an installed dynamic feature module or kicks off installation. */
     internal fun navigate() {
         Log.i(TAG, "navigate: ")
         val installMonitor = DynamicInstallMonitor()
@@ -127,8 +120,7 @@ public abstract class AbstractProgressFragment : Fragment {
         Observer<SplitInstallSessionState> {
 
         override fun onChanged(
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            sessionState: SplitInstallSessionState
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") sessionState: SplitInstallSessionState
         ) {
             if (sessionState.hasTerminalStatus()) {
                 monitor.status.removeObserver(this)
@@ -147,7 +139,8 @@ public abstract class AbstractProgressFragment : Fragment {
                         }
                         splitInstallManager.startConfirmationDialogForResult(
                             sessionState,
-                            IntentSenderForResultStarter { intent,
+                            IntentSenderForResultStarter {
+                                intent,
                                 _,
                                 fillInIntent,
                                 flagsMask,
@@ -168,8 +161,7 @@ public abstract class AbstractProgressFragment : Fragment {
                     }
                 SplitInstallSessionStatus.CANCELED -> onCancelled()
                 SplitInstallSessionStatus.FAILED -> onFailed(sessionState.errorCode())
-                SplitInstallSessionStatus.UNKNOWN ->
-                    onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                SplitInstallSessionStatus.UNKNOWN -> onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
                 SplitInstallSessionStatus.CANCELING,
                 SplitInstallSessionStatus.DOWNLOADED,
                 SplitInstallSessionStatus.DOWNLOADING,
@@ -198,9 +190,7 @@ public abstract class AbstractProgressFragment : Fragment {
         bytesTotal: Long
     )
 
-    /**
-     * Called when the user decided to cancel installation.
-     */
+    /** Called when the user decided to cancel installation. */
     protected abstract fun onCancelled()
 
     /**

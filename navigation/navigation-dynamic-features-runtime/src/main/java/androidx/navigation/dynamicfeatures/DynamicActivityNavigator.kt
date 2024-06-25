@@ -25,9 +25,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 
-/**
- * Dynamic feature navigator for Activity destinations.
- */
+/** Dynamic feature navigator for Activity destinations. */
 @Navigator.Name("activity")
 public class DynamicActivityNavigator(
     context: Context,
@@ -69,24 +67,24 @@ public class DynamicActivityNavigator(
 
     override fun createDestination(): Destination = Destination(this)
 
-    /**
-     * Destination for [DynamicActivityNavigator].
-     */
+    /** Destination for [DynamicActivityNavigator]. */
     public class Destination : ActivityNavigator.Destination {
         /**
-         * The module name of this [Destination]'s dynamic feature module. This has to be the
-         * same as defined in the dynamic feature module's AndroidManifest.xml file.
+         * The module name of this [Destination]'s dynamic feature module. This has to be the same
+         * as defined in the dynamic feature module's AndroidManifest.xml file.
          */
         public var moduleName: String? = null
 
         /**
          * Create a new [Destination] with a [NavigatorProvider].
+         *
          * @see ActivityNavigator.Destination
          */
         public constructor(navigatorProvider: NavigatorProvider) : super(navigatorProvider)
 
         /**
          * Create a new [Destination] with an [ActivityNavigator.Destination].
+         *
          * @param activityNavigator The Navigator to use for this [Destination].
          */
         public constructor(
