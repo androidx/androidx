@@ -103,7 +103,7 @@ internal constructor(
     val shadow: Shadow? = null,
     val platformStyle: PlatformSpanStyle? = null,
     val drawStyle: DrawStyle? = null
-) {
+) : AnnotatedString.Annotation {
 
     /**
      * Styling configuration for a text span. This configuration only allows character level
