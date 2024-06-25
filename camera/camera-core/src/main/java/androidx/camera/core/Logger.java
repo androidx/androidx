@@ -97,6 +97,16 @@ public final class Logger {
     }
 
     /**
+     * Returns {@code true} if logging with the tag {@code tag} is enabled at the
+     * {@link Log#VERBOSE} level. This is true when the minimum logging level is less than or equal
+     * to {@link Log#VERBOSE}, or if the log level of {@code tag} was explicitly set to
+     * {@link Log#VERBOSE} at least.
+     */
+    public static boolean isVerboseEnabled(@NonNull String tag) {
+        return isLogLevelEnabled(truncateTag(tag), Log.VERBOSE);
+    }
+
+    /**
      * Returns {@code true} if logging with the tag {@code tag} is enabled at the {@link Log#DEBUG}
      * level. This is true when the minimum logging level is less than or equal to
      * {@link Log#DEBUG}, or if the log level of {@code tag} was explicitly set to

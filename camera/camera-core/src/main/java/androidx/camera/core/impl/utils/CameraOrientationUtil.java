@@ -52,7 +52,7 @@ public final class CameraOrientationUtil {
         } else {
             result = (sourceRotationDegrees + destRotationDegrees) % 360;
         }
-        if (Logger.isDebugEnabled(TAG)) {
+        if (Logger.isVerboseEnabled(TAG)) {
             Logger.d(
                     TAG,
                     String.format(
