@@ -33,6 +33,7 @@ import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -133,7 +134,10 @@ import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.ContentScaleMode;
 import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontFeatureSetting;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontSetting;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontVariationSetting;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
@@ -198,15 +202,18 @@ import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAcc
 import androidx.wear.widget.ArcLayout;
 import androidx.wear.widget.CurvedTextView;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -307,12 +314,18 @@ public final class ProtoLayoutInflater {
 
     @Nullable private final LoggingUtils mLoggingUtils;
     @NonNull private final InflaterStatsLogger mInflaterStatsLogger;
-
     @Nullable final Executor mLoadActionExecutor;
     final LoadActionListener mLoadActionListener;
     final boolean mAnimationEnabled;
 
     private boolean mApplyFontVariantBodyAsDefault = false;
+
+    @VisibleForTesting static final String WEIGHT_AXIS_TAG = "wght";
+    @VisibleForTesting static final String WIDTH_AXIS_TAG = "wdth";
+    @VisibleForTesting static final String TABULAR_OPTION_TAG = "tnum";
+
+    private static final ImmutableSet<String> SUPPORTED_FONT_SETTING_TAGS =
+            ImmutableSet.of(WEIGHT_AXIS_TAG, WIDTH_AXIS_TAG, TABULAR_OPTION_TAG);
 
     /**
      * Listener for clicks on Clickable objects that have an Action to (re)load the contents of a
@@ -1158,6 +1171,8 @@ public final class ProtoLayoutInflater {
      * bold bit set to render properly.
      */
     private static boolean isBold(FontStyle fontStyle) {
+        // Even though we have weight axis too, this concept of bold and bold flag in Typeface is
+        // different, so we only look at the FontWeight enum API here.
         // Although this method could be a simple equality check against FONT_WEIGHT_BOLD, we list
         // all current cases here so that this will become a compile time error as soon as a new
         // FontWeight value is added to the schema. If this fails to build, then this means that an
@@ -1178,8 +1193,30 @@ public final class ProtoLayoutInflater {
     }
 
     private Typeface fontStyleToTypeface(FontStyle fontStyle) {
-        FontSet fonts = mProtoLayoutTheme.getFontSet(fontStyle.getVariant().getValue().getNumber());
+        String[] preferredFontFamilies = new String[fontStyle.getPreferredFontFamiliesCount() + 1];
+        if (fontStyle.getPreferredFontFamiliesCount() > 0) {
+            fontStyle.getPreferredFontFamiliesList().toArray(preferredFontFamilies);
+        }
 
+        // Add value from the FontVariant as fallback to work with providers using legacy
+        // FONT_VARIANT API or with older system API.
+        String fontVariantName;
+        switch (fontStyle.getVariant().getValue()) {
+            case FONT_VARIANT_TITLE:
+                fontVariantName = ProtoLayoutTheme.FONT_NAME_LEGACY_VARIANT_TITLE;
+                break;
+            case UNRECOGNIZED:
+            case FONT_VARIANT_BODY:
+            default:
+                // fall through as this is default
+                fontVariantName = ProtoLayoutTheme.FONT_NAME_LEGACY_VARIANT_BODY;
+                break;
+        }
+        preferredFontFamilies[preferredFontFamilies.length - 1] = fontVariantName;
+
+        FontSet fonts = mProtoLayoutTheme.getFontSet(preferredFontFamilies);
+
+        // Only use FontWeight enum API. Weight axis is already covered by FontVariationSetting.
         switch (fontStyle.getWeight().getValue()) {
             case FONT_WEIGHT_BOLD:
                 return fonts.getBoldFont();
@@ -1239,6 +1276,9 @@ public final class ProtoLayoutInflater {
         // Need to supply typefaceStyle when creating the typeface (will select specialist
         // bold/italic typefaces), *and* when setting the typeface (will set synthetic bold/italic
         // flags in Paint if they're not supported by the given typeface).
+        // This is fine to do even for variable fonts with weight axis, as if their weight axis is
+        // larger than 700 and BOLD flag is on, it should be "bolded" two times - one for Typeface
+        // selection, one for axis value.
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
         if (fontStyleHasSize(style)) {
@@ -1307,6 +1347,57 @@ public final class ProtoLayoutInflater {
         } else {
             textView.setTextColor(TEXT_COLOR_DEFAULT);
         }
+
+        if (style.getSettingsCount() > 0) {
+            applyFontSetting(style, textView);
+        }
+    }
+
+    private void applyFontSetting(@NonNull FontStyle style, @NonNull TextView textView) {
+        StringJoiner variationSettings = new StringJoiner(",");
+        StringJoiner featureSettings = new StringJoiner(",");
+
+        for (FontSetting setting : style.getSettingsList()) {
+            String tag = "";
+
+            switch (setting.getInnerCase()) {
+                case VARIATION:
+                    FontVariationSetting variation = setting.getVariation();
+                    tag = toTagString(variation.getAxisTag());
+
+                    if (SUPPORTED_FONT_SETTING_TAGS.contains(tag)) {
+                        variationSettings.add("'" + tag + "' " + variation.getValue());
+                    } else {
+                        // Skip not supported tags.
+                        Log.d(TAG, "FontVariation axes tag " + tag + " is not supported.");
+                    }
+
+                    break;
+                case FEATURE:
+                    FontFeatureSetting feature = setting.getFeature();
+                    tag = toTagString(feature.getTag());
+
+                    if (SUPPORTED_FONT_SETTING_TAGS.contains(tag)) {
+                        featureSettings.add("'" + tag + "'");
+                    } else {
+                        // Skip not supported tags.
+                        Log.d(TAG, "FontFeature tag " + tag + " is not supported.");
+                    }
+
+                    break;
+                case INNER_NOT_SET:
+                    break;
+            }
+        }
+
+        textView.setFontVariationSettings(variationSettings.toString());
+        textView.setFontFeatureSettings(featureSettings.toString());
+    }
+
+    /** Given the integer representation of 4 characters ASCII code, returns the String of it. */
+    @NonNull
+    private static String toTagString(int tagCode) {
+        return new String(ByteBuffer.allocate(4).putInt(tagCode).array(), US_ASCII);
     }
 
     private void applyFontStyle(FontStyle style, CurvedTextView textView) {
