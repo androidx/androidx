@@ -1458,7 +1458,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
-        explicitLayer: GraphicsLayer?
+        explicitLayer: GraphicsLayer?,
+        forceUseOldLayers: Boolean
     ): OwnedLayer {
         if (explicitLayer != null) {
             return GraphicsLayerOwnerLayer(
@@ -1469,22 +1470,24 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 invalidateParentLayer = invalidateParentLayer
             )
         }
-        // First try the layer cache
-        val layer = layerCache.pop()
-        if (layer !== null) {
-            layer.reuseLayer(drawBlock, invalidateParentLayer)
-            return layer
-        }
+        if (!forceUseOldLayers) {
+            // First try the layer cache
+            val layer = layerCache.pop()
+            if (layer !== null) {
+                layer.reuseLayer(drawBlock, invalidateParentLayer)
+                return layer
+            }
 
-        // enable new layers on versions supporting render nodes
-        if (isHardwareAccelerated && SDK_INT >= M && SDK_INT != P) {
-            return GraphicsLayerOwnerLayer(
-                graphicsLayer = graphicsContext.createGraphicsLayer(),
-                context = graphicsContext,
-                ownerView = this,
-                drawBlock = drawBlock,
-                invalidateParentLayer = invalidateParentLayer
-            )
+            // enable new layers on versions supporting render nodes
+            if (isHardwareAccelerated && SDK_INT >= M && SDK_INT != P) {
+                return GraphicsLayerOwnerLayer(
+                    graphicsLayer = graphicsContext.createGraphicsLayer(),
+                    context = graphicsContext,
+                    ownerView = this,
+                    drawBlock = drawBlock,
+                    invalidateParentLayer = invalidateParentLayer
+                )
+            }
         }
 
         // RenderNode is supported on Q+ for certain, but may also be supported on M-O.
