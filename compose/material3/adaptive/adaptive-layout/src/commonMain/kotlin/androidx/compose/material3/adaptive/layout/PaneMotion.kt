@@ -26,30 +26,85 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 import kotlin.math.min
 
+@Suppress("PrimitiveInCollection") // No way to get underlying Long of IntSize or IntOffset
 @ExperimentalMaterial3AdaptiveApi
-internal interface PaneMotionScope : LookaheadScope {
+internal interface PaneMotionScope {
     val positionAnimationSpec: FiniteAnimationSpec<IntOffset>
     val sizeAnimationSpec: FiniteAnimationSpec<IntSize>
     val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset>
-    val slideInFromLeftOffset: Int
-    val slideInFromRightOffset: Int
-    val slideOutToLeftOffset: Int
-    val slideOutToRightOffset: Int
-    val motionProgress: () -> Float
+    val scaffoldSize: IntSize
+    val currentPaneSizes: List<IntSize>
+    val currentPanePositions: List<IntOffset>
+    val targetPaneSizes: List<IntSize>
+    val targetPanePositions: List<IntOffset>
+    val paneMotions: List<PaneMotion>
+    val motionProgress: Float
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val PaneMotionScope.slideInFromLeftOffset: Int
+    get() {
+        // Find the right edge offset of the rightmost pane that enters from its left
+        for (i in paneMotions.lastIndex downTo 0) {
+            if (
+                paneMotions[i] == DefaultPaneMotion.EnterFromLeft ||
+                    paneMotions[i] == DefaultPaneMotion.EnterFromLeftDelayed
+            ) {
+                return -targetPanePositions[i].x - targetPaneSizes[i].width
+            }
+        }
+        return 0
+    }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val PaneMotionScope.slideInFromRightOffset: Int
+    get() {
+        // Find the left edge offset of the leftmost pane that enters from its right
+        paneMotions.fastForEachIndexed { i, paneMotion ->
+            if (
+                paneMotion == DefaultPaneMotion.EnterFromRight ||
+                    paneMotion == DefaultPaneMotion.EnterFromRightDelayed
+            ) {
+                return scaffoldSize.width - targetPanePositions[i].x
+            }
+        }
+        return 0
+    }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val PaneMotionScope.slideOutToLeftOffset: Int
+    get() {
+        // Find the right edge offset of the rightmost pane that exits to its left
+        for (i in paneMotions.lastIndex downTo 0) {
+            if (paneMotions[i] == DefaultPaneMotion.ExitToLeft) {
+                return -currentPanePositions[i].x - currentPaneSizes[i].width
+            }
+        }
+        return 0
+    }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val PaneMotionScope.slideOutToRightOffset: Int
+    get() {
+        // Find the left edge offset of the leftmost pane that exits to its right
+        paneMotions.fastForEachIndexed { i, paneMotion ->
+            if (paneMotion == DefaultPaneMotion.ExitToRight) {
+                return scaffoldSize.width - currentPanePositions[i].x
+            }
+        }
+        return 0
+    }
 
 @ExperimentalMaterial3AdaptiveApi
 internal interface PaneMotion {
     val PaneMotionScope.enterTransition: EnterTransition
     val PaneMotionScope.exitTransition: ExitTransition
-    val PaneMotionScope.animateBoundsModifier: Modifier
 }
 
 @ExperimentalMaterial3AdaptiveApi
@@ -95,16 +150,6 @@ internal value class DefaultPaneMotion private constructor(val value: Int) : Pan
                     shrinkHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
                 else -> ExitTransition.None
             }
-
-    override val PaneMotionScope.animateBoundsModifier: Modifier
-        get() =
-            Modifier.animateBounds(
-                motionProgress,
-                sizeAnimationSpec,
-                positionAnimationSpec,
-                this,
-                this@DefaultPaneMotion == AnimateBounds
-            )
 
     override fun toString(): String =
         when (this) {
