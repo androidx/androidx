@@ -18,6 +18,7 @@ package com.example.androidx.mediarouting.activities.systemrouting.source;
 
 import android.content.Context;
 import android.media.MediaRouter;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -43,7 +44,23 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
 
                 @Override
                 public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
-                    super.onRouteRemoved(router, info);
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteUnselected(
+                        MediaRouter router, int type, MediaRouter.RouteInfo info) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteSelected(
+                        MediaRouter router, int type, MediaRouter.RouteInfo info) {
                     mOnRoutesChangedListener.run();
                 }
             };
@@ -83,11 +100,13 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
 
         List<SystemRouteItem> out = new ArrayList<>();
 
+        MediaRouter.RouteInfo selectedRoute =
+                mMediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);
         for (int i = 0; i < count; i++) {
             MediaRouter.RouteInfo info = mMediaRouter.getRouteAt(i);
             if (info.getPlaybackType() == MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL) {
                 // We are only interested in system routes.
-                out.add(createRouteItemFor(info));
+                out.add(createRouteItemFor(info, /* isSelected= */ selectedRoute == info));
             }
         }
 
@@ -96,15 +115,27 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
 
     @Override
     public boolean select(@NonNull SystemRouteItem item) {
-        throw new UnsupportedOperationException();
+        int routeCount = mMediaRouter.getRouteCount();
+        for (int i = 0; i < routeCount; i++) {
+            MediaRouter.RouteInfo route = mMediaRouter.getRouteAt(i);
+            if (TextUtils.equals(route.getName().toString(), item.mId)) {
+                mMediaRouter.selectRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO, route);
+                return true;
+            }
+        }
+        return false;
     }
 
     @NonNull
-    private SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
+    private SystemRouteItem createRouteItemFor(
+            @NonNull MediaRouter.RouteInfo routeInfo, boolean isSelected) {
         SystemRouteItem.Builder builder =
                 new SystemRouteItem.Builder(getSourceId(), /* id= */ routeInfo.getName().toString())
                         .setName(routeInfo.getName().toString());
-
+        builder.setSelectionSupportState(
+                isSelected
+                        ? SystemRouteItem.SelectionSupportState.RESELECTABLE
+                        : SystemRouteItem.SelectionSupportState.SELECTABLE);
         CharSequence description = routeInfo.getDescription();
         if (description != null) {
             builder.setDescription(String.valueOf(description));
