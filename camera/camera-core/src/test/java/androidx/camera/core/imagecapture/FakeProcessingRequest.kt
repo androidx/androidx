@@ -21,6 +21,7 @@ import android.graphics.Rect
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.impl.CaptureBundle
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 
 /** Fake [ProcessingRequest]. */
@@ -47,6 +48,6 @@ internal class FakeProcessingRequest(
     constructor(
         captureBundle: CaptureBundle,
         callback: TakePictureCallback,
-        captureFuture: ListenableFuture<Void>
+        captureFuture: ListenableFuture<Void> = CallbackToFutureAdapter.getFuture { "test" }
     ) : this(null, captureBundle, CROP_RECT, 0, 100, Matrix(), callback, captureFuture)
 }
