@@ -35,6 +35,7 @@ import androidx.camera.extensions.impl.ProcessResultImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
+import androidx.camera.extensions.internal.compat.workaround.CaptureOutputSurfaceForCaptureProcessor;
 import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
@@ -75,15 +76,21 @@ class StillCaptureProcessor {
     // Stores the first capture result for injecting into the output JPEG ImageProxy.
     @GuardedBy("mLock")
     TotalCaptureResult mSourceCaptureResult = null;
+    CaptureOutputSurfaceForCaptureProcessor mCaptureOutputSurface;
     @GuardedBy("mLock")
     boolean mIsClosed = false;
 
     StillCaptureProcessor(@NonNull CaptureProcessorImpl captureProcessorImpl,
-            @NonNull Surface captureOutputSurface,
+            @NonNull Surface outputSurface,
             @NonNull Size surfaceSize,
             @Nullable OutputSurface postviewOutputSurface) {
         mCaptureProcessorImpl = captureProcessorImpl;
-        mCaptureProcessorImpl.onOutputSurface(captureOutputSurface, ImageFormat.YUV_420_888);
+
+        mCaptureOutputSurface =
+                new CaptureOutputSurfaceForCaptureProcessor(outputSurface, surfaceSize);
+
+        mCaptureProcessorImpl.onOutputSurface(
+                mCaptureOutputSurface.getSurface(), ImageFormat.YUV_420_888);
         mCaptureProcessorImpl.onImageFormatUpdate(ImageFormat.YUV_420_888);
 
         mIsPostviewConfigured = (postviewOutputSurface != null);
@@ -272,6 +279,7 @@ class StillCaptureProcessor {
             clearCaptureResults();
             mCaptureResultImageMatcher.clearImageReferenceListener();
             mCaptureResultImageMatcher.clear();
+            mCaptureOutputSurface.close();
         }
     }
 }
