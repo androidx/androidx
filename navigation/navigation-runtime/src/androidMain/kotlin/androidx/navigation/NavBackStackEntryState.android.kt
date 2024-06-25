@@ -50,13 +50,15 @@ internal class NavBackStackEntryState : Parcelable {
         hostLifecycleState: Lifecycle.State,
         viewModel: NavControllerViewModel?
     ): NavBackStackEntry {
-        val args = args?.apply {
-            classLoader = context.classLoader
-        }
+        val args = args?.apply { classLoader = context.classLoader }
         return NavBackStackEntry.create(
-            context, destination, args,
-            hostLifecycleState, viewModel,
-            id, savedState
+            context,
+            destination,
+            args,
+            hostLifecycleState,
+            viewModel,
+            id,
+            savedState
         )
     }
 

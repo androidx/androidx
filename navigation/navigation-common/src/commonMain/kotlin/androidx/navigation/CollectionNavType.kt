@@ -16,16 +16,18 @@
 
 package androidx.navigation
 
+import android.net.Uri
+
 /**
  * A [NavType] for [Collection] such as arrays, lists, maps.
  *
  * @param T the type of the data that is supported by this NavType
- *
  * @param isNullableAllowed whether the argument of this type can hold a null value
  */
 public abstract class CollectionNavType<T>(
     /**
      * Check if an argument with this type can hold a null value.
+     *
      * @return Returns true if this type allows null values, false otherwise.
      */
     isNullableAllowed: Boolean
@@ -34,11 +36,20 @@ public abstract class CollectionNavType<T>(
     /**
      * Serialize a value of this NavType into a list of String.
      *
-     * Each element in the collection should be converted to an individual String element
-     * of the returned list.
+     * Each element in the collection should be converted to an individual String element of the
+     * returned list.
+     *
+     * Note: Elements should be encoded with [Uri.encode]
      *
      * @param value a value of this NavType
-     * @return List containing serialized String representation of [value]
+     * @return List containing encoded and serialized String representation of [value]
      */
     public abstract fun serializeAsValues(value: T): List<String>
+
+    /**
+     * Create and return an empty collection of type [T]
+     *
+     * For example, [T] of type List<MyType> should return emptyList<MyType>().
+     */
+    public abstract fun emptyCollection(): T
 }

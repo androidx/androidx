@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryProviderTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun testViewModelStoreOwnerProvided() {
@@ -58,7 +57,8 @@ class NavBackStackEntryProviderTest {
         }
 
         assertWithMessage("ViewModelStoreOwner is provided by $backStackEntry")
-            .that(viewModelStoreOwner).isEqualTo(backStackEntry)
+            .that(viewModelStoreOwner)
+            .isEqualTo(backStackEntry)
     }
 
     @Test
@@ -74,7 +74,8 @@ class NavBackStackEntryProviderTest {
         }
 
         assertWithMessage("LifecycleOwner is provided by $backStackEntry")
-            .that(lifecycleOwner).isEqualTo(backStackEntry)
+            .that(lifecycleOwner)
+            .isEqualTo(backStackEntry)
     }
 
     @Test
@@ -90,7 +91,8 @@ class NavBackStackEntryProviderTest {
         }
 
         assertWithMessage("LocalSavedStateRegistryOwner is provided by $backStackEntry")
-            .that(localSavedStateRegistryOwner).isEqualTo(backStackEntry)
+            .that(localSavedStateRegistryOwner)
+            .isEqualTo(backStackEntry)
     }
 
     @Test
@@ -102,9 +104,7 @@ class NavBackStackEntryProviderTest {
         restorationTester.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
             backStackEntry.LocalOwnersProvider(saveableStateHolder) {
-                array = rememberSaveable {
-                    intArrayOf(0)
-                }
+                array = rememberSaveable { intArrayOf(0) }
             }
         }
 
@@ -152,10 +152,8 @@ class NavBackStackEntryProviderTest {
         val testNavigator = TestNavigator()
         val testNavigatorState = TestNavigatorState()
         testNavigator.onAttach(testNavigatorState)
-        val backStackEntry = testNavigatorState.createBackStackEntry(
-            testNavigator.createDestination(),
-            null
-        )
+        val backStackEntry =
+            testNavigatorState.createBackStackEntry(testNavigator.createDestination(), null)
         // We navigate to move the NavBackStackEntry to the correct state
         testNavigator.navigate(listOf(backStackEntry), null, null)
         return backStackEntry

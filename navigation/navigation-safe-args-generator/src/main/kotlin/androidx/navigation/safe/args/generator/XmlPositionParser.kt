@@ -23,10 +23,11 @@ import org.xmlpull.v1.XmlPullParserFactory
 internal class XmlPositionParser(private val name: String, reader: Reader, val logger: NavLogger) {
     private var startLine = 0
     private var startColumn = 0
-    private val parser: XmlPullParser = XmlPullParserFactory.newInstance().newPullParser().apply {
-        setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
-        setInput(reader)
-    }
+    private val parser: XmlPullParser =
+        XmlPullParserFactory.newInstance().newPullParser().apply {
+            setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
+            setInput(reader)
+        }
 
     fun name(): String = parser.name
 
@@ -41,7 +42,8 @@ internal class XmlPositionParser(private val name: String, reader: Reader, val l
             }
 
             if (processedLine == parser.lineNumber && processedColumn == parser.columnNumber) {
-                // otherwise onStart already called next() and we need to try to process current node
+                // otherwise onStart already called next() and we need to try to process current
+                // node
                 nextToken()
             }
         }
@@ -67,9 +69,11 @@ internal class XmlPositionParser(private val name: String, reader: Reader, val l
     }
 
     fun attrValue(namespace: String, name: String): String? =
-        (0 until parser.attributeCount).find {
-            parser.getAttributeNamespace(it) == namespace && name == parser.getAttributeName(it)
-        }?.let { parser.getAttributeValue(it) }
+        (0 until parser.attributeCount)
+            .find {
+                parser.getAttributeNamespace(it) == namespace && name == parser.getAttributeName(it)
+            }
+            ?.let { parser.getAttributeValue(it) }
 
     fun attrValueOrError(namespace: String, attrName: String): String? {
         val value = attrValue(namespace, attrName)

@@ -35,16 +35,13 @@ class ComposeNavigatorTest {
 
         val entry = navigatorState.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(entry), null, null)
-        assertThat(navigator.backStack.value)
-            .containsExactly(entry).inOrder()
+        assertThat(navigator.backStack.value).containsExactly(entry).inOrder()
 
         val secondEntry = navigatorState.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(secondEntry), null, null)
-        assertThat(navigator.backStack.value)
-            .containsExactly(entry, secondEntry).inOrder()
+        assertThat(navigator.backStack.value).containsExactly(entry, secondEntry).inOrder()
 
         navigator.popBackStack(secondEntry, false)
-        assertThat(navigator.backStack.value)
-            .containsExactly(entry).inOrder()
+        assertThat(navigator.backStack.value).containsExactly(entry).inOrder()
     }
 }

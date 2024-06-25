@@ -19,28 +19,26 @@ import android.os.Bundle
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * A Navigator built specifically for [NavGraph] elements. Handles navigating to the
- * correct destination when the NavGraph is the target of navigation actions.
+ * A Navigator built specifically for [NavGraph] elements. Handles navigating to the correct
+ * destination when the NavGraph is the target of navigation actions.
  *
- * Construct a Navigator capable of routing incoming navigation requests to the proper
- * destination within a [NavGraph].
+ * Construct a Navigator capable of routing incoming navigation requests to the proper destination
+ * within a [NavGraph].
  *
- * @param navigatorProvider NavigatorProvider used to retrieve the correct
- * [Navigator] to navigate to the start destination
+ * @param navigatorProvider NavigatorProvider used to retrieve the correct [Navigator] to navigate
+ *   to the start destination
  */
 @Navigator.Name("navigation")
-public actual open class NavGraphNavigator actual constructor(
-    private val navigatorProvider: NavigatorProvider
-) : Navigator<NavGraph>() {
+public actual open class NavGraphNavigator actual constructor(private val navigatorProvider: NavigatorProvider) :
+    Navigator<NavGraph>() {
 
-    /**
-     * Gets the backstack of [NavBackStackEntry] associated with this Navigator
-     */
+    /** Gets the backstack of [NavBackStackEntry] associated with this Navigator */
     public actual val backStack: StateFlow<List<NavBackStackEntry>>
         get() = state.backStack
 
     /**
      * Creates a new [NavGraph] associated with this navigator.
+     *
      * @return The created [NavGraph].
      */
     public actual override fun createDestination(): NavGraph {
@@ -73,11 +71,12 @@ public actual open class NavGraphNavigator actual constructor(
         check(startId != 0 || startRoute != null) {
             ("no start destination defined via app:startDestination for ${destination.displayName}")
         }
-        val startDestination = if (startRoute != null) {
-            destination.findNode(startRoute, false)
-        } else {
-            destination.findNode(startId, false)
-        }
+        val startDestination =
+            if (startRoute != null) {
+                destination.findNode(startRoute, false)
+            } else {
+                destination.nodes[startId]
+            }
         requireNotNull(startDestination) {
             val dest = destination.startDestDisplayName
             throw IllegalArgumentException(
@@ -95,15 +94,17 @@ public actual open class NavGraphNavigator actual constructor(
             }
         }
 
-        val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
-            startDestination.navigatorName
-        )
-        val startDestinationEntry = state.createBackStackEntry(
-            startDestination,
-            // could contain default args, restored args, args passed during setGraph,
-            // and args from route
-            startDestination.addInDefaultArgs(args)
-        )
+        val navigator =
+            navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                startDestination.navigatorName
+            )
+        val startDestinationEntry =
+            state.createBackStackEntry(
+                startDestination,
+                // could contain default args, restored args, args passed during setGraph,
+                // and args from route
+                startDestination.addInDefaultArgs(args)
+            )
         navigator.navigate(listOf(startDestinationEntry), navOptions, navigatorExtras)
     }
 }

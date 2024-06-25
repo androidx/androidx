@@ -31,22 +31,20 @@ import androidx.navigation.Navigator
 import androidx.navigation.compose.ComposeNavigator.Destination
 
 /**
- * Navigator that navigates through [Composable]s. Every destination using this Navigator must
- * set a valid [Composable] by setting it directly on an instantiated [Destination] or calling
+ * Navigator that navigates through [Composable]s. Every destination using this Navigator must set a
+ * valid [Composable] by setting it directly on an instantiated [Destination] or calling
  * [composable].
  */
 @Navigator.Name("composable")
 public actual class ComposeNavigator : Navigator<Destination>() {
 
-    /**
-     * Get the map of transitions currently in progress from the [state].
-     */
-    internal actual val transitionsInProgress get() = state.transitionsInProgress
+    /** Get the map of transitions currently in progress from the [state]. */
+    internal actual val transitionsInProgress
+        get() = state.transitionsInProgress
 
-    /**
-     * Get the back stack from the [state].
-     */
-    public actual val backStack get() = state.backStack
+    /** Get the back stack from the [state]. */
+    public actual val backStack
+        get() = state.backStack
 
     internal actual val isPop = mutableStateOf(false)
 
@@ -55,14 +53,12 @@ public actual class ComposeNavigator : Navigator<Destination>() {
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) {
-        entries.forEach { entry ->
-            state.pushWithTransition(entry)
-        }
+        entries.forEach { entry -> state.pushWithTransition(entry) }
         isPop.value = false
     }
 
     override fun createDestination(): Destination {
-        return Destination(this) { }
+        return Destination(this) {}
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
@@ -73,8 +69,8 @@ public actual class ComposeNavigator : Navigator<Destination>() {
     /**
      * Function to prepare the entry for transition.
      *
-     * This should be called when the entry needs to move the [Lifecycle.State] in preparation for
-     * a transition such as when using predictive back.
+     * This should be called when the entry needs to move the [Lifecycle.State] in preparation for a
+     * transition such as when using predictive back.
      */
     public actual fun prepareForTransition(entry: NavBackStackEntry) {
         state.prepareForTransition(entry)
@@ -83,25 +79,24 @@ public actual class ComposeNavigator : Navigator<Destination>() {
     /**
      * Callback to mark a navigation in transition as complete.
      *
-     * This should be called in conjunction with [navigate] and [popBackStack] as those
-     * calls merely start a transition to the target destination, and requires manually marking
-     * the transition as complete by calling this method.
+     * This should be called in conjunction with [navigate] and [popBackStack] as those calls merely
+     * start a transition to the target destination, and requires manually marking the transition as
+     * complete by calling this method.
      *
-     * Failing to call this method could result in entries being prevented from reaching their
-     * final [Lifecycle.State].
+     * Failing to call this method could result in entries being prevented from reaching their final
+     * [Lifecycle.State].
      */
     public actual fun onTransitionComplete(entry: NavBackStackEntry) {
         state.markTransitionComplete(entry)
     }
 
-    /**
-     * NavDestination specific to [ComposeNavigator]
-     */
+    /** NavDestination specific to [ComposeNavigator] */
     @NavDestination.ClassType(Composable::class)
     public actual class Destination actual constructor(
         navigator: ComposeNavigator,
         internal actual val content:
-            @Composable AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
+            @Composable
+            AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
     ) : NavDestination(navigator) {
 
         @Deprecated(
@@ -113,20 +108,30 @@ public actual class ComposeNavigator : Navigator<Destination>() {
             content: @Composable (NavBackStackEntry) -> @JvmSuppressWildcards Unit
         ) : this(navigator, content = { entry -> content(entry) })
 
-        internal actual var enterTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+        internal actual var enterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+            null
 
-        internal actual var exitTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+        internal actual var exitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+            null
 
-        internal actual var popEnterTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+        internal actual var popEnterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+            null
 
-        internal actual var popExitTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+        internal actual var popExitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+            null
 
-        internal actual var sizeTransform: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null
+        internal actual var sizeTransform:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+            null
     }
 
     internal actual companion object {

@@ -182,10 +182,6 @@ public expect open class NavGraph(
     public var startDestinationRoute: String?
         private set
 
-    public val startDestDisplayName: String
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get
-
     public companion object {
         /**
          * Finds the actual start destination of the graph, handling cases where the graph's starting
@@ -204,9 +200,8 @@ public expect open class NavGraph(
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
-public inline operator fun NavGraph.get(route: String): NavDestination =
-    findNode(route)
-        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+public inline operator fun NavGraph.get(route: String): NavDestination = findNode(route)
+    ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
@@ -214,9 +209,8 @@ public operator fun NavGraph.contains(route: String): Boolean = findNode(route) 
 /**
  * Adds a destination to this NavGraph. The destination must have a route set.
  *
- * The destination must not have a [parent][NavDestination.parent] set. If
- * the destination is already part of a [NavGraph], call
- * [NavGraph.remove] before calling this method.</p>
+ * The destination must not have a [parent][NavDestination.parent] set. If the destination is
+ * already part of a [NavGraph], call [NavGraph.remove] before calling this method.</p>
  *
  * @param node destination to add
  */
@@ -226,11 +220,11 @@ public inline operator fun NavGraph.plusAssign(node: NavDestination) {
 }
 
 /**
- * Add all destinations from another collection to this one. As each destination has at most
- * one parent, the destinations will be removed from the given NavGraph.
+ * Add all destinations from another collection to this one. As each destination has at most one
+ * parent, the destinations will be removed from the given NavGraph.
  *
  * @param other collection of destinations to add. All destinations will be removed from the
- * parameter graph after being added to this graph.
+ *   parameter graph after being added to this graph.
  */
 @Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public inline operator fun NavGraph.plusAssign(other: NavGraph) {

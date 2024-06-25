@@ -35,18 +35,19 @@ class TestNavigatorDestinationBuilderTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
+    private val fragmentManager
+        get() = activityRule.activity.supportFragmentManager
 
     @Suppress("DEPRECATION")
     @UiThreadTest
-    @Test fun fragment() {
+    @Test
+    fun fragment() {
         val navHostFragment = NavHostFragment()
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
-        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
-            fragment<BuilderTestFragment>(DESTINATION_ID)
-        }
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
+        val graph =
+            navHostFragment.createGraph(startDestination = DESTINATION_ID) {
+                fragment<BuilderTestFragment>(DESTINATION_ID)
+            }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ID in graph)
             .isTrue()
@@ -57,16 +58,14 @@ class TestNavigatorDestinationBuilderTest {
 
     @Suppress("DEPRECATION")
     @UiThreadTest
-    @Test fun fragmentWithBody() {
+    @Test
+    fun fragmentWithBody() {
         val navHostFragment = NavHostFragment()
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
-        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
-            fragment<BuilderTestFragment>(DESTINATION_ID) {
-                label = LABEL
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
+        val graph =
+            navHostFragment.createGraph(startDestination = DESTINATION_ID) {
+                fragment<BuilderTestFragment>(DESTINATION_ID) { label = LABEL }
             }
-        }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ID in graph)
             .isTrue()
@@ -79,14 +78,14 @@ class TestNavigatorDestinationBuilderTest {
     }
 
     @UiThreadTest
-    @Test fun fragmentRoute() {
+    @Test
+    fun fragmentRoute() {
         val navHostFragment = NavHostFragment()
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
-        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
-            fragment<BuilderTestFragment>(DESTINATION_ROUTE)
-        }
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
+        val graph =
+            navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+                fragment<BuilderTestFragment>(DESTINATION_ROUTE)
+            }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ROUTE in graph)
             .isTrue()
@@ -96,16 +95,14 @@ class TestNavigatorDestinationBuilderTest {
     }
 
     @UiThreadTest
-    @Test fun fragmentWithBodyRoute() {
+    @Test
+    fun fragmentWithBodyRoute() {
         val navHostFragment = NavHostFragment()
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
-        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
-            fragment<BuilderTestFragment>(DESTINATION_ROUTE) {
-                label = LABEL
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
+        val graph =
+            navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+                fragment<BuilderTestFragment>(DESTINATION_ROUTE) { label = LABEL }
             }
-        }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ROUTE in graph)
             .isTrue()
@@ -118,14 +115,14 @@ class TestNavigatorDestinationBuilderTest {
     }
 
     @UiThreadTest
-    @Test fun fragmentKClass() {
+    @Test
+    fun fragmentKClass() {
         val navHostFragment = NavHostFragment()
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
-        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
-            fragment<BuilderTestFragment, TestClass>()
-        }
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
+        val graph =
+            navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+                fragment<BuilderTestFragment, TestClass>()
+            }
         assertWithMessage("Destination should be added to the graph")
             .that(TestClass::class in graph)
             .isTrue()
@@ -135,16 +132,14 @@ class TestNavigatorDestinationBuilderTest {
     }
 
     @UiThreadTest
-    @Test fun fragmentWithBodyKClass() {
+    @Test
+    fun fragmentWithBodyKClass() {
         val navHostFragment = NavHostFragment()
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
-        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
-            fragment<BuilderTestFragment, TestClass> {
-                label = LABEL
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
+        val graph =
+            navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+                fragment<BuilderTestFragment, TestClass> { label = LABEL }
             }
-        }
         assertWithMessage("Destination should be added to the graph")
             .that(TestClass::class in graph)
             .isTrue()
@@ -163,11 +158,8 @@ private const val LABEL = "Test"
 
 class BuilderTestFragment : Fragment()
 
-@Serializable
-internal class TestClass
+@Serializable internal class TestClass
 
-@Serializable
-internal class TestClassArg(val arg: Int)
+@Serializable internal class TestClassArg(val arg: Int)
 
-@Serializable
-internal class TestGraph
+@Serializable internal class TestGraph

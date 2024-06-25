@@ -77,11 +77,12 @@ internal abstract class Annotations {
     }
 
     companion object {
-        fun getInstance(useAndroidX: Boolean) = if (useAndroidX) {
-            AndroidXAnnotations
-        } else {
-            AndroidAnnotations
-        }
+        fun getInstance(useAndroidX: Boolean) =
+            if (useAndroidX) {
+                AndroidXAnnotations
+            } else {
+                AndroidAnnotations
+            }
     }
 }
 
@@ -90,199 +91,223 @@ internal fun NavType.addBundleGetStatement(
     arg: Argument,
     lValue: String,
     bundle: String
-): MethodSpec.Builder = when (this) {
-    is ObjectType -> builder.apply {
-        beginControlFlow(
-            "if ($T.class.isAssignableFrom($T.class) " +
-                "|| $T.class.isAssignableFrom($T.class))",
-            PARCELABLE_CLASSNAME, arg.type.typeName(),
-            SERIALIZABLE_CLASSNAME, arg.type.typeName()
-        ).apply {
-            addStatement(
-                "$N = ($T) $N.$N($S)",
-                lValue, arg.type.typeName(), bundle, "get", arg.name
-            )
-        }.nextControlFlow("else").apply {
-            addStatement(
-                "throw new UnsupportedOperationException($T.class.getName() + " +
-                    "\" must implement Parcelable or Serializable " +
-                    "or must be an Enum.\")",
-                arg.type.typeName()
-            )
-        }.endControlFlow()
+): MethodSpec.Builder =
+    when (this) {
+        is ObjectType ->
+            builder.apply {
+                beginControlFlow(
+                        "if ($T.class.isAssignableFrom($T.class) " +
+                            "|| $T.class.isAssignableFrom($T.class))",
+                        PARCELABLE_CLASSNAME,
+                        arg.type.typeName(),
+                        SERIALIZABLE_CLASSNAME,
+                        arg.type.typeName()
+                    )
+                    .apply {
+                        addStatement(
+                            "$N = ($T) $N.$N($S)",
+                            lValue,
+                            arg.type.typeName(),
+                            bundle,
+                            "get",
+                            arg.name
+                        )
+                    }
+                    .nextControlFlow("else")
+                    .apply {
+                        addStatement(
+                            "throw new UnsupportedOperationException($T.class.getName() + " +
+                                "\" must implement Parcelable or Serializable " +
+                                "or must be an Enum.\")",
+                            arg.type.typeName()
+                        )
+                    }
+                    .endControlFlow()
+            }
+        is ObjectArrayType ->
+            builder.apply {
+                val arrayName = "__array"
+                val baseType = (arg.type.typeName() as ArrayTypeName).componentType
+                addStatement(
+                    "$T[] $N = $N.$N($S)",
+                    PARCELABLE_CLASSNAME,
+                    arrayName,
+                    bundle,
+                    bundleGetMethod(),
+                    arg.name
+                )
+                beginControlFlow("if ($N != null)", arrayName).apply {
+                    addStatement("$N = new $T[$N.length]", lValue, baseType, arrayName)
+                    addStatement(
+                        "$T.arraycopy($N, 0, $N, 0, $N.length)",
+                        SYSTEM_CLASSNAME,
+                        arrayName,
+                        lValue,
+                        arrayName
+                    )
+                }
+                nextControlFlow("else").apply { addStatement("$N = null", lValue) }
+                endControlFlow()
+            }
+        else -> builder.addStatement("$N = $N.$N($S)", lValue, bundle, bundleGetMethod(), arg.name)
     }
-    is ObjectArrayType -> builder.apply {
-        val arrayName = "__array"
-        val baseType = (arg.type.typeName() as ArrayTypeName).componentType
-        addStatement(
-            "$T[] $N = $N.$N($S)",
-            PARCELABLE_CLASSNAME, arrayName, bundle, bundleGetMethod(), arg.name
-        )
-        beginControlFlow("if ($N != null)", arrayName).apply {
-            addStatement("$N = new $T[$N.length]", lValue, baseType, arrayName)
-            addStatement(
-                "$T.arraycopy($N, 0, $N, 0, $N.length)",
-                SYSTEM_CLASSNAME, arrayName, lValue, arrayName
-            )
-        }
-        nextControlFlow("else").apply {
-            addStatement("$N = null", lValue)
-        }
-        endControlFlow()
-    }
-    else -> builder.addStatement(
-        "$N = $N.$N($S)",
-        lValue,
-        bundle,
-        bundleGetMethod(),
-        arg.name
-    )
-}
 
 internal fun NavType.addBundlePutStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     bundle: String,
     argValue: String
-): MethodSpec.Builder = when (this) {
-    is ObjectType -> builder.apply {
-        beginControlFlow(
-            "if ($T.class.isAssignableFrom($T.class) || $N == null)",
-            PARCELABLE_CLASSNAME, arg.type.typeName(), argValue
-        ).apply {
-            addStatement(
-                "$N.$N($S, $T.class.cast($N))",
-                bundle, "putParcelable", arg.name, PARCELABLE_CLASSNAME, argValue
-            )
-        }.nextControlFlow(
-            "else if ($T.class.isAssignableFrom($T.class))",
-            SERIALIZABLE_CLASSNAME, arg.type.typeName()
-        ).apply {
-            addStatement(
-                "$N.$N($S, $T.class.cast($N))",
-                bundle, "putSerializable", arg.name, SERIALIZABLE_CLASSNAME, argValue
-            )
-        }.nextControlFlow("else").apply {
-            addStatement(
-                "throw new UnsupportedOperationException($T.class.getName() + " +
-                    "\" must implement Parcelable or Serializable or must be an Enum.\")",
-                arg.type.typeName()
-            )
-        }.endControlFlow()
+): MethodSpec.Builder =
+    when (this) {
+        is ObjectType ->
+            builder.apply {
+                beginControlFlow(
+                        "if ($T.class.isAssignableFrom($T.class) || $N == null)",
+                        PARCELABLE_CLASSNAME,
+                        arg.type.typeName(),
+                        argValue
+                    )
+                    .apply {
+                        addStatement(
+                            "$N.$N($S, $T.class.cast($N))",
+                            bundle,
+                            "putParcelable",
+                            arg.name,
+                            PARCELABLE_CLASSNAME,
+                            argValue
+                        )
+                    }
+                    .nextControlFlow(
+                        "else if ($T.class.isAssignableFrom($T.class))",
+                        SERIALIZABLE_CLASSNAME,
+                        arg.type.typeName()
+                    )
+                    .apply {
+                        addStatement(
+                            "$N.$N($S, $T.class.cast($N))",
+                            bundle,
+                            "putSerializable",
+                            arg.name,
+                            SERIALIZABLE_CLASSNAME,
+                            argValue
+                        )
+                    }
+                    .nextControlFlow("else")
+                    .apply {
+                        addStatement(
+                            "throw new UnsupportedOperationException($T.class.getName() + " +
+                                "\" must implement Parcelable or Serializable or must be an Enum.\")",
+                            arg.type.typeName()
+                        )
+                    }
+                    .endControlFlow()
+            }
+        else -> builder.addStatement("$N.$N($S, $N)", bundle, bundlePutMethod(), arg.name, argValue)
     }
-    else -> builder.addStatement(
-        "$N.$N($S, $N)",
-        bundle,
-        bundlePutMethod(),
-        arg.name,
-        argValue
-    )
-}
 
 internal fun NavType.addBundlePutStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     bundle: String,
     argValue: CodeBlock
-): MethodSpec.Builder = when (this) {
-    is ObjectType -> builder.apply {
-        addStatement(
-            "$N.$N($S, $L)",
-            bundle, "putSerializable", arg.name, argValue
-        )
+): MethodSpec.Builder =
+    when (this) {
+        is ObjectType ->
+            builder.apply {
+                addStatement("$N.$N($S, $L)", bundle, "putSerializable", arg.name, argValue)
+            }
+        else -> builder.addStatement("$N.$N($S, $L)", bundle, bundlePutMethod(), arg.name, argValue)
     }
-    else -> builder.addStatement(
-        "$N.$N($S, $L)",
-        bundle,
-        bundlePutMethod(),
-        arg.name,
-        argValue
-    )
-}
 
 internal fun NavType.addSavedStateHandleSetStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     savedStateHandle: String,
     argValue: String
-): MethodSpec.Builder = when (this) {
-    is ObjectType -> builder.apply {
-        beginControlFlow(
-            "if ($T.class.isAssignableFrom($T.class) || $N == null)",
-            PARCELABLE_CLASSNAME, arg.type.typeName(), argValue
-        ).apply {
-            addStatement(
-                "$N.set($S, $T.class.cast($N))",
-                savedStateHandle, arg.name, PARCELABLE_CLASSNAME, argValue
-            )
-        }.nextControlFlow(
-            "else if ($T.class.isAssignableFrom($T.class))",
-            SERIALIZABLE_CLASSNAME, arg.type.typeName()
-        ).apply {
-            addStatement(
-                "$N.set($S, $T.class.cast($N))",
-                savedStateHandle, arg.name, SERIALIZABLE_CLASSNAME, argValue
-            )
-        }.nextControlFlow("else").apply {
-            addStatement(
-                "throw new UnsupportedOperationException($T.class.getName() + " +
-                    "\" must implement Parcelable or Serializable or must be an Enum.\")",
-                arg.type.typeName()
-            )
-        }.endControlFlow()
+): MethodSpec.Builder =
+    when (this) {
+        is ObjectType ->
+            builder.apply {
+                beginControlFlow(
+                        "if ($T.class.isAssignableFrom($T.class) || $N == null)",
+                        PARCELABLE_CLASSNAME,
+                        arg.type.typeName(),
+                        argValue
+                    )
+                    .apply {
+                        addStatement(
+                            "$N.set($S, $T.class.cast($N))",
+                            savedStateHandle,
+                            arg.name,
+                            PARCELABLE_CLASSNAME,
+                            argValue
+                        )
+                    }
+                    .nextControlFlow(
+                        "else if ($T.class.isAssignableFrom($T.class))",
+                        SERIALIZABLE_CLASSNAME,
+                        arg.type.typeName()
+                    )
+                    .apply {
+                        addStatement(
+                            "$N.set($S, $T.class.cast($N))",
+                            savedStateHandle,
+                            arg.name,
+                            SERIALIZABLE_CLASSNAME,
+                            argValue
+                        )
+                    }
+                    .nextControlFlow("else")
+                    .apply {
+                        addStatement(
+                            "throw new UnsupportedOperationException($T.class.getName() + " +
+                                "\" must implement Parcelable or Serializable or must be an Enum.\")",
+                            arg.type.typeName()
+                        )
+                    }
+                    .endControlFlow()
+            }
+        else -> builder.addStatement("$N.set($S, $N)", savedStateHandle, arg.name, argValue)
     }
-    else -> builder.addStatement(
-        "$N.set($S, $N)",
-        savedStateHandle,
-        arg.name,
-        argValue
-    )
-}
 
 internal fun NavType.addSavedStateHandleSetStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     savedStateHandle: String,
     argValue: CodeBlock
-): MethodSpec.Builder = when (this) {
-    is ObjectType -> builder.apply {
-        addStatement(
-            "$N.set($S, $L)",
-            savedStateHandle, arg.name, argValue
-        )
+): MethodSpec.Builder =
+    when (this) {
+        is ObjectType ->
+            builder.apply { addStatement("$N.set($S, $L)", savedStateHandle, arg.name, argValue) }
+        else -> builder.addStatement("$N.set($S, $L)", savedStateHandle, arg.name, argValue)
     }
-    else -> builder.addStatement(
-        "$N.set($S, $L)",
-        savedStateHandle,
-        arg.name,
-        argValue
-    )
-}
 
-internal fun NavType.typeName(): TypeName = when (this) {
-    IntType -> TypeName.INT
-    IntArrayType -> ArrayTypeName.of(TypeName.INT)
-    LongType -> TypeName.LONG
-    LongArrayType -> ArrayTypeName.of(TypeName.LONG)
-    FloatType -> TypeName.FLOAT
-    FloatArrayType -> ArrayTypeName.of(TypeName.FLOAT)
-    StringType -> ClassName.get(String::class.java)
-    StringArrayType -> ArrayTypeName.of(ClassName.get(String::class.java))
-    BoolType -> TypeName.BOOLEAN
-    BoolArrayType -> ArrayTypeName.of(TypeName.BOOLEAN)
-    ReferenceType -> TypeName.INT
-    ReferenceArrayType -> ArrayTypeName.of(TypeName.INT)
-    is ObjectType ->
-        canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
-            ClassName.get(packageName, simpleName, *innerNames)
-        }
-    is ObjectArrayType -> ArrayTypeName.of(
-        canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
-            ClassName.get(packageName, simpleName, *innerNames)
-        }
-    )
-    else -> throw IllegalStateException("Unknown type: $this")
-}
+internal fun NavType.typeName(): TypeName =
+    when (this) {
+        IntType -> TypeName.INT
+        IntArrayType -> ArrayTypeName.of(TypeName.INT)
+        LongType -> TypeName.LONG
+        LongArrayType -> ArrayTypeName.of(TypeName.LONG)
+        FloatType -> TypeName.FLOAT
+        FloatArrayType -> ArrayTypeName.of(TypeName.FLOAT)
+        StringType -> ClassName.get(String::class.java)
+        StringArrayType -> ArrayTypeName.of(ClassName.get(String::class.java))
+        BoolType -> TypeName.BOOLEAN
+        BoolArrayType -> ArrayTypeName.of(TypeName.BOOLEAN)
+        ReferenceType -> TypeName.INT
+        ReferenceArrayType -> ArrayTypeName.of(TypeName.INT)
+        is ObjectType ->
+            canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
+                ClassName.get(packageName, simpleName, *innerNames)
+            }
+        is ObjectArrayType ->
+            ArrayTypeName.of(
+                canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
+                    ClassName.get(packageName, simpleName, *innerNames)
+                }
+            )
+        else -> throw IllegalStateException("Unknown type: $this")
+    }
 
 internal fun WritableValue.write(): CodeBlock {
     return when (this) {
@@ -298,6 +323,6 @@ internal fun WritableValue.write(): CodeBlock {
     }
 }
 
-internal fun ResReference?.accessor() = this?.let {
-    CodeBlock.of("$T.$N", ClassName.get(packageName, "R", resType), javaIdentifier)
-} ?: CodeBlock.of("0")
+internal fun ResReference?.accessor() =
+    this?.let { CodeBlock.of("$T.$N", ClassName.get(packageName, "R", resType), javaIdentifier) }
+        ?: CodeBlock.of("0")

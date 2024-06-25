@@ -127,9 +127,7 @@ public expect class NavOptions {
          */
         @JvmOverloads
         public fun setPopUpTo(
-            route: String?,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            route: String?, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
 
@@ -153,17 +151,14 @@ public expect class NavOptions {
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
         public inline fun <reified T : Any> setPopUpTo(
-            inclusive: Boolean,
-            saveState: Boolean = false
+            inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         // this restricted public is needed so that the public reified [popUpTo] can call
         // private popUpToRouteClass setter
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun setPopUpTo(
-            klass: KClass<*>,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            klass: KClass<*>, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         /**
@@ -187,9 +182,7 @@ public expect class NavOptions {
         @Suppress("MissingGetterMatchingBuilder")
         @OptIn(InternalSerializationApi::class)
         public fun <T : Any> setPopUpTo(
-            route: T,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            route: T, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         /**

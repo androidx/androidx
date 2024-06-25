@@ -183,7 +183,7 @@ kotlin {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     defaultConfig {
@@ -192,10 +192,15 @@ android {
     namespace "androidx.navigation.common"
 }
 
+dependencies {
+    lintPublish(project(':navigation:navigation-common-lint'))
+}
+
 androidx {
     name = "Navigation Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Navigation-Common"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

@@ -26,9 +26,8 @@ import androidx.navigation.NavController
  * [action id][androidx.navigation.NavDestination.getAction] or
  * [destination id][androidx.navigation.NavDestination.id] to be navigated to.
  *
- * By default, the back stack will be popped back to the navigation graph's start destination.
- * Menu items that have `android:menuCategory="secondary"` will not pop the back
- * stack.
+ * By default, the back stack will be popped back to the navigation graph's start destination. Menu
+ * items that have `android:menuCategory="secondary"` will not pop the back stack.
  *
  * @return True if the [NavController] was able to navigate to the destination.
  */

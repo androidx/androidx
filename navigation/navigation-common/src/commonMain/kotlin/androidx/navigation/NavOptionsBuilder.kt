@@ -92,8 +92,7 @@ public expect class NavOptionsBuilder() {
     // private popUpToRouteClass setter
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <T : Any> popUpTo(
-        klass: KClass<T>,
-        popUpToBuilder: PopUpToBuilder.() -> Unit
+        klass: KClass<T>, popUpToBuilder: PopUpToBuilder.() -> Unit
     )
 
     /**

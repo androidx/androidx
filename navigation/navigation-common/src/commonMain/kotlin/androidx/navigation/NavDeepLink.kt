@@ -27,9 +27,7 @@ import kotlin.reflect.KType
  * [NavDestination.addDeepLink].
  */
 public expect class NavDeepLink internal constructor(
-    uriPattern: String?,
-    action: String?,
-    mimeType: String?
+    uriPattern: String?, action: String?, mimeType: String?
 ) {
     /**
      * The uri pattern from the NavDeepLink.
@@ -47,8 +45,7 @@ public expect class NavDeepLink internal constructor(
     public val mimeType: String?
 
     public var isExactDeepLink: Boolean
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
         internal set
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

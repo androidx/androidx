@@ -56,11 +56,9 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavHostScreenShotTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule("navigation/navigation-compose")
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule("navigation/navigation-compose")
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @Test
@@ -73,31 +71,23 @@ class NavHostScreenShotTest {
                 startDestination = FIRST,
                 route = "start",
                 enterTransition = { slideInHorizontally { it / 2 } },
-                exitTransition = { slideOutHorizontally { - it / 2 } }
+                exitTransition = { slideOutHorizontally { -it / 2 } }
             ) {
                 composable(FIRST) { BasicText(FIRST) }
                 composable(SECOND) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color.Blue)) {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) {
                         BasicText(SECOND, Modifier.size(50.dp))
                     }
                 }
                 composable(THIRD) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color.Red)) {
+                    Box(Modifier.fillMaxSize().background(Color.Red)) {
                         BasicText(THIRD, Modifier.size(50.dp))
                     }
                 }
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(SECOND)
-        }
+        composeTestRule.runOnIdle { navController.navigate(SECOND) }
 
         // don't start drawing third yet
         composeTestRule.runOnIdle {
@@ -113,11 +103,11 @@ class NavHostScreenShotTest {
         composeTestRule.mainClock.advanceTimeByFrame()
         composeTestRule.mainClock.advanceTimeByFrame()
 
-        composeTestRule.onNodeWithText(THIRD).onParent()
-            .captureToImage().assertAgainstGolden(
-                screenshotRule,
-                "testNavHostAnimationsZIndex"
-            )
+        composeTestRule
+            .onNodeWithText(THIRD)
+            .onParent()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavHostAnimationsZIndex")
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -135,23 +125,18 @@ class NavHostScreenShotTest {
                 startDestination = FIRST,
                 route = "start",
                 enterTransition = { slideInHorizontally { it / 2 } },
-                exitTransition = { slideOutHorizontally { - it / 2 } }
+                exitTransition = { slideOutHorizontally { -it / 2 } }
             ) {
                 composable(FIRST) { BasicText(FIRST) }
                 composable(SECOND) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color.Blue)) {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) {
                         BasicText(SECOND, Modifier.size(50.dp))
                     }
                 }
             }
         }
 
-        composeTestRule.runOnIdle {
-            navController.navigate(SECOND)
-        }
+        composeTestRule.runOnIdle { navController.navigate(SECOND) }
 
         composeTestRule.runOnIdle {
             backPressedDispatcher.dispatchOnBackStarted(
@@ -176,11 +161,11 @@ class NavHostScreenShotTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(SECOND).onParent()
-            .captureToImage().assertAgainstGolden(
-                screenshotRule,
-                "testNavHostPredictiveBackAnimations"
-            )
+        composeTestRule
+            .onNodeWithText(SECOND)
+            .onParent()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavHostPredictiveBackAnimations")
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -191,23 +176,26 @@ class NavHostScreenShotTest {
             navController = rememberNavController()
             Box {
                 NavHost(navController, startDestination = FIRST) {
-                    composable(FIRST,
+                    composable(
+                        FIRST,
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
                         sizeTransform = {
                             SizeTransform { initialSize, targetSize ->
                                 keyframes {
                                     durationMillis = 500
-                                    IntSize(initialSize.width,
-                                        (initialSize.height + targetSize.height) / 2) at 150
+                                    IntSize(
+                                        initialSize.width,
+                                        (initialSize.height + targetSize.height) / 2
+                                    ) at 150
                                 }
                             }
-                        }) {
-                        Box(Modifier.size(40.dp).background(Green)) {
-                            BasicText(FIRST)
                         }
+                    ) {
+                        Box(Modifier.size(40.dp).background(Green)) { BasicText(FIRST) }
                     }
-                    composable(SECOND,
+                    composable(
+                        SECOND,
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
                         sizeTransform = {
@@ -217,10 +205,9 @@ class NavHostScreenShotTest {
                                     IntSize(targetSize.width, initialSize.height + 400) at 150
                                 }
                             }
-                        }) {
-                        Box(Modifier.size(500.dp).background(Blue)) {
-                            BasicText(SECOND)
                         }
+                    ) {
+                        Box(Modifier.size(500.dp).background(Blue)) { BasicText(SECOND) }
                     }
                 }
             }
@@ -237,11 +224,11 @@ class NavHostScreenShotTest {
         // down the screen.
         composeTestRule.mainClock.advanceTimeBy(75)
 
-        composeTestRule.onNodeWithText(SECOND).onParent()
-            .captureToImage().assertAgainstGolden(
-                screenshotRule,
-                "testNavHostSizeTransform"
-            )
+        composeTestRule
+            .onNodeWithText(SECOND)
+            .onParent()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavHostSizeTransform")
     }
 }
 

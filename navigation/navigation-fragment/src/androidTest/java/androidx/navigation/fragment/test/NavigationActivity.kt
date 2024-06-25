@@ -22,14 +22,15 @@ import java.util.concurrent.CountDownLatch
 
 class NavigationActivity : NavigationBaseActivity(R.layout.navigation_activity)
 
-class NavigationActivityWithFragmentTag : NavigationBaseActivity(
-    R.layout.navigation_activity_fragment_tag
-)
+class NavigationActivityWithFragmentTag :
+    NavigationBaseActivity(R.layout.navigation_activity_fragment_tag)
 
-class NavigationActivityMultiNavHost : NavigationBaseActivity(R.layout.navigation_activity_nav_host)
+class NavigationActivityMultiNavHost :
+    NavigationBaseActivity(R.layout.navigation_activity_nav_host)
 
 open class NavigationBaseActivity(contentLayoutId: Int) : FragmentActivity(contentLayoutId) {
-    val navController get() = findNavController(R.id.nav_host)
+    val navController
+        get() = findNavController(R.id.nav_host)
 
     val finishCountDownLatch = CountDownLatch(1)
 

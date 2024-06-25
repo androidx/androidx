@@ -39,9 +39,8 @@ import kotlin.reflect.KType
     "Use routes to create your FragmentDestination instead",
     ReplaceWith("fragment<F>(route = id.toString())")
 )
-public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
-    @IdRes id: Int
-): Unit = fragment<F>(id) {}
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(@IdRes id: Int): Unit =
+    fragment<F>(id) {}
 
 /**
  * Construct a new [FragmentNavigator.Destination]
@@ -57,22 +56,19 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    FragmentNavigatorDestinationBuilder(
-        provider[FragmentNavigator::class],
-        id,
-        F::class
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        FragmentNavigatorDestinationBuilder(provider[FragmentNavigator::class], id, F::class)
+            .apply(builder)
+    )
 
 /**
  * Construct a new [FragmentNavigator.Destination]
  *
  * @param route the destination's unique route
  */
-public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
-    route: String
-): Unit = fragment<F>(route) {}
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(route: String): Unit =
+    fragment<F>(route) {}
 
 /**
  * Construct a new [FragmentNavigator.Destination]
@@ -83,20 +79,18 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     route: String,
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    FragmentNavigatorDestinationBuilder(
-        provider[FragmentNavigator::class],
-        route,
-        F::class
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        FragmentNavigatorDestinationBuilder(provider[FragmentNavigator::class], route, F::class)
+            .apply(builder)
+    )
 
 /**
  * Construct a new [FragmentNavigator.Destination]
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. May be empty if [T] does not use custom NavTypes.
+ *   [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -107,24 +101,24 @@ public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragme
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. May be empty if [T] does not use custom NavTypes.
+ *   [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    FragmentNavigatorDestinationBuilder(
-        provider[FragmentNavigator::class],
-        T::class,
-        typeMap,
-        F::class,
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        FragmentNavigatorDestinationBuilder(
+                provider[FragmentNavigator::class],
+                T::class,
+                typeMap,
+                F::class,
+            )
+            .apply(builder)
+    )
 
-/**
- * DSL for constructing a new [FragmentNavigator.Destination]
- */
+/** DSL for constructing a new [FragmentNavigator.Destination] */
 @NavDestinationDsl
 public class FragmentNavigatorDestinationBuilder :
     NavDestinationBuilder<FragmentNavigator.Destination> {
@@ -137,7 +131,7 @@ public class FragmentNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param id the destination's unique id
      * @param fragmentClass The class name of the Fragment to show when you navigate to this
-     * destination
+     *   destination
      */
     @Suppress("Deprecation")
     @Deprecated(
@@ -160,7 +154,7 @@ public class FragmentNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param route the destination's unique route
      * @param fragmentClass The class name of the Fragment to show when you navigate to this
-     * destination
+     *   destination
      */
     public constructor(
         navigator: FragmentNavigator,
@@ -176,9 +170,9 @@ public class FragmentNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param route the route from a [KClass] of the destination
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     *   [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param fragmentClass The class name of the Fragment to show when you navigate to this
-     * destination
+     *   destination
      */
     public constructor(
         navigator: FragmentNavigator,
@@ -190,7 +184,5 @@ public class FragmentNavigatorDestinationBuilder :
     }
 
     override fun build(): FragmentNavigator.Destination =
-        super.build().also { destination ->
-            destination.setClassName(fragmentClass.java.name)
-        }
+        super.build().also { destination -> destination.setClassName(fragmentClass.java.name) }
 }

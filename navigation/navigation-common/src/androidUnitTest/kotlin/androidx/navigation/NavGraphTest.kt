@@ -28,10 +28,8 @@ import org.junit.runners.JUnit4
 class NavGraphTest {
 
     companion object {
-        @IdRes
-        private const val FIRST_DESTINATION_ID = 1
-        @IdRes
-        private const val SECOND_DESTINATION_ID = 2
+        @IdRes private const val FIRST_DESTINATION_ID = 1
+        @IdRes private const val SECOND_DESTINATION_ID = 2
     }
 
     private lateinit var provider: NavigatorProvider
@@ -40,33 +38,24 @@ class NavGraphTest {
 
     @Before
     fun setup() {
-        provider = NavigatorProvider().apply {
-            addNavigator(NoOpNavigator().also { noOpNavigator = it })
-            addNavigator(
-                NavGraphNavigator(this).also {
-                    navGraphNavigator = it
-                }
-            )
-        }
+        provider =
+            NavigatorProvider().apply {
+                addNavigator(NoOpNavigator().also { noOpNavigator = it })
+                addNavigator(NavGraphNavigator(this).also { navGraphNavigator = it })
+            }
     }
 
-    private fun createFirstDestination() = noOpNavigator.createDestination().apply {
-        id = FIRST_DESTINATION_ID
-    }
+    private fun createFirstDestination() =
+        noOpNavigator.createDestination().apply { id = FIRST_DESTINATION_ID }
 
-    private fun createSecondDestination() = noOpNavigator.createDestination().apply {
-        id = SECOND_DESTINATION_ID
-    }
+    private fun createSecondDestination() =
+        noOpNavigator.createDestination().apply { id = SECOND_DESTINATION_ID }
 
     private fun createGraphWithDestination(destination: NavDestination) =
-        navGraphNavigator.createDestination().apply {
-            addDestination(destination)
-        }
+        navGraphNavigator.createDestination().apply { addDestination(destination) }
 
     private fun createGraphWithDestinations(vararg destinations: NavDestination) =
-        navGraphNavigator.createDestination().apply {
-            addDestinations(*destinations)
-        }
+        navGraphNavigator.createDestination().apply { addDestinations(*destinations) }
 
     @Test(expected = IllegalArgumentException::class)
     fun addDestinationWithoutId() {
@@ -87,31 +76,30 @@ class NavGraphTest {
     @Test
     fun addDestinationWithSameId() {
         val destination = createFirstDestination()
-        val graph = navGraphNavigator.createDestination().apply {
-            id = FIRST_DESTINATION_ID
-        }
+        val graph = navGraphNavigator.createDestination().apply { id = FIRST_DESTINATION_ID }
         try {
             graph.addDestination(destination)
         } catch (e: IllegalArgumentException) {
             assertWithMessage("Adding destination with same id as its parent should fail")
-                .that(e).hasMessageThat().contains(
-                    "Destination $destination cannot have the same id as graph $graph"
-                )
+                .that(e)
+                .hasMessageThat()
+                .contains("Destination $destination cannot have the same id as graph $graph")
         }
     }
 
     @Test
     fun setStartDestinationWithSameId() {
         val destination = createFirstDestination()
-        val graph = navGraphNavigator.createDestination().apply {
-            id = FIRST_DESTINATION_ID
-        }
+        val graph = navGraphNavigator.createDestination().apply { id = FIRST_DESTINATION_ID }
         try {
             graph.setStartDestination(destination.id)
         } catch (e: IllegalArgumentException) {
             assertWithMessage("Setting a start destination with same id as its parent should fail")
-                .that(e).hasMessageThat().contains(
-                    "Start destination " + destination.id +
+                .that(e)
+                .hasMessageThat()
+                .contains(
+                    "Start destination " +
+                        destination.id +
                         " cannot use the same id as the graph $graph"
                 )
         }
@@ -275,10 +263,8 @@ class NavGraphTest {
         val secondDestination = createSecondDestination()
         val graph = createGraphWithDestinations(destination, secondDestination)
 
-        val graph2 = createGraphWithDestinations(
-            createFirstDestination(),
-            createSecondDestination()
-        )
+        val graph2 =
+            createGraphWithDestinations(createFirstDestination(), createSecondDestination())
         assertThat(graph2).isEqualTo(graph)
     }
 

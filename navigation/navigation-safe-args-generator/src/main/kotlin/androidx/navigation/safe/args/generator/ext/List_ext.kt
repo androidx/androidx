@@ -16,14 +16,16 @@
 
 package androidx.navigation.safe.args.generator.ext
 
-fun List<String>.joinToCamelCase(): String = when (size) {
-    0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
-    1 -> this[0].toCamelCase()
-    else -> this.joinToString("") { it.toCamelCase() }
-}
+fun List<String>.joinToCamelCase(): String =
+    when (size) {
+        0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
+        1 -> this[0].toCamelCase()
+        else -> this.joinToString("") { it.toCamelCase() }
+    }
 
-fun List<String>.joinToCamelCaseAsVar(): String = when (size) {
-    0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
-    1 -> this[0].toCamelCaseAsVar()
-    else -> get(0).toCamelCaseAsVar() + drop(1).joinToCamelCase()
-}
+fun List<String>.joinToCamelCaseAsVar(): String =
+    when (size) {
+        0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
+        1 -> this[0].toCamelCaseAsVar()
+        else -> get(0).toCamelCaseAsVar() + drop(1).joinToCamelCase()
+    }

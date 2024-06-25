@@ -18,22 +18,24 @@ package androidx.navigation.compose.lint
 
 import androidx.compose.lint.test.bytecodeStub
 
-internal val NAV_BACK_STACK_ENTRY = bytecodeStub(
-    filename = "NavBackStackEntry.kt",
-    filepath = "androidx/navigation",
-    checksum = 0xfef36ae,
-    source = """
+internal val NAV_BACK_STACK_ENTRY =
+    bytecodeStub(
+        filename = "NavBackStackEntry.kt",
+        filepath = "androidx/navigation",
+        checksum = 0xfef36ae,
+        source =
+            """
     package androidx.navigation
 
     public class NavBackStackEntry
 """,
-    """
+        """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuOSSMxLKcrPTKnQS87PLcgvTtUr
     Ks0rycxNFeIKSs1NzU1KLfIu4RLl4gZK66VWJOYW5KQKsYWkFpd4lygxaDEA
     ALrkMh5XAAAA
     """,
-    """
+        """
     androidx/navigation/NavBackStackEntry.class:
     H4sIAAAAAAAA/41Ru0oDQRQ9d5JsdI2axKjx2YmPwk3EThGMKCysCipprCbZ
     RSePWdidhNjlW/wDK8FCgqUfJd5d7WxsDudxh/uYz6+3dwCH2CBsSe1HofJH
@@ -45,26 +47,28 @@ internal val NAV_BACK_STACK_ENTRY = bytecodeStub(
     NOw0X0txGevpvxFmOCvcI+Ni1sWci3kUmaLkooyFe1CMChY5j2HHWIphfQMn
     9fXa9AEAAA==
     """
-)
+    )
 
-internal val NAV_CONTROLLER = bytecodeStub(
-    filename = "NavController.kt",
-    filepath = "androidx/navigation",
-    checksum = 0xeb9f76f4,
-    source = """
+internal val NAV_CONTROLLER =
+    bytecodeStub(
+        filename = "NavController.kt",
+        filepath = "androidx/navigation",
+        checksum = 0xeb9f76f4,
+        source =
+            """
     package androidx.navigation
 
     public class NavController {
         public fun getBackStackEntry(route: String) = NavBackStackEntry()
     }
 """,
-    """
+        """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuOSSMxLKcrPTKnQS87PLcgvTtUr
     Ks0rycxNFeIKSs1NzU1KLfIu4RLl4gZK66VWJOYW5KQKsYWkFpd4lygxaDEA
     ALrkMh5XAAAA
     """,
-    """
+        """
     androidx/navigation/NavController.class:
     H4sIAAAAAAAA/41SW08TQRT+ZtruwoJlQbkrioDclAXikzVGIZrU1GrEkBie
     pttJmXY7m+xOG3zjt/gL9AmjiSE++qOMZ8pGrGhkkz3X73wzc875/uPzVwD3
@@ -81,24 +85,26 @@ internal val NAV_CONTROLLER = bytecodeStub(
     cFdI36XfZZnDca8nl7FB+jFFZ4hq9gC5Mq6XcaOMOdwkE7fKmMftA7AUC1g8
     gJvCS7GUwkkxlOJOiiK5PwElc7kHIAQAAA==
     """
-)
+    )
 
-internal val NAV_GRAPH_BUILDER = bytecodeStub(
-    filename = "NavGraphBuilder.kt",
-    filepath = "androidx/navigation",
-    checksum = 0xced68271,
-    source = """
+internal val NAV_GRAPH_BUILDER =
+    bytecodeStub(
+        filename = "NavGraphBuilder.kt",
+        filepath = "androidx/navigation",
+        checksum = 0xced68271,
+        source =
+            """
     package androidx.navigation
 
     public class NavGraphBuilder
 """,
-    """
+        """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuaSTsxLKcrPTKnQy0ssy0xPLMnM
     z9NLzs8tyC9OFRL0SyxzL0osyHAqzcxJSS3yLhHiBAp55BeXeJdwiXJxAxXq
     pVYk5hbkpAqxhaSChJUYtBgARVljGmwAAAA=
     """,
-    """
+        """
     androidx/navigation/NavGraphBuilder.class:
     H4sIAAAAAAAA/41Ru04CQRQ9d4BFVhTEF/hqjIlauGrsNCZioiFBTNTQUA3s
     BkaWWbM7EEu+xT+wMrEwxNKPMt5dqaxsTs7jzp07d76+3z8AnGCTsC21GwbK
@@ -110,13 +116,15 @@ internal val NAV_GRAPH_BUILDER = bytecodeStub(
     QA52kq8nuIqN5McIs5zlW0jVMFfDfA0FFJlioYYSFlugCEtY5jyCHWElgvUD
     nsoUQO4BAAA=
     """
-)
+    )
 
-internal val NAV_GRAPH_COMPOSABLE = bytecodeStub(
-    filename = "NavGraphBuilder.kt",
-    filepath = "androidx/navigation/compose",
-    checksum = 0xc3b35ff,
-    source = """
+internal val NAV_GRAPH_COMPOSABLE =
+    bytecodeStub(
+        filename = "NavGraphBuilder.kt",
+        filepath = "androidx/navigation/compose",
+        checksum = 0xc3b35ff,
+        source =
+            """
     package androidx.navigation.compose
 
     import androidx.compose.runtime.Composable
@@ -129,13 +137,13 @@ internal val NAV_GRAPH_COMPOSABLE = bytecodeStub(
 
     public fun NavGraphBuilder.navigation(route: String, builder: NavGraphBuilder.() -> Unit) { }
 """,
-    """
+        """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuaSTsxLKcrPTKnQy0ssy0xPLMnM
     z9NLzs8tyC9OFRL0SyxzL0osyHAqzcxJSS3yLhHiBAp55BeXeJdwiXJxAxXq
     pVYk5hbkpAqxhaSChJUYtBgARVljGmwAAAA=
     """,
-    """
+        """
     androidx/navigation/compose/NavGraphBuilderKt.class:
     H4sIAAAAAAAA/71UTVMTQRB9s4EkBNRkI8qHIgrIl7ABvw6xqFIKrJQxqCAH
     OU02axiSzFI7kxTcuHqy/Av+A2+WB4vy6I+y7N0kJIFQcNFKpadn5vV7PdM9
@@ -156,26 +164,28 @@ internal val NAV_GRAPH_COMPOSABLE = bytecodeStub(
     ZTCewd0M7mEig0lMZXAf0ztgCjOY3cGAQq/CnMINhUTgJBXmFR4oLCgMK4wq
     LP4F8P5Vs6MGAAA=
     """
-)
+    )
 
-internal val NAV_HOST = bytecodeStub(
-    filename = "NavHost.kt",
-    filepath = "androidx/navigation/compose",
-    checksum = 0x6aac9b28,
-    source = """
+internal val NAV_HOST =
+    bytecodeStub(
+        filename = "NavHost.kt",
+        filepath = "androidx/navigation/compose",
+        checksum = 0x6aac9b28,
+        source =
+            """
     package androidx.navigation.compose
 
     import androidx.navigation.NavGraphBuilder
 
     public fun NavHost(route: String, builder: NavGraphBuilder.() -> Unit) { }
 """,
-    """
+        """
     META-INF/main.kotlin_module:
     H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuaSTsxLKcrPTKnQy0ssy0xPLMnM
     z9NLzs8tyC9OFRL0SyxzL0osyHAqzcxJSS3yLhHiBAp55BeXeJdwiXJxAxXq
     pVYk5hbkpAqxhaSChJUYtBgARVljGmwAAAA=
     """,
-    """
+        """
     androidx/navigation/compose/NavHostKt.class:
     H4sIAAAAAAAA/5VSS2/TQBD+1nmHPhKXvgK0hbb0RXFawSkIqVQUrIaAaMml
     p42zpJs468peR+XW38I/4IY4oIojPwoxdpI2UpGAg7+Znf1m5vPM/vz17TuA
@@ -192,4 +202,4 @@ internal val NAV_HOST = bytecodeStub(
     P9MnIoepuNA4irhN9xsxO4PNKGZQIBt3ycbhrRhX8YjsPkWnqffMCRI2Zm3M
     2aSlZOMO7tq4h4UTsACLWDpBNkAqwP0AuRiLAR4EWA6w8hvNMdYWNAQAAA==
     """
-)
+    )

@@ -48,11 +48,14 @@ fun SizeTransformNav() {
                     SizeTransform { initialSize, targetSize ->
                         keyframes {
                             durationMillis = 500
-                            IntSize(initialSize.width,
-                                (initialSize.height + targetSize.height) / 2) at 150
+                            IntSize(
+                                initialSize.width,
+                                (initialSize.height + targetSize.height) / 2
+                            ) at 150
                         }
                     }
-                }) {
+                }
+            ) {
                 CollapsedScreen { navController.navigate(Expanded) }
             }
             composable<Expanded>(
@@ -65,18 +68,17 @@ fun SizeTransformNav() {
                             IntSize(targetSize.width, initialSize.height + 400) at 150
                         }
                     }
-                }) {
+                }
+            ) {
                 ExpandedScreen { navController.popBackStack() }
             }
         }
     }
 }
 
-@Serializable
-object Collapsed
+@Serializable object Collapsed
 
-@Serializable
-object Expanded
+@Serializable object Expanded
 
 @Composable
 fun CollapsedScreen(onNavigate: () -> Unit) {

@@ -28,26 +28,21 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.get
 
 /**
- * This Navigator intercepts the inflation of `navigation` destinations
- * in a Navigation with Fragment XML file, reusing the `android:name`
- * field as the fully qualified name of the composable function to use
- * as the contents of the inflated destination.
+ * This Navigator intercepts the inflation of `navigation` destinations in a Navigation with
+ * Fragment XML file, reusing the `android:name` field as the fully qualified name of the composable
+ * function to use as the contents of the inflated destination.
  *
- * Internally, this uses a [ComposableFragment] to implement the
- * reflection call.
+ * Internally, this uses a [ComposableFragment] to implement the reflection call.
  */
 @Navigator.Name("composable")
-class ComposableFragmentNavigator(
-    private val fragmentNavigator: FragmentNavigator
-) : Navigator<FragmentNavigator.Destination>() {
+class ComposableFragmentNavigator(private val fragmentNavigator: FragmentNavigator) :
+    Navigator<FragmentNavigator.Destination>() {
 
     /**
-     * Construct a [ComposableFragmentNavigator] by retrieving the associated
-     * [FragmentNavigator] from [provider].
+     * Construct a [ComposableFragmentNavigator] by retrieving the associated [FragmentNavigator]
+     * from [provider].
      */
-    constructor(
-        provider: NavigatorProvider
-    ) : this(provider[FragmentNavigator::class])
+    constructor(provider: NavigatorProvider) : this(provider[FragmentNavigator::class])
 
     override fun createDestination(): FragmentNavigator.Destination {
         // Note how we associate the destination with the given
@@ -58,19 +53,19 @@ class ComposableFragmentNavigator(
     }
 
     @NavDestination.ClassType(Composable::class)
-    internal class Destination(
-        fragmentNavigator: Navigator<out FragmentNavigator.Destination>
-    ) : FragmentNavigator.Destination(fragmentNavigator) {
+    internal class Destination(fragmentNavigator: Navigator<out FragmentNavigator.Destination>) :
+        FragmentNavigator.Destination(fragmentNavigator) {
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
             // The className that was parsed out is actually the fully
             // qualified name of the Composable Function to run, so extract
             // that and add it as a default argument on the destination
             val fullyQualifiedName = className
-            val navArgument = NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setDefaultValue(fullyQualifiedName)
-                .build()
+            val navArgument =
+                NavArgument.Builder()
+                    .setType(NavType.StringType)
+                    .setDefaultValue(fullyQualifiedName)
+                    .build()
             addArgument(ComposableFragment.FULLY_QUALIFIED_NAME, navArgument)
             // And then ensure that the actual Fragment that is constructed
             // is our ComposableFragment
