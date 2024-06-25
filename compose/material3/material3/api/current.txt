@@ -1258,6 +1258,57 @@ package androidx.compose.material3 {
     method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional float sheetMaxWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.ModalBottomSheetProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
   }
 
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Immutable public final class ModalExpandedNavigationRailDefaults {
+    method public androidx.compose.material3.ModalExpandedNavigationRailProperties getProperties();
+    property public final androidx.compose.material3.ModalExpandedNavigationRailProperties Properties;
+    field public static final androidx.compose.material3.ModalExpandedNavigationRailDefaults INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Immutable public final class ModalExpandedNavigationRailProperties {
+    ctor public ModalExpandedNavigationRailProperties();
+    ctor public ModalExpandedNavigationRailProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress);
+    ctor public ModalExpandedNavigationRailProperties(optional boolean shouldDismissOnBackPress);
+    method public androidx.compose.ui.window.SecureFlagPolicy getSecurePolicy();
+    method public boolean getShouldDismissOnBackPress();
+    property public final androidx.compose.ui.window.SecureFlagPolicy securePolicy;
+    property public final boolean shouldDismissOnBackPress;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ModalExpandedNavigationRailState {
+    ctor public ModalExpandedNavigationRailState(androidx.compose.material3.ModalExpandedNavigationRailValue initialValue, androidx.compose.ui.unit.Density density, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.ModalExpandedNavigationRailValue,java.lang.Boolean> confirmValueChange);
+    method public suspend Object? close(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getAnimationSpec();
+    method public kotlin.jvm.functions.Function1<androidx.compose.material3.ModalExpandedNavigationRailValue,java.lang.Boolean> getConfirmValueChange();
+    method public float getCurrentOffset();
+    method public androidx.compose.material3.ModalExpandedNavigationRailValue getCurrentValue();
+    method public androidx.compose.material3.ModalExpandedNavigationRailValue getInitialValue();
+    method public androidx.compose.material3.ModalExpandedNavigationRailValue getTargetValue();
+    method public boolean isAnimationRunning();
+    method public boolean isOpen();
+    method public suspend Object? open(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void setConfirmValueChange(kotlin.jvm.functions.Function1<? super androidx.compose.material3.ModalExpandedNavigationRailValue,java.lang.Boolean>);
+    method public void setInitialValue(androidx.compose.material3.ModalExpandedNavigationRailValue);
+    method public suspend Object? snapTo(androidx.compose.material3.ModalExpandedNavigationRailValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec;
+    property public final kotlin.jvm.functions.Function1<androidx.compose.material3.ModalExpandedNavigationRailValue,java.lang.Boolean> confirmValueChange;
+    property public final float currentOffset;
+    property public final androidx.compose.material3.ModalExpandedNavigationRailValue currentValue;
+    property public final androidx.compose.material3.ModalExpandedNavigationRailValue initialValue;
+    property public final boolean isAnimationRunning;
+    property public final boolean isOpen;
+    property public final androidx.compose.material3.ModalExpandedNavigationRailValue targetValue;
+    field public static final androidx.compose.material3.ModalExpandedNavigationRailState.Companion Companion;
+  }
+
+  public static final class ModalExpandedNavigationRailState.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.ModalExpandedNavigationRailState,androidx.compose.material3.ModalExpandedNavigationRailValue> Saver(androidx.compose.ui.unit.Density density, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material3.ModalExpandedNavigationRailValue,java.lang.Boolean> confirmStateChange);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public enum ModalExpandedNavigationRailValue {
+    enum_constant public static final androidx.compose.material3.ModalExpandedNavigationRailValue Closed;
+    enum_constant public static final androidx.compose.material3.ModalExpandedNavigationRailValue Open;
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Immutable public interface MotionScheme {
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> defaultEffectsSpec();
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> defaultSpatialSpec();
@@ -1390,28 +1441,6 @@ package androidx.compose.material3 {
     method public int getTop();
     property public final int Start;
     property public final int Top;
-  }
-
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @kotlin.jvm.JvmInline public final value class NavigationRailArrangement {
-    field public static final androidx.compose.material3.NavigationRailArrangement.Companion Companion;
-  }
-
-  public static final class NavigationRailArrangement.Companion {
-    method public int getBottom();
-    method public int getCenter();
-    method public int getTop();
-    property public final int Bottom;
-    property public final int Center;
-    property public final int Top;
-  }
-
-  @androidx.compose.runtime.Immutable public final class NavigationRailColors {
-    ctor public NavigationRailColors(long containerColor, long contentColor);
-    method public androidx.compose.material3.NavigationRailColors copy(optional long containerColor, optional long contentColor);
-    method public long getContainerColor();
-    method public long getContentColor();
-    property public final long containerColor;
-    property public final long contentColor;
   }
 
   public final class NavigationRailDefaults {
@@ -2670,13 +2699,41 @@ package androidx.compose.material3 {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional androidx.compose.ui.graphics.drawscope.Stroke stroke, optional androidx.compose.ui.graphics.drawscope.Stroke trackStroke, optional float gapSize, optional float stopSize, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> amplitude, optional float wavelength, optional float waveSpeed);
   }
 
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @kotlin.jvm.JvmInline public final value class WideNavigationRailArrangement {
+    field public static final androidx.compose.material3.WideNavigationRailArrangement.Companion Companion;
+  }
+
+  public static final class WideNavigationRailArrangement.Companion {
+    method public int getBottom();
+    method public int getCenter();
+    method public int getTop();
+    property public final int Bottom;
+    property public final int Center;
+    property public final int Top;
+  }
+
+  @androidx.compose.runtime.Immutable public final class WideNavigationRailColors {
+    ctor public WideNavigationRailColors(long containerColor, long contentColor, long expandedModalContainerColor, long expandedModalScrimColor);
+    method public androidx.compose.material3.WideNavigationRailColors copy(optional long containerColor, optional long contentColor, optional long expandedModalContainerColor, optional long modalScrimColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getExpandedModalContainerColor();
+    method public long getExpandedModalScrimColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long expandedModalContainerColor;
+    property public final long expandedModalScrimColor;
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class WideNavigationRailDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationRailColors colors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors();
     method public int getArrangement();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getModalContainerShape();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
-    property public final int arrangement;
+    property public final int Arrangement;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape containerShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape modalContainerShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.WideNavigationRailDefaults INSTANCE;
   }
@@ -2688,8 +2745,13 @@ package androidx.compose.material3 {
   }
 
   public final class WideNavigationRailKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void WideNavigationRail(optional androidx.compose.ui.Modifier modifier, optional boolean expanded, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.NavigationRailColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? header, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional int arrangement, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ModalExpandedNavigationRail(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.ModalExpandedNavigationRailState railState, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.WideNavigationRailColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? header, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional int arrangement, optional boolean gesturesEnabled, optional androidx.compose.material3.ModalExpandedNavigationRailProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void WideNavigationRail(optional androidx.compose.ui.Modifier modifier, optional boolean expanded, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.WideNavigationRailColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? header, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional int arrangement, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void WideNavigationRailItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? badge, optional boolean railExpanded, optional int iconPosition, optional androidx.compose.material3.NavigationItemColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+  }
+
+  public final class WideNavigationRailStateKt {
+    method @androidx.compose.runtime.Composable public static androidx.compose.material3.ModalExpandedNavigationRailState rememberModalExpandedNavigationRailState(optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.ModalExpandedNavigationRailValue,java.lang.Boolean> confirmValueChange);
   }
 
 }

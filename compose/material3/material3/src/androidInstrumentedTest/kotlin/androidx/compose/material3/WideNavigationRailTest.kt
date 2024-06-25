@@ -368,7 +368,7 @@ class WideNavigationRailTest {
 
     @Test
     fun item_topIconPosition_withLongLabel_automaticallyResizesHeight() {
-        val defaultHeight = WNRTopItemMinHeight
+        val defaultHeight = WNRTopIconItemMinHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
@@ -472,7 +472,7 @@ class WideNavigationRailTest {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRail(
                 modifier = Modifier.testTag("rail"),
-                arrangement = NavigationRailArrangement.Center,
+                arrangement = WideNavigationRailArrangement.Center,
                 header = { Box(Modifier.testTag("header").size(10.dp)) }
             ) {
                 WideNavigationRailItem(
@@ -504,7 +504,7 @@ class WideNavigationRailTest {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRail(
                 modifier = Modifier.testTag("rail"),
-                arrangement = NavigationRailArrangement.Bottom,
+                arrangement = WideNavigationRailArrangement.Bottom,
                 header = { Box(Modifier.testTag("header").size(10.dp)) }
             ) {
                 WideNavigationRailItem(
