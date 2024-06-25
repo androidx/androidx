@@ -451,6 +451,37 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(22)
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun timeInput_keyboardInput_maintainsPm() {
+        val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
+
+        assertThat(state.isAfternoon).isTrue()
+
+        rule.onNodeWithText("11").performKeyInput { pressKey(Key.Four) }
+
+        assertThat(state.isAfternoon).isTrue()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun timeInput_deleting_maintainsPm() {
+        val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
+
+        assertThat(state.isAfternoon).isTrue()
+
+        rule.onNodeWithText("11").performKeyInput {
+            pressKey(Key.Delete)
+            pressKey(Key.Delete)
+        }
+
+        assertThat(state.isAfternoon).isTrue()
+    }
+
     @Test
     fun timeInput_24Hour_noAmPm_Toggle() {
         val state = TimePickerState(initialHour = 22, initialMinute = 23, is24Hour = true)
