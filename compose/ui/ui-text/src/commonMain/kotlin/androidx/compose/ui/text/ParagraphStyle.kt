@@ -71,7 +71,7 @@ class ParagraphStyle(
     val lineBreak: LineBreak = LineBreak.Unspecified,
     val hyphens: Hyphens = Hyphens.Unspecified,
     val textMotion: TextMotion? = null
-) {
+) : AnnotatedString.Annotation {
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getTextAlign-buA522U") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")

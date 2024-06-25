@@ -100,25 +100,16 @@ class AnnotatedStringTest {
     @Test
     fun plus_operator_creates_a_new_annotated_string() {
         val text1 = "Hello"
-        val spanStyles1 =
+        val annotations1 =
             listOf(
                 Range(SpanStyle(color = Color.Red), 0, 3),
-                Range(SpanStyle(color = Color.Blue), 2, 4)
-            )
-        val paragraphStyles1 =
-            listOf(
+                Range(SpanStyle(color = Color.Blue), 2, 4),
                 Range(ParagraphStyle(lineHeight = 20.sp), 0, 1),
-                Range(ParagraphStyle(lineHeight = 30.sp), 1, 5)
+                Range(ParagraphStyle(lineHeight = 30.sp), 1, 5),
+                Range(StringAnnotation("annotation1"), 0, 2, "scope1"),
+                Range(StringAnnotation("annotation1"), 3, 5, "scope1")
             )
-        val annotations1 =
-            listOf(Range("annotation1", 0, 2, "scope1"), Range("annotation1", 3, 5, "scope1"))
-        val annotatedString1 =
-            AnnotatedString(
-                text = text1,
-                spanStylesOrNull = spanStyles1,
-                paragraphStylesOrNull = paragraphStyles1,
-                annotations = annotations1
-            )
+        val annotatedString1 = AnnotatedString(text = text1, annotations = annotations1)
 
         val text2 = "World"
         val spanStyle = SpanStyle(color = Color.Cyan)
@@ -126,28 +117,46 @@ class AnnotatedStringTest {
         val annotatedString2 =
             AnnotatedString(
                 text = text2,
-                spanStylesOrNull = listOf(Range(spanStyle, 0, text2.length)),
-                paragraphStylesOrNull = listOf(Range(paragraphStyle, 0, text2.length)),
-                annotations = listOf(Range("annotation2", 0, text2.length, "scope2"))
+                annotations =
+                    listOf(
+                        Range(spanStyle, 0, text2.length),
+                        Range(paragraphStyle, 0, text2.length),
+                        Range(StringAnnotation("annotation2"), 0, text2.length, "scope2")
+                    ),
             )
 
         assertThat(annotatedString1 + annotatedString2)
             .isEqualTo(
                 AnnotatedString(
                     "$text1$text2",
-                    spanStyles1 +
-                        listOf(Range(spanStyle, text1.length, text1.length + text2.length)),
-                    paragraphStyles1 +
-                        listOf(Range(paragraphStyle, text1.length, text1.length + text2.length)),
                     annotations1 +
                         listOf(
+                            Range(spanStyle, text1.length, text1.length + text2.length),
+                            Range(paragraphStyle, text1.length, text1.length + text2.length),
                             Range(
-                                "annotation2",
+                                StringAnnotation("annotation2"),
                                 text1.length,
                                 text1.length + text2.length,
                                 "scope2"
                             )
                         )
+                )
+            )
+
+        assertThat((annotatedString1 + annotatedString2).spanStyles)
+            .isEqualTo(
+                listOf(
+                    Range(SpanStyle(color = Color.Red), 0, 3),
+                    Range(SpanStyle(color = Color.Blue), 2, 4),
+                    Range(spanStyle, text1.length, text1.length + text2.length),
+                )
+            )
+        assertThat((annotatedString1 + annotatedString2).paragraphStyles)
+            .isEqualTo(
+                listOf(
+                    Range(ParagraphStyle(lineHeight = 20.sp), 0, 1),
+                    Range(ParagraphStyle(lineHeight = 30.sp), 1, 5),
+                    Range(paragraphStyle, text1.length, text1.length + text2.length),
                 )
             )
     }
@@ -326,13 +335,19 @@ class AnnotatedStringTest {
         // Collapsed range equals to start, has annotation
         assertThat(annotatedString.subSequence(2, 2))
             .isEqualTo(
-                AnnotatedString("", annotations = listOf(Range("annotation1", 0, 0, "scope1")))
+                AnnotatedString(
+                    "",
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 0, "scope1"))
+                )
             )
 
         // Collapsed range covered by annotation, has annotation
         assertThat(annotatedString.subSequence(3, 3))
             .isEqualTo(
-                AnnotatedString("", annotations = listOf(Range("annotation1", 0, 0, "scope1")))
+                AnnotatedString(
+                    "",
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 0, "scope1"))
+                )
             )
     }
 
@@ -348,13 +363,19 @@ class AnnotatedStringTest {
         // Overlapping range, has annotation
         assertThat(annotatedString.subSequence(0, 3))
             .isEqualTo(
-                AnnotatedString("abc", annotations = listOf(Range("annotation1", 2, 3, "scope1")))
+                AnnotatedString(
+                    "abc",
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 2, 3, "scope1"))
+                )
             )
 
         // Overlapping, has annotation
         assertThat(annotatedString.subSequence(3, 5))
             .isEqualTo(
-                AnnotatedString("de", annotations = listOf(Range("annotation1", 0, 1, "scope1")))
+                AnnotatedString(
+                    "de",
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 1, "scope1"))
+                )
             )
     }
 
@@ -371,13 +392,19 @@ class AnnotatedStringTest {
         // Contains range, has annotation
         assertThat(annotatedString.subSequence(0, 5))
             .isEqualTo(
-                AnnotatedString("abcde", annotations = listOf(Range("annotation1", 2, 4, "scope1")))
+                AnnotatedString(
+                    "abcde",
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 2, 4, "scope1"))
+                )
             )
 
         // Full range, has annotation
         assertThat(annotatedString.subSequence(2, 4))
             .isEqualTo(
-                AnnotatedString("cd", annotations = listOf(Range("annotation1", 0, 2, "scope1")))
+                AnnotatedString(
+                    "cd",
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 2, "scope1"))
+                )
             )
     }
 
