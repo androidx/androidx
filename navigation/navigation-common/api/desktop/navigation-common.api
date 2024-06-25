@@ -1,5 +1,6 @@
 public abstract class androidx/navigation/CollectionNavType : androidx/navigation/NavType {
 	public fun <init> (Z)V
+	public abstract fun emptyCollection ()Ljava/lang/Object;
 	public abstract fun serializeAsValues (Ljava/lang/Object;)Ljava/util/List;
 }
 
