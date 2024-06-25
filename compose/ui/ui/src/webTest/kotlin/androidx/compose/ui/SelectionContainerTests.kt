@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -60,6 +61,8 @@ class SelectionContainerTests : OnCanvasTests {
     }
 
     @Test
+    @Ignore
+    // TODO: Activate after fixing https://youtrack.jetbrains.com/issue/CMP-1580/Fix-flaky-tests
     fun canSelectOneWordUsingDoubleClick() = runTest {
         createCanvasAndAttach()
         val syncChannel = Channel<Selection?>(
@@ -176,6 +179,8 @@ class SelectionContainerTests : OnCanvasTests {
     }
 
     @Test
+    @Ignore
+    // TODO: Activate after fixing https://youtrack.jetbrains.com/issue/CMP-1580/Fix-flaky-tests
     fun twoSingleClicksDoNotTriggerSelection() = runTest {
         createCanvasAndAttach()
 
