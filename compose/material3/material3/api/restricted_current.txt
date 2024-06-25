@@ -1457,7 +1457,8 @@ package androidx.compose.material3 {
 
   public final class ProgressIndicatorKt {
     method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth);
-    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long trackColor, optional int strokeCap);
+    method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long trackColor, optional int strokeCap);
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long trackColor, optional int strokeCap, optional float gapSize);
     method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth);
     method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long trackColor, optional int strokeCap);
     method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long trackColor, optional int strokeCap);
