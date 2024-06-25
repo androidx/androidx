@@ -89,96 +89,102 @@ class PaneMotionTest {
     ) {
         // Can't compare equality directly because of lambda. Check string representation instead
         assertWithMessage("Enter transition of $this: ")
-            .that(mockPaneMotionScope.enterTransition.toString())
+            .that(mockPaneScaffoldMotionScope.enterTransition.toString())
             .isEqualTo(expectedEnterTransition.toString())
         assertWithMessage("Exit transition of $this: ")
-            .that(mockPaneMotionScope.exitTransition.toString())
+            .that(mockPaneScaffoldMotionScope.exitTransition.toString())
             .isEqualTo(expectedExitTransition.toString())
     }
 
     @Test
     fun slideInFromLeftOffset_noEnterFromLeftPane_equalsZero() {
-        mockPaneMotionScope.paneMotions = listOf(EnterFromRight, EnterFromRight, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideInFromLeftOffset).isEqualTo(0)
+        mockPaneScaffoldMotionScope.paneMotions =
+            listOf(EnterFromRight, EnterFromRight, EnterFromRight)
+        assertThat(mockPaneScaffoldMotionScope.slideInFromLeftOffset).isEqualTo(0)
     }
 
     @Test
     fun slideInFromLeftOffset_withEnterFromLeftPane_useTheRightestEdge() {
-        mockPaneMotionScope.paneMotions = listOf(EnterFromLeft, EnterFromLeft, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideInFromLeftOffset)
+        mockPaneScaffoldMotionScope.paneMotions =
+            listOf(EnterFromLeft, EnterFromLeft, EnterFromRight)
+        assertThat(mockPaneScaffoldMotionScope.slideInFromLeftOffset)
             .isEqualTo(
-                -mockPaneMotionScope.targetPanePositions[1].x -
-                    mockPaneMotionScope.targetPaneSizes[1].width
+                -mockPaneScaffoldMotionScope.targetPanePositions[1].x -
+                    mockPaneScaffoldMotionScope.targetPaneSizes[1].width
             )
     }
 
     @Test
     fun slideInFromLeftOffset_withEnterFromLeftDelayedPane_useTheRightestEdge() {
-        mockPaneMotionScope.paneMotions =
+        mockPaneScaffoldMotionScope.paneMotions =
             listOf(EnterFromLeft, EnterFromLeftDelayed, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideInFromLeftOffset)
+        assertThat(mockPaneScaffoldMotionScope.slideInFromLeftOffset)
             .isEqualTo(
-                -mockPaneMotionScope.targetPanePositions[1].x -
-                    mockPaneMotionScope.targetPaneSizes[1].width
+                -mockPaneScaffoldMotionScope.targetPanePositions[1].x -
+                    mockPaneScaffoldMotionScope.targetPaneSizes[1].width
             )
     }
 
     @Test
     fun slideInFromRightOffset_noEnterFromRightPane_equalsZero() {
-        mockPaneMotionScope.paneMotions = listOf(EnterFromLeft, EnterFromLeft, EnterFromLeft)
-        assertThat(mockPaneMotionScope.slideInFromRightOffset).isEqualTo(0)
+        mockPaneScaffoldMotionScope.paneMotions =
+            listOf(EnterFromLeft, EnterFromLeft, EnterFromLeft)
+        assertThat(mockPaneScaffoldMotionScope.slideInFromRightOffset).isEqualTo(0)
     }
 
     @Test
     fun slideInFromRightOffset_withEnterFromRightPane_useTheLeftestEdge() {
-        mockPaneMotionScope.paneMotions = listOf(EnterFromLeft, EnterFromRight, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideInFromRightOffset)
+        mockPaneScaffoldMotionScope.paneMotions =
+            listOf(EnterFromLeft, EnterFromRight, EnterFromRight)
+        assertThat(mockPaneScaffoldMotionScope.slideInFromRightOffset)
             .isEqualTo(
-                mockPaneMotionScope.scaffoldSize.width -
-                    mockPaneMotionScope.targetPanePositions[1].x
+                mockPaneScaffoldMotionScope.scaffoldSize.width -
+                    mockPaneScaffoldMotionScope.targetPanePositions[1].x
             )
     }
 
     @Test
     fun slideInFromRightOffset_withEnterFromRightDelayedPane_useTheLeftestEdge() {
-        mockPaneMotionScope.paneMotions =
+        mockPaneScaffoldMotionScope.paneMotions =
             listOf(EnterFromLeft, EnterFromRightDelayed, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideInFromRightOffset)
+        assertThat(mockPaneScaffoldMotionScope.slideInFromRightOffset)
             .isEqualTo(
-                mockPaneMotionScope.scaffoldSize.width -
-                    mockPaneMotionScope.targetPanePositions[1].x
+                mockPaneScaffoldMotionScope.scaffoldSize.width -
+                    mockPaneScaffoldMotionScope.targetPanePositions[1].x
             )
     }
 
     @Test
     fun slideOutToLeftOffset_noExitToLeftPane_equalsZero() {
-        mockPaneMotionScope.paneMotions = listOf(EnterFromRight, EnterFromRight, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideOutToLeftOffset).isEqualTo(0)
+        mockPaneScaffoldMotionScope.paneMotions =
+            listOf(EnterFromRight, EnterFromRight, EnterFromRight)
+        assertThat(mockPaneScaffoldMotionScope.slideOutToLeftOffset).isEqualTo(0)
     }
 
     @Test
     fun slideOutToLeftOffset_withExitToLeftPane_useTheRightestEdge() {
-        mockPaneMotionScope.paneMotions = listOf(ExitToLeft, ExitToLeft, ExitToRight)
-        assertThat(mockPaneMotionScope.slideOutToLeftOffset)
+        mockPaneScaffoldMotionScope.paneMotions = listOf(ExitToLeft, ExitToLeft, ExitToRight)
+        assertThat(mockPaneScaffoldMotionScope.slideOutToLeftOffset)
             .isEqualTo(
-                -mockPaneMotionScope.currentPanePositions[1].x -
-                    mockPaneMotionScope.currentPaneSizes[1].width
+                -mockPaneScaffoldMotionScope.currentPanePositions[1].x -
+                    mockPaneScaffoldMotionScope.currentPaneSizes[1].width
             )
     }
 
     @Test
     fun slideOutToRightOffset_noExitToRightPane_equalsZero() {
-        mockPaneMotionScope.paneMotions = listOf(EnterFromRight, EnterFromRight, EnterFromRight)
-        assertThat(mockPaneMotionScope.slideOutToRightOffset).isEqualTo(0)
+        mockPaneScaffoldMotionScope.paneMotions =
+            listOf(EnterFromRight, EnterFromRight, EnterFromRight)
+        assertThat(mockPaneScaffoldMotionScope.slideOutToRightOffset).isEqualTo(0)
     }
 
     @Test
     fun slideOutToRightOffset_withExitToRightPane_useTheLeftestEdge() {
-        mockPaneMotionScope.paneMotions = listOf(ExitToLeft, ExitToRight, ExitToRight)
-        assertThat(mockPaneMotionScope.slideOutToRightOffset)
+        mockPaneScaffoldMotionScope.paneMotions = listOf(ExitToLeft, ExitToRight, ExitToRight)
+        assertThat(mockPaneScaffoldMotionScope.slideOutToRightOffset)
             .isEqualTo(
-                mockPaneMotionScope.scaffoldSize.width -
-                    mockPaneMotionScope.currentPanePositions[1].x
+                mockPaneScaffoldMotionScope.scaffoldSize.width -
+                    mockPaneScaffoldMotionScope.currentPanePositions[1].x
             )
     }
 }
@@ -208,101 +214,101 @@ private val MockThreePaneOrder =
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val ExpectedThreePaneMotions =
-    arrayOf(
+    listOf(
         // From H, H, H
-        arrayOf(
-            arrayOf(NoMotion, NoMotion, NoMotion), // To H, H, H
-            arrayOf(EnterFromRight, NoMotion, NoMotion), // To V, H, H
-            arrayOf(NoMotion, EnterFromRight, NoMotion), // To H, V, H
-            arrayOf(NoMotion, NoMotion, EnterFromRight), // To H, H, V
-            arrayOf(EnterFromRight, EnterFromRight, NoMotion), // To V, V, H
-            arrayOf(EnterFromRight, NoMotion, EnterFromRight), // To V, H, V
-            arrayOf(NoMotion, EnterFromRight, EnterFromRight), // To H, V, V
-            arrayOf(EnterFromRight, EnterFromRight, EnterFromRight), // To V, V, V
+        listOf(
+            listOf(NoMotion, NoMotion, NoMotion), // To H, H, H
+            listOf(EnterFromRight, NoMotion, NoMotion), // To V, H, H
+            listOf(NoMotion, EnterFromRight, NoMotion), // To H, V, H
+            listOf(NoMotion, NoMotion, EnterFromRight), // To H, H, V
+            listOf(EnterFromRight, EnterFromRight, NoMotion), // To V, V, H
+            listOf(EnterFromRight, NoMotion, EnterFromRight), // To V, H, V
+            listOf(NoMotion, EnterFromRight, EnterFromRight), // To H, V, V
+            listOf(EnterFromRight, EnterFromRight, EnterFromRight), // To V, V, V
         ),
         // From V, H, H
-        arrayOf(
-            arrayOf(ExitToRight, NoMotion, NoMotion), // To H, H, H
-            arrayOf(AnimateBounds, NoMotion, NoMotion), // To V, H, H
-            arrayOf(ExitToLeft, EnterFromRight, NoMotion), // To H, V, H
-            arrayOf(ExitToLeft, NoMotion, EnterFromRight), // To H, H, V
-            arrayOf(AnimateBounds, EnterFromRight, NoMotion), // To V, V, H
-            arrayOf(AnimateBounds, NoMotion, EnterFromRight), // To V, H, V
-            arrayOf(ExitToLeft, EnterFromRight, EnterFromRight), // To H, V, V
-            arrayOf(AnimateBounds, EnterFromRight, EnterFromRight), // To V, V, V
+        listOf(
+            listOf(ExitToRight, NoMotion, NoMotion), // To H, H, H
+            listOf(AnimateBounds, NoMotion, NoMotion), // To V, H, H
+            listOf(ExitToLeft, EnterFromRight, NoMotion), // To H, V, H
+            listOf(ExitToLeft, NoMotion, EnterFromRight), // To H, H, V
+            listOf(AnimateBounds, EnterFromRight, NoMotion), // To V, V, H
+            listOf(AnimateBounds, NoMotion, EnterFromRight), // To V, H, V
+            listOf(ExitToLeft, EnterFromRight, EnterFromRight), // To H, V, V
+            listOf(AnimateBounds, EnterFromRight, EnterFromRight), // To V, V, V
         ),
         // From H, V, H
-        arrayOf(
-            arrayOf(NoMotion, ExitToRight, NoMotion), // To H, H, H
-            arrayOf(EnterFromLeft, ExitToRight, NoMotion), // To V, H, H
-            arrayOf(NoMotion, AnimateBounds, NoMotion), // To H, V, H
-            arrayOf(NoMotion, ExitToLeft, EnterFromRight), // To H, H, V
-            arrayOf(EnterFromLeft, AnimateBounds, NoMotion), // To V, V, H
-            arrayOf(EnterFromLeft, ExitToRight, EnterFromRightDelayed), // To V, H, V
-            arrayOf(NoMotion, AnimateBounds, EnterFromRight), // To H, V, V
-            arrayOf(EnterFromLeft, AnimateBounds, EnterFromRight), // To V, V, V
+        listOf(
+            listOf(NoMotion, ExitToRight, NoMotion), // To H, H, H
+            listOf(EnterFromLeft, ExitToRight, NoMotion), // To V, H, H
+            listOf(NoMotion, AnimateBounds, NoMotion), // To H, V, H
+            listOf(NoMotion, ExitToLeft, EnterFromRight), // To H, H, V
+            listOf(EnterFromLeft, AnimateBounds, NoMotion), // To V, V, H
+            listOf(EnterFromLeft, ExitToRight, EnterFromRightDelayed), // To V, H, V
+            listOf(NoMotion, AnimateBounds, EnterFromRight), // To H, V, V
+            listOf(EnterFromLeft, AnimateBounds, EnterFromRight), // To V, V, V
         ),
         // From H, H, V
-        arrayOf(
-            arrayOf(NoMotion, NoMotion, ExitToRight), // To H, H, H
-            arrayOf(EnterFromLeft, NoMotion, ExitToRight), // To V, H, H
-            arrayOf(NoMotion, EnterFromLeft, ExitToRight), // To H, V, H
-            arrayOf(NoMotion, NoMotion, AnimateBounds), // To H, H, V
-            arrayOf(EnterFromLeft, EnterFromLeft, ExitToRight), // To V, V, H
-            arrayOf(EnterFromLeft, NoMotion, AnimateBounds), // To V, H, V
-            arrayOf(NoMotion, EnterFromLeft, AnimateBounds), // To H, V, V
-            arrayOf(EnterFromLeft, EnterFromLeft, AnimateBounds), // To V, V, V
+        listOf(
+            listOf(NoMotion, NoMotion, ExitToRight), // To H, H, H
+            listOf(EnterFromLeft, NoMotion, ExitToRight), // To V, H, H
+            listOf(NoMotion, EnterFromLeft, ExitToRight), // To H, V, H
+            listOf(NoMotion, NoMotion, AnimateBounds), // To H, H, V
+            listOf(EnterFromLeft, EnterFromLeft, ExitToRight), // To V, V, H
+            listOf(EnterFromLeft, NoMotion, AnimateBounds), // To V, H, V
+            listOf(NoMotion, EnterFromLeft, AnimateBounds), // To H, V, V
+            listOf(EnterFromLeft, EnterFromLeft, AnimateBounds), // To V, V, V
         ),
         // From V, V, H
-        arrayOf(
-            arrayOf(ExitToRight, ExitToRight, NoMotion), // To H, H, H
-            arrayOf(AnimateBounds, ExitToRight, NoMotion), // To V, H, H
-            arrayOf(ExitToLeft, AnimateBounds, NoMotion), // To H, V, H
-            arrayOf(ExitToLeft, ExitToLeft, EnterFromRight), // To H, H, V
-            arrayOf(AnimateBounds, AnimateBounds, NoMotion), // To V, V, H
-            arrayOf(AnimateBounds, ExitToRight, EnterFromRightDelayed), // To V, H, V
-            arrayOf(ExitToLeft, AnimateBounds, EnterFromRight), // To H, V, V
-            arrayOf(AnimateBounds, AnimateBounds, EnterFromRight), // To V, V, V
+        listOf(
+            listOf(ExitToRight, ExitToRight, NoMotion), // To H, H, H
+            listOf(AnimateBounds, ExitToRight, NoMotion), // To V, H, H
+            listOf(ExitToLeft, AnimateBounds, NoMotion), // To H, V, H
+            listOf(ExitToLeft, ExitToLeft, EnterFromRight), // To H, H, V
+            listOf(AnimateBounds, AnimateBounds, NoMotion), // To V, V, H
+            listOf(AnimateBounds, ExitToRight, EnterFromRightDelayed), // To V, H, V
+            listOf(ExitToLeft, AnimateBounds, EnterFromRight), // To H, V, V
+            listOf(AnimateBounds, AnimateBounds, EnterFromRight), // To V, V, V
         ),
         // From V, H, V
-        arrayOf(
-            arrayOf(ExitToRight, NoMotion, ExitToRight), // To H, H, H
-            arrayOf(AnimateBounds, NoMotion, ExitToRight), // To V, H, H
-            arrayOf(ExitToLeft, EnterFromRightDelayed, ExitToRight), // To H, V, H
-            arrayOf(ExitToLeft, NoMotion, AnimateBounds), // To H, H, V
-            arrayOf(AnimateBounds, EnterFromRightDelayed, ExitToRight), // To V, V, H
-            arrayOf(AnimateBounds, NoMotion, AnimateBounds), // To V, H, V
-            arrayOf(ExitToLeft, EnterFromLeftDelayed, AnimateBounds), // To H, V, V
-            arrayOf(AnimateBounds, EnterWithExpand, AnimateBounds), // To V, V, V
+        listOf(
+            listOf(ExitToRight, NoMotion, ExitToRight), // To H, H, H
+            listOf(AnimateBounds, NoMotion, ExitToRight), // To V, H, H
+            listOf(ExitToLeft, EnterFromRightDelayed, ExitToRight), // To H, V, H
+            listOf(ExitToLeft, NoMotion, AnimateBounds), // To H, H, V
+            listOf(AnimateBounds, EnterFromRightDelayed, ExitToRight), // To V, V, H
+            listOf(AnimateBounds, NoMotion, AnimateBounds), // To V, H, V
+            listOf(ExitToLeft, EnterFromLeftDelayed, AnimateBounds), // To H, V, V
+            listOf(AnimateBounds, EnterWithExpand, AnimateBounds), // To V, V, V
         ),
         // From H, V, V
-        arrayOf(
-            arrayOf(NoMotion, ExitToRight, ExitToRight), // To H, H, H
-            arrayOf(EnterFromLeft, ExitToRight, ExitToRight), // To V, H, H
-            arrayOf(NoMotion, AnimateBounds, ExitToRight), // To H, V, H
-            arrayOf(NoMotion, ExitToLeft, AnimateBounds), // To H, H, V
-            arrayOf(EnterFromLeft, AnimateBounds, ExitToRight), // To V, V, H
-            arrayOf(EnterFromLeftDelayed, ExitToLeft, AnimateBounds), // To V, H, V
-            arrayOf(NoMotion, AnimateBounds, AnimateBounds), // To H, V, V
-            arrayOf(EnterFromLeft, AnimateBounds, AnimateBounds), // To V, V, V
+        listOf(
+            listOf(NoMotion, ExitToRight, ExitToRight), // To H, H, H
+            listOf(EnterFromLeft, ExitToRight, ExitToRight), // To V, H, H
+            listOf(NoMotion, AnimateBounds, ExitToRight), // To H, V, H
+            listOf(NoMotion, ExitToLeft, AnimateBounds), // To H, H, V
+            listOf(EnterFromLeft, AnimateBounds, ExitToRight), // To V, V, H
+            listOf(EnterFromLeftDelayed, ExitToLeft, AnimateBounds), // To V, H, V
+            listOf(NoMotion, AnimateBounds, AnimateBounds), // To H, V, V
+            listOf(EnterFromLeft, AnimateBounds, AnimateBounds), // To V, V, V
         ),
         // From V, V, V
-        arrayOf(
-            arrayOf(ExitToRight, ExitToRight, ExitToRight), // To H, H, H
-            arrayOf(AnimateBounds, ExitToRight, ExitToRight), // To V, H, H
-            arrayOf(ExitToLeft, AnimateBounds, ExitToRight), // To H, V, H
-            arrayOf(ExitToLeft, ExitToLeft, AnimateBounds), // To H, H, V
-            arrayOf(AnimateBounds, AnimateBounds, ExitToRight), // To V, V, H
-            arrayOf(AnimateBounds, ExitWithShrink, AnimateBounds), // To V, H, V
-            arrayOf(ExitToLeft, AnimateBounds, AnimateBounds), // To H, V, V
-            arrayOf(AnimateBounds, AnimateBounds, AnimateBounds), // To V, V, V
+        listOf(
+            listOf(ExitToRight, ExitToRight, ExitToRight), // To H, H, H
+            listOf(AnimateBounds, ExitToRight, ExitToRight), // To V, H, H
+            listOf(ExitToLeft, AnimateBounds, ExitToRight), // To H, V, H
+            listOf(ExitToLeft, ExitToLeft, AnimateBounds), // To H, H, V
+            listOf(AnimateBounds, AnimateBounds, ExitToRight), // To V, V, H
+            listOf(AnimateBounds, ExitWithShrink, AnimateBounds), // To V, H, V
+            listOf(ExitToLeft, AnimateBounds, AnimateBounds), // To H, V, V
+            listOf(AnimateBounds, AnimateBounds, AnimateBounds), // To V, V, V
         ),
     )
 
 @Suppress("PrimitiveInCollection") // No way to get underlying Long of IntSize or IntOffset
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val mockPaneMotionScope =
-    object : PaneMotionScope {
+private val mockPaneScaffoldMotionScope =
+    object : PaneScaffoldMotionScope {
         override val positionAnimationSpec: FiniteAnimationSpec<IntOffset> = tween()
         override val sizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring()
         override val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> = snap()
@@ -322,42 +328,42 @@ private val mockPaneMotionScope =
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val mockEnterFromLeftTransition =
-    slideInHorizontally(mockPaneMotionScope.positionAnimationSpec) {
-        mockPaneMotionScope.slideInFromLeftOffset
+    slideInHorizontally(mockPaneScaffoldMotionScope.positionAnimationSpec) {
+        mockPaneScaffoldMotionScope.slideInFromLeftOffset
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val mockEnterFromRightTransition =
-    slideInHorizontally(mockPaneMotionScope.positionAnimationSpec) {
-        mockPaneMotionScope.slideInFromRightOffset
+    slideInHorizontally(mockPaneScaffoldMotionScope.positionAnimationSpec) {
+        mockPaneScaffoldMotionScope.slideInFromRightOffset
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val mockEnterFromLeftDelayedTransition =
-    slideInHorizontally(mockPaneMotionScope.delayedPositionAnimationSpec) {
-        mockPaneMotionScope.slideInFromLeftOffset
+    slideInHorizontally(mockPaneScaffoldMotionScope.delayedPositionAnimationSpec) {
+        mockPaneScaffoldMotionScope.slideInFromLeftOffset
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val mockEnterFromRightDelayedTransition =
-    slideInHorizontally(mockPaneMotionScope.delayedPositionAnimationSpec) {
-        mockPaneMotionScope.slideInFromLeftOffset
+    slideInHorizontally(mockPaneScaffoldMotionScope.delayedPositionAnimationSpec) {
+        mockPaneScaffoldMotionScope.slideInFromLeftOffset
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val mockExitToLeftTransition =
-    slideOutHorizontally(mockPaneMotionScope.positionAnimationSpec) {
-        mockPaneMotionScope.slideOutToLeftOffset
+    slideOutHorizontally(mockPaneScaffoldMotionScope.positionAnimationSpec) {
+        mockPaneScaffoldMotionScope.slideOutToLeftOffset
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val mockExitToRightTransition =
-    slideOutHorizontally(mockPaneMotionScope.positionAnimationSpec) {
-        mockPaneMotionScope.slideOutToRightOffset
+    slideOutHorizontally(mockPaneScaffoldMotionScope.positionAnimationSpec) {
+        mockPaneScaffoldMotionScope.slideOutToRightOffset
     }
 
 private val mockEnterWithExpandTransition =
-    expandHorizontally(mockPaneMotionScope.sizeAnimationSpec, Alignment.CenterHorizontally)
+    expandHorizontally(mockPaneScaffoldMotionScope.sizeAnimationSpec, Alignment.CenterHorizontally)
 
 private val mockExitWithShrinkTransition =
-    shrinkHorizontally(mockPaneMotionScope.sizeAnimationSpec, Alignment.CenterHorizontally)
+    shrinkHorizontally(mockPaneScaffoldMotionScope.sizeAnimationSpec, Alignment.CenterHorizontally)

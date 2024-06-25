@@ -34,7 +34,7 @@ import kotlin.math.min
 
 @Suppress("PrimitiveInCollection") // No way to get underlying Long of IntSize or IntOffset
 @ExperimentalMaterial3AdaptiveApi
-internal interface PaneMotionScope {
+internal interface PaneScaffoldMotionScope {
     val positionAnimationSpec: FiniteAnimationSpec<IntOffset>
     val sizeAnimationSpec: FiniteAnimationSpec<IntSize>
     val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset>
@@ -48,7 +48,7 @@ internal interface PaneMotionScope {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val PaneMotionScope.slideInFromLeftOffset: Int
+internal val PaneScaffoldMotionScope.slideInFromLeftOffset: Int
     get() {
         // Find the right edge offset of the rightmost pane that enters from its left
         for (i in paneMotions.lastIndex downTo 0) {
@@ -63,7 +63,7 @@ internal val PaneMotionScope.slideInFromLeftOffset: Int
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val PaneMotionScope.slideInFromRightOffset: Int
+internal val PaneScaffoldMotionScope.slideInFromRightOffset: Int
     get() {
         // Find the left edge offset of the leftmost pane that enters from its right
         paneMotions.fastForEachIndexed { i, paneMotion ->
@@ -78,7 +78,7 @@ internal val PaneMotionScope.slideInFromRightOffset: Int
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val PaneMotionScope.slideOutToLeftOffset: Int
+internal val PaneScaffoldMotionScope.slideOutToLeftOffset: Int
     get() {
         // Find the right edge offset of the rightmost pane that exits to its left
         for (i in paneMotions.lastIndex downTo 0) {
@@ -90,7 +90,7 @@ internal val PaneMotionScope.slideOutToLeftOffset: Int
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val PaneMotionScope.slideOutToRightOffset: Int
+internal val PaneScaffoldMotionScope.slideOutToRightOffset: Int
     get() {
         // Find the left edge offset of the leftmost pane that exits to its right
         paneMotions.fastForEachIndexed { i, paneMotion ->
@@ -103,8 +103,8 @@ internal val PaneMotionScope.slideOutToRightOffset: Int
 
 @ExperimentalMaterial3AdaptiveApi
 internal interface PaneMotion {
-    val PaneMotionScope.enterTransition: EnterTransition
-    val PaneMotionScope.exitTransition: ExitTransition
+    val PaneScaffoldMotionScope.enterTransition: EnterTransition
+    val PaneScaffoldMotionScope.exitTransition: ExitTransition
 }
 
 @ExperimentalMaterial3AdaptiveApi
@@ -123,7 +123,7 @@ internal value class DefaultPaneMotion private constructor(val value: Int) : Pan
         val ExitWithShrink = DefaultPaneMotion(9)
     }
 
-    override val PaneMotionScope.enterTransition: EnterTransition
+    override val PaneScaffoldMotionScope.enterTransition: EnterTransition
         get() =
             when (this@DefaultPaneMotion) {
                 EnterFromLeft ->
@@ -140,7 +140,7 @@ internal value class DefaultPaneMotion private constructor(val value: Int) : Pan
                 else -> EnterTransition.None
             }
 
-    override val PaneMotionScope.exitTransition: ExitTransition
+    override val PaneScaffoldMotionScope.exitTransition: ExitTransition
         get() =
             when (this@DefaultPaneMotion) {
                 ExitToLeft -> slideOutHorizontally(positionAnimationSpec) { slideOutToLeftOffset }
@@ -173,10 +173,10 @@ internal fun <T> calculatePaneMotion(
     previousScaffoldValue: PaneScaffoldValue<T>,
     currentScaffoldValue: PaneScaffoldValue<T>,
     paneOrder: PaneScaffoldHorizontalOrder<T>
-): Array<PaneMotion> {
+): List<PaneMotion> {
     val numOfPanes = paneOrder.size
     val paneStatus = Array(numOfPanes) { PaneMotionStatus.Hidden }
-    val paneMotions = Array<PaneMotion>(numOfPanes) { DefaultPaneMotion.NoMotion }
+    val paneMotions = MutableList<PaneMotion>(numOfPanes) { DefaultPaneMotion.NoMotion }
     var firstShownPaneIndex = numOfPanes
     var firstEnteringPaneIndex = numOfPanes
     var lastShownPaneIndex = -1
