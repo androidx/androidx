@@ -329,6 +329,7 @@ class EmbeddingAdapterTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testTranslateAnimationBackgroundWithApiLevel5() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(5)
 
@@ -373,6 +374,7 @@ class EmbeddingAdapterTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testTranslateAnimationBackgroundBeforeApiLevel5() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(2)
         WindowTestUtils.assumeBeforeVendorApiLevel(5)

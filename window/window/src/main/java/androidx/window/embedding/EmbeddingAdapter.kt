@@ -119,6 +119,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
     internal fun translate(activityStacks: List<OEMActivityStack>): List<ActivityStack> =
         activityStacks.map(this::translate)
 
+    @Suppress("DEPRECATION") // To compat with device with extension versions 5 and 6.
     internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes {
         val builder =
             SplitAttributes.Builder()
@@ -292,6 +293,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
     }
 
     @OptIn(ExperimentalWindowApi::class)
+    @Suppress("DEPRECATION") // To compat with device with extension versions 5 and 6.
     fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
         require(extensionVersion >= 2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
