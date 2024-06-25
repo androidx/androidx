@@ -49,6 +49,29 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
                         @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
                     mOnRoutesChangedListener.run();
                 }
+
+                @Override
+                public void onRouteSelected(
+                        @NonNull MediaRouter router,
+                        @NonNull MediaRouter.RouteInfo selectedRoute,
+                        int reason,
+                        @NonNull MediaRouter.RouteInfo requestedRoute) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteUnselected(
+                        @NonNull MediaRouter router,
+                        @NonNull MediaRouter.RouteInfo route,
+                        int reason) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteChanged(
+                        @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                    mOnRoutesChangedListener.run();
+                }
             };
 
     /** Returns a new instance. */
@@ -101,7 +124,13 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
 
     @Override
     public boolean select(@NonNull SystemRouteItem item) {
-        throw new UnsupportedOperationException();
+        for (MediaRouter.RouteInfo routeInfo : mMediaRouter.getRoutes()) {
+            if (routeInfo.getId().equals(item.mId)) {
+                routeInfo.select();
+                return true;
+            }
+        }
+        return false;
     }
 
     @NonNull
@@ -110,6 +139,10 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
                 new SystemRouteItem.Builder(getSourceId(), routeInfo.getId())
                         .setName(routeInfo.getName());
 
+        builder.setSelectionSupportState(
+                routeInfo.isSelected()
+                        ? SystemRouteItem.SelectionSupportState.RESELECTABLE
+                        : SystemRouteItem.SelectionSupportState.SELECTABLE);
         String description = routeInfo.getDescription();
         if (description != null) {
             builder.setDescription(description);
