@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.processing;
+package androidx.camera.core.processing.concurrent;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.runOnMain;
-import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
-import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
-import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.core.processing.TargetUtils.getHumanReadableName;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
@@ -46,6 +42,10 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.processing.Node;
+import androidx.camera.core.processing.SurfaceEdge;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.camera.core.processing.util.OutConfig;
 import androidx.core.util.Preconditions;
 
@@ -58,31 +58,20 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 /**
- * A {@link Node} implementation that wraps around the public {@link SurfaceProcessor} interface.
- *
- * <p>Responsibilities:
- * <ul>
- * <li>Calculating transformation and passing it to the {@link SurfaceProcessor}.
- * <li>Tracking the state of previously calculate specification and only recreate the pipeline
- * when necessary.
- * </ul>
- *
- * TODO(b/261270972): currently the upstream pipeline is always connected, which means that the
- *  camera is always producing frames. This might be wasteful, if the downstream pipeline is not
- *  connected. For example, when app fails to provide a Surface or when VideoCapture is paused.
- *  One possible optimization is only connecting the upstream when the downstream are available.
+ * An internal augmented {@link SurfaceProcessorNode} for dual concurrent cameras.
  */
-// TODO(b/233627260): remove once implemented.
 @SuppressWarnings("UnusedVariable")
-public class SurfaceProcessorNode implements
-        Node<SurfaceProcessorNode.In, SurfaceProcessorNode.Out> {
+public class DualSurfaceProcessorNode implements
+        Node<DualSurfaceProcessorNode.In, DualSurfaceProcessorNode.Out> {
 
-    private static final String TAG = "SurfaceProcessorNode";
+    private static final String TAG = "DualSurfaceProcessorNode";
 
     @NonNull
     final SurfaceProcessorInternal mSurfaceProcessor;
     @NonNull
-    final CameraInternal mCameraInternal;
+    final CameraInternal mPrimaryCameraInternal;
+    @NonNull
+    final CameraInternal mSecondaryCameraInternal;
     // Guarded by main thread.
     @Nullable
     private Out mOutput;
@@ -90,36 +79,44 @@ public class SurfaceProcessorNode implements
     private In mInput;
 
     /**
-     * Constructs the {@link SurfaceProcessorNode}.
+     * Constructs the {@link DualSurfaceProcessorNode}.
      *
-     * @param cameraInternal   the associated camera instance.
+     * @param primaryCameraInternal the associated primary camera instance.
+     * @param secondaryCameraInternal the associated secondary camera instance.
      * @param surfaceProcessor the interface to wrap around.
      */
-    public SurfaceProcessorNode(@NonNull CameraInternal cameraInternal,
+    public DualSurfaceProcessorNode(
+            @NonNull CameraInternal primaryCameraInternal,
+            @NonNull CameraInternal secondaryCameraInternal,
             @NonNull SurfaceProcessorInternal surfaceProcessor) {
-        mCameraInternal = cameraInternal;
+        mPrimaryCameraInternal = primaryCameraInternal;
+        mSecondaryCameraInternal = secondaryCameraInternal;
         mSurfaceProcessor = surfaceProcessor;
     }
-
     /**
      * {@inheritDoc}
      */
     @Override
     @NonNull
     @MainThread
-    public Out transform(@NonNull In input) {
+    public Out transform(@NonNull In in) {
         Threads.checkMainThread();
-        mInput = input;
+        mInput = in;
         mOutput = new Out();
 
-        SurfaceEdge inputSurface = input.getSurfaceEdge();
-        for (OutConfig config : input.getOutConfigs()) {
-            mOutput.put(config, transformSingleOutput(inputSurface, config));
-        }
+        SurfaceEdge primaryInputSurfaceEdge = mInput.getPrimarySurfaceEdge();
+        SurfaceEdge secondaryInputSurfaceEdge = mInput.getSecondarySurfaceEdge();
 
-        sendSurfaceRequest(inputSurface);
-        sendSurfaceOutputs(inputSurface, mOutput);
-        setUpRotationUpdates(inputSurface, mOutput);
+        for (DualOutConfig config : mInput.getOutConfigs()) {
+            mOutput.put(config, transformSingleOutput(
+                    primaryInputSurfaceEdge,
+                    config.getPrimaryOutConfig()));
+        }
+        sendSurfaceRequest(mPrimaryCameraInternal, primaryInputSurfaceEdge, mOutput, true);
+        sendSurfaceRequest(mSecondaryCameraInternal, secondaryInputSurfaceEdge, mOutput, false);
+
+        sendSurfaceOutputs(mPrimaryCameraInternal, mSecondaryCameraInternal,
+                primaryInputSurfaceEdge, secondaryInputSurfaceEdge, mOutput);
         return mOutput;
     }
 
@@ -133,30 +130,15 @@ public class SurfaceProcessorNode implements
 
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
-                new android.graphics.Matrix(input.getSensorToBufferTransform());
-        android.graphics.Matrix newTransform = getRectToRect(
-                new RectF(cropRect),
-                sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
-        sensorToBufferTransform.postConcat(newTransform);
+                new android.graphics.Matrix();
 
         // The aspect ratio of the output must match the aspect ratio of the crop rect. Otherwise
         // the output will be stretched.
         Size rotatedCropSize = getRotatedSize(cropRect, rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
-        // Calculate the transformed crop rect.
-        Rect newCropRect;
-        if (outConfig.shouldRespectInputCropRect()) {
-            checkArgument(outConfig.getCropRect().contains(input.getCropRect()),
-                    String.format("Output crop rect %s must contain input crop rect %s",
-                            outConfig.getCropRect(), input.getCropRect()));
-            newCropRect = new Rect();
-            RectF newCropRectF = new RectF(input.getCropRect());
-            newTransform.mapRect(newCropRectF);
-            newCropRectF.round(newCropRect);
-        } else {
-            newCropRect = sizeToRect(outConfig.getSize());
-        }
+        // Calculate the crop rect.
+        Rect newCropRect = sizeToRect(outConfig.getSize());
 
         // Copy the stream spec from the input to the output, except for the resolution.
         StreamSpec streamSpec = input.getStreamSpec().toBuilder().setResolution(
@@ -181,9 +163,16 @@ public class SurfaceProcessorNode implements
     /**
      * Creates {@link SurfaceRequest} and send it to {@link SurfaceProcessor}.
      */
-    private void sendSurfaceRequest(@NonNull SurfaceEdge input) {
+    private void sendSurfaceRequest(
+            @NonNull CameraInternal cameraInternal,
+            @NonNull SurfaceEdge input,
+            @NonNull Map<DualOutConfig, SurfaceEdge> outputs,
+            boolean isPrimary) {
+        SurfaceRequest surfaceRequest = input.createSurfaceRequest(cameraInternal, isPrimary);
+        // TODO(b/348402401): Different from SurfaceProcessorNode, we don't support device rotation
+        //  for dual camera recording.
         try {
-            mSurfaceProcessor.onInputSurface(input.createSurfaceRequest(mCameraInternal));
+            mSurfaceProcessor.onInputSurface(surfaceRequest);
         } catch (ProcessingException e) {
             Logger.e(TAG, "Failed to send SurfaceRequest to SurfaceProcessor.", e);
         }
@@ -192,32 +181,53 @@ public class SurfaceProcessorNode implements
     /**
      * Creates all {@link SurfaceOutput} and send them to {@link SurfaceProcessor}.
      */
-    private void sendSurfaceOutputs(@NonNull SurfaceEdge input,
-            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
-        for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
-            createAndSendSurfaceOutput(input, output);
+    private void sendSurfaceOutputs(
+            @NonNull CameraInternal primaryCameraInternal,
+            @NonNull CameraInternal secondaryCameraInternal,
+            @NonNull SurfaceEdge primarySurfaceEdge,
+            @NonNull SurfaceEdge secondarySurfaceEdge,
+            @NonNull Map<DualOutConfig, SurfaceEdge> outputs) {
+        for (Map.Entry<DualOutConfig, SurfaceEdge> output : outputs.entrySet()) {
+            createAndSendSurfaceOutput(
+                    primaryCameraInternal,
+                    secondaryCameraInternal,
+                    primarySurfaceEdge,
+                    secondarySurfaceEdge,
+                    output);
             // Send the new surface to SurfaceProcessor when it resets.
             output.getValue().addOnInvalidatedListener(
-                    () -> createAndSendSurfaceOutput(input, output));
+                    () -> createAndSendSurfaceOutput(
+                            primaryCameraInternal, secondaryCameraInternal,
+                            primarySurfaceEdge, secondarySurfaceEdge, output));
         }
     }
 
     /**
      * Creates a single {@link SurfaceOutput} and send it to {@link SurfaceProcessor}.
      */
-    private void createAndSendSurfaceOutput(@NonNull SurfaceEdge input,
-            Map.Entry<OutConfig, SurfaceEdge> output) {
+    private void createAndSendSurfaceOutput(
+            @NonNull CameraInternal primaryCameraInternal,
+            @NonNull CameraInternal secondaryCameraInternal,
+            @NonNull SurfaceEdge primarySurfaceEdge,
+            @NonNull SurfaceEdge secondarySurfaceEdge,
+            Map.Entry<DualOutConfig, SurfaceEdge> output) {
         SurfaceEdge outputEdge = output.getValue();
-        SurfaceOutput.CameraInputInfo cameraInputInfo = SurfaceOutput.CameraInputInfo.of(
-                input.getStreamSpec().getResolution(),
-                output.getKey().getCropRect(),
-                input.hasCameraTransform() ? mCameraInternal : null,
-                output.getKey().getRotationDegrees(),
-                output.getKey().isMirroring());
+        SurfaceOutput.CameraInputInfo primaryCameraInputInfo = SurfaceOutput.CameraInputInfo.of(
+                primarySurfaceEdge.getStreamSpec().getResolution(),
+                output.getKey().getPrimaryOutConfig().getCropRect(),
+                primarySurfaceEdge.hasCameraTransform() ? primaryCameraInternal : null,
+                output.getKey().getPrimaryOutConfig().getRotationDegrees(),
+                output.getKey().getPrimaryOutConfig().isMirroring());
+        SurfaceOutput.CameraInputInfo secondaryCameraInputInfo = SurfaceOutput.CameraInputInfo.of(
+                secondarySurfaceEdge.getStreamSpec().getResolution(),
+                output.getKey().getSecondaryOutConfig().getCropRect(),
+                secondarySurfaceEdge.hasCameraTransform() ? secondaryCameraInternal : null,
+                output.getKey().getSecondaryOutConfig().getRotationDegrees(),
+                output.getKey().getSecondaryOutConfig().isMirroring());
         ListenableFuture<SurfaceOutput> future = outputEdge.createSurfaceOutputFuture(
-                output.getKey().getFormat(),
-                cameraInputInfo,
-                null);
+                output.getKey().getPrimaryOutConfig().getFormat(),
+                primaryCameraInputInfo,
+                secondaryCameraInputInfo);
         Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
             @Override
             public void onSuccess(@Nullable SurfaceOutput output) {
@@ -243,41 +253,6 @@ public class SurfaceProcessorNode implements
     }
 
     /**
-     * Propagates rotation updates from the input edge to the output edge.
-     *
-     * <p>Transformation info, such as rotation and crop rect, can be updated after the
-     * connection is established. When that happens, the node should update the output
-     * transformation via e.g. {@link SurfaceRequest#updateTransformationInfo} without recreating
-     * the pipeline.
-     *
-     * <p>Currently, we only propagates the rotation. When the
-     * input edge's rotation changes, we re-calculate the delta and notify the output edge.
-     *
-     * @param inputEdge the input edge.
-     * @param outputs   the output edges.
-     */
-    void setUpRotationUpdates(
-            @NonNull SurfaceEdge inputEdge,
-            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
-        inputEdge.addTransformationUpdateListener(info -> {
-            for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
-                // To obtain the rotation degrees delta, the rotation performed by the node must be
-                // eliminated.
-                int rotationDegrees =
-                        info.getRotationDegrees() - output.getKey().getRotationDegrees();
-                if (output.getKey().isMirroring()) {
-                    // The order of transformation is cropping -> rotation -> mirroring. To
-                    // change the rotation, one must consider the mirroring.
-                    rotationDegrees = -rotationDegrees;
-                }
-                rotationDegrees = within360(rotationDegrees);
-                // Once copied, the target rotation is no longer useful.
-                output.getValue().updateTransformation(rotationDegrees, ROTATION_NOT_SPECIFIED);
-            }
-        });
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -296,51 +271,54 @@ public class SurfaceProcessorNode implements
     }
 
     /**
-     * Gets the {@link SurfaceProcessorInternal} used by this node.
-     */
-    @NonNull
-    public SurfaceProcessorInternal getSurfaceProcessor() {
-        return mSurfaceProcessor;
-    }
-
-    /**
-     * The input of a {@link SurfaceProcessorNode}.
+     * The input of a {@link DualSurfaceProcessorNode}.
      */
     @AutoValue
     public abstract static class In {
 
         /**
-         * Gets the input stream.
+         * Gets the input stream from primary camera.
          *
-         * <p> {@link SurfaceProcessorNode} only supports a single input stream.
+         * <p> {@link DualSurfaceProcessorNode} supports dual camera streams.
          */
         @NonNull
-        public abstract SurfaceEdge getSurfaceEdge();
+        public abstract SurfaceEdge getPrimarySurfaceEdge();
+
+        /**
+         * Gets the input stream from secondary camera.
+         *
+         * <p> {@link DualSurfaceProcessorNode} supports dual camera streams.
+         */
+        @NonNull
+        public abstract SurfaceEdge getSecondarySurfaceEdge();
 
         /**
          * Gets the config for generating output streams.
          *
-         * <p>{@link SurfaceProcessorNode#transform} creates one {@link SurfaceEdge} per
-         * {@link OutConfig} in this list.
+         * <p>{@link DualSurfaceProcessorNode#transform} creates two {@link SurfaceEdge} per
+         * {@link DualOutConfig} in this list.
          */
         @SuppressWarnings("AutoValueImmutableFields")
         @NonNull
-        public abstract List<OutConfig> getOutConfigs();
+        public abstract List<DualOutConfig> getOutConfigs();
 
         /**
          * Creates a {@link In} instance.
          */
         @NonNull
-        public static In of(@NonNull SurfaceEdge edge, @NonNull List<OutConfig> configs) {
-            return new AutoValue_SurfaceProcessorNode_In(edge, configs);
+        public static In of(
+                @NonNull SurfaceEdge primaryEdge,
+                @NonNull SurfaceEdge secondaryEdge,
+                @NonNull List<DualOutConfig> configs) {
+            return new AutoValue_DualSurfaceProcessorNode_In(primaryEdge, secondaryEdge, configs);
         }
     }
 
     /**
-     * The output of a {@link SurfaceProcessorNode}.
+     * The output of a {@link DualSurfaceProcessorNode}.
      *
      * <p>A map of {@link OutConfig} with their corresponding {@link SurfaceEdge}.
      */
-    public static class Out extends HashMap<OutConfig, SurfaceEdge> {
+    public static class Out extends HashMap<DualOutConfig, SurfaceEdge> {
     }
 }
