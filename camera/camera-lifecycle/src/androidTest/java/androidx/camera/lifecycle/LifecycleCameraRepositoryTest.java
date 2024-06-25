@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static java.util.Collections.emptyList;
 
+import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
@@ -628,8 +629,11 @@ public final class LifecycleCameraRepositoryTest {
     private CameraUseCaseAdapter createCameraUseCaseAdapterWithNewCameraConfig() {
         CameraConfig cameraConfig = new FakeCameraConfig();
         return new CameraUseCaseAdapter(mCamera,
+                null,
                 new RestrictedCameraInfo((CameraInfoInternal) mCamera.getCameraInfo(),
                         cameraConfig),
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());

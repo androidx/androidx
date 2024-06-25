@@ -446,7 +446,7 @@ public final class ImageAnalysis extends UseCase {
                     mSessionConfigBuilder = createPipeline(getCameraId(),
                             (ImageAnalysisConfig) getCurrentConfig(),
                             Preconditions.checkNotNull(getAttachedStreamSpec()));
-                    updateSessionConfig(mSessionConfigBuilder.build());
+                    updateSessionConfig(List.of(mSessionConfigBuilder.build()));
                     notifyReset();
                 });
 
@@ -785,14 +785,16 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
         mSessionConfigBuilder = createPipeline(getCameraId(), config,
-                suggestedStreamSpec);
-        updateSessionConfig(mSessionConfigBuilder.build());
+                primaryStreamSpec);
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
 
-        return suggestedStreamSpec;
+        return primaryStreamSpec;
     }
 
     /**
@@ -803,7 +805,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 

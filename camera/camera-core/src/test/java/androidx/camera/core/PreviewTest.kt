@@ -849,6 +849,7 @@ class PreviewTest {
         previewToDetach.bindToCamera(
             camera,
             null,
+            null,
             previewToDetach.getDefaultConfig(
                 true,
                 cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context)
@@ -863,7 +864,7 @@ class PreviewTest {
                 .setImplementationOptions(streamSpecOptions)
                 .build()
         previewToDetach.sensorToBufferTransformMatrix = sensorToBufferTransform
-        previewToDetach.updateSuggestedStreamSpec(streamSpec)
+        previewToDetach.updateSuggestedStreamSpec(streamSpec, null)
         return previewToDetach
     }
 

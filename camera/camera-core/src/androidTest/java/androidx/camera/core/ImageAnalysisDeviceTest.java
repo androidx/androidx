@@ -49,7 +49,7 @@ public class ImageAnalysisDeviceTest {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 STRATEGY_KEEP_ONLY_LATEST).build();
 
-        useCase.bindToCamera(mMockCameraInternal, null, null);
+        useCase.bindToCamera(mMockCameraInternal, null, null, null);
 
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mMockAnalyzer);
 
@@ -63,7 +63,7 @@ public class ImageAnalysisDeviceTest {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 STRATEGY_KEEP_ONLY_LATEST).build();
 
-        useCase.bindToCamera(mMockCameraInternal, null, null);
+        useCase.bindToCamera(mMockCameraInternal, null, null, null);
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mMockAnalyzer);
         useCase.clearAnalyzer();
 

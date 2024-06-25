@@ -1188,16 +1188,18 @@ public final class ImageCapture extends UseCase {
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
         mSessionConfigBuilder = createPipeline(getCameraId(),
-                (ImageCaptureConfig) getCurrentConfig(), suggestedStreamSpec);
+                (ImageCaptureConfig) getCurrentConfig(), primaryStreamSpec);
 
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
 
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
-        return suggestedStreamSpec;
+        return primaryStreamSpec;
     }
 
     /**
@@ -1208,7 +1210,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 
@@ -1339,12 +1341,11 @@ public final class ImageCapture extends UseCase {
                     mSessionConfigBuilder = createPipeline(getCameraId(),
                             (ImageCaptureConfig) getCurrentConfig(),
                             Preconditions.checkNotNull(getAttachedStreamSpec()));
-                    updateSessionConfig(mSessionConfigBuilder.build());
+                    updateSessionConfig(List.of(mSessionConfigBuilder.build()));
                     notifyReset();
                     mTakePictureManager.resume();
                 });
         sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
-
         return sessionConfigBuilder;
     }
 

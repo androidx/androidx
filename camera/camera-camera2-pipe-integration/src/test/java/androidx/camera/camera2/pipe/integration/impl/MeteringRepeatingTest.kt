@@ -161,7 +161,7 @@ class MeteringRepeatingTest {
     fun surfaceResolutionIsLargestLessThan640x480_when640x480NotPresentInOutputSizes() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWithout640x480)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertEquals(Size(320, 240), meteringRepeating.attachedSurfaceResolution)
     }
@@ -170,7 +170,7 @@ class MeteringRepeatingTest {
     fun surfaceResolutionIs640x480_when640x480PresentInOutputSizes() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWith640x480)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertEquals(Size(640, 480), meteringRepeating.attachedSurfaceResolution)
     }
@@ -179,7 +179,7 @@ class MeteringRepeatingTest {
     fun surfaceResolutionFallsBackToMinimum_whenAllOutputSizesLargerThan640x480() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWithoutSmaller)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertEquals(Size(1280, 720), meteringRepeating.attachedSurfaceResolution)
     }
@@ -188,7 +188,7 @@ class MeteringRepeatingTest {
     fun surfaceResolutionIsLargestWithinPreviewSize_whenAllOutputSizesLessThan640x480() {
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListSmallerThan640x480)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertEquals(Size(320, 480), meteringRepeating.attachedSurfaceResolution)
     }
@@ -198,7 +198,7 @@ class MeteringRepeatingTest {
         meteringRepeating =
             getMeteringRepeatingAndInitDisplay(dummySizeListNotWithin320x240And640x480)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(240, 144))
     }
@@ -211,7 +211,7 @@ class MeteringRepeatingTest {
         meteringRepeating =
             getMeteringRepeatingAndInitDisplay(dummySizeListNotWithin320x240And640x480)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
     }
@@ -223,7 +223,7 @@ class MeteringRepeatingTest {
 
         meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListSmallerThan320x240)
 
-        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec)
+        meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(240, 144))
     }

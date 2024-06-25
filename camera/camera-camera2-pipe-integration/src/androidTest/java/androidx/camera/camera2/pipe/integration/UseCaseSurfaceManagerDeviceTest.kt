@@ -264,7 +264,7 @@ class UseCaseSurfaceManagerDeviceTest {
     private fun createFakeUseCase() =
         object : FakeUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig) {
             fun setupSessionConfig(sessionConfig: SessionConfig) {
-                updateSessionConfig(sessionConfig)
+                updateSessionConfig(listOf(sessionConfig))
                 notifyActive()
             }
         }

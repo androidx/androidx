@@ -74,10 +74,13 @@ class MeteringRepeating(
     override fun getUseCaseConfigBuilder(config: Config) =
         Builder(cameraProperties, displayInfoManager)
 
-    override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
-        updateSessionConfig(createPipeline(meteringSurfaceSize).build())
+    override fun onSuggestedStreamSpecUpdated(
+        primaryStreamSpec: StreamSpec,
+        secondaryStreamSpec: StreamSpec?,
+    ): StreamSpec {
+        updateSessionConfig(listOf(createPipeline(meteringSurfaceSize).build()))
         notifyActive()
-        return suggestedStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
+        return primaryStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
     }
 
     override fun onUnbind() {
@@ -91,7 +94,7 @@ class MeteringRepeating(
     fun setupSession() {
         // The suggested stream spec passed to `updateSuggestedStreamSpec` doesn't matter since
         // this use case uses the min preview size.
-        updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build())
+        updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build(), null)
     }
 
     private fun createPipeline(resolution: Size): SessionConfig.Builder {
@@ -118,7 +121,7 @@ class MeteringRepeating(
         // Closes the old error listener if there is
         closeableErrorListener?.close()
         val errorListener = CloseableErrorListener { _, _ ->
-            updateSessionConfig(createPipeline(resolution).build())
+            updateSessionConfig(listOf(createPipeline(resolution).build()))
             notifyReset()
         }
         closeableErrorListener = errorListener

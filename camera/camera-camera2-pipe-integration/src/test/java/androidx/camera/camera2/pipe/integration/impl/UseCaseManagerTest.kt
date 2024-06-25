@@ -719,11 +719,12 @@ class UseCaseManagerTest {
         bindToCamera(
             FakeCamera("0"),
             null,
+            null,
             getDefaultConfig(
                 true,
                 CameraUseCaseAdapter(ApplicationProvider.getApplicationContext())
             )
         )
-        updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build())
+        updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build(), null)
     }
 }

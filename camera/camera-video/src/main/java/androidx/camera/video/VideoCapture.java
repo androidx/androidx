@@ -337,16 +337,18 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        Logger.d(TAG, "onSuggestedStreamSpecUpdated: " + suggestedStreamSpec);
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        Logger.d(TAG, "onSuggestedStreamSpecUpdated: " + primaryStreamSpec);
         VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
         List<Size> customOrderedResolutions = config.getCustomOrderedResolutions(null);
         if (customOrderedResolutions != null
-                && !customOrderedResolutions.contains(suggestedStreamSpec.getResolution())) {
-            Logger.w(TAG, "suggested resolution " + suggestedStreamSpec.getResolution()
+                && !customOrderedResolutions.contains(primaryStreamSpec.getResolution())) {
+            Logger.w(TAG, "suggested resolution " + primaryStreamSpec.getResolution()
                     + " is not in custom ordered resolutions " + customOrderedResolutions);
         }
-        return suggestedStreamSpec;
+        return primaryStreamSpec;
     }
 
     /**
@@ -395,7 +397,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 (VideoCaptureConfig<T>) getCurrentConfig(), attachedStreamSpec);
         applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
                 attachedStreamSpec);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
         getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
@@ -463,7 +465,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         return requireNonNull(getAttachedStreamSpec()).toBuilder()
                 .setImplementationOptions(config).build();
     }
@@ -771,7 +773,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 Preconditions.checkNotNull(getAttachedStreamSpec()));
         applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
                 getAttachedStreamSpec());
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         notifyReset();
     }
 
@@ -872,13 +874,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
                         streamInfo,
                         attachedStreamSpec);
-                updateSessionConfig(mSessionConfigBuilder.build());
+                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
                 notifyReset();
             } else if (currentStreamInfo.getStreamState() != streamInfo.getStreamState()) {
                 applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
                         streamInfo,
                         attachedStreamSpec);
-                updateSessionConfig(mSessionConfigBuilder.build());
+                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
                 notifyUpdated();
             }
         }
