@@ -64,7 +64,6 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
@@ -79,14 +78,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -101,7 +94,7 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -109,10 +102,6 @@ androidXMultiplatform {
                 implementation(libs.truth)
                 implementation(libs.kotlinCoroutinesCore)
             }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
         }
     }
 }

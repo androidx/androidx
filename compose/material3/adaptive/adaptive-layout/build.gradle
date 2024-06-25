@@ -79,18 +79,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:test-utils"))
@@ -102,7 +92,7 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.testRunner)

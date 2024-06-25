@@ -82,14 +82,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:test-utils"))
                 implementation("androidx.compose.foundation:foundation:1.6.0")
@@ -101,17 +95,10 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTest)
                 implementation(libs.truth)
-            }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
-
             }
         }
     }
