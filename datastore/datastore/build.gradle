@@ -34,8 +34,6 @@ android {
 }
 
 androidXMultiplatform {
-    enableBinaryCompatibilityValidator = true
-
     jvm()
     mac()
     ios()

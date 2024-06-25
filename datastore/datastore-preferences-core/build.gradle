@@ -31,8 +31,6 @@ plugins {
 }
 
 androidXMultiplatform {
-    enableBinaryCompatibilityValidator = true
-
     jvm() {
         withJava()
     }
