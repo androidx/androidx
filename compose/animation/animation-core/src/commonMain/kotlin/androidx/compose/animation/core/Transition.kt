@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -988,8 +989,7 @@ internal constructor(
      * to [Transition]. It's strongly recommended to query this *after* all the animations in the
      * [Transition] are set up.
      */
-    val totalDurationNanos: Long
-        get() = calculateTotalDurationNanos()
+    val totalDurationNanos: Long by derivedStateOf { calculateTotalDurationNanos() }
 
     private fun calculateTotalDurationNanos(): Long {
         var maxDurationNanos = 0L
@@ -1342,15 +1342,8 @@ internal constructor(
             internal set
 
         private var velocityVector: V = initialVelocityVector
-        internal val durationNanos: Long
-            get() {
-                // Ensure any change to the duration is observable, since we have an observer
-                // on the Transition for the overall duration change.
-                _durationNanos = animation.durationNanos
-                return _durationNanos
-            }
+        internal var durationNanos by mutableLongStateOf(animation.durationNanos)
 
-        private var _durationNanos by mutableLongStateOf(animation.durationNanos)
         private var isSeeking = false
 
         internal fun onPlayTimeChanged(playTimeNanos: Long, scaleToEnd: Boolean) {
@@ -1402,6 +1395,7 @@ internal constructor(
                 this.animation.mutableTargetValue = initialValue
             }
             this.animation.mutableInitialValue = initialValue
+            durationNanos = this.animation.durationNanos
             if (resetSnapValue == ResetNoSnap || useOnlyInitialValue) {
                 value = initialValue
             } else {
@@ -1445,6 +1439,7 @@ internal constructor(
                         velocityVector.newInstance() // 0 velocity
                     )
                 useOnlyInitialValue = true
+                durationNanos = animation.durationNanos
                 return
             }
             val specWithoutDelay =
@@ -1462,6 +1457,7 @@ internal constructor(
                 }
             animation =
                 TargetBasedAnimation(spec, typeConverter, initialValue, targetValue, velocityVector)
+            durationNanos = animation.durationNanos
             useOnlyInitialValue = false
             onChildAnimationUpdated()
         }
@@ -1493,6 +1489,7 @@ internal constructor(
                 animation.mutableInitialValue = animationValue
                 animation.mutableTargetValue = animationValue
                 value = animationValue
+                durationNanos = animation.durationNanos
             } else {
                 resetSnapValue = fraction
             }
@@ -1514,6 +1511,7 @@ internal constructor(
                     value,
                     velocityVector.newInstance() // 0 velocity
                 )
+            durationNanos = animation.durationNanos
             useOnlyInitialValue = true
         }
 
