@@ -77,7 +77,9 @@ private constructor(
             return MinLinesConstrainer(
                     layoutDirection,
                     resolveDefaults(paramStyle, layoutDirection),
-                    density,
+                    // other density implementations may hold references to views/activities
+                    // which the cache outlives, potentially causing memory leak.
+                    Density(density.density, density.fontScale),
                     fontFamilyResolver
                 )
                 .also { last = it }
