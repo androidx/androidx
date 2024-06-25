@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -376,8 +377,8 @@ class AnnotatedStringFromHtmlTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun link_appliesColorFromMethod() {
-        val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
+    fun link_appliesColorFromHtmlTag_rightMostAlwaysWinsInNestedStyling() {
+        val stringWithColoredLink = "<span style=\"color:blue\">text<a href=\"url\">link</a></span>"
         val annotatedString =
             AnnotatedString.fromHtml(
                 stringWithColoredLink,
@@ -386,11 +387,30 @@ class AnnotatedStringFromHtmlTest {
 
         rule.setContent { BasicText(text = annotatedString) }
 
+        // b/347661747 closing tags always win in fromHtml method therefore nested styling is not
+        // fully supported.
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
+            .onNodeWithText("text", substring = true)
             .captureToImage()
-            .assertContainsColor(Color.Green)
-            .assertDoesNotContainColor(Color.Blue)
+            .assertContainsColor(Color.Blue)
+            .assertDoesNotContainColor(Color.Green)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_appliesColorFromMethod_whenNoNestedStyling() {
+        val stringWithColoredLink = "<a href=\"url\">link</a>"
+        val annotatedString =
+            AnnotatedString.fromHtml(
+                stringWithColoredLink,
+                TextLinkStyles(SpanStyle(color = Color.Green))
+            )
+
+        rule.setContent { BasicText(text = annotatedString) }
+
+        // b/347661747 closing tags always win in fromHtml method therefore nested styling is not
+        // fully supported.
+        rule.onNodeWithText("link").captureToImage().assertContainsColor(Color.Green)
     }
 
     @Test
