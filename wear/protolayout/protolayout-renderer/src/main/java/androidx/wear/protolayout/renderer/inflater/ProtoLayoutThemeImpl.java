@@ -18,6 +18,8 @@ package androidx.wear.protolayout.renderer.inflater;
 
 import static androidx.core.util.Preconditions.checkNotNull;
 
+import static java.util.Arrays.stream;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -31,9 +33,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.annotation.StyleableRes;
 import androidx.collection.ArrayMap;
-import androidx.wear.protolayout.proto.LayoutElementProto.FontVariant;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.R;
+
+import com.google.common.collect.ImmutableSet;
 
 import java.util.Map;
 
@@ -106,7 +109,7 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
         return new ProtoLayoutThemeImpl(context.getResources(), R.style.ProtoLayoutBaseTheme);
     }
 
-    private final Map<Integer, FontSet> mVariantToFontSet = new ArrayMap<>();
+    private final Map<String, FontSet> mFontFamilyToFontSet = new ArrayMap<>();
     private final Theme mTheme;
     @AttrRes private final int mFallbackTextAppearanceAttrId;
 
@@ -139,32 +142,80 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
 
         TypedArray a = mTheme.obtainStyledAttributes(R.styleable.ProtoLayoutTheme);
 
-        mVariantToFontSet.put(
-                FontVariant.FONT_VARIANT_TITLE_VALUE,
+        int defaultBodyFontResourceId =
+                a.getResourceId(R.styleable.ProtoLayoutTheme_protoLayoutBodyFont, -1);
+
+        // Font families. Default to body font in case theme doesn't have set attribute.
+        mFontFamilyToFontSet.put(
+                FONT_NAME_DEFAULT,
+                new FontSetImpl(
+                        mTheme,
+                        a.getResourceId(
+                                R.styleable.ProtoLayoutTheme_protoLayoutDefaultSystemFont,
+                                defaultBodyFontResourceId)));
+        mFontFamilyToFontSet.put(
+                FONT_NAME_ROBOTO,
+                new FontSetImpl(
+                        mTheme,
+                        a.getResourceId(
+                                R.styleable.ProtoLayoutTheme_protoLayoutRobotoFont,
+                                defaultBodyFontResourceId)));
+        mFontFamilyToFontSet.put(
+                FONT_NAME_ROBOTO_FLEX,
+                new FontSetImpl(
+                        mTheme,
+                        a.getResourceId(
+                                R.styleable.ProtoLayoutTheme_protoLayoutRobotoFlexFont,
+                                defaultBodyFontResourceId)));
+
+        // Legacy variants
+        mFontFamilyToFontSet.put(
+                FONT_NAME_LEGACY_VARIANT_TITLE,
                 new FontSetImpl(
                         mTheme,
                         a.getResourceId(R.styleable.ProtoLayoutTheme_protoLayoutTitleFont, -1)));
-
-        mVariantToFontSet.put(
-                FontVariant.FONT_VARIANT_BODY_VALUE,
-                new FontSetImpl(
-                        mTheme,
-                        a.getResourceId(R.styleable.ProtoLayoutTheme_protoLayoutBodyFont, -1)));
+        mFontFamilyToFontSet.put(
+                FONT_NAME_LEGACY_VARIANT_BODY, new FontSetImpl(mTheme, defaultBodyFontResourceId));
 
         a.recycle();
     }
 
+    private static final ImmutableSet<String> SUPPORTED_FONT_FAMILIES =
+            ImmutableSet.of(
+                    FONT_NAME_DEFAULT,
+                    FONT_NAME_ROBOTO,
+                    // TODO(b/348207120): Enable Roboto Flex font.
+                    // FONT_NAME_ROBOTO_FLEX,
+                    FONT_NAME_LEGACY_VARIANT_TITLE,
+                    FONT_NAME_LEGACY_VARIANT_BODY);
+
     /**
-     * Gets the FontSet for a given font variant.
+     * Returns the {@link FontSet} for the first font family name that is supported. If none are
+     * supported, defaults to the system font.
      *
-     * @param fontVariant the numeric value of the proto enum {@link FontVariant}.
+     * <p>It's theme's responsibility to define which font families are supported by returning the
+     * corresponding {@link FontSet}. The default one from {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#DEFAULT_SYSTEM_FONT} should
+     * be system font and always supported. The Roboto Flex variable font from {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#ROBOTO_FLEX_FONT} and
+     * standard Roboto font from {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#ROBOTO_FONT} should be
+     * supported on renderers supporting versions 1.4 and above.
+     *
+     * @param preferredFontFamilies the prioritized list of String values representing the preferred
+     *     font families that should be used.
      */
-    @Override
     @NonNull
-    public FontSet getFontSet(int fontVariant) {
-        FontSet defaultFontSet =
-                checkNotNull(mVariantToFontSet.get(FontVariant.FONT_VARIANT_BODY_VALUE));
-        return mVariantToFontSet.getOrDefault(fontVariant, defaultFontSet);
+    @Override
+    public FontSet getFontSet(@NonNull String... preferredFontFamilies) {
+        String acceptedFontFamily =
+                stream(preferredFontFamilies)
+                        .filter(SUPPORTED_FONT_FAMILIES::contains)
+                        .findFirst()
+                        .orElse(FONT_NAME_DEFAULT);
+        // Default font name would always be available.
+        FontSet defaultFontSet = checkNotNull(mFontFamilyToFontSet.get(FONT_NAME_DEFAULT));
+        return mFontFamilyToFontSet.getOrDefault(acceptedFontFamily, defaultFontSet);
     }
 
     /** Gets an Android Theme object styled with TextAppearance attributes. */

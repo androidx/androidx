@@ -154,6 +154,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.ColorFilter;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontFeatureSetting;
+import androidx.wear.protolayout.proto.LayoutElementProto.FontSetting;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
@@ -233,6 +235,7 @@ import org.robolectric.shadows.ShadowPackageManager;
 import org.robolectric.shadows.ShadowSystemClock;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -3093,6 +3096,40 @@ public class ProtoLayoutInflaterTest {
 
         expect.that(textView2.getEllipsize()).isEqualTo(TruncateAt.END);
         expect.that(textView2.getMaxLines()).isEqualTo(3);
+    }
+
+    // Typeface gets shadowed, so FontVariationSetting won't be set in TextView, as shadow returns
+    // null for supported axes.
+    @Test
+    public void inflate_textView_fontFeatureSetting() {
+        String textContents = "Text that is very large so it will go to many lines";
+        FontSetting.Builder randomSetting = FontSetting.newBuilder()
+                .setFeature(
+                        FontFeatureSetting.newBuilder()
+                                .setTag(ByteBuffer.wrap("rndm".getBytes(UTF_8)).getInt()));
+        FontSetting.Builder tnumSetting = FontSetting.newBuilder()
+                .setFeature(
+                        FontFeatureSetting.newBuilder()
+                                .setTag(ByteBuffer.wrap("tnum".getBytes(UTF_8)).getInt()));
+        Text.Builder text1 =
+                Text.newBuilder()
+                        .setLineHeight(sp(16))
+                        .setText(string(textContents))
+                        .setFontStyle(
+                                FontStyle.newBuilder()
+                                        .addSize(sp(16))
+                                        .addSettings(tnumSetting)
+                                        .addSettings(randomSetting));
+        Layout layout = fingerprintedLayout(LayoutElement.newBuilder().setText(text1).build());
+
+        // Initial layout.
+        Renderer renderer = renderer(layout);
+        ViewGroup inflatedViewParent = renderer.inflate();
+        TextView textView = (TextView) inflatedViewParent.getChildAt(0);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(textView.getFontFeatureSettings()).isEqualTo("'tnum'");
     }
 
     private static Box.Builder buildFixedSizeBoxWIthText(Text.Builder content) {
