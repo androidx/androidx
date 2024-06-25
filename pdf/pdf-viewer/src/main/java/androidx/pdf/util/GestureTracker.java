@@ -165,7 +165,7 @@ public class GestureTracker implements OnTouchListener {
 
     private final QuickScaleBypassDecider mQuickScaleBypassDecider;
 
-    public GestureTracker(@NonNull String tag, @NonNull Context context) {
+    public GestureTracker(@NonNull Context context) {
         ViewConfiguration config = ViewConfiguration.get(context);
         mMoveSlop = config.getScaledTouchSlop();
         DetectorListener listener = new DetectorListener();

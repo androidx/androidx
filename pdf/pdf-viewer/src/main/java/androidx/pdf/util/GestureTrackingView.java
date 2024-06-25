@@ -61,7 +61,7 @@ public abstract class GestureTrackingView extends FrameLayout {
     }
 
     {
-        mGestureTracker = new GestureTracker(getClass().getSimpleName(), getContext());
+        mGestureTracker = new GestureTracker(getContext());
     }
 
     @Override

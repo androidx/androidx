@@ -46,7 +46,7 @@ public class TileBoard {
     private static final String TAG_PREFIX = String.format("%s #", TAG);
     private final String mTag;
 
-    static final Dimensions TILE_SIZE = new Dimensions(800, 800);
+    public static final Dimensions TILE_SIZE = new Dimensions(800, 800);
 
     public static final BitmapRecycler DEFAULT_RECYCLER = new BitmapRecycler();
 
