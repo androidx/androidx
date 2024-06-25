@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
@@ -330,6 +331,14 @@ internal open class AndroidViewHolder(
     val layoutNode: LayoutNode = run {
         // Prepare layout node that proxies measure and layout passes to the View.
         val layoutNode = LayoutNode()
+
+        // there is an issue in how SurfaceViews being drawn into the new layers. this flag is
+        // a workaround until we find a better solution. it allows us to create an extra rendernode
+        // wrapping android views using the old implementation of layers, where we don't do
+        // layer persistence logic, as it causes SurfaceView flickering.
+        // we should find a better fix as part of b/348144529
+        layoutNode.forceUseOldLayers = true
+
         @OptIn(InternalComposeUiApi::class)
         layoutNode.interopViewFactoryHolder = this@AndroidViewHolder
 
@@ -337,6 +346,8 @@ internal open class AndroidViewHolder(
             Modifier.nestedScroll(NoOpScrollConnection, dispatcher)
                 .semantics(true) {}
                 .pointerInteropFilter(this)
+                // we don't normally need an extra layer here, it is a workaround for b/348144529
+                .graphicsLayer()
                 .drawBehind {
                     drawIntoCanvas { canvas ->
                         if (view.visibility != GONE) {

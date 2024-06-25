@@ -249,8 +249,9 @@ private class FakeOwner(
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
-        explicitLayer: GraphicsLayer?
-    ) = createLayer()
+        explicitLayer: GraphicsLayer?,
+        forceUseOldLayers: Boolean
+    ): OwnedLayer = createLayer()
 
     override fun requestOnPositionedCallback(layoutNode: LayoutNode) {
         TODO("Not yet implemented")

@@ -244,7 +244,8 @@ internal interface Owner : PositionCalculator {
     fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
-        explicitLayer: GraphicsLayer? = null
+        explicitLayer: GraphicsLayer? = null,
+        forceUseOldLayers: Boolean = false
     ): OwnedLayer
 
     /**
