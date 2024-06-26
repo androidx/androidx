@@ -1978,9 +1978,27 @@ public final class MediaRouter {
          */
         @MainThread
         public void select() {
-            checkCallingThread();
-            getGlobalRouter().selectRoute(this, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
+            select(/* syncMediaRoute1Provider= */ true);
         }
+
+        /**
+         * Selects this media route.
+         *
+         * @param syncMediaRoute1Provider Whether this selection should be passed through to {@link
+         *     PlatformMediaRouter1RouteProvider}. Should be false when this call is the result of a
+         *     {@link MediaRouter.Callback#onRouteSelected} call.
+         */
+        @RestrictTo(LIBRARY)
+        @MainThread
+        public void select(boolean syncMediaRoute1Provider) {
+            checkCallingThread();
+            getGlobalRouter()
+                    .selectRoute(
+                            this,
+                            MediaRouter.UNSELECT_REASON_ROUTE_CHANGED,
+                            syncMediaRoute1Provider);
+        }
+
 
         /**
          * Returns true if the route has one or more members
@@ -2690,6 +2708,7 @@ public final class MediaRouter {
 
         final RouteController mToRouteController;
         final @UnselectReason int mReason;
+        private final boolean mSyncMediaRoute1Provider;
         private final RouteInfo mFromRoute;
         final RouteInfo mToRoute;
         private final RouteInfo mRequestedRoute;
@@ -2701,8 +2720,12 @@ public final class MediaRouter {
         private boolean mFinished = false;
         private boolean mCanceled = false;
 
-        PrepareTransferNotifier(GlobalMediaRouter router, RouteInfo route,
-                @Nullable RouteController routeController, @UnselectReason int reason,
+        PrepareTransferNotifier(
+                GlobalMediaRouter router,
+                RouteInfo route,
+                @Nullable RouteController routeController,
+                @UnselectReason int reason,
+                boolean syncMediaRoute1Provider,
                 @Nullable RouteInfo requestedRoute,
                 @Nullable Collection<DynamicRouteDescriptor> memberRoutes) {
             mRouter = new WeakReference<>(router);
@@ -2710,6 +2733,7 @@ public final class MediaRouter {
             mToRoute = route;
             mToRouteController = routeController;
             mReason = reason;
+            mSyncMediaRoute1Provider = syncMediaRoute1Provider;
             mFromRoute = router.mSelectedRoute;
             mRequestedRoute = requestedRoute;
             mMemberRoutes = (memberRoutes == null) ? null : new ArrayList<>(memberRoutes);
@@ -2806,10 +2830,11 @@ public final class MediaRouter {
             router.mSelectedRouteController = mToRouteController;
 
             if (mRequestedRoute == null) {
-                router.mCallbackHandler.postRouteSelectedMessage(mFromRoute, mToRoute, mReason);
+                router.mCallbackHandler.postRouteSelectedMessage(
+                        mFromRoute, mToRoute, mReason, mSyncMediaRoute1Provider);
             } else {
                 router.mCallbackHandler.postAnotherRouteSelectedMessage(
-                        mRequestedRoute, mToRoute, mReason);
+                        mRequestedRoute, mToRoute, mReason, mSyncMediaRoute1Provider);
             }
 
             router.mRouteControllerMap.clear();
