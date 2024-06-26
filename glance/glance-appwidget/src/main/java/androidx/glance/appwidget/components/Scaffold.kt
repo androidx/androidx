@@ -61,13 +61,11 @@ fun Scaffold(
         theModifier = theModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
     }
 
-    Box(modifier = theModifier) {
-        Column(GlanceModifier.fillMaxSize()) {
-            titleBar?.invoke()
-            Box(
-                modifier = GlanceModifier.padding(horizontal = horizontalPadding).defaultWeight(),
-                content = content
-            )
-        }
+    Column(modifier = theModifier) {
+        titleBar?.invoke()
+        Box(
+            modifier = GlanceModifier.padding(horizontal = horizontalPadding).defaultWeight(),
+            content = content
+        )
     }
 }
