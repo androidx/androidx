@@ -204,22 +204,22 @@ public final class TimeDifferenceText implements TimeDependentText {
     }
 
     /** Returns the start of the reference period, as milliseconds since epoch. */
-    long getReferencePeriodStart() {
+    public long getReferencePeriodStart() {
         return mReferencePeriodStart;
     }
 
     /** Returns the end of the reference period, as milliseconds since epoch. */
-    long getReferencePeriodEnd() {
+    public long getReferencePeriodEnd() {
         return mReferencePeriodEnd;
     }
 
     /** Returns the style to be used when formatting the text. */
-    int getStyle() {
+    public int getStyle() {
         return mStyle;
     }
 
     /** Returns true if text for "now" should be shown when within the reference period. */
-    boolean shouldShowNowText() {
+    public boolean shouldShowNowText() {
         return mShowNowText;
     }
 
