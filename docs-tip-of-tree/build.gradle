@@ -199,6 +199,8 @@ dependencies {
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
     kmpDocs(project(":ink:ink-brush"))
+    kmpDocs(project(":ink:ink-geometry"))
+    kmpDocs(project(":ink:ink-nativeloader"))
     docs(project(":input:input-motionprediction"))
     docs(project(":interpolator:interpolator"))
     docs(project(":javascriptengine:javascriptengine"))
