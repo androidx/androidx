@@ -1177,7 +1177,7 @@ public final class LayoutElementBuilders {
          */
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
-        static FontSetting width(@FloatRange(from = 0) float value) {
+        static FontSetting width(@FloatRange(from = 25, to = 200) float value) {
             return new FontVariationSetting.Builder(WIDTH_AXIS_TAG, value).build();
         }
 
