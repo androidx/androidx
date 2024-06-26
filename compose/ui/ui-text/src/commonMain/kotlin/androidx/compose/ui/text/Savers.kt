@@ -527,12 +527,13 @@ internal val LineHeightStyle.Companion.Saver: Saver<LineHeightStyle, Any>
 
 private val LineHeightStyleSaver =
     Saver<LineHeightStyle, Any>(
-        save = { arrayListOf(save(it.alignment), save(it.trim)) },
+        save = { arrayListOf(save(it.alignment), save(it.trim), save(it.mode)) },
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             LineHeightStyle(
                 alignment = restore(list[0])!!,
                 trim = restore(list[1])!!,
+                mode = restore(list[2])!!
             )
         },
     )

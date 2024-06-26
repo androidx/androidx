@@ -468,7 +468,11 @@ class AndroidSaversTest {
     @Test
     fun test_LineHeightStyle() {
         val original =
-            LineHeightStyle(LineHeightStyle.Alignment.Proportional, LineHeightStyle.Trim.Both)
+            LineHeightStyle(
+                LineHeightStyle.Alignment.Proportional,
+                LineHeightStyle.Trim.Both,
+                LineHeightStyle.Mode.Minimum
+            )
         val saved = save(original, LineHeightStyle.Saver, defaultSaverScope)
         val restored: LineHeightStyle? = restore(saved, LineHeightStyle.Saver)
 
