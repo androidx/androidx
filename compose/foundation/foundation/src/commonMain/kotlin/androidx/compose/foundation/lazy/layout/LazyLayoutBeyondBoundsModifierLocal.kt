@@ -27,12 +27,18 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.remeasureSync
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -117,7 +123,15 @@ internal class LazyLayoutBeyondBoundsModifierNode(
     private var reverseLayout: Boolean,
     private var layoutDirection: LayoutDirection,
     private var orientation: Orientation
-) : Modifier.Node(), ModifierLocalModifierNode, BeyondBoundsLayout {
+) : Modifier.Node(), ModifierLocalModifierNode, BeyondBoundsLayout, LayoutModifierNode {
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
 
     override val providedValues: ModifierLocalMap
         get() = modifierLocalMapOf(ModifierLocalBeyondBoundsLayout to this)
@@ -149,13 +163,12 @@ internal class LazyLayoutBeyondBoundsModifierNode(
         var interval = beyondBoundsInfo.addInterval(startIndex, startIndex)
         var found: T? = null
         while (found == null && interval.hasMoreContent(direction)) {
-
             // Add one extra beyond bounds item.
             interval =
                 addNextInterval(interval, direction).also {
                     beyondBoundsInfo.removeInterval(interval)
                 }
-            state.remeasure()
+            remeasureSync()
 
             // When we invoke this block, the beyond bounds items are present.
             found =
@@ -169,7 +182,7 @@ internal class LazyLayoutBeyondBoundsModifierNode(
 
         // Dispose the items that are beyond the visible bounds.
         beyondBoundsInfo.removeInterval(interval)
-        state.remeasure()
+        remeasureSync()
         return found
     }
 

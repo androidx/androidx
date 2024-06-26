@@ -33,9 +33,6 @@ internal class PagerBeyondBoundsState(
     private val state: PagerState,
     private val beyondViewportPageCount: Int
 ) : LazyLayoutBeyondBoundsState {
-    override fun remeasure() {
-        state.remeasurement?.forceRemeasure()
-    }
 
     override val itemCount: Int
         get() = state.pageCount
