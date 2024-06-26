@@ -615,9 +615,9 @@ internal actual constructor(
              * @return a [Builder] instance
              */
             @JvmStatic
-            inline fun <reified T : Any> fromUriPattern(
+            actual inline fun <reified T : Any> fromUriPattern(
                 basePath: String,
-                typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+                typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
             ): Builder {
                 val builder = Builder()
                 builder.setUriPattern(basePath, T::class, typeMap)
