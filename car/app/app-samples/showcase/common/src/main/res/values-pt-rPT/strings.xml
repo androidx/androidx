@@ -51,9 +51,9 @@
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Zoom aumentado"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Zoom diminuído"</string>
     <string name="triggered_toast_msg" msgid="3396166539208366382">"Acionado"</string>
-    <string name="primary_toast_msg" msgid="7153771322662005447">"Botão principal premido"</string>
-    <string name="search_toast_msg" msgid="7826530065407699347">"Botão de pesquisa premido"</string>
-    <string name="options_toast_msg" msgid="2146223786877557730">"Botão de opções premido"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"Botão principal pressionado"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"Botão de pesquisa pressionado"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"Botão de opções pressionado"</string>
     <string name="favorite_toast_msg" msgid="522064494016370117">"Favorito!"</string>
     <string name="not_favorite_toast_msg" msgid="6831181108681007428">"Não é um favorito!"</string>
     <string name="nav_requested_toast_msg" msgid="6696525973145493908">"Navegação solicitada"</string>
@@ -66,12 +66,12 @@
     <string name="settings_toast_msg" msgid="7697794473002342727">"Clicou em Definições"</string>
     <string name="parked_toast_msg" msgid="2532422265890824446">"Ação de estacionado"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"Clicou em Mais"</string>
-    <string name="commute_toast_msg" msgid="4112684360647638688">"Botão de viagem regular premido"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"Botão de viagem regular pressionado"</string>
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Conceda autorização de acesso à localização para ver a localização atual"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Iniciar sessão com o Google começa aqui"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Seleção alterada para o índice"</string>
-    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Botão Sim premido!"</string>
-    <string name="no_action_toast_msg" msgid="6165492423831023809">"Botão Não premido!"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Botão Sim pressionado!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"Botão Não pressionado!"</string>
     <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"Tempo limite do alerta excedido!"</string>
     <string name="first_row_title" msgid="219428344573165351">"Linha com uma imagem grande e texto longo texto longo texto longo texto longo texto longo"</string>
     <string name="first_row_text" msgid="3887390298628338716">"Texto texto texto"</string>
