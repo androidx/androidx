@@ -181,7 +181,7 @@ package androidx.window.extensions.embedding {
     method public android.view.WindowMetrics getWindowMetrics();
   }
 
-  public final class SplitAttributes {
+  public class SplitAttributes {
     method public androidx.window.extensions.embedding.AnimationBackground getAnimationBackground();
     method public androidx.window.extensions.embedding.DividerAttributes? getDividerAttributes();
     method public int getLayoutDirection();
