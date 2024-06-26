@@ -78,7 +78,8 @@ open class JetbrainsExtensions(
      * https://maven.google.com/web/index.html#androidx.lifecycle
      */
     fun KotlinNativeTarget.substituteForRedirectedPublishedDependencies() {
-        val comp = compilations.getByName("main")
+        val main = compilations.getByName("main")
+        val test = compilations.getByName("test")
         val kNativeManifestRedirectingModulesRaw =
             project.property("artifactRedirecting.modules-for-knative-manifest") as String
 
@@ -87,14 +88,17 @@ open class JetbrainsExtensions(
                 val pair = it.split("=")
                 pair[0] to project.property(pair[1]) as String
             }
-        listOf(
-            comp.configurations.compileDependencyConfiguration,
-            comp.configurations.runtimeDependencyConfiguration,
-            comp.configurations.apiConfiguration,
-            comp.configurations.implementationConfiguration,
-            comp.configurations.runtimeOnlyConfiguration,
-            comp.configurations.compileOnlyConfiguration,
-        ).forEach { c ->
+        listOf(main, test).flatMap {
+            val configurations = it.configurations
+            listOf(
+                configurations.compileDependencyConfiguration,
+                configurations.runtimeDependencyConfiguration,
+                configurations.apiConfiguration,
+                configurations.implementationConfiguration,
+                configurations.runtimeOnlyConfiguration,
+                configurations.compileOnlyConfiguration
+            )
+        }.forEach { c ->
             c?.resolutionStrategy {
                 it.dependencySubstitution {
                     projectPathToRedirectingVersionMap.forEach { path, version ->
