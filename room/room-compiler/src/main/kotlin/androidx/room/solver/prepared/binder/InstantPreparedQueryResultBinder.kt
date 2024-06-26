@@ -19,13 +19,12 @@ package androidx.room.solver.prepared.binder
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.box
 import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.LambdaSpec
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomMemberNames.DB_UTIL_PERFORM_BLOCKING
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
@@ -62,7 +61,7 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
         val performBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
-                functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                functionName = DB_UTIL_PERFORM_BLOCKING,
                 argFormat = listOf("%N", "%L", "%L"),
                 args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
                 lambdaSpec =

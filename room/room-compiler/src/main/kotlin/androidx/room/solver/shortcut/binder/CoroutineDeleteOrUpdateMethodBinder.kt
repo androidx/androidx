@@ -17,14 +17,13 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.LambdaSpec
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
@@ -50,7 +49,7 @@ class CoroutineDeleteOrUpdateMethodBinder(
         val performBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
-                functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+                functionName = DB_UTIL_PERFORM_SUSPENDING,
                 argFormat = listOf("%N", "%L", "%L"),
                 args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
                 continuationParamName = continuationParamName,
