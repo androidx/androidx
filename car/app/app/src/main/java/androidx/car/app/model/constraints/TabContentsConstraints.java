@@ -18,6 +18,7 @@ package androidx.car.app.model.constraints;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.GridTemplate;
@@ -25,6 +26,7 @@ import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.SearchTemplate;
+import androidx.car.app.model.SectionedItemTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
 
@@ -64,6 +66,20 @@ public class TabContentsConstraints {
                     MessageTemplate.class,
                     SearchTemplate.class,
                     NavigationTemplate.class
+            ));
+
+    /** The set of allowed templates as content within a tab template since API 8. */
+    @ExperimentalCarApi
+    @NonNull
+    public static final TabContentsConstraints API_8 =
+            new TabContentsConstraints(Arrays.asList(
+                    ListTemplate.class,
+                    PaneTemplate.class,
+                    GridTemplate.class,
+                    MessageTemplate.class,
+                    SearchTemplate.class,
+                    NavigationTemplate.class,
+                    SectionedItemTemplate.class
             ));
 
     private HashSet<Class<? extends Template>> mAllowedTemplateTypes;
