@@ -31,7 +31,6 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
 
     sourceSets {
         commonMain {
@@ -66,13 +65,6 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api(libs.kotlinCoroutinesSwing)
-            }
-        }
-
         jvmTest {
             dependsOn(commonTest)
             dependencies {
@@ -95,10 +87,6 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
-        }
-
-        desktopTest {
             dependsOn(jvmTest)
         }
     }
