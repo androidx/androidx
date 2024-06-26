@@ -10,17 +10,17 @@ dependencies {
     compileOnly(findGradleKotlinDsl())
 
     // Android Gradle Plugin APIs used by Stable AIDL
-    implementation(libs.androidGradlePluginApi)
+    api(libs.androidGradlePluginApi)
 
     // Plugins we use and configure
+    api(libs.kotlinGradlePluginz)
+    api(libs.kotlinCompilerEmbeddable) // for clang compiler
     implementation(libs.androidGradlePluginz)
     implementation(libs.androidToolsCommon) // for com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
     implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
-    implementation(libs.kotlinGradlePluginz)
     implementation(libs.spdxGradlePluginz)
     implementation(libs.androidKotlinMultiplatform)
-    implementation(libs.kotlinCompilerEmbeddable) // for clang compiler
     implementation(libs.binaryCompatibilityValidator)
 
     // For Room Gradle Plugin
@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.ktfmt)
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.shadow) // used by BundleInsideHelper.kt
-    implementation(libs.apacheAnt) // used in AarManifestTransformerTask.kt for unziping
+    api(libs.apacheAnt) // used in AarManifestTransformerTask.kt for unziping
     implementation(libs.toml)
     implementation(libs.apacheCommonIo) // used in CheckApiEquivalenceTask.kt
 
