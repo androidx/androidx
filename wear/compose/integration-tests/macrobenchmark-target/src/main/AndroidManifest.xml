@@ -104,6 +104,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AnimatedTextActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.integration.macrobenchmark.target.ANIMATED_TEXT_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />

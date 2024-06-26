@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
     implementation project(path: ':wear:compose:compose-foundation')
     implementation project(path: ':wear:compose:compose-material')
+    implementation project(path: ':wear:compose:compose-material3')
     implementation project(path: ':wear:compose:compose-navigation')
     implementation(project(path:':compose:runtime:runtime-tracing'))
     implementation(project(path:':tracing:tracing-perfetto'))
