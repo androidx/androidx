@@ -1707,7 +1707,7 @@ private fun timeInputOnChange(
 
     if (value.text.isEmpty()) {
         if (selection == TimePickerSelectionMode.Hour) {
-            state.hour = if (state.isAfternoon) 12 else 0
+            state.hour = if (state.isAfternoon && !state.is24hour) 12 else 0
         } else {
             state.minute = 0
         }
@@ -1725,7 +1725,7 @@ private fun timeInputOnChange(
 
         if (newValue <= max) {
             if (selection == TimePickerSelectionMode.Hour) {
-                state.hour = newValue + if (state.isAfternoon) 12 else 0
+                state.hour = newValue + if (state.isAfternoon && !state.is24hour) 12 else 0
                 if (newValue > 1 && !state.is24hour) {
                     state.selection = TimePickerSelectionMode.Minute
                 }
