@@ -91,7 +91,7 @@ public class GestureTrackingViewTest {
             plainView.setBackgroundColor(Color.BLUE);
             plainView.setLayoutParams(params);
 
-            GestureTracker viewTracker = new GestureTracker("View", activity);
+            GestureTracker viewTracker = new GestureTracker(activity);
             viewTracker.setDelegateHandler(mViewGestureHandler);
             plainView.setOnTouchListener(viewTracker);
 
