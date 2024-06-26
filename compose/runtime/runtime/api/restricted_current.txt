@@ -1135,7 +1135,7 @@ package androidx.compose.runtime.tooling {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserver {
-    method public void onBeginComposition(androidx.compose.runtime.Composition composition, java.util.Map<androidx.compose.runtime.RecomposeScope,? extends java.util.Set<?>?> invalidationMap);
+    method public void onBeginComposition(androidx.compose.runtime.Composition composition, java.util.Map<androidx.compose.runtime.RecomposeScope,? extends java.util.Set<?>> invalidationMap);
     method public void onEndComposition(androidx.compose.runtime.Composition composition);
   }
 
