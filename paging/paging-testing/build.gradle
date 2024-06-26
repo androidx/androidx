@@ -23,13 +23,13 @@
  */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
 import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 androidXMultiplatform {
@@ -39,14 +39,7 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
-    androidLibrary {
-        namespace = "androidx.paging.testing"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-    }
+    android()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -134,3 +127,6 @@ androidx {
     description = "Test artifact for Paging implementation"
 }
 
+android {
+    namespace "androidx.paging.testing"
+}
