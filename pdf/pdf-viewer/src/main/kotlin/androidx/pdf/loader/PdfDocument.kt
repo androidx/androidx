@@ -43,9 +43,6 @@ public interface PdfDocument : Closeable {
     /** The type of form present in the document. */
     public val formType: Int
 
-    /** Indicates whether the document is password-protected. */
-    public val isProtected: Boolean
-
     /**
      * Asynchronously retrieves information about the specified page.
      *
@@ -58,7 +55,7 @@ public interface PdfDocument : Closeable {
      * Asynchronously retrieves information about a range of pages.
      *
      * @param pageRange The range of page numbers (0-based, inclusive).
-     * @return A list of {@link PageInfo} objects, one for each page in the range.
+     * @return A list of [PageInfo] objects, one for each page in the range.
      */
     public suspend fun getPageInfos(pageRange: IntRange): List<PageInfo>
 
@@ -67,8 +64,8 @@ public interface PdfDocument : Closeable {
      *
      * @param query The search query string.
      * @param pageRange The range of page numbers (0-based, inclusive) to search within.
-     * @return A {@link SparseArray} mapping page numbers to lists of {@link PageMatchBounds}
-     *   objects representing the search results on each page.
+     * @return A [SparseArray] mapping page numbers to lists of [PageMatchBounds] objects
+     *   representing the search results on each page.
      */
     public suspend fun searchDocument(
         query: String,
@@ -79,21 +76,22 @@ public interface PdfDocument : Closeable {
      * Asynchronously retrieves the selection bounds (in PDF coordinates) for the specified text
      * selection.
      *
+     * @param pageNumber The page on which text to be selected.
      * @param start The starting point of the text selection.
      * @param stop The ending point of the text selection.
-     * @return A SparseArray mapping page numbers to {@link PageSelection} objects representing the
-     *   selection bounds on each page.
+     * @return A [PageSelection] object representing the selection bounds on the page.
      */
     public suspend fun getSelectionBounds(
-        start: PdfPoint,
-        stop: PdfPoint
-    ): SparseArray<PageSelection>
+        pageNumber: Int,
+        start: PointF,
+        stop: PointF
+    ): PageSelection
 
     /**
      * Asynchronously retrieves the content (text and images) of the specified page.
      *
      * @param pageNumber The page number (0-based).
-     * @return A {@link PdfPageContent} object representing the page's content.
+     * @return A [PdfPageContent] object representing the page's content.
      */
     public suspend fun getPageContent(pageNumber: Int): PdfPageContent
 
@@ -141,9 +139,9 @@ public interface PdfDocument : Closeable {
     /**
      * Represents the combined text and image content within a single page of a PDF document.
      *
-     * @property textContents A list of {@link PdfPageTextContent} objects representing the text
-     *   elements on the page.
-     * @property imageContents A list of {@link PdfPageImageContent} objects representing the image
+     * @property textContents A list of [PdfPageTextContent] objects representing the text elements
+     *   on the page.
+     * @property imageContents A list of ]PdfPageImageContent] objects representing the image
      *   elements on the page.
      */
     public class PdfPageContent(
@@ -155,9 +153,9 @@ public interface PdfDocument : Closeable {
      * Represents the links within a single page of a PDF document.
      *
      * @property gotoLinks A list of internal links (links to other pages within the same document)
-     *   represented as `PdfPageGotoLinkContent` objects.
+     *   represented as [PdfPageGotoLinkContent] objects.
      * @property externalLinks A list of external links (links to web pages or other resources)
-     *   represented as `PdfPageLinkContent` objects.
+     *   represented as [PdfPageLinkContent] objects.
      */
     public class PdfPageLinks(
         public val gotoLinks: List<PdfPageGotoLinkContent>,
