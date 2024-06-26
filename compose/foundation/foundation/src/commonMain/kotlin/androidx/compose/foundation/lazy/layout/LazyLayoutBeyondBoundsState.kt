@@ -22,8 +22,6 @@ import kotlin.math.min
 
 internal interface LazyLayoutBeyondBoundsState {
 
-    fun remeasure()
-
     val itemCount: Int
 
     val hasVisibleItems: Boolean
