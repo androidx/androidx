@@ -486,7 +486,7 @@ public class ExposureDeviceTest {
                         }
                     }));
 
-            builder.addErrorListener((sessionConfig, error) -> {
+            builder.setErrorListener((sessionConfig, error) -> {
                 // Create new pipeline and it will close the old one.
                 createPipeline(streamSpec);
             });

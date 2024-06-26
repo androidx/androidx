@@ -79,6 +79,8 @@ class MeteringRepeatingSession {
 
     @Nullable
     private final SurfaceResetCallback mSurfaceResetCallback;
+    @Nullable
+    private SessionConfig.CloseableErrorListener mCloseableErrorListener = null;
 
     /** Creates a new instance of a {@link MeteringRepeatingSession}. */
     MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
@@ -125,12 +127,20 @@ class MeteringRepeatingSession {
 
         builder.addSurface(mDeferrableSurface);
 
-        builder.addErrorListener((sessionConfig, error) -> {
-            mSessionConfig = createSessionConfig();
-            if (mSurfaceResetCallback != null) {
-                mSurfaceResetCallback.onSurfaceReset();
-            }
-        });
+        // Closes old error listener
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+        }
+
+        mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
+                (sessionConfig, error) -> {
+                    mSessionConfig = createSessionConfig();
+                    if (mSurfaceResetCallback != null) {
+                        mSurfaceResetCallback.onSurfaceReset();
+                    }
+                });
+
+        builder.setErrorListener(mCloseableErrorListener);
 
         return builder.build();
     }

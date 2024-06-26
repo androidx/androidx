@@ -34,6 +34,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
+import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.utils.Threads.runOnMainSync
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
@@ -486,6 +488,60 @@ internal class ImageAnalysisTest(
         // The set allowedResolutionMode is kept
         assertThat(resolutionSelector.allowedResolutionMode)
             .isEqualTo(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+    }
+
+    @Test
+    fun analyzerAnalyzesImages_whenSessionErrorListenerReceivesError() = runBlocking {
+        val imageAnalysis = ImageAnalysis.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_CAMERA_SELECTOR,
+                imageAnalysis
+            )
+        }
+
+        imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
+        // Retrieves the initial session config
+        val initialSessionConfig = imageAnalysis.sessionConfig
+
+        // Checks that image can be received successfully when onError is received.
+        triggerOnErrorAndVerifyNewImageReceived(initialSessionConfig)
+
+        if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbind(imageAnalysis)
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    imageAnalysis
+                )
+            }
+
+            // Checks that image can be received successfully when onError is received by the old
+            // error listener.
+            triggerOnErrorAndVerifyNewImageReceived(initialSessionConfig)
+        }
+
+        // Checks that image can be received successfully when onError is received by the new
+        // error listener.
+        triggerOnErrorAndVerifyNewImageReceived(imageAnalysis.sessionConfig)
+    }
+
+    private fun triggerOnErrorAndVerifyNewImageReceived(sessionConfig: SessionConfig) {
+        // Forces invoke the onError callback
+        runOnMainSync {
+            sessionConfig.errorListener!!.onError(
+                sessionConfig,
+                SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+            )
+        }
+        // Resets the semaphore
+        analysisResultsSemaphore = Semaphore(0)
+        analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+
+        // Verifies image can be received
+        synchronized(analysisResultLock) { assertThat(analysisResults).isNotEmpty() }
     }
 
     private data class ImageProperties(

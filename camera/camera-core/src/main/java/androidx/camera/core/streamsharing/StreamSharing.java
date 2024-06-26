@@ -99,6 +99,8 @@ public class StreamSharing extends UseCase {
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     SessionConfig.Builder mSessionConfigBuilder;
+    @Nullable
+    private SessionConfig.CloseableErrorListener mCloseableErrorListener;
 
     private static StreamSharingConfig getDefaultConfig(Set<UseCase> children) {
         MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
@@ -427,24 +429,37 @@ public class StreamSharing extends UseCase {
             @NonNull String cameraId,
             @NonNull UseCaseConfig<?> config,
             @NonNull StreamSpec streamSpec) {
-        sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
-            // Clear both StreamSharing and the children.
-            clearPipeline();
-            if (isCurrentCamera(cameraId)) {
-                // Only reset the pipeline when the bound camera is the same.
-                updateSessionConfig(
-                        createPipelineAndUpdateChildrenSpecs(cameraId, config, streamSpec));
-                notifyReset();
-                // Connect the latest {@link Surface} to newly created children edges. Currently
-                // children UseCase does not have additional logic in SessionConfig error listener
-                // so this is OK. If they do, we need to invoke the children's SessionConfig
-                // error listeners instead.
-                mVirtualCameraAdapter.resetChildren();
-            }
-        });
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+        }
+        mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
+                (sessionConfig, error) -> {
+                    // Do nothing when the use case has been unbound.
+                    if (getCamera() == null) {
+                        return;
+                    }
+
+                    // Clear both StreamSharing and the children.
+                    clearPipeline();
+                    updateSessionConfig(
+                            createPipelineAndUpdateChildrenSpecs(cameraId, config, streamSpec));
+                    notifyReset();
+                    // Connect the latest {@link Surface} to newly created children edges.
+                    // Currently children UseCase does not have additional logic in SessionConfig
+                    // error listener so this is OK. If they do, we need to invoke the children's
+                    // SessionConfig error listeners instead.
+                    mVirtualCameraAdapter.resetChildren();
+                });
+        sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
     }
 
     private void clearPipeline() {
+        // Closes the old error listener
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+            mCloseableErrorListener = null;
+        }
+
         if (mCameraEdge != null) {
             mCameraEdge.close();
             mCameraEdge = null;

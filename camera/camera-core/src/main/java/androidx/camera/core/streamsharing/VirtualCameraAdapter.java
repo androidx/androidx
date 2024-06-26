@@ -405,8 +405,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             // The Surface is closed by the child. This will happen when e.g. the child is Preview
             // with SurfaceView implementation.
             // Invoke the error listener so it will recreate the pipeline.
-            for (SessionConfig.ErrorListener listener : childSessionConfig.getErrorListeners()) {
-                listener.onError(childSessionConfig,
+            if (childSessionConfig.getErrorListener() != null) {
+                childSessionConfig.getErrorListener().onError(childSessionConfig,
                         SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
             }
         }
