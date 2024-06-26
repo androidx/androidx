@@ -88,6 +88,30 @@ public class TabContentsTest {
     }
 
     @Test
+    public void createInstance_sectionedItemTemplate_Throws() {
+        SectionedItemTemplate template =
+                new SectionedItemTemplate.Builder().setHeader(
+                        new Header.Builder().setTitle("title").build()
+                ).build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TabContents.Builder(template).build());
+    }
+
+    @Test
+    public void createInstance_api8_sectionedItemTemplate() {
+        SectionedItemTemplate template =
+                new SectionedItemTemplate.Builder().setHeader(
+                        new Header.Builder().setTitle("title").build()
+                ).build();
+
+        TabContents tabContents = new TabContents.Api8Builder(template).build();
+
+        assertEquals(template, tabContents.getTemplate());
+    }
+
+    @Test
     public void equals() {
         MessageTemplate template = new MessageTemplate.Builder("title")
                 .addAction(
