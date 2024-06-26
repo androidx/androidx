@@ -1004,10 +1004,8 @@ import java.util.Set;
         if (mSelectedRoute == null) {
             mSelectedRoute = route;
             mSelectedRouteController = routeController;
-            mCallbackHandler.post(
-                    GlobalMediaRouter.CallbackHandler.MSG_ROUTE_SELECTED,
-                    new Pair<>(null, route),
-                    unselectReason);
+            mCallbackHandler.postRouteSelectedMessage(
+                    /* fromRoute= */ null, /* targetRoute= */ route, unselectReason);
         } else {
             notifyTransfer(
                     this,
@@ -1452,7 +1450,26 @@ import java.util.Set;
 
         public static final int MSG_ROUTER_PARAMS_CHANGED = MSG_TYPE_ROUTER | 1;
 
-        CallbackHandler() {
+        /* package */ void postRouteSelectedMessage(
+                @Nullable MediaRouter.RouteInfo fromRoute,
+                @NonNull MediaRouter.RouteInfo targetRoute,
+                int reason) {
+            RouteSelectedMessageParams params =
+                    new RouteSelectedMessageParams(fromRoute, targetRoute);
+            Message message = obtainMessage(MSG_ROUTE_SELECTED, params);
+            message.arg1 = reason;
+            message.sendToTarget();
+        }
+
+        /* package */ void postAnotherRouteSelectedMessage(
+                @Nullable MediaRouter.RouteInfo requestedRoute,
+                @NonNull MediaRouter.RouteInfo targetRoute,
+                int reason) {
+            RouteSelectedMessageParams params =
+                    new RouteSelectedMessageParams(requestedRoute, targetRoute);
+            Message message = obtainMessage(MSG_ROUTE_ANOTHER_SELECTED, params);
+            message.arg1 = reason;
+            message.sendToTarget();
         }
 
         /* package */ void post(int msg, Object obj) {
@@ -1518,7 +1535,7 @@ import java.util.Set;
                     break;
                 case MSG_ROUTE_SELECTED: {
                     MediaRouter.RouteInfo selectedRoute =
-                            ((Pair<MediaRouter.RouteInfo, MediaRouter.RouteInfo>) obj).second;
+                                ((RouteSelectedMessageParams) obj).mTargetRoute;
                     mPlatformMediaRouter1RouteProvider.onSyncRouteSelected(selectedRoute);
                     // TODO(b/166794092): Remove this nullness check
                     if (mDefaultRoute != null && selectedRoute.isDefaultOrBluetooth()) {
@@ -1531,7 +1548,7 @@ import java.util.Set;
                 }
                 case MSG_ROUTE_ANOTHER_SELECTED: {
                     MediaRouter.RouteInfo groupRoute =
-                            ((Pair<MediaRouter.RouteInfo, MediaRouter.RouteInfo>) obj).second;
+                                ((RouteSelectedMessageParams) obj).mTargetRoute;
                     mDynamicGroupRoutes.add(groupRoute);
                     mPlatformMediaRouter1RouteProvider.onSyncRouteAdded(groupRoute);
                     mPlatformMediaRouter1RouteProvider.onSyncRouteSelected(groupRoute);
@@ -1547,16 +1564,18 @@ import java.util.Set;
             final MediaRouter.Callback callback = record.mCallback;
             switch (what & MSG_TYPE_MASK) {
                 case MSG_TYPE_ROUTE: {
+                    RouteSelectedMessageParams selectedMessageParams =
+                                what == MSG_ROUTE_ANOTHER_SELECTED || what == MSG_ROUTE_SELECTED
+                                        ? ((RouteSelectedMessageParams) obj)
+                                        : null;
                     final MediaRouter.RouteInfo route =
-                            (what == MSG_ROUTE_ANOTHER_SELECTED || what == MSG_ROUTE_SELECTED)
-                                    ? ((Pair<MediaRouter.RouteInfo, MediaRouter.RouteInfo>) obj)
-                                    .second
-                                    : (MediaRouter.RouteInfo) obj;
+                                selectedMessageParams != null
+                                        ? selectedMessageParams.mTargetRoute
+                                        : (MediaRouter.RouteInfo) obj;
                     final MediaRouter.RouteInfo optionalRoute =
-                            (what == MSG_ROUTE_ANOTHER_SELECTED || what == MSG_ROUTE_SELECTED)
-                                    ? ((Pair<MediaRouter.RouteInfo, MediaRouter.RouteInfo>) obj)
-                                    .first
-                                    : null;
+                                selectedMessageParams != null
+                                        ? selectedMessageParams.mFromOrRequestedRoute
+                                        : null;
                     if (route == null
                             || !record.filterRouteEvent(route, what, optionalRoute, arg)) {
                         break;
@@ -1614,6 +1633,27 @@ import java.util.Set;
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     * Holds the parameters of {@link CallbackHandler#MSG_ROUTE_SELECTED} and {@link
+     * CallbackHandler#MSG_ROUTE_ANOTHER_SELECTED}.
+     */
+    private static final class RouteSelectedMessageParams {
+        /**
+         * Holds the origin route for {@link CallbackHandler#MSG_ROUTE_SELECTED}, or the originally
+         * requested route for {@link CallbackHandler#MSG_ROUTE_ANOTHER_SELECTED}.
+         */
+        @Nullable public final MediaRouter.RouteInfo mFromOrRequestedRoute;
+
+        @NonNull public final MediaRouter.RouteInfo mTargetRoute;
+
+        private RouteSelectedMessageParams(
+                @Nullable MediaRouter.RouteInfo fromOrRequestedRoute,
+                @NonNull MediaRouter.RouteInfo targetRoute) {
+            mFromOrRequestedRoute = fromOrRequestedRoute;
+            mTargetRoute = targetRoute;
         }
     }
 }
