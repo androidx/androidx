@@ -64,28 +64,28 @@ class AppCompatDialogTest {
     @Test
     fun testViewTreeLifecycleOwnerWhenAddContentView() {
         withUse(ActivityScenario.launch(AppCompatActivity::class.java)) {
-          lateinit var view: View
-          val dialog = withActivity {
-              view = View(this)
-              AppCompatDialog(this)
-          }
-          dialog.addContentView(view)
+            lateinit var view: View
+            val dialog = withActivity {
+                view = View(this)
+                AppCompatDialog(this)
+            }
+            dialog.addContentView(view)
 
-          val lifecycle = dialog.lifecycle
-          assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+            val lifecycle = dialog.lifecycle
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
-          onActivity { dialog.show() }
-          assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+            onActivity { dialog.show() }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
-          val viewOwner = dialog.window?.decorView?.findViewTreeLifecycleOwner()!!
-          assertThat(viewOwner).isEqualTo(dialog)
+            val viewOwner = dialog.window?.decorView?.findViewTreeLifecycleOwner()!!
+            assertThat(viewOwner).isEqualTo(dialog)
 
-          onActivity { dialog.dismiss() }
-          assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            onActivity { dialog.dismiss() }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
-          assertWithMessage("A new Lifecycle object should be created after destruction")
-              .that(dialog.lifecycle)
-              .isNotSameInstanceAs(lifecycle)
+            assertWithMessage("A new Lifecycle object should be created after destruction")
+                .that(dialog.lifecycle)
+                .isNotSameInstanceAs(lifecycle)
         }
     }
 }
