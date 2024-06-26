@@ -32,7 +32,7 @@
     <string name="desc_goto_link" msgid="2461368384824849714">"رفتن به صفحه <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"صفحه <xliff:g id="PAGE">%1$d</xliff:g>"</string>
     <string name="message_select_text_to_comment" msgid="5725327644007067522">"نوشتار را برای نظر گذاشتن انتخاب کنید"</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"روی قسمتی که می‌خواهید نظر بگذارید ضربه بزنید"</string>
+    <string name="message_tap_to_comment" msgid="7820801719181709999">"روی قسمتی که می‌خواهید نظر بگذارید تک‌ضرب بزنید"</string>
     <string name="action_cancel" msgid="5494417739210197522">"لغو کردن"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"‏‫PDF نمایش داده نمی‌شود (قالب <xliff:g id="TITLE">%1$s</xliff:g> نامعتبر است)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"صفحه <xliff:g id="PAGE">%1$d</xliff:g> نمایش داده نمی‌شود (خطای فایل)"</string>
