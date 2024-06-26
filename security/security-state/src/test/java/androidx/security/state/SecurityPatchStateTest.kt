@@ -170,7 +170,7 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2020-01-01": [{
                         "cve_identifiers": ["CVE-2020-1234"],
-                        "asb_identifiers": ["ASB-2020"],
+                        "asb_identifiers": ["ASB-A-2020"],
                         "severity": "high",
                         "components": ["system", "vendor"]
                     }]
@@ -250,19 +250,19 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2023-05-01": [{
                         "cve_identifiers": ["CVE-1235-4321"],
-                        "asb_identifiers": ["ASB-2025111"],
+                        "asb_identifiers": ["ASB-A-2025111"],
                         "severity": "high",
                         "components": ["com.google.mainline.telemetry"]
                     }],
                     "2022-09-01": [{
                         "cve_identifiers": ["CVE-1236-4321"],
-                        "asb_identifiers": ["ASB-2026111"],
+                        "asb_identifiers": ["ASB-A-2026111"],
                         "severity": "high",
                         "components": ["com.google.mainline.adservices"]
                     }]
@@ -302,7 +302,7 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }]
@@ -332,7 +332,7 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-05-15": [{
                         "cve_identifiers": ["CVE-5678-1234"],
-                        "asb_identifiers": ["ASB-2024222"],
+                        "asb_identifiers": ["ASB-A-2024222"],
                         "severity": "critical",
                         "components": ["vendor"]
                     }]
@@ -361,7 +361,7 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-05-15": [{
                         "cve_identifiers": ["CVE-5678-1234"],
-                        "asb_identifiers": ["ASB-2024222"],
+                        "asb_identifiers": ["ASB-A-2024222"],
                         "severity": "critical",
                         "components": ["vendor"]
                     }]
@@ -437,7 +437,7 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "$date": [{
                         "cve_identifiers": ["CVE-1234-6789"],
-                        "asb_identifiers": ["ASB-2023333"],
+                        "asb_identifiers": ["ASB-A-2023333"],
                         "severity": "high",
                         "components": ["$component"]
                     }]
@@ -478,13 +478,13 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-2023-0001", "CVE-2023-0002"],
-                        "asb_identifiers": ["ASB-2023011"],
+                        "asb_identifiers": ["ASB-A-2023011"],
                         "severity": "high",
                         "components": ["system"]
                     }],
                     "2023-01-15": [{
                         "cve_identifiers": ["CVE-2023-0010"],
-                        "asb_identifiers": ["ASB-2023022"],
+                        "asb_identifiers": ["ASB-A-2023022"],
                         "severity": "moderate",
                         "components": ["vendor"]
                     }]
@@ -655,19 +655,19 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-05-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-1234-1321"],
-                        "asb_identifiers": ["ASB-2023121"],
+                        "asb_identifiers": ["ASB-A-2023121"],
                         "severity": "critical",
                         "components": ["system"]
                     }],
                     "2023-02-01": [{
                         "cve_identifiers": ["CVE-1234-3321"],
-                        "asb_identifiers": ["ASB-2023151"],
+                        "asb_identifiers": ["ASB-A-2023151"],
                         "severity": "moderate",
                         "components": ["vendor"]
                     }]
@@ -697,19 +697,19 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-05-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2024-05-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-1234-1321"],
-                        "asb_identifiers": ["ASB-2023121"],
+                        "asb_identifiers": ["ASB-A-2023121"],
                         "severity": "critical",
                         "components": ["system"]
                     }]
@@ -732,19 +732,19 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2023-05-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-2023-0001", "CVE-2023-0002"],
-                        "asb_identifiers": ["ASB-2023011"],
+                        "asb_identifiers": ["ASB-A-2023011"],
                         "severity": "high",
                         "components": ["system"]
                     }],
                     "2023-01-15": [{
                         "cve_identifiers": ["CVE-2023-0010"],
-                        "asb_identifiers": ["ASB-2023022"],
+                        "asb_identifiers": ["ASB-A-2023022"],
                         "severity": "moderate",
                         "components": ["vendor"]
                     }]
@@ -777,19 +777,19 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2021-05-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2022-01-01": [{
                         "cve_identifiers": ["CVE-2023-0001", "CVE-2023-0002"],
-                        "asb_identifiers": ["ASB-2023011"],
+                        "asb_identifiers": ["ASB-A-2023011"],
                         "severity": "high",
                         "components": ["system"]
                     }],
                     "2021-01-15": [{
                         "cve_identifiers": ["CVE-2023-0010"],
-                        "asb_identifiers": ["ASB-2023022"],
+                        "asb_identifiers": ["ASB-A-2023022"],
                         "severity": "moderate",
                         "components": ["vendor"]
                     }]
@@ -822,19 +822,19 @@ class SecurityPatchStateTest {
                 "vulnerabilities": {
                     "2021-05-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
-                        "asb_identifiers": ["ASB-2023111"],
+                        "asb_identifiers": ["ASB-A-2023111"],
                         "severity": "high",
                         "components": ["com.google.android.modulemetadata"]
                     }],
                     "2022-01-01": [{
                         "cve_identifiers": ["CVE-2023-0001", "CVE-2023-0002"],
-                        "asb_identifiers": ["ASB-2023011"],
+                        "asb_identifiers": ["ASB-A-2023011"],
                         "severity": "high",
                         "components": ["system"]
                     }],
                     "2021-01-15": [{
                         "cve_identifiers": ["CVE-2023-0010"],
-                        "asb_identifiers": ["ASB-2023022"],
+                        "asb_identifiers": ["ASB-A-2023022"],
                         "severity": "moderate",
                         "components": ["vendor"]
                     }]

@@ -295,13 +295,6 @@ public open class SecurityPatchState(
         return systemModules.ifEmpty { DEFAULT_SYSTEM_MODULES }
     }
 
-    private fun buildAllowedComponents(): List<String> {
-        // Adding fixed components to the list of system modules
-        val fixedComponents = listOf("system", "kernel", "vendor", "webview")
-
-        return getSystemModules() + fixedComponents
-    }
-
     /**
      * Parses a JSON string to extract vulnerability report data. This method validates the format
      * of the input JSON and constructs a [VulnerabilityReport] object, preparing the class to
@@ -319,7 +312,6 @@ public open class SecurityPatchState(
      */
     public fun loadVulnerabilityReport(jsonString: String) {
         val result: VulnerabilityReport
-        val allowedComponents = buildAllowedComponents()
 
         try {
             result = Gson().fromJson(jsonString, VulnerabilityReport::class.java)
@@ -364,7 +356,7 @@ public open class SecurityPatchState(
         }
 
         val cvePattern = Pattern.compile("CVE-\\d{4}-\\d{4,}")
-        val asbPattern = Pattern.compile("ASB-\\d{4,}")
+        val asbPattern = Pattern.compile("ASB-A-\\d{4,}")
 
         result.vulnerabilities.values.flatten().forEach { group ->
             group.cveIdentifiers.forEach { cve ->
@@ -378,7 +370,7 @@ public open class SecurityPatchState(
             group.asbIdentifiers.forEach { asb ->
                 if (!asbPattern.matcher(asb).matches()) {
                     throw IllegalArgumentException(
-                        "ASB identifier does not match the required format (ASB-XXXX): $asb"
+                        "ASB identifier does not match the required format (ASB-A-XXXX): $asb"
                     )
                 }
             }
@@ -389,12 +381,6 @@ public open class SecurityPatchState(
                 throw IllegalArgumentException(
                     "Severity must be: critical, high, moderate, low. Found: ${group.severity}"
                 )
-            }
-
-            group.components.forEach { component ->
-                if (!allowedComponents.contains(component)) {
-                    throw IllegalArgumentException("Invalid component. Found: $component")
-                }
             }
         }
 
