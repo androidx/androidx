@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/344704367
+ *     Bug Id: b/344704367, b/349542870
  *     Description: When taking pictures with {@link CameraDevice#TEMPLATE_VIDEO_SNAPSHOT}, there
  *                  is no response from camera HAL. On itel l6006, itel w6004, moto g(20), moto
  *                  e13, moto e20, rmx3231, rmx3511, sm-a032f, sm-a035m, it happens when there
@@ -42,8 +42,11 @@ import java.util.Set;
  *                  {@link CaptureRequest#CONTROL_CAPTURE_INTENT_STILL_CAPTURE} instead of
  *                  {@link CaptureRequest#CONTROL_CAPTURE_INTENT_VIDEO_SNAPSHOT} on UniSoc
  *                  chipset devices.
+ *                  On the Huawei P Smart (b/349542870), taking pictures consistently fails when
+ *                  using CONTROL_CAPTURE_INTENT_VIDEO_SNAPSHOT, regardless of the surface
+ *                  combinations or capture intent specified in repeated request.
  *     Device(s): itel l6006, itel w6004, moto g(20), moto e13, moto e20, rmx3231, rmx3511,
- *                sm-a032f, sm-a035m, tecno mobile bf6.
+ *                sm-a032f, sm-a035m, tecno mobile bf6, Huawei P Smart.
  */
 public class ImageCaptureFailedForVideoSnapshotQuirk implements Quirk {
 
@@ -61,7 +64,7 @@ public class ImageCaptureFailedForVideoSnapshotQuirk implements Quirk {
     ));
 
     static boolean load() {
-        return isUniSocChipsetDevice();
+        return isUniSocChipsetDevice() || isHuaweiPSmart();
     }
 
     private static boolean isUniSocChipsetDevice() {
@@ -73,5 +76,9 @@ public class ImageCaptureFailedForVideoSnapshotQuirk implements Quirk {
                 || Build.HARDWARE.toLowerCase(Locale.US).startsWith("ums")
                 || ("itel".equalsIgnoreCase(Build.BRAND) && Build.HARDWARE.toLowerCase(
                 Locale.US).startsWith("sp"));
+    }
+
+    private static boolean isHuaweiPSmart() {
+        return "HUAWEI".equalsIgnoreCase(Build.BRAND) && "FIG-LX1".equalsIgnoreCase(Build.MODEL);
     }
 }
