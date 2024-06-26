@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.system.Os
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.webkit.WebViewCompat
@@ -122,10 +121,10 @@ public open class SecurityStateManager(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public open fun getPackageVersion(packageName: String): String {
         if (packageName.isNotEmpty()) {
-            try {
-                return packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+            return try {
+                packageManager.getPackageInfo(packageName, 0).versionName ?: ""
             } catch (e: PackageManager.NameNotFoundException) {
-                Log.e(TAG, "Failed to get SPL for package $packageName.", e)
+                ""
             }
         }
         return ""
@@ -163,7 +162,7 @@ public open class SecurityStateManager(private val context: Context) {
             } else {
                 null
             }
-        return webViewPackageInfo?.versionName ?: ""
+        return webViewPackageInfo?.packageName ?: ""
     }
 
     /**
