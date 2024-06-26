@@ -186,6 +186,7 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
+    @Suppress("DEPRECATION")
     private fun createTestOEMSplitInfo(
         testPrimaryActivityStack: OEMActivityStack,
         testSecondaryActivityStack: OEMActivityStack,
@@ -204,6 +205,7 @@ class EmbeddingAdapterTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun createTestOEMActivityStack(
         testActivities: List<Activity>,
         testIsEmpty: Boolean,

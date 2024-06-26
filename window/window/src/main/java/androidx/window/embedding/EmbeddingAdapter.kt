@@ -68,6 +68,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         return splitInfoList.map(this::translate)
     }
 
+    @Suppress("DEPRECATION")
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
         return when (vendorApiLevel) {
             1 -> api1Impl.translateCompat(splitInfo)

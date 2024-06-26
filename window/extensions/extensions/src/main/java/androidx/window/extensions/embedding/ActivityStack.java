@@ -17,10 +17,13 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +41,7 @@ public class ActivityStack {
     private final boolean mIsEmpty;
 
     @NonNull
-    private final IBinder mToken;
+    private final Token mToken;
 
     /**
      * The {@code ActivityStack} constructor
@@ -49,9 +52,10 @@ public class ActivityStack {
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
      */
-    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull Token token) {
         Objects.requireNonNull(activities);
         Objects.requireNonNull(token);
+
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
         mToken = token;
@@ -86,12 +90,24 @@ public class ActivityStack {
 
     /**
      * Returns a token uniquely identifying the container.
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresVendorApiLevel(level = 5)
     @NonNull
-    public IBinder getToken() {
+    public Token getActivityStackToken() {
         return mToken;
+    }
+
+    // TODO(b/329997430): Remove it after there's no more usages.
+    /**
+     * @deprecated Use {@link #getActivityStackToken()} instead. Use this method only if
+     * {@link #getActivityStackToken()} cannot be used.
+     */
+    @RequiresVendorApiLevel(level = 5, deprecatedSince = 5)
+    @Deprecated
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public IBinder getToken() {
+        return mToken.getRawToken();
     }
 
     @Override
@@ -109,6 +125,7 @@ public class ActivityStack {
         int result = (mIsEmpty ? 1 : 0);
         result = result * 31 + mActivities.hashCode();
         result = result * 31 + mToken.hashCode();
+
         return result;
     }
 
@@ -119,5 +136,93 @@ public class ActivityStack {
                 + ", mIsEmpty=" + mIsEmpty
                 + ", mToken=" + mToken
                 + '}';
+    }
+
+    /**
+     * A unique identifier to represent an {@link ActivityStack}.
+     */
+    public static final class Token {
+
+        /**
+         * An invalid token to provide compatibility value before vendor API level 5.
+         */
+        @NonNull
+        public static final Token INVALID_ACTIVITY_STACK_TOKEN = new Token(new Binder());
+
+        private static final String KEY_ACTIVITY_STACK_RAW_TOKEN = "androidx.window.extensions"
+                + ".embedding.ActivityStack.Token";
+
+        private final IBinder mToken;
+
+        Token(@NonNull IBinder token) {
+            mToken = token;
+        }
+
+        /**
+         * Creates an {@link ActivityStack} token from binder.
+         *
+         * @param token the raw binder used by OEM Extensions implementation.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public static Token createFromBinder(@NonNull IBinder token) {
+            return new Token(token);
+        }
+
+        /**
+         * Retrieves an {@link ActivityStack} token from {@link Bundle} if it's valid.
+         *
+         * @param bundle the {@link Bundle} to retrieve the {@link ActivityStack} token from.
+         * @throws IllegalArgumentException if the {@code bundle} isn't valid.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public static Token readFromBundle(@NonNull Bundle bundle) {
+            final IBinder token = bundle.getBinder(KEY_ACTIVITY_STACK_RAW_TOKEN);
+
+            if (token == null) {
+                throw new IllegalArgumentException("Invalid bundle to create ActivityStack Token");
+            }
+            return new Token(token);
+        }
+
+        /**
+         * Converts the token to {@link Bundle}.
+         * <p>
+         * See {@link ActivityEmbeddingOptionsProperties#KEY_ACTIVITY_STACK_TOKEN} for sample usage.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public Bundle toBundle() {
+            final Bundle bundle = new Bundle();
+            bundle.putBinder(KEY_ACTIVITY_STACK_RAW_TOKEN, mToken);
+            return bundle;
+        }
+
+        @NonNull
+        IBinder getRawToken() {
+            return mToken;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Token)) return false;
+            Token token = (Token) o;
+            return Objects.equals(mToken, token.mToken);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mToken);
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Token{"
+                    + "mToken=" + mToken
+                    + '}';
+        }
     }
 }

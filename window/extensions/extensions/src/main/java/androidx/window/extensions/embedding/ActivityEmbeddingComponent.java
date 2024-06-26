@@ -26,9 +26,11 @@ import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.core.util.function.Function;
+import androidx.window.extensions.util.SetCompat;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Extension component definition that is used by the WindowManager library to trigger custom
@@ -57,8 +59,7 @@ public interface ActivityEmbeddingComponent {
     /**
      * Sets the callback that notifies WM Jetpack about changes in split states from the Extensions
      * Sidecar implementation. The listener should be registered for the lifetime of the process.
-     * There are no threading guarantees where the events are dispatched from. All messages are
-     * re-posted to the executors provided by developers.
+     * There are no threading guarantees where the events are dispatched from.
      *
      * @param consumer the callback to notify {@link SplitInfo} list changes
      */
@@ -84,6 +85,50 @@ public interface ActivityEmbeddingComponent {
      */
     @RequiresVendorApiLevel(level = 1)
     boolean isActivityEmbedded(@NonNull Activity activity);
+
+    /**
+     * Pins the top-most {@link ActivityStack} to keep the stack of the Activities to be
+     * positioned on top. The rest of the activities in the Task will be split with the pinned
+     * {@link ActivityStack}. The pinned {@link ActivityStack} would also have isolated activity
+     * navigation in which only the activities that are started from the pinned
+     * {@link ActivityStack} can be added on top of the {@link ActivityStack}.
+     * <p>
+     * The pinned {@link ActivityStack} is unpinned whenever the parent Task bounds don't
+     * satisfy the dimensions and aspect ratio requirements {@link SplitRule#checkParentMetrics}
+     * to show two {@link ActivityStack}s. See {@link SplitPinRule.Builder#setSticky} if
+     * the same {@link ActivityStack} should be pinned again whenever the parent Task bounds
+     * satisfies the dimensions and aspect ratios requirements defined in the rule.
+     *
+     * @param taskId The id of the Task that top {@link ActivityStack} should be pinned.
+     * @param splitPinRule The SplitRule that specifies how the top {@link ActivityStack} should
+     *                     be split with others.
+     * @return Returns {@code true} if the top {@link ActivityStack} is successfully pinned.
+     *         Otherwise, {@code false}. Few examples are:
+     *         1. There's no {@link ActivityStack}.
+     *         2. There is already an existing pinned {@link ActivityStack}.
+     *         3. There's no other {@link ActivityStack} to split with the top
+     *         {@link ActivityStack}.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default boolean pinTopActivityStack(int taskId, @NonNull SplitPinRule splitPinRule) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Unpins the pinned {@link ActivityStack}. The {@link ActivityStack} will still be the
+     * top-most {@link ActivityStack} right after unpinned, and the {@link ActivityStack} could
+     * be expanded or continue to be split with the next top {@link ActivityStack} if the current
+     * state matches any of the existing {@link SplitPairRule}. It is a no-op call if the task
+     * does not have a pinned {@link ActivityStack}.
+     *
+     * @param taskId The id of the Task that top {@link ActivityStack} should be unpinned.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void unpinTopActivityStack(int taskId) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Sets a function to compute the {@link SplitAttributes} for the {@link SplitRule} and current
@@ -127,15 +172,23 @@ public interface ActivityEmbeddingComponent {
     void clearSplitAttributesCalculator();
 
     /**
-     * Sets the launching {@link ActivityStack} to the given {@link ActivityOptions}.
-     *
-     * @param options The {@link ActivityOptions} to be updated.
-     * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
+     * @deprecated Use {@link ActivityEmbeddingOptionsProperties#KEY_ACTIVITY_STACK_TOKEN} instead.
      */
-    @RequiresVendorApiLevel(level = 3)
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
     @NonNull
     default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
             @NonNull IBinder token) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * @deprecated Use {@link #finishActivityStacksWithTokens(Set)} with instead.
+     */
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
+    default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
@@ -148,10 +201,16 @@ public interface ActivityEmbeddingComponent {
      * @param activityStackTokens The set of tokens of {@link ActivityStack}-s that is going to be
      *                            finished.
      */
-    @RequiresVendorApiLevel(level = 3)
-    default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
-        throw new UnsupportedOperationException("This method must not be called unless there is a"
-                + " corresponding override implementation on the device.");
+    @SuppressWarnings("deprecation") // Use finishActivityStacks(Set) as its core implementation.
+    @RequiresVendorApiLevel(level = 5)
+    default void finishActivityStacksWithTokens(
+            @NonNull Set<ActivityStack.Token> activityStackTokens) {
+        final Set<IBinder> binderSet = SetCompat.create();
+
+        for (ActivityStack.Token token : activityStackTokens) {
+            binderSet.add(token.getRawToken());
+        }
+        finishActivityStacks(binderSet);
     }
 
     /**
@@ -169,15 +228,84 @@ public interface ActivityEmbeddingComponent {
     }
 
     /**
+     * @deprecated Use {@link #updateSplitAttributes(SplitInfo.Token, SplitAttributes)} instead.
+     */
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
+    default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
+            @NonNull SplitAttributes splitAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
      * Updates the {@link SplitAttributes} of a split pair. This is an alternative to using
      * a split attributes calculator callback, applicable when apps only need to update the
      * splits in a few cases but rely on the default split attributes otherwise.
      * @param splitInfoToken The identifier of the split pair to update.
      * @param splitAttributes The {@link SplitAttributes} to apply to the split pair.
      */
-    @RequiresVendorApiLevel(level = 3)
-    default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
+    @SuppressWarnings("deprecation") // Use finishActivityStacks(Set).
+    @RequiresVendorApiLevel(level = 5)
+    default void updateSplitAttributes(@NonNull SplitInfo.Token splitInfoToken,
             @NonNull SplitAttributes splitAttributes) {
+        updateSplitAttributes(splitInfoToken.getRawToken(), splitAttributes);
+    }
+
+    /**
+     * Registers a callback that notifies WindowManager Jetpack about changes in
+     * {@link ActivityStack}.
+     * <p>
+     * In most cases, {@link ActivityStack} are a part of {@link SplitInfo} as
+     * {@link SplitInfo#getPrimaryActivityStack() the primary ActivityStack} or
+     * {@link SplitInfo#getSecondaryActivityStack() the secondary ActivityStack} of a
+     * {@link SplitInfo}.
+     * <p>
+     * However, there are some cases that {@link ActivityStack} is standalone and usually
+     * expanded. Cases are:
+     * <ul>
+     *   <li>A started {@link Activity} matches {@link ActivityRule} with
+     *   {@link ActivityRule#shouldAlwaysExpand()} {@code true}.
+     *
+     *   <li>The {@code ActivityStack} is an overlay {@code ActivityStack}.
+     *
+     *   <li>The associated {@link ActivityStack activityStacks} of a {@code ActivityStack} are
+     *   dismissed by {@link #finishActivityStacks(Set)}.
+     *
+     *   <li>One {@link ActivityStack} of {@link SplitInfo}(Either
+     *   {@link SplitInfo#getPrimaryActivityStack() the primary ActivityStack} or
+     *   {@link SplitInfo#getSecondaryActivityStack() the secondary ActivityStack}) is
+     *   empty and finished, while the other {@link ActivityStack} is not finished with the
+     *   finishing {@link ActivityStack}.
+     *   <p>
+     *   An example is a pair of activities matches a {@link SplitPairRule}, and its
+     *   {@link SplitPairRule#getFinishPrimaryWithSecondary()} is {@link SplitRule#FINISH_NEVER}.
+     *   Then if the last activity of
+     *   {@link SplitInfo#getSecondaryActivityStack() the secondary ActivityStack}) is finished,
+     *   {@link SplitInfo#getPrimaryActivityStack() the primary ActivityStack} will still remain.
+     * </ul>
+     *
+     * @param executor the executor to dispatch {@link ActivityStack} list changes.
+     * @param callback the callback to notify {@link ActivityStack} list changes.
+     *
+     * @see ActivityEmbeddingComponent#finishActivityStacks(Set)
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void registerActivityStackCallback(@NonNull Executor executor,
+            @NonNull Consumer<List<ActivityStack>> callback) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Removes the callback previously registered in {@link #registerActivityStackCallback}, or
+     * no-op if the callback hasn't been registered yet.
+     *
+     * @param callback The callback to remove, which should have been registered.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void unregisterActivityStackCallback(
+            @NonNull Consumer<List<ActivityStack>> callback) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }

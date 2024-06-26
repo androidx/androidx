@@ -20,6 +20,7 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
@@ -65,6 +66,7 @@ class RequiresWindowSdkExtensionTests {
     private lateinit var mockAnnotations: AutoCloseable
     private lateinit var embeddingCompat: EmbeddingCompat
 
+    @Suppress("DEPRECATION")
     @Before
     fun setUp() {
         mockAnnotations = MockitoAnnotations.openMocks(this)
@@ -86,6 +88,7 @@ class RequiresWindowSdkExtensionTests {
         mockAnnotations.close()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testVendorApiLevel1() {
         testRule.overrideExtensionVersion(1)
@@ -108,7 +111,8 @@ class RequiresWindowSdkExtensionTests {
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         }
-        verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
+        verify(embeddingExtension, never())
+            .updateSplitAttributes(any<IBinder>(), any<OemSplitAttributes>())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.invalidateTopVisibleSplitAttributes()
@@ -116,6 +120,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testVendorApiLevel2() {
         testRule.overrideExtensionVersion(2)
@@ -137,7 +142,8 @@ class RequiresWindowSdkExtensionTests {
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         }
-        verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
+        verify(embeddingExtension, never())
+            .updateSplitAttributes(any<IBinder>(), any<OemSplitAttributes>())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.invalidateTopVisibleSplitAttributes()
@@ -145,6 +151,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testVendorApiLevel3() {
         testRule.overrideExtensionVersion(3)

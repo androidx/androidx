@@ -118,6 +118,7 @@ internal class EmbeddingCompat(
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
+    @Suppress("DEPRECATION")
     @RequiresWindowSdkExtension(3)
     override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3)
@@ -128,6 +129,7 @@ internal class EmbeddingCompat(
         )
     }
 
+    @Suppress("DEPRECATION")
     @RequiresWindowSdkExtension(3)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
