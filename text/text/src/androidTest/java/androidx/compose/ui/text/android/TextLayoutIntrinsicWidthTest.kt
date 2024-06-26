@@ -169,7 +169,8 @@ class TextLayoutIntrinsicWidthTest {
                 endIndex = end,
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
-                topRatio = -1f /* default: proportional */
+                topRatio = -1f /* default: proportional */,
+                preserveMinimumHeight = false,
             )
         setSpan(span, start, end)
     }

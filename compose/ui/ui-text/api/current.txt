@@ -1508,9 +1508,13 @@ package androidx.compose.ui.text.style {
 
   public final class LineHeightStyle {
     ctor public LineHeightStyle(float alignment, int trim);
+    ctor public LineHeightStyle(float alignment, int trim, int mode);
+    method public androidx.compose.ui.text.style.LineHeightStyle copy(optional float alignment, optional int trim, optional int mode);
     method public float getAlignment();
+    method public int getMode();
     method public int getTrim();
     property public final float alignment;
+    property public final int mode;
     property public final int trim;
     field public static final androidx.compose.ui.text.style.LineHeightStyle.Companion Companion;
   }
@@ -1534,6 +1538,17 @@ package androidx.compose.ui.text.style {
   public static final class LineHeightStyle.Companion {
     method public androidx.compose.ui.text.style.LineHeightStyle getDefault();
     property public final androidx.compose.ui.text.style.LineHeightStyle Default;
+  }
+
+  @kotlin.jvm.JvmInline public static final value class LineHeightStyle.Mode {
+    field public static final androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion Companion;
+  }
+
+  public static final class LineHeightStyle.Mode.Companion {
+    method public int getFixed();
+    method public int getMinimum();
+    property public final int Fixed;
+    property public final int Minimum;
   }
 
   @kotlin.jvm.JvmInline public static final value class LineHeightStyle.Trim {

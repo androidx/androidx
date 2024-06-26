@@ -46,7 +46,8 @@ internal class LineHeightStyleSpan(
     private val endIndex: Int,
     private val trimFirstLineTop: Boolean,
     val trimLastLineBottom: Boolean,
-    @FloatRange(from = -1.0, to = 1.0) private val topRatio: Float
+    @FloatRange(from = -1.0, to = 1.0) private val topRatio: Float,
+    private val preserveMinimumHeight: Boolean,
 ) : android.text.style.LineHeightSpan {
 
     private var firstAscent: Int = Int.MIN_VALUE
@@ -98,6 +99,15 @@ internal class LineHeightStyleSpan(
 
         // calculate the difference between the current line lineHeight and the requested lineHeight
         val diff = ceiledLineHeight - currentHeight
+        if (preserveMinimumHeight && diff <= 0) {
+            ascent = fontMetricsInt.ascent
+            descent = fontMetricsInt.descent
+            firstAscent = ascent
+            lastDescent = descent
+            firstAscentDiff = 0
+            lastDescentDiff = 0
+            return
+        }
 
         val ascentRatio =
             if (topRatio == -1f) {
@@ -135,7 +145,8 @@ internal class LineHeightStyleSpan(
             endIndex = endIndex,
             trimFirstLineTop = trimFirstLineTop,
             trimLastLineBottom = trimLastLineBottom,
-            topRatio = topRatio
+            topRatio = topRatio,
+            preserveMinimumHeight = preserveMinimumHeight,
         )
 }
 
