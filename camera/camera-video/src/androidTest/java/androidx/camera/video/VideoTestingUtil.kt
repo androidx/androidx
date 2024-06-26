@@ -28,6 +28,8 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks as Pip
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk as PipeExtraCroppingQuirk
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.UseCase
+import androidx.camera.testing.impl.getRotatedResolution
+import androidx.camera.testing.impl.useAndRelease
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk
 import com.google.common.truth.Truth.assertThat

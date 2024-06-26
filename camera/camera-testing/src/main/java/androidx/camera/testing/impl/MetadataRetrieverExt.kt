@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video
+package androidx.camera.testing.impl
 
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
