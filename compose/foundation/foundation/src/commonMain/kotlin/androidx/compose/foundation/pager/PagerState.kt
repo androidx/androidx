@@ -176,7 +176,6 @@ internal constructor(
 
     /** Difference between the last up and last down events of a scroll event. */
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
-    private val animatedScrollScope = PagerLazyAnimateScrollScope(this)
 
     private val scrollPosition = PagerScrollPosition(currentPage, currentPageOffsetFraction, this)
 
@@ -454,6 +453,8 @@ internal constructor(
     /** Constraints passed to the prefetcher for premeasuring the prefetched items. */
     internal var premeasureConstraints = Constraints()
 
+    private val animateScrollScope = LazyLayoutAnimateScrollScope(this)
+
     /** Stores currently pinned pages which are always composed, used by for beyond bound pages. */
     internal val pinnedPages = LazyLayoutPinnedItemList()
 
@@ -501,7 +502,7 @@ internal constructor(
         page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
     ) {
-        with(animatedScrollScope) { snapToItem(page, pageOffsetFraction, forceRemeasure = true) }
+        snapToItem(page, pageOffsetFraction, forceRemeasure = true)
     }
 
     /**
@@ -586,12 +587,15 @@ internal constructor(
         val targetPage = page.coerceInPageRange()
         val targetPageOffsetToSnappedPosition = (pageOffsetFraction * pageSizeWithSpacing)
 
-        animatedScrollScope.animateScrollToPage(
-            targetPage,
-            targetPageOffsetToSnappedPosition,
-            animationSpec,
-            updateTargetPage = { updateTargetPage(it) }
-        )
+        scroll {
+            animateScrollScope.animateScrollToPage(
+                targetPage,
+                targetPageOffsetToSnappedPosition,
+                animationSpec,
+                updateTargetPage = { updateTargetPage(it) },
+                this
+            )
+        }
     }
 
     private suspend fun awaitScrollDependencies() {
@@ -908,9 +912,10 @@ private suspend fun LazyLayoutAnimateScrollScope.animateScrollToPage(
     targetPage: Int,
     targetPageOffsetToSnappedPosition: Float,
     animationSpec: AnimationSpec<Float>,
-    updateTargetPage: ScrollScope.(Int) -> Unit
+    updateTargetPage: ScrollScope.(Int) -> Unit,
+    scrollScope: ScrollScope
 ) {
-    scroll {
+    with(scrollScope) {
         updateTargetPage(targetPage)
         val forward = targetPage > firstVisibleItemIndex
         val visiblePages = lastVisibleItemIndex - firstVisibleItemIndex + 1

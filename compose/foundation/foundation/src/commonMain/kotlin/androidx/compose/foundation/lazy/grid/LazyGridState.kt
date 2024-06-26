@@ -52,6 +52,7 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.ranges.IntRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -272,7 +273,7 @@ constructor(
             }
         }
 
-    private val animateScrollScope = LazyGridAnimateScrollScope(this)
+    private val animateScrollScope = LazyLayoutAnimateScrollScope(this)
 
     /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()
@@ -444,7 +445,15 @@ constructor(
      *   scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
-        animateScrollScope.animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
+        scroll {
+            animateScrollScope.animateScrollToItem(
+                index,
+                scrollOffset,
+                numOfItemsToTeleport,
+                density,
+                this
+            )
+        }
     }
 
     /** Updates the state with the new calculated scroll position and consumed scroll. */
