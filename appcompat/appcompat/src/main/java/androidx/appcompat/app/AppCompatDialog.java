@@ -111,6 +111,12 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
         getDelegate().setContentView(view, params);
     }
 
+    @Override
+    public void addContentView(@NonNull View view, ViewGroup.LayoutParams params) {
+        initViewTreeOwners();
+        getDelegate().addContentView(view, params);
+    }
+
     private void initViewTreeOwners() {
         // Set the view tree owners before setting the content view so that the inflation process
         // and attach listeners will see them already present
