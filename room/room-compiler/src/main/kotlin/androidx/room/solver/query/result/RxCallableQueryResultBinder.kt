@@ -21,14 +21,13 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomMemberNames.DB_UTIL_QUERY
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 
@@ -101,7 +100,7 @@ internal class RxCallableQueryResultBinder(
                 XCodeBlock.of(
                     language = language,
                     format = "%M(%N, %L, %L, %L)",
-                    RoomTypeNames.DB_UTIL.packageMember("query"),
+                    DB_UTIL_QUERY,
                     dbProperty,
                     roomSQLiteQueryVar,
                     if (shouldCopyCursor) "true" else "false",

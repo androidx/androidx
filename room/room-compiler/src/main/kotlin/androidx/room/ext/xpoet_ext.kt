@@ -270,7 +270,12 @@ object KotlinTypeNames {
 
 object RoomMemberNames {
     val DB_UTIL_QUERY = RoomTypeNames.DB_UTIL.packageMember("query")
+    val DB_UTIL_FOREIGN_KEY_CHECK = RoomTypeNames.DB_UTIL.packageMember("foreignKeyCheck")
     val DB_UTIL_DROP_FTS_SYNC_TRIGGERS = RoomTypeNames.DB_UTIL.packageMember("dropFtsSyncTriggers")
+    val DB_UTIL_PERFORM_SUSPENDING = RoomTypeNames.DB_UTIL.packageMember("performSuspending")
+    val DB_UTIL_PERFORM_BLOCKING = RoomTypeNames.DB_UTIL.packageMember("performBlocking")
+    val DB_UTIL_PERFORM_IN_TRANSACTION_SUSPENDING =
+        RoomTypeNames.DB_UTIL.packageMember("performInTransactionSuspending")
     val CURSOR_UTIL_GET_COLUMN_INDEX = RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndex")
     val CURSOR_UTIL_GET_COLUMN_INDEX_OR_THROW =
         RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndexOrThrow")

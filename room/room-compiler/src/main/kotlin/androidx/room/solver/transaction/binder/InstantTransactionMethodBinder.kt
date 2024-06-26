@@ -19,7 +19,6 @@ package androidx.room.solver.transaction.binder
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XType
@@ -28,7 +27,7 @@ import androidx.room.compiler.processing.isVoid
 import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LambdaSpec
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomMemberNames.DB_UTIL_PERFORM_BLOCKING
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
@@ -54,7 +53,7 @@ class InstantTransactionMethodBinder(
         val performBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
-                functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                functionName = DB_UTIL_PERFORM_BLOCKING,
                 argFormat = listOf("%N", "%L", "%L"),
                 args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
                 lambdaSpec =
