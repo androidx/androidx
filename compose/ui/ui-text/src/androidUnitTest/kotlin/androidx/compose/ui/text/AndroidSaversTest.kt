@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -41,7 +42,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 @Suppress("Deprecation")
-class SaversTest {
+class AndroidSaversTest {
     private val defaultSaverScope = SaverScope { true }
 
     @Test
@@ -137,21 +138,6 @@ class SaversTest {
     @Test
     fun test_ParagraphStyle_with_a_nonnull_value() {
         val original = ParagraphStyle(textDirection = TextDirection.Rtl)
-        val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
-        val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
-
-        assertThat(restored).isEqualTo(original)
-    }
-
-    @Test
-    fun test_ParagraphStyle_with_no_null_value() {
-        val original =
-            ParagraphStyle(
-                textAlign = TextAlign.Justify,
-                textDirection = TextDirection.Rtl,
-                lineHeight = 10.sp,
-                textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp)
-            )
         val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
         val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
 
@@ -477,5 +463,24 @@ class SaversTest {
         val saved = with(LocaleList.Saver) { defaultSaverScope.save(original) }
 
         assertThat(LocaleList.Saver.restore(saved!!)).isEqualTo(original)
+    }
+
+    @Test
+    fun test_LineHeightStyle() {
+        val original =
+            LineHeightStyle(LineHeightStyle.Alignment.Proportional, LineHeightStyle.Trim.Both)
+        val saved = save(original, LineHeightStyle.Saver, defaultSaverScope)
+        val restored: LineHeightStyle? = restore(saved, LineHeightStyle.Saver)
+
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_PlatformParagraphStyle_with_no_null_args() {
+        val original = PlatformParagraphStyle(EmojiSupportMatch.All, true)
+        val saved = save(original, PlatformParagraphStyle.Saver, defaultSaverScope)
+        val restored: PlatformParagraphStyle? = restore(saved, PlatformParagraphStyle.Saver)
+
+        assertThat(restored).isEqualTo(original)
     }
 }
