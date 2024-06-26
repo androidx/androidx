@@ -52,5 +52,25 @@ class SecurityStateManagerTest {
         // Check if kernel version is in the format X.X.XX
         val versionRegex = "^\\d+\\.\\d+\\.\\d+$"
         assertTrue(bundle.getString("kernel_version")!!.matches(versionRegex.toRegex()))
+
+        // Webview keys are expected to have specific naming and version formats
+        var foundWebView = false
+        val nameRegex = "^com\\.[a-zA-Z0-9_.]+\\.webview$"
+        val versionRegexWebView = "^\\d+\\.\\d+\\.\\d+\\.\\d+$"
+        for (key in bundle.keySet()) {
+            if (key.contains("webview")) {
+                foundWebView = true
+                val nameMatch = key.matches(nameRegex.toRegex())
+                val versionMatch = bundle.getString(key)!!.matches(versionRegexWebView.toRegex())
+
+                assertTrue("Webview name format incorrect: $key", nameMatch)
+                assertTrue(
+                    "Webview version format incorrect for $key: ${bundle.getString(key)}",
+                    versionMatch
+                )
+                break
+            }
+        }
+        assertTrue("No webview key found in bundle", foundWebView)
     }
 }
