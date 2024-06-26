@@ -23,6 +23,7 @@ import android.os.ParcelFileDescriptor
 import android.text.TextPaint
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.demos.text.FontVariationSettingsCompot.compatSetFontVariationSettings
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,7 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun VariableFontsDemo() {

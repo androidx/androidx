@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
@@ -81,6 +82,7 @@ internal class PagerScrollPosition(
         lastKnownCurrentPageKey = null
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     fun matchPageWithKey(itemProvider: PagerLazyLayoutItemProvider, index: Int): Int {
         val newIndex = itemProvider.findIndexByKey(lastKnownCurrentPageKey, index)
         if (index != newIndex) {

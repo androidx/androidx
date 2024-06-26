@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import kotlinx.coroutines.CoroutineScope
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberStaggeredGridMeasurePolicy(
     state: LazyStaggeredGridState,

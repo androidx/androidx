@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
@@ -89,6 +90,7 @@ internal class LazyGridScrollPosition(initialIndex: Int = 0, initialScrollOffset
      * were items added or removed before our current first visible item and keep this item as the
      * first visible one even given that its index has been changed.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyGridItemProvider,
         index: Int
