@@ -203,6 +203,42 @@ class GlanceAppWidgetManager(private val context: Context) {
         previewState: Any? = null,
         successCallback: PendingIntent? = null,
     ): Boolean {
+        return requestPinGlanceAppWidget(
+            receiver = receiver,
+            preview = preview,
+            previewSize = null,
+            previewState = previewState,
+            successCallback = successCallback,
+        )
+    }
+
+    /**
+     * Request to pin the [GlanceAppWidget] of the given receiver on the current launcher (if
+     * supported).
+     *
+     * Note: the request is only supported for SDK 26 and beyond, for lower versions this method
+     * will be no-op and return false.
+     *
+     * @param receiver the target [GlanceAppWidgetReceiver] class
+     * @param preview the instance of the GlanceAppWidget to compose the preview that will be shown
+     *   in the request dialog. When not provided the app widget previewImage (as defined in the
+     *   meta-data) will be used instead, or the app's icon if not available either.
+     * @param previewState the state (as defined by the [GlanceAppWidget.stateDefinition] to use for
+     *   the preview
+     * @param previewSize the size to be used for the preview. If none is provided, the widget's
+     *   minimum size (as determined by its' AppWidgetProviderInfo) will be used.
+     * @param successCallback a [PendingIntent] to be invoked if the app widget pinning is accepted
+     *   by the user
+     * @return true if the request was successfully sent to the system, false otherwise
+     * @see AppWidgetManager.requestPinAppWidget for more information and limitations
+     */
+    suspend fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
+        receiver: Class<T>,
+        preview: GlanceAppWidget? = null,
+        previewSize: DpSize? = null,
+        previewState: Any? = null,
+        successCallback: PendingIntent? = null,
+    ): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return false
         }
@@ -219,7 +255,9 @@ class GlanceAppWidgetManager(private val context: Context) {
                                 id = AppWidgetId(AppWidgetManager.INVALID_APPWIDGET_ID),
                                 state = previewState,
                                 options = Bundle.EMPTY,
-                                size = info.getMinSize(context.resources.displayMetrics),
+                                size =
+                                    previewSize
+                                        ?: info.getMinSize(context.resources.displayMetrics),
                             )
                         putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, snapshot)
                     }
