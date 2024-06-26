@@ -35,18 +35,24 @@ espresso = "3.6.0"
 espressoDevice = "1.0.0"
 grpc = "1.52.0"
 guavaJre = "33.2.1-jre"
+hamcrestCore = "1.3"
 hilt = "2.49"
 incap = "0.2"
+javaxInject = "1"
 jcodec = "0.2.5"
 kotlin17 = "1.7.10"
 kotlin18 = "1.8.22"
 kotlin19 = "1.9.24"
 kotlin = "1.9.24"
 kotlinBenchmark = "0.4.8"
+kotlinGradlePluginAnnotations = "1.9.24"
+kotlinGradlePluginApi = "1.9.24"
 kotlinNative = "1.9.24"
 kotlinCompileTesting = "1.4.9"
 kotlinCoroutines = "1.7.3"
+kotlinNativeUtils = "1.9.24"
 kotlinSerialization = "1.6.3"
+kotlinToolingCore = "1.9.24"
 ksp = "1.9.24-1.0.20"
 ktfmt = "0.50"
 leakcanary = "2.13"
@@ -55,12 +61,14 @@ metalava = "1.0.0-alpha10"
 mockito = "2.25.0"
 moshi = "1.13.0"
 protobuf = "3.22.3"
+shadow = "8.1.1"
 skiko = "0.7.7"
 spdxGradlePlugin = "0.6.0"
 sqldelight = "1.3.0"
 retrofit = "2.7.2"
 wire = "4.9.7"
 core = "1.12.0"
+xmlApis = "1.4.01"
 
 [libraries]
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
@@ -98,6 +106,7 @@ apacheCommonsMath = { module = "org.apache.commons:commons-math3", version = "3.
 assertj = { module = "org.assertj:assertj-core", version = "3.23.1" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm"}
 asmCommons = { module = "org.ow2.asm:asm-commons", version.ref = "asm"}
+jetbrainsBinaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "binaryCompatibilityValidator" }
 binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "binaryCompatibilityValidator"}
 byteBuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
 byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
@@ -136,6 +145,7 @@ findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
 freemarker = { module = "org.freemarker:freemarker", version = "2.3.31"}
 googletest = { module = "com.android.ndk.thirdparty:googletest", version = "1.11.0-beta-1" }
+hamcrestCore = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrestCore" }
 hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hiltAndroidTesting = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 hiltAndroidGradlePluginz = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
@@ -144,8 +154,10 @@ hiltCore = { module = "com.google.dagger:hilt-core", version.ref = "hilt" }
 intellijCore = { module = "com.android.tools.external.com-intellij:intellij-core", version.ref = "androidLint" }
 intellijAnnotations = { module = "com.intellij:annotations", version = "12.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
+javaxInject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
 jcodecJavaSe = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
+johnrengelmanShadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
 json = { module = "org.json:json", version = "20180813" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.16.2" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
@@ -167,6 +179,10 @@ guavaTestlib = { module = "com.google.guava:guava-testlib", version.ref = "guava
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
 intellijKotlinCompiler = { module = "com.android.tools.external.com-intellij:kotlin-compiler", version.ref = "androidLint" }
+kotlinNativeUtils = { module = "org.jetbrains.kotlin:kotlin-native-utils", version.ref = "kotlinNativeUtils" }
+kotlinGradlePluginApi = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlinGradlePluginApi" }
+kotlinToolingCore = { module = "org.jetbrains.kotlin:kotlin-tooling-core", version.ref = "kotlinToolingCore" }
+kotlinGradlePluginAnnotations = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-annotations", version.ref = "kotlinGradlePluginAnnotations" }
 kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable" }
 kotlinBenchmarkRuntime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinBenchmark" }
 kotlinBom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
@@ -286,6 +302,7 @@ viewBinding = { module = "androidx.databinding:viewbinding", version = "4.1.2" }
 wireGradlePluginz = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }
 wireRuntime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
 xerces = { module = "xerces:xercesImpl", version = "2.12.0" }
+xmlApis = { module = "xml-apis:xml-apis", version.ref = "xmlApis" }
 xpp3 = { module = "xpp3:xpp3", version = "1.1.4c" }
 xmlpull = { module = "xmlpull:xmlpull", version = "1.1.3.1" }
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
