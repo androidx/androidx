@@ -40,11 +40,11 @@ class AndroidAssistTest {
     private val contentTag = "content_tag"
     private val accessibilityClassName = "android.view.ViewGroup"
 
-    // Test that the assistStructure only has its classname set on API levels 26 and 27. See
-    // b/251152083 for more information.
+    // Test that the assistStructure only has its classname set on API levels 23 to 27. See
+    // b/251152083 and b/320768586 for more information.
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 26, maxSdkVersion = 27)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 27)
     fun verifyAssistStructureSet() {
         val viewStructure: ViewStructure = FakeViewStructure()
 

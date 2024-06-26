@@ -46,7 +46,7 @@ import androidx.annotation.RequiresApi
  * @param autofillHints The autofill hint. If this value not specified, we use heuristics to
  *   determine what data to use while performing autofill.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(Build.VERSION_CODES.M)
 internal data class FakeViewStructure(
     var virtualId: Int = 0,
     var packageName: String? = null,
@@ -54,7 +54,8 @@ internal data class FakeViewStructure(
     var entryName: String? = null,
     var children: MutableList<FakeViewStructure> = mutableListOf(),
     var bounds: Rect? = null,
-    private val autofillId: AutofillId? = generateAutofillId(),
+    private val autofillId: AutofillId? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) generateAutofillId() else null,
     internal var autofillType: Int = View.AUTOFILL_TYPE_NONE,
     internal var autofillHints: Array<out String> = arrayOf()
 ) : ViewStructure() {
@@ -92,6 +93,9 @@ internal data class FakeViewStructure(
         @GuardedBy("this") private var previousId = 0
         private val NO_SESSION = 0
 
+        // Android API level 26 introduced Autofill. Prior to API level 26, no autofill ID will be
+        // provided.
+        @RequiresApi(Build.VERSION_CODES.O)
         @Synchronized
         private fun generateAutofillId(): AutofillId {
             var autofillId: AutofillId? = null
