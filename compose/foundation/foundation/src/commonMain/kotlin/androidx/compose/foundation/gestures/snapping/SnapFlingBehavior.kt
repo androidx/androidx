@@ -127,10 +127,15 @@ class SnapFlingBehavior(
                     initialValue = 0.0f
                 )
 
-            val initialOffset =
-                snapLayoutInfoProvider.calculateApproachOffset(initialVelocity, decayOffset)
-            var remainingScrollOffset =
-                abs(initialOffset) * sign(initialVelocity) // ensure offset sign is correct
+                val initialOffset =
+                    snapLayoutInfoProvider.calculateApproachOffset(initialVelocity, decayOffset)
+
+                check(!initialOffset.isNaN()) {
+                    "calculateApproachOffset returned NaN. Please use a valid value."
+                }
+
+                // ensure offset sign and value are correct
+                var remainingScrollOffset = abs(initialOffset) * sign(initialVelocity)
 
             onRemainingScrollOffsetUpdate(remainingScrollOffset) // First Scroll Offset
 
@@ -142,8 +147,14 @@ class SnapFlingBehavior(
                 onRemainingScrollOffsetUpdate(remainingScrollOffset)
             }
 
-            remainingScrollOffset =
+            val finalSnapOffset =
                 snapLayoutInfoProvider.calculateSnapOffset(animationState.velocity)
+
+            check(!finalSnapOffset.isNaN()) {
+                "calculateSnapOffset returned NaN. Please use a valid value."
+            }
+
+            remainingScrollOffset = finalSnapOffset
 
             debugLog { "Settling Final Bound=$remainingScrollOffset" }
 
