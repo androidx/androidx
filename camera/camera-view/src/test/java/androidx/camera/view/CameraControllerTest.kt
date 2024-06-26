@@ -485,6 +485,14 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
+    fun setPreviewDynamicRange() {
+        controller.previewDynamicRange = DynamicRange.HDR10_10_BIT
+        assertThat(controller.previewDynamicRange).isEqualTo(DynamicRange.HDR10_10_BIT)
+        assertThat(controller.mPreview.dynamicRange).isEqualTo(DynamicRange.HDR10_10_BIT)
+    }
+
+    @UiThreadTest
+    @Test
     fun setVideoCaptureFrameRate() {
         controller.videoCaptureTargetFrameRate = Range.create(60, 120)
         assertThat(controller.videoCaptureTargetFrameRate).isEqualTo(Range.create(60, 120))
