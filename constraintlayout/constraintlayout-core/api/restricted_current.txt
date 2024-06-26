@@ -2601,7 +2601,7 @@ package androidx.constraintlayout.core.state.helpers {
     ctor public GridReference(androidx.constraintlayout.core.state.State, androidx.constraintlayout.core.state.State.Helper);
     method public String? getColumnWeights();
     method public int getColumnsSet();
-    method public int[] getFlags();
+    method public int getFlags();
     method public float getHorizontalGaps();
     method public int getOrientation();
     method public int getPaddingBottom();
@@ -2615,7 +2615,7 @@ package androidx.constraintlayout.core.state.helpers {
     method public float getVerticalGaps();
     method public void setColumnWeights(String);
     method public void setColumnsSet(int);
-    method public void setFlags(int[]);
+    method public void setFlags(int);
     method public void setFlags(String);
     method public void setHorizontalGaps(float);
     method public void setOrientation(int);
@@ -2662,7 +2662,7 @@ package androidx.constraintlayout.core.utils {
     ctor public GridCore(int, int);
     method public String? getColumnWeights();
     method public androidx.constraintlayout.core.widgets.ConstraintWidgetContainer? getContainer();
-    method public int[] getFlags();
+    method public int getFlags();
     method public float getHorizontalGaps();
     method public int getOrientation();
     method public String? getRowWeights();
@@ -2670,7 +2670,7 @@ package androidx.constraintlayout.core.utils {
     method public void setColumnWeights(String);
     method public void setColumns(int);
     method public void setContainer(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer);
-    method public void setFlags(int[]);
+    method public void setFlags(int);
     method public void setHorizontalGaps(float);
     method public void setOrientation(int);
     method public void setRowWeights(String);
@@ -2679,8 +2679,8 @@ package androidx.constraintlayout.core.utils {
     method public void setSpans(CharSequence);
     method public void setVerticalGaps(float);
     field public static final int HORIZONTAL = 0; // 0x0
-    field public static final int SPANS_RESPECT_WIDGET_ORDER = 1; // 0x1
-    field public static final int SUB_GRID_BY_COL_ROW = 0; // 0x0
+    field public static final int SPANS_RESPECT_WIDGET_ORDER = 2; // 0x2
+    field public static final int SUB_GRID_BY_COL_ROW = 1; // 0x1
     field public static final int VERTICAL = 1; // 0x1
   }
 

@@ -33,11 +33,16 @@ import java.util.Set;
  * The Grid Helper in the Core library that helps to enable Grid in Compose
  */
 public class GridCore extends VirtualLayout {
+    // TODO: Handle padding from VirtualLayout. It should represent the padding applied around the
+    //  Grid itself. Usually decreasing its size.
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
-    public static final int SUB_GRID_BY_COL_ROW = 0;
-    public static final int SPANS_RESPECT_WIDGET_ORDER = 1;
+
+    // Flags using incremental bit positions
+    public static final int SUB_GRID_BY_COL_ROW = 1;
+    public static final int SPANS_RESPECT_WIDGET_ORDER = 2;
+
     private static final int DEFAULT_SIZE = 3; // default rows and columns.
     private static final int MAX_ROWS = 50; // maximum number of rows can be specified.
     private static final int MAX_COLUMNS = 50; // maximum number of columns can be specified.
@@ -137,9 +142,9 @@ public class GridCore extends VirtualLayout {
     private int[][] mConstraintMatrix;
 
     /**
-     * A String array stores the flags
+     * An int value containing flag information.
      */
-    private int[] mFlags;
+    private int mFlags;
 
     /**
      * A int matrix to store the span related information
@@ -150,17 +155,6 @@ public class GridCore extends VirtualLayout {
      * Index specify the next span to be handled.
      */
     private int mSpanIndex = 0;
-
-    /**
-     * Flag to respect the order of the Widgets when arranging for span
-     */
-    private boolean mSpansRespectWidgetOrder = false;
-
-    /**
-     * Flag to reverse the order of width/height specified in span
-     * e.g., 1:3x2 -> 1:2x3
-     */
-    private boolean mSubGridByColRow = false;
 
     public GridCore() {
         updateActualRowsAndColumns();
@@ -391,18 +385,17 @@ public class GridCore extends VirtualLayout {
 
     /**
      * Get all the flags of a Grid
-     * @return a int array containing all the flags
+     * @return an int value containing flag information
      */
-    @NonNull
-    public int[] getFlags() {
+    public int getFlags() {
         return mFlags;
     }
 
     /**
      * Set flags of a Grid
-     * @param flags a int array containing all the flags
+     * @param flags an int value containing flag information
      */
-    public void setFlags(@NonNull int[] flags) {
+    public void setFlags(int flags) {
         mFlags = flags;
     }
 
@@ -412,7 +405,7 @@ public class GridCore extends VirtualLayout {
      * @param spansMatrix a int matrix that contains span information
      */
     private void handleSpans(int[][] spansMatrix) {
-        if (mSpansRespectWidgetOrder) {
+        if (isSpansRespectWidgetOrder()) {
             return;
         }
 
@@ -450,7 +443,7 @@ public class GridCore extends VirtualLayout {
                 return;
             }
 
-            if (mSpansRespectWidgetOrder && mSpanMatrix != null) {
+            if (isSpansRespectWidgetOrder() && mSpanMatrix != null) {
                 if (mSpanIndex < mSpanMatrix.length && mSpanMatrix[mSpanIndex][0] == position) {
                     // when invoke getNextPosition this position would be set to false
                     mPositionMatrix[row][col] = true;
@@ -478,8 +471,6 @@ public class GridCore extends VirtualLayout {
         if (mRows < 1 || mColumns < 1) {
             return;
         }
-
-        handleFlags();
 
         if (isUpdate) {
             for (int i = 0; i < mPositionMatrix.length; i++) {
@@ -582,7 +573,9 @@ public class GridCore extends VirtualLayout {
     }
 
     /**
-     * parse the weights/pads in the string format into a float array
+     * Parse the weights/pads in the string format into a float array. Note that weight are
+     * normally expected to match the size. But in case they don't, we trim or pad the weight with
+     * trailing 1 to match the expected size.
      *
      * @param size size of the return array
      * @param str  weights/pads in a string format
@@ -594,13 +587,22 @@ public class GridCore extends VirtualLayout {
         }
 
         String[] values = str.split(",");
-        if (values.length != size) {
-            return null;
-        }
 
+        // Return array must be of the expected size, effectively trimming excess weights
         float[] arr = new float[size];
         for (int i = 0; i < arr.length; i++) {
-            arr[i] = Float.parseFloat(values[i].trim());
+            if (i < values.length) {
+                try {
+                    arr[i] = Float.parseFloat(values[i]);
+                } catch (Exception e) {
+                    System.err.println("Error parsing `" + values[i] + "`: " + e.getMessage());
+                    // Fallback to 1f.
+                    arr[i] = 1f;
+                }
+            } else {
+                // Fill in missing weights with 1f
+                arr[i] = 1f;
+            }
         }
         return arr;
     }
@@ -912,7 +914,7 @@ public class GridCore extends VirtualLayout {
                     indexAndSpan = spans[i].trim().split(":");
                     rowAndCol = indexAndSpan[1].split("x");
                     spanMatrix[i][0] = Integer.parseInt(indexAndSpan[0]);
-                    if (mSubGridByColRow) {
+                    if (isSubGridByColRow()) {
                         spanMatrix[i][1] = Integer.parseInt(rowAndCol[1]);
                         spanMatrix[i][2] = Integer.parseInt(rowAndCol[0]);
                     } else {
@@ -983,23 +985,18 @@ public class GridCore extends VirtualLayout {
     }
 
     /**
-     * If flags are given, set the values of the corresponding variables to true.
+     * Flag to implicitly reverse the order of width/height specified in spans & skips.
+     * E.g.: 1:3x2 is read as 1:2x3
      */
-    private void handleFlags() {
-        if (mFlags == null) {
-            return;
-        }
+    private boolean isSubGridByColRow() {
+        return (mFlags & SUB_GRID_BY_COL_ROW) > 0;
+    }
 
-        for (int flag: mFlags) {
-            switch (flag) {
-                case SPANS_RESPECT_WIDGET_ORDER:
-                    mSpansRespectWidgetOrder = true;
-                    break;
-                case SUB_GRID_BY_COL_ROW:
-                    mSubGridByColRow = true;
-                    break;
-            }
-        }
+    /**
+     * Flag to respect the order of the Widgets when arranging for spans.
+     */
+    private boolean isSpansRespectWidgetOrder() {
+        return (mFlags & SPANS_RESPECT_WIDGET_ORDER) > 0;
     }
 
     @Override

@@ -16,15 +16,16 @@
 
 package androidx.constraintlayout.compose
 
+import androidx.collection.IntSet
+import androidx.collection.emptyIntSet
+import androidx.collection.intSetOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -60,11 +61,9 @@ class RowColumnDslTest {
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = arrayOf(),
-                gridSpans = arrayOf(),
+                weights = floatArrayOf(),
+                skipIndices = emptyIntSet(),
                 boxesCount = boxesCount,
-                vGap = 0,
-                gridRowWeights = intArrayOf(),
             )
         }
         var expectedX = 0.dp
@@ -92,11 +91,10 @@ class RowColumnDslTest {
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = arrayOf(Skip(1, 2)),
-                gridSpans = arrayOf(),
+                weights = floatArrayOf(),
+                // Represents `Skip(position = 1, size = 2)`
+                skipIndices = intSetOf(1, 2),
                 boxesCount = boxesCount,
-                vGap = 0,
-                gridRowWeights = intArrayOf(),
             )
         }
         var expectedX = 0.dp
@@ -126,11 +124,9 @@ class RowColumnDslTest {
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = arrayOf(),
-                gridSpans = arrayOf(Span(0, 2)),
+                weights = floatArrayOf(2f, 1f, 1f, 1f),
+                skipIndices = emptyIntSet(),
                 boxesCount = boxesCount,
-                vGap = 0,
-                gridRowWeights = intArrayOf(),
             )
         }
 
@@ -158,11 +154,9 @@ class RowColumnDslTest {
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = arrayOf(),
-                gridSpans = arrayOf(),
+                weights = floatArrayOf(),
+                skipIndices = emptyIntSet(),
                 boxesCount = boxesCount,
-                hGap = 0,
-                gridColumnWeights = intArrayOf()
             )
         }
         var expectedX = 0.dp
@@ -190,11 +184,10 @@ class RowColumnDslTest {
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = arrayOf(Skip(1, 2)),
-                gridSpans = arrayOf(),
+                weights = floatArrayOf(),
+                // Represents `Skip(position = 1, size = 2)`
+                skipIndices = intSetOf(1, 2),
                 boxesCount = boxesCount,
-                hGap = 0,
-                gridColumnWeights = intArrayOf()
             )
         }
         var expectedX = 0.dp
@@ -224,11 +217,9 @@ class RowColumnDslTest {
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = arrayOf(),
-                gridSpans = arrayOf(Span(0, 2)),
+                weights = floatArrayOf(2f, 1f, 1f, 1f),
+                skipIndices = emptyIntSet(),
                 boxesCount = boxesCount,
-                hGap = 0,
-                gridColumnWeights = intArrayOf()
             )
         }
 
@@ -253,28 +244,29 @@ class RowColumnDslTest {
     @Composable
     private fun ColumnComposableTest(
         modifier: Modifier = Modifier,
-        gridSkips: Array<Skip>,
-        gridSpans: Array<Span>,
-        gridRowWeights: IntArray,
+        weights: FloatArray,
+        skipIndices: IntSet,
         boxesCount: Int,
-        vGap: Int,
     ) {
         ConstraintLayout(
             ConstraintSet {
-                val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
-                val elem = arrayListOf<LayoutReference>()
-                for (i in ids.indices) {
-                    elem.add(createRefFor(ids[i]))
-                }
+                // We consider the skips as fake boxes, so we need them as references
+                val totalBoxes = boxesCount + skipIndices.size
+                // Track "skipped" boxes to properly assign all incremental `id` to the boxes
+                var skipCount = 0
 
-                val g1 =
-                    createColumn(
-                        elements = elem.toTypedArray(),
-                        skips = gridSkips,
-                        spans = gridSpans,
-                        verticalGap = vGap.dp,
-                        rowWeights = gridRowWeights,
-                    )
+                val ids =
+                    Array(totalBoxes) { index ->
+                        if (skipIndices.contains(index)) {
+                            skipCount++
+                            createRefFor("placeholder")
+                        } else {
+                            createRefFor("box${index - skipCount}")
+                        }
+                    }
+
+                val g1 = createColumn(elements = ids, weights = weights)
+
                 constrain(g1) {
                     width = Dimension.matchParent
                     height = Dimension.matchParent
@@ -282,9 +274,8 @@ class RowColumnDslTest {
             },
             modifier = modifier
         ) {
-            val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
-            ids.forEach { id ->
-                Box(Modifier.layoutId(id).background(Color.Red).testTag(id).size(10.dp))
+            repeat(boxesCount) {
+                Box(Modifier.layoutTestId("box$it").background(Color.Red).size(10.dp))
             }
         }
     }
@@ -292,27 +283,31 @@ class RowColumnDslTest {
     @Composable
     private fun RowComposableTest(
         modifier: Modifier = Modifier,
-        gridSkips: Array<Skip>,
-        gridSpans: Array<Span>,
-        gridColumnWeights: IntArray,
+        weights: FloatArray,
+        skipIndices: IntSet,
         boxesCount: Int,
-        hGap: Int,
     ) {
         ConstraintLayout(
             ConstraintSet {
-                val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
-                val elem = arrayListOf<LayoutReference>()
-                for (i in ids.indices) {
-                    elem.add(createRefFor(ids[i]))
-                }
+                // We consider the skips as fake boxes, so we need them as references
+                val totalBoxes = boxesCount + skipIndices.size
+                // Track "skipped" boxes to properly assign all incremental `id` to the boxes
+                var skipCount = 0
+
+                val ids =
+                    Array(totalBoxes) { index ->
+                        if (skipIndices.contains(index)) {
+                            skipCount++
+                            createRefFor("placeholder")
+                        } else {
+                            createRefFor("box${index - skipCount}")
+                        }
+                    }
 
                 val g1 =
                     createRow(
-                        elements = elem.toTypedArray(),
-                        horizontalGap = hGap.dp,
-                        skips = gridSkips,
-                        spans = gridSpans,
-                        columnWeights = gridColumnWeights,
+                        elements = ids,
+                        weights = weights,
                     )
                 constrain(g1) {
                     width = Dimension.matchParent
@@ -321,9 +316,8 @@ class RowColumnDslTest {
             },
             modifier = modifier
         ) {
-            val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
-            ids.forEach { id ->
-                Box(Modifier.layoutId(id).background(Color.Red).testTag(id).size(10.dp))
+            repeat(boxesCount) {
+                Box(Modifier.layoutTestId("box$it").background(Color.Red).size(10.dp))
             }
         }
     }
