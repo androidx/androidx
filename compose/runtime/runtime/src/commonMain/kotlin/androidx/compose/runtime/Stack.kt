@@ -16,10 +16,8 @@
 
 package androidx.compose.runtime
 
-// TODO(b/139762913): Consider changing to inline class of ArrayList<T> to avoid wrapper class
-internal class Stack<T> {
-    private val backing = ArrayList<T>()
-
+@JvmInline
+internal value class Stack<T>(private val backing: ArrayList<T> = ArrayList()) {
     val size: Int
         get() = backing.size
 
