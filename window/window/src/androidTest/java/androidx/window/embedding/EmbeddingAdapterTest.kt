@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Binder
 import android.os.IBinder
@@ -31,6 +32,7 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.ActivityStack.Token as OEMActivityStackToken
 import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
+import androidx.window.extensions.embedding.AnimationParams as OEMEmbeddingAnimationParams
 import androidx.window.extensions.embedding.DividerAttributes as OEMDividerAttributes
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
@@ -329,17 +331,75 @@ class EmbeddingAdapterTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun testTranslateAnimationBackgroundWithApiLevel5() {
-        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+    fun testTranslateAnimationBackgroundWithApiLevel7() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(7)
 
         val colorBackground = EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val animationParamsWithColorBackground =
+            EmbeddingAnimationParams.Builder().setAnimationBackground(colorBackground).build()
         val splitAttributesWithColorBackground =
-            SplitAttributes.Builder().setAnimationBackground(colorBackground).build()
+            SplitAttributes.Builder().setAnimationParams(animationParamsWithColorBackground).build()
+        val defaultAnimationParams = EmbeddingAnimationParams.Builder().build()
         val splitAttributesWithDefaultBackground =
-            SplitAttributes.Builder()
-                .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            SplitAttributes.Builder().setAnimationParams(defaultAnimationParams).build()
+
+        val extensionsColorBackground =
+            OEMEmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val extensionAnimationParamsWithColorBackground =
+            OEMEmbeddingAnimationParams.Builder()
+                .setAnimationBackground(extensionsColorBackground)
                 .build()
+        val extensionsSplitAttributesWithColorBackground =
+            OEMSplitAttributes.Builder()
+                .setAnimationParams(extensionAnimationParamsWithColorBackground)
+                .build()
+
+        val extensionAnimationParamsWithDefaultBackground =
+            OEMEmbeddingAnimationParams.Builder()
+                .setAnimationBackground(
+                    OEMEmbeddingAnimationBackground.ANIMATION_BACKGROUND_DEFAULT
+                )
+                .build()
+        val extensionsSplitAttributesWithDefaultBackground =
+            OEMSplitAttributes.Builder()
+                .setAnimationParams(extensionAnimationParamsWithDefaultBackground)
+                .build()
+
+        // Translate from Window to Extensions
+        assertEquals(
+            extensionsSplitAttributesWithColorBackground,
+            adapter.translateSplitAttributes(splitAttributesWithColorBackground)
+        )
+        assertEquals(
+            extensionsSplitAttributesWithDefaultBackground,
+            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground)
+        )
+
+        // Translate from Extensions to Window
+        assertEquals(
+            splitAttributesWithColorBackground,
+            adapter.translate(extensionsSplitAttributesWithColorBackground)
+        )
+        assertEquals(
+            splitAttributesWithDefaultBackground,
+            adapter.translate(extensionsSplitAttributesWithDefaultBackground)
+        )
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun testTranslateAnimationBackgroundWithApiLevel5And6() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+        WindowTestUtils.assumeBeforeVendorApiLevel(7)
+
+        val colorBackground = EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val animationParamsWithColorBackground =
+            EmbeddingAnimationParams.Builder().setAnimationBackground(colorBackground).build()
+        val splitAttributesWithColorBackground =
+            SplitAttributes.Builder().setAnimationParams(animationParamsWithColorBackground).build()
+        val defaultAnimationParams = EmbeddingAnimationParams.Builder().build()
+        val splitAttributesWithDefaultBackground =
+            SplitAttributes.Builder().setAnimationParams(defaultAnimationParams).build()
 
         val extensionsColorBackground =
             OEMEmbeddingAnimationBackground.createColorBackground(Color.BLUE)
@@ -380,17 +440,93 @@ class EmbeddingAdapterTest {
         WindowTestUtils.assumeBeforeVendorApiLevel(5)
 
         val colorBackground = EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val animationParamsWithColorBackground =
+            EmbeddingAnimationParams.Builder().setAnimationBackground(colorBackground).build()
         val splitAttributesWithColorBackground =
-            SplitAttributes.Builder().setAnimationBackground(colorBackground).build()
+            SplitAttributes.Builder().setAnimationParams(animationParamsWithColorBackground).build()
+        val defaultAnimationParams = EmbeddingAnimationParams.Builder().build()
         val splitAttributesWithDefaultBackground =
-            SplitAttributes.Builder()
-                .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
-                .build()
+            SplitAttributes.Builder().setAnimationParams(defaultAnimationParams).build()
 
         // No difference after translate before API level 5
         assertEquals(
             adapter.translateSplitAttributes(splitAttributesWithColorBackground),
             adapter.translateSplitAttributes(splitAttributesWithDefaultBackground)
+        )
+    }
+
+    @Test
+    fun testTranslateAnimationSpecWithApiLevel7() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(7)
+
+        val animationParamsWithJumpCut =
+            EmbeddingAnimationParams.Builder()
+                .setOpenAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                .build()
+        val splitAttributesWithJumpCutAnimationParams =
+            SplitAttributes.Builder().setAnimationParams(animationParamsWithJumpCut).build()
+        val defaultAnimationParams = EmbeddingAnimationParams.Builder().build()
+        val splitAttributesWithDefaultAnimationParams =
+            SplitAttributes.Builder().setAnimationParams(defaultAnimationParams).build()
+
+        val extensionsAnimationParamsWithJumpCut =
+            OEMEmbeddingAnimationParams.Builder()
+                .setOpenAnimationResId(Resources.ID_NULL)
+                .setCloseAnimationResId(Resources.ID_NULL)
+                .setChangeAnimationResId(Resources.ID_NULL)
+                .build()
+        val extensionsSplitAttributesWithJumpCutAnimationParams =
+            OEMSplitAttributes.Builder()
+                .setAnimationParams(extensionsAnimationParamsWithJumpCut)
+                .build()
+        val oemDefaultAnimationParams = OEMEmbeddingAnimationParams.Builder().build()
+        val extensionsSplitAttributesWithDefaultAnimationParams =
+            OEMSplitAttributes.Builder().setAnimationParams(oemDefaultAnimationParams).build()
+
+        // Translate from Window to Extensions
+        assertEquals(
+            extensionsSplitAttributesWithJumpCutAnimationParams,
+            adapter.translateSplitAttributes(splitAttributesWithJumpCutAnimationParams)
+        )
+        assertEquals(
+            extensionsSplitAttributesWithDefaultAnimationParams,
+            adapter.translateSplitAttributes(splitAttributesWithDefaultAnimationParams)
+        )
+
+        // Translate from Extensions to Window
+        assertEquals(
+            splitAttributesWithJumpCutAnimationParams,
+            adapter.translate(extensionsSplitAttributesWithJumpCutAnimationParams)
+        )
+        assertEquals(
+            splitAttributesWithDefaultAnimationParams,
+            adapter.translate(extensionsSplitAttributesWithDefaultAnimationParams)
+        )
+    }
+
+    @Test
+    fun testTranslateAnimationSpecBeforeApiLevel7() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(2)
+        WindowTestUtils.assumeBeforeVendorApiLevel(7)
+
+        val animationParamsWithJumpCut =
+            EmbeddingAnimationParams.Builder()
+                .setOpenAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                .build()
+        val splitAttributesWithJumpCutAnimationParams =
+            SplitAttributes.Builder().setAnimationParams(animationParamsWithJumpCut).build()
+        val defaultAnimationParams = EmbeddingAnimationParams.Builder().build()
+        val splitAttributesWithDefaultAnimationParams =
+            SplitAttributes.Builder().setAnimationParams(defaultAnimationParams).build()
+
+        // No difference after translate before API level 7
+        assertEquals(
+            adapter.translateSplitAttributes(splitAttributesWithJumpCutAnimationParams),
+            adapter.translateSplitAttributes(splitAttributesWithDefaultAnimationParams)
         )
     }
 

@@ -172,14 +172,21 @@ internal object RuleParser {
                 typedArray.getColor(R.styleable.SplitPairRule_animationBackgroundColor, 0)
             typedArray.recycle()
 
+            // TODO(b/293658614): Add rules for custom animation transitions via AnimationParams.
             val defaultAttrs =
                 SplitAttributes.Builder()
                     .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
                     .setLayoutDirection(
                         SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
                     )
-                    .setAnimationBackground(
-                        EmbeddingAnimationBackground.buildFromValue(animationBackgroundColor)
+                    .setAnimationParams(
+                        EmbeddingAnimationParams.Builder()
+                            .setAnimationBackground(
+                                EmbeddingAnimationBackground.buildFromValue(
+                                    animationBackgroundColor
+                                )
+                            )
+                            .build()
                     )
                     .build()
 
@@ -265,8 +272,14 @@ internal object RuleParser {
                     .setLayoutDirection(
                         SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
                     )
-                    .setAnimationBackground(
-                        EmbeddingAnimationBackground.buildFromValue(animationBackgroundColor)
+                    .setAnimationParams(
+                        EmbeddingAnimationParams.Builder()
+                            .setAnimationBackground(
+                                EmbeddingAnimationBackground.buildFromValue(
+                                    animationBackgroundColor
+                                )
+                            )
+                            .build()
                     )
                     .build()
             val packageName = context.applicationContext.packageName
