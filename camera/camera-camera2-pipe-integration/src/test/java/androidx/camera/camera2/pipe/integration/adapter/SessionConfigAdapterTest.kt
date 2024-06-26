@@ -95,7 +95,7 @@ class SessionConfigAdapterTest {
                 SessionConfig.Builder().also { sessionConfigBuilder ->
                     sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                     sessionConfigBuilder.addSurface(testDeferrableSurface)
-                    sessionConfigBuilder.addErrorListener(errorListener)
+                    sessionConfigBuilder.setErrorListener(errorListener)
                 }
             )
         }
@@ -104,7 +104,7 @@ class SessionConfigAdapterTest {
                 SessionConfig.Builder().also { sessionConfigBuilder ->
                     sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                     sessionConfigBuilder.addSurface(createTestDeferrableSurface().apply { close() })
-                    sessionConfigBuilder.addErrorListener(errorListener)
+                    sessionConfigBuilder.setErrorListener(errorListener)
                 }
             )
         }
