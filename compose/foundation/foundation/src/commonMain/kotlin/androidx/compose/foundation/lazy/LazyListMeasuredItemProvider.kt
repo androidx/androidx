@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
@@ -23,8 +24,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 
 /** Abstracts away the subcomposition from the measuring logic. */
-internal abstract class LazyListMeasuredItemProvider
-constructor(
+@OptIn(ExperimentalFoundationApi::class)
+internal abstract class LazyListMeasuredItemProvider(
     constraints: Constraints,
     isVertical: Boolean,
     private val itemProvider: LazyListItemProvider,

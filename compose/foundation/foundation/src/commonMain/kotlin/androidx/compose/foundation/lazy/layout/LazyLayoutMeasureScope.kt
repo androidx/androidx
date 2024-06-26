@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.sp
  * change.
  */
 @Stable
+@ExperimentalFoundationApi
 sealed interface LazyLayoutMeasureScope : MeasureScope {
     /**
      * Subcompose and measure the item of lazy layout.
@@ -94,6 +96,7 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
         }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyLayoutMeasureScopeImpl
 internal constructor(
     private val itemContentFactory: LazyLayoutItemContentFactory,

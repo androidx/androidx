@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Modifier.lazyLayoutSemantics(
     itemProviderLambda: () -> LazyLayoutItemProvider,
@@ -52,6 +54,7 @@ internal fun Modifier.lazyLayoutSemantics(
             reverseScrolling = reverseScrolling,
         )
 
+@OptIn(ExperimentalFoundationApi::class)
 private class LazyLayoutSemanticsModifier(
     val itemProviderLambda: () -> LazyLayoutItemProvider,
     val state: LazyLayoutSemanticState,
@@ -105,6 +108,7 @@ private class LazyLayoutSemanticsModifier(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private class LazyLayoutSemanticsModifierNode(
     private var itemProviderLambda: () -> LazyLayoutItemProvider,
     private var state: LazyLayoutSemanticState,

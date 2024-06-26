@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.scrollcapture
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -238,6 +239,7 @@ class ScrollCaptureIntegrationTest {
             assertThat(targets.isEmpty())
         }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun capture_LazyColumn_stickyHeadersDisabled_byLayout() =
         captureTester.runTest {
