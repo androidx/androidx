@@ -678,7 +678,7 @@ internal class CompositionImpl(
                         @Suppress("UNCHECKED_CAST")
                         observer.onBeginComposition(
                             this,
-                            invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                            invalidations.asMap() as Map<RecomposeScope, Set<Any>>
                         )
                     }
                     composer.composeContent(invalidations, content)
@@ -889,7 +889,7 @@ internal class CompositionImpl(
                     @Suppress("UNCHECKED_CAST")
                     observer?.onBeginComposition(
                         this,
-                        invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                        invalidations.asMap() as Map<RecomposeScope, Set<Any>>
                     )
                     composer.recompose(invalidations).also { shouldDrain ->
                         // Apply would normally do this for us; do it now if apply shouldn't happen.

@@ -45,10 +45,7 @@ interface CompositionObserver {
      * @param invalidationMap the recompose scopes that will be recomposed by this composition. This
      *   list is empty for the initial composition.
      */
-    fun onBeginComposition(
-        composition: Composition,
-        invalidationMap: Map<RecomposeScope, Set<Any>?>
-    )
+    fun onBeginComposition(composition: Composition, invalidationMap: Map<RecomposeScope, Set<Any>>)
 
     /** Called after composition has been completed for [composition]. */
     fun onEndComposition(composition: Composition)
