@@ -510,6 +510,21 @@ class TimePickerTest {
 
     @Test
     @OptIn(ExperimentalTestApi::class)
+    fun timeInput_24HourStartingAfternoon_writeAfternoonHour() {
+        val state = TimePickerState(initialHour = 20, initialMinute = 23, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
+
+        rule.onNodeWithText("20").performKeyInput {
+            pressKey(Key.Two)
+            pressKey(Key.Two)
+        }
+
+        assertThat(state.hour).isEqualTo(22)
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
     fun timeInput_24Hour_writeNoon() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
