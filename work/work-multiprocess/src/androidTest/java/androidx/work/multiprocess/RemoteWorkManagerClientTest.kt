@@ -136,7 +136,7 @@ public class RemoteWorkManagerClientTest {
     @Test
     @MediumTest
     @Suppress("UNCHECKED_CAST")
-    public fun executeWhenSessionIsInvalid() {
+    public fun cleanUpWhenSessionIsInvalid() {
         if (Build.VERSION.SDK_INT <= 27) {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
@@ -155,7 +155,7 @@ public class RemoteWorkManagerClientTest {
             exception = throwable
         }
         assertNotNull(exception)
-        assertTrue(exception!!.message!!.contains("Something bad happened"))
+        verify(mClient).cleanUp()
         verify(mRunnableScheduler, atLeastOnce())
             .scheduleWithDelay(anyLong(), any(Runnable::class.java))
     }
