@@ -16,11 +16,16 @@
 
 package androidx.work.multiprocess;
 
+import static android.content.Context.BIND_AUTO_CREATE;
+
 import static androidx.work.multiprocess.RemoteClientUtilsKt.map;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
@@ -29,7 +34,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.work.Data;
-import androidx.work.DirectExecutor;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.ForegroundInfo;
@@ -43,7 +47,7 @@ import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.multiprocess.ServiceBinding.Session;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
 import androidx.work.multiprocess.parcelable.ParcelableForegroundRequestInfo;
 import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
@@ -58,6 +62,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 /**
@@ -80,7 +85,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     public static final Function<byte[], Void> sVoidMapper = input -> null;
 
     // Synthetic access
-    ServiceBinding.Session<IWorkManagerImpl> mSession;
+    Session mSession;
 
     final Context mContext;
     final WorkManagerImpl mWorkManager;
@@ -340,7 +345,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      * @return The current {@link Session} in use by {@link RemoteWorkManagerClient}.
      */
     @Nullable
-    ServiceBinding.Session<IWorkManagerImpl> getCurrentSession() {
+    public Session getCurrentSession() {
         return mSession;
     }
 
@@ -380,6 +385,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     ListenableFuture<byte[]> execute(
             @NonNull final ListenableFuture<IWorkManagerImpl> session,
             @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
+        session.addListener(() -> {
+            try {
+                session.get();
+            } catch (ExecutionException | InterruptedException exception) {
+                cleanUp();
+            }
+        }, mExecutor);
         ListenableFuture<byte[]> future = RemoteExecuteKt.execute(mExecutor, session,
                 dispatcher);
         future.addListener(() -> {
@@ -397,20 +409,21 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     ListenableFuture<IWorkManagerImpl> getSession(@NonNull Intent intent) {
         synchronized (mLock) {
             mSessionIndex += 1;
-            ListenableFuture<IWorkManagerImpl> resultFuture;
             if (mSession == null) {
-                mSession = ServiceBinding.bindToService(mContext, intent,
-                        IWorkManagerImpl.Stub::asInterface, TAG);
-                // reading future right away, because `this::cleanUp` will synchronously
-                // set mSession to null.
-                resultFuture = mSession.mConnectedFuture;
-                mSession.mDisconnectedFuture.addListener(this::cleanUp, DirectExecutor.INSTANCE);
-            } else {
-                resultFuture = mSession.mConnectedFuture;
+                Logger.get().debug(TAG, "Creating a new session");
+                mSession = new Session(this);
+                try {
+                    boolean bound = mContext.bindService(intent, mSession, BIND_AUTO_CREATE);
+                    if (!bound) {
+                        unableToBind(mSession, new RuntimeException("Unable to bind to service"));
+                    }
+                } catch (Throwable throwable) {
+                    unableToBind(mSession, throwable);
+                }
             }
             // Reset session tracker.
             mRunnableScheduler.cancel(mSessionTracker);
-            return resultFuture;
+            return mSession.mFuture;
         }
     }
 
@@ -425,11 +438,69 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         }
     }
 
+    private void unableToBind(@NonNull Session session, @NonNull Throwable throwable) {
+        Logger.get().error(TAG, "Unable to bind to service", throwable);
+        session.mFuture.setException(throwable);
+    }
+
     /**
      * @return the intent that is used to bind to the instance of {@link IWorkManagerImpl}.
      */
     private static Intent newIntent(@NonNull Context context) {
         return new Intent(context, RemoteWorkManagerService.class);
+    }
+
+    /**
+     * The implementation of {@link ServiceConnection} that handles changes in the connection.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class Session implements ServiceConnection {
+        private static final String TAG = Logger.tagWithPrefix("RemoteWMgr.Connection");
+
+        final SettableFuture<IWorkManagerImpl> mFuture;
+        final RemoteWorkManagerClient mClient;
+
+        public Session(@NonNull RemoteWorkManagerClient client) {
+            mClient = client;
+            mFuture = SettableFuture.create();
+        }
+
+        @Override
+        public void onServiceConnected(
+                @NonNull ComponentName componentName,
+                @NonNull IBinder iBinder) {
+            Logger.get().debug(TAG, "Service connected");
+            IWorkManagerImpl iWorkManagerImpl = IWorkManagerImpl.Stub.asInterface(iBinder);
+            mFuture.set(iWorkManagerImpl);
+        }
+
+        @Override
+        public void onServiceDisconnected(@NonNull ComponentName componentName) {
+            Logger.get().debug(TAG, "Service disconnected");
+            mFuture.setException(new RuntimeException("Service disconnected"));
+            mClient.cleanUp();
+        }
+
+        @Override
+        public void onBindingDied(@NonNull ComponentName name) {
+            onBindingDied();
+        }
+
+        /**
+         * Clean-up client when a binding dies.
+         */
+        public void onBindingDied() {
+            Logger.get().debug(TAG, "Binding died");
+            mFuture.setException(new RuntimeException("Binding died"));
+            mClient.cleanUp();
+        }
+
+        @Override
+        public void onNullBinding(@NonNull ComponentName name) {
+            Logger.get().error(TAG, "Unable to bind to service");
+            mFuture.setException(
+                    new RuntimeException("Cannot bind to service " + name));
+        }
     }
 
     /**
@@ -448,7 +519,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             final long preLockIndex = mClient.getSessionIndex();
             synchronized (mClient.getSessionLock()) {
                 final long sessionIndex = mClient.getSessionIndex();
-                final Session<IWorkManagerImpl> currentSession = mClient.getCurrentSession();
+                final Session currentSession = mClient.getCurrentSession();
                 // We check for a session index here. This is because if the index changes
                 // while we acquire a lock, that would mean that a new session request came through.
                 if (currentSession != null) {
