@@ -319,10 +319,11 @@ public class WatchFace(
 
         /**
          * When a complication slot has been edited, we don't want to see a glimpse of the previous
-         * complication when the user has selected a new complication. To prevent that the
-         * complication will be replaced with EmptyComplicationData when [onDestroy] is called.
+         * complication when the user has selected a new complication. To prevent that if the
+         * datasource source changed, the complication will be replaced with EmptyComplicationData
+         * when [onDestroy] is called.
          */
-        public fun clearComplicationSlotAfterEditing(slotId: Int)
+        public fun clearComplicationSlotAfterEditing(slotId: Int, previewData: ComplicationData)
 
         /**
          * Instructs the system to ignore any previous calls to [clearComplicationSlotAfterEditing].
@@ -957,10 +958,10 @@ constructor(
                 ?.overrideComplicationsForEditing(slotIdToComplicationData)
         }
 
-        override fun clearComplicationSlotAfterEditing(slotId: Int) {
+        override fun clearComplicationSlotAfterEditing(slotId: Int, previewData: ComplicationData) {
             InteractiveInstanceManager.getCurrentInteractiveInstance()
                 ?.engine
-                ?.clearComplicationSlotAfterEditing(slotId)
+                ?.clearComplicationSlotAfterEditing(slotId, previewData)
         }
 
         override fun dontClearAnyComplicationSlotsAfterEditing() {
