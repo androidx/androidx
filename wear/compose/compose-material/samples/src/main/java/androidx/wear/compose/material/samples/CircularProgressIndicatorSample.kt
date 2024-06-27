@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.progressSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,10 +40,7 @@ import androidx.wear.compose.material.Text
 @Sampled
 @Composable
 public fun IndeterminateCircularProgressIndicator() {
-    CircularProgressIndicator(
-        // Set progress semantics for accessibility.
-        modifier = Modifier.progressSemantics()
-    )
+    CircularProgressIndicator()
 }
 
 @Sampled
@@ -59,8 +55,6 @@ public fun CircularProgressIndicatorWithAnimation() {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(
-            // Set progress semantics for accessibility.
-            modifier = Modifier.progressSemantics(animatedProgress),
             progress = animatedProgress,
         )
         Spacer(Modifier.requiredHeight(10.dp))

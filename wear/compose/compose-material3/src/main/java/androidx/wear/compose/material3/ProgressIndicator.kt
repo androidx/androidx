@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ProgressIndicatorDefaults.StartAngle
@@ -43,8 +45,6 @@ import kotlin.math.sin
 
 /**
  * Material Design circular progress indicator.
- *
- * This is a purely visual component that is not focusable for accessibility purposes.
  *
  * Example of a full screen [CircularProgressIndicator]. Note that the padding
  * [ProgressIndicatorDefaults.FullScreenPadding] should be applied:
@@ -90,35 +90,40 @@ fun CircularProgressIndicator(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
-        modifier.fillMaxSize().drawWithCache {
-            val fullSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
-            val progressSweep = fullSweep * coercedProgress()
-            val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
-            val minSize = min(size.height, size.width)
-            // Sweep angle between two progress indicator segments.
-            val gapSweep =
-                asin((stroke.width + gapSize.toPx()) / (minSize - stroke.width)).toDegrees() * 2f
+        modifier
+            .clearAndSetSemantics {}
+            .fillMaxSize()
+            .focusable()
+            .drawWithCache {
+                val fullSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
+                val progressSweep = fullSweep * coercedProgress()
+                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+                val minSize = min(size.height, size.width)
+                // Sweep angle between two progress indicator segments.
+                val gapSweep =
+                    asin((stroke.width + gapSize.toPx()) / (minSize - stroke.width)).toDegrees() *
+                        2f
 
-            onDrawWithContent {
-                // Draw an indicator.
-                drawIndicatorSegment(
-                    startAngle = startAngle,
-                    sweep = progressSweep,
-                    gapSweep = gapSweep,
-                    brush = colors.indicatorBrush,
-                    stroke = stroke
-                )
+                onDrawWithContent {
+                    // Draw an indicator.
+                    drawIndicatorSegment(
+                        startAngle = startAngle,
+                        sweep = progressSweep,
+                        gapSweep = gapSweep,
+                        brush = colors.indicatorBrush,
+                        stroke = stroke
+                    )
 
-                // Draw a background.
-                drawIndicatorSegment(
-                    startAngle = startAngle + progressSweep,
-                    sweep = fullSweep - progressSweep,
-                    gapSweep = gapSweep,
-                    brush = colors.trackBrush,
-                    stroke = stroke
-                )
+                    // Draw a background.
+                    drawIndicatorSegment(
+                        startAngle = startAngle + progressSweep,
+                        sweep = fullSweep - progressSweep,
+                        gapSweep = gapSweep,
+                        brush = colors.trackBrush,
+                        stroke = stroke
+                    )
+                }
             }
-        }
     )
 }
 
