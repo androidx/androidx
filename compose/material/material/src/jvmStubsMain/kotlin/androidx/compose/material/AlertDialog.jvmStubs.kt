@@ -22,10 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.DialogProperties
 
-// Keep expect/actual for maintain binary compatibility.
-// `@file:JvmName` doesn't work here because Android and Desktop were published with different names
-// Please note that binary compatibility for Desktop is tracked only in JetBrains fork
-
 @Composable
 actual fun AlertDialog(
     onDismissRequest: () -> Unit,
@@ -38,19 +34,7 @@ actual fun AlertDialog(
     backgroundColor: Color,
     contentColor: Color,
     properties: DialogProperties
-): Unit =
-    AlertDialogImpl(
-        onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
-        modifier = modifier,
-        dismissButton = dismissButton,
-        title = title,
-        text = text,
-        shape = shape,
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        properties = properties
-    )
+): Unit = implementedInJetBrainsFork()
 
 @Composable
 actual fun AlertDialog(
@@ -63,15 +47,4 @@ actual fun AlertDialog(
     backgroundColor: Color,
     contentColor: Color,
     properties: DialogProperties
-): Unit =
-    AlertDialogImpl(
-        onDismissRequest = onDismissRequest,
-        buttons = buttons,
-        modifier = modifier,
-        title = title,
-        text = text,
-        shape = shape,
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        properties = properties
-    )
+): Unit = implementedInJetBrainsFork()

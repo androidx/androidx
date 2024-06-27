@@ -16,21 +16,6 @@
 
 package androidx.compose.material
 
-import androidx.compose.foundation.LocalScrollbarStyle
-import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 
-@Composable
-internal actual fun PlatformMaterialTheme(content: @Composable () -> Unit) {
-    CompositionLocalProvider(
-        LocalScrollbarStyle provides
-            defaultScrollbarStyle()
-                .copy(
-                    shape = MaterialTheme.shapes.small,
-                    unhoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                    hoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.50f)
-                ),
-        content = content
-    )
-}
+@Composable internal actual fun getString(string: Strings): String = implementedInJetBrainsFork()

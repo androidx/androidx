@@ -332,6 +332,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         }
     }
 
+    @JvmOverloads
+    fun jvmStubs(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
+        supportedPlatforms.add(PlatformIdentifier.JVM_STUBS)
+        return if (project.enableJvm()) {
+            kotlinExtension.jvm("jvmStubs") { block?.execute(this) }
+        } else {
+            null
+        }
+    }
+
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     @JvmOverloads
     fun android(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
@@ -642,7 +652,7 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
      * List of Kotlin target names which may be used as source file suffixes. Any target whose name
      * does not appear in this list will use its [KotlinPlatformType] name.
      */
-    private val allowedTargetNameSuffixes = setOf("android", "desktop", "jvm")
+    private val allowedTargetNameSuffixes = setOf("android", "desktop", "jvm", "jvmStubs")
 
     /** The preferred source file suffix for the target's platform type. */
     private val KotlinTarget.preferredSourceFileSuffix: String
@@ -653,3 +663,9 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
                 platformType.name
             }
 }
+
+/**
+ * Set of targets are there to serve as stubs, but are not expected to be consumed by library
+ * consumers.
+ */
+internal val setOfStubTargets = setOf("jvmStubs")

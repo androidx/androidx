@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,18 @@
 
 package androidx.compose.material
 
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
 
-internal actual val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
-    @Composable get() = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+@Composable
+actual fun DropdownMenuItem(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    enabled: Boolean,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+    content: @Composable RowScope.() -> Unit
+): Unit = implementedInJetBrainsFork()
