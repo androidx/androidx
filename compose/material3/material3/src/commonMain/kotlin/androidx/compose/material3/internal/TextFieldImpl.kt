@@ -67,6 +67,7 @@ import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 internal enum class TextFieldType {
     Filled,
@@ -490,6 +491,8 @@ private const val PlaceholderAnimationDuration = 83
 private const val PlaceholderAnimationDelayOrDuration = 67
 
 internal val TextFieldPadding = 16.dp
+// SP not DP because it should scale with font size. Value equal to bodySmall line height / 2.
+internal val TextFieldLabelExtraPadding = 8.sp
 internal val HorizontalIconPadding = 12.dp
 internal val SupportingTopPadding = 4.dp
 internal val PrefixSuffixTextPadding = 2.dp
