@@ -184,7 +184,7 @@ package androidx.compose.runtime {
 
   public static final class Composer.Companion {
     method public Object getEmpty();
-    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public void setTracer(androidx.compose.runtime.CompositionTracer tracer);
+    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public void setTracer(androidx.compose.runtime.CompositionTracer? tracer);
     property public final Object Empty;
   }
 
