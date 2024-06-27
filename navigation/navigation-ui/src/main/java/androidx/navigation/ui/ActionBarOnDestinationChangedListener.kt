@@ -20,34 +20,39 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * The OnDestinationChangedListener specifically for keeping the ActionBar updated.
- * This handles both updating the title and updating the Up Indicator, transitioning between
- * the drawer icon and up arrow as needed.
+ * The OnDestinationChangedListener specifically for keeping the ActionBar updated. This handles
+ * both updating the title and updating the Up Indicator, transitioning between the drawer icon and
+ * up arrow as needed.
  */
 internal class ActionBarOnDestinationChangedListener(
     private val activity: AppCompatActivity,
     configuration: AppBarConfiguration
-) : AbstractAppBarOnDestinationChangedListener(
-    checkNotNull(activity.drawerToggleDelegate) {
-        "Activity $activity does not have an DrawerToggleDelegate set"
-    }.actionBarThemedContext,
-    configuration
-) {
+) :
+    AbstractAppBarOnDestinationChangedListener(
+        checkNotNull(activity.drawerToggleDelegate) {
+                "Activity $activity does not have a DrawerToggleDelegate set"
+            }
+            .actionBarThemedContext,
+        configuration
+    ) {
     override fun setTitle(title: CharSequence?) {
-        val actionBar = checkNotNull(activity.supportActionBar) {
-            "Activity $activity does not have an ActionBar set via setSupportActionBar()"
-        }
+        val actionBar =
+            checkNotNull(activity.supportActionBar) {
+                "Activity $activity does not have an ActionBar set via setSupportActionBar()"
+            }
         actionBar.title = title
     }
 
     override fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int) {
-        val actionBar = checkNotNull(activity.supportActionBar) {
-            "Activity $activity does not have an ActionBar set via setSupportActionBar()"
-        }
+        val actionBar =
+            checkNotNull(activity.supportActionBar) {
+                "Activity $activity does not have an ActionBar set via setSupportActionBar()"
+            }
         actionBar.setDisplayHomeAsUpEnabled(icon != null)
-        val delegate = checkNotNull(activity.drawerToggleDelegate) {
-            "Activity $activity does not have an DrawerToggleDelegate set"
-        }
+        val delegate =
+            checkNotNull(activity.drawerToggleDelegate) {
+                "Activity $activity does not have a DrawerToggleDelegate set"
+            }
         delegate.setActionBarUpIndicator(icon, contentDescription)
     }
 }

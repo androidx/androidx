@@ -29,17 +29,16 @@ import androidx.navigation.NavDestination
 import java.lang.ref.WeakReference
 
 /**
- * The abstract OnDestinationChangedListener for keeping any type of app bar updated.
- * This handles both updating the title and updating the Up Indicator, transitioning between
- * the drawer icon and up arrow as needed.
+ * The abstract OnDestinationChangedListener for keeping any type of app bar updated. This handles
+ * both updating the title and updating the Up Indicator, transitioning between the drawer icon and
+ * up arrow as needed.
  */
 internal abstract class AbstractAppBarOnDestinationChangedListener(
     private val context: Context,
     private val configuration: AppBarConfiguration
 ) : NavController.OnDestinationChangedListener {
-    private val openableLayoutWeakReference = configuration.openableLayout?.run {
-        WeakReference(this)
-    }
+    private val openableLayoutWeakReference =
+        configuration.openableLayout?.run { WeakReference(this) }
     private var arrowDrawable: DrawerArrowDrawable? = null
     private var animator: ValueAnimator? = null
 
@@ -76,9 +75,9 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
 
     @SuppressLint("ObjectAnimatorBinding")
     private fun setActionBarUpIndicator(showAsDrawerIndicator: Boolean) {
-        val (arrow, animate) = arrowDrawable?.run {
-            this to true
-        } ?: DrawerArrowDrawable(context).also { arrowDrawable = it } to false
+        val (arrow, animate) =
+            arrowDrawable?.run { this to true }
+                ?: DrawerArrowDrawable(context).also { arrowDrawable = it } to false
 
         setNavigationIcon(
             arrow,

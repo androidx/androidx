@@ -1,3 +1,9 @@
+public abstract class androidx/navigation/CollectionNavType : androidx/navigation/NavType {
+	public fun <init> (Z)V
+	public abstract fun emptyCollection ()Ljava/lang/Object;
+	public abstract fun serializeAsValues (Ljava/lang/Object;)Ljava/util/List;
+}
+
 public abstract interface class androidx/navigation/FloatingWindow {
 }
 
@@ -94,6 +100,26 @@ public final class androidx/navigation/NavDeepLink$Builder {
 	public final fun setAction (Ljava/lang/String;)Landroidx/navigation/NavDeepLink$Builder;
 	public final fun setMimeType (Ljava/lang/String;)Landroidx/navigation/NavDeepLink$Builder;
 	public final fun setUriPattern (Ljava/lang/String;)Landroidx/navigation/NavDeepLink$Builder;
+	public final fun setUriPattern (Ljava/lang/String;Lkotlin/reflect/KClass;Ljava/util/Map;)Landroidx/navigation/NavDeepLink$Builder;
+	public static synthetic fun setUriPattern$default (Landroidx/navigation/NavDeepLink$Builder;Ljava/lang/String;Lkotlin/reflect/KClass;Ljava/util/Map;ILjava/lang/Object;)Landroidx/navigation/NavDeepLink$Builder;
+}
+
+public abstract interface annotation class androidx/navigation/NavDeepLinkDsl : java/lang/annotation/Annotation {
+}
+
+public final class androidx/navigation/NavDeepLinkDslBuilder {
+	public fun <init> ()V
+	public final fun getAction ()Ljava/lang/String;
+	public final fun getMimeType ()Ljava/lang/String;
+	public final fun getUriPattern ()Ljava/lang/String;
+	public final fun setAction (Ljava/lang/String;)V
+	public final fun setMimeType (Ljava/lang/String;)V
+	public final fun setUriPattern (Ljava/lang/String;)V
+}
+
+public final class androidx/navigation/NavDeepLinkDslBuilderKt {
+	public static final fun navDeepLink (Ljava/lang/String;Lkotlin/reflect/KClass;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavDeepLink;
+	public static final fun navDeepLink (Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavDeepLink;
 }
 
 public class androidx/navigation/NavDestination {
@@ -107,15 +133,19 @@ public class androidx/navigation/NavDestination {
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getArguments ()Ljava/util/Map;
 	public fun getDisplayName ()Ljava/lang/String;
+	public static final fun getDisplayName (I)Ljava/lang/String;
 	public static final fun getHierarchy (Landroidx/navigation/NavDestination;)Lkotlin/sequences/Sequence;
+	public final fun getId ()I
 	public final fun getLabel ()Ljava/lang/CharSequence;
 	public final fun getNavigatorName ()Ljava/lang/String;
 	public final fun getParent ()Landroidx/navigation/NavGraph;
 	public final fun getRoute ()Ljava/lang/String;
+	public static final fun hasRoute (Landroidx/navigation/NavDestination;Lkotlin/reflect/KClass;)Z
 	public final fun hasRoute (Ljava/lang/String;Landroidx/core/bundle/Bundle;)Z
 	public fun hashCode ()I
 	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun removeArgument (Ljava/lang/String;)V
+	public final fun setId (I)V
 	public final fun setLabel (Ljava/lang/CharSequence;)V
 	public final fun setParent (Landroidx/navigation/NavGraph;)V
 	public final fun setRoute (Ljava/lang/String;)V
@@ -123,7 +153,10 @@ public class androidx/navigation/NavDestination {
 }
 
 public final class androidx/navigation/NavDestination$Companion {
+	public final fun createRoute (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getDisplayName (I)Ljava/lang/String;
 	public final fun getHierarchy (Landroidx/navigation/NavDestination;)Lkotlin/sequences/Sequence;
+	public final fun hasRoute (Landroidx/navigation/NavDestination;Lkotlin/reflect/KClass;)Z
 }
 
 public final class androidx/navigation/NavDestination$DeepLinkMatch : java/lang/Comparable {
@@ -137,11 +170,19 @@ public final class androidx/navigation/NavDestination$DeepLinkMatch : java/lang/
 
 public class androidx/navigation/NavDestinationBuilder {
 	public fun <init> (Landroidx/navigation/Navigator;Ljava/lang/String;)V
+	public fun <init> (Landroidx/navigation/Navigator;Lkotlin/reflect/KClass;Ljava/util/Map;)V
+	public final fun argument (Ljava/lang/String;Landroidx/navigation/NavArgument;)V
 	public final fun argument (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public fun build ()Landroidx/navigation/NavDestination;
+	public final fun deepLink (Landroidx/navigation/NavDeepLink;)V
+	public final fun deepLink (Ljava/lang/String;)V
+	public final fun deepLink (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public final fun deepLink (Lkotlin/jvm/functions/Function1;)V
+	public final fun getId ()I
 	public final fun getLabel ()Ljava/lang/CharSequence;
 	protected final fun getNavigator ()Landroidx/navigation/Navigator;
 	public final fun getRoute ()Ljava/lang/String;
+	protected fun instantiateDestination ()Landroidx/navigation/NavDestination;
 	public final fun setLabel (Ljava/lang/CharSequence;)V
 }
 
@@ -157,18 +198,26 @@ public class androidx/navigation/NavGraph : androidx/navigation/NavDestination, 
 	public final fun addDestinations ([Landroidx/navigation/NavDestination;)V
 	public final fun clear ()V
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun findChildNode (I)Landroidx/navigation/NavDestination;
+	public final fun findNode (I)Landroidx/navigation/NavDestination;
+	public final fun findNode (IZ)Landroidx/navigation/NavDestination;
+	public final fun findNode (Ljava/lang/Object;)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/String;)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/String;Z)Landroidx/navigation/NavDestination;
 	public static final fun findStartDestination (Landroidx/navigation/NavGraph;)Landroidx/navigation/NavDestination;
 	public fun getDisplayName ()Ljava/lang/String;
-	public final fun getNodes ()Ljava/util/Map;
+	public final fun getNodes ()Landroidx/collection/SparseArrayCompat;
+	public final fun getStartDestDisplayName ()Ljava/lang/String;
+	public final fun getStartDestinationId ()I
 	public final fun getStartDestinationRoute ()Ljava/lang/String;
 	public fun hashCode ()I
 	public final fun iterator ()Ljava/util/Iterator;
 	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun remove (Landroidx/navigation/NavDestination;)V
+	public final fun setStartDestination (I)V
+	public final fun setStartDestination (Ljava/lang/Object;)V
 	public final fun setStartDestination (Ljava/lang/String;)V
-	public final fun setStartDestinationRoute (Ljava/lang/String;)V
+	public final fun setStartDestination (Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -177,7 +226,9 @@ public final class androidx/navigation/NavGraph$Companion {
 }
 
 public class androidx/navigation/NavGraphBuilder : androidx/navigation/NavDestinationBuilder {
+	public fun <init> (Landroidx/navigation/NavigatorProvider;Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/util/Map;)V
 	public fun <init> (Landroidx/navigation/NavigatorProvider;Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Landroidx/navigation/NavigatorProvider;Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Ljava/util/Map;)V
 	public final fun addDestination (Landroidx/navigation/NavDestination;)V
 	public synthetic fun build ()Landroidx/navigation/NavDestination;
 	public fun build ()Landroidx/navigation/NavGraph;
@@ -186,10 +237,22 @@ public class androidx/navigation/NavGraphBuilder : androidx/navigation/NavDestin
 	public final fun unaryPlus (Landroidx/navigation/NavDestination;)V
 }
 
-public final class androidx/navigation/NavGraphBuilder_jbKt {
+public final class androidx/navigation/NavGraphBuilderKt {
 	public static final fun navigation (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun navigation (Landroidx/navigation/NavigatorProvider;Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavGraph;
 	public static final fun navigation (Landroidx/navigation/NavigatorProvider;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavGraph;
+	public static final fun navigation (Landroidx/navigation/NavigatorProvider;Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavGraph;
+	public static synthetic fun navigation$default (Landroidx/navigation/NavigatorProvider;Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/navigation/NavGraph;
 	public static synthetic fun navigation$default (Landroidx/navigation/NavigatorProvider;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/navigation/NavGraph;
+	public static synthetic fun navigation$default (Landroidx/navigation/NavigatorProvider;Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/navigation/NavGraph;
+}
+
+public final class androidx/navigation/NavGraphKt {
+	public static final fun contains (Landroidx/navigation/NavGraph;Ljava/lang/String;)Z
+	public static final fun get (Landroidx/navigation/NavGraph;Ljava/lang/String;)Landroidx/navigation/NavDestination;
+	public static final fun minusAssign (Landroidx/navigation/NavGraph;Landroidx/navigation/NavDestination;)V
+	public static final fun plusAssign (Landroidx/navigation/NavGraph;Landroidx/navigation/NavDestination;)V
+	public static final fun plusAssign (Landroidx/navigation/NavGraph;Landroidx/navigation/NavGraph;)V
 }
 
 public class androidx/navigation/NavGraphNavigator : androidx/navigation/Navigator {
@@ -200,17 +263,12 @@ public class androidx/navigation/NavGraphNavigator : androidx/navigation/Navigat
 	public fun navigate (Ljava/util/List;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;)V
 }
 
-public final class androidx/navigation/NavGraph_jbKt {
-	public static final fun contains (Landroidx/navigation/NavGraph;Ljava/lang/String;)Z
-	public static final fun get (Landroidx/navigation/NavGraph;Ljava/lang/String;)Landroidx/navigation/NavDestination;
-	public static final fun minusAssign (Landroidx/navigation/NavGraph;Landroidx/navigation/NavDestination;)V
-	public static final fun plusAssign (Landroidx/navigation/NavGraph;Landroidx/navigation/NavDestination;)V
-	public static final fun plusAssign (Landroidx/navigation/NavGraph;Landroidx/navigation/NavGraph;)V
-}
-
 public final class androidx/navigation/NavOptions {
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPopUpToId ()I
 	public final fun getPopUpToRoute ()Ljava/lang/String;
+	public final fun getPopUpToRouteClass ()Lkotlin/reflect/KClass;
+	public final fun getPopUpToRouteObject ()Ljava/lang/Object;
 	public fun hashCode ()I
 	public final fun isPopUpToInclusive ()Z
 	public final fun shouldLaunchSingleTop ()Z
@@ -223,18 +281,30 @@ public final class androidx/navigation/NavOptions$Builder {
 	public fun <init> ()V
 	public final fun build ()Landroidx/navigation/NavOptions;
 	public final fun setLaunchSingleTop (Z)Landroidx/navigation/NavOptions$Builder;
+	public final fun setPopUpTo (Ljava/lang/Object;Z)Landroidx/navigation/NavOptions$Builder;
+	public final fun setPopUpTo (Ljava/lang/Object;ZZ)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Ljava/lang/String;Z)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Ljava/lang/String;ZZ)Landroidx/navigation/NavOptions$Builder;
+	public final fun setPopUpTo (Lkotlin/reflect/KClass;ZZ)Landroidx/navigation/NavOptions$Builder;
+	public final synthetic fun setPopUpTo (Z)Landroidx/navigation/NavOptions$Builder;
+	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;Ljava/lang/Object;ZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
 	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;Ljava/lang/String;ZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
+	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;Lkotlin/reflect/KClass;ZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
 	public final fun setRestoreState (Z)Landroidx/navigation/NavOptions$Builder;
 }
 
 public final class androidx/navigation/NavOptionsBuilder {
 	public fun <init> ()V
 	public final fun getLaunchSingleTop ()Z
+	public final fun getPopUpToId ()I
 	public final fun getPopUpToRoute ()Ljava/lang/String;
+	public final fun getPopUpToRouteClass ()Lkotlin/reflect/KClass;
+	public final fun getPopUpToRouteObject ()Ljava/lang/Object;
 	public final fun getRestoreState ()Z
+	public final fun popUpTo (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)V
 	public final fun popUpTo (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun popUpTo (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun popUpTo$default (Landroidx/navigation/NavOptionsBuilder;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun popUpTo$default (Landroidx/navigation/NavOptionsBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun setLaunchSingleTop (Z)V
 	public final fun setRestoreState (Z)V
@@ -249,15 +319,20 @@ public abstract interface annotation class androidx/navigation/NavOptionsDsl : j
 
 public abstract class androidx/navigation/NavType {
 	public static final field BoolArrayType Landroidx/navigation/NavType;
+	public static final field BoolListType Landroidx/navigation/NavType;
 	public static final field BoolType Landroidx/navigation/NavType;
 	public static final field Companion Landroidx/navigation/NavType$Companion;
 	public static final field FloatArrayType Landroidx/navigation/NavType;
+	public static final field FloatListType Landroidx/navigation/NavType;
 	public static final field FloatType Landroidx/navigation/NavType;
 	public static final field IntArrayType Landroidx/navigation/NavType;
+	public static final field IntListType Landroidx/navigation/NavType;
 	public static final field IntType Landroidx/navigation/NavType;
 	public static final field LongArrayType Landroidx/navigation/NavType;
+	public static final field LongListType Landroidx/navigation/NavType;
 	public static final field LongType Landroidx/navigation/NavType;
 	public static final field StringArrayType Landroidx/navigation/NavType;
+	public static final field StringListType Landroidx/navigation/NavType;
 	public static final field StringType Landroidx/navigation/NavType;
 	public fun <init> (Z)V
 	public static fun fromArgType (Ljava/lang/String;Ljava/lang/String;)Landroidx/navigation/NavType;
@@ -273,6 +348,7 @@ public abstract class androidx/navigation/NavType {
 	public abstract fun put (Landroidx/core/bundle/Bundle;Ljava/lang/String;Ljava/lang/Object;)V
 	public fun serializeAsValue (Ljava/lang/Object;)Ljava/lang/String;
 	public fun toString ()Ljava/lang/String;
+	public fun valueEquals (Ljava/lang/Object;Ljava/lang/Object;)Z
 }
 
 public final class androidx/navigation/NavType$Companion {
@@ -286,9 +362,9 @@ public abstract interface class androidx/navigation/NavViewModelStoreProvider {
 }
 
 public abstract class androidx/navigation/Navigator {
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;)V
 	public abstract fun createDestination ()Landroidx/navigation/NavDestination;
-	public final fun getName ()Ljava/lang/String;
 	protected final fun getState ()Landroidx/navigation/NavigatorState;
 	public final fun isAttached ()Z
 	public fun navigate (Landroidx/navigation/NavDestination;Landroidx/core/bundle/Bundle;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;)Landroidx/navigation/NavDestination;
@@ -309,11 +385,13 @@ public class androidx/navigation/NavigatorProvider {
 	public final fun addNavigator (Landroidx/navigation/Navigator;)Landroidx/navigation/Navigator;
 	public fun addNavigator (Ljava/lang/String;Landroidx/navigation/Navigator;)Landroidx/navigation/Navigator;
 	public fun getNavigator (Ljava/lang/String;)Landroidx/navigation/Navigator;
+	public final fun getNavigator (Lkotlin/reflect/KClass;)Landroidx/navigation/Navigator;
 	public final fun getNavigators ()Ljava/util/Map;
 }
 
-public final class androidx/navigation/NavigatorProvider_jbKt {
+public final class androidx/navigation/NavigatorProviderKt {
 	public static final fun get (Landroidx/navigation/NavigatorProvider;Ljava/lang/String;)Landroidx/navigation/Navigator;
+	public static final fun get (Landroidx/navigation/NavigatorProvider;Lkotlin/reflect/KClass;)Landroidx/navigation/Navigator;
 	public static final fun plusAssign (Landroidx/navigation/NavigatorProvider;Landroidx/navigation/Navigator;)V
 	public static final fun set (Landroidx/navigation/NavigatorProvider;Ljava/lang/String;Landroidx/navigation/Navigator;)Landroidx/navigation/Navigator;
 }
@@ -348,5 +426,14 @@ public final class androidx/navigation/PopUpToBuilder {
 	public final fun getSaveState ()Z
 	public final fun setInclusive (Z)V
 	public final fun setSaveState (Z)V
+}
+
+public final class androidx/navigation/serialization/RouteDeserializerKt {
+	public static final fun decodeArguments (Lkotlinx/serialization/KSerializer;Landroidx/core/bundle/Bundle;Ljava/util/Map;)Ljava/lang/Object;
+	public static final fun decodeArguments (Lkotlinx/serialization/KSerializer;Landroidx/lifecycle/SavedStateHandle;Ljava/util/Map;)Ljava/lang/Object;
+}
+
+public final class androidx/navigation/serialization/RouteSerializerKt {
+	public static final fun generateRouteWithArgs (Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/String;
 }
 

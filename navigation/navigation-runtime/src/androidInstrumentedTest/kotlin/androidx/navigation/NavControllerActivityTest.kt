@@ -55,17 +55,12 @@ class NavControllerActivityTest {
     fun testNavigateUpPop() {
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.second_test)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(2)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
-        assertThat(navController.navigateUp())
-            .isTrue()
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.navigateUp()).isTrue()
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -74,21 +69,14 @@ class NavControllerActivityTest {
         val activity = activityRule.activity
         navController.setGraph(R.navigation.nav_simple)
         navController.handleDeepLink(
-            Intent().apply {
-                data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
-            }
+            Intent().apply { data = Uri.parse("android-app://androidx.navigation.test/test/arg2") }
         )
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.second_test)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
-        assertThat(activity.isFinishCalled)
-            .isFalse()
-        assertThat(navController.navigateUp())
-            .isTrue()
-        assertThat(activity.isFinishCalled)
-            .isTrue()
+        assertThat(activity.isFinishCalled).isFalse()
+        assertThat(navController.navigateUp()).isTrue()
+        assertThat(activity.isFinishCalled).isTrue()
     }
 
     @UiThreadTest
@@ -96,9 +84,8 @@ class NavControllerActivityTest {
     fun testActivityDeepLinkHandledOnce() {
         val activity = activityRule.activity
 
-        val intent = Intent().apply {
-            data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
-        }
+        val intent =
+            Intent().apply { data = Uri.parse("android-app://androidx.navigation.test/test/arg2") }
 
         activity.intent = intent
 
@@ -107,22 +94,21 @@ class NavControllerActivityTest {
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate(R.id.start_test, null, navOptions {
-            popUpTo(R.id.second_test) { inclusive = true }
-        })
+        navController.navigate(
+            R.id.start_test,
+            null,
+            navOptions { popUpTo(R.id.second_test) { inclusive = true } }
+        )
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
         // Create a slightly different graph to ensure we are testing the deep link handling
         // rather than setGraph being a ~no-op when you call it multiple times
-        val navGraph = navController.navInflater.inflate(R.navigation.nav_simple).apply {
-            route = "root"
-        }
+        val navGraph =
+            navController.navInflater.inflate(R.navigation.nav_simple).apply { route = "root" }
         navController.setGraph(navGraph, null)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -130,9 +116,8 @@ class NavControllerActivityTest {
     fun testActivityDeepLinkHandledOnceAfterRestore() {
         val activity = activityRule.activity
 
-        val intent = Intent().apply {
-            data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
-        }
+        val intent =
+            Intent().apply { data = Uri.parse("android-app://androidx.navigation.test/test/arg2") }
 
         activity.intent = intent
 
@@ -141,9 +126,11 @@ class NavControllerActivityTest {
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate(R.id.start_test, null, navOptions {
-            popUpTo(R.id.second_test) { inclusive = true }
-        })
+        navController.navigate(
+            R.id.start_test,
+            null,
+            navOptions { popUpTo(R.id.second_test) { inclusive = true } }
+        )
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
@@ -158,10 +145,8 @@ class NavControllerActivityTest {
         // Now set the same graph again and verify that we are still on the restored,
         // not deep link destination
         navController.setGraph(R.navigation.nav_simple)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -169,10 +154,11 @@ class NavControllerActivityTest {
     fun testActivityDeepLinkHandledOnceAfterRestoreNewTask() {
         val activity = activityRule.activity
 
-        val intent = Intent().apply {
-            data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        }
+        val intent =
+            Intent().apply {
+                data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            }
 
         activity.intent = intent
 
@@ -195,10 +181,8 @@ class NavControllerActivityTest {
         // Now set the same graph again and verify that we are still on the restored,
         // not deep link destination
         navController.setGraph(R.navigation.nav_simple)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 }
 

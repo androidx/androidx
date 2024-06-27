@@ -38,8 +38,6 @@ class ActivityNavigatorExtrasTest {
             .that(extras.activityOptions)
             .isSameInstanceAs(activityOptions)
         assertThat(extras.activityOptions).isSameInstanceAs(activityOptions)
-        assertWithMessage("Flags should be passed through")
-            .that(extras.flags)
-            .isEqualTo(flags)
+        assertWithMessage("Flags should be passed through").that(extras.flags).isEqualTo(flags)
     }
 }

@@ -17,81 +17,119 @@
 package androidx.navigation.test
 
 import androidx.navigation.NavArgument
+import androidx.navigation.NavType.Companion.BoolType
 import androidx.navigation.NavType.Companion.FloatType
+import androidx.navigation.NavType.Companion.IntListType
 import androidx.navigation.NavType.Companion.IntType
 import androidx.navigation.NavType.Companion.LongType
 import androidx.navigation.NavType.Companion.ReferenceType
 import androidx.navigation.NavType.Companion.StringArrayType
+import androidx.navigation.NavType.Companion.StringListType
 import androidx.navigation.NavType.Companion.StringType
 
 // region IntType
 fun intArgument() = NavArgument.Builder().setType(IntType).build()
 
-fun intArgument(
-    defaultValue: Int
-) = NavArgument.Builder().setType(IntType)
-    .setDefaultValue(defaultValue)
-    .build()
+fun booleanArgument() = NavArgument.Builder().setType(BoolType).build()
+
+fun intArgument(defaultValue: Int) =
+    NavArgument.Builder().setType(IntType).setDefaultValue(defaultValue).build()
+
+fun intArgumentUnknownDefault() =
+    NavArgument.Builder().setType(IntType).setUnknownDefaultValuePresent(true).build()
+
 // endregion
 
 // region LongType
 fun longArgument() = NavArgument.Builder().setType(LongType).build()
 
-fun longArgument(
-    defaultValue: Long
-) = NavArgument.Builder().setType(LongType)
-    .setDefaultValue(defaultValue)
-    .build()
+fun longArgument(defaultValue: Long) =
+    NavArgument.Builder().setType(LongType).setDefaultValue(defaultValue).build()
+
 // endregion
 
 // region FloatType
 fun floatArgument() = NavArgument.Builder().setType(FloatType).build()
 
-fun floatArgument(
-    defaultValue: Float
-) = NavArgument.Builder().setType(FloatType)
-    .setDefaultValue(defaultValue)
-    .build()
+fun floatArgument(defaultValue: Float) =
+    NavArgument.Builder().setType(FloatType).setDefaultValue(defaultValue).build()
+
 // endregion
 
 // region FloatType
 fun referenceArgument() = NavArgument.Builder().setType(ReferenceType).build()
 
-fun referenceArgument(
-    defaultValue: Int
-) = NavArgument.Builder().setType(ReferenceType)
-    .setDefaultValue(defaultValue)
-    .build()
+fun referenceArgument(defaultValue: Int) =
+    NavArgument.Builder().setType(ReferenceType).setDefaultValue(defaultValue).build()
+
 // endregion
 
 // region StringType
-fun stringArgument() = NavArgument.Builder().setType(StringType)
-    .setIsNullable(false)
-    .build()
+fun stringArgument() = NavArgument.Builder().setType(StringType).setIsNullable(false).build()
 
-fun stringArgument(
-    defaultValue: String
-) = NavArgument.Builder().setType(StringType)
-    .setDefaultValue(defaultValue)
-    .build()
+fun stringArgumentUnknownDefault() =
+    NavArgument.Builder()
+        .setType(StringType)
+        .setUnknownDefaultValuePresent(true)
+        .setIsNullable(false)
+        .build()
 
-fun nullableStringArgument() = NavArgument.Builder().setType(StringType)
-    .setIsNullable(true)
-    .build()
+fun stringArgument(defaultValue: String) =
+    NavArgument.Builder().setType(StringType).setDefaultValue(defaultValue).build()
 
-fun nullableStringArgument(
-    defaultValue: String?
-) = NavArgument.Builder().setType(StringType)
-    .setIsNullable(true)
-    .setDefaultValue(defaultValue)
-    .build()
+fun nullableStringArgument() = NavArgument.Builder().setType(StringType).setIsNullable(true).build()
+
+fun nullableStringArgument(defaultValue: String?) =
+    NavArgument.Builder()
+        .setType(StringType)
+        .setIsNullable(true)
+        .setDefaultValue(defaultValue)
+        .build()
+
+fun nullableStringArgumentUnknownDefault() =
+    NavArgument.Builder()
+        .setType(StringType)
+        .setIsNullable(true)
+        .setUnknownDefaultValuePresent(true)
+        .build()
+
 // endregion
 
 // region StringArrayType
-fun stringArrayArgument(
-    defaultValue: Array<String>?
-) = NavArgument.Builder().setType(StringArrayType)
-    .setIsNullable(true)
-    .setDefaultValue(defaultValue)
-    .build()
+fun stringArrayArgument(defaultValue: Array<String>?) =
+    NavArgument.Builder()
+        .setType(StringArrayType)
+        .setIsNullable(true)
+        .setDefaultValue(defaultValue)
+        .build()
+
+// endregion
+
+// region StringListType
+fun stringListArgument() = NavArgument.Builder().setType(StringListType).setIsNullable(true).build()
+
+// endregion
+
+// region StringListType
+fun stringListArgument(defaultValue: List<String>) =
+    NavArgument.Builder()
+        .setType(StringListType)
+        .setIsNullable(true)
+        .setDefaultValue(defaultValue)
+        .build()
+
+// endregion
+
+// region IntListType
+fun intListArgument() = NavArgument.Builder().setType(IntListType).setIsNullable(true).build()
+
+// endregion
+
+// region IntListType
+fun intListArgument(defaultValue: List<Int>) =
+    NavArgument.Builder()
+        .setType(IntListType)
+        .setIsNullable(true)
+        .setDefaultValue(defaultValue)
+        .build()
 // endregion

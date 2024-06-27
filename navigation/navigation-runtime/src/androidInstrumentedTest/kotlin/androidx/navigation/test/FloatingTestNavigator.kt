@@ -33,55 +33,44 @@ class FloatingTestNavigator : TestNavigator() {
         return FloatingDestination(this)
     }
 
-    class FloatingDestination(navigator: TestNavigator) :
-        Destination(navigator),
-        FloatingWindow
+    class FloatingDestination(navigator: TestNavigator) : Destination(navigator), FloatingWindow
 }
 
-/**
- * Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with id.
- */
+/** Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with id. */
 inline fun NavGraphBuilder.dialog(@IdRes id: Int) = dialog(id) {}
 
-/**
- * Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with route.
- */
+/** Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with route. */
 inline fun NavGraphBuilder.dialog(route: String) = dialog(route) {}
 
-/**
- * Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with id.
- */
+/** Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with id. */
 inline fun NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: FloatingTestNavigatorDestinationBuilder.() -> Unit
-) = destination(
-    FloatingTestNavigatorDestinationBuilder(
-        provider[FloatingTestNavigator::class],
-        id
-    ).apply(builder)
-)
+) =
+    destination(
+        FloatingTestNavigatorDestinationBuilder(provider[FloatingTestNavigator::class], id)
+            .apply(builder)
+    )
 
-/**
- * Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with route.
- */
+/** Construct a new [TestNavigator.Destination] from a [FloatingTestNavigator] with route. */
 inline fun NavGraphBuilder.dialog(
     route: String,
     builder: FloatingTestNavigatorDestinationBuilder.() -> Unit
-) = destination(
-    FloatingTestNavigatorDestinationBuilder(
-        provider[FloatingTestNavigator::class],
-        route
-    ).apply(builder)
-)
+) =
+    destination(
+        FloatingTestNavigatorDestinationBuilder(provider[FloatingTestNavigator::class], route)
+            .apply(builder)
+    )
 
 /**
- * DSL for constructing a new [TestNavigator.Destination] from a [FloatingTestNavigator] with
- * id or route.
+ * DSL for constructing a new [TestNavigator.Destination] from a [FloatingTestNavigator] with id or
+ * route.
  */
 @Suppress("DEPRECATION")
 @NavDestinationDsl
 class FloatingTestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Destination> {
     @Suppress("DEPRECATION")
     constructor(navigator: FloatingTestNavigator, @IdRes id: Int = 0) : super(navigator, id)
+
     constructor(navigator: FloatingTestNavigator, route: String) : super(navigator, route)
 }

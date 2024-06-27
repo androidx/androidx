@@ -19,6 +19,7 @@ package androidx.navigation
 import androidx.core.bundle.Bundle
 
 import androidx.annotation.RestrictTo
+import androidx.navigation.internal.Uri
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
@@ -57,12 +58,11 @@ public actual abstract class NavType<T> actual constructor(
 
     public actual open val name: String = "nav_type"
 
+    public actual open fun valueEquals(value: T, other: T): Boolean = value == other
+
     override fun toString(): String {
         return name
     }
-
-    internal fun isPrimitive() = this == IntType || this == BoolType ||
-        this == FloatType || this == LongType || this == StringType
 
     public actual companion object {
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
@@ -71,14 +71,19 @@ public actual abstract class NavType<T> actual constructor(
             return when (type) {
                 IntType.name -> IntType
                 IntArrayType.name -> IntArrayType
+                IntListType.name -> IntListType
                 LongType.name -> LongType
                 LongArrayType.name -> LongArrayType
+                LongListType.name -> LongListType
                 BoolType.name -> BoolType
                 BoolArrayType.name -> BoolArrayType
+                BoolListType.name -> BoolListType
                 StringType.name -> StringType
                 StringArrayType.name -> StringArrayType
+                StringListType.name -> StringListType
                 FloatType.name -> FloatType
                 FloatArrayType.name -> FloatArrayType
+                FloatListType.name -> FloatListType
                 else -> {
                     if (!type.isNullOrEmpty()) {
                         throw IllegalArgumentException(
@@ -145,242 +150,501 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         @JvmField
-        public actual val IntType: NavType<Int> = object : NavType<Int>(false) {
-            override val name: String
-                get() = "integer"
+        public actual val IntType: NavType<Int> =
+            object : NavType<Int>(false) {
+                override val name: String
+                    get() = "integer"
 
-            override fun put(bundle: Bundle, key: String, value: Int) {
-                bundle.putInt(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): Int {
-                return bundle[key] as Int
-            }
-
-            override fun parseValue(value: String): Int {
-                return if (value.startsWith("0x")) {
-                    value.substring(2).toInt(16)
-                } else {
-                    value.toInt()
+                override fun put(bundle: Bundle, key: String, value: Int) {
+                    bundle.putInt(key, value)
                 }
-            }
-        }
 
-        @JvmField
-        public actual val IntArrayType: NavType<IntArray?> = object : NavType<IntArray?>(true) {
-            override val name: String
-                get() = "integer[]"
-
-            override fun put(bundle: Bundle, key: String, value: IntArray?) {
-                bundle.putIntArray(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): IntArray? {
-                return bundle[key] as IntArray?
-            }
-
-            override fun parseValue(value: String): IntArray {
-                return intArrayOf(IntType.parseValue(value))
-            }
-
-            override fun parseValue(value: String, previousValue: IntArray?): IntArray {
-                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
-            }
-        }
-
-        @JvmField
-        public actual val LongType: NavType<Long> = object : NavType<Long>(false) {
-            override val name: String
-                get() = "long"
-
-            override fun put(bundle: Bundle, key: String, value: Long) {
-                bundle.putLong(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): Long {
-                return bundle[key] as Long
-            }
-
-            override fun parseValue(value: String): Long {
-                // At runtime the L suffix is optional, contrary to the Safe Args plugin.
-                // This is in order to be able to parse long numbers passed as deep link URL
-                // parameters
-                var localValue = value
-                if (value.endsWith("L")) {
-                    localValue = localValue.substring(0, value.length - 1)
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): Int {
+                    return bundle[key] as Int
                 }
-                return if (value.startsWith("0x")) {
-                    localValue.substring(2).toLong(16)
-                } else {
-                    localValue.toLong()
-                }
-            }
-        }
 
-        @JvmField
-        public actual val LongArrayType: NavType<LongArray?> = object : NavType<LongArray?>(true) {
-            override val name: String
-                get() = "long[]"
-
-            override fun put(bundle: Bundle, key: String, value: LongArray?) {
-                bundle.putLongArray(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): LongArray? {
-                return bundle[key] as LongArray?
-            }
-
-            override fun parseValue(value: String): LongArray {
-                return longArrayOf(LongType.parseValue(value))
-            }
-
-            override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
-                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
-            }
-        }
-
-        @JvmField
-        public actual val FloatType: NavType<Float> = object : NavType<Float>(false) {
-            override val name: String
-                get() = "float"
-
-            override fun put(bundle: Bundle, key: String, value: Float) {
-                bundle.putFloat(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): Float {
-                return bundle[key] as Float
-            }
-
-            override fun parseValue(value: String): Float {
-                return value.toFloat()
-            }
-        }
-
-        @JvmField
-        public actual val FloatArrayType: NavType<FloatArray?> = object : NavType<FloatArray?>(true) {
-            override val name: String
-                get() = "float[]"
-
-            override fun put(bundle: Bundle, key: String, value: FloatArray?) {
-                bundle.putFloatArray(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): FloatArray? {
-                return bundle[key] as FloatArray?
-            }
-
-            override fun parseValue(value: String): FloatArray {
-                return floatArrayOf(FloatType.parseValue(value))
-            }
-
-            override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
-                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
-            }
-        }
-
-        @JvmField
-        public actual val BoolType: NavType<Boolean> = object : NavType<Boolean>(false) {
-            override val name: String
-                get() = "boolean"
-
-            override fun put(bundle: Bundle, key: String, value: Boolean) {
-                bundle.putBoolean(key, value)
-            }
-
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): Boolean? {
-                return bundle[key] as Boolean?
-            }
-
-            override fun parseValue(value: String): Boolean {
-                return when (value) {
-                    "true" -> true
-                    "false" -> false
-                    else -> {
-                        throw IllegalArgumentException(
-                            "A boolean NavType only accepts \"true\" or \"false\" values."
-                        )
+                override fun parseValue(value: String): Int {
+                    return if (value.startsWith("0x")) {
+                        value.substring(2).toInt(16)
+                    } else {
+                        value.toInt()
                     }
                 }
             }
-        }
 
         @JvmField
-        public actual val BoolArrayType: NavType<BooleanArray?> = object : NavType<BooleanArray?>(true) {
-            override val name: String
-                get() = "boolean[]"
+        public actual val IntArrayType: NavType<IntArray?> =
+            object : CollectionNavType<IntArray?>(true) {
+                override val name: String
+                    get() = "integer[]"
 
-            override fun put(bundle: Bundle, key: String, value: BooleanArray?) {
-                bundle.putBooleanArray(key, value)
-            }
+                override fun put(bundle: Bundle, key: String, value: IntArray?) {
+                    bundle.putIntArray(key, value)
+                }
 
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): BooleanArray? {
-                return bundle[key] as BooleanArray?
-            }
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): IntArray? {
+                    return bundle[key] as IntArray?
+                }
 
-            override fun parseValue(value: String): BooleanArray {
-                return booleanArrayOf(BoolType.parseValue(value))
-            }
+                override fun parseValue(value: String): IntArray {
+                    return intArrayOf(IntType.parseValue(value))
+                }
 
-            override fun parseValue(value: String, previousValue: BooleanArray?): BooleanArray? {
-                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                override fun parseValue(value: String, previousValue: IntArray?): IntArray {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: IntArray?, other: IntArray?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: IntArray?): List<String> =
+                    value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): IntArray = intArrayOf()
             }
-        }
 
         @JvmField
-        public actual val StringType: NavType<String?> = object : NavType<String?>(true) {
-            override val name: String
-                get() = "string"
+        public actual val IntListType: NavType<List<Int>?> =
+            object : CollectionNavType<List<Int>?>(true) {
+                override val name: String
+                    get() = "List<Int>"
 
-            override fun put(bundle: Bundle, key: String, value: String?) {
-                bundle.putString(key, value)
-            }
+                override fun put(bundle: Bundle, key: String, value: List<Int>?) {
+                    bundle.putIntArray(key, value?.toIntArray())
+                }
 
-            @Suppress("DEPRECATION")
-            override fun get(bundle: Bundle, key: String): String? {
-                return bundle[key] as String?
-            }
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): List<Int>? {
+                    return (bundle[key] as IntArray?)?.toList()
+                }
 
-            override fun parseValue(value: String): String? {
-                return if (value == "null") null else value
-            }
+                override fun parseValue(value: String): List<Int> {
+                    return listOf(IntType.parseValue(value))
+                }
 
-            override fun serializeAsValue(value: String?): String {
-                return value ?: "null"
+                override fun parseValue(value: String, previousValue: List<Int>?): List<Int>? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: List<Int>?, other: List<Int>?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: List<Int>?): List<String> =
+                    value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Int> = emptyList()
             }
-        }
 
         @JvmField
-        public actual val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
-            true
-        ) {
-            override val name: String
-                get() = "string[]"
+        public actual val LongType: NavType<Long> =
+            object : NavType<Long>(false) {
+                override val name: String
+                    get() = "long"
 
-            override fun put(bundle: Bundle, key: String, value: Array<String>?) {
-                bundle.putStringArray(key, value)
+                override fun put(bundle: Bundle, key: String, value: Long) {
+                    bundle.putLong(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): Long {
+                    return bundle[key] as Long
+                }
+
+                override fun parseValue(value: String): Long {
+                    // At runtime the L suffix is optional, contrary to the Safe Args plugin.
+                    // This is in order to be able to parse long numbers passed as deep link URL
+                    // parameters
+                    var localValue = value
+                    if (value.endsWith("L")) {
+                        localValue = localValue.substring(0, value.length - 1)
+                    }
+                    return if (value.startsWith("0x")) {
+                        localValue.substring(2).toLong(16)
+                    } else {
+                        localValue.toLong()
+                    }
+                }
             }
 
-            @Suppress("UNCHECKED_CAST", "DEPRECATION")
-            override fun get(bundle: Bundle, key: String): Array<String>? {
-                return bundle[key] as Array<String>?
+        @JvmField
+        public actual val LongArrayType: NavType<LongArray?> =
+            object : CollectionNavType<LongArray?>(true) {
+                override val name: String
+                    get() = "long[]"
+
+                override fun put(bundle: Bundle, key: String, value: LongArray?) {
+                    bundle.putLongArray(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): LongArray? {
+                    return bundle[key] as LongArray?
+                }
+
+                override fun parseValue(value: String): LongArray {
+                    return longArrayOf(LongType.parseValue(value))
+                }
+
+                override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: LongArray?, other: LongArray?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: LongArray?): List<String> =
+                    value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): LongArray = longArrayOf()
             }
 
-            override fun parseValue(value: String): Array<String> {
-                return arrayOf(value)
+        @JvmField
+        public actual val LongListType: NavType<List<Long>?> =
+            object : CollectionNavType<List<Long>?>(true) {
+                override val name: String
+                    get() = "List<Long>"
+
+                override fun put(bundle: Bundle, key: String, value: List<Long>?) {
+                    bundle.putLongArray(key, value?.toLongArray())
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): List<Long>? {
+                    return (bundle[key] as LongArray?)?.toList()
+                }
+
+                override fun parseValue(value: String): List<Long> {
+                    return listOf(LongType.parseValue(value))
+                }
+
+                override fun parseValue(value: String, previousValue: List<Long>?): List<Long>? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: List<Long>?, other: List<Long>?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: List<Long>?): List<String> =
+                    value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Long> = emptyList()
             }
 
-            override fun parseValue(value: String, previousValue: Array<String>?): Array<String>? {
-                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+        @JvmField
+        public actual val FloatType: NavType<Float> =
+            object : NavType<Float>(false) {
+                override val name: String
+                    get() = "float"
+
+                override fun put(bundle: Bundle, key: String, value: Float) {
+                    bundle.putFloat(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): Float {
+                    return bundle[key] as Float
+                }
+
+                override fun parseValue(value: String): Float {
+                    return value.toFloat()
+                }
             }
-        }
+
+        @JvmField
+        public actual val FloatArrayType: NavType<FloatArray?> =
+            object : CollectionNavType<FloatArray?>(true) {
+                override val name: String
+                    get() = "float[]"
+
+                override fun put(bundle: Bundle, key: String, value: FloatArray?) {
+                    bundle.putFloatArray(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): FloatArray? {
+                    return bundle[key] as FloatArray?
+                }
+
+                override fun parseValue(value: String): FloatArray {
+                    return floatArrayOf(FloatType.parseValue(value))
+                }
+
+                override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: FloatArray?, other: FloatArray?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: FloatArray?): List<String> =
+                    value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): FloatArray = floatArrayOf()
+            }
+
+        @JvmField
+        public actual val FloatListType: NavType<List<Float>?> =
+            object : CollectionNavType<List<Float>?>(true) {
+                override val name: String
+                    get() = "List<Float>"
+
+                override fun put(bundle: Bundle, key: String, value: List<Float>?) {
+                    bundle.putFloatArray(key, value?.toFloatArray())
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): List<Float>? {
+                    return (bundle[key] as FloatArray?)?.toList()
+                }
+
+                override fun parseValue(value: String): List<Float> {
+                    return listOf(FloatType.parseValue(value))
+                }
+
+                override fun parseValue(value: String, previousValue: List<Float>?): List<Float>? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: List<Float>?, other: List<Float>?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: List<Float>?): List<String> =
+                    value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Float> = emptyList()
+            }
+
+        @JvmField
+        public actual val BoolType: NavType<Boolean> =
+            object : NavType<Boolean>(false) {
+                override val name: String
+                    get() = "boolean"
+
+                override fun put(bundle: Bundle, key: String, value: Boolean) {
+                    bundle.putBoolean(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): Boolean? {
+                    return bundle[key] as Boolean?
+                }
+
+                override fun parseValue(value: String): Boolean {
+                    return when (value) {
+                        "true" -> true
+                        "false" -> false
+                        else -> {
+                            throw IllegalArgumentException(
+                                "A boolean NavType only accepts \"true\" or \"false\" values."
+                            )
+                        }
+                    }
+                }
+            }
+
+        @JvmField
+        public actual val BoolArrayType: NavType<BooleanArray?> =
+            object : CollectionNavType<BooleanArray?>(true) {
+                override val name: String
+                    get() = "boolean[]"
+
+                override fun put(bundle: Bundle, key: String, value: BooleanArray?) {
+                    bundle.putBooleanArray(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): BooleanArray? {
+                    return bundle[key] as BooleanArray?
+                }
+
+                override fun parseValue(value: String): BooleanArray {
+                    return booleanArrayOf(BoolType.parseValue(value))
+                }
+
+                override fun parseValue(
+                    value: String,
+                    previousValue: BooleanArray?
+                ): BooleanArray? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: BooleanArray?, other: BooleanArray?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: BooleanArray?): List<String> =
+                    value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): BooleanArray = booleanArrayOf()
+            }
+
+        @JvmField
+        public actual val BoolListType: NavType<List<Boolean>?> =
+            object : CollectionNavType<List<Boolean>?>(true) {
+                override val name: String
+                    get() = "List<Boolean>"
+
+                override fun put(bundle: Bundle, key: String, value: List<Boolean>?) {
+                    bundle.putBooleanArray(key, value?.toBooleanArray())
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): List<Boolean>? {
+                    return (bundle[key] as BooleanArray?)?.toList()
+                }
+
+                override fun parseValue(value: String): List<Boolean> {
+                    return listOf(BoolType.parseValue(value))
+                }
+
+                override fun parseValue(
+                    value: String,
+                    previousValue: List<Boolean>?
+                ): List<Boolean>? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: List<Boolean>?, other: List<Boolean>?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: List<Boolean>?): List<String> =
+                    value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Boolean> = emptyList()
+            }
+
+        @JvmField
+        public actual val StringType: NavType<String?> =
+            object : NavType<String?>(true) {
+                override val name: String
+                    get() = "string"
+
+                override fun put(bundle: Bundle, key: String, value: String?) {
+                    bundle.putString(key, value)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun get(bundle: Bundle, key: String): String? {
+                    return bundle[key] as String?
+                }
+
+                /**
+                 * Returns input value by default.
+                 *
+                 * If input value is "null", returns null as the reversion of Kotlin standard
+                 * library serializing null receivers of [kotlin.toString] into "null".
+                 */
+                override fun parseValue(value: String): String? {
+                    return if (value == "null") null else value
+                }
+
+                /**
+                 * Returns default value of Uri.encode(value).
+                 *
+                 * If input value is null, returns "null" in compliance with Kotlin standard library
+                 * parsing null receivers of [kotlin.toString] into "null".
+                 */
+                override fun serializeAsValue(value: String?): String {
+                    return value?.let { Uri.encode(value) } ?: "null"
+                }
+            }
+
+        @JvmField
+        public actual val StringArrayType: NavType<Array<String>?> =
+            object : CollectionNavType<Array<String>?>(true) {
+                override val name: String
+                    get() = "string[]"
+
+                override fun put(bundle: Bundle, key: String, value: Array<String>?) {
+                    bundle.putStringArray(key, value)
+                }
+
+                @Suppress("UNCHECKED_CAST", "DEPRECATION")
+                override fun get(bundle: Bundle, key: String): Array<String>? {
+                    return bundle[key] as Array<String>?
+                }
+
+                override fun parseValue(value: String): Array<String> {
+                    return arrayOf(value)
+                }
+
+                override fun parseValue(
+                    value: String,
+                    previousValue: Array<String>?
+                ): Array<String>? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: Array<String>?, other: Array<String>?) =
+                    value.contentDeepEquals(other)
+
+                override fun serializeAsValues(value: Array<String>?): List<String> =
+                    value?.map { Uri.encode(it) } ?: emptyList()
+
+                override fun emptyCollection(): Array<String> = arrayOf()
+            }
+
+        @JvmField
+        public actual val StringListType: NavType<List<String>?> =
+            object : CollectionNavType<List<String>?>(true) {
+                override val name: String
+                    get() = "List<String>"
+
+                override fun put(bundle: Bundle, key: String, value: List<String>?) {
+                    bundle.putStringArray(key, value?.toTypedArray())
+                }
+
+                @Suppress("UNCHECKED_CAST", "DEPRECATION")
+                override fun get(bundle: Bundle, key: String): List<String>? {
+                    return (bundle[key] as Array<String>?)?.toList()
+                }
+
+                override fun parseValue(value: String): List<String> {
+                    return listOf(value)
+                }
+
+                override fun parseValue(
+                    value: String,
+                    previousValue: List<String>?
+                ): List<String>? {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: List<String>?, other: List<String>?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: List<String>?): List<String> =
+                    value?.map { Uri.encode(it) } ?: emptyList()
+
+                override fun emptyCollection(): List<String> = emptyList()
+            }
     }
 }

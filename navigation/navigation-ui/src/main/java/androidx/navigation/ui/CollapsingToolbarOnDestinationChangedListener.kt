@@ -26,10 +26,9 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import java.lang.ref.WeakReference
 
 /**
- * The OnDestinationChangedListener specifically for keeping a
- * CollapsingToolbarLayout+Toolbar updated.
- * This handles both updating the title and updating the Up Indicator, transitioning between
- * the drawer icon and up arrow as needed.
+ * The OnDestinationChangedListener specifically for keeping a CollapsingToolbarLayout+Toolbar
+ * updated. This handles both updating the title and updating the Up Indicator, transitioning
+ * between the drawer icon and up arrow as needed.
  */
 internal class CollapsingToolbarOnDestinationChangedListener(
     collapsingToolbarLayout: CollapsingToolbarLayout,

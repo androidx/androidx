@@ -39,23 +39,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
-import androidx.navigation.compose.samples.Screen
-import androidx.navigation.navArgument
+import androidx.navigation.compose.samples.Profile
 import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
 
 @Composable
-@Suppress("DEPRECATION")
 fun NavByDeepLinkDemo() {
     val navController = rememberNavController()
-    val uri = "https://example.com/dashboard?userId="
-    NavHost(navController, startDestination = Screen.Profile.route) {
-        composable(Screen.Profile.route) { ProfileWithDeepLink(navController, uri) }
-        composable(
-            Screen.Dashboard.route,
-            arguments = listOf(navArgument("userId") { defaultValue = "no value given" }),
-            deepLinks = listOf(navDeepLink { uriPattern = "$uri{userId}" })
+    val basePath = "https://example.com"
+    NavHost(navController, startDestination = Profile) {
+        composable<Profile> { ProfileWithDeepLink(navController, "$basePath?userId=") }
+        composable<Dashboard>(
+            // use the same args from Destination.Dashboard with custom uri base path
+            deepLinks = listOf(navDeepLink<Dashboard>(basePath))
         ) { backStackEntry ->
-            Dashboard(navController, backStackEntry.arguments?.get("userId") as? String)
+            val dashboard = backStackEntry.toRoute<Dashboard>()
+            Dashboard(navController, dashboard.userId)
         }
     }
 }
@@ -63,7 +62,7 @@ fun NavByDeepLinkDemo() {
 @Composable
 fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = stringResource(Screen.Profile.resourceId))
+        Text(text = stringResource(Profile.resourceId))
         Divider(color = Color.Black)
         val state = rememberSaveable { mutableStateOf("") }
         Box {
@@ -75,6 +74,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
         }
         Divider(color = Color.Black)
         Button(
+            // navigate with deeplink
             onClick = { navController.navigate(Uri.parse(uri + state.value)) },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
             modifier = Modifier.fillMaxWidth()

@@ -32,7 +32,7 @@ import androidx.core.bundle.Bundle
  * Examples include information about an intent to navigate to other activities,
  * or a fragment class name to instantiate and swap to a new fragment.
  */
-public expect abstract class Navigator<D : NavDestination> {
+public expect abstract class Navigator<D : NavDestination>() {
     /**
      * The state of the Navigator is the communication conduit between the Navigator
      * and the [NavController] that has called [onAttach].
@@ -81,9 +81,7 @@ public expect abstract class Navigator<D : NavDestination> {
      * @param navigatorExtras extras unique to your Navigator.
      */
     public open fun navigate(
-        entries: List<NavBackStackEntry>,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        entries: List<NavBackStackEntry>, navOptions: NavOptions?, navigatorExtras: Extras?
     )
 
     /**
@@ -111,10 +109,7 @@ public expect abstract class Navigator<D : NavDestination> {
      */
     // TODO Deprecate this method once all call sites are removed
     public open fun navigate(
-        destination: D,
-        args: Bundle?,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        destination: D, args: Bundle?, navOptions: NavOptions?, navigatorExtras: Extras?
     ): NavDestination?
 
     /**

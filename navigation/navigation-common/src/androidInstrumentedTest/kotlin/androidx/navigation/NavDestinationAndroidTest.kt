@@ -20,12 +20,15 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.stringArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.typeOf
+import kotlinx.serialization.Serializable
 import org.junit.Test
 
 @SmallTest
@@ -49,7 +52,8 @@ class NavDestinationAndroidTest {
             destination.route = ""
         } catch (e: IllegalArgumentException) {
             assertWithMessage("setting blank route should throw an error")
-                .that(e).hasMessageThat()
+                .that(e)
+                .hasMessageThat()
                 .contains("Cannot have an empty route")
         }
     }
@@ -100,13 +104,9 @@ class NavDestinationAndroidTest {
         destination.addArgument("myArg", nullableStringArgument())
         destination.addDeepLink("www.example.com/users?myArg={myArg}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users?")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users?"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
     }
 
     @Test
@@ -115,13 +115,9 @@ class NavDestinationAndroidTest {
         destination.addArgument("id", intArgument())
         destination.addDeepLink("www.example.com/users/{id}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users/43"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getInt("id"))
@@ -134,13 +130,9 @@ class NavDestinationAndroidTest {
         destination.addArgument("id", intArgument())
         destination.addDeepLink("www.example.com/users?id={id}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users?id=43")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users?id=43"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getInt("id"))
@@ -153,13 +145,9 @@ class NavDestinationAndroidTest {
         destination.addArgument("id", intArgument())
         destination.addDeepLink("www.example.com/users?userId={id}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users?userId=43")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users?userId=43"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
 
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getInt("id"))
@@ -172,13 +160,9 @@ class NavDestinationAndroidTest {
         destination.addArgument("id", intArgument())
         destination.addDeepLink("www.example.com/users?{id}#{myFrag}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users?43#theFrag")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users?43#theFrag"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getInt("id"))
             .isEqualTo(43)
@@ -191,13 +175,9 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users")
         destination.addDeepLink("www.example.com/users#{frag}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users#testFrag")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users#testFrag"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should match with frag")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -214,13 +194,9 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users#{frag1}&{frag2}")
         destination.addDeepLink("www.example.com/users#{frag}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users#testFrag")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users#testFrag"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should match with link with single frag")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -237,13 +213,12 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users#{frag1}_{frag2}")
         destination.addDeepLink("www.example.com/users#{frag}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users#testFrag1_testFrag2")
-        )
+        val match =
+            destination.matchDeepLink(
+                Uri.parse("https://www.example.com/users#testFrag1_testFrag2")
+            )
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should match with link with multiple frags")
             .that(match?.matchingArgs?.size())
             .isEqualTo(2)
@@ -262,9 +237,7 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users")
         destination.addDeepLink("www.example.com/users#param1={value1}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users#myFrag")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users#myFrag"))
         // fragment is optional here, the fragment not matching should not stop it from
         // matching with the link without fragment
         assertWithMessage("Deep link should match with the link without fragment")
@@ -283,14 +256,10 @@ class NavDestinationAndroidTest {
         destination.addArgument("value1", stringArgument())
         destination.addDeepLink("www.example.com/users#param1={value1}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users"))
         // the fragment is a required argument in this case so the requested link should
         // not match with the exact path
-        assertWithMessage("Deep link should not match")
-            .that(match)
-            .isNull()
+        assertWithMessage("Deep link should not match").that(match).isNull()
     }
 
     @Test
@@ -302,13 +271,9 @@ class NavDestinationAndroidTest {
         destination.addArgument("name", nullableStringArgument(null))
         destination.addDeepLink("www.example.com/users/{name}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/index.html")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users/index.html"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick the exact match")
             .that(match?.matchingArgs?.size())
             .isEqualTo(0)
@@ -324,13 +289,12 @@ class NavDestinationAndroidTest {
         destination.addArgument("name", nullableStringArgument(null))
         destination.addDeepLink("www.example.com/users/{name}?tab={tab}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
-        )
+        val match =
+            destination.matchDeepLink(
+                Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
+            )
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick the exact match with query")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -349,13 +313,9 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.test.com/{user}/{name}")
         destination.addDeepLink("www.test.com/testUser/{name}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.test.com/testUser/testName")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.test.com/testUser/testName"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should match with most exact path segments")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -375,13 +335,12 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.test.com/{user}/{name}?param={arg}")
         destination.addDeepLink("www.test.com/testUser/{name}?param={arg}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.test.com/testUser/testName?param=testArg")
-        )
+        val match =
+            destination.matchDeepLink(
+                Uri.parse("https://www.test.com/testUser/testName?param=testArg")
+            )
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should match with most exact path segments")
             .that(match?.matchingArgs?.size())
             .isEqualTo(2)
@@ -398,13 +357,9 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.test.com/one/two/{three}/{four}")
         destination.addDeepLink("www.test.com/one/{two}/three/four")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.test.com/one/two/three/four")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.test.com/one/two/three/four"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should match with most exact path segments")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -424,13 +379,12 @@ class NavDestinationAndroidTest {
         destination.addArgument("tab2", nullableStringArgument())
         destination.addDeepLink("www.example.com/users/anonymous?tab={tab}&tab2={tab2}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
-        )
+        val match =
+            destination.matchDeepLink(
+                Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
+            )
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick the exact match with query")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -450,13 +404,12 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users/anonymous?tab={tab}&tab2={tab2}")
 
         // both query params are required, this URI with only one arg should not match at all
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
-        )
+        val match =
+            destination.matchDeepLink(
+                Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
+            )
 
-        assertWithMessage("Deep link should not match")
-            .that(match)
-            .isNull()
+        assertWithMessage("Deep link should not match").that(match).isNull()
     }
 
     @Test
@@ -467,9 +420,7 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/{name}")
 
         val match = destination.matchDeepLink(Uri.parse("https://www.example.com/foo"))
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick name over .*")
             .that(match?.matchingArgs?.size())
             .isEqualTo(1)
@@ -485,13 +436,10 @@ class NavDestinationAndroidTest {
         destination.addArgument("postId", intArgument())
         destination.addDeepLink("www.example.com/users/{id}/posts/{postId}")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43/posts/99")
-        )
+        val match =
+            destination.matchDeepLink(Uri.parse("https://www.example.com/users/43/posts/99"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should pick the argument with more matching arguments")
             .that(match?.matchingArgs?.size())
             .isEqualTo(2)
@@ -511,13 +459,9 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users/{id}")
         destination.addDeepLink("www.example.com/users/{id}/posts")
 
-        val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/u43/posts")
-        )
+        val match = destination.matchDeepLink(Uri.parse("https://www.example.com/users/u43/posts"))
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getString("id"))
             .isEqualTo("u43")
@@ -528,31 +472,21 @@ class NavDestinationAndroidTest {
         val destination = NoOpNavigator().createDestination()
 
         destination.addArgument("deeplink1", nullableStringArgument(null))
-        destination.addDeepLink(
-            NavDeepLink(
-                "www.example.com/users/{deeplink1}",
-                null, "*/*"
-            )
-        )
+        destination.addDeepLink(NavDeepLink("www.example.com/users/{deeplink1}", null, "*/*"))
 
         destination.addArgument("deeplink2", nullableStringArgument(null))
-        destination.addDeepLink(
-            NavDeepLink(
-                "www.example.com/users/{deeplink2}",
-                null, "image/*"
-            )
-        )
+        destination.addDeepLink(NavDeepLink("www.example.com/users/{deeplink2}", null, "image/*"))
 
-        val match = destination.matchDeepLink(
-            NavDeepLinkRequest(
-                Uri.parse("https://www.example.com/users/result"), null,
-                "image/jpg"
+        val match =
+            destination.matchDeepLink(
+                NavDeepLinkRequest(
+                    Uri.parse("https://www.example.com/users/result"),
+                    null,
+                    "image/jpg"
+                )
             )
-        )
 
-        assertWithMessage("Deep link should match")
-            .that(match)
-            .isNotNull()
+        assertWithMessage("Deep link should match").that(match).isNotNull()
         assertWithMessage("Deep link matching arg should be deeplink2")
             .that(match?.matchingArgs?.getString("deeplink2"))
             .isEqualTo("result")
@@ -564,8 +498,7 @@ class NavDestinationAndroidTest {
         val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
         destination.addDeepLink(deepLink.toString())
 
-        assertWithMessage("Deep link should match")
-            .that(destination.hasDeepLink(deepLink)).isTrue()
+        assertWithMessage("Deep link should match").that(destination.hasDeepLink(deepLink)).isTrue()
     }
 
     @Test
@@ -575,8 +508,7 @@ class NavDestinationAndroidTest {
         val deepLink = Uri.parse("android-app://androidx.navigation.test/route")
         destination.addDeepLink(deepLink.toString())
 
-        assertWithMessage("Deep link should match")
-            .that(destination.hasDeepLink(deepLink)).isTrue()
+        assertWithMessage("Deep link should match").that(destination.hasDeepLink(deepLink)).isTrue()
     }
 
     @Test
@@ -586,8 +518,7 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("android-app://androidx.navigation.test/{testString}")
 
         val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
-        assertWithMessage("Deep link should match")
-            .that(destination.hasDeepLink(deepLink)).isTrue()
+        assertWithMessage("Deep link should match").that(destination.hasDeepLink(deepLink)).isTrue()
     }
 
     @Test
@@ -597,7 +528,8 @@ class NavDestinationAndroidTest {
         val deepLink = Uri.parse("android-app://androidx.navigation.test/invalid")
 
         assertWithMessage("Deep link should not match")
-            .that(destination.hasDeepLink(deepLink)).isFalse()
+            .that(destination.hasDeepLink(deepLink))
+            .isFalse()
     }
 
     @Test
@@ -609,7 +541,8 @@ class NavDestinationAndroidTest {
         val deepLink = Uri.parse("android-app://androidx.navigation.test/test/extra")
 
         assertWithMessage("Deep link should not match")
-            .that(destination.hasDeepLink(deepLink)).isFalse()
+            .that(destination.hasDeepLink(deepLink))
+            .isFalse()
     }
 
     @Test
@@ -618,11 +551,7 @@ class NavDestinationAndroidTest {
         destination.addArgument("stringArg", stringArgument("aaa"))
         destination.addArgument("intArg", intArgument(123))
 
-        val bundle = destination.addInDefaultArgs(
-            Bundle().apply {
-                putString("stringArg", "bbb")
-            }
-        )
+        val bundle = destination.addInDefaultArgs(Bundle().apply { putString("stringArg", "bbb") })
         assertThat(bundle?.getString("stringArg")).isEqualTo("bbb")
         assertThat(bundle?.getInt("intArg")).isEqualTo(123)
     }
@@ -633,11 +562,7 @@ class NavDestinationAndroidTest {
         destination.addArgument("stringArg", stringArgument("aaa"))
         destination.addArgument("intArg", intArgument(123))
 
-        destination.addInDefaultArgs(
-            Bundle().apply {
-                putInt("stringArg", 123)
-            }
-        )
+        destination.addInDefaultArgs(Bundle().apply { putInt("stringArg", 123) })
     }
 
     @Test
@@ -692,5 +617,69 @@ class NavDestinationAndroidTest {
         destination2.addArgument(TEST_ARG_KEY, stringArgument("bbb"))
 
         assertThat(destination).isNotEqualTo(destination2)
+    }
+
+    @Test
+    fun hasRoute() {
+        @Serializable class TestClass
+
+        val destination =
+            NavDestinationBuilder(NoOpNavigator(), TestClass::class, emptyMap()).build()
+        assertThat(destination.hasRoute<TestClass>()).isTrue()
+    }
+
+    @Test
+    fun hasRouteArgs() {
+        @Serializable class TestClass(val arg: Int)
+
+        val destination =
+            NavDestinationBuilder(NoOpNavigator(), TestClass::class, emptyMap()).build()
+        assertThat(destination.hasRoute<TestClass>()).isTrue()
+    }
+
+    @Test
+    fun hasRouteArgsCustomType() {
+        @Serializable class TestArg
+        val testArg =
+            object : NavType<TestArg>(true) {
+                override fun put(bundle: Bundle, key: String, value: TestArg) {}
+
+                override fun get(bundle: Bundle, key: String): TestArg? = null
+
+                override fun parseValue(value: String) = TestArg()
+            }
+
+        @Serializable class TestClass(val arg: TestArg)
+
+        val destination =
+            NavDestinationBuilder(
+                    NoOpNavigator(),
+                    TestClass::class,
+                    mapOf(typeOf<TestArg>() to testArg)
+                )
+                .build()
+        assertThat(destination.hasRoute<TestClass>()).isTrue()
+    }
+
+    @Test
+    fun hasRouteWrongClass() {
+        @Serializable class TestClass(val arg: Int)
+        @Serializable class WrongClass(val arg: Int)
+
+        val destination =
+            NavDestinationBuilder(NoOpNavigator(), TestClass::class, emptyMap()).build()
+        assertThat(destination.hasRoute<WrongClass>()).isFalse()
+    }
+
+    @Test
+    fun hasRouteWrongId() {
+        @Serializable class TestClass(val arg: Int)
+
+        val destination =
+            NavDestinationBuilder(NoOpNavigator(), TestClass::class, emptyMap()).build()
+
+        destination.id = 0
+
+        assertThat(destination.hasRoute<TestClass>()).isFalse()
     }
 }

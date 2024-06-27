@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("NavigatorProviderKt")
+@file:JvmMultifileClass
+
 package androidx.navigation
 
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+import kotlin.reflect.KClass
 
 /**
  * A NavigationProvider stores a set of [Navigator]s that are valid ways to navigate
@@ -63,8 +70,7 @@ public expect open class NavigatorProvider() {
      */
     @CallSuper
     public open fun addNavigator(
-        name: String,
-        navigator: Navigator<out NavDestination>
+        name: String, navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>?
 }
 
@@ -73,22 +79,35 @@ public expect open class NavigatorProvider() {
  *
  * @throws IllegalStateException if the Navigator has not been added
  */
-public expect inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
     name: String
+): T = getNavigator(name)
+
+/**
+ * Retrieves a registered [Navigator] using the name provided by its name.
+ *
+ * @throws IllegalStateException if the Navigator has not been added
+ */
+public expect inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+    clazz: KClass<T>
 ): T
 
 /**
- * Register a [Navigator] by name. If a navigator by this name is already
- * registered, this new navigator will replace it.
+ * Register a [Navigator] by name. If a navigator by this name is already registered, this new
+ * navigator will replace it.
  *
  * @return the previously added [Navigator] for the given name, if any
  */
-public expect inline operator fun NavigatorProvider.set(
-    name: String,
-    navigator: Navigator<out NavDestination>
-): Navigator<out NavDestination>?
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun NavigatorProvider.set(
+    name: String, navigator: Navigator<out NavDestination>
+): Navigator<out NavDestination>? = addNavigator(name, navigator)
 
 /**
  * Register a navigator using the name provided by its name.
  */
-public expect inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>)
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
+    addNavigator(navigator)
+}

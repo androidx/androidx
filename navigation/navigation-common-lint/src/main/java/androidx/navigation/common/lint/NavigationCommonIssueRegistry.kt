@@ -22,19 +22,18 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * [IssueRegistry] containing common specific lint issues.
- */
+/** [IssueRegistry] containing common specific lint issues. */
 class NavigationCommonIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        EmptyNavDeepLinkDetector.EmptyNavDeepLink
-    )
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=409828",
-        vendorName = "Android Open Source Project",
-        identifier = "androidx.navigation.common"
-    )
+    override val issues
+        get() = listOf(EmptyNavDeepLinkDetector.EmptyNavDeepLink)
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=409828",
+            vendorName = "Android Open Source Project",
+            identifier = "androidx.navigation.common"
+        )
 }

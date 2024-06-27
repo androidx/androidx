@@ -172,7 +172,7 @@ package androidx.navigation {
     method public androidx.core.app.TaskStackBuilder createTaskStackBuilder();
     method public androidx.navigation.NavDeepLinkBuilder setArguments(android.os.Bundle? args);
     method public androidx.navigation.NavDeepLinkBuilder setComponentName(android.content.ComponentName componentName);
-    method public androidx.navigation.NavDeepLinkBuilder setComponentName(Class<? extends android.app.Activity> activityClass);
+    method public androidx.navigation.NavDeepLinkBuilder setComponentName(Class<? extends android.app.Activity?> activityClass);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId, optional android.os.Bundle? args);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute);

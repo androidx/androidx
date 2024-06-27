@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("NavGraphKt")
+@file:JvmMultifileClass
+
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
+import androidx.navigation.serialization.generateRouteWithArgs
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 /**
  * NavGraph is a collection of [NavDestination] nodes fetchable by ID.
@@ -80,6 +92,24 @@ public expect open class NavGraph(
      */
     public fun findNode(route: String?): NavDestination?
 
+    /**
+     * Finds a destination in the collection by route from [KClass]. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param T Route from a [KClass] to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    public inline fun <reified T> findNode(): NavDestination?
+
+    /**
+     * Finds a destination in the collection by route from Object. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param route Route to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    public fun <T> findNode(route: T?): NavDestination?
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(route: String, searchParents: Boolean): NavDestination?
 
@@ -117,12 +147,43 @@ public expect open class NavGraph(
      */
     public fun setStartDestination(startDestRoute: String)
 
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationRoute]
+     *
+     * @param T The route of the destination as a [KClass] to be shown when navigating
+     * to this NavGraph.
+     */
+    public inline fun <reified T : Any> setStartDestination()
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationRoute]
+     *
+     * @param startDestRoute The route of the destination as an object to be shown when navigating
+     * to this NavGraph.
+     */
+    public fun <T : Any> setStartDestination(startDestRoute: T)
+
+    // unfortunately needs to be public so reified setStartDestination can access this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun <T> setStartDestination(
+        serializer: KSerializer<T>,
+        parseRoute: (NavDestination) -> String,
+    )
+
     /**
      * The route for the starting destination for this NavGraph. When navigating to the
      * NavGraph, the destination represented by this route is the one the user will initially see.
      */
     public var startDestinationRoute: String?
         private set
+
+    public val startDestDisplayName: String
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 
     public companion object {
         /**
@@ -141,30 +202,40 @@ public expect open class NavGraph(
  *
  * @throws IllegalArgumentException if no destination is found with that route.
  */
-public expect inline operator fun NavGraph.get(route: String): NavDestination
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun NavGraph.get(route: String): NavDestination = findNode(route)
+    ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
-public expect operator fun NavGraph.contains(route: String): Boolean
+public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have a route set.
  *
- * The destination must not have a [parent][NavDestination.parent] set. If
- * the destination is already part of a [NavGraph], call
- * [NavGraph.remove] before calling this method.</p>
+ * The destination must not have a [parent][NavDestination.parent] set. If the destination is
+ * already part of a [NavGraph], call [NavGraph.remove] before calling this method.</p>
  *
  * @param node destination to add
  */
-public expect inline operator fun NavGraph.plusAssign(node: NavDestination)
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun NavGraph.plusAssign(node: NavDestination) {
+    addDestination(node)
+}
 
 /**
- * Add all destinations from another collection to this one. As each destination has at most
- * one parent, the destinations will be removed from the given NavGraph.
+ * Add all destinations from another collection to this one. As each destination has at most one
+ * parent, the destinations will be removed from the given NavGraph.
  *
  * @param other collection of destinations to add. All destinations will be removed from the
- * parameter graph after being added to this graph.
+ *   parameter graph after being added to this graph.
  */
-public expect inline operator fun NavGraph.plusAssign(other: NavGraph)
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun NavGraph.plusAssign(other: NavGraph) {
+    addAll(other)
+}
 
 /** Removes `node` from this navigation graph. */
-public expect inline operator fun NavGraph.minusAssign(node: NavDestination)
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+public inline operator fun NavGraph.minusAssign(node: NavDestination) {
+    remove(node)
+}

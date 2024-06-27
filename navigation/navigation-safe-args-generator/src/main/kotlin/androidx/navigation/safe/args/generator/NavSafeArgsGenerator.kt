@@ -28,19 +28,21 @@ fun SafeArgsGenerator(
     outputDir: File,
     useAndroidX: Boolean = true,
     generateKotlin: Boolean
-) = NavSafeArgsGenerator(
-    rFilePackage,
-    applicationId,
-    navigationXml,
-    outputDir,
-    if (generateKotlin) {
-        KotlinNavWriter(useAndroidX)
-    } else {
-        JavaNavWriter(useAndroidX)
-    }
-)
+) =
+    NavSafeArgsGenerator(
+        rFilePackage,
+        applicationId,
+        navigationXml,
+        outputDir,
+        if (generateKotlin) {
+            KotlinNavWriter(useAndroidX)
+        } else {
+            JavaNavWriter(useAndroidX)
+        }
+    )
 
-class NavSafeArgsGenerator<T : CodeFile> internal constructor(
+class NavSafeArgsGenerator<T : CodeFile>
+internal constructor(
     private val rFilePackage: String,
     private val applicationId: String,
     private val navigationXml: File,
@@ -49,33 +51,27 @@ class NavSafeArgsGenerator<T : CodeFile> internal constructor(
 ) {
     fun generate(): GeneratorOutput {
         val context = Context()
-        val rawDestination = NavParser.parseNavigationFile(
-            navigationXml,
-            rFilePackage,
-            applicationId,
-            context
-        )
+        val rawDestination =
+            NavParser.parseNavigationFile(navigationXml, rFilePackage, applicationId, context)
         val resolvedDestination = resolveArguments(rawDestination)
         val codeFiles = mutableSetOf<CodeFile>()
-        fun writeCodeFiles(
-            destination: Destination,
-            parentDirectionsFileList: List<T>
-        ) {
+        fun writeCodeFiles(destination: Destination, parentDirectionsFileList: List<T>) {
             val newParentDirectionFile =
                 if (destination.actions.isNotEmpty() || parentDirectionsFileList.isNotEmpty()) {
-                    writer.generateDirectionsCodeFile(destination, parentDirectionsFileList)
-                } else {
-                    null
-                }?.also { codeFiles.add(it) }
+                        writer.generateDirectionsCodeFile(destination, parentDirectionsFileList)
+                    } else {
+                        null
+                    }
+                    ?.also { codeFiles.add(it) }
             if (destination.args.isNotEmpty()) {
                 codeFiles.add(writer.generateArgsCodeFile(destination))
             }
             destination.nested.forEach { nestedDestination ->
                 writeCodeFiles(
                     destination = nestedDestination,
-                    parentDirectionsFileList = newParentDirectionFile?.let {
-                        listOf(it) + parentDirectionsFileList
-                    } ?: parentDirectionsFileList
+                    parentDirectionsFileList =
+                        newParentDirectionFile?.let { listOf(it) + parentDirectionsFileList }
+                            ?: parentDirectionsFileList
                 )
             }
         }

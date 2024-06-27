@@ -15,6 +15,9 @@
  */
 package androidx.navigation
 
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStore
+
 /**
  * Subclass of [NavController] that offers additional APIs for use by a
  * [NavHost] to connect the NavController to external dependencies.
@@ -23,4 +26,7 @@ package androidx.navigation
  * directly from a navigation host via [NavHost.navController] or by using one of
  * the utility methods on the [Navigation] class.
  */
-public expect open class NavHostController : NavController
+public expect open class NavHostController : NavController {
+    public final override fun setLifecycleOwner(owner: LifecycleOwner)
+    public final override fun setViewModelStore(viewModelStore: ViewModelStore)
+}

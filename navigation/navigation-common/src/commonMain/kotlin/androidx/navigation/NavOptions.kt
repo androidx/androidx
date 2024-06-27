@@ -15,11 +15,12 @@
  */
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmOverloads
+import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
 
-/**
- * NavOptions stores special options for navigate actions
- */
+/** NavOptions stores special options for navigate actions */
 public expect class NavOptions {
     /**
      * Route for the destination to pop up to before navigating. When set, all non-matching
@@ -31,6 +32,30 @@ public expect class NavOptions {
      * @see shouldPopUpToSaveState
      */
     public var popUpToRoute: String?
+        private set
+
+    /**
+     * Route from a [KClass] for the destination to pop up to before navigating. When set,
+     * all non-matching destinations should be popped from the back stack.
+     * @return the destination route to pop up to, clearing all intervening destinations
+     * @see Builder.setPopUpTo
+     *
+     * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
+     */
+    public var popUpToRouteClass: KClass<*>?
+        private set
+
+    /**
+     * Route from an Object for the destination to pop up to before navigating. When set,
+     * all non-matching destinations should be popped from the back stack.
+     * @return the destination route to pop up to, clearing all intervening destinations
+     * @see Builder.setPopUpTo
+     *
+     * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
+     */
+    public var popUpToRouteObject: Any?
         private set
 
     /**
@@ -62,9 +87,7 @@ public expect class NavOptions {
      */
     public fun shouldPopUpToSaveState(): Boolean
 
-    /**
-     * Builder for constructing new instances of NavOptions.
-     */
+    /** Builder for constructing new instances of NavOptions. */
     public class Builder() {
         /**
          * Launch a navigation target as single-top if you are making a lateral navigation
@@ -100,9 +123,62 @@ public expect class NavOptions {
          */
         @JvmOverloads
         public fun setPopUpTo(
-            route: String?,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            route: String?, inclusive: Boolean, saveState: Boolean = false
+        ): Builder
+
+
+        /**
+         * Pop up to a given destination before navigating. This pops all non-matching destinations
+         * from the back stack until this destination is found.
+         *
+         * @param T route from a [KClass] for destination to pop up to, clearing all
+         * intervening destinations.
+         * @param inclusive true to also pop the given destination from the back stack.
+         * @param saveState true if the back stack and the state of all destinations between the
+         * current destination and [T] should be saved for later restoration via
+         * [setRestoreState] or the `restoreState` attribute using the same route from [KClass]
+         * as [popUpToRouteClass] (note: this matching route is true whether [inclusive] is true or
+         * false).
+         * @return this Builder
+         *
+         * @see NavOptions.popUpToRoute
+         * @see NavOptions.isPopUpToInclusive
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder") // no need for getter
+        public inline fun <reified T : Any> setPopUpTo(
+            inclusive: Boolean, saveState: Boolean = false
+        ): Builder
+
+        // this restricted public is needed so that the public reified [popUpTo] can call
+        // private popUpToRouteClass setter
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setPopUpTo(
+            klass: KClass<*>, inclusive: Boolean, saveState: Boolean = false
+        ): Builder
+
+        /**
+         * Pop up to a given destination before navigating. This pops all non-matching destinations
+         * from the back stack until this destination is found.
+         *
+         * @param route route from an Object for destination to pop up to, clearing all
+         * intervening destinations.
+         * @param inclusive true to also pop the given destination from the back stack.
+         * @param saveState true if the back stack and the state of all destinations between the
+         * current destination and [route] should be saved for later restoration via
+         * [setRestoreState] or the `restoreState` attribute using the same route from an Object
+         * as [popUpToRouteObject] (note: this matching route is true whether [inclusive] is
+         * true or false).
+         * @return this Builder
+         *
+         * @see NavOptions.popUpToRoute
+         * @see NavOptions.isPopUpToInclusive
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder")
+        @OptIn(InternalSerializationApi::class)
+        public fun <T : Any> setPopUpTo(
+            route: T, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         /**

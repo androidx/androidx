@@ -15,16 +15,22 @@
  */
 package androidx.navigation
 
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.navigation.serialization.decodeArguments
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import kotlin.reflect.KClass
+import kotlinx.serialization.serializer
 
 /**
  * Representation of an entry in the back stack of a [androidx.navigation.NavController]. The
@@ -33,11 +39,8 @@ import androidx.savedstate.SavedStateRegistryOwner
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-public expect class NavBackStackEntry :
-    LifecycleOwner,
-    ViewModelStoreOwner,
-    HasDefaultViewModelProviderFactory,
-    SavedStateRegistryOwner {
+public expect class NavBackStackEntry : LifecycleOwner, ViewModelStoreOwner,
+    HasDefaultViewModelProviderFactory, SavedStateRegistryOwner {
 
     @Suppress("ConvertSecondaryConstructorToPrimary")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -69,7 +72,17 @@ public expect class NavBackStackEntry :
     /**
      * The [SavedStateHandle] for this entry.
      */
+    @get:MainThread
     public val savedStateHandle: SavedStateHandle
+
+    /**
+     * {@inheritDoc}
+     *
+     * If the [androidx.navigation.NavHost] has not called
+     * [androidx.navigation.NavHostController.setLifecycleOwner], the
+     * Lifecycle will be capped at [Lifecycle.State.CREATED].
+     */
+    public override val lifecycle: Lifecycle
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -84,6 +97,35 @@ public expect class NavBackStackEntry :
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState()
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if called before the [lifecycle] has moved to
+     * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
+     * [androidx.navigation.NavHostController.setViewModelStore].
+     */
+    public override val viewModelStore: ViewModelStore
+
+    public override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+
+    public override val defaultViewModelCreationExtras: CreationExtras
+
+    public override val savedStateRegistry: SavedStateRegistry
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun saveState(outBundle: Bundle)
+}
+
+/**
+ * Returns route as an object of type [T]
+ *
+ * Extrapolates arguments from [NavBackStackEntry.arguments] and recreates object [T]
+ *
+ * @param [T] the entry's [NavDestination.route] as a [KClass]
+ * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
+ */
+public inline fun <reified T> NavBackStackEntry.toRoute(): T {
+    val bundle = arguments ?: Bundle()
+    val typeMap = destination.arguments.mapValues { it.value.type }
+    return serializer<T>().decodeArguments(bundle, typeMap)
 }

@@ -30,21 +30,25 @@ import org.junit.Test
 @LargeTest
 class ActivityTest {
     @Suppress("DEPRECATION")
-    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestArgsActivity>(
-        TestArgsActivity::class.java
-    )
-    private val view get() = activityRule.activity.findViewById<View>(VIEW_ID)
+    @get:Rule
+    val activityRule =
+        androidx.test.rule.ActivityTestRule<TestArgsActivity>(TestArgsActivity::class.java)
+    private val view
+        get() = activityRule.activity.findViewById<View>(VIEW_ID)
 
-    @Test fun findNavController() {
+    @Test
+    fun findNavController() {
         val navController = NavController(activityRule.activity)
         Navigation.setViewNavController(view, navController)
 
         val foundNavController = activityRule.activity.findNavController(VIEW_ID)
         assertWithMessage("View should have NavController set")
-            .that(foundNavController).isSameInstanceAs(navController)
+            .that(foundNavController)
+            .isSameInstanceAs(navController)
     }
 
-    @Test fun findNavControllerNull() {
+    @Test
+    fun findNavControllerNull() {
         try {
             activityRule.activity.findNavController(VIEW_ID)
             fail(
@@ -56,7 +60,8 @@ class ActivityTest {
         }
     }
 
-    @Test fun findNavControllerInvalidViewId() {
+    @Test
+    fun findNavControllerInvalidViewId() {
         try {
             activityRule.activity.findNavController(INVALID_VIEW_ID)
             fail(
@@ -69,34 +74,33 @@ class ActivityTest {
     }
 
     @Suppress("DEPRECATION")
-    @Test fun navArgsLazy() {
+    @Test
+    fun navArgsLazy() {
         // Normally, this would be set by using an <activity> destination to
         // start the Activity, but we'll fake it here in the test
-        activityRule.activity.intent = Intent(
-            activityRule.activity, TestArgsActivity::class.java
-        ).apply {
-            putExtra("test", "test")
-        }
-        assertThat(activityRule.activity.args)
-            .isNotNull()
-        assertThat(activityRule.activity.args.bundle["test"])
-            .isEqualTo("test")
+        activityRule.activity.intent =
+            Intent(activityRule.activity, TestArgsActivity::class.java).apply {
+                putExtra("test", "test")
+            }
+        assertThat(activityRule.activity.args).isNotNull()
+        assertThat(activityRule.activity.args.bundle["test"]).isEqualTo("test")
     }
 
-    @Test fun navArgsLazyNoExtras() {
+    @Test
+    fun navArgsLazyNoExtras() {
         // Normally, this would be set by using an <activity> destination to
         // start the Activity, but we'll fake it here in the test
-        activityRule.activity.intent = Intent(
-            activityRule.activity, TestArgsActivity::class.java
-        )
+        activityRule.activity.intent = Intent(activityRule.activity, TestArgsActivity::class.java)
         try {
             activityRule.activity.args
             fail("by navArgs() should throw an IllegalStateException when there are no extras")
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().isEqualTo(
-                "Activity ${activityRule.activity} has null extras in " +
-                    activityRule.activity.intent
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .isEqualTo(
+                    "Activity ${activityRule.activity} has null extras in " +
+                        activityRule.activity.intent
+                )
         }
     }
 }
@@ -105,25 +109,20 @@ private const val VIEW_ID = 1
 private const val INVALID_VIEW_ID = 2
 
 /**
- * It is a lot harder to test generated NavArgs classes, so
- * we'll just fake one that has the same fromBundle method
- * that NavArgsLazy expects
+ * It is a lot harder to test generated NavArgs classes, so we'll just fake one that has the same
+ * fromBundle method that NavArgsLazy expects
  */
 data class FakeTestArgs(val bundle: Bundle) : NavArgs {
     companion object {
-        @JvmStatic
-        fun fromBundle(bundle: Bundle) = FakeTestArgs(bundle)
+        @JvmStatic fun fromBundle(bundle: Bundle) = FakeTestArgs(bundle)
     }
 }
+
 class TestArgsActivity : Activity() {
     val args: FakeTestArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(
-            View(this).apply {
-                id = VIEW_ID
-            }
-        )
+        setContentView(View(this).apply { id = VIEW_ID })
     }
 }

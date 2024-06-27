@@ -34,7 +34,8 @@ class NavHostFragmentDynamicTest {
     fun testFindNavControllerDynamic() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             val navController = withActivity {
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .add(R.id.container, NavHostFragment())
                     .commitNow()
                 findNavController(R.id.container)
@@ -58,10 +59,12 @@ class NavHostFragmentDynamicTest {
             val initialNavHostFragment = NavHostFragment()
             val secondNavHostFragment = NavHostFragment()
             val navController = withActivity {
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .add(R.id.container, initialNavHostFragment)
                     .commitNow()
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .add(R.id.container, secondNavHostFragment)
                     .commitNow()
                 findNavController(R.id.container)
@@ -83,9 +86,7 @@ class NavHostFragmentDynamicTest {
     fun testFindNavControllerDynamicWithoutId() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
-                supportFragmentManager.beginTransaction()
-                    .add(NavHostFragment(), "tag")
-                    .commitNow()
+                supportFragmentManager.beginTransaction().add(NavHostFragment(), "tag").commitNow()
             }
             val hostRootNavController = withActivity {
                 val navHostFragment = supportFragmentManager.findFragmentByTag("tag")!!

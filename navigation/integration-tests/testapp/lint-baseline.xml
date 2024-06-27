@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
 
     <issue
         id="ClassVerificationFailure"
@@ -20,19 +20,10 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            window.exitTransition = fade"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            window.enterTransition = fade"
-        errorLine2="                   ~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 21"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
