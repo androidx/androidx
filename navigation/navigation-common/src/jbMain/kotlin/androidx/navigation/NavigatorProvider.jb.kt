@@ -39,18 +39,17 @@ public actual open class NavigatorProvider {
      *
      * @param navigatorClass class of the navigator to return
      * @return the registered navigator with the given [KClass]
-     *
      * @throws IllegalStateException if the Navigator has not been added
-     *
      * @see NavigatorProvider.addNavigator
      */
     @Suppress("UNCHECKED_CAST")
     public fun <T : Navigator<*>> getNavigator(navigatorClass: KClass<T>): T {
-        val navigator = _typeNavigators[navigatorClass]
-            ?: throw IllegalStateException(
-                "Could not find Navigator with class \"$navigatorClass\". You must call " +
-                    "NavController.addNavigator() for each navigation type."
-            )
+        val navigator =
+            _typeNavigators[navigatorClass]
+                ?: throw IllegalStateException(
+                    "Could not find Navigator with class \"$navigatorClass\". You must call " +
+                        "NavController.addNavigator() for each navigation type."
+                )
         return navigator as T
     }
 
@@ -58,11 +57,12 @@ public actual open class NavigatorProvider {
     @CallSuper
     public actual open fun <T : Navigator<*>> getNavigator(name: String): T {
         require(validateName(name)) { "navigator name cannot be an empty string" }
-        val navigator = _namedNavigators[name]
-            ?: throw IllegalStateException(
-                "Could not find Navigator with name \"$name\". You must call " +
-                    "NavController.addNavigator() for each navigation type."
-            )
+        val navigator =
+            _namedNavigators[name]
+                ?: throw IllegalStateException(
+                    "Could not find Navigator with name \"$name\". You must call " +
+                        "NavController.addNavigator() for each navigation type."
+                )
         return navigator as T
     }
 

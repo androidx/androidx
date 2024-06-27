@@ -20,9 +20,7 @@ import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
 
-/**
- * NavOptions stores special options for navigate actions
- */
+/** NavOptions stores special options for navigate actions */
 public expect class NavOptions {
     /**
      * Route for the destination to pop up to before navigating. When set, all non-matching
@@ -89,9 +87,7 @@ public expect class NavOptions {
      */
     public fun shouldPopUpToSaveState(): Boolean
 
-    /**
-     * Builder for constructing new instances of NavOptions.
-     */
+    /** Builder for constructing new instances of NavOptions. */
     public class Builder() {
         /**
          * Launch a navigation target as single-top if you are making a lateral navigation

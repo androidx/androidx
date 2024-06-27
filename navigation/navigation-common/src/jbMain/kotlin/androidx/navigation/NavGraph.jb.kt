@@ -29,13 +29,12 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
-public actual open class NavGraph actual constructor(
-    navGraphNavigator: Navigator<out NavGraph>
-) : NavDestination(navGraphNavigator), Iterable<NavDestination> {
+public actual open class NavGraph actual constructor(navGraphNavigator: Navigator<out NavGraph>) :
+    NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
     public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat<NavDestination>()
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
+
     private var startDestId = 0
     private var startDestIdName: String? = null
 
@@ -44,9 +43,8 @@ public actual open class NavGraph actual constructor(
         // First search through any deep links directly added to this NavGraph
         val bestMatch = super.matchDeepLink(route)
         // Then search through all child destinations for a matching deep link
-        val bestChildMatch = mapNotNull { child ->
-            child.matchDeepLink(route)
-        }.maxOrNull()
+        val bestChildMatch =
+            mapNotNull { child -> child.matchDeepLink(route) }.maxOrNull()
 
         return listOfNotNull(bestMatch, bestChildMatch).maxOrNull()
     }
@@ -93,41 +91,70 @@ public actual open class NavGraph actual constructor(
         }
     }
 
+    /**
+     * Finds a destination in the collection by ID. This will recursively check the [parent][parent]
+     * of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param resId ID to locate
+     * @return the node with ID resId
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findNode(resId: Int): NavDestination? {
-        return findNode(resId, true)
+    public fun findNode(resId: Int): NavDestination? =
+        findNodeComprehensive(resId, this, false)
+
+    /**
+     * Searches all children and parents recursively.
+     *
+     * Does not revisit graphs (whether it's a child or parent) if it has already been visited.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun findNodeComprehensive(
+        resId: Int,
+        lastVisited: NavDestination?,
+        searchChildren: Boolean
+    ): NavDestination? {
+        // first search direct children
+        var destination = nodes[resId]
+        if (destination != null) return destination
+
+        if (searchChildren) {
+            // then dfs through children. Avoid re-visiting children that were recursing up this
+            // way.
+            destination =
+                nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
+                    if (child is NavGraph && child != lastVisited) {
+                        child.findNodeComprehensive(resId, this, true)
+                    } else null
+                }
+        }
+
+        // lastly search through parents. Avoid re-visiting parents that were recursing down
+        // this way.
+        return destination
+            ?: if (parent != null && parent != lastVisited) {
+                parent!!.findNodeComprehensive(resId, this, searchChildren)
+            } else null
     }
 
     public actual fun findNode(route: String?): NavDestination? {
         return if (!route.isNullOrBlank()) findNode(route, true) else null
     }
 
-    public actual inline fun <reified T> findNode(): NavDestination? {
-        return findNode(serializer<T>().hashCode())
-    }
+    public actual inline fun <reified T> findNode(): NavDestination? =
+        findNode(serializer<T>().hashCode())
 
     @OptIn(InternalSerializationApi::class)
-    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    public actual fun <T> findNode(route: T?): NavDestination? {
-        return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findNode(resId: Int, searchParents: Boolean): NavDestination? {
-        val destination = nodes[resId]
-        // Search the parent for the NavDestination if it is not a child of this navigation graph
-        // and searchParents is true
-        return destination
-            ?: if (searchParents && parent != null) parent!!.findNode(resId) else null
-    }
+    public actual fun <T> findNode(route: T?): NavDestination? =
+        route?.let { findNode(it::class.serializer().hashCode()) }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun findNode(route: String, searchParents: Boolean): NavDestination? {
-        val destination = nodes.valueIterator().asSequence().firstOrNull {
-            // first try matching with routePattern
-            // if not found with routePattern, try matching with route args
-            it.route.equals(route) || it.matchDeepLink(route) != null
-        }
+        val destination =
+            nodes.valueIterator().asSequence().firstOrNull {
+                // first try matching with routePattern
+                // if not found with routePattern, try matching with route args
+                it.route.equals(route) || it.matchDeepLink(route) != null
+            }
 
         // Search the parent for the NavDestination if it is not a child of this navigation graph
         // and searchParents is true
@@ -135,28 +162,11 @@ public actual open class NavGraph actual constructor(
             ?: if (searchParents && parent != null) parent!!.findNode(route) else null
     }
 
-    // searches through child nodes, does not search through parents
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findChildNode(
-        resId: Int,
-    ): NavDestination? {
-        // first search through children directly added to graph
-        var destination = nodes[resId]
-        if (destination != null) return destination
-
-        // then search through child graphs
-        destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
-            if (child is NavGraph) {
-                child.findChildNode(resId)
-            } else null
-        }
-        return destination
-    }
-
     public actual final override fun iterator(): MutableIterator<NavDestination> {
         return object : MutableIterator<NavDestination> {
             private var index = -1
             private var wentToNext = false
+
             override fun hasNext(): Boolean {
                 return index + 1 < nodes.size()
             }
@@ -243,9 +253,7 @@ public actual open class NavGraph actual constructor(
     @OptIn(InternalSerializationApi::class)
     public actual fun <T : Any> setStartDestination(startDestRoute: T) {
         setStartDestination(startDestRoute::class.serializer()) { startDestination ->
-            val args = startDestination.arguments.mapValues {
-                it.value.type
-            }
+            val args = startDestination.arguments.mapValues { it.value.type }
             generateRouteWithArgs(startDestRoute, args)
         }
     }
@@ -272,18 +280,19 @@ public actual open class NavGraph actual constructor(
 
     public actual var startDestinationRoute: String? = null
         private set(startDestRoute) {
-            startDestId = if (startDestRoute == null) {
-                0
-            } else {
-                require(startDestRoute != route) {
-                    "Start destination $startDestRoute cannot use the same route as the graph $this"
+            startDestId =
+                if (startDestRoute == null) {
+                    0
+                } else {
+                    require(startDestRoute != route) {
+                        "Start destination $startDestRoute cannot use the same route as the graph $this"
+                    }
+                    require(startDestRoute.isNotBlank()) {
+                        "Cannot have an empty start destination route"
+                    }
+                    val internalRoute = createRoute(startDestRoute)
+                    internalRoute.hashCode()
                 }
-                require(startDestRoute.isNotBlank()) {
-                    "Cannot have an empty start destination route"
-                }
-                val internalRoute = createRoute(startDestRoute)
-                internalRoute.hashCode()
-            }
             field = startDestRoute
         }
 
@@ -295,7 +304,6 @@ public actual open class NavGraph actual constructor(
             }
             return startDestIdName!!
         }
-
 
     public override fun toString(): String {
         val sb = StringBuilder()
@@ -338,11 +346,12 @@ public actual open class NavGraph actual constructor(
         @JvmStatic
         public actual fun NavGraph.findStartDestination(): NavDestination =
             generateSequence(findNode(startDestinationId)) {
-                if (it is NavGraph) {
-                    it.findNode(it.startDestinationId)
-                } else {
-                    null
+                    if (it is NavGraph) {
+                        it.findNode(it.startDestinationId)
+                    } else {
+                        null
+                    }
                 }
-            }.last()
+                .last()
     }
 }

@@ -27,7 +27,8 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 
 @NavDestinationDsl
-public actual open class NavDestinationBuilder<out D : NavDestination> internal constructor(
+public actual open class NavDestinationBuilder<out D : NavDestination>
+internal constructor(
     protected actual val navigator: Navigator<out D>,
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val id: Int,
@@ -47,9 +48,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
         route?.serializer()?.generateRoutePattern(typeMap)
     ) {
         route?.apply {
-            serializer().generateNavArguments(typeMap).forEach {
-                arguments[it.name] = it.argument
-            }
+            serializer().generateNavArguments(typeMap).forEach { arguments[it.name] = it.argument }
         }
         this.typeMap = typeMap
     }
@@ -80,7 +79,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
     public actual inline fun <reified T : Any> deepLink(
         basePath: String,
     ) {
-        deepLink(basePath, T::class) { }
+        deepLink(basePath, T::class) {}
     }
 
     public actual fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
@@ -133,12 +132,8 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
     public actual open fun build(): D {
         return instantiateDestination().also { destination ->
             destination.label = label
-            arguments.forEach { (name, argument) ->
-                destination.addArgument(name, argument)
-            }
-            deepLinks.forEach { deepLink ->
-                destination.addDeepLink(deepLink)
-            }
+            arguments.forEach { (name, argument) -> destination.addArgument(name, argument) }
+            deepLinks.forEach { deepLink -> destination.addDeepLink(deepLink) }
             if (route != null) {
                 destination.route = route
             }

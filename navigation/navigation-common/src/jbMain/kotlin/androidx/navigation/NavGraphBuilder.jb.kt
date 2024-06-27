@@ -55,9 +55,9 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         route: KClass<*>?,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
     ) : super(provider[NavGraphNavigator::class], route, typeMap) {
-            this.provider = provider
-            this.startDestinationObject = startDestination
-        }
+        this.provider = provider
+        this.startDestinationObject = startDestination
+    }
 
     private val destinations = mutableListOf<NavDestination>()
 
@@ -74,24 +74,29 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     }
 
     @OptIn(InternalSerializationApi::class)
-    override fun build(): NavGraph = super.build().also { navGraph ->
-        navGraph.addDestinations(destinations)
-        if (startDestinationId == 0 && startDestinationRoute == null &&
-            startDestinationClass == null && startDestinationObject == null) {
-            if (route != null) {
-                throw IllegalStateException("You must set a start destination route")
+    override fun build(): NavGraph =
+        super.build().also { navGraph ->
+            navGraph.addDestinations(destinations)
+            if (
+                startDestinationId == 0 &&
+                    startDestinationRoute == null &&
+                    startDestinationClass == null &&
+                    startDestinationObject == null
+            ) {
+                if (route != null) {
+                    throw IllegalStateException("You must set a start destination route")
+                } else {
+                    throw IllegalStateException("You must set a start destination id")
+                }
+            }
+            if (startDestinationRoute != null) {
+                navGraph.setStartDestination(startDestinationRoute!!)
+            } else if (startDestinationClass != null) {
+                navGraph.setStartDestination(startDestinationClass!!.serializer()) { it.route!! }
+            } else if (startDestinationObject != null) {
+                navGraph.setStartDestination(startDestinationObject!!)
             } else {
-                throw IllegalStateException("You must set a start destination id")
+                navGraph.setStartDestination(startDestinationId)
             }
         }
-        if (startDestinationRoute != null) {
-            navGraph.setStartDestination(startDestinationRoute!!)
-        } else if (startDestinationClass != null) {
-            navGraph.setStartDestination(startDestinationClass!!.serializer()) { it.route!! }
-        } else if (startDestinationObject != null) {
-            navGraph.setStartDestination(startDestinationObject!!)
-        } else {
-            navGraph.setStartDestination(startDestinationId)
-        }
-    }
 }

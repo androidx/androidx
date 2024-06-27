@@ -41,9 +41,12 @@ internal data class NavBackStackEntryState(
         viewModel: NavControllerViewModel?
     ): NavBackStackEntry {
         return NavBackStackEntry.create(
-            destination, args,
-            hostLifecycleState, viewModel,
-            id, savedState
+            destination,
+            args,
+            hostLifecycleState,
+            viewModel,
+            id,
+            savedState
         )
     }
 }

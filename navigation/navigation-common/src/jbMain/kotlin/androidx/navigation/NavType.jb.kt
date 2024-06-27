@@ -64,9 +64,6 @@ public actual abstract class NavType<T> actual constructor(
         return name
     }
 
-    internal fun isPrimitive() = this == IntType || this == BoolType ||
-        this == FloatType || this == LongType || this == StringType
-
     public actual companion object {
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
