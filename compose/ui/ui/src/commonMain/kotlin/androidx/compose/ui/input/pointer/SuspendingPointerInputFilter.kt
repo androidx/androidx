@@ -183,38 +183,17 @@ private const val PointerInputModifierNoParamError =
 fun Modifier.pointerInput(block: suspend PointerInputScope.() -> Unit): Modifier =
     error(PointerInputModifierNoParamError)
 
-/**
- * Create a modifier for processing pointer input within the region of the modified element.
- *
- * [pointerInput] [block]s may call [PointerInputScope.awaitPointerEventScope] to install a pointer
- * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume pointer
- * input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope] may be
- * defined to perform higher-level gesture detection. The pointer input handling [block] will be
- * cancelled and **re-started** when [pointerInput] is recomposed with a different [key1].
- *
- * When a [pointerInput] modifier is created by composition, if [block] captures any local variables
- * to operate on, two patterns are common for working with changes to those variables depending on
- * the desired behavior.
- *
- * Specifying the captured value as a [key][key1] parameter will cause [block] to cancel and restart
- * from the beginning if the value changes:
- *
- * @sample androidx.compose.ui.samples.keyedPointerInputModifier
- *
- * If [block] should **not** restart when a captured value is changed but the value should still be
- * updated for its next use, use
- * [rememberUpdatedState][androidx.compose.runtime.rememberUpdatedState] to update a value holder
- * that is accessed by [block]:
- *
- * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
- *
- * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block` in
- * a `post { }` block to guarantee the event dispatch completes before executing the removal. (You
- * do not need to do this when removing a composable because Compose guarantees it completes via the
- * snapshot state system.)
- */
+@Deprecated(
+    "This function is deprecated. Use the PointerInputEventHandler block variation instead",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith =
+        ReplaceWith(
+            "pointerInput(key1 = key1, pointerInputEventHandler = block)",
+            "androidx.compose.ui.input.pointer.Modifier.pointerInput"
+        )
+)
 fun Modifier.pointerInput(key1: Any?, block: suspend PointerInputScope.() -> Unit): Modifier =
-    this then SuspendPointerInputElement(key1 = key1, pointerInputHandler = block)
+    this then SuspendPointerInputElement(key1 = key1, pointerInputEventHandler = block)
 
 /**
  * Create a modifier for processing pointer input within the region of the modified element.
@@ -223,7 +202,8 @@ fun Modifier.pointerInput(key1: Any?, block: suspend PointerInputScope.() -> Uni
  * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume pointer
  * input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope] may be
  * defined to perform higher-level gesture detection. The pointer input handling [block] will be
- * cancelled and **re-started** when [pointerInput] is recomposed with a different [key1] or [key2].
+ * cancelled and **re-started** when [pointerInput] is recomposed with a different [key1] or the
+ * [block] class is different.
  *
  * When a [pointerInput] modifier is created by composition, if [block] captures any local variables
  * to operate on, two patterns are common for working with changes to those variables depending on
@@ -246,12 +226,24 @@ fun Modifier.pointerInput(key1: Any?, block: suspend PointerInputScope.() -> Uni
  * do not need to do this when removing a composable because Compose guarantees it completes via the
  * snapshot state system.)
  */
+fun Modifier.pointerInput(key1: Any?, block: PointerInputEventHandler): Modifier =
+    this then SuspendPointerInputElement(key1 = key1, pointerInputEventHandler = block)
+
+@Deprecated(
+    "This function is deprecated. Use the PointerInputEventHandler block variation instead",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith =
+        ReplaceWith(
+            "pointerInput(key1 = key1, key2 = key2, pointerInputEventHandler = block)",
+            "androidx.compose.ui.input.pointer.Modifier.pointerInput"
+        )
+)
 fun Modifier.pointerInput(
     key1: Any?,
     key2: Any?,
     block: suspend PointerInputScope.() -> Unit
 ): Modifier =
-    this then SuspendPointerInputElement(key1 = key1, key2 = key2, pointerInputHandler = block)
+    this then SuspendPointerInputElement(key1 = key1, key2 = key2, pointerInputEventHandler = block)
 
 /**
  * Create a modifier for processing pointer input within the region of the modified element.
@@ -260,7 +252,56 @@ fun Modifier.pointerInput(
  * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume pointer
  * input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope] may be
  * defined to perform higher-level gesture detection. The pointer input handling [block] will be
- * cancelled and **re-started** when [pointerInput] is recomposed with any different [keys].
+ * cancelled and **re-started** when [pointerInput] is recomposed with a different [key1] or [key2],
+ * or the [block] class is different.
+ *
+ * When a [pointerInput] modifier is created by composition, if [block] captures any local variables
+ * to operate on, two patterns are common for working with changes to those variables depending on
+ * the desired behavior.
+ *
+ * Specifying the captured value as a [key][key1] parameter will cause [block] to cancel and restart
+ * from the beginning if the value changes:
+ *
+ * @sample androidx.compose.ui.samples.keyedPointerInputModifier
+ *
+ * If [block] should **not** restart when a captured value is changed but the value should still be
+ * updated for its next use, use
+ * [rememberUpdatedState][androidx.compose.runtime.rememberUpdatedState] to update a value holder
+ * that is accessed by [block]:
+ *
+ * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block` in
+ * a `post { }` block to guarantee the event dispatch completes before executing the removal. (You
+ * do not need to do this when removing a composable because Compose guarantees it completes via the
+ * snapshot state system.)
+ */
+fun Modifier.pointerInput(key1: Any?, key2: Any?, block: PointerInputEventHandler): Modifier =
+    this then SuspendPointerInputElement(key1 = key1, key2 = key2, pointerInputEventHandler = block)
+
+@Deprecated(
+    "This function is deprecated. Use the PointerInputEventHandler block variation instead",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith =
+        ReplaceWith(
+            "pointerInput(keys = keys, pointerInputEventHandler = block)",
+            "androidx.compose.ui.input.pointer.Modifier.pointerInput"
+        )
+)
+fun Modifier.pointerInput(
+    vararg keys: Any?,
+    block: suspend PointerInputScope.() -> Unit
+): Modifier = this then SuspendPointerInputElement(keys = keys, pointerInputEventHandler = block)
+
+/**
+ * Create a modifier for processing pointer input within the region of the modified element.
+ *
+ * [pointerInput] [block]s may call [PointerInputScope.awaitPointerEventScope] to install a pointer
+ * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume pointer
+ * input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope] may be
+ * defined to perform higher-level gesture detection. The pointer input handling [block] will be
+ * cancelled and **re-started** when [pointerInput] is recomposed with any different [keys] or the
+ * [block] class is different.
  *
  * When a [pointerInput] modifier is created by composition, if [block] captures any local variables
  * to operate on, two patterns are common for working with changes to those variables depending on
@@ -283,31 +324,37 @@ fun Modifier.pointerInput(
  * do not need to do this when removing a composable because Compose guarantees it completes via the
  * snapshot state system.)
  */
-fun Modifier.pointerInput(
-    vararg keys: Any?,
-    block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputElement(keys = keys, pointerInputHandler = block)
+fun Modifier.pointerInput(vararg keys: Any?, block: PointerInputEventHandler): Modifier =
+    this then SuspendPointerInputElement(keys = keys, pointerInputEventHandler = block)
+
+/*
+ * Represents the 'block' lambda passed into [Modifier.pointerInput]. It's used to receive and
+ * consume pointer input events.
+ */
+fun interface PointerInputEventHandler {
+    suspend operator fun PointerInputScope.invoke()
+}
 
 internal class SuspendPointerInputElement(
     val key1: Any? = null,
     val key2: Any? = null,
     val keys: Array<out Any?>? = null,
-    val pointerInputHandler: suspend PointerInputScope.() -> Unit
+    val pointerInputEventHandler: PointerInputEventHandler
 ) : ModifierNodeElement<SuspendingPointerInputModifierNodeImpl>() {
     override fun InspectorInfo.inspectableProperties() {
         name = "pointerInput"
         properties["key1"] = key1
         properties["key2"] = key2
         properties["keys"] = keys
-        properties["pointerInputHandler"] = pointerInputHandler
+        properties["pointerInputEventHandler"] = pointerInputEventHandler
     }
 
     override fun create(): SuspendingPointerInputModifierNodeImpl {
-        return SuspendingPointerInputModifierNodeImpl(key1, key2, keys, pointerInputHandler)
+        return SuspendingPointerInputModifierNodeImpl(key1, key2, keys, pointerInputEventHandler)
     }
 
     override fun update(node: SuspendingPointerInputModifierNodeImpl) {
-        node.update(key1, key2, keys, pointerInputHandler)
+        node.update(key1, key2, keys, pointerInputEventHandler)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -321,19 +368,38 @@ internal class SuspendPointerInputElement(
             if (!keys.contentEquals(other.keys)) return false
         } else if (other.keys != null) return false
 
-        return pointerInputHandler === other.pointerInputHandler
+        return pointerInputEventHandler === other.pointerInputEventHandler
     }
 
     override fun hashCode(): Int {
         var result = key1?.hashCode() ?: 0
         result = 31 * result + (key2?.hashCode() ?: 0)
         result = 31 * result + (keys?.contentHashCode() ?: 0)
-        result = 31 * result + pointerInputHandler.hashCode()
+        result = 31 * result + pointerInputEventHandler.hashCode()
         return result
     }
 }
 
 private val EmptyPointerEvent = PointerEvent(emptyList())
+
+/** Deprecated, use [SuspendingPointerInputModifierNode] instead. */
+@Deprecated(
+    message =
+        "This function is deprecated. Use 'SuspendingPointerInputModifierNode' with the" +
+            "PointerInputEventHandler instead.",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith =
+        ReplaceWith(
+            "SuspendingPointerInputModifierNode { pointerInputEventHandler }",
+            "androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode"
+        )
+)
+@Suppress("DEPRECATION")
+fun SuspendingPointerInputModifierNode(
+    pointerInputHandler: suspend PointerInputScope.() -> Unit
+): SuspendingPointerInputModifierNode {
+    return SuspendingPointerInputModifierNodeImpl(null, null, null, pointerInputHandler)
+}
 
 /**
  * Supports suspending pointer event handling. This is used by [pointerInput], so in most cases you
@@ -342,9 +408,9 @@ private val EmptyPointerEvent = PointerEvent(emptyList())
  * suspending pointer input as part of the implementation of a complex [Modifier.Node].
  */
 fun SuspendingPointerInputModifierNode(
-    pointerInputHandler: suspend PointerInputScope.() -> Unit
+    pointerInputEventHandler: PointerInputEventHandler
 ): SuspendingPointerInputModifierNode {
-    return SuspendingPointerInputModifierNodeImpl(null, null, null, pointerInputHandler)
+    return SuspendingPointerInputModifierNodeImpl(null, null, null, pointerInputEventHandler)
 }
 
 /**
@@ -358,14 +424,35 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
      * Handler for pointer input events. When changed, any previously executing pointerInputHandler
      * will be canceled.
      */
+    @Deprecated(
+        message = "This property is deprecated. Use 'pointerInputEventHandler' instead.",
+        level = DeprecationLevel.ERROR,
+        replaceWith =
+            ReplaceWith(
+                "pointerInputEventHandler",
+                "androidx.compose.ui.input.pointer." +
+                    "SuspendingPointerInputModifierNode.pointerInputEventHandler"
+            )
+    )
     var pointerInputHandler: suspend PointerInputScope.() -> Unit
+
+    /**
+     * Handler for pointer input events. When changed, any previously executing
+     * pointerInputEventHandler will be canceled.
+     */
+    // Supports more dynamic use cases than previous functional type version.
+    // NOTE: If you implement this interface, replace the default implementation. For more
+    // technical details, see aosp/3070509
+    var pointerInputEventHandler: PointerInputEventHandler
+        get() = TODO("pointerInputEventHandler must be implemented (get()).")
+        set(value) = TODO("pointerInputEventHandler must be implemented (set($value)).")
 
     /**
      * Resets the underlying coroutine used to run the handler for input pointer events. This should
      * be called whenever a large change has been made that forces the gesture detection to be
      * completely invalid.
      *
-     * For example, if [pointerInputHandler] has different modes for detecting a gesture (long
+     * For example, if [pointerInputEventHandler] has different modes for detecting a gesture (long
      * press, double click, etc.), and by switching the modes, any currently-running gestures are no
      * longer valid.
      */
@@ -375,7 +462,7 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
 /**
  * Implementation notes: This class does a lot of lifting. [PointerInputModifierNode] receives,
  * interprets, and, consumes [PointerInputChange]s while the state (and the coroutineScope used to
- * execute [pointerInputHandler]) is retained in [Modifier.Node].
+ * execute [pointerInputEventHandler]) is retained in [Modifier.Node].
  *
  * [SuspendingPointerInputModifierNodeImpl] implements the [PointerInputScope] used to offer the
  * [Modifier.pointerInput] DSL and provides the [Density] from [LocalDensity] lazily from the layout
@@ -388,49 +475,47 @@ internal class SuspendingPointerInputModifierNodeImpl(
     private var key1: Any? = null,
     private var key2: Any? = null,
     private var keys: Array<out Any?>? = null,
-    pointerInputHandler: suspend PointerInputScope.() -> Unit
+    pointerInputEventHandler: PointerInputEventHandler
 ) : Modifier.Node(), SuspendingPointerInputModifierNode, PointerInputScope, Density {
-
-    internal fun update(
+    @Deprecated("Exists to maintain compatibility with previous API shape")
+    constructor(
         key1: Any?,
         key2: Any?,
         keys: Array<out Any?>?,
-        pointerInputHandler: suspend PointerInputScope.() -> Unit
+        pointerInputEvent: suspend PointerInputScope.() -> Unit
+    ) : this(
+        key1 = key1,
+        key2 = key2,
+        keys = keys,
+        pointerInputEventHandler = PointerInputEventHandler {} // Empty Lambda, not used.
     ) {
-        var needsReset = false
-        if (this.key1 != key1) {
-            needsReset = true
-        }
-        this.key1 = key1
-        if (this.key2 != key2) {
-            needsReset = true
-        }
-        this.key2 = key2
-        if (this.keys != null && keys == null) {
-            needsReset = true
-        }
-        if (this.keys == null && keys != null) {
-            needsReset = true
-        }
-        if (this.keys != null && keys != null && !keys.contentEquals(this.keys)) {
-            needsReset = true
-        }
-        this.keys = keys
-        if (needsReset) {
-            resetPointerInputHandler()
-        }
-        // Avoids calling resetPointerInputHandler when setting this if no keys have changed
-        _pointerInputHandler = pointerInputHandler
+        // If the _deprecatedPointerInputHandler is set, we will use that instead of the
+        // pointerInputEventHandler (why empty lambda above doesn't matter).
+        _deprecatedPointerInputHandler = pointerInputEvent
     }
 
-    private var _pointerInputHandler = pointerInputHandler
+    // Previously used to execute pointer input handlers (now pointerInputEventHandler covers that).
+    // This exists purely for backwards compatibility.
+    private var _deprecatedPointerInputHandler: (suspend PointerInputScope.() -> Unit)? = null
 
-    override var pointerInputHandler
+    // Main handler for pointer input events
+    private var _pointerInputEventHandler = pointerInputEventHandler
+
+    @Deprecated("Super property deprecated")
+    override var pointerInputHandler: suspend PointerInputScope.() -> Unit
+        get() = _deprecatedPointerInputHandler ?: {}
         set(value) {
             resetPointerInputHandler()
-            _pointerInputHandler = value
+            _deprecatedPointerInputHandler = value
         }
-        get() = _pointerInputHandler
+
+    override var pointerInputEventHandler
+        set(value) {
+            resetPointerInputHandler()
+            _deprecatedPointerInputHandler = null
+            _pointerInputEventHandler = value
+        }
+        get() = _pointerInputEventHandler
 
     override val density: Float
         get() = requireLayoutNode().density.density
@@ -507,12 +592,12 @@ internal class SuspendingPointerInputModifierNodeImpl(
     }
 
     /**
-     * This cancels the existing coroutine and essentially resets pointerInputHandler's execution.
-     * Note, the pointerInputHandler still executes lazily, meaning nothing will be done again until
-     * a new event comes in. More details: This is triggered from a LayoutNode if the Density or
-     * ViewConfiguration change (in an older implementation using composed, these values were used
-     * as keys so it would reset everything when either change, we do that manually now through this
-     * function). It is also used for testing.
+     * This cancels the existing coroutine and essentially resets pointerInputEventHandler's
+     * execution. Note, the pointerInputEventHandler still executes lazily, meaning nothing will be
+     * done again until a new event comes in. More details: This is triggered from a LayoutNode if
+     * the Density or ViewConfiguration change (in an older implementation using composed, these
+     * values were used as keys so it would reset everything when either change, we do that manually
+     * now through this function). It is also used for testing.
      */
     override fun resetPointerInputHandler() {
         val localJob = pointerInputJob
@@ -520,6 +605,55 @@ internal class SuspendingPointerInputModifierNodeImpl(
             localJob.cancel(PointerInputResetException())
             pointerInputJob = null
         }
+    }
+
+    internal fun update(
+        key1: Any?,
+        key2: Any?,
+        keys: Array<out Any?>?,
+        pointerInputEventHandler: PointerInputEventHandler
+    ) {
+        var needsReset = false
+
+        // key1
+        if (this.key1 != key1) {
+            needsReset = true
+        }
+        this.key1 = key1
+
+        // key2
+        if (this.key2 != key2) {
+            needsReset = true
+        }
+        this.key2 = key2
+
+        // keys
+        if (this.keys != null && keys == null) {
+            needsReset = true
+        }
+        if (this.keys == null && keys != null) {
+            needsReset = true
+        }
+        if (this.keys != null && keys != null && !keys.contentEquals(this.keys)) {
+            needsReset = true
+        }
+        this.keys = keys
+
+        // Lambda literals will have a new instance every time they are executed (even if it is from
+        // the same code location), so we can not use them as a comparison mechanism to avoid
+        // restarting pointer input handlers when they are functionally the same. However, we can
+        // get around this by using a SAM interface and a class comparison instead. (Even though the
+        // instances are different, they will have the same class type.)
+        if (this.pointerInputEventHandler::class != pointerInputEventHandler::class) {
+            needsReset = true
+        }
+
+        // Only reset when keys have changed or pointerInputEventHandler is called from a different
+        // call site (determined by class comparison).
+        if (needsReset) {
+            resetPointerInputHandler()
+        }
+        _pointerInputEventHandler = pointerInputEventHandler
     }
 
     /**
@@ -570,7 +704,13 @@ internal class SuspendingPointerInputModifierNodeImpl(
         if (pointerInputJob == null) {
             // 'start = CoroutineStart.UNDISPATCHED' required so handler doesn't miss first event.
             pointerInputJob =
-                coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { pointerInputHandler() }
+                coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    if (_deprecatedPointerInputHandler != null) {
+                        _deprecatedPointerInputHandler!!()
+                    } else {
+                        with(pointerInputEventHandler) { invoke() }
+                    }
+                }
         }
 
         dispatchPointerEvent(pointerEvent, pass)

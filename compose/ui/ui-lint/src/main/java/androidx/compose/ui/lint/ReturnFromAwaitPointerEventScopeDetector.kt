@@ -28,27 +28,36 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.android.tools.lint.detector.api.isIncorrectImplicitReturnInLambda
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.types.KtFunctionalType
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.ULocalVariable
 import org.jetbrains.uast.UReturnExpression
+import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.skipParenthesizedExprUp
 
 class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
-
     override fun getApplicableMethodNames(): List<String> =
         listOf(Names.Ui.Pointer.AwaitPointerEventScope.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Ui.Pointer.PackageName)) return
+
         val methodParent = skipParenthesizedExprUp(node.uastParent)
         val isAssignedToVariable = methodParent is ULocalVariable
-        val isReturnExpression =
-            methodParent is UReturnExpression && !methodParent.isIncorrectImplicitReturnInLambda()
 
-        if (isAssignedToVariable || isReturnExpression) {
+        val isReturnExpression = methodParent is UReturnExpression
+
+        val invalidUseOfAwaitPointerEventScopeWithReturn =
+            isReturnExpression && !validUseOfAwaitPointerEventScopeWithReturn(node)
+
+        if (isAssignedToVariable || invalidUseOfAwaitPointerEventScopeWithReturn) {
             context.report(
                 ExitAwaitPointerEventScope,
                 node,
@@ -58,7 +67,63 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
         }
     }
 
+    private fun validUseOfAwaitPointerEventScopeWithReturn(
+        awaitPointerEventScopeNode: UCallExpression
+    ): Boolean {
+        // Traverse up the UAST tree
+        var currentNode: UElement? = awaitPointerEventScopeNode.uastParent
+        while (currentNode != null) {
+            // Check if awaitPointerEventScope is within a PointerInputEventHandler or a
+            // pointerInput method call (making it a valid use of return).
+            if (
+                currentNode is UCallExpression &&
+                    (currentNode.methodName == POINTER_INPUT_HANDLER ||
+                        currentNode.methodName == POINTER_INPUT_METHOD ||
+                        currentNode.methodName == COROUTINE_METHOD)
+            ) {
+                return true
+            }
+
+            // For backward compatibility, checks if awaitPointerEventScopeNode is returned to a
+            // "suspend PointerInputScope.() -> Unit" type variable (see test
+            // awaitPointerEventScope_assignedFromContainingLambdaMethod_shouldNotWarn() ).
+            if (currentNode is UVariable) {
+                val variable = currentNode
+                val lambda: UExpression? = variable.uastInitializer
+
+                // Check if the initializer is a suspend lambda with the correct type
+                if (lambda is ULambdaExpression) {
+                    val ktLambdaExpression = lambda.sourcePsi
+                    if (
+                        ktLambdaExpression is KtLambdaExpression &&
+                            isSuspendPointerInputLambda(ktLambdaExpression)
+                    ) {
+                        return true
+                    }
+                }
+            }
+            currentNode = currentNode.uastParent
+        }
+        return false
+    }
+
+    // Helper function for lambda type check
+    private fun isSuspendPointerInputLambda(ktLambdaExpression: KtLambdaExpression): Boolean {
+        return analyze(ktLambdaExpression) {
+            val type = ktLambdaExpression.getExpectedType() as? KtFunctionalType ?: return false
+            type.isSuspendFunctionType &&
+                type.receiverType?.expandedClassSymbol?.classIdIfNonLocal?.asFqNameString() ==
+                    POINTER_INPUT_SCOPE
+        }
+    }
+
     companion object {
+        private const val POINTER_INPUT_SCOPE =
+            "androidx.compose.ui.input.pointer.PointerInputScope"
+        private const val POINTER_INPUT_HANDLER = "PointerInputEventHandler"
+        private const val POINTER_INPUT_METHOD = "pointerInput"
+        private const val COROUTINE_METHOD = "coroutineScope"
+
         const val IssueId: String = "ReturnFromAwaitPointerEventScope"
         const val ErrorMessage =
             "Returning from awaitPointerEventScope may cause some input " + "events to be dropped"
