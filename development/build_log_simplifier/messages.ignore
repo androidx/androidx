@@ -302,3 +302,9 @@ i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
 Extracted sandbox SDK APK for.*
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
+# > Task :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinBenchmarksReleaseXCFramework
+objc\[[0-9]+\]: Class AMSupportURLConnectionDelegate is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+e[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+e[0-9]+bc[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
+objc\[[0-9]+\]: Class AMSupportURLSession is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+e[0-9]+bc[0-9]+\)\. One of the two will be used\. Which one is undefined\.
+# > Task :collection:collection-benchmark:assembleAndroidXDarwinBenchmarksReleaseXCFramework
+objc\[[0-9]+\]: Class AMSupportURLConnectionDelegate is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+e[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+c[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
+objc\[[0-9]+\]: Class AMSupportURLSession is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
