@@ -22,11 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -50,25 +45,9 @@ class CircularIndeterminateProgressIndicatorTest {
     }
 
     @Test
-    fun has_no_semantics_by_default() {
+    fun shows_indeterminate_progress() {
         rule.setContentWithTheme {
             CircularProgressIndicator(modifier = Modifier.testTag(TEST_TAG))
-        }
-
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ProgressBarRangeInfo))
-    }
-
-    @Test
-    fun allows_semantics_to_be_added_correctly() {
-        rule.setContentWithTheme {
-            CircularProgressIndicator(
-                modifier =
-                    Modifier.testTag(TEST_TAG).semantics {
-                        progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate
-                    },
-            )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
@@ -113,15 +92,12 @@ class CircularDeterminateProgressIndicatorTest {
     }
 
     @Test
-    fun allows_semantics_to_be_added_correctly() {
+    fun changes_progress() {
         val progress = mutableStateOf(0f)
 
         rule.setContentWithTheme {
             CircularProgressIndicator(
-                modifier =
-                    Modifier.testTag(TEST_TAG).semantics {
-                        progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
-                    },
+                modifier = Modifier.testTag(TEST_TAG),
                 progress = progress.value
             )
         }
@@ -197,6 +173,38 @@ class CircularDeterminateProgressIndicatorTest {
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertColorInPercentageRange(Color.Red, 5f..8f)
+    }
+
+    @Test
+    fun coerces_highest_out_of_bound_progress() {
+        val progress = mutableStateOf(0f)
+
+        rule.setContentWithTheme {
+            CircularProgressIndicator(
+                modifier = Modifier.testTag(TEST_TAG),
+                progress = progress.value
+            )
+        }
+
+        rule.runOnIdle { progress.value = 1.5f }
+
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
+    }
+
+    @Test
+    fun coerces_lowest_out_of_bound_progress() {
+        val progress = mutableStateOf(0f)
+
+        rule.setContentWithTheme {
+            CircularProgressIndicator(
+                modifier = Modifier.testTag(TEST_TAG),
+                progress = progress.value
+            )
+        }
+
+        rule.runOnIdle { progress.value = -1.5f }
+
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

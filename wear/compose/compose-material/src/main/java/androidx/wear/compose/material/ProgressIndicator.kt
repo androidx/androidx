@@ -13,8 +13,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -48,8 +50,6 @@ import kotlin.math.min
  * class="external" target="_blank">Material Design circular progress indicator</a>.
  *
  * Progress indicators express the proportion of completion of an ongoing task.
- *
- * This is a purely visual component that is not focusable for accessibility purposes.
  *
  * [Progress Indicator
  * doc](https://developer.android.com/training/wearables/components/progress-indicator) ![Progress
@@ -92,19 +92,24 @@ public fun CircularProgressIndicator(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
-        modifier.size(ButtonCircularIndicatorDiameter).drawWithCache {
-            val backgroundSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
-            val progressSweep = backgroundSweep * progress.coerceIn(0f..1f)
-            val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        modifier
+            // trimming progress to 2 decimal digits
+            .progressSemantics(Math.round(progress * 100) / 100.0f)
+            .size(ButtonCircularIndicatorDiameter)
+            .focusable()
+            .drawWithCache {
+                val backgroundSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
+                val progressSweep = backgroundSweep * progress.coerceIn(0f..1f)
+                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
 
-            onDrawWithContent {
-                // Draw a background
-                drawCircularIndicator(startAngle, backgroundSweep, trackColor, stroke)
+                onDrawWithContent {
+                    // Draw a background
+                    drawCircularIndicator(startAngle, backgroundSweep, trackColor, stroke)
 
-                // Draw a progress
-                drawCircularIndicator(startAngle, progressSweep, indicatorColor, stroke)
+                    // Draw a progress
+                    drawCircularIndicator(startAngle, progressSweep, indicatorColor, stroke)
+                }
             }
-        }
     )
 }
 
@@ -114,8 +119,6 @@ public fun CircularProgressIndicator(
  * class="external" target="_blank">Material Design circular progress indicator</a>.
  *
  * Indeterminate progress indicator expresses an unspecified wait time and spins indefinitely.
- *
- * This is a purely visual component that is not focusable for accessibility purposes.
  *
  * [Progress Indicator
  * doc](https://developer.android.com/training/wearables/components/progress-indicator) ![Progress
@@ -197,26 +200,30 @@ public fun CircularProgressIndicator(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
-        modifier.size(IndeterminateCircularIndicatorDiameter).drawWithCache {
-            val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        modifier
+            .progressSemantics()
+            .size(IndeterminateCircularIndicatorDiameter)
+            .focusable()
+            .drawWithCache {
+                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
 
-            val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
-            // How long a line to draw using the start angle as a reference point
-            val sweep = abs(endAngle - startProgressAngle)
+                val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
+                // How long a line to draw using the start angle as a reference point
+                val sweep = abs(endAngle - startProgressAngle)
 
-            // Offset by the constant offset and the per rotation offset
-            val offset = (startAngle + currentRotationAngleOffset + baseRotation) % 360f
+                // Offset by the constant offset and the per rotation offset
+                val offset = (startAngle + currentRotationAngleOffset + baseRotation) % 360f
 
-            onDrawWithContent {
-                drawCircularIndicator(0f, 360f, trackColor, stroke)
-                drawIndeterminateCircularIndicator(
-                    startProgressAngle + offset,
-                    sweep,
-                    indicatorColor,
-                    stroke
-                )
+                onDrawWithContent {
+                    drawCircularIndicator(0f, 360f, trackColor, stroke)
+                    drawIndeterminateCircularIndicator(
+                        startProgressAngle + offset,
+                        sweep,
+                        indicatorColor,
+                        stroke
+                    )
+                }
             }
-        }
     )
 }
 
