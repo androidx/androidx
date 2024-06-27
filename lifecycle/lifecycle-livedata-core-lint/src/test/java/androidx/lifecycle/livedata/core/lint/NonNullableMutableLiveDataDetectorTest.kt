@@ -1031,6 +1031,54 @@ Fix for src/com/example/test.kt line 9: Add non-null asserted (!!) call:
             .expectClean()
     }
 
+    @Test
+    fun lambdaParameterFromMediatorLiveData() {
+        // Regression test from b/341316048
+        // https://youtrack.jetbrains.com/issue/KTIJ-30464
+        check(
+                kotlin(
+                        """
+                    package androidx.lifecycle
+
+                    fun interface Observer<T> {
+                      fun onChanged(value: T)
+                    }
+                """
+                    )
+                    .indented(),
+                java(
+                        """
+                    package androidx.lifecycle;
+
+                    public class MediatorLiveData<T> extends MutableLiveData<T> {
+                        public <S> void addSource(LiveData<S> source, Observer<? super S> onChanged) {
+                        }
+                    }
+                """
+                    )
+                    .indented(),
+                kotlin(
+                        """
+                    import androidx.lifecycle.MediatorLiveData
+
+                    class Test {
+                        val myData = MediatorLiveData<List<Boolean>>()
+
+                        init {
+                          myData.addSource(getSources()) { data ->
+                            myData.value = data
+                          }
+                        }
+
+                        private fun getSources(): MediatorLiveData<List<Boolean>> = TODO()
+                    }
+                """
+                    )
+                    .indented()
+            )
+            .expectClean()
+    }
+
     private companion object {
         val DATA_LIB: TestFile =
             bytecode(
